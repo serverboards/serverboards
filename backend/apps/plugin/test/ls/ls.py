@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python -u
 
 import sys, json, os
 
@@ -22,8 +22,20 @@ def run_line(s):
             id=msg['id'],
             error="unknown method"
             ))
-    print res
+    return res
 
+log=open("/tmp/log","w")
 if __name__=='__main__':
-    for l in sys.stdin.readlines():
-        run_line(l.strip())
+    print '{"method":"ready", "params":[]}'
+    sys.stdout.flush()
+    while True:
+        l=sys.stdin.readline().strip()
+        if not l:
+            break
+        #print l
+        log.write(l+'\n')
+        res=run_line(l.strip())
+        log.write(res+'\n')
+        print res
+        sys.stdout.flush()
+        log.write('--\n')
