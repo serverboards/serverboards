@@ -154,4 +154,25 @@ defmodule Plugin.Registry do
 			nil
 		end
 	end
+
+	@doc ~S"""
+	Find a component by id:
+
+		iex> Plugin.Registry.read_dir("test")
+		iex> ls = Plugin.Registry.find_component("serverboards.example.ls/ls")
+		iex> ls.id
+		"ls"
+		iex> ls.extra["cmd"]
+		"./ls.py"
+
+	"""
+	def find_component(id) do
+		 [plugin_id, component_id] = String.split(id, "/")
+		 plugin=find(plugin_id)
+		 component = Enum.find( plugin.components, nil, fn comp ->
+			 comp.id == component_id
+		 end)
+
+		 component
+	end
 end
