@@ -44,7 +44,7 @@ defmodule IoCmd do
 	def handle_call({:call, msg}, from, %{ msgid: msgid, waiting: waiting, port: port } = state) do
 		{:ok, json} = JSON.encode( Map.put( msg, :id, msgid ) ) # FIXME id has to change over time
 		state=%{state | msgid: msgid+1, waiting: Map.put(waiting, msgid, from) }
-		Logger.debug("Calling #{inspect state.port} method with this json: #{json}. #{inspect state}")
+		#Logger.debug("Calling #{inspect state.port} method with this json: #{json}")
 		# Send command and \n
 		Port.command(port, "#{json}\n")
 
@@ -58,13 +58,11 @@ defmodule IoCmd do
 
 	def handle_info({ port, {:data, {:eol, json}}}, state) do
 
-		Logger.debug("Got info #{inspect json}, #{inspect state}")
 		{:ok, msg} = JSON.decode( json )
 		state = case msg do
 			%{"result" => result, "id" => msgid} -> # response
-				Logger.debug("Msgid is #{msgid}")
 				to = Map.get(state.waiting, msgid)
-				Logger.debug("Answer is #{inspect result} to #{inspect to}")
+				Logger.debug("Answer is #{inspect result} for id #{msgid}")
 				GenServer.reply(to, result)
 				%{ state | waiting: Map.drop(state.waiting, [msgid]) }
 				state
@@ -75,7 +73,6 @@ defmodule IoCmd do
 				Logger.debug("Dont know how to process #{inspect msg}")
 				state
 		end
-		Logger.debug("Done")
     {:noreply, state}
   end
 end
