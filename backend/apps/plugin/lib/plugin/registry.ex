@@ -40,8 +40,13 @@ defmodule Plugin.Registry do
 		load_plugin_manifest = fn (dirname) ->
 			yamlfile = dirname <> "/manifest.yaml"
 			{:ok, yaml} = File.read(yamlfile)
-			manifest = Plugin.Reader.parse_yaml( yaml )
-			manifest = %{ manifest | path: dirname }
+			manifest = case Plugin.Reader.parse_yaml( yaml ) do
+				{:error, msg} ->
+					Logger.error("Error loading plugin manifest at #{dirname}: #{msg}")
+					nil
+				{:ok, manifest} ->
+					%{ manifest | path: dirname }
+			end
 
 			manifest
 		end
@@ -53,6 +58,10 @@ defmodule Plugin.Registry do
 			|> filter(&is_directory.(dirname, &1))
 			|> filter(&has_manifest.(dirname<>"/"<>&1))
 			|> map(&load_plugin_manifest.(dirname<>"/"<>&1))
+			|> filter(fn x -> case x do
+					nil -> false
+					_ -> true
+				end end)
 
 		ensure_plugin_registry_exists()
 		for p <- plugins do
