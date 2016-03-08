@@ -15,6 +15,7 @@ defmodule Router do
 		"test"
 	"""
 	def start_link do
+		Logger.info("Router ready")
 		GenServer.start_link(__MODULE__, %{}, [])
 	end
 
@@ -24,6 +25,25 @@ defmodule Router do
 
 	def add_method(router, method, f) do
 		GenServer.call(router, {:add_method, method, f})
+	end
+
+	@doc ~S"""
+	Processes a JSON mesage and returns the JSON response
+
+		iex> {:ok, router} = Router.start_link
+		iex> Router.call_json(router, "{\"method\":\"version\", \"id\":0, \"params\":[]}")
+		"{\"id\":0,\"result\":\"0.0.1\"}"
+	"""
+	def call_json(router, smsg) do
+		{:ok, msg} = JSON.decode(smsg)
+
+		ret = Router.call(router, msg["method"], msg["params"])
+
+		res = %{ "id" => msg["id"], "result" => ret}
+		{:ok, json} = JSON.encode(res)
+
+		Logger.info("Got JSON RPC method #{smsg}: #{json}")
+		json
 	end
 
 	## Server callbacks
