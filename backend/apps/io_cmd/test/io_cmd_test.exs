@@ -1,8 +1,6 @@
 defmodule IoCmdTest do
   use ExUnit.Case
-  doctest IoCmd
+  @moduletag :capture_log
 
-  test "the truth" do
-    assert 1 + 1 == 2
-  end
+  doctest IoCmd
 end
