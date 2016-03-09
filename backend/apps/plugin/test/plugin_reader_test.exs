@@ -1,4 +1,4 @@
 defmodule PluginReaderTest do
   use ExUnit.Case
-  doctest Plugin.Reader
+  doctest Serverboards.Plugin.Reader
 end

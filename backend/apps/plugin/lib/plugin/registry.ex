@@ -1,10 +1,13 @@
 require File
 require Logger
 
-defmodule Plugin.Registry do
+defmodule Serverboards.Plugin.Registry do
+	alias Serverboards.Plugin
+
 	@doc ~S"""
 	Reads all yaml from the given directory:
 
+		iex> alias Serverboards.Plugin
 		iex> plugin = hd Plugin.Registry.read_dir("test")
 		iex> plugin.author
 		"David Moreno <dmoreno@serverboards.io>"
@@ -86,6 +89,7 @@ defmodule Plugin.Registry do
 	@doc ~S"""
 	Finds a plugin by id:
 
+		iex> alias Serverboards.Plugin
 		iex> Plugin.Registry.read_dir("test")
 		iex> example = Plugin.Registry.find("serverboards.example.ls")
 		iex> example.path
@@ -110,6 +114,7 @@ defmodule Plugin.Registry do
 	@doc ~S"""
 	Lists all known plugins
 
+		iex> alias Serverboards.Plugin
 		iex> Plugin.Registry.read_dir("test")
 		iex> Plugin.Registry.clear()
 		iex> Plugin.Registry.list()
@@ -128,6 +133,7 @@ defmodule Plugin.Registry do
 	@doc ~S"""
 	Clears the registry. Will need a new call to `read_dir`
 
+		iex> alias Serverboards.Plugin
 		iex> Plugin.Registry.read_dir("test")
 		iex> Plugin.Registry.clear()
 		iex> Plugin.Registry.clear() # idempotent
@@ -158,6 +164,7 @@ defmodule Plugin.Registry do
 	@doc ~S"""
 	Find a component by id:
 
+		iex> alias Serverboards.Plugin
 		iex> Plugin.Registry.read_dir("test")
 		iex> ls = Plugin.Registry.find_component("serverboards.example.ls/ls")
 		iex> ls.id

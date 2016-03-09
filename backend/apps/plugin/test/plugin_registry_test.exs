@@ -2,5 +2,5 @@ defmodule PluginRegistryTest do
   use ExUnit.Case
   @moduletag :capture_log
 
-  doctest Plugin.Registry
+  doctest Serverboards.Plugin.Registry
 end

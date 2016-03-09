@@ -1,6 +1,6 @@
 defmodule PluginTest do
   use ExUnit.Case
-  doctest Plugin
-  doctest Plugin.Component
+  doctest Serverboards.Plugin
+  doctest Serverboards.Plugin.Component
 
 end

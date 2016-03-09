@@ -1,10 +1,12 @@
 require Logger
 
-defmodule Plugin.Reader do
+defmodule Serverboards.Plugin.Reader do
+	alias Serverboards.Plugin
 
 	@doc ~S"""
 	Parses a yaml file and returns a Plugin structure:
 
+		iex> alias Serverboards.Plugin
 		iex> {:ok, plugin} = Plugin.Reader.parse_yaml "id: serverboards.ls\nname: \"Ls\"\nauthor: \"David Moreno\"\nversion: 0.0.1\ncomponents:\n  - id: ls\n    name: ls\n    version: 0.0.1\n    cmd: ./ls\n"
 		iex> plugin.id
 		"serverboards.ls"
@@ -54,7 +56,7 @@ defmodule Plugin.Reader do
 						end
 					end)
 
-				%Plugin.Component{
+				%Serverboards.Plugin.Component{
 					id: id,
 					name: name,
 					version: version,
