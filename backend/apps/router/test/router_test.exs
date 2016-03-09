@@ -1,8 +1,6 @@
 defmodule RouterTest do
   use ExUnit.Case
+  @moduletag :capture_log
+  
   doctest Router
-
-  test "the truth" do
-    assert 1 + 1 == 2
-  end
 end

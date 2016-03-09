@@ -15,7 +15,7 @@ defmodule Router do
 		"test"
 	"""
 	def start_link do
-		Logger.info("Router ready")
+		Logger.debug("Router ready")
 		GenServer.start_link(__MODULE__, %{}, [])
 	end
 
@@ -42,7 +42,7 @@ defmodule Router do
 		res = %{ "id" => msg["id"], "result" => ret}
 		{:ok, json} = JSON.encode(res)
 
-		Logger.info("Got JSON RPC method #{smsg}: #{json}")
+		#Logger.debug("Got JSON RPC method #{smsg}: #{json}")
 		json
 	end
 
