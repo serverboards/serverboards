@@ -1,16 +1,16 @@
 require Logger
 
-defmodule IoCmd do
+defmodule Serverboards.IoCmd do
 	use GenServer
 
 	@doc ~S"""
 	Runs a command (to properly shlex), and returns the handler to be able to
 	comunicate with it
 
-		iex> {:ok, ls} = IoCmd.start_link("test/ls/ls.py")
-		iex> IoCmd.call( ls, "ls", ["."])
+		iex> {:ok, ls} = Serverboards.IoCmd.start_link("test/ls/ls.py")
+		iex> Serverboards.IoCmd.call( ls, "ls", ["."])
 		[".gitignore", "test", "lib", "mix.exs", "config", "README.md"]
-		iex> IoCmd.call( ls, "ls", ["."])
+		iex> Serverboards.IoCmd.call( ls, "ls", ["."])
 		[".gitignore", "test", "lib", "mix.exs", "config", "README.md"]
 
 	"""
@@ -56,7 +56,7 @@ defmodule IoCmd do
 		{:noreply, state}
 	end
 
-	def handle_info({ port, {:data, {:eol, json}}}, state) do
+	def handle_info({ _, {:data, {:eol, json}}}, state) do
 
 		{:ok, msg} = JSON.decode( json )
 		state = case msg do
@@ -66,11 +66,11 @@ defmodule IoCmd do
 				GenServer.reply(to, result)
 				%{ state | waiting: Map.drop(state.waiting, [msgid]) }
 				state
-			%{"method" => method, "params" => params} -> # new call, async
+			%{"method" => _, "params" => _} -> # new call, async
 				Logger.debug("No broadcast messages yet")
 				state
 			other ->
-				Logger.debug("Dont know how to process #{inspect msg}")
+				Logger.debug("Dont know how to process #{inspect other}")
 				state
 		end
     {:noreply, state}

@@ -1,8 +1,9 @@
 require Logger
 
-defmodule Router do
+defmodule Serverboards.Router do
 	use GenServer
 	use Application
+	alias Serverboards.Router, as: Router
 
 	def start(_type, _args) do
     Router.Supervisor.start_link
@@ -11,6 +12,7 @@ defmodule Router do
 	@doc ~S"""
 	Starts the Router actor
 
+		iex> alias Serverboards.Router, as: Router
 		iex> Router.call(Router, "version")
 		"0.0.1"
 		iex> Router.call(Router, "version", [])
@@ -35,6 +37,7 @@ defmodule Router do
 	@doc ~S"""
 	Processes a JSON mesage and returns the JSON response
 
+		iex> alias Serverboards.Router, as: Router
 		iex> Router.call_json(Router, "{\"method\":\"version\", \"id\":0, \"params\":[]}")
 		"{\"id\":0,\"result\":\"0.0.1\"}"
 	"""
@@ -71,6 +74,7 @@ defmodule Router do
 	@doc ~S"""
 	Adds a callback to the method registry
 
+		iex> import Serverboards
 		iex> {:ok, state} = Router.init()
 		iex> {:reply, :ok, state} = Router.handle_call({:add_method, "test", fn [] -> :ok end}, nil, state)
 		iex> {:reply, res, state} = Router.handle_call({:call, "test", []}, nil, state)

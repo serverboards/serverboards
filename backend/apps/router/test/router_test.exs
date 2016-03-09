@@ -1,6 +1,6 @@
-defmodule RouterTest do
+defmodule Serverboards.RouterTest do
   use ExUnit.Case
   @moduletag :capture_log
-  
-  doctest Router
+
+  doctest Serverboards.Router
 end

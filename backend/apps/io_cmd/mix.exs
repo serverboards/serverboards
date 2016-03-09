@@ -18,7 +18,7 @@ defmodule IoCmd.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :router]]
   end
 
   # Dependencies can be Hex packages:
@@ -36,7 +36,8 @@ defmodule IoCmd.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      { :json,   "~> 0.3.0"}
+      { :json,   "~> 0.3.0"},
+      { :router, in_umbrella: true},
     ]
   end
 end

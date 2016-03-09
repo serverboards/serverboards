@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Router.Supervisor do
+defmodule Serverboards.Router.Supervisor do
 	use Supervisor
 
 	def start_link do
@@ -11,7 +11,7 @@ defmodule Router.Supervisor do
 		#Logger.debug("Starting router supervisor")
 
 		 children=[
-			 worker(Router, [Router] )
+			 worker(Serverboards.Router, [Serverboards.Router] )
 		 ]
 
 		 supervise(children, strategy: :one_for_one)

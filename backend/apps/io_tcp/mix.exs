@@ -20,7 +20,7 @@ defmodule IoTcp.Mixfile do
   def application do
     [
       applications: [:logger, :router],
-      mod: {IoTcp, []},
+      mod: {Serverboards.IoTcp, []},
     ]
   end
 

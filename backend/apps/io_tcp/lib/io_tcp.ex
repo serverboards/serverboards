@@ -1,8 +1,10 @@
 require Logger
 require JSON
 
-defmodule IoTcp do
+defmodule Serverboards.IoTcp do
 	use Application
+	alias Serverboards.IoTcp, as: IoTcp
+	alias Serverboards.Router, as: Router
 
 	def start(_type, _args) do
 		import Supervisor.Spec

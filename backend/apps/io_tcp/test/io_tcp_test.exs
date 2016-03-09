@@ -1,8 +1,8 @@
-defmodule IoTcpTest do
+defmodule Serverboards.IoTcpTest do
   use ExUnit.Case
   @moduletag :capture_log
 
-  doctest IoTcp
+  doctest Serverboards.IoTcp
 
   setup do
     Application.stop(:io_tcp)

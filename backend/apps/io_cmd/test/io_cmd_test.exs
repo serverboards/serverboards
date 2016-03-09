@@ -1,6 +1,6 @@
-defmodule IoCmdTest do
+defmodule Serverboards.IoCmdTest do
   use ExUnit.Case
   @moduletag :capture_log
 
-  doctest IoCmd
+  doctest Serverboards.IoCmd
 end
