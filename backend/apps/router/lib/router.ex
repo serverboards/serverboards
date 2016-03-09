@@ -11,12 +11,11 @@ defmodule Router do
 	@doc ~S"""
 	Starts the Router actor
 
-		iex> {:ok, router} = Router.start_link(Router)
-		iex> Router.call(router, "version")
+		iex> Router.call(Router, "version")
 		"0.0.1"
-		iex> Router.call(router, "version", [])
+		iex> Router.call(Router, "version", [])
 		"0.0.1"
-		iex> Router.call(router, "ping", ["test"])
+		iex> Router.call(Router, "ping", ["test"])
 		"test"
 	"""
 	def start_link(name) do
@@ -36,8 +35,7 @@ defmodule Router do
 	@doc ~S"""
 	Processes a JSON mesage and returns the JSON response
 
-		iex> {:ok, router} = Router.start_link(Router)
-		iex> Router.call_json(router, "{\"method\":\"version\", \"id\":0, \"params\":[]}")
+		iex> Router.call_json(Router, "{\"method\":\"version\", \"id\":0, \"params\":[]}")
 		"{\"id\":0,\"result\":\"0.0.1\"}"
 	"""
 	def call_json(router, smsg) do
