@@ -23,20 +23,47 @@ defmodule Serverboards.Plugin.Reader do
 
 	"""
 	def parse_yaml(yaml) do
-		try do
-			plugin_unstruct = YamlElixir.read_from_string(yaml)
+		# Some helper functions to keep all tidy
 
-			# decompose required fields
-			%{"id" => id,
-				"name" => name,
-				"author" => author,
-				"version" => version
-				} = plugin_unstruct
+		read_from_string = fn yaml ->
+			try do
+				{:ok, YamlElixir.read_from_string(yaml)}
+			rescue e in MatchError ->
+				{:error, :no_yaml, e}
+			end
+		end
 
-			description = plugin_unstruct |> Map.get("description", "")
-			components = plugin_unstruct |> Map.get("components", [])
+		read_base_fields = fn data ->
+			try do
+				# decompose required fields
+				%{"id" => id,
+					"name" => name,
+					"author" => author,
+					"version" => version
+					} = data
 
-			# decomposes a map with the component data to a Plugin.Component struct
+				# create basic plugin
+				plugin = %Plugin{
+						id: id,
+						name: name,
+						author: author,
+						version: version,
+					}
+				{:ok, plugin, data}
+			rescue e in MatchError ->
+				{:error, :no_basic_fields, e}
+			end
+		end
+
+		add_extra_fields = fn (plugin, data) ->
+			description = data |> Map.get("description", "")
+
+			plugin = %Plugin{ plugin | description: description }
+			{:ok, plugin, data}
+		end
+
+
+		add_components = fn (plugin, data) ->
 			unstruct_component = fn component_unstruct ->
 				# decompose required fields
 				%{"id" => id,
@@ -64,16 +91,26 @@ defmodule Serverboards.Plugin.Reader do
 				}
 			end
 
-			{:ok, %Plugin{
-				id: id,
-				name: name,
-				author: author,
-				version: version,
-				description: description,
-				components: (for n <- components, do: unstruct_component.(n))
-			}}
-		rescue MatchError ->
-			{:error, "Invalid format"}
+			components = data |> Map.get("components", [])
+			try do
+	 			components = (for n <- components, do: unstruct_component.(n))
+
+				plugin = %Plugin{ plugin | components: components }
+				{:ok, plugin, data}
+			rescue e in MatchError ->
+				{:error, :invalid_component, e}
+			end
 		end
+
+
+
+		plugin =
+		 with {:ok, data} <- read_from_string.(yaml),
+					{:ok, plugin, data} <- read_base_fields.(data),
+					{:ok, plugin, data} <- add_extra_fields.(plugin, data),
+					{:ok, plugin, data} <- add_components.(plugin, data),
+					do: {:ok, plugin}
+
+		plugin
 	end
 end

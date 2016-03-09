@@ -44,8 +44,8 @@ defmodule Serverboards.Plugin.Registry do
 			yamlfile = dirname <> "/manifest.yaml"
 			{:ok, yaml} = File.read(yamlfile)
 			manifest = case Plugin.Reader.parse_yaml( yaml ) do
-				{:error, msg} ->
-					Logger.error("Error loading plugin manifest at #{dirname}: #{msg}")
+				{:error, code, _} ->
+					Logger.error("Error loading plugin manifest at #{dirname}: #{inspect code}")
 					nil
 				{:ok, manifest} ->
 					%{ manifest | path: dirname }
