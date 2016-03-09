@@ -14,13 +14,15 @@ defmodule Serverboards.IoCmd do
 		[".gitignore", "test", "lib", "mix.exs", "config", "README.md"]
 
 	"""
-	def start_link(cmd, opts \\ []) do
-		GenServer.start_link(__MODULE__, cmd, opts)
+	def start_link(cmd, args \\ [], cmdopts \\ [], opts \\ []) do
+		GenServer.start_link(__MODULE__, {cmd, args, cmdopts}, opts)
 	end
 
-	def init(cmd) do
+	def init({cmd, args, cmdopts}) do
 		fullcmd="#{System.cwd}/#{cmd}"
-		port = Port.open({:spawn_executable, cmd}, [:stream, :line, :use_stdio])
+
+		cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
+		port = Port.open({:spawn_executable, cmd}, cmdopts)
 		Logger.debug("Starting command #{fullcmd} at port #{inspect port}")
 		Port.connect(port, self())
 
