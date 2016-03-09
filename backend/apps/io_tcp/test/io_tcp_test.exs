@@ -14,12 +14,16 @@ defmodule IoTcpTest do
     {:ok, socket: socket}
   end
 
-  test "check version", %{socket: socket} do
-    :ok = :gen_tcp.send(socket, call_to_json("version", [], 0) <> "\n")
-    {:ok, json} = :gen_tcp.recv(socket, 0, 1000)
-    response = json_to_result( json )
+  test "check basic comm", %{socket: socket} do
+    assert call(socket, "version", []) == "0.0.1"
+    assert call(socket, "ping", ["pong"]) == "pong"
+  end
 
-    assert response == result("0.0.1", 0)
+  def call(socket, method, params) do
+    :ok = :gen_tcp.send(socket, call_to_json(method, params, 0) <> "\n")
+    {:ok, json} = :gen_tcp.recv(socket, 0, 1000)
+    %{ "result" => result } = json_to_result( json )
+    result
   end
 
   def call_to_json(method, params, id) do
