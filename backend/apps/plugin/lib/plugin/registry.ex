@@ -143,7 +143,7 @@ defmodule Serverboards.Plugin.Registry do
 	def find(id) do
 
 		res = find_plugin(id, list())
-		Logger.debug("Result: #{inspect res}")
+		#Logger.debug("Result: #{inspect res}")
 		res
 	end
 
@@ -153,13 +153,13 @@ defmodule Serverboards.Plugin.Registry do
 	# if so, check if its fully equal, and use component_id+method appropiately
 	# calling to check for component+method, if no result, keep iterating
 	defp find_plugin(id, []) do
-		Logger.debug("Empty")
+		#Logger.debug("Empty")
 		:not_found
 	end
 	defp find_plugin(id, list) do
 		inspect_id = hd list
 
-		Logger.debug("Possible candidate for #{id}, #{inspect_id}?")
+		#Logger.debug("Possible candidate for #{id}, #{inspect_id}?")
 		if String.starts_with?(id, inspect_id) do
 
 			cut_point = if id == inspect_id do
@@ -168,7 +168,7 @@ defmodule Serverboards.Plugin.Registry do
 				String.length(inspect_id)+1
 			end
 			{_, component_method} = String.split_at(id, cut_point)
-			Logger.debug("Looks good, #{inspect_id}/#{component_method}")
+			#Logger.debug("Looks good, #{inspect_id}/#{component_method}")
 
 			plugin = find_plugin(inspect_id)
 
@@ -188,10 +188,10 @@ defmodule Serverboards.Plugin.Registry do
 
 	defp find_component(id, list) do
 		inspect_id = hd(list).id
-		Logger.debug("Possible component candidate for #{id}, #{inspect_id}?")
+		#Logger.debug("Possible component candidate for #{id}, #{inspect_id}?")
 
 		if String.starts_with?(id, inspect_id) do
-			Logger.debug("Found!")
+			#Logger.debug("Found!")
 
 			cut_point = if id == inspect_id do
 				rindex(id, ".")
