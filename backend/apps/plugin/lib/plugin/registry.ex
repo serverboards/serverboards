@@ -17,11 +17,6 @@ defmodule Serverboards.Plugin.Registry do
 		"0.0.1"
 		iex> plugin.path
 		"test/ls"
-		iex> Plugin.Registry.find(plugin.id)
-		plugin
-		iex> Plugin.Registry.read_dir("test")
-		iex> Plugin.Registry.find(plugin.id)
-		plugin
 	"""
 	def read_dir(dirname) do
 		is_directory = fn (dirname, filename) ->
@@ -91,16 +86,143 @@ defmodule Serverboards.Plugin.Registry do
 
 		iex> alias Serverboards.Plugin
 		iex> Plugin.Registry.read_dir("test")
-		iex> example = Plugin.Registry.find("serverboards.example.ls")
+		iex> example = Plugin.Registry.find_plugin("serverboards.example.ls")
 		iex> example.path
 		"test/ls"
 
 	"""
-	def find(id) do
+	def find_plugin(id) do
 		case :ets.lookup(:plugin_registry, id) do
 			[{^id, plugin}] -> plugin
 			[] -> :not_found
 		end
+	end
+
+	@doc ~S"""
+	Finds by id the plugin, component and method name.
+
+	A full string as serverboards.example.ls.ls.ls might be
+	refering to the full chain of plugin "serververboards.example.ls",
+	component "ls" and method "ls" again.
+
+		iex> alias Serverboards.Plugin
+		iex> Plugin.Registry.read_dir("test")
+		iex> {plugin, component, method_name} = Plugin.Registry.find("serverboards.example.ls.ls.ls")
+		iex> plugin.id
+		"serverboards.example.ls"
+		iex> component.id
+		"ls"
+		iex> method_name
+		"ls"
+
+	A shortcut for this is be "serverboards.example.ls" where the
+	last part is checked against component (same name as last part of plugin)
+	and again against method.
+
+		iex> alias Serverboards.Plugin
+		iex> Plugin.Registry.read_dir("test")
+		iex> {plugin, component, method_name} = Plugin.Registry.find("serverboards.example.ls")
+		iex> plugin.id
+		"serverboards.example.ls"
+		iex> component.id
+		"ls"
+		iex> method_name
+		"ls"
+
+	This operation is slow, and should not be performed lightly.
+
+		iex> alias Serverboards.Plugin
+		iex> Plugin.Registry.read_dir("test")
+		iex> Plugin.Registry.find("non_existant.id.method")
+		:not_found
+
+	Returns:
+	 :not_found
+	 {plugin, component, method_name}
+	"""
+	def find(id) do
+
+		res = find_plugin(id, list())
+		Logger.debug("Result: #{inspect res}")
+		res
+	end
+
+	# recursive loop over list and check if id is the begining of the first
+	# id in the list.
+
+	# if so, check if its fully equal, and use component_id+method appropiately
+	# calling to check for component+method, if no result, keep iterating
+	defp find_plugin(id, []) do
+		Logger.debug("Empty")
+		:not_found
+	end
+	defp find_plugin(id, list) do
+		inspect_id = hd list
+
+		Logger.debug("Possible candidate for #{id}, #{inspect_id}?")
+		if String.starts_with?(id, inspect_id) do
+
+			cut_point = if id == inspect_id do
+				rindex(id, ".")
+			else
+				String.length(inspect_id)+1
+			end
+			{_, component_method} = String.split_at(id, cut_point)
+			Logger.debug("Looks good, #{inspect_id}/#{component_method}")
+
+			plugin = find_plugin(inspect_id)
+
+			case find_component(component_method, plugin.components) do
+				{component, method} -> {plugin, component, method}
+				:not_found -> find_plugin(id, tl list)
+			end
+		else
+			find_plugin(id, tl list)
+		end
+	end
+
+	# recursive loop to find for component on the given component list
+	defp find_component(id, []) do
+		:not_found
+	end
+
+	defp find_component(id, list) do
+		inspect_id = hd(list).id
+		Logger.debug("Possible component candidate for #{id}, #{inspect_id}?")
+
+		if String.starts_with?(id, inspect_id) do
+			Logger.debug("Found!")
+
+			cut_point = if id == inspect_id do
+				rindex(id, ".")
+			else
+				String.length(inspect_id)+1
+			end
+			{_, method_name} = String.split_at(id, cut_point)
+
+			{(hd list), method_name}
+		else
+			find_component(id, tl list)
+		end
+
+	end
+
+	~S"""
+	Returns the following character of the first c found.
+	"""
+	defp rindex(str, c, 0) do
+		0
+	end
+	defp rindex(str, c, n) do
+		if String.at(str, n) == c do
+			n + 1
+		else
+			rindex(str, c, n-1)
+		end
+	end
+
+	defp rindex(str, c) do
+		rindex(str, c, String.length( str ) )
 	end
 
 
@@ -159,27 +281,5 @@ defmodule Serverboards.Plugin.Registry do
 		rescue ArgumentError ->
 			nil
 		end
-	end
-
-	@doc ~S"""
-	Find a component by id:
-
-		iex> alias Serverboards.Plugin
-		iex> Plugin.Registry.read_dir("test")
-		iex> ls = Plugin.Registry.find_component("serverboards.example.ls/ls")
-		iex> ls.id
-		"ls"
-		iex> ls.extra["cmd"]
-		"./ls.py"
-
-	"""
-	def find_component(id) do
-		 [plugin_id, component_id] = String.split(id, "/")
-		 plugin=find(plugin_id)
-		 component = Enum.find( plugin.components, nil, fn comp ->
-			 comp.id == component_id
-		 end)
-
-		 component
 	end
 end

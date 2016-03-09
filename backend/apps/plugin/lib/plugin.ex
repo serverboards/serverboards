@@ -46,5 +46,4 @@ defmodule Serverboards.Plugin do
 		path: "",
 		components: []
 	]
-
 end
