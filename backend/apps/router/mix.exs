@@ -18,7 +18,8 @@ defmodule Router.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger],
+     mod: {Router, []}]
   end
 
   # Dependencies can be Hex packages:

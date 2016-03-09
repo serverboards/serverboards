@@ -2,11 +2,16 @@ require Logger
 
 defmodule Router do
 	use GenServer
+	use Application
+
+	def start(_type, _args) do
+    Router.Supervisor.start_link
+  end
 
 	@doc ~S"""
 	Starts the Router actor
 
-		iex> {:ok, router} = Router.start_link
+		iex> {:ok, router} = Router.start_link(Router)
 		iex> Router.call(router, "version")
 		"0.0.1"
 		iex> Router.call(router, "version", [])
@@ -14,9 +19,10 @@ defmodule Router do
 		iex> Router.call(router, "ping", ["test"])
 		"test"
 	"""
-	def start_link do
-		Logger.debug("Router ready")
-		GenServer.start_link(__MODULE__, %{}, [])
+	def start_link(name) do
+		r=GenServer.start_link(__MODULE__, %{}, [name: name])
+		#Logger.debug("Router ready")
+		r
 	end
 
 	def call(router, method, args \\ []) do
@@ -30,13 +36,14 @@ defmodule Router do
 	@doc ~S"""
 	Processes a JSON mesage and returns the JSON response
 
-		iex> {:ok, router} = Router.start_link
+		iex> {:ok, router} = Router.start_link(Router)
 		iex> Router.call_json(router, "{\"method\":\"version\", \"id\":0, \"params\":[]}")
 		"{\"id\":0,\"result\":\"0.0.1\"}"
 	"""
 	def call_json(router, smsg) do
 		{:ok, msg} = JSON.decode(smsg)
 
+		#Logger.debug("Do call #{inspect smsg}")
 		ret = Router.call(router, msg["method"], msg["params"])
 
 		res = %{ "id" => msg["id"], "result" => ret}
@@ -89,8 +96,9 @@ defmodule Router do
 		else
 			# launch as new task, and forget, if fails, use supervisor tree
 			Task.start_link fn ->
+				#Logger.debug("Call #{name}(#{params})")
 				res = f.(params)
-				#Logger.debug("Got answer for #{inspect from}: #{inspect res}")
+				#Logger.debug("Got answer #{res}")
 				GenServer.reply(from, res)
 			end
 			{:noreply,  state}
