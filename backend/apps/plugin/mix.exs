@@ -40,7 +40,8 @@ defmodule Plugin.Mixfile do
   defp deps do
     [
       { :yaml_elixir, "~> 1.0.0" },
-      { :yamerl, github: "yakaz/yamerl" }
+      { :yamerl, github: "yakaz/yamerl" },
+      { :router, in_umbrella: true},
     ]
   end
 end
