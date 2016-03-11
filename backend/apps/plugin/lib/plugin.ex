@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.Plugin.Component do
 	@doc ~S"""
 	Each of the components:
@@ -16,6 +18,34 @@ defmodule Serverboards.Plugin.Component do
 		description: "",
 		extra: %{}
 	]
+
+	@doc ~S"""
+	 Executes the command of one component of this plugin.
+
+	## Examples
+
+		iex> require Logger
+		iex> alias Serverboards.{Plugin, Router, Peer}
+		iex> plugin = hd Plugin.Registry.read_dir("test").plugins
+		iex> {:ok, component, method} = Router.lookup(plugin, "ls.ls")
+		iex> {:ok, running_component} = Plugin.Component.start(component) # no error returned
+		iex> Logger.debug("running component #{inspect running_component}")
+		iex> res = Peer.call(running_component, method, ["."]) # do a call
+		iex> Enum.count(res) > 0
+		true
+		iex> Plugin.Component.stop(running_component) # finalize the running_component
+		:ok
+
+	"""
+	def start(%Serverboards.Plugin.Component{ extra: %{ "cmd" => cmd }} ) do
+		running_component = Serverboards.IoCmd.start_link(cmd, [], [cd: Path.dirname(cmd)])
+		Logger.debug("running component response  #{inspect running_component}")
+		running_component
+	end
+
+	def stop(running_component) do
+		Serverboards.IoCmd.stop(running_component)
+	end
 end
 
 defmodule Serverboards.Plugin do
@@ -49,14 +79,14 @@ defmodule Serverboards.Plugin do
 	@doc ~S"""
 	Searchs for a component inside the plugin.
 
-	iex> plugin = hd Serverboards.Plugin.Registry.read_dir("test")
+	iex> plugin = hd Serverboards.Plugin.Registry.read_dir("test").plugins
 	iex> {:ok, component, rest} = Serverboards.Router.lookup(plugin, "ls.ls")
 	iex> component.id
 	"ls"
 	iex> rest
 	"ls"
 
-	iex> plugin = hd Serverboards.Plugin.Registry.read_dir("test")
+	iex> plugin = hd Serverboards.Plugin.Registry.read_dir("test").plugins
 	iex> Serverboards.Router.lookup(plugin, "nonexistent.rest")
 	{:error, :not_found}
 
@@ -93,6 +123,6 @@ defimpl Serverboards.Router, for: Serverboards.Plugin do
 	use Serverboards.Router.Basic
 
 	def lookupl(a,b) do
-		Serverboards.Plugin.lookupl(a,b)
+			Serverboards.Plugin.lookupl(a,b)
 	end
 end

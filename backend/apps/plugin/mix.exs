@@ -42,6 +42,8 @@ defmodule Plugin.Mixfile do
       { :yaml_elixir, "~> 1.0.0" },
       { :yamerl, github: "yakaz/yamerl" },
       { :router, in_umbrella: true},
+      { :peer, in_umbrella: true},
+      { :io_cmd, in_umbrella: true},
     ]
   end
 end

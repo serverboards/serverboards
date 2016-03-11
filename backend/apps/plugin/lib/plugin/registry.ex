@@ -4,19 +4,23 @@ require Logger
 defmodule Serverboards.Plugin.Registry do
 	alias Serverboards.Plugin
 
+	defstruct [
+		plugins: []
+	]
+
 	@doc ~S"""
 	Reads all yaml from the given directory:
 
 		iex> alias Serverboards.Plugin
-		iex> plugin = hd Plugin.Registry.read_dir("test")
+		iex> plugin = hd Plugin.Registry.read_dir("test").plugins
 		iex> plugin.author
 		"David Moreno <dmoreno@serverboards.io>"
 		iex> plugin.id
 		"serverboards.example.ls"
 		iex> plugin.version
 		"0.0.1"
-		iex> plugin.path
-		"test/ls"
+		iex> String.ends_with?(plugin.path, "test/ls")
+		true
 	"""
 	def read_dir(dirname) do
 		is_directory = fn (dirname, filename) ->
@@ -43,7 +47,20 @@ defmodule Serverboards.Plugin.Registry do
 					Logger.error("Error loading plugin manifest at #{dirname}: #{inspect code}")
 					nil
 				{:ok, manifest} ->
-					%{ manifest | path: dirname }
+					components = manifest.components |> Enum.map(fn c ->
+						Logger.debug("#{inspect c.extra}")
+						if Map.get(c.extra, "cmd") do
+							cmd=c.extra["cmd"]
+							fullcmd=Path.expand(Path.join(dirname, cmd))
+							Logger.debug("Original cmd: #{cmd}, expanded: #{fullcmd}")
+							%{c | extra: %{ c.extra | "cmd" => fullcmd } }
+						else
+							c
+						end
+					end)
+					manifest = %{ manifest | path: Path.expand(dirname), components: components }
+
+					manifest
 			end
 
 			manifest
@@ -66,7 +83,7 @@ defmodule Serverboards.Plugin.Registry do
 			add(p)
 		end
 
-		plugins
+		%Serverboards.Plugin.Registry{ plugins: plugins }
 	end
 
 	@doc ~S"""
@@ -87,8 +104,8 @@ defmodule Serverboards.Plugin.Registry do
 		iex> alias Serverboards.Plugin
 		iex> Plugin.Registry.read_dir("test")
 		iex> example = Plugin.Registry.find_plugin("serverboards.example.ls")
-		iex> example.path
-		"test/ls"
+		iex> String.ends_with?(example.path, "test/ls")
+		true
 
 	"""
 	def find_plugin(id) do
@@ -280,6 +297,37 @@ defmodule Serverboards.Plugin.Registry do
 			:ets.new(:plugin_registry, [:named_table, :set, read_concurrency: true])
 		rescue ArgumentError ->
 			nil
+		end
+	end
+end
+
+defimpl Serverboards.Router, for: Serverboards.Plugin.Registry do
+	use Serverboards.Router.Basic
+
+	def lookupl(r, idl) do
+		{:error, :not_implemented}
+	end
+
+	def first([], f, default), do: default
+	def first(l, f, default) do
+		[ head | rest ] = l
+		if f.(head) do
+			head
+		else
+			first(rest, f, default)
+		end
+	end
+
+	def lookup(r, id) do
+		case first(r.plugins, &String.starts_with?(id, &1.id), nil) do
+			nil-> {:error, :not_found}
+			plugin ->
+			if plugin.id == id do
+				{:ok, plugin, nil}
+			else
+				{_, component_method} = String.split_at(id, String.length(plugin.id) + 1)
+				Serverboards.Router.lookup(plugin, component_method)
+			end
 		end
 	end
 end

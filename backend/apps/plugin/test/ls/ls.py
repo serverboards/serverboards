@@ -8,7 +8,9 @@ def run_ls(path='.'):
 def run_line(s):
     msg=json.loads(s)
     if msg['method'] == 'ls':
-        result=run_ls(msg['params'][0])
+        result=run_ls(*msg['params'])
+    elif msg['method'] == 'ping':
+        result=msg['params'][0]
     else:
         result=None
 
