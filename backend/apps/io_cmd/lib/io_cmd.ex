@@ -3,6 +3,8 @@ require Logger
 defmodule Serverboards.IoCmd do
 	use GenServer
 
+	defstruct [pid: nil]
+
 	@doc ~S"""
 	Runs a command (to properly shlex), and returns the handler to be able to
 	comunicate with it
@@ -17,15 +19,14 @@ defmodule Serverboards.IoCmd do
 
 	"""
 	def start_link(cmd, args \\ [], cmdopts \\ [], opts \\ []) do
-		GenServer.start_link(__MODULE__, {cmd, args, cmdopts}, opts)
+		{:ok, pid} = GenServer.start_link(__MODULE__, {cmd, args, cmdopts}, opts)
+		{:ok, %Serverboards.IoCmd{ pid: pid } }
 	end
 
 	def init({cmd, args, cmdopts}) do
-		fullcmd="#{System.cwd}/#{cmd}"
-
 		cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
 		port = Port.open({:spawn_executable, cmd}, cmdopts)
-		Logger.debug("Starting command #{fullcmd} at port #{inspect port}")
+		Logger.debug("Starting command #{cmd} at port #{inspect port}")
 		Port.connect(port, self())
 
 		state=%{
@@ -42,11 +43,11 @@ defmodule Serverboards.IoCmd do
 	"""
 	def call(server, method, params) do
 		Logger.debug("Calling #{method}(#{inspect params})")
-		GenServer.call(server, {:call, %{ method: method, params: params}})
+		GenServer.call(server.pid, {:call, %{ method: method, params: params}})
 	end
 
 	def stop(server) do
-		GenServer.stop(server)
+		GenServer.stop(server.pid)
 	end
 
 	## server implementation
