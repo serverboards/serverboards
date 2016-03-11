@@ -66,10 +66,5 @@ defmodule Serverboards do
 		List interface.
 		"""
 		def addl(router, id, newrouter)
-
-		@doc ~S"""
-		Performs a call into this router. It might lookup first what to call.
-		"""
-		def call(router, method, params)
 	end
 end

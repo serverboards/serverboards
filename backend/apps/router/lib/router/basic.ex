@@ -1,9 +1,44 @@
 defmodule Serverboards.Router.Basic do
+	@moduledoc ~S"""
+	Basic router. Also base implementation for other routers, so not all methods
+	have to be reimplemented
+
+	defimpl Serverboards.Router, for: MyRouter do
+		use Serverboards.RouterBasic
+	end
+	"""
 	use GenServer
 	defstruct pid: nil
 
 	alias Serverboards.Router.Basic
 	alias Serverboards.Router
+
+
+	defmacro __using__([]) do
+		quote location: :keep do
+			@doc ~S"""
+			Looks for element by dot separated name
+			"""
+			def lookup(router, id) do
+				case Serverboards.Router.lookupl(router, String.split(id, ".")) do
+					{:ok, router, rest_idl} -> {:ok, router, Enum.join(rest_idl, ".")}
+					error ->  error
+				end
+			end
+			def add(router, id, newrouter) do
+				Serverboards.Router.addl(router, String.split(id, "."), newrouter)
+			end
+
+			def lookupl(a,b) do
+				raise "lookupl/2 not implemented for this Router"
+			end
+			def addl(a,b,c) do
+				raise "addl/3 not implemented for this Router"
+			end
+
+			defoverridable [lookup: 2, lookupl: 2, add: 3, addl: 3]
+		end
+	end
 
 	@doc ~S"""
 	Starts the Router actor
@@ -35,6 +70,21 @@ defmodule Serverboards.Router.Basic do
 			}
 		}
 	end
+
+	@doc ~S"""
+	Looks for element on the id list
+	"""
+	def lookupl(router, idl) do
+		GenServer.call(router.pid, {:lookup, idl})
+	end
+	@doc ~S"""
+	Adds element by the id list
+	"""
+	def addl(router, id, newrouter) do
+		GenServer.call(router.pid, {:add, id, newrouter})
+	end
+
+
 
 	## Server callbacks
 
@@ -95,31 +145,14 @@ defmodule Serverboards.Router.Basic do
 		{:reply, ret, state}
 	end
 
-	defimpl Router, for: Basic  do
-		def lookup(router, id) do
-			case lookupl(router, String.split(id, ".")) do
-				{:ok, router, rest_idl} -> {:ok, router, Enum.join(rest_idl, ".")}
-				error ->  error
-			end
-		end
-		def add(router, id, newrouter) do
-			addl(router, String.split(id, "."), newrouter)
-		end
+end
+defimpl Serverboards.Router, for: Serverboards.Router.Basic  do
+	use Serverboards.Router.Basic
 
-		def lookupl(router, id) do
-			GenServer.call(router.pid, {:lookup, id})
-		end
-
-		@doc ~S"""
-		Adds a new router to this router. If the intermediary routers do not
-		exist, it creates them as Basic
-		"""
-		def addl(router, id, newrouter) do
-			GenServer.call(router.pid, {:add, id, newrouter})
-		end
-
-		def call(router, method, params) do
-			router = Router.lookup(router, method)
-		end
+	def lookupl(a,b) do
+		Serverboards.Router.Basic.lookupl(a,b)
+	end
+	def addl(a,b,c) do
+		Serverboards.Router.Basic.addl(a,b,c)
 	end
 end
