@@ -37,7 +37,7 @@ defmodule IoCmd.Mixfile do
   defp deps do
     [
       { :json,   "~> 0.3.0"},
-      { :router, in_umbrella: true},
+      { :peer, in_umbrella: true},
     ]
   end
 end

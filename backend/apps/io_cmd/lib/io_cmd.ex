@@ -12,6 +12,8 @@ defmodule Serverboards.IoCmd do
 		[".gitignore", "test", "lib", "mix.exs", "config", "README.md"]
 		iex> Serverboards.IoCmd.call( ls, "ls", ["."])
 		[".gitignore", "test", "lib", "mix.exs", "config", "README.md"]
+		iex> Serverboards.IoCmd.stop(ls)
+		:ok
 
 	"""
 	def start_link(cmd, args \\ [], cmdopts \\ [], opts \\ []) do
@@ -42,6 +44,12 @@ defmodule Serverboards.IoCmd do
 		Logger.debug("Calling #{method}(#{inspect params})")
 		GenServer.call(server, {:call, %{ method: method, params: params}})
 	end
+
+	def stop(server) do
+		GenServer.stop(server)
+	end
+
+	## server implementation
 
 	def handle_call({:call, msg}, from, %{ msgid: msgid, waiting: waiting, port: port } = state) do
 		{:ok, json} = JSON.encode( Map.put( msg, :id, msgid ) ) # FIXME id has to change over time
@@ -77,4 +85,11 @@ defmodule Serverboards.IoCmd do
 		end
     {:noreply, state}
   end
+end
+
+
+defimpl Serverboards.Peer, for: Serverboards.IoCmd do
+	def call(a,b,c) do
+		Serverboards.IoCmd.call(a,b,c)
+	end
 end
