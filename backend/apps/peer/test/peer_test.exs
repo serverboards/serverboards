@@ -2,7 +2,7 @@ defmodule Serverboards.PeerTest do
   use ExUnit.Case
   doctest Serverboards.Peer
 
-  test "the truth" do
-    assert 1 + 1 == 2
+  test "Functions are peers" do
+    assert Serverboards.Peer.call(fn [] -> "echo" end, "", []) == "echo"
   end
 end

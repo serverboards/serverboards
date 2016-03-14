@@ -19,3 +19,9 @@ defmodule Serverboards do
 		 Peer.call(router, rest, params)
 	end
 end
+
+defimpl Serverboards.Peer, for: Function do
+	def call(peer, _, params) do
+		 peer.(params)
+	end
+end
