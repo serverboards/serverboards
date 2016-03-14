@@ -19,6 +19,19 @@ defmodule Serverboards.IoTcpTest do
     assert call(socket, "ping", ["pong"]) == "pong"
   end
 
+  test "check two clients simultaneus", %{socket: socket} do
+    {:ok, socket_b} = :gen_tcp.connect('localhost', 4040, [:binary, packet: :line, active: false])
+
+    assert call(socket, "version", []) == "0.0.1"
+    assert call(socket_b, "ping", ["pong"]) == "pong"
+    assert call(socket_b, "version", []) == "0.0.1"
+    assert call(socket, "ping", ["pong"]) == "pong"
+
+    :gen_tcp.close(socket_b)
+  end
+
+
+
   def call(socket, method, params) do
     :ok = :gen_tcp.send(socket, call_to_json(method, params, 0) <> "\n")
     {:ok, json} = :gen_tcp.recv(socket, 0, 1000)

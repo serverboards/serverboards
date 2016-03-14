@@ -11,10 +11,11 @@ defmodule Serverboards.IoTcp do
 		{:ok, router} = Router.Basic.start_link
 
 		children = [
+			supervisor(Task.Supervisor, [[name: Serverboards.IoTcp.TaskSupervisor]]),
 			worker(Task, [IoTcp, :accept, [router, 4040]])
 		]
 
-		opts = [strategy: :one_for_one, name: IoTcp.Supervisor]
+		opts = [strategy: :one_for_one, name: Serverboards.IoTcp.Supervisor]
 
 		Supervisor.start_link(children, opts)
 	end
@@ -34,7 +35,11 @@ defmodule Serverboards.IoTcp do
 	def loop_acceptor(router, listen_socket) do
 		case :gen_tcp.accept(listen_socket) do
 			{:ok, client} ->
-				serve(router, client)
+				{:ok, pid} = Task.Supervisor.start_child(Serverboards.IoTcp.TaskSupervisor,
+					fn -> Serverboards.IoTcp.serve(router, client) end)
+			  :ok = :gen_tcp.controlling_process(client, pid)
+
+				#serve(router, client)
 				loop_acceptor(router, listen_socket)
 			{:error, :closed } ->
 				nil
