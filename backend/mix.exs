@@ -5,7 +5,15 @@ defmodule Backend.Mixfile do
     [apps_path: "apps",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     version: "0.0.1",
+     name: "Serverboards",
+     homepage_url: "https://serverboards.io",
+     docs: [
+       logo: "docs/serverboards.png",
+       extras: ["README.md"]
+     ]
+   ]
   end
 
   # Dependencies can be Hex packages:
@@ -21,6 +29,9 @@ defmodule Backend.Mixfile do
   # Dependencies listed here are available only for this project
   # and cannot be accessed from applications inside the apps folder
   defp deps do
-    []
+    [
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.11", only: :dev}
+    ]
   end
 end

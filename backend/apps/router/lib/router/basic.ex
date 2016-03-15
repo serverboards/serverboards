@@ -1,11 +1,11 @@
 defmodule Serverboards.Router.Basic do
 	@moduledoc ~S"""
 	Basic router. Also base implementation for other routers, so not all methods
-	have to be reimplemented
+	have to be reimplemented:
 
-	defimpl Serverboards.Router, for: MyRouter do
-		use Serverboards.RouterBasic
-	end
+		defimpl Serverboards.Router, for: MyRouter do
+			use Serverboards.RouterBasic
+		end
 	"""
 	use GenServer
 	defstruct pid: nil
