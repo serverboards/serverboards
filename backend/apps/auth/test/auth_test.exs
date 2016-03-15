@@ -6,24 +6,19 @@ defmodule Serverboards.AuthTest do
   alias Serverboards.Auth.{Repo, User}
   import Ecto.Query
 
-  test "01. Remove all" do
+  setup do
     Repo.delete_all(User)
 
-    query = from u in User
-    res = Repo.all(query)
-    assert (Enum.count res) == 0
-  end
-
-  test "02. Create and get an user" do
-    Repo.delete_all(User)
-
-    Repo.insert(%User{
+    {:ok, user} = Repo.insert(%User{
       email: "dmoreno@serverboards.io",
       first_name: "David",
       last_name: "Moreno"
       })
+    :ok
+  end
 
-
+  # this was to learn how to use ecto... but staus as its a good test.
+  test "Get users" do
     query = from u in User
 
     res = Repo.all(query)
@@ -43,23 +38,39 @@ defmodule Serverboards.AuthTest do
     #Logger.debug("#{inspect user2}")
   end
 
-  test "02. Set password" do
-    Repo.delete_all(User)
-
-    {:ok, user} = Repo.insert(%User{
-      email: "dmoreno@serverboards.io",
-      first_name: "David",
-      last_name: "Moreno"
-      })
+  test "Set password" do
+    user = Repo.get_by(User, email: "dmoreno@serverboards.io")
 
     password = "abcdefgh"
     {:ok, pw} = User.Password.set_password(user, password)
     Logger.debug("#{inspect pw}")
     assert pw.password != password
 
-    Logger.debug("Check password t #{User.Password.check_password(user, password)}")
+    #Logger.debug("Check password t #{User.Password.check_password(user, password)}")
     assert User.Password.check_password(user, password)
-    Logger.debug("Check password f #{User.Password.check_password(user, password <> "1")}")
+    #Logger.debug("Check password f #{User.Password.check_password(user, password <> "1")}")
     assert User.Password.check_password(user, password <> "1") == false
+  end
+
+  test "Authenticate" do
+    user = Repo.get_by(User, email: "dmoreno@serverboards.io")
+
+    password = "abcdefgh"
+    {:ok, pw} = User.Password.set_password(user, password)
+
+    userb = User.auth("dmoreno@serverboards.io", password)
+    assert userb.id == user.id
+    Logger.debug("Permissions: #{inspect user.perms}")
+  end
+
+  test "Auth peer" do
+    user = Repo.get_by(User, email: "dmoreno@serverboards.io")
+
+    password = "abcdefghu"
+    {:ok, pw} = User.Password.set_password(user, password)
+
+    userb = Serverboards.Peer.call(%Serverboards.Auth{}, "auth", ["dmoreno@serverboards.io", password])
+    assert userb.id == user.id
+    Logger.debug("Permissions: #{inspect user.perms}")
   end
 end

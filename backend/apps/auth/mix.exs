@@ -46,7 +46,8 @@ defmodule Serverboards.Auth.Mixfile do
     [
       {:ecto, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
-      {:comeonin, "~> 2.1"}
+      {:comeonin, "~> 2.1"},
+      {:peer, in_umbrella: true}
     ]
   end
 end

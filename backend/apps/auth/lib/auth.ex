@@ -3,6 +3,8 @@ require Logger
 defmodule Serverboards.Auth do
 	use Application
 
+	defstruct []
+
 	def start(_type, _args) do
 		import Supervisor.Spec
 
@@ -11,6 +13,16 @@ defmodule Serverboards.Auth do
 		]
 		opts = [strategy: :one_for_one, name: Serverboards.Auth.Supervisor ]
 		Supervisor.start_link(children, opts)
+	end
+end
+
+defimpl Serverboards.Peer, for: Serverboards.Auth do
+	def call(peer, "auth", [email, password]) do
+		Serverboards.Auth.User.auth(email, password)
+	end
+
+	def call(peer, "set_password", [user, password]) do
+		Serverboards.Auth.User.Password.set_password(user, password)
 	end
 end
 
@@ -24,11 +36,37 @@ defmodule Serverboards.Auth.User do
 			field :last_name, :string
 			field :is_active, :boolean
 
+			field :perms, {:array, :string}, virtual: true
+
 			timestamps
 	 end
 
 	 @required_fields ~w(email first_name)
 	 @optional_fields ~w()
+
+	 @doc ~S"""
+	 Authenticates a user by password, and returns the user with the list of
+	 permissions.
+	 """
+	 def auth(email, password) do
+		user=case Serverboards.Auth.Repo.get_by(Serverboards.Auth.User, email: email) do
+			{:error, _} -> nil
+			user -> user
+		end
+		if Serverboards.Auth.User.Password.check_password(user, password) do
+			%Serverboards.Auth.User{user | perms: get_perms(user)}
+		else
+			{:error, :invalid_user_or_password}
+		end
+	 end
+
+
+	 @doc ~S"""
+	 Gets all permissions for this user
+	 """
+	 def get_perms(user) do
+	 	[]
+	 end
 end
 
 
@@ -45,6 +83,9 @@ defmodule Serverboards.Auth.User.Password do
 		timestamps
 	end
 
+	@doc ~S"""
+	Sets the given passwor dfor that user struct.
+	"""
 	def set_password(user, password) do
 		case Repo.insert(changeset(%User.Password{}, %{
 			user_id: user.id,
