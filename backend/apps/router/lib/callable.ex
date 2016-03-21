@@ -1,4 +1,4 @@
-defprotocol Serverboards.Peer do
+defprotocol Serverboards.Router.Callable do
 	@moduledoc ~S"""
 	Protocol to allow diferent types of peers, as websockets, tcp, or plugins.
 
@@ -14,13 +14,16 @@ end
 
 
 defmodule Serverboards do
+	@doc ~S"""
+	Simplifies calls from Serverboards.Router.Callable.call/3 to Serverboards.call/3.
+	"""
 	def call(peer, method, params) do
 		 {:ok, router, rest} = Serverboards.Router.lookup(peer, method)
-		 Peer.call(router, rest, params)
+		 Serverboards.Router.call(router, rest, params)
 	end
 end
 
-defimpl Serverboards.Peer, for: Function do
+defimpl Serverboards.Router.Callable, for: Function do
 	def call(peer, _, params) do
 		 peer.(params)
 	end
