@@ -6,14 +6,26 @@ defmodule Serverboards.Router.Peer do
 	alias Serverboards.Router.{Peer, Callable}
 
 	defstruct [
-		pid: nil
+		pid: nil,
+		uuid: nil
 	]
 
-	def start_link do
+	@doc ~S"""
+	Starts a new peer that will communicate via the given port. The port is
+	a Serverboards.Router.Port protocol implementor.
+	"""
+	def start_link(port) do
 		router = Serverboards.Router.Basic.start_link
-		{:ok, pid} = GenServer.start_link(__MODULE__, {router}, [])
+		uuid = UUID.uuid4
+
+		Logger.debug("New client #{uuid} via #{inspect port}")
+
+		{:ok, pid} = GenServer.start_link(__MODULE__, {router, uuid, port}, [])
+
 		{:ok, %Peer{
-			pid: pid
+			pid: pid,
+			uuid: uuid,
+			port: port,
 		}}
 	end
 
