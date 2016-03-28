@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :io_tcp, key: :value
+#     config :serverboards, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:io_tcp, :key)
+#     Application.get_env(:serverboards, :key)
 #
 # Or configure a 3rd-party app:
 #

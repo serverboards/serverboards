@@ -8,10 +8,10 @@ defmodule Serverboards.IoTcp.Supervisor do
 	end
 
 	def init(:ok) do
-		Logger.info("Starting TCP supervisor")
+		Logger.info("Starting Serverboards supervisor")
 
 		 children=[
-			 worker(IoTcp, [IoTcp, 4040] )
+			 worker(Serverboards.Io.Tcp, [Serverboards.Io.Tcp, 4040] )
 		 ]
 
 		 supervisor(children, strategy: :one_for_one)

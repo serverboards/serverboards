@@ -1,8 +1,8 @@
-defmodule IoTcp.Mixfile do
+defmodule Serverboards.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :io_tcp,
+    [app: :serverboards,
      version: "0.0.1",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
@@ -19,8 +19,8 @@ defmodule IoTcp.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :router],
-      mod: {Serverboards.IoTcp, []},
+      applications: [:logger, :mom],
+      mod: {Serverboards, []},
     ]
   end
 
@@ -39,8 +39,7 @@ defmodule IoTcp.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      { :json,   "~> 0.3.0"},
-      { :router, in_umbrella: true},
+      { :mom, in_umbrella: true},
     ]
   end
 end
