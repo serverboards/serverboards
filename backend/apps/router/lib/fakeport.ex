@@ -41,19 +41,20 @@ defmodule FakePort do
   def init(:ok) do
     {:ok, %{
       last_msg: nil,
-      last_client: nil,
-      last_ans: nil
+      last_msg_client: nil,
+      last_ans: nil,
+      last_ans_client: nil,
     }}
   end
 
   def handle_call({:inject_msg, msg}, _, state) do
     Logger.debug("Inject #{inspect msg}")
-    if state.last_client do
+    if state.last_msg_client do
       Logger.debug("Fast reply")
-      GenServer.reply(state.last_client, msg)
+      GenServer.reply(state.last_msg_client, msg)
     end
     Logger.debug("Store for later")
-    {:reply, :ok, %{state | last_msg: msg, last_client: nil }}
+    {:reply, :ok, %{state | last_msg: msg, last_msg_client: nil }}
   end
 
   def handle_call({:read_msg}, from, state) do
@@ -62,18 +63,18 @@ defmodule FakePort do
       {:reply, state.last_msg, %{state | last_msg: nil }}
     else
       Logger.debug("Block, no msg waiting")
-      {:noreply, %{state | last_client: from }}
+      {:noreply, %{state | last_msg_client: from }}
     end
   end
 
   def handle_call({:inject_answer, msg}, _, state) do
-    Logger.debug("Inject #{inspect msg}")
-    if state.last_ans do
+    Logger.debug("Inject #{inspect msg}, #{inspect state}")
+    if state.last_ans_client do
       Logger.debug("Fast reply")
-      GenServer.reply(state.last_client, msg)
+      GenServer.reply(state.last_ans_client, msg)
     end
     Logger.debug("Store for later")
-    {:reply, :ok, %{state | last_ans: msg, last_client: nil }}
+    {:reply, :ok, %{state | last_ans: msg, last_ans_client: nil }}
   end
 
 
@@ -83,7 +84,7 @@ defmodule FakePort do
       {:reply, state.last_ans, %{state | last_ans: nil }}
     else
       Logger.debug("Block, no answer waiting")
-      {:noreply, %{state | last_client: from }}
+      {:noreply, %{state | last_ans_client: from }}
     end
   end
 end
