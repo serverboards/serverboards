@@ -90,7 +90,7 @@ defmodule Serverboards.MOM.Channel do
 		iex> {:ok, a} = Channel.start_link
 		iex> {:ok, b} = Channel.start_link
 		iex> Channel.subscribe(a, b)
-		iex> Channel.subscribe(b, fn msg ->
+		iex> Channel.subscribe(b, fn _ ->
 		...>    Logger.info("B called")
 		...>    end)
 		iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
