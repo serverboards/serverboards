@@ -11,12 +11,17 @@ defmodule Serverboards.MOM do
 		iex> {:ok, ch} = Channel.start_link
 		iex> Tap.tap(ch,"tap test")
 		iex> {:ok, ag} = Agent.start_link(fn -> nil end ) # a singleton with value nil, will be updated
-		iex> Channel.subscribe(ch, fn _ -> Agent.update(ag, fn _ -> :updated end) end)
+		iex> sub_id = Channel.subscribe(ch, fn _ -> Agent.update(ag, fn _ -> :updated end) end)
 		iex> Agent.get(ag, &(&1))
 		nil
 		iex> Channel.send(ch, %Message{})
 		iex> Agent.get(ag, &(&1))
 		:updated
+		iex> Agent.update(ag, fn _ -> nil end)
+		iex> Channel.unsubscribe(ch, sub_id) # unsubscribe, should not update
+		iex> Channel.send(ch, %Message{})
+		iex> Agent.get(ag, &(&1))
+		nil
 
 	"""
 
