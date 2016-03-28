@@ -99,17 +99,17 @@ defmodule Serverboards.MOM.Channel do
 	"""
 	def subscribe(channel, subscriber) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
-		Logger.debug("Got channel #{inspect channel}")
+		#Logger.debug("Got channel #{inspect channel}")
 		subscribe(channel, subscriber)
 	end
 
 	def subscribe(orig, dest) when is_pid(dest) do
-		Logger.debug("Subscribe #{inspect orig} send to #{inspect dest}")
+		#Logger.debug("Subscribe #{inspect orig} send to #{inspect dest}")
 		subscribe(orig, fn msg -> Channel.send(dest, msg) end)
 	end
 
 	def subscribe(channel, subscriber) do
-		Logger.debug("Subscribe #{inspect channel} executes #{inspect subscriber}")
+		#Logger.debug("Subscribe #{inspect channel} executes #{inspect subscriber}")
 		GenServer.call(channel, {:subscribe, subscriber})
 	end
 
