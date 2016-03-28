@@ -17,7 +17,23 @@ defmodule Serverboards.MOM.Channel do
 		:ok
 		iex> Channel.unsubscribe(ch, 1)
 		:ok
+
+	It is allowed to call the channels after an atom
+
+		iex> require Logger
+		iex> alias Serverboards.MOM.{Message, Channel}
+		iex> Channel.Named.start_link
+		iex> id = Channel.subscribe(:deadletter, fn m -> Logger.error("Deadletter #{inspect m}") end)
+		iex> Channel.send(:empty, %Message{})
+		:ok
+		iex> Channel.unsubscribe(:deadletter, id)
+		:ok
+
+	In fact there are two special named channels: :deadletter, for messages that
+	were not processed by any subscriptor, and :invalid for messages that raised an
+	exception at process time.
 	"""
+	alias Serverboards.MOM.{Channel, Message}
 
 	@doc ~S"""
 	Starts the link
@@ -26,17 +42,43 @@ defmodule Serverboards.MOM.Channel do
 		GenServer.start_link(__MODULE__, :ok, [])
 	end
 
-	def send(channel, %Serverboards.MOM.Message{} = message) do
+	@doc ~S"""
+	Send a message to a named channel by atom
+	"""
+	def send(channel, %Message{} = message) when is_atom(channel) do
+		channel = Channel.Named.ensure_exists(channel)
+		Channel.send(channel, message)
+	end
+
+	@doc "Sends a message to a channel"
+	def send(channel, %Message{} = message) do
 		GenServer.call(channel, {:send, message})
 	end
 
+	@doc "Subscribe to a named channel by atom"
+	def subscribe(channel, subscriber) when is_atom(channel) do
+		channel = Channel.Named.ensure_exists(channel)
+		Logger.debug("Got channel #{inspect channel}")
+		subscribe(channel, subscriber)
+	end
+
+	@doc "Subscribe to a channel"
 	def subscribe(channel, subscriber) do
 		GenServer.call(channel, {:subscribe, subscriber})
 	end
 
+
+	@doc "Unsubscribe to a named channel by atom"
+	def unsubscribe(channel, subscriber)  when is_atom(channel)do
+		channel = Channel.Named.ensure_exists(channel)
+		unsubscribe(channel, subscriber)
+	end
+
+	@doc "Unsubscribes to a channel"
 	def unsubscribe(channel, subscriber) do
 		GenServer.call(channel, {:unsubscribe, subscriber})
 	end
+
 
 	## Server impl.
 
@@ -64,13 +106,21 @@ defmodule Serverboards.MOM.Channel do
 		}}
 	end
 
+	@doc ~S"""
+	Handles normal send of messages, including :deadletter and :invalid message
+	management.
+	"""
 	def handle_call({:send, msg}, _, state) do
+		if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
+			Channel.send(:deadletter, %{msg | error: :deadletter})
+		end
 		for {_,f} <- state.subscribers do
 			try do
 				f.(msg)
 			rescue
 				e ->
-					Logger.error("Error sending #{inspect msg} to #{inspect f}: #{inspect e}")
+					Channel.send(:invalid, %Message{ msg | error: e})
+					Logger.error("Error sending #{inspect msg} to #{inspect f}: #{inspect e}. Sent to invalid messages channel.")
 			end
 		end
 		{:reply, :ok, state}

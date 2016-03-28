@@ -3,5 +3,6 @@ defmodule Serverboards.MOM.Message do
 		id: nil,
 		payload: nil,
 		reply_to: nil,
+		error: nil,
 	]
 end

@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.MOM.Channel.Named do
 	@moduledoc ~S"""
 	Allows to have named channels
@@ -6,9 +8,11 @@ defmodule Serverboards.MOM.Channel.Named do
 		iex> require Logger
 		iex> Channel.Named.start_link
 		iex> mch = Channel.Named.ensure_exists("my-channel")
-		iex> och = Channel.Named.ensure_exists("other-channel")
+		iex> och = Channel.Named.ensure_exists(:atom)
 		iex> mch == och
 		false
+		iex> Channel.Named.ensure_exists("my-channel")
+		mch
 		iex> Channel.subscribe(mch, &Logger.info("Test" ++ (inspect &1)))
 		0
 	"""
