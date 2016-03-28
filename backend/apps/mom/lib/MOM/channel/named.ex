@@ -6,7 +6,6 @@ defmodule Serverboards.MOM.Channel.Named do
 
 		iex> alias Serverboards.MOM.Channel
 		iex> require Logger
-		iex> Channel.Named.start_link
 		iex> mch = Channel.Named.ensure_exists("my-channel")
 		iex> och = Channel.Named.ensure_exists(:atom)
 		iex> mch == och

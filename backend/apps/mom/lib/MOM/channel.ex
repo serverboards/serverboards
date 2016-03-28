@@ -6,6 +6,8 @@ defmodule Serverboards.MOM.Channel do
 	A simple channel of communication. Subscribers are functions that will be just
 	called when somebody sends a message.
 
+	## Examples
+
 		iex> require Logger
 		iex> alias Serverboards.MOM.{Message, Channel}
 		iex> {:ok, ch} = Channel.start_link
@@ -55,15 +57,59 @@ defmodule Serverboards.MOM.Channel do
 		GenServer.call(channel, {:send, message})
 	end
 
-	@doc "Subscribe to a named channel by atom"
+	@doc ~S"""
+	Subscribes to a channel.
+
+	## Examples
+
+	A subscription normally calls a function when a message arrives
+
+		iex> alias Serverboards.MOM.{Channel, Message}
+		iex> require Logger
+		iex> {:ok, ch} = Channel.start_link
+		iex> Channel.subscribe(ch, fn _ ->
+		...>   Logger.info("Called")
+		...>   end)
+		iex> Channel.send(ch, %Serverboards.MOM.Message{ id: 0 })
+		:ok
+
+
+	Its possible to subscribe to named channels
+
+		iex> alias Serverboards.MOM.{Channel, Message}
+		iex> Channel.send(:empty, %Message{})
+		:ok
+
+	Its possible to subscribe a channel to a channel. This is useful to create
+	tree like structures where some channels automatically write to another.
+
+	All messages in orig are send automatically to dest.
+
+		iex> require Logger
+		iex> alias Serverboards.MOM.{Channel, Message}
+		iex> {:ok, a} = Channel.start_link
+		iex> {:ok, b} = Channel.start_link
+		iex> Channel.subscribe(a, b)
+		iex> Channel.subscribe(b, fn msg ->
+		...>    Logger.info("B called")
+		...>    end)
+		iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
+		:ok
+
+	"""
 	def subscribe(channel, subscriber) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
 		Logger.debug("Got channel #{inspect channel}")
 		subscribe(channel, subscriber)
 	end
 
-	@doc "Subscribe to a channel"
+	def subscribe(orig, dest) when is_pid(dest) do
+		Logger.debug("Subscribe #{inspect orig} send to #{inspect dest}")
+		subscribe(orig, fn msg -> Channel.send(dest, msg) end)
+	end
+
 	def subscribe(channel, subscriber) do
+		Logger.debug("Subscribe #{inspect channel} executes #{inspect subscriber}")
 		GenServer.call(channel, {:subscribe, subscriber})
 	end
 
@@ -119,8 +165,9 @@ defmodule Serverboards.MOM.Channel do
 				f.(msg)
 			rescue
 				e ->
-					Channel.send(:invalid, %Message{ msg | error: e})
-					Logger.error("Error sending #{inspect msg} to #{inspect f}: #{inspect e}. Sent to invalid messages channel.")
+					Channel.send(:invalid, %Message{ msg | error: {e, System.stacktrace()}} )
+					Logger.error("Error sending #{inspect msg} to #{inspect f}: #{inspect e}. Sent to :invalid messages channel.")
+					Logger.error( Exception.format_stacktrace System.stacktrace )
 			end
 		end
 		{:reply, :ok, state}
