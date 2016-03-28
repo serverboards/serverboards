@@ -4,7 +4,7 @@ defmodule Serverboards.MOMTest do
   doctest Serverboards.MOM.Channel
   doctest Serverboards.MOM.Channel.Named
   doctest Serverboards.MOM.Tap
-  doctest Serverboards.MOM.Endpoint.RPC
+  doctest Serverboards.MOM.Gateway.RPC
 
   test "the truth" do
     assert 1 + 1 == 2

@@ -1,28 +1,28 @@
-defmodule Serverboards.MOM.Endpoint.RPC do
+defmodule Serverboards.MOM.Gateway.RPC do
 	@moduledoc ~S"""
-	Endpoint adapter for RPC. Creates a command and a response channel, which
+	Gateway adapter for RPC. Creates a command and a response channel, which
 	has to be connected to a RPC processor.
 
 	## Example of use:
 
 	It can be used in a blocking fasion
 
-		iex> alias Serverboards.MOM.{Endpoint, Message, Channel}
-		iex> {:ok, rpc} = Endpoint.RPC.start_link
+		iex> alias Serverboards.MOM.{Gateway, Message, Channel}
+		iex> {:ok, rpc} = Gateway.RPC.start_link
 		iex> Channel.subscribe(rpc.to_mom, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
-		iex> Endpoint.RPC.call(rpc, "echo", "Hello world!", 1)
+		iex> Gateway.RPC.call(rpc, "echo", "Hello world!", 1)
 		"Hello world!"
 
 
 	Or non blocking
 
-		iex> alias Serverboards.MOM.{Endpoint, Message, Channel}
+		iex> alias Serverboards.MOM.{Gateway, Message, Channel}
 		iex> require Logger
-		iex> {:ok, rpc} = Endpoint.RPC.start_link
+		iex> {:ok, rpc} = Gateway.RPC.start_link
 		iex> Channel.subscribe(rpc.to_mom, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
-		iex> task_id = Endpoint.RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
+		iex> task_id = Gateway.RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
 		iex> # do something...
-		iex> Endpoint.RPC.await(rpc, task_id)
+		iex> Gateway.RPC.await(rpc, task_id)
 		:ok
 
 	"""
@@ -36,7 +36,7 @@ defmodule Serverboards.MOM.Endpoint.RPC do
 		reply_id: nil, # subscription for reply, to unsubscribe
 	]
 
-	alias Serverboards.MOM.{Channel, Message, Endpoint}
+	alias Serverboards.MOM.{Channel, Message, Gateway}
 
 	def start_link() do
 		{:ok, pid} = GenServer.start_link(__MODULE__, :ok, [])
@@ -44,7 +44,7 @@ defmodule Serverboards.MOM.Endpoint.RPC do
 		{:ok, to_mom} = Channel.start_link
 		{:ok, from_mom} = Channel.start_link
 		reply_id = Channel.subscribe(from_mom, &GenServer.cast( pid, {:reply, &1} ) )
-		rpc = %Endpoint.RPC{
+		rpc = %Gateway.RPC{
 			to_mom: to_mom,
 			from_mom: from_mom,
 			uuid: UUID.uuid4(),
