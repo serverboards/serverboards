@@ -12,17 +12,6 @@ defprotocol Serverboards.Router.Callable do
 	def call(peer, method, params)
 end
 
-
-defmodule Serverboards do
-	@doc ~S"""
-	Simplifies calls from Serverboards.Router.Callable.call/3 to Serverboards.call/3.
-	"""
-	def call(peer, method, params) do
-		 {:ok, router, rest} = Serverboards.Router.lookup(peer, method)
-		 Serverboards.Router.call(router, rest, params)
-	end
-end
-
 defimpl Serverboards.Router.Callable, for: Function do
 	def call(peer, _, params) do
 		 peer.(params)

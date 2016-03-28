@@ -1,37 +1,38 @@
 require Logger
 
 defmodule Serverboards do
-	@doc ~S"""
-	The router is in charge or routing messages using the message id to the receptor
+	defprotocol Router do
+		@moduledoc ~S"""
+		The router is in charge or routing messages using the message id to the receptor
 
-	To achieve that there is a tree structure on which each node has a part in the
-	dot separated address. Finally there is a structure as:
+		To achieve that there is a tree structure on which each node has a part in the
+		dot separated address. Finally there is a structure as:
 
 		- serverboards:Router.Basic
-			- core:Router
-			- plugins:Router.Basic
-				- start:fn
-				- stop:fn
-			- example:Plugin
-			- example:Plugin
+		- core:Router
+		- plugins:Router.Basic
+		- start:fn
+		- stop:fn
+		- example:Plugin
+		- example:Plugin
 		- ping:fn
 		- version:fn
 
-	Router.Basic is the type for the generic router, which has other routers or
-	functions, but other types of routers can ge created, for example the plugin
-	one, that will do the remaining of the id as a call to an RPC.
+		Router.Basic is the type for the generic router, which has other routers or
+		functions, but other types of routers can ge created, for example the plugin
+		one, that will do the remaining of the id as a call to an RPC.
 
-	Names can be repeated and they will be tried in registration order if
-	:method_not_implemented error is returned.
+		Names can be repeated and they will be tried in registration order if
+		:method_not_implemented error is returned.
 
-	This helps composability depending on permissions; for each connection the
-	allowed methods are added to this connection router. The same router can
-	be added to several routers.
+		This helps composability depending on permissions; for each connection the
+		allowed methods are added to this connection router. The same router can
+		be added to several routers.
 
-	Rotuers must be structs/maps with the key is_router: true. Thats the no stop
-	mark for router lookups.
-	"""
-	defprotocol Router do
+		Routers must be structs/maps with the key is_router: true. Thats the no stop
+		mark for router lookups.
+		"""
+
 		@doc ~S"""
 		Searchs for an element by id.
 
@@ -66,5 +67,10 @@ defmodule Serverboards do
 		List interface.
 		"""
 		def addl(router, id, newrouter)
+
+		@doc ~S"""
+		Returns a representation as a map of maps of the router tree.
+		"""
+		def to_map(router)
 	end
 end

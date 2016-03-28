@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.Router.Basic do
 	@moduledoc ~S"""
 	Basic router. Also base implementation for other routers, so not all methods
@@ -36,7 +38,11 @@ defmodule Serverboards.Router.Basic do
 				raise "addl/3 not implemented for this Router"
 			end
 
-			defoverridable [lookup: 2, lookupl: 2, add: 3, addl: 3]
+			def to_map(c) do
+				raise "to_map/1 not implemented for this router"
+			end
+
+			defoverridable [lookup: 2, lookupl: 2, add: 3, addl: 3, to_map: 1]
 		end
 	end
 
@@ -84,7 +90,9 @@ defmodule Serverboards.Router.Basic do
 		GenServer.call(router.pid, {:add, id, newrouter})
 	end
 
-
+	def to_map(router) do
+		GenServer.call(router.pid, {:to_map})
+	end
 
 	## Server callbacks
 
@@ -118,6 +126,19 @@ defmodule Serverboards.Router.Basic do
 			end
 		state = %{ state | children: Map.put(state.children, id, newchild) }
 		 {:reply, :ok, state }
+	end
+
+	def handle_call({:to_map}, from, state) do
+		r = Enum.map state.children, fn {k,v} ->
+			try do
+				{k, Router.to_map(v) }
+			rescue
+				_ ->
+					{k, v}
+			end
+		end
+		#Logger.info("Router to_map #{inspect r}")
+		{:reply, r, state}
 	end
 
 	@doc ~S"""
@@ -154,5 +175,8 @@ defimpl Serverboards.Router, for: Serverboards.Router.Basic  do
 	end
 	def addl(a,b,c) do
 		Serverboards.Router.Basic.addl(a,b,c)
+	end
+	def to_map(router) do
+		Serverboards.Router.Basic.to_map(router)
 	end
 end
