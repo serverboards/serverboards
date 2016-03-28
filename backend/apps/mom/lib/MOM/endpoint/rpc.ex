@@ -3,13 +3,28 @@ defmodule Serverboards.MOM.Endpoint.RPC do
 	Endpoint adapter for RPC. Creates a command and a response channel, which
 	has to be connected to a RPC processor.
 
-	Example of use:
+	## Example of use:
+
+	It can be used in a blocking fasion
 
 		iex> alias Serverboards.MOM.{Endpoint, Message, Channel}
 		iex> {:ok, rpc} = Endpoint.RPC.start_link
 		iex> Channel.subscribe(rpc.to_mom, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
 		iex> Endpoint.RPC.call(rpc, "echo", "Hello world!", 1)
 		"Hello world!"
+
+
+	Or non blocking
+
+		iex> alias Serverboards.MOM.{Endpoint, Message, Channel}
+		iex> require Logger
+		iex> {:ok, rpc} = Endpoint.RPC.start_link
+		iex> Channel.subscribe(rpc.to_mom, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
+		iex> task_id = Endpoint.RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
+		iex> # do something...
+		iex> Endpoint.RPC.await(rpc, task_id)
+		:ok
+
 	"""
 
 	use GenServer
@@ -51,6 +66,24 @@ defmodule Serverboards.MOM.Endpoint.RPC do
 			} } )
 	end
 
+	def cast(rpc, method, params, id, cb) do
+		GenServer.cast( rpc.pid, { :call, rpc.to_mom, %Message{
+			reply_to: rpc.from_mom,
+			id: id,
+			payload: %Message.RPC{
+				method: method,
+				params: params,
+				}
+			}, cb } )
+
+		id
+	end
+
+	def await(rpc, task_id) do
+		GenServer.call( rpc.pid, {:await, task_id} )
+		:ok
+	end
+
 	## Server impl
 
 	def init(:ok) do
@@ -60,16 +93,38 @@ defmodule Serverboards.MOM.Endpoint.RPC do
 	def handle_call({:call, channel, message}, from, status) do
 		:ok = Channel.send(channel, message)
 		if message.id do
-			{:noreply, Map.put( status, message.id, from )}
+			{:noreply, Map.put( status, message.id, &GenServer.reply(from, &1) ) }
 		else
 			{:reply, from, status}
 		end
 	end
 
+	def handle_call({:await, task_id}, from, status) do
+		cb = Map.get(status, task_id)
+		if cb do # if had callback, wake up my caller, and call it.
+			{:noreply, Map.put( status, task_id, fn msg ->
+				GenServer.reply(from, :done)
+				cb.(msg)
+			end)}
+		else # if not, not waiting, just return
+			{:reply, :done, status}
+		end
+	end
+
+	def handle_cast({:call, channel, message, cb}, status) do
+		:ok = Channel.send(channel, message)
+		if message.id do
+			{:noreply, Map.put(status, message.id, cb ) }
+		else
+			{:noreply, status}
+		end
+
+	end
+
 	def handle_cast({:reply, message}, status) do
 		if message.id do
 			reply_to = Map.get(status, message.id)
-			GenServer.reply(reply_to, message.payload)
+			reply_to.( message.payload )
 		else
 			raise "This channel only accepts responses"
 		end
