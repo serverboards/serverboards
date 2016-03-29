@@ -27,7 +27,7 @@ defmodule Serverboards.MOM.Channel do
 		iex> Channel.Named.start_link
 		iex> id = Channel.subscribe(:deadletter, fn m -> Logger.error("Deadletter #{inspect m}") end)
 		iex> Channel.send(:empty, %Message{})
-		:ok
+		:nok
 		iex> Channel.unsubscribe(:deadletter, id)
 		:ok
 
@@ -45,7 +45,36 @@ defmodule Serverboards.MOM.Channel do
 	end
 
 	@doc ~S"""
-	Send a message to a named channel by atom
+	Send a message to a channel.
+
+	The channel can be a previously created channel or a named channel by an atom.
+
+	Returns:
+	 * `:ok` if all received the message and no error
+	 * `:empty` if no receivers
+	 * `:nok` some receiver raised an exception.
+
+	 ## Examples
+
+	 Depending on how succesful was the `send` it returns diferent values:
+
+		iex> alias Serverboards.MOM.{Channel, Message}
+		iex> {:ok, ch} = Channel.start_link
+		iex> Channel.send(ch, %Message{})
+		:empty
+		iex> Channel.subscribe(ch, fn _ -> :ok end)
+		iex> Channel.send(ch, %Message{})
+		:ok
+		iex> Channel.subscribe(ch, fn _ -> raise "To return :nok" end)
+		iex> Channel.send(ch, %Message{})
+		:nok
+
+	Sending to named channels:
+
+		iex> alias Serverboards.MOM.{Channel, Message}
+		iex> Channel.send(:empty, %Message{})
+		:empty
+
 	"""
 	def send(channel, %Message{} = message) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
@@ -60,6 +89,10 @@ defmodule Serverboards.MOM.Channel do
 	@doc ~S"""
 	Subscribes to a channel.
 
+	In this basic channels implementation the return value of the called function
+	is discarded, but on other implementations may require `:ok`, `:nok` or `:empty`
+	for further	processing, so its good practive to return these values.
+
 	## Examples
 
 	A subscription normally calls a function when a message arrives
@@ -73,11 +106,11 @@ defmodule Serverboards.MOM.Channel do
 		iex> Channel.send(ch, %Serverboards.MOM.Message{ id: 0 })
 		:ok
 
-
 	Its possible to subscribe to named channels
 
 		iex> alias Serverboards.MOM.{Channel, Message}
-		iex> Channel.send(:empty, %Message{})
+		iex> Channel.subscribe(:named_channel, fn _ -> :ok end)
+		iex> Channel.send(:named_channel, %Message{})
 		:ok
 
 	Its possible to subscribe a channel to a channel. This is useful to create
@@ -95,7 +128,6 @@ defmodule Serverboards.MOM.Channel do
 		...>    end)
 		iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
 		:ok
-
 	"""
 	def subscribe(channel, subscriber) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
@@ -157,19 +189,28 @@ defmodule Serverboards.MOM.Channel do
 	management.
 	"""
 	def handle_call({:send, msg}, _, state) do
-		if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
+		ok = if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
 			Channel.send(:deadletter, %{msg | error: :deadletter})
-		end
-		for {_,f} <- state.subscribers do
-			try do
-				f.(msg)
-			rescue
-				e ->
-					Channel.send(:invalid, %Message{ msg | error: {e, System.stacktrace()}} )
-					Logger.error("Error sending #{inspect msg} to #{inspect f}: #{inspect e}. Sent to :invalid messages channel.")
-					Logger.error( Exception.format_stacktrace System.stacktrace )
+			:nok
+		else
+			oks = for {_,f} <- state.subscribers do
+				try do
+					f.(msg)
+					:ok
+				rescue
+					e ->
+						Channel.send(:invalid, %Message{ msg | error: {e, System.stacktrace()}} )
+						Logger.error("Error sending #{inspect msg} to #{inspect f}: #{inspect e}. Sent to :invalid messages channel.")
+						Logger.error( Exception.format_stacktrace System.stacktrace )
+						:nok
+					end
+				end
+			if Enum.any?(oks, &(&1 != :ok)) do
+				:nok
+			else
+				:ok
 			end
 		end
-		{:reply, :ok, state}
+		{:reply, ok, state}
 	end
 end
