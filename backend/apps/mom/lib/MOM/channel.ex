@@ -27,7 +27,7 @@ defmodule Serverboards.MOM.Channel do
 		iex> Channel.Named.start_link
 		iex> id = Channel.subscribe(:deadletter, fn m -> Logger.error("Deadletter #{inspect m}") end)
 		iex> Channel.send(:empty, %Message{})
-		:nok
+		:empty
 		iex> Channel.unsubscribe(:deadletter, id)
 		:ok
 
@@ -191,7 +191,7 @@ defmodule Serverboards.MOM.Channel do
 	def handle_call({:send, msg}, _, state) do
 		ok = if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
 			Channel.send(:deadletter, %{msg | error: :deadletter})
-			:nok
+			:empty
 		else
 			oks = for {_,f} <- state.subscribers do
 				try do
