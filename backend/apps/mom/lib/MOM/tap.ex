@@ -15,7 +15,7 @@ defmodule Serverboards.MOM.Tap do
 		Serverboards.MOM.Channel.subscribe(channel, fn msg ->
 			Logger.info("Tap[#{id}]: #{inspect msg}")
 			:nok # at P2P channels, this does not consume message
-		end)
+		end, front: true)
 	end
 
 	def untap(channel, tap_id) do

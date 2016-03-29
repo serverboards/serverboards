@@ -17,11 +17,11 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 	PointToPoint.start_link.
 
 		iex> require Logger
-		iex> alias Serverboards.MOM.{Channel, Message}
+		iex> alias Serverboards.MOM.{Channel, Message, RPC}
 		iex> {:ok, ch} = Channel.PointToPoint.start_link
 		iex> Channel.subscribe(ch, fn msg ->
 		...>	case msg.payload do
-		...>		%Message.RPC{ method: "ping", params: [what] } ->
+		...>		%RPC.Message{ method: "ping", params: [_] } ->
 		...>			Logger.info("Consumed ping message")
 		...>			:ok
 		...>		_ ->
@@ -30,18 +30,18 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 		...>end)
 		iex> Channel.subscribe(ch, fn msg ->
 		...>	case msg.payload do
-		...>		%Message.RPC{ method: "pong", params: [what] } ->
+		...>		%RPC.Message{ method: "pong", params: [_] } ->
 		...>			Logger.info("Consumed pong message")
 		...>			:ok
 		...>		_ ->
 		...>			:nok
 		...>	end
 		...>end)
-		iex> Channel.send(ch, %Message{ id: 0, payload: %Message.RPC{ method: "ping", params: ["Hello"]}} )
+		iex> Channel.send(ch, %Message{ id: 0, payload: %RPC.Message{ method: "ping", params: ["Hello"]}} )
 		:ok
-		iex> Channel.send(ch, %Message{ id: 0, payload: %Message.RPC{ method: "pong", params: ["Hello"]}} )
+		iex> Channel.send(ch, %Message{ id: 0, payload: %RPC.Message{ method: "pong", params: ["Hello"]}} )
 		:ok
-		iex> Channel.send(ch, %Message{ id: 0, payload: %Message.RPC{ method: "other", params: ["Hello"]}} )
+		iex> Channel.send(ch, %Message{ id: 0, payload: %RPC.Message{ method: "other", params: ["Hello"]}} )
 		:nok
 	"""
 	use GenServer
@@ -55,10 +55,7 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 	## Server impl
 
 	def init(:ok) do
-		{:ok, %{
-			maxid: 0,
-			subscribers: %{}
-			}}
+		Channel.init(:ok)
 	end
 
 	@doc ~S"""

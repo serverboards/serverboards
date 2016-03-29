@@ -129,20 +129,24 @@ defmodule Serverboards.MOM.Channel do
 		iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
 		:ok
 	"""
-	def subscribe(channel, subscriber) when is_atom(channel) do
+	def subscribe(channel, subscriber) do
+		subscribe(channel, subscriber, [])
+	end
+
+	def subscribe(channel, subscriber, options) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
 		#Logger.debug("Got channel #{inspect channel}")
 		subscribe(channel, subscriber)
 	end
 
-	def subscribe(orig, dest) when is_pid(dest) do
+	def subscribe(orig, dest, options) when is_pid(dest) do
 		#Logger.debug("Subscribe #{inspect orig} send to #{inspect dest}")
 		subscribe(orig, fn msg -> Channel.send(dest, msg) end)
 	end
 
-	def subscribe(channel, subscriber) do
+	def subscribe(channel, subscriber, options) do
 		#Logger.debug("Subscribe #{inspect channel} executes #{inspect subscriber}")
-		GenServer.call(channel, {:subscribe, subscriber})
+		GenServer.call(channel, {:subscribe, subscriber, options})
 	end
 
 
@@ -167,20 +171,27 @@ defmodule Serverboards.MOM.Channel do
 	def init(:ok) do
 		{:ok, %{
 			maxid: 0,
-			subscribers: %{}
+			subscribers: [] # each {id, fn}, almost a map, but with ordering. id used to unsubscribe.
 			}}
 	end
 
-	def handle_call({:subscribe, s}, _, state) do
+	def handle_call({:subscribe, s, options}, _, state) do
+		Logger.debug("Subscribe #{inspect state}")
+		subscribers = if Keyword.get(options, :front, false) do
+			[{state.maxid, s}] ++ state.subscribers
+		else
+			state.subscribers ++ [{state.maxid, s}]
+		end
+
 		{:reply, state.maxid,	%{ state |
-				subscribers: Map.put(state.subscribers, state.maxid, s),
+				subscribers: subscribers,
 				maxid: state.maxid+1
 			}	}
 	end
 
 	def handle_call({:unsubscribe, s}, _, state) do
 		{:reply, :ok, %{ state |
-			subscribers: Map.delete(state.subscribers, s)
+			subscribers: Enum.filter(state.subscribers, fn {id, _ } -> id != s end)
 		}}
 	end
 
