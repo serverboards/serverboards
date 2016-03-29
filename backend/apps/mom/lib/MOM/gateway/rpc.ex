@@ -1,36 +1,55 @@
+require Logger
+
 defmodule Serverboards.MOM.Gateway.RPC do
 	@moduledoc ~S"""
 	Gateway adapter for RPC. Creates a command and a response channel, which
 	has to be connected to a RPC processor.
 
-	## Example of use:
+	## Example of use
 
 	It can be used in a blocking fasion
 
 		iex> alias Serverboards.MOM.{Gateway, Message, Channel}
 		iex> {:ok, rpc} = Gateway.RPC.start_link
-		iex> Channel.subscribe(rpc.to_mom, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
+		iex> Channel.subscribe(rpc.request, fn msg ->
+		...>  Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
+		...> 	:ok
+		...> 	end) # dirty echo rpc.
 		iex> Gateway.RPC.call(rpc, "echo", "Hello world!", 1)
 		"Hello world!"
-
 
 	Or non blocking
 
 		iex> alias Serverboards.MOM.{Gateway, Message, Channel}
 		iex> require Logger
 		iex> {:ok, rpc} = Gateway.RPC.start_link
-		iex> Channel.subscribe(rpc.to_mom, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
+		iex> Channel.subscribe(rpc.request, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
 		iex> task_id = Gateway.RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
 		iex> # do something...
 		iex> Gateway.RPC.await(rpc, task_id)
 		:ok
 
+	Returns exception when method does not exist
+
+		iex> alias Serverboards.MOM.{Gateway, Message, Channel}
+		iex> {:ok, rpc} = Gateway.RPC.start_link
+		iex> Gateway.RPC.call(rpc, "echo", "Hello world!", 1)
+		** (Serverboards.MOM.Gateway.RPC.UnknownMethod) unknown method "echo"
+
 	"""
+
+	defmodule UnknownMethod do
+		defexception [method: nil]
+
+		def message(exception) do
+			"unknown method #{inspect(exception.method)}"
+		end
+	end
 
 	use GenServer
 	defstruct [
-		to_mom: nil, # gets inside the MOM,
-		from_mom: nil, # gets out of the MOM.
+		request: nil, # gets inside the MOM,
+		reply: nil, # gets out of the MOM.
 		uuid: nil,
 		pid: nil,
 		reply_id: nil, # subscription for reply, to unsubscribe
@@ -41,12 +60,12 @@ defmodule Serverboards.MOM.Gateway.RPC do
 	def start_link() do
 		{:ok, pid} = GenServer.start_link(__MODULE__, :ok, [])
 
-		{:ok, to_mom} = Channel.start_link
-		{:ok, from_mom} = Channel.start_link
-		reply_id = Channel.subscribe(from_mom, &GenServer.cast( pid, {:reply, &1} ) )
+		{:ok, request} = Channel.PointToPoint.start_link
+		{:ok, reply} = Channel.PointToPoint.start_link
+		reply_id = Channel.subscribe(reply, &GenServer.cast( pid, {:reply, &1} ) )
 		rpc = %Gateway.RPC{
-			to_mom: to_mom,
-			from_mom: from_mom,
+			request: request,
+			reply: reply,
 			uuid: UUID.uuid4(),
 			pid: pid,
 			reply_id: reply_id,
@@ -56,19 +75,25 @@ defmodule Serverboards.MOM.Gateway.RPC do
 	end
 
 	def call(rpc, method, params, id) do
-		GenServer.call( rpc.pid, { :call, rpc.to_mom, %Message{
-			reply_to: rpc.from_mom,
+		ok = GenServer.call( rpc.pid, { :call, rpc.request, %Message{
+			reply_to: rpc.reply,
 			id: id,
 			payload: %Message.RPC{
 				method: method,
 				params: params,
 				}
 			} } )
+		Logger.debug("#{inspect ok}")
+		case ok do
+			{:error, :unknown} -> raise UnknownMethod, method: method
+			{:ok, ret} -> ret
+			:ok -> nil
+		end
 	end
 
 	def cast(rpc, method, params, id, cb) do
-		GenServer.cast( rpc.pid, { :call, rpc.to_mom, %Message{
-			reply_to: rpc.from_mom,
+		GenServer.cast( rpc.pid, { :call, rpc.request, %Message{
+			reply_to: rpc.reply,
 			id: id,
 			payload: %Message.RPC{
 				method: method,
@@ -91,11 +116,18 @@ defmodule Serverboards.MOM.Gateway.RPC do
 	end
 
 	def handle_call({:call, channel, message}, from, status) do
-		:ok = Channel.send(channel, message)
-		if message.id do
-			{:noreply, Map.put( status, message.id, &GenServer.reply(from, &1) ) }
-		else
-			{:reply, from, status}
+		case Channel.send(channel, message) do
+			:ok ->
+				if message.id do
+					status =
+						Map.put( status, message.id, &( GenServer.reply(from, {:ok, &1} ) ) )
+					{:noreply, status }
+				else
+					{:reply, :ok, status}
+				end
+			_ ->
+				Logger.error("Method does not exist #{message.payload.method}")
+				{:reply, {:error, :unknown}, status}
 		end
 	end
 
@@ -122,11 +154,18 @@ defmodule Serverboards.MOM.Gateway.RPC do
 	end
 
 	def handle_cast({:reply, message}, status) do
-		if message.id do
-			reply_to = Map.get(status, message.id)
-			reply_to.( message.payload )
+		reply_to = Map.get(status, message.id)
+		if reply_to do
+			try do
+				reply_to.( message.payload )
+			rescue
+				e ->
+					Logger.error("Error processing reply. Check :invalid channel.")
+					Channel.send(:invalid, message)
+			end
 		else
-			raise "This channel only accepts responses"
+			Logger.error("This channel only accepts responses. Check :invalid channel.")
+			Channel.send(:invalid, message)
 		end
 		{:noreply, Map.delete(status, message.id) }
 	end
