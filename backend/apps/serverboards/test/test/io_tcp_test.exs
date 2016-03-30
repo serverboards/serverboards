@@ -22,14 +22,14 @@ defmodule Serverboards.IoTcpTest do
   end
 
   test "check two clients simultaneus", %{socket: socket} do
-    #{:ok, socket_b} = :gen_tcp.connect('localhost', 4040, [:binary, packet: :line, active: false])
+    {:ok, socket_b} = :gen_tcp.connect('localhost', 4040, [:binary, packet: :line, active: false])
 
-    #assert call(socket, "version", []) == "0.0.1"
-    #assert call(socket_b, "ping", ["pong"]) == "pong"
-    #assert call(socket_b, "version", []) == "0.0.1"
-    #assert call(socket, "ping", ["pong"]) == "pong"
-
-    #:gen_tcp.close(socket_b)
+    assert call(socket, "version", []) == "0.0.1"
+    assert call(socket_b, "ping", ["pong"]) == "pong"
+    assert call(socket_b, "version", []) == "0.0.1"
+    assert call(socket, "ping", ["pong"]) == "pong"
+    
+    :gen_tcp.close(socket_b)
     :ok
   end
 
