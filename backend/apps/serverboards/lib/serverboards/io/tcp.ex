@@ -22,7 +22,7 @@ defmodule Serverboards.Io.Tcp do
 			{:ok, client_socket} ->
 				{:ok, pid} = Task.Supervisor.start_child(Serverboards.Io.Tcp.TaskSupervisor,
 					fn ->
-						{:ok, client} = MOM.Endpoint.RPC.start_link
+						{:ok, client} = MOM.Gateway.RPC.start_link
 						setup_client(client)
 
 						Serverboards.Io.Tcp.serve(client, client_socket)
@@ -45,7 +45,7 @@ defmodule Serverboards.Io.Tcp do
 	def setup_client(client) do
 		tap(client)
 
-		import MOM.Endpoint.RPC
+		import MOM.Gateway.RPC
 
 		"""
 		add_method client, "version" do
@@ -55,7 +55,7 @@ defmodule Serverboards.Io.Tcp do
 		add_method client, "authenticate" do
 			params=%{}
 			if params.username == "test" and params.password == "test" do
-				add_router client, "plugins", Plugin.Endpoint.RPC.start_link
+				add_router client, "plugins", Plugin.Gateway.RPC.start_link
 			end
 		end
 		"""
@@ -63,7 +63,7 @@ defmodule Serverboards.Io.Tcp do
 	end
 
 	def serve(client, socket) do
-		alias MOM.Endpoint.RPC
+		alias MOM.Gateway.RPC
 
 		case :gen_tcp.recv(socket, 0) do
 			{:ok, line} ->
