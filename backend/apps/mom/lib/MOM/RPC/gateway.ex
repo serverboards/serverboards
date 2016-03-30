@@ -31,7 +31,7 @@ defmodule Serverboards.MOM.RPC.Gateway do
 
 	Returns exception when method does not exist
 
-		iex> alias Serverboards.MOM.{Message, Channel, RPC}
+		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.Gateway.start_link
 		iex> RPC.Gateway.call(rpc, "echo", "Hello world!", 1)
 		** (Serverboards.MOM.RPC.Gateway.UnknownMethod) unknown method "echo"
@@ -111,7 +111,7 @@ defmodule Serverboards.MOM.RPC.Gateway do
 	"""
 	def cast(rpc, method, params, id, cb) do
 		GenServer.cast( rpc.pid, { :call, rpc.request, %Message{
-			reply_to: rpc.reply,
+			reply_to: if id do rpc.reply else nil end,
 			id: id,
 			payload: %RPC.Message{
 				method: method,
@@ -120,6 +120,27 @@ defmodule Serverboards.MOM.RPC.Gateway do
 			}, cb } )
 
 		id
+	end
+
+	@doc ~S"""
+	Sends an event to the RPC channels.
+
+	An event is a method without id, and no answer.
+
+	Always returns :ok. If nobody consumed it, it will appear at :invalid messages,
+	if no receptor, at :deadletter
+
+	## Example
+
+		iex> alias Serverboards.MOM.RPC
+		iex> {:ok, rpc} = RPC.Gateway.start_link
+		iex> RPC.Gateway.event(rpc, "test", [])
+		:ok
+
+	"""
+	def event(rpc, method, params) do
+		cast(rpc, method, params, nil, nil)
+		:ok
 	end
 
 	@doc ~S"""
@@ -234,27 +255,33 @@ defmodule Serverboards.MOM.RPC.Gateway do
 	end
 
 	def handle_cast({:call, channel, message, cb}, status) do
-		:ok = Channel.send(channel, message)
-		if message.id do
-			{:noreply, Map.put(status, message.id, cb ) }
-		else
-			{:noreply, status}
+		case Channel.send(channel, message) do
+			:ok ->
+				if message.id do
+					{:noreply, Map.put(status, message.id, cb ) }
+				else
+					{:noreply, status}
+				end
+			:nok ->
+				Channel.send(:invalid, message)
+				{:noreply, status}
+			_ ->
+				{:noreply, status}
 		end
-
 	end
 
 	def handle_cast({:reply, message}, status) do
-		reply_to = Map.get(status, message.id)
-		if reply_to do
+		f_reply_to = Map.get(status, message.id)
+		if f_reply_to do
 			try do
-				reply_to.( message.payload )
+				f_reply_to.( message.payload )
 			rescue
 				_ ->
 					Logger.error("Error processing reply. Check :invalid channel.")
 					Channel.send(:invalid, message)
 			end
 		else
-			Logger.error("This channel only accepts responses. Check :invalid channel.")
+			Logger.error("Invalid answer, not registered. Maybe not a reply. Sent to :invalid channel.")
 			Channel.send(:invalid, message)
 		end
 		{:noreply, Map.delete(status, message.id) }

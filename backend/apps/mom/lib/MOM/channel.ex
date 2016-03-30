@@ -183,7 +183,6 @@ defmodule Serverboards.MOM.Channel do
 	end
 
 	def handle_call({:subscribe, s, options}, _, state) do
-		Logger.debug("Subscribe #{inspect state}")
 		subscribers = if Keyword.get(options, :front, false) do
 			[{state.maxid, s}] ++ state.subscribers
 		else

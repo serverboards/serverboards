@@ -4,7 +4,6 @@ defmodule Serverboards.RPCTest do
 	doctest Serverboards.MOM.RPC.Gateway
 
 	alias Serverboards.MOM.RPC
-	import Serverboards.MOM.RPC
 
 	test "Simple RPC use" do
 		{:ok, rpc} = RPC.Gateway.start_link
