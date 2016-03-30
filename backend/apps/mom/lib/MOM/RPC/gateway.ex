@@ -91,6 +91,24 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		end
 	end
 
+	@doc ~S"""
+	Performs an RPC call, but dont wait for processing.
+
+	It returns an id that can be used with `await` to ensure is all processed.
+
+	Callback will be called when the call is processed, with the answer.
+
+	## Example
+
+		iex> alias Serverboards.MOM.RPC
+		iex> {:ok, rpc} = RPC.Gateway.start_link
+		iex> RPC.Gateway.add_method rpc, "test", fn [] -> :ok end
+		iex> task_id = RPC.Gateway.cast(rpc, "test", [], 0, fn :ok -> :ok end)
+		0
+		# .. do some stuff ..
+		iex> RPC.Gateway.await rpc, task_id
+		:ok
+	"""
 	def cast(rpc, method, params, id, cb) do
 		GenServer.cast( rpc.pid, { :call, rpc.request, %Message{
 			reply_to: rpc.reply,
@@ -104,6 +122,11 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		id
 	end
 
+	@doc ~S"""
+	Awaits for a casted call.
+
+	See `&cast/5`
+	"""
 	def await(rpc, task_id) do
 		GenServer.call( rpc.pid, {:await, task_id} )
 		:ok
@@ -113,7 +136,13 @@ defmodule Serverboards.MOM.RPC.Gateway do
 	Adds a method to be answered by this RPC.
 
 	Options:
-		async: [true|false] -- Use a task to make it async. True by default.
+
+	* `async:` [true|false] -- Use a task to make it async. True by default.
+
+	An async method creates a Task for each invocation and performs the function
+	body in it. If is a sync task the function is performed in the call moment in
+	the message channel task, so it may block the channel. Use async tasks for
+	small methods. Its always safer to use async.
 
 	## Example
 

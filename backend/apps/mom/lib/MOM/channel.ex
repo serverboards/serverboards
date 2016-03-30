@@ -54,9 +54,9 @@ defmodule Serverboards.MOM.Channel do
 	 * `:empty` if no receivers
 	 * `:nok` some receiver raised an exception.
 
-	 ## Examples
+	## Examples
 
-	 Depending on how succesful was the `send` it returns diferent values:
+	Depending on how succesful was the `send` it returns diferent values:
 
 		iex> alias Serverboards.MOM.{Channel, Message}
 		iex> {:ok, ch} = Channel.start_link
@@ -81,7 +81,6 @@ defmodule Serverboards.MOM.Channel do
 		Channel.send(channel, message)
 	end
 
-	@doc "Sends a message to a channel"
 	def send(channel, %Message{} = message) do
 		GenServer.call(channel, {:send, message})
 	end
@@ -133,15 +132,23 @@ defmodule Serverboards.MOM.Channel do
 		subscribe(channel, subscriber, [])
 	end
 
+	@doc ~S"""
+	Subscribes to a channel with options.
+
+	Same as subscribe, but sets some options:
+
+	* `front:` (true|false) -- The subscriber is added at the front so it will be called first.
+	  Useful for tapping, for example. Default false.
+	"""
 	def subscribe(channel, subscriber, options) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
 		#Logger.debug("Got channel #{inspect channel}")
-		subscribe(channel, subscriber)
+		subscribe(channel, subscriber, options)
 	end
 
 	def subscribe(orig, dest, options) when is_pid(dest) do
 		#Logger.debug("Subscribe #{inspect orig} send to #{inspect dest}")
-		subscribe(orig, fn msg -> Channel.send(dest, msg) end)
+		subscribe(orig, fn msg -> Channel.send(dest, msg) end, options)
 	end
 
 	def subscribe(channel, subscriber, options) do
