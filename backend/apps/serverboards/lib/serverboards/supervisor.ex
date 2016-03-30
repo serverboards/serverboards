@@ -11,7 +11,7 @@ defmodule Serverboards.IoTcp.Supervisor do
 		Logger.info("Starting Serverboards supervisor")
 
 		 children=[
-			 worker(Serverboards.Io.Tcp, [Serverboards.Io.Tcp, 4040] )
+			 worker(Serverboards.IO.TCP, [Serverboards.IO.TCP, 4040] )
 		 ]
 
 		 supervisor(children, strategy: :one_for_one)
