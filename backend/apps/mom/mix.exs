@@ -38,6 +38,8 @@ defmodule Serverboards.MOM.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      { :uuid, "~> 1.1.3" }
+    ]
   end
 end
