@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.IoTcp.Supervisor do
+defmodule Serverboards.Supervisor do
 	use Supervisor
 
 	def start_link(opts) do

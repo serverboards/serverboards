@@ -21,14 +21,11 @@ defmodule Serverboards.IO.TCP do
 	def loop_acceptor(listen_socket) do
 		case :gen_tcp.accept(listen_socket) do
 			{:ok, client_socket} ->
-				{:ok, pid} = Task.Supervisor.start_child(Serverboards.IO.TCP.TaskSupervisor,
+				{:ok, pid} = Task.Supervisor.start_child(Serverboards.IO.TaskSupervisor,
 					fn ->
 						{:ok, client} = IO.Client.start_link(name: "TCP")
-
-						IO.Client.on_call(
-							client, :to_client,
-							&call_to_client(client_socket, &1, &2, &3)
-							)
+						IO.Client.on_call( client, &call_to_client(client_socket, &1, &2, &3) )
+						IO.Client.ready( client )
 
 						IO.TCP.serve(client, client_socket)
 					end)
@@ -50,11 +47,11 @@ defmodule Serverboards.IO.TCP do
 			{:ok, line} ->
 				case JSON.decode(line) do
 					{:ok, %{ "method" => method, "params" => params, "id" => id}} ->
-						IO.Client.call(client, :to_serverboards, method, params, id, &reply(socket, id, &1))
+						IO.Client.call(client, method, params, id, &reply(socket, id, &1))
 					{:ok, %{ "method" => method, "params" => params}} ->
-						IO.Client.event(client, :to_serverboards, method, params)
+						IO.Client.event(client, method, params)
 					{:ok, %{ "result" => result, "id" => id}} ->
-						IO.Client.reply(client, :to_client, result, id)
+						IO.Client.reply(client, result, id)
 					{:ok, %{ "error" => params, "id" => id}} ->
 						raise Protocol.UndefinedError, "No errors yet. Closing."
 						:ok

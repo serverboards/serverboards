@@ -3,11 +3,12 @@ defmodule Serverboards do
 		import Supervisor.Spec
 
 		children = [
-			supervisor(Task.Supervisor, [[name: Serverboards.IO.TCP.TaskSupervisor]]),
-			worker(Task, [Serverboards.IO.TCP, :accept, [4040]])
+			supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
+			worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
+			worker(Serverboards.Auth, [:start_link, []])
 		]
 
-		opts = [strategy: :one_for_one, name: Serverboards.IO.TCP.Supervisor]
+		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]
 
 		# inspect for deadletters and invalid
 		Serverboards.MOM.Tap.tap(:deadletter, "deadletter")

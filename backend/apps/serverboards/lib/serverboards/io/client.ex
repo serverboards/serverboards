@@ -13,7 +13,7 @@ defmodule Serverboards.IO.Client do
 	defstruct [
 		to_client: nil,
 		to_serverboards: nil,
-		name: nil,
+		options: %{},
 	]
 	alias Serverboards.IO
 	alias Serverboards.MOM
@@ -21,6 +21,8 @@ defmodule Serverboards.IO.Client do
 
 	@doc ~S"""
 	Starts a communication with a client.
+
+	Initialization has two parts, the second part is a call to `ready`.
 
 	## Options
 
@@ -34,80 +36,89 @@ defmodule Serverboards.IO.Client do
 		client = %Serverboards.IO.Client{
 			to_client: to_client,
 			to_serverboards: to_serverboards,
-			name: Keyword.get(options, :name, nil)
+			options: %{
+				name: Keyword.get(options, :name),
+				auth: Keyword.get(options, :auth, true),
+			 },
 		}
-
-		setup_client(client)
-
-		if Keyword.get(options, :auth, true) do
-			authenticate(client)
-		end
 
 		{:ok, client}
 	end
 
 	def tap(client) do
-		if client.name do
-			Serverboards.MOM.RPC.tap(client.to_serverboards, ">#{client.name}")
-			Serverboards.MOM.RPC.tap(client.to_client, "<#{client.name}")
+		if client.options.name do
+			Serverboards.MOM.RPC.tap(client.to_serverboards, ">#{client.options.name}")
+			Serverboards.MOM.RPC.tap(client.to_client, "<#{client.options.name}")
 		else
 			Serverboards.MOM.RPC.tap(client.to_serverboards)
 			Serverboards.MOM.RPC.tap(client.to_client)
 		end
 	end
 
-	def setup_client(client) do
+	@doc ~S"""
+	Mark that client is ready and should start working.
+
+	This is a two step initialization (start_link / ready) to be able to
+	add necesary callbacks and connections before any message is processed.
+	"""
+	def ready(client) do
+		require Logger
+		Logger.debug("#{inspect client}")
 		tap(client)
 
 		import Serverboards.MOM.RPC.Gateway
 
 		ts = client.to_serverboards
 		add_method ts, "version", fn _ ->
-			"0.0.1"
+			Keyword.get Serverboards.Mixfile.project, :version
 		end
+
 		add_method ts, "ping", fn _ ->
 			"pong"
 		end
 
-		add_method ts, "authenticate", fn params ->
-			if params.username == "test" and params.password == "test" do
-				#add_router client, "plugins", Plugin.Gateway.RPC.start_link
-			end
+		if client.options do
+			Serverboards.Auth.authenticate(client)
 		end
+
 		:ok
 	end
 
-	def authenticate(client) do
-		import Serverboards.MOM.RPC.Gateway
+	@doc ~S"""
+	Call method from external client to serverboards.
 
-		event( client.to_client, "auth.required", ["basic"] )
-
-		#Task.await(client.extra.authenticated)
-
-
+	On reply callback will be called.
+	"""
+	def call(client, method, params, id, callback) do
+		RPC.Gateway.cast(client.to_serverboards, method, params, id, callback)
 	end
 
-	def call(client, :to_serverboards, method, params, id, cb) do
-		RPC.Gateway.cast(client.to_serverboards, method, params, id, cb)
-	end
-
-	def event(client, :to_serverboards, method, params) do
+	@doc ~S"""
+	Call event from external client to serverboards
+	"""
+	def event(client, method, params) do
 		RPC.Gateway.event(client.to_serverboards, method, params)
 	end
 
-	def reply(client, :to_client, result, id) do
-		Channel.send(client.to_client.reply, %MOM.Message{
-			id: id,
-			payload: result
-			})
-		:ok
-	end
-
-	def on_call(client, :to_client, cb) do
+	@doc ~S"""
+	Set callback to call at client. From serverboards.
+	"""
+	def on_call(client, cb) do
 		MOM.Channel.subscribe(client.to_client.request, fn msg ->
 			cb.(msg.payload.method, msg.payload.params, msg.id)
 			:ok
 		end)
 	end
+
+	@doc ~S"""
+	Reply to a previous call to client. This is the answer from "on_call".
+	"""
+	def reply(client, result, id) do
+		Channel.send(client.to_client.reply, %MOM.Message{
+			id: id,
+			payload: result
+			})
+			:ok
+		end
 
 end
