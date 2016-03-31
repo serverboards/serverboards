@@ -1,5 +1,3 @@
-import Serverboards.MOM
-
 defmodule Serverboards.IO.Client do
 	@moduledoc ~S"""
 	Each of the IO clients of serverboards.
@@ -15,7 +13,6 @@ defmodule Serverboards.IO.Client do
 		to_serverboards: nil,
 		options: %{},
 	]
-	alias Serverboards.IO
 	alias Serverboards.MOM
 	alias Serverboards.MOM.RPC
 
@@ -63,7 +60,7 @@ defmodule Serverboards.IO.Client do
 	"""
 	def ready(client) do
 		require Logger
-		Logger.debug("#{inspect client}")
+		#Logger.debug("#{inspect client}")
 		tap(client)
 
 		import Serverboards.MOM.RPC.Gateway

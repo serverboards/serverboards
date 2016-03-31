@@ -183,7 +183,7 @@ defmodule Serverboards.MOM.RPC.Gateway do
 	"""
 	def add_method(rpc, method, f, options \\ []) do
 		Channel.subscribe(rpc.request, fn msg ->
-			Logger.debug("Check method: #{msg.payload.method} #{method}")
+			#Logger.debug("Check method: #{msg.payload.method} #{method}")
 			if msg.payload.method == method do
 				execute_and_reply = fn ->
 					reply = %Message{

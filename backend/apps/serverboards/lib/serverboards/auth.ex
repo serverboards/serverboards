@@ -9,7 +9,7 @@ defmodule Serverboards.Auth do
 		{:ok, pid} = GenServer.start_link __MODULE__, :ok, name: Serverboards.Auth
 
 		add_auth "basic", fn params ->
-			Logger.debug("Try to log in #{inspect params}")
+			#Logger.debug("Try to log in #{inspect params}")
 			%{ "type" => "basic", "email" => email, "password" => password} = params
 
 			if email == "test" and "password" == "test" do
@@ -19,7 +19,7 @@ defmodule Serverboards.Auth do
 			end
 		end
 		add_auth "token", fn params ->
-			Logger.debug("Try to log in #{inspect params}")
+			#Logger.debug("Try to log in #{inspect params}")
 			%{ "type" => "token", "token" => token} = params
 
 			if token == "XXX" do
@@ -29,7 +29,7 @@ defmodule Serverboards.Auth do
 			end
 		end
 
-		Logger.debug("Auth server ready.")
+		#Logger.debug("Auth server ready.")
 
 		{:ok, pid}
 	end
@@ -40,10 +40,10 @@ defmodule Serverboards.Auth do
 		method_id = add_method client.to_serverboards, "auth.auth", fn params ->
 			if GenServer.call(Serverboards.Auth, {:auth, params}) do
 				#remove_method(method_id)
-				Logger.debug("Logged in!")
+				#Logger.debug("Logged in!")
 				true
 			else
-				Logger.debug("NOT Logged in.")
+				#Logger.debug("NOT Logged in.")
 				false
 			end
 		end
@@ -79,7 +79,7 @@ defmodule Serverboards.Auth do
 			Logger.error("Unknown auth #{type}")
 			false
 		end
-		Logger.debug("Auth result #{inspect auth}")
+		#Logger.debug("Auth result #{inspect auth}")
 
 		if auth do
 			Logger.info("Logged in #{auth.email}")
