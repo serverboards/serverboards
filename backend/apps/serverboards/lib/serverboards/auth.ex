@@ -35,14 +35,23 @@ defmodule Serverboards.Auth do
 		{:ok, pid}
 	end
 
+	@doc ~S"""
+	Sets up the client for authentication and returns future to be fulfilled when
+	the user authenticates, with the authenticated user.
+	"""
 	def authenticate(client) do
 		import Serverboards.MOM.RPC.Gateway
 
+		authenticated_promise = Promise.new
 		method_id = add_method client.to_serverboards, "auth.auth", fn params ->
-			if GenServer.call(Serverboards.Auth, {:auth, params}) do
+			user = GenServer.call(Serverboards.Auth, {:auth, params})
+			if user do
 				#remove_method(method_id)
 				#Logger.debug("Logged in!")
-				true
+				authenticated(client, user)
+
+				Promise.set(authenticated_promise, user)
+				user
 			else
 				#Logger.debug("NOT Logged in.")
 				false
@@ -50,13 +59,21 @@ defmodule Serverboards.Auth do
 		end
 
 		event( client.to_client, "auth.required", ["basic"] )
+
+		authenticated_promise
 	end
 
-	defp authenticated(client) do
+	@doc ~S"""
+	After being authenticated, set up the client as that user
+	"""
+	defp authenticated(client, user) do
 		import Serverboards.MOM.RPC.Gateway
 
-		add_method client.to_serverboards, "set_password", fn params ->
+		add_method client.to_serverboards, "auth.set_password", fn [password] ->
 			Serverboards.Auth.User.Password.set_password(user, password)
+		end
+		add_method client.to_serverboards, "auth.user", fn params ->
+			user
 		end
 	end
 

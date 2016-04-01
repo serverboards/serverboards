@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.IO.Client do
 	@moduledoc ~S"""
 	Each of the IO clients of serverboards.
@@ -12,9 +14,11 @@ defmodule Serverboards.IO.Client do
 		to_client: nil,
 		to_serverboards: nil,
 		options: %{},
+		state: nil,
 	]
 	alias Serverboards.MOM
 	alias Serverboards.MOM.RPC
+	alias Serverboards.IO.Client
 
 	@doc ~S"""
 	Starts a communication with a client.
@@ -23,25 +27,29 @@ defmodule Serverboards.IO.Client do
 
 	## Options
 
-	* `auth` (true|false) -- Needs authentication. Default true.
+	* `user` (%Auth.User{}|false) -- Already is authenticated as that user, or not authenticated
 	* `name` -- Provides a name for this connection. For debug pourposes.
 	"""
 	def start_link(options \\ []) do
 		{:ok, to_client} = MOM.RPC.Gateway.start_link
 		{:ok, to_serverboards} = MOM.RPC.Gateway.start_link
+		{:ok, state} = Agent.start_link(fn -> %{} end)
 
 		client = %Serverboards.IO.Client{
 			to_client: to_client,
 			to_serverboards: to_serverboards,
 			options: %{
 				name: Keyword.get(options, :name),
-				auth: Keyword.get(options, :auth, true),
 			 },
+			state: state,
 		}
 
-		{:ok, client}
+		{:ok, client }
 	end
 
+	@doc ~S"""
+	Taps all the channels, to ease debug of messages.
+	"""
 	def tap(client) do
 		if client.options.name do
 			Serverboards.MOM.RPC.tap(client.to_serverboards, ">#{client.options.name}")
@@ -50,6 +58,7 @@ defmodule Serverboards.IO.Client do
 			Serverboards.MOM.RPC.tap(client.to_serverboards)
 			Serverboards.MOM.RPC.tap(client.to_client)
 		end
+		{:reply, :ok, client}
 	end
 
 	@doc ~S"""
@@ -74,11 +83,12 @@ defmodule Serverboards.IO.Client do
 			"pong"
 		end
 
-		if client.options do
+		if not get_user client do
 			Serverboards.Auth.authenticate(client)
+				|> Promise.then( &Auth.set_user(client, &1) )
 		end
 
-		:ok
+		{:reply, :ok, client}
 	end
 
 	@doc ~S"""
@@ -115,7 +125,23 @@ defmodule Serverboards.IO.Client do
 			id: id,
 			payload: result
 			})
-			:ok
-		end
+	end
+
+	@doc ~S"""
+	Sets the user for this client
+	"""
+	def set_user(client, %Serverboards.Auth.User{} = user) do
+		Agent.update( client.state, &Map.put(&1, :user, user))
+	end
+
+	@doc ~S"""
+	Gets the user of this client
+	"""
+	def get_user(client) do
+		Logger.debug("Get user from #{inspect client}")
+		ret = Agent.get(client.state, &Map.get(&1, :user, false))
+		Logger.debug("#{inspect ret}")
+		ret
+	end
 
 end

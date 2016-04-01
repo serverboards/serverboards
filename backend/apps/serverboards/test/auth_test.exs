@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.AuthTest do
   use ExUnit.Case
 	alias Test.Client
@@ -13,6 +15,9 @@ defmodule Serverboards.AuthTest do
 
 		user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => "XXX" }, 2)
 		assert user != false
+		assert user.email == "xxx@test.es"
+
+		Logger.info("#{inspect user}")
 
 	end
 
