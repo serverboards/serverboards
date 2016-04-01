@@ -19,7 +19,13 @@ defmodule Serverboards.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :mom],
+      applications:       [
+            :logger,
+            :ecto,
+            :postgrex,
+            :comeonin,
+            :mom
+            ],
       mod: {Serverboards, []},
     ]
   end
@@ -40,6 +46,9 @@ defmodule Serverboards.Mixfile do
   defp deps do
     [
       { :mom, in_umbrella: true},
+      {:ecto, "~> 1.0"},
+      {:postgrex, ">= 0.0.0"},
+      {:comeonin, "~> 2.1"},
     ]
   end
 end

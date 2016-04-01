@@ -1,6 +1,7 @@
 defmodule Serverboards.AuthTest do
   use ExUnit.Case
 	alias Test.Client
+	@moduletag :capture_log
 
 	test "Basic auth" do
 

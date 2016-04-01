@@ -1,6 +1,6 @@
 defmodule Serverboards.IoTcpTest do
   use ExUnit.Case
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   doctest Serverboards.IO.TCP
 
@@ -28,7 +28,7 @@ defmodule Serverboards.IoTcpTest do
     assert call(socket_b, "ping", ["pong"]) == "pong"
     assert call(socket_b, "version", []) == "0.0.1"
     assert call(socket, "ping", ["pong"]) == "pong"
-    
+
     :gen_tcp.close(socket_b)
     :ok
   end

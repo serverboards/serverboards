@@ -4,6 +4,7 @@ defmodule Serverboards.Auth do
 	use GenServer
 
 	import Serverboards.MOM.RPC
+	defstruct []
 
 	def start_link(_,_) do
 		{:ok, pid} = GenServer.start_link __MODULE__, :ok, name: Serverboards.Auth
@@ -49,6 +50,14 @@ defmodule Serverboards.Auth do
 		end
 
 		event( client.to_client, "auth.required", ["basic"] )
+	end
+
+	defp authenticated(client) do
+		import Serverboards.MOM.RPC.Gateway
+
+		add_method client.to_serverboards, "set_password", fn params ->
+			Serverboards.Auth.User.Password.set_password(user, password)
+		end
 	end
 
 	def add_auth(type, f) do

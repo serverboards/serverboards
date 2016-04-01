@@ -1,7 +1,9 @@
 require Logger
 
-defmodule Serverboards.AuthTest do
+defmodule Serverboards.AuthUserTest do
   use ExUnit.Case, async: false
+  @moduletag :capture_log
+
   doctest Serverboards.Auth
   doctest Serverboards.Auth.Permission
 
@@ -73,15 +75,6 @@ defmodule Serverboards.AuthTest do
     {:ok, pw} = User.Password.set_password(user, password)
 
     userb = User.auth("dmoreno@serverboards.io", password)
-    assert userb.id == user.id
-    Logger.debug("Permissions: #{inspect user.perms}")
-  end
-
-  test "Auth peer", %{ user: user } do
-    password = "abcdefghu"
-    {:ok, pw} = User.Password.set_password(user, password)
-
-    userb = Serverboards.Peer.call(%Serverboards.Auth{}, "auth", ["dmoreno@serverboards.io", password])
     assert userb.id == user.id
     Logger.debug("Permissions: #{inspect user.perms}")
   end
