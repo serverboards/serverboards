@@ -24,9 +24,7 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		iex> require Logger
 		iex> {:ok, rpc} = RPC.Gateway.start_link
 		iex> Channel.subscribe(rpc.request, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
-		iex> task_id = RPC.Gateway.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
-		iex> # do something...
-		iex> RPC.Gateway.await(rpc, task_id)
+		iex> RPC.Gateway.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
 		:ok
 
 	Returns exception when method does not exist
@@ -99,10 +97,7 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.Gateway.start_link
 		iex> RPC.Gateway.add_method rpc, "test", fn [] -> :ok end
-		iex> task_id = RPC.Gateway.cast(rpc, "test", [], 0, fn :ok -> :ok end)
-		:ok
-		# .. do some stuff ..
-		iex> RPC.Gateway.await rpc, task_id
+		iex> RPC.Gateway.cast(rpc, "test", [], 0, fn :ok -> :ok end)
 		:ok
 
 	If cast to a non existent method, returns :nok
