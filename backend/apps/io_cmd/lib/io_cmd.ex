@@ -63,7 +63,7 @@ defmodule Serverboards.IoCmd do
 	end
 
 	def handle_cast(msg, state) do
-		Logger.debug("Got cast  #{inspect msg}")
+		Logger.debug("Got cast #{inspect msg}")
 		{:noreply, state}
 	end
 
@@ -89,8 +89,8 @@ defmodule Serverboards.IoCmd do
 end
 
 
-defimpl Serverboards.Peer, for: Serverboards.IoCmd do
-	def call(a,b,c) do
-		Serverboards.IoCmd.call(a,b,c)
-	end
-end
+#defimpl Serverboards.Peer, for: Serverboards.IoCmd do
+#	def call(a,b,c) do
+#		Serverboards.IoCmd.call(a,b,c)
+#	end
+#end

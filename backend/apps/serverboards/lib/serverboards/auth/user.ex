@@ -3,17 +3,13 @@ defmodule Serverboards.Auth.User do
 	import Ecto.Changeset
 	import Ecto.Query
 
-	alias Serverboards.Auth.User
+	alias Serverboards.Auth.{Repo, User}
 
 	schema "auth_user" do
 			field :email, :string
 			field :first_name, :string
 			field :last_name, :string
 			field :is_active, :boolean
-
-			field :perms, {:array, :string}, virtual: true
-			has_many :groups, Group
-
 			timestamps
 	 end
 
@@ -25,15 +21,18 @@ defmodule Serverboards.Auth.User do
 	 permissions.
 	 """
 	 def auth(email, password) do
-		alias Serverboards.Auth.{Repo}
-
 		user=case Repo.get_by(User, email: email, is_active: true) do
 			{:error, _} -> nil
 			user -> user
 		end
 		if user do
 			if User.Password.check_password(user, password) do
-				%User{user | perms: get_perms(user)}
+				%{
+					email: user.email,
+					first_name: user.first_name,
+					last_name: user.last_name,
+					perms: get_perms(user)
+				}
 			else
 				{:error, :invalid_user_or_password}
 			end
@@ -42,6 +41,27 @@ defmodule Serverboards.Auth.User do
 		end
 	 end
 
+
+	 @doc ~S"""
+	 Gets an user by email, and updates permissions. Its for other auth modes,
+	 as token, or external.
+	 """
+	 def get_user(email) do
+		user=case Repo.get_by(User, email: email, is_active: true) do
+ 			{:error, _} -> nil
+ 			user -> user
+ 		end
+		if user do
+			%{
+				email: user.email,
+				first_name: user.first_name,
+				last_name: user.last_name,
+				perms: get_perms(user)
+			}
+		else
+			false
+		end
+	 end
 
 	 @doc ~S"""
 	 Gets all permissions for this user

@@ -99,12 +99,12 @@ defmodule Serverboards.AuthUserTest do
     Group.add_user(admin, user)
 
     users = Repo.all( Group.users(admin) )
-    assert users == [user]
+    assert (hd users).id == user.id
 
     Group.add_user(admin, userb)
 
     users = Repo.all( Group.users(admin) )
-    assert users == [user, userb]
+    assert (for u <- users, do: u.id)  == [user.id, userb.id]
 
     assert_raise Ecto.ConstraintError, fn ->
       Group.add_user(admin, userb)

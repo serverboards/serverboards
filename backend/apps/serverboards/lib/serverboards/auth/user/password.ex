@@ -17,7 +17,6 @@ defmodule Serverboards.Auth.User.Password do
 	Sets the given password for that user struct.
 	"""
 	def set_password(user, password) do
-		#Logger.debug("User #{inspect user.id}")
 		case Repo.get_by(User.Password, user_id: user.id) do
 			nil ->
 				Repo.insert(changeset(%User.Password{}, %{

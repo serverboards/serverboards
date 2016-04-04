@@ -15,17 +15,18 @@ defmodule Serverboards.Auth do
 
 			case Serverboards.Auth.User.auth(email, password) do
 				{:error, _} -> false
-				user ->
-					%{ email: user.email, permissions: user.perms, first_name: user.first_name, last_name: user.last_name }
+				false -> false
+				user -> user
+					#%{ email: user.email, permissions: user.perms, first_name: user.first_name, last_name: user.last_name }
 			end
 		end
 
 		add_auth "token", fn params ->
-			#Logger.debug("Try to log in #{inspect params}")
+			Logger.debug("Try to log in #{inspect params}")
 			%{ "type" => "token", "token" => token} = params
 
 			if token == "XXX" do
-				%{ email: "xxx@test.es", permissions: ["view_user"] }
+				Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
 			else
 				false
 			end
@@ -69,12 +70,28 @@ defmodule Serverboards.Auth do
 	defp authenticated(client, user) do
 		import Serverboards.MOM.RPC.Gateway
 
-		add_method client.to_serverboards, "auth.set_password", fn [password] ->
-			Serverboards.Auth.User.Password.set_password(user, password)
-		end
 		add_method client.to_serverboards, "auth.user", fn params ->
 			user
 		end
+
+		if Enum.member?(user.perms, "auth.modify_self") do
+			add_method client.to_serverboards, "auth.set_password", fn [password], context ->
+				Logger.info("#{user.email} changes password.")
+				Serverboards.Auth.User.Password.set_password(user, password)
+			end
+		end
+
+		if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
+			add_method client.to_serverboards, "debug.observer", fn [] ->
+				Logger.info("Call observer")
+				ret = :observer.start
+				Logger.info("#{inspect ret}")
+				:ok
+			end
+		end
+
+
+		user
 	end
 
 	def add_auth(type, f) do
@@ -93,12 +110,12 @@ defmodule Serverboards.Auth do
 		type = Map.get(params, "type")
 		auth_f = Map.get(state.auths, type)
 
-		auth = if auth_f do
+		user = if auth_f do
 			try do
 				auth_f.(params)
 			rescue
-				_ ->
-					Logger.error("Error at auth \"#{type}\":\n #{Exception.format_stacktrace System.stacktrace}")
+				e ->
+					Logger.error("Error at auth \"#{type}\":\n #{inspect e}\n #{Exception.format_stacktrace System.stacktrace}")
 					false
 			end
 		else
@@ -107,11 +124,14 @@ defmodule Serverboards.Auth do
 		end
 		#Logger.debug("Auth result #{inspect auth}")
 
-		if auth do
-			Logger.info("Logged in #{auth.email}")
+
+		if user do
+			Logger.info("Logged in #{inspect user}")
+			{:reply, user, state}
+		else
+			{:reply, false, state}
 		end
 
-		{:reply, auth, state}
 	end
 
 	def handle_call({:add_auth, name, f}, _, state) do
