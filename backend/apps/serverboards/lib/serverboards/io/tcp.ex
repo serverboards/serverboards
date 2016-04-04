@@ -45,6 +45,7 @@ defmodule Serverboards.IO.TCP do
 				# empty line, ignore
 				serve(client, socket)
 			{:ok, line} ->
+				#Logger.debug("Got line #{line}")
 				case JSON.decode(line) do
 					{:ok, %{ "method" => method, "params" => params, "id" => id}} ->
 						IO.Client.call(client, method, params, id, &reply(socket, id, &1))
@@ -69,7 +70,13 @@ defmodule Serverboards.IO.TCP do
 	end
 
 	def reply(socket, id, res) do
-		{:ok, res}=JSON.encode( %{ "result" => res, "id" => id})
+		res = case res do
+			{:error, error} ->
+				%{ "error" => error, "id" => id}
+			res ->
+				%{ "result" => res, "id" => id}
+		end
+		{:ok, res} = JSON.encode( res )
 		#Logger.debug("Got answer #{res}, writing to #{inspect socket}")
 
 		:gen_tcp.send(socket, res <> "\n")

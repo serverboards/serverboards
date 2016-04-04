@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.IoTcpTest do
   use ExUnit.Case
   @moduletag :capture_log
@@ -33,6 +35,10 @@ defmodule Serverboards.IoTcpTest do
     :ok
   end
 
+  test "Check unknown methods", %{ socket: socket } do
+    assert call(socket, "non.existant.method", []) == {:error, "unknown_method"}
+  end
+
 
 
   def call(socket, method, params) do
@@ -46,8 +52,11 @@ defmodule Serverboards.IoTcpTest do
     case json_to_result( json ) do
       %{ "result" => result, "id" => ^id } ->
         result
-      _ -> # ignore, get result again
-      wait_reply(socket, id)
+      %{ "error" => error } ->
+        {:error, error}
+      ans -> # ignore, get result again
+        Logger.debug("Got ignored answer: #{inspect ans}")
+        wait_reply(socket, id)
     end
   end
 

@@ -97,7 +97,11 @@ defmodule Serverboards.IO.Client do
 	On reply callback will be called.
 	"""
 	def call(client, method, params, id, callback) do
-		RPC.Gateway.cast(client.to_serverboards, method, params, id, callback)
+		case RPC.Gateway.cast(client.to_serverboards, method, params, id, callback) do
+			:nok ->
+				callback.({ :error, "unknown_method" })
+			:ok -> :ok
+		end
 	end
 
 	@doc ~S"""
@@ -138,9 +142,9 @@ defmodule Serverboards.IO.Client do
 	Gets the user of this client
 	"""
 	def get_user(client) do
-		Logger.debug("Get user from #{inspect client}")
+		#Logger.debug("Get user from #{inspect client}")
 		ret = Agent.get(client.state, &Map.get(&1, :user, false))
-		Logger.debug("#{inspect ret}")
+		#Logger.debug("#{inspect ret}")
 		ret
 	end
 
