@@ -1,7 +1,8 @@
 defmodule Serverboards.RPCTest do
   use ExUnit.Case
   @moduletag :capture_log
-	doctest Serverboards.MOM.RPC.Gateway
+  doctest Serverboards.MOM.RPC.Gateway
+  doctest Serverboards.MOM.RPC.MethodCaller
 
 	alias Serverboards.MOM.RPC
 
@@ -25,7 +26,7 @@ defmodule Serverboards.RPCTest do
 		assert RPC.Gateway.call(rpc, "ping", [], 0) == "pong"
 
 		# call unknown
-		assert_raise Serverboards.MOM.RPC.Gateway.UnknownMethod, fn ->
+		assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
 			RPC.Gateway.call(rpc, "pong", nil, 0)
 		end
 
@@ -37,7 +38,7 @@ defmodule Serverboards.RPCTest do
 		end
 
 		# still not chained, excpt
-		assert_raise Serverboards.MOM.RPC.Gateway.UnknownMethod, fn ->
+		assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
 			RPC.Gateway.call(rpc, "pong", nil, 0)
 		end
 

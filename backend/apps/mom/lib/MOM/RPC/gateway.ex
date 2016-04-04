@@ -34,18 +34,9 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.Gateway.start_link
 		iex> RPC.Gateway.call(rpc, "echo", "Hello world!", 1)
-		** (Serverboards.MOM.RPC.Gateway.UnknownMethod) unknown method "echo"
+		** (Serverboards.MOM.RPC.UnknownMethod) unknown method "echo"
 
 	"""
-
-	defmodule UnknownMethod do
-		defexception [method: nil]
-
-		def message(exception) do
-			"unknown method #{inspect(exception.method)}"
-		end
-	end
-
 	use GenServer
 	defstruct [
 		request: nil, # gets inside the MOM,
@@ -53,6 +44,7 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		uuid: nil,
 		pid: nil,
 		reply_id: nil, # subscription for reply, to unsubscribe
+		method_caller: nil,
 	]
 
 	alias Serverboards.MOM.{Channel, Message, RPC}
@@ -62,14 +54,20 @@ defmodule Serverboards.MOM.RPC.Gateway do
 
 		{:ok, request} = Channel.PointToPoint.start_link
 		{:ok, reply} = Channel.PointToPoint.start_link
+		{:ok, method_caller} = RPC.MethodCaller.start_link
+
 		reply_id = Channel.subscribe(reply, &GenServer.cast( pid, {:reply, &1} ) )
+
 		rpc = %RPC.Gateway{
 			request: request,
 			reply: reply,
 			uuid: UUID.uuid4(),
 			pid: pid,
 			reply_id: reply_id,
+			method_caller: method_caller,
 		}
+
+		add_method_caller rpc, method_caller
 
 		{:ok, rpc}
 	end
@@ -83,9 +81,9 @@ defmodule Serverboards.MOM.RPC.Gateway do
 				params: params,
 				}
 			} } )
-		Logger.debug("#{inspect ok}")
+		#Logger.debug("#{inspect ok}")
 		case ok do
-			{:error, :unknown} -> raise UnknownMethod, method: method
+			{:error, :unknown} -> raise RPC.UnknownMethod, method: method
 			{:ok, ret} -> ret
 			:ok -> nil
 		end
@@ -167,6 +165,8 @@ defmodule Serverboards.MOM.RPC.Gateway do
 
 	## Example
 
+	Async mode, creates a new task to make the call.
+
 		iex> alias Serverboards.MOM.RPC.Gateway
 		iex> {:ok, rpc} = Gateway.start_link
 		iex> Gateway.add_method rpc, "echo", &(&1)
@@ -182,25 +182,40 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		"Hello"
 	"""
 	def add_method(rpc, method, f, options \\ []) do
+		RPC.MethodCaller.add_method rpc.method_caller, method, f, options
+	end
+
+	@doc ~S"""
+	Adds a method caller list.
+
+	It is just a list of methods that can be called
+	"""
+	def add_method_caller(rpc, mc) do
 		Channel.subscribe(rpc.request, fn msg ->
 			#Logger.debug("Check method: #{msg.payload.method} #{method}")
-			if msg.payload.method == method do
-				execute_and_reply = fn ->
-					reply = %Message{
-						payload: f.(msg.payload.params),
-						id: msg.id
-					}
-					Channel.send(msg.reply_to, reply)
-				end
-
-				if Keyword.get(options, :async, true) do
-					Task.async( execute_and_reply )
-				else
-					execute_and_reply.()
-				end
+			case RPC.MethodCaller.cast(mc, msg.payload.method, msg.payload.params) do
+				:nok -> # method doe snot exist, keep trying
+					 :nok
+				promise -> # it does, returned a promise when fulfilled, reply
+					import Promise
+					if msg.id do # no msg.id no reply, but ok
+						promise
+						 |> then(fn v ->
+								 reply = %Message{
+									 payload: v,
+									 id: msg.id
+								 }
+								 Channel.send(msg.reply_to, reply)
+							 end)
+						 |> error(fn e ->
+								 reply = %Message{
+									 error: e,
+									 id: msg.id
+								 }
+								 Channel.send(msg.reply_to, reply)
+							 end)
+					end
 				:ok
-			else
-				:nok
 			end
 		end)
 		:ok
