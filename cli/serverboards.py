@@ -159,6 +159,8 @@ class Client:
         """
         Performs the parsing, sending command, and receiving answer
         """
+        if line.startswith('#'):
+            return None
         cmd = self.send_command( parse_command(line) )
         res = self.wait_for_response(cmd.get('id'))
         if res:
@@ -168,7 +170,12 @@ class Client:
                 raise Exception(res['error'])
         return None
 
-
+    def parse_file(self, filename):
+        for l in open(filename):
+            try:
+                self.call(l)
+            except Exception:
+                pass
 
 if __name__=='__main__':  # pragma: no cover
     histfile = os.path.join(os.path.expanduser("~/.config/serverboards/"), "cmd_history")
@@ -176,7 +183,7 @@ if __name__=='__main__':  # pragma: no cover
         os.makedirs(os.path.dirname(histfile))
     except FileExistsError:
         pass
-        
+
     try:
         readline.read_history_file(histfile)
         # default history len is -1 (infinite), which may grow unruly
@@ -187,21 +194,25 @@ if __name__=='__main__':  # pragma: no cover
 
     def main():
         client = Client()
-
         client.wait_for_response()
-        try:
-            while True:
-                line = input('> ')
-                try:
-                    client.call( line )
-                except:
-                    pass
-        except EOFError:
-            pass
+
+        if len(sys.argv)>1:
+            for in_file in sys.argv[1:]:
+                client.parse_file(in_file)
+        else:
+            try:
+                while True:
+                    line = input('> ')
+                    try:
+                        client.call( line )
+                    except:
+                        pass
+            except EOFError:
+                pass
 
     if len(sys.argv)>1 and sys.argv[1]=='--test':
-        import doctest
-        doctest.testmod()
+            import doctest
+            res = doctest.testmod()
+            os.exit(res)
 
-    else:
-        main()
+    main()
