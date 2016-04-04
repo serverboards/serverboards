@@ -78,7 +78,7 @@ defmodule Serverboards.AuthUserTest do
 
     userb = User.auth("dmoreno@serverboards.io", password)
     assert userb.id == user.id
-    Logger.debug("Permissions: #{inspect user.perms}")
+    Logger.debug("Permissions: #{inspect User.get_perms user}")
 
     Repo.update(User.changeset(user, %{ is_active: false }))
     userb = User.auth("dmoreno@serverboards.io", password)

@@ -28,6 +28,7 @@ defmodule Serverboards.Auth.User do
 		if user do
 			if User.Password.check_password(user, password) do
 				%{
+					id: user.id,
 					email: user.email,
 					first_name: user.first_name,
 					last_name: user.last_name,
@@ -53,6 +54,7 @@ defmodule Serverboards.Auth.User do
  		end
 		if user do
 			%{
+				id: user.id,
 				email: user.email,
 				first_name: user.first_name,
 				last_name: user.last_name,

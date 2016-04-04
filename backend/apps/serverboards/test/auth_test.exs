@@ -15,7 +15,7 @@ defmodule Serverboards.AuthTest do
 
 		user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => "XXX" }, 2)
 		assert user != false
-		assert user.email == "xxx@test.es"
+		assert user.email == "dmoreno@serverboards.io"
 
 		Logger.info("#{inspect user}")
 
