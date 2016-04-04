@@ -69,16 +69,47 @@ defmodule Promise do
 	If not error, returns the result of last then.
 	"""
 	def set(promise, value) do
+		set_base(promise, {:ok, value})
+	end
+
+	@doc ~S"""
+	Sets an error as promise value
+
+		iex> require Logger
+		iex> import Promise
+		iex> p = Promise.new
+		...>   |> error(fn _ -> Logger.error("Exception") end)
+		iex> p |> set_error("Exception value")
+		iex> p |> error(fn _ -> Logger.error("Exception 2") end)
+		iex> Promise.get p
+		{:error, :ok}
+
+	"""
+	def set_error(promise, error) do
+		set_base(promise, {:error, error})
+	end
+
+	defp set_base(promise, v) do
 		actions = Agent.get(promise, &(&1))
 		case actions do
-			{:set, v} -> raise "Already set"
+			{:set, v} -> raise "Already set as #{v}"
 			actions ->
-				ret = case perform(actions, {:ok, value}) do
+				ret = case perform(actions, v) do
 					{:ok, v} -> v
 					error -> error
 				end
 				Agent.update(promise, fn _ -> {:set, ret} end)
 				ret
+		end
+	end
+
+	@doc ~S"""
+	Returns the current value, or :notyet if not set yet.
+	"""
+	def get(promise) do
+		case Agent.get(promise, &(&1)) do
+			{:set, v} -> v
+			_ -> {:notyet}
 		end
 	end
 
