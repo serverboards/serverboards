@@ -20,12 +20,14 @@ defmodule Serverboards.AuthUserTest do
     {:ok, user} = Repo.insert(%User{
       email: "dmoreno@serverboards.io",
       first_name: "David",
-      last_name: "Moreno"
+      last_name: "Moreno",
+      is_active: true,
       })
     {:ok, userb} = Repo.insert(%User{
       email: "dmoreno+b@serverboards.io",
       first_name: "David",
-      last_name: "Moreno B"
+      last_name: "Moreno B",
+      is_active: true,
       })
     {:ok, group} = Repo.insert(%Group{ name: "admin" })
     {:ok, group} = Repo.insert(%Group{ name: "user" })
@@ -77,6 +79,13 @@ defmodule Serverboards.AuthUserTest do
     userb = User.auth("dmoreno@serverboards.io", password)
     assert userb.id == user.id
     Logger.debug("Permissions: #{inspect user.perms}")
+
+    Repo.update(User.changeset(user, %{ is_active: false }))
+    userb = User.auth("dmoreno@serverboards.io", password)
+    assert userb == false
+
+    Repo.update(User.changeset(user, %{ is_active: true }))
+    #Logger.debug("Permissions: #{inspect user.perms}")
   end
 
   test "Groups and permissions", %{ user: user, userb: userb } do

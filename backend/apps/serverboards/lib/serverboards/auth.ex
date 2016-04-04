@@ -13,23 +13,23 @@ defmodule Serverboards.Auth do
 			#Logger.debug("Try to log in #{inspect params}")
 			%{ "type" => "basic", "email" => email, "password" => password} = params
 
-			if email == "test" and "password" == "test" do
-				%{ email: "test@test.es", permissions: "" }
-			else
-				false
+			case Serverboards.Auth.User.auth(email, password) do
+				{:error, _} -> false
+				user ->
+					%{ email: user.email, permissions: user.perms, first_name: user.first_name, last_name: user.last_name }
 			end
 		end
+
 		add_auth "token", fn params ->
 			#Logger.debug("Try to log in #{inspect params}")
 			%{ "type" => "token", "token" => token} = params
 
 			if token == "XXX" do
-				%{ email: "xxx@test.es", permissions: "" }
+				%{ email: "xxx@test.es", permissions: ["view_user"] }
 			else
 				false
 			end
 		end
-
 		#Logger.debug("Auth server ready.")
 
 		{:ok, pid}

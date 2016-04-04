@@ -2,7 +2,6 @@ require Logger
 
 defmodule Serverboards.Auth.User.Password do
 	use Ecto.Schema
-	import Ecto.Changeset
 	alias Serverboards.Auth.User
 	alias User.Password
 	alias Serverboards.Auth.Repo
@@ -69,11 +68,9 @@ defmodule Serverboards.Auth.User.Password do
 	def changeset(password, params \\ :empty) do
 		import Ecto.Changeset
 		#Logger.debug("orig #{inspect password}, new #{inspect params}")
-		ret= password
+		password
 			|> cast(params, [:password, :user_id], ~w())
 			|> validate_length(:password, min: 8)
 			|> put_change(:password, bcrypt_password(params[:password]))
-		#Logger.debug("#{inspect ret}")
-		ret
 	end
 end

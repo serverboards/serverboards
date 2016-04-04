@@ -27,14 +27,18 @@ defmodule Serverboards.Auth.User do
 	 def auth(email, password) do
 		alias Serverboards.Auth.{Repo}
 
-		user=case Repo.get_by(User, email: email) do
+		user=case Repo.get_by(User, email: email, is_active: true) do
 			{:error, _} -> nil
 			user -> user
 		end
-		if User.Password.check_password(user, password) do
-			%User{user | perms: get_perms(user)}
+		if user do
+			if User.Password.check_password(user, password) do
+				%User{user | perms: get_perms(user)}
+			else
+				{:error, :invalid_user_or_password}
+			end
 		else
-			{:error, :invalid_user_or_password}
+			false
 		end
 	 end
 
@@ -54,5 +58,16 @@ defmodule Serverboards.Auth.User do
 			 where: ug.user_id == ^user.id,
 			select: p.code
 		)
+	end
+
+	@doc ~S"""
+	Prepares changeset ensuring required data is there, proper
+	password lenth, and hashes the password.
+	"""
+	def changeset(user, params \\ :empty) do
+		import Ecto.Changeset
+		user
+			|> cast(params, [:email], [:is_active, :first_name, :last_name])
+			|> unique_constraint(:email)
 	end
 end
