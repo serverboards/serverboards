@@ -146,16 +146,6 @@ defmodule Serverboards.MOM.RPC.Gateway do
 	end
 
 	@doc ~S"""
-	Awaits for a casted call.
-
-	See `&cast/5`
-	"""
-	def await(rpc, task_id) do
-		GenServer.call( rpc.pid, {:await, task_id} )
-		:ok
-	end
-
-	@doc ~S"""
 	Adds a method to be answered by this RPC.
 
 	Options:
@@ -261,18 +251,6 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		end
 	end
 
-	def handle_call({:await, task_id}, from, status) do
-		cb = Map.get(status, task_id)
-		if cb do # if had callback, wake up my caller, and call it.
-			{:noreply, Map.put( status, task_id, fn msg ->
-				GenServer.reply(from, :done)
-				cb.(msg)
-			end)}
-		else # if not, not waiting, just return
-			{:reply, :done, status}
-		end
-	end
-
 	def handle_call({:cast, channel, message, cb}, _, status) do
 		case Channel.send(channel, message) do
 			:ok ->
@@ -282,10 +260,12 @@ defmodule Serverboards.MOM.RPC.Gateway do
 					{:reply, :ok, status}
 				end
 			:nok ->
-				Channel.send(:invalid, message)
+				Logger.debug("Invalid method")
+				#Channel.send(:invalid, message)
 				{:reply, :nok, status}
 			:empty ->
-				Channel.send(:deadletter, message)
+				Logger.debug("Empty channel")
+				#Channel.send(:deadletter, message)
 				{:reply, :nok, status}
 		end
 	end
