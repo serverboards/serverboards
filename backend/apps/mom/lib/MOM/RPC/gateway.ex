@@ -92,8 +92,6 @@ defmodule Serverboards.MOM.RPC.Gateway do
 	@doc ~S"""
 	Performs an RPC call, but dont wait for processing.
 
-	It returns an id that can be used with `await` to ensure is all processed.
-
 	Callback will be called when the call is processed, with the answer.
 
 	## Example
@@ -102,13 +100,21 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		iex> {:ok, rpc} = RPC.Gateway.start_link
 		iex> RPC.Gateway.add_method rpc, "test", fn [] -> :ok end
 		iex> task_id = RPC.Gateway.cast(rpc, "test", [], 0, fn :ok -> :ok end)
-		0
+		:ok
 		# .. do some stuff ..
 		iex> RPC.Gateway.await rpc, task_id
 		:ok
+
+	If cast to a non existent method, returns :nok
+
+		iex> alias Serverboards.MOM.RPC
+		iex> {:ok, rpc} = RPC.Gateway.start_link
+		iex> RPC.Gateway.cast(rpc, "test", [], 0, fn :ok -> :ok end)
+		:nok
+
 	"""
 	def cast(rpc, method, params, id, cb) do
-		GenServer.cast( rpc.pid, { :call, rpc.request, %Message{
+		GenServer.call( rpc.pid, { :cast, rpc.request, %Message{
 			reply_to: if id do rpc.reply else nil end,
 			id: id,
 			payload: %RPC.Message{
@@ -116,8 +122,6 @@ defmodule Serverboards.MOM.RPC.Gateway do
 				params: params,
 				}
 			}, cb } )
-
-		id
 	end
 
 	@doc ~S"""
@@ -269,19 +273,20 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		end
 	end
 
-	def handle_cast({:call, channel, message, cb}, status) do
+	def handle_call({:cast, channel, message, cb}, _, status) do
 		case Channel.send(channel, message) do
 			:ok ->
 				if message.id do
-					{:noreply, Map.put(status, message.id, cb ) }
+					{:reply, :ok, Map.put(status, message.id, cb ) }
 				else
-					{:noreply, status}
+					{:reply, :ok, status}
 				end
 			:nok ->
 				Channel.send(:invalid, message)
-				{:noreply, status}
-			_ ->
-				{:noreply, status}
+				{:reply, :nok, status}
+			:empty ->
+				Channel.send(:deadletter, message)
+				{:reply, :nok, status}
 		end
 	end
 
