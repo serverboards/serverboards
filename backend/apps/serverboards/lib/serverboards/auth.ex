@@ -83,10 +83,7 @@ defmodule Serverboards.Auth do
 
 		if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
 			add_method client.to_serverboards, "debug.observer", fn [] ->
-				Logger.info("Call observer")
-				ret = :observer.start
-				Logger.info("#{inspect ret}")
-				:ok
+				:observer.start
 			end
 		end
 
