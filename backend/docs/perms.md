@@ -12,6 +12,7 @@ user".
 auth.modify_self -- Modify my own user
 auth.modify_any  -- Modify any user
 auth.create_user -- Create user
+auth.create_token -- Creates an auth token
 
 ## Other
 
