@@ -84,7 +84,7 @@ defmodule Serverboards.IO.Client do
 		end
 
 		if not get_user client do
-			Serverboards.Auth.authenticate(client, &Auth.set_user(client, &1))
+			Serverboards.Auth.authenticate(client)
 		end
 
 		{:reply, :ok, client}

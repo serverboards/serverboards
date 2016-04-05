@@ -153,12 +153,16 @@ class Client:
                 printc('*** '+res['error'], color="red")
             if 'method' in res:
                 printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
+            else:
+                printc("??? "+res, color="red")
         return res
 
     def call(self, line, quiet=False):
         """
         Performs the parsing, sending command, and receiving answer
         """
+        if not line:
+            self.wait_for_response(cmd.get('id'))
         if line.startswith('#'):
             return None
         if quiet:
