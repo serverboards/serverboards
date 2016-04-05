@@ -65,41 +65,44 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   end
 
   @doc ~S"""
-  Calls the mehtod inside and returns a promise of its execution.
+  Calls the method and calls the callback with the result.
 
   If the method was async, it will be run in another task, if it was sync,
   its run right now.
 
-  If the method does not exists, returns :nok
+  If the method does not exists, returns :nok, if it does, returns :ok.
+
+  Callback is a function that can receive {:ok, value} or {:error, %Exception{...}}
   """
-  def cast(pid, method, params) do
-    case Agent.get pid, &Map.get(&1, method) do
+  def cast(pid, method, params, cb) do
+    case Agent.get(pid, &Map.get(&1, method)) do
       {f, options} ->
-        promise = Promise.new
-
-        require Logger
-        Logger.warn("#{__ENV__.file}:#{__ENV__.line}: Leak promise!")
-
-        if Keyword.get(options, :async, true) do
-          nf = fn params ->
-            Task.async fn ->
-              try do
-                v=f.(params)
-                Promise.set( promise,  v )
-              rescue
-                e ->
-                  Promise.set_error( promise, e )
-              end
+        # Calls the function and the callback with the result, used in async and sync.
+        call_f = fn ->
+          try do
+            v=f.(params)
+            cb.({:ok, v })
+          rescue
+            Serverboards.MOM.RPC.UnknownMethod ->
+              cb.({:error, :unknown_method})
+            CaseClauseError ->
+              cb.({:error, :unknown_method})
+            e ->
+              cb.({:error, e})
             end
-            promise
-          end
-          nf.(params)
-        else
-          v=f.(params)
-          Promise.set promise, v
         end
-        promise
-      _ ->
+
+        # sync or async
+        if Keyword.get(options, :async, true) do
+          Task.async fn -> call_f.() end
+        else
+          call_f.()
+        end
+
+        # found.
+        :ok
+      nil ->
+        # not found
         :nok
     end
   end

@@ -60,7 +60,9 @@ defmodule Serverboards.RPCTest do
 
     assert RPC.call(rpc, "echo", [], 1) == "empty"
     assert RPC.call(rpc, "echo", [1], 1) == "one item"
-    assert RPC.call(rpc, "echo", %{}, 1) == nil
+    assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
+      RPC.call(rpc, "echo", %{}, 1)
+    end
     assert RPC.call(rpc, "echo", %{ type: :test}, 1) == "map with type"
   end
 end

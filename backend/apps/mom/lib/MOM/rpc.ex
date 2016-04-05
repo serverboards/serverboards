@@ -13,30 +13,30 @@ defmodule Serverboards.MOM.RPC do
 
 	It can be used in a blocking fasion
 
-	iex> alias Serverboards.MOM.{Message, Channel, RPC}
-	iex> {:ok, rpc} = RPC.start_link
-	iex> Channel.subscribe(rpc.request, fn msg ->
-	...>  Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
-	...> 	:ok
-	...> 	end) # dirty echo rpc.
-	iex> RPC.call(rpc, "echo", "Hello world!", 1)
-	"Hello world!"
+		iex> alias Serverboards.MOM.{Message, Channel, RPC}
+		iex> {:ok, rpc} = RPC.start_link
+		iex> Channel.subscribe(rpc.request, fn msg ->
+		...>  Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
+		...> 	:ok
+		...> 	end) # dirty echo rpc.
+		iex> RPC.call(rpc, "echo", "Hello world!", 1)
+		"Hello world!"
 
 	Or non blocking
 
-	iex> alias Serverboards.MOM.{Message, Channel, RPC}
-	iex> require Logger
-	iex> {:ok, rpc} = RPC.start_link
-	iex> Channel.subscribe(rpc.request, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
-	iex> RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
-	:ok
+		iex> alias Serverboards.MOM.{Message, Channel, RPC}
+		iex> require Logger
+		iex> {:ok, rpc} = RPC.start_link
+		iex> Channel.subscribe(rpc.request, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
+		iex> RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
+		:ok
 
 	Returns exception when method does not exist
 
-	iex> alias Serverboards.MOM.RPC
-	iex> {:ok, rpc} = RPC.start_link
-	iex> RPC.call(rpc, "echo", "Hello world!", 1)
-	** (Serverboards.MOM.RPC.UnknownMethod) unknown method "echo"
+		iex> alias Serverboards.MOM.RPC
+		iex> {:ok, rpc} = RPC.start_link
+		iex> RPC.call(rpc, "echo", "Hello world!", 1)
+		** (Serverboards.MOM.RPC.UnknownMethod) unknown method "echo"
 
 	"""
 	alias Serverboards.MOM.{RPC, Tap}
@@ -105,9 +105,9 @@ defmodule Serverboards.MOM.RPC do
 				params: params,
 				}
 			} } )
-		#Logger.debug("#{inspect ok}")
+		Logger.debug("Result #{inspect ok}")
 		case ok do
-			{:error, :unknown} -> raise RPC.UnknownMethod, method: method
+			{:error, :unknown_method} -> raise RPC.UnknownMethod, method: method
 			{:ok, ret} -> ret
 			:ok -> nil
 		end
@@ -208,34 +208,20 @@ defmodule Serverboards.MOM.RPC do
 	def add_method_caller(rpc, mc) do
 		Channel.subscribe(rpc.request, fn msg ->
 			#Logger.debug("Check method: #{msg.payload.method} #{method}")
-			case RPC.MethodCaller.cast(mc, msg.payload.method, msg.payload.params) do
-				:nok -> # method does not exist, keep trying
-					 :nok
-				promise -> # it does, returned a promise when fulfilled, reply
-					import Promise
-					if msg.id do # no msg.id no reply, but ok
-
-						require Logger
-						Logger.warn("#{__ENV__.file}:#{__ENV__.line}: Used here")
-
-						promise
-						 |> then(fn v ->
-								 reply = %Message{
-									 payload: v,
-									 id: msg.id
-								 }
-								 Channel.send(msg.reply_to, reply)
-							 end)
-						 |> error(fn e ->
-								 reply = %Message{
-									 error: e,
-									 id: msg.id
-								 }
-								 Channel.send(msg.reply_to, reply)
-							 end)
-					end
-				:ok
-			end
+			RPC.MethodCaller.cast(mc, msg.payload.method, msg.payload.params, fn
+				{:ok, v} ->
+					reply = %Message{
+						payload: v,
+						id: msg.id
+					}
+					Channel.send(msg.reply_to, reply)
+				{:error, e} ->
+					reply = %Message{
+						error: e,
+						id: msg.id
+					}
+					Channel.send(msg.reply_to, reply)
+			end) # returns :ok if has method, or :nok if not.
 		end)
 		:ok
 	end
@@ -265,14 +251,14 @@ defmodule Serverboards.MOM.RPC do
 			:ok ->
 				if message.id do
 					status =
-						Map.put( status, message.id, &( GenServer.reply(from, {:ok, &1} ) ) )
+						Map.put( status, message.id, &( GenServer.reply(from, &1) ) )
 					{:noreply, status }
 				else
 					{:reply, :ok, status}
 				end
 			_ ->
 				Logger.error("Method does not exist #{inspect message.payload.method}")
-				{:reply, {:error, :unknown}, status}
+				{:reply, {:error, :unknown_method}, status}
 		end
 	end
 
@@ -299,7 +285,16 @@ defmodule Serverboards.MOM.RPC do
 		f_reply_to = Map.get(status, message.id)
 		if f_reply_to do
 			try do
-				f_reply_to.( message.payload )
+				case message.error do
+					:unknown_method ->
+						f_reply_to.( {:error, :unknown_method} )
+					%FunctionClauseError{ arity: _ } ->
+						f_reply_to.( {:error, :unknown_method} )
+					nil ->
+						f_reply_to.( {:ok, message.payload} )
+					_ ->
+						f_reply_to.( {:error, message.error} )
+				end
 			rescue
 				_ ->
 					Logger.error("Error processing reply. Check :invalid channel.")
