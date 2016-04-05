@@ -109,9 +109,8 @@ class Client:
     >>> client.call('!version') # event call
 
     """
-    def __init__(self, stdout=True):
-        self.stdout=stdout
-        self.maxid=0
+    def __init__(self):
+        self.maxid=1
         self.connect()
 
     def connect(self, server="localhost", port="4040"):
@@ -126,8 +125,8 @@ class Client:
         else:
             cmd['method']=cmd['method'][1:]
 
-        if self.stdout:
-            debugc(">>> "+json.dumps(cmd), color="grey")
+        #printc(json.dumps(cmd), color="grey")
+
         self.socket.send( bytearray(json.dumps(cmd)+'\n','utf8') )
         return cmd
 
@@ -136,8 +135,10 @@ class Client:
             response = self.get_response()
             if not response:
                 return None
-            elif response.get('id')==id:
+            elif id and response.get('id')==id:
                 return response
+            else:
+                printc(response, color="grey")
         return None
 
     def get_response(self):
@@ -145,41 +146,21 @@ class Client:
             nl = self.socket.recv(1024).decode('utf8')
         except BlockingIOError:
             return None
+        if len(nl)==0:
+            printc("Closed connection", color="grey")
+            return None
         res = json.loads(nl)
-        if self.stdout:
-            if 'result' in res:
-                printc(res['result'], color="blue")
-            if 'error' in res:
-                printc('*** '+res['error'], color="red")
-            if 'method' in res:
-                printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
-            else:
-                printc("??? "+res, color="red")
         return res
 
-    def call(self, line, quiet=False):
+    def call(self, line):
         """
         Performs the parsing, sending command, and receiving answer
         """
-        if not line:
-            self.wait_for_response(cmd.get('id'))
         if line.startswith('#'):
             return None
-        if quiet:
-            tmp=self.stdout
-            self.stdout=False
-            cmd = self.send_command( parse_command(line) )
-            res = self.wait_for_response(cmd.get('id'))
-            self.stdout=tmp
-        else:
-            cmd = self.send_command( parse_command(line) )
-            res = self.wait_for_response(cmd.get('id'))
-        if res:
-            if 'result' in res:
-                return res['result']
-            else:
-                raise Exception(res['error'])
-        return None
+        cmd = self.send_command( parse_command(line) )
+        res = self.wait_for_response(cmd.get('id'))
+        return res
 
     def parse_file(self, filename):
         for l in open(filename):
@@ -207,57 +188,42 @@ class Completer:
         self.client=client
         self.options=None
 
+        histfile = os.path.join(os.path.expanduser("~/.config/serverboards/"), "cmd_history")
+        try:
+            os.makedirs(os.path.dirname(histfile))
+        except FileExistsError:
+            pass
+            try:
+                readline.read_history_file(histfile)
+                readline.set_history_length(1000)
+            except FileNotFoundError:
+                pass
+                atexit.register(readline.write_history_file, histfile)
+
         readline.set_completer(self.complete)
         readline.parse_and_bind("tab: complete")
         readline.set_completer_delims(" \t:\"'")
         readline.set_completion_display_matches_hook(self.display_matches)
-        pass
+
+
     def complete(self, text, index):
         if index==0:
-            self.options=sorted( self.client.call("dir", quiet=True) )
+            self.options=sorted( self.client.call("dir")['result'] )
             if text:
-                self.options=[x for x in self.options if x.startswith(text)]
+                self.options=[x+' ' for x in self.options if x.startswith(text)]
         if index<len(self.options):
             return self.options[index]
         return None
     def display_matches(self, substitution, matches, longest_match_length):
         line_buffer = readline.get_line_buffer()
-        columns = os.environ.get("COLUMNS", 80)
-
-        #print('\r'+(' '*(columns-1))+'\r', end='')
-
-        tpl = "{:<" + str(int(max(map(len, matches)) * 1.2)) + "}"
-
-        buffer = "\r"
+        print("\r", end='')
         for match in matches:
-            match = tpl.format(match[len(substitution):])
-            if len(buffer + match) > columns:
-                print(buffer)
-                buffer = ""
-            buffer += match
-
-        if buffer:
-            print(buffer)
-
-        print("> ", end="")
+            print("%s\t"%match, end='')
+        print("\n> ", end="")
         print(line_buffer, end="")
         sys.stdout.flush()
 
 if __name__=='__main__':  # pragma: no cover
-    histfile = os.path.join(os.path.expanduser("~/.config/serverboards/"), "cmd_history")
-    try:
-        os.makedirs(os.path.dirname(histfile))
-    except FileExistsError:
-        pass
-
-    try:
-        readline.read_history_file(histfile)
-        # default history len is -1 (infinite), which may grow unruly
-        readline.set_history_length(1000)
-    except FileNotFoundError:
-        pass
-    atexit.register(readline.write_history_file, histfile)
-
     def main():
         client = Client()
         client.wait_for_response()
@@ -267,15 +233,29 @@ if __name__=='__main__':  # pragma: no cover
                 client.parse_file(in_file)
         else:
             completer=Completer(client)
-            try:
-                while True:
+            while True:
+                try:
                     line = input('> ')
-                    try:
-                        client.call( line )
-                    except:
-                        pass
-            except EOFError:
-                pass
+                    if line:
+                        res = client.call( line )
+                        if not res:
+                            pass
+                        elif 'result' in res:
+                            printc(json.dumps(res['result'], indent=2), color="blue")
+                        elif 'error' in res:
+                            printc('*** '+str(res['error']), color="red")
+                        elif 'method' in res:
+                            printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
+                        else:
+                            printc("??? "+str(res), color="red")
+                    else:
+                        client.wait_for_response(timeout=0.1)
+                except EOFError:
+                    return
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    printc("Continuing", color="red", hl=True)
 
     if len(sys.argv)>1 and sys.argv[1]=='--test':
             import doctest
