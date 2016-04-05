@@ -73,6 +73,10 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   If the method does not exists, returns :nok, if it does, returns :ok.
 
   Callback is a function that can receive {:ok, value} or {:error, %Exception{...}}
+
+  Possible errors:
+   * :unknown_method
+   * :bad_arity
   """
   def cast(pid, method, params, cb) do
     case Agent.get(pid, &Map.get(&1, method)) do
@@ -86,7 +90,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
             Serverboards.MOM.RPC.UnknownMethod ->
               cb.({:error, :unknown_method})
             CaseClauseError ->
-              cb.({:error, :unknown_method})
+              cb.({:error, :bad_arity})
             e ->
               cb.({:error, e})
             end

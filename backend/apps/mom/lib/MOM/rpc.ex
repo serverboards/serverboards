@@ -108,6 +108,7 @@ defmodule Serverboards.MOM.RPC do
 		Logger.debug("Result #{inspect ok}")
 		case ok do
 			{:error, :unknown_method} -> raise RPC.UnknownMethod, method: method
+			{:error, :bad_arity} -> raise ClauseError
 			{:ok, ret} -> ret
 			:ok -> nil
 		end
