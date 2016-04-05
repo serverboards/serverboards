@@ -32,11 +32,11 @@ defmodule Serverboards.AuthTest do
     {:ok, g_admin} = Repo.insert(%Group{ name: "admin" })
     {:ok, g_user} = Repo.insert(%Group{ name: "user" })
 
-    Permission.ensure_exists("auth.modify_self")
-    Permission.ensure_exists("debug")
-
     Group.add_perm(g_admin, "debug")
-    Group.add_perm(g_user, "modify_self")
+    Group.add_perm(g_admin, "auth.modify_any")
+    Group.add_perm(g_admin, "auth.create_user")
+    Group.add_perm(g_user, "auth.modify_self")
+    Group.add_perm(g_user, "auth.create_token")
 
     Group.add_user(g_admin, user)
     Group.add_user(g_user, user)

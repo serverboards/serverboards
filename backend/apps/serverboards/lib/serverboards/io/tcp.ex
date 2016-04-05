@@ -72,12 +72,13 @@ defmodule Serverboards.IO.TCP do
 	def reply(socket, id, res) do
 		res = case res do
 			{:error, error} ->
+				Logger.error("Error on method response: #{inspect error}")
 				%{ "error" => error, "id" => id}
 			{:ok, res} ->
 				%{ "result" => res, "id" => id}
 		end
 		{:ok, res} = JSON.encode( res )
-		#Logger.debug("Got answer #{res}, writing to #{inspect socket}")
+		Logger.debug("Got answer #{res}, writing to #{inspect socket}")
 
 		:gen_tcp.send(socket, res <> "\n")
 	end

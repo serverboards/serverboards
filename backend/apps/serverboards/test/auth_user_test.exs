@@ -26,9 +26,6 @@ defmodule Serverboards.AuthUserTest do
       last_name: "Moreno",
       is_active: true,
       })
-    User.Password.set_password(user, "asdfgh")
-
-
 
     {:ok, userb} = Repo.insert(%User{
       email: "dmoreno+b@serverboards.io",
@@ -104,6 +101,12 @@ defmodule Serverboards.AuthUserTest do
       {:error, _} -> flunk "Error creating token!"
       t           -> t
     end
+
+    token = case User.Token.create(user) do
+      {:error, _} -> flunk "Error creating second token!"
+      t           -> t
+    end
+
 
     userb = User.Token.auth(token)
     assert userb.id == user.id

@@ -13,7 +13,7 @@ defmodule Serverboards.Repo.Migrations.UserToken do
     end
 
     create unique_index(:auth_user_token, [:token])
-    create unique_index(:auth_user_token, [:time_limit])
-    create unique_index(:auth_user_token, [:user_id])
+    create index(:auth_user_token, [:time_limit])
+    create index(:auth_user_token, [:user_id])
   end
 end

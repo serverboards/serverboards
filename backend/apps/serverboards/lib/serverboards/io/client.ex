@@ -98,7 +98,7 @@ defmodule Serverboards.IO.Client do
 	def call(client, method, params, id, callback) do
 		case RPC.cast(client.to_serverboards, method, params, id, callback) do
 			:nok ->
-				callback.({ :error, "unknown_method" })
+				callback.({ :error, :unknown_method })
 			:ok -> :ok
 		end
 	end

@@ -78,11 +78,19 @@ defmodule Serverboards.Auth do
 		end
 
 		if Enum.member?(user.perms, "auth.modify_self") do
-			add_method client.to_serverboards, "auth.set_password", fn [password], context ->
+			add_method client.to_serverboards, "auth.set_password", fn [password] ->
 				Logger.info("#{user.email} changes password.")
 				Serverboards.Auth.User.Password.set_password(user, password)
 			end
 		end
+
+		if Enum.member?(user.perms, "auth.create_token") do
+			add_method client.to_serverboards, "auth.create_token", fn [] ->
+				Logger.info("#{user.email} created new token.")
+				Serverboards.Auth.User.Token.create(user)
+			end
+		end
+
 
 		if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
 			add_method client.to_serverboards, "debug.observer", fn [] ->
