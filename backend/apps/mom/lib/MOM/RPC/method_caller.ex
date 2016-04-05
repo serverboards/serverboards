@@ -91,6 +91,8 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
               cb.({:error, :unknown_method})
             CaseClauseError ->
               cb.({:error, :bad_arity})
+            BadArityError ->
+              cb.({:error, :bad_arity})
             e ->
               cb.({:error, e})
             end
