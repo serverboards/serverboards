@@ -183,11 +183,15 @@ defmodule Serverboards.MOM.RPC.Gateway do
 		Channel.subscribe(rpc.request, fn msg ->
 			#Logger.debug("Check method: #{msg.payload.method} #{method}")
 			case RPC.MethodCaller.cast(mc, msg.payload.method, msg.payload.params) do
-				:nok -> # method doe snot exist, keep trying
+				:nok -> # method does not exist, keep trying
 					 :nok
 				promise -> # it does, returned a promise when fulfilled, reply
 					import Promise
 					if msg.id do # no msg.id no reply, but ok
+
+						require Logger
+						Logger.warn("#{__ENV__.file}:#{__ENV__.line}: Used here")
+
 						promise
 						 |> then(fn v ->
 								 reply = %Message{

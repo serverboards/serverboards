@@ -73,9 +73,13 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   If the method does not exists, returns :nok
   """
   def cast(pid, method, params) do
-    promise = Promise.new
     case Agent.get pid, &Map.get(&1, method) do
       {f, options} ->
+        promise = Promise.new
+
+        require Logger
+        Logger.warn("#{__ENV__.file}:#{__ENV__.line}: Leak promise!")
+
         if Keyword.get(options, :async, true) do
           nf = fn params ->
             Task.async fn ->
