@@ -31,8 +31,8 @@ defmodule Serverboards.IO.Client do
 	* `name` -- Provides a name for this connection. For debug pourposes.
 	"""
 	def start_link(options \\ []) do
-		{:ok, to_client} = MOM.RPC.Gateway.start_link
-		{:ok, to_serverboards} = MOM.RPC.Gateway.start_link
+		{:ok, to_client} = MOM.RPC.start_link
+		{:ok, to_serverboards} = MOM.RPC.start_link
 		{:ok, state} = Agent.start_link(fn -> %{} end)
 
 		client = %Serverboards.IO.Client{
@@ -72,7 +72,7 @@ defmodule Serverboards.IO.Client do
 		#Logger.debug("#{inspect client}")
 		tap(client)
 
-		import Serverboards.MOM.RPC.Gateway
+		import Serverboards.MOM.RPC
 
 		ts = client.to_serverboards
 		add_method ts, "version", fn _ ->
@@ -84,8 +84,7 @@ defmodule Serverboards.IO.Client do
 		end
 
 		if not get_user client do
-			Serverboards.Auth.authenticate(client)
-				|> Promise.then( &Auth.set_user(client, &1) )
+			Serverboards.Auth.authenticate(client, &Auth.set_user(client, &1))
 		end
 
 		{:reply, :ok, client}
@@ -94,10 +93,10 @@ defmodule Serverboards.IO.Client do
 	@doc ~S"""
 	Call method from external client to serverboards.
 
-	On reply callback will be called.
+	When reply callback will be called with {:ok, value} or {:error, reason}.
 	"""
 	def call(client, method, params, id, callback) do
-		case RPC.Gateway.cast(client.to_serverboards, method, params, id, callback) do
+		case RPC.cast(client.to_serverboards, method, params, id, callback) do
 			:nok ->
 				callback.({ :error, "unknown_method" })
 			:ok -> :ok
@@ -108,7 +107,7 @@ defmodule Serverboards.IO.Client do
 	Call event from external client to serverboards
 	"""
 	def event(client, method, params) do
-		RPC.Gateway.event(client.to_serverboards, method, params)
+		RPC.event(client.to_serverboards, method, params)
 	end
 
 	@doc ~S"""

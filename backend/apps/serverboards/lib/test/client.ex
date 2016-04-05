@@ -44,7 +44,14 @@ defmodule Test.Client do
 	Calls into the client
 	"""
 	def call(client, method, params, id) do
-		GenServer.call(client.options.pid, {:call_serverboards, method, params, id})
+		case GenServer.call(client.options.pid, {:call_serverboards, method, params, id}) do
+			{:ok, res} ->
+				res
+			{:error, :unknown_method} ->
+				raise Serverboards.MOM.RPC.UnknownMethod, method: method
+			e ->
+				raise e
+		end
 	end
 
 	## server impl
@@ -83,8 +90,9 @@ defmodule Test.Client do
 	end
 
 	def handle_call({:call_serverboards, method, params, id}, from, status) do
-		Serverboards.IO.Client.call(status.client, method, params, id, fn res ->
-			GenServer.reply(from, res)
+		Serverboards.IO.Client.call(status.client, method, params, id, fn
+			res ->
+				GenServer.reply(from, res)
 		end)
 		{:noreply, status}
 	end

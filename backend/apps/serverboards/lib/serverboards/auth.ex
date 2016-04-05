@@ -38,40 +38,42 @@ defmodule Serverboards.Auth do
 	end
 
 	@doc ~S"""
-	Sets up the client for authentication and returns future to be fulfilled when
-	the user authenticates, with the authenticated user.
+	Sets up the client for authentication.
+
+	Can call a continuation function f(user) when authentication succeds.
 	"""
-	def authenticate(client) do
-		import Serverboards.MOM.RPC.Gateway
+	def authenticate(client, cont \\ nil) do
+		import Serverboards.MOM.RPC
 
-		authenticated_promise = Promise.new
-		method_id = add_method client.to_serverboards, "auth.auth", fn params ->
-			user = GenServer.call(Serverboards.Auth, {:auth, params})
-			if user do
-				#remove_method(method_id)
-				#Logger.debug("Logged in!")
-				authenticated(client, user)
+		method_id = add_method(client.to_serverboards, "auth.auth", fn
+			%{ "type" => _ } = params ->
+				user = GenServer.call(Serverboards.Auth, {:auth, params})
+				if user do
+					#remove_method(method_id)
+					#Logger.debug("Logged in!")
+					authenticated(client, user)
 
-				Promise.set(authenticated_promise, user)
-				user
-			else
-				#Logger.debug("NOT Logged in.")
-				false
-			end
-		end
+					if cont do
+						cont.(user)
+					end
+					user
+				else
+					#Logger.debug("NOT Logged in.")
+					false
+				end
+		end)
 
 		event( client.to_client, "auth.required", ["basic"] )
-
-		authenticated_promise
+		:ok
 	end
 
 	@doc ~S"""
 	After being authenticated, set up the client as that user
 	"""
 	defp authenticated(client, user) do
-		import Serverboards.MOM.RPC.Gateway
+		import Serverboards.MOM.RPC
 
-		add_method client.to_serverboards, "auth.user", fn params ->
+		add_method client.to_serverboards, "auth.user", fn [] ->
 			user
 		end
 
@@ -87,7 +89,6 @@ defmodule Serverboards.Auth do
 				:observer.start
 			end
 		end
-
 
 		user
 	end

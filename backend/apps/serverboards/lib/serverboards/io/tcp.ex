@@ -73,7 +73,7 @@ defmodule Serverboards.IO.TCP do
 		res = case res do
 			{:error, error} ->
 				%{ "error" => error, "id" => id}
-			res ->
+			{:ok, res} ->
 				%{ "result" => res, "id" => id}
 		end
 		{:ok, res} = JSON.encode( res )
