@@ -1,10 +1,10 @@
 # Roadmap
 
-## 2016-03-18 - Webpage
+## 2016-03-18 - ~~Webpage~~
 
 Functional https://serverboards.io, with blog, comments, subscription and so on.
 
-## 2016-04-01 - Authentication RPC
+## 2016-04-01 - ~~Authentication RPC~~
 
 Be able to enter via TCP and authenticate using email / password. Must set
 permissions.
