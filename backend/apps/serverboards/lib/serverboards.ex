@@ -3,7 +3,7 @@ defmodule Serverboards do
 		import Supervisor.Spec
 
 		children = [
-			supervisor(Serverboards.Auth.Repo, []),
+			supervisor(Serverboards.Repo, []),
 			supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
 			worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
 			worker(Serverboards.Auth, [:start_link, []])

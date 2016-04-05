@@ -7,13 +7,16 @@ defmodule Serverboards.AuthUserTest do
   doctest Serverboards.Auth
   doctest Serverboards.Auth.Permission
 
-  alias Serverboards.Auth.{User, Repo, Group, UserGroup, GroupPerms, Permission}
+  alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}
+  alias Serverboards.Repo
   import Ecto.Query
 
   setup_all do
     Repo.delete_all(UserGroup)
     Repo.delete_all(GroupPerms)
     Repo.delete_all(Permission)
+    Repo.delete_all(User.Password)
+    Repo.delete_all(User.Token)
     Repo.delete_all(Group)
     Repo.delete_all(User)
 
@@ -23,12 +26,18 @@ defmodule Serverboards.AuthUserTest do
       last_name: "Moreno",
       is_active: true,
       })
+    User.Password.set_password(user, "asdfgh")
+
+
+
     {:ok, userb} = Repo.insert(%User{
       email: "dmoreno+b@serverboards.io",
       first_name: "David",
       last_name: "Moreno B",
       is_active: true,
       })
+
+
     {:ok, group} = Repo.insert(%Group{ name: "admin" })
     {:ok, group} = Repo.insert(%Group{ name: "user" })
 
@@ -61,10 +70,12 @@ defmodule Serverboards.AuthUserTest do
   end
 
   test "Set password", %{ user: user } do
+    {:error, _} = User.Password.set_password(user, "")
+    {:error, _} = User.Password.set_password(user, "1234")
+    {:error, _} = User.Password.set_password(user, "1234567")
+
     password = "abcdefgh"
-    {:ok, pw} = User.Password.set_password(user, password)
-    Logger.debug("#{inspect pw}")
-    assert pw.password != password
+    :ok = User.Password.set_password(user, password)
 
     #Logger.debug("Check password t #{User.Password.check_password(user, password)}")
     assert User.Password.check_password(user, password)
@@ -72,21 +83,48 @@ defmodule Serverboards.AuthUserTest do
     assert User.Password.check_password(user, password <> "1") == false
   end
 
-  test "Authenticate", %{ user: user } do
+  test "Authenticate with password", %{ user: user } do
     password = "abcdefgh"
-    {:ok, pw} = User.Password.set_password(user, password)
+    :ok = User.Password.set_password(user, password)
 
-    userb = User.auth("dmoreno@serverboards.io", password)
+    userb = User.Password.auth("dmoreno@serverboards.io", password)
     assert userb.id == user.id
     Logger.debug("Permissions: #{inspect User.get_perms user}")
 
     Repo.update(User.changeset(user, %{ is_active: false }))
-    userb = User.auth("dmoreno@serverboards.io", password)
+    userb = User.Password.auth("dmoreno@serverboards.io", password)
     assert userb == false
 
     Repo.update(User.changeset(user, %{ is_active: true }))
     #Logger.debug("Permissions: #{inspect user.perms}")
   end
+
+  test "Authenticate with token", %{ user: user } do
+    token = case User.Token.create(user) do
+      {:error, _} -> flunk "Error creating token!"
+      t           -> t
+    end
+
+    userb = User.Token.auth(token)
+    assert userb.id == user.id
+
+    assert User.Token.auth("garbage") == false
+
+    # manual set time_limit to 1 min ago
+    tk = Repo.get_by(User.Token, token: token)
+    tl = Timex.to_erlang_datetime( Timex.shift( Timex.DateTime.now, minutes: -1 ) )
+    {:ok, tl} = Ecto.DateTime.cast tl
+    #cs = tk |> Ecto.Changeset.cast( %{ time_limit: tl}, [:token, :user_id], [:time_limit] )
+    case Repo.update( %User.Token{ tk | time_limit: tl} ) do
+      {:ok, _} -> :ok
+      msg -> flunk (inspect msg)
+    end
+
+    # now is invalid, expired
+    assert User.Token.auth(token) == false
+
+  end
+
 
   test "Groups and permissions", %{ user: user, userb: userb } do
     admin = Repo.get_by(Group, name: "admin")
@@ -104,16 +142,17 @@ defmodule Serverboards.AuthUserTest do
     Group.add_user(admin, userb)
 
     users = Repo.all( Group.users(admin) )
-    assert (for u <- users, do: u.id)  == [user.id, userb.id]
+    assert Enum.sort(for u <- users, do: u.id)  == Enum.sort [user.id, userb.id]
 
     assert_raise Ecto.ConstraintError, fn ->
       Group.add_user(admin, userb)
     end
 
-    Group.add_perm(admin, "auth.create_user")
+    Group.add_perm(admin, "auth.modify_self")
+    Group.add_perm(admin, "debug")
 
     perms = User.get_perms(user)
-    assert "auth.create_user" in perms
+    assert "auth.modify_self" in perms
 
   end
 end

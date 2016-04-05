@@ -29,7 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
-config :auth, Serverboards.Auth.Repo,
+config :serverboards, Serverboards.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "serverboards",
   username: "postgres",

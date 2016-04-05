@@ -1,6 +1,6 @@
 defmodule Serverboards.Auth.Permission do
 	use Ecto.Schema
-	alias Serverboards.Auth.Repo
+	alias Serverboards.Repo
 
 	schema "auth_permission" do
 		field :code, :string
@@ -15,11 +15,13 @@ defmodule Serverboards.Auth.Permission do
 		iex> perm = Serverboards.Auth.Permission.ensure_exists("auth.create_user")
 		iex> perm.code
 		"auth.create_user"
-		
+
 	"""
 	def ensure_exists(code) do
 		case Repo.get_by(Serverboards.Auth.Permission, code: code) do
-			nil -> Repo.insert( %Serverboards.Auth.Permission{code: code})
+			nil ->
+				{:ok, perm} = Repo.insert( %Serverboards.Auth.Permission{code: code})
+				perm
 			perm -> perm
 		end
 	end

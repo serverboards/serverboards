@@ -24,7 +24,8 @@ defmodule Serverboards.Mixfile do
             :ecto,
             :postgrex,
             :comeonin,
-            :mom
+            :mom,
+            :timex
             ],
       mod: {Serverboards, []},
     ]
@@ -50,6 +51,7 @@ defmodule Serverboards.Mixfile do
       {:ecto, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
       {:comeonin, "~> 2.1"},
+      {:timex, "~> 2.1.4"},
     ]
   end
 end

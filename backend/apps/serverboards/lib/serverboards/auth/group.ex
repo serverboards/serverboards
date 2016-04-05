@@ -37,13 +37,15 @@ defmodule Serverboards.Auth.Group do
 	end
 
 	def add_user(group, user) do
-		alias Serverboards.Auth.{UserGroup, Repo}
+		alias Serverboards.Auth.UserGroup
+		alias Serverboards.Repo
 
 		Repo.insert( %UserGroup{ user_id: user.id, group_id: group.id })
 	end
 
 	def add_perm(group, code) do
-		alias Serverboards.Auth.{Permission, GroupPerms, Repo}
+		alias Serverboards.Auth.{Permission, GroupPerms}
+		alias Serverboards.Repo
 
 		perm = Permission.ensure_exists(code)
 		Repo.insert( %GroupPerms{ group_id: group.id, perm_id: perm.id } )

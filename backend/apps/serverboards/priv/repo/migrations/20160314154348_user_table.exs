@@ -1,4 +1,4 @@
-defmodule Serverboards.Auth.Repo.Migrations.UserTable do
+defmodule Serverboards.Repo.Migrations.UserTable do
   use Ecto.Migration
 
   def change do
