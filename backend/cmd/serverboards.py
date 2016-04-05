@@ -155,14 +155,21 @@ class Client:
                 printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
         return res
 
-    def call(self, line):
+    def call(self, line, quiet=False):
         """
         Performs the parsing, sending command, and receiving answer
         """
         if line.startswith('#'):
             return None
-        cmd = self.send_command( parse_command(line) )
-        res = self.wait_for_response(cmd.get('id'))
+        if quiet:
+            tmp=self.stdout
+            self.stdout=False
+            cmd = self.send_command( parse_command(line) )
+            res = self.wait_for_response(cmd.get('id'))
+            self.stdout=tmp
+        else:
+            cmd = self.send_command( parse_command(line) )
+            res = self.wait_for_response(cmd.get('id'))
         if res:
             if 'result' in res:
                 return res['result']
@@ -176,6 +183,61 @@ class Client:
                 self.call(l)
             except Exception:
                 pass
+
+class Completer:
+    """
+    Sets up the autocompleter to ease use of CLI
+
+    >>> completer=Completer(Client())
+    >>> completer.complete("", 0)
+    'auth.auth'
+    >>> completer.complete("", 1)
+    'dir'
+    >>> completer.complete("dir", 0)
+    'dir'
+    >>> completer.display_matches("", ["auth.auth", "dir"], 0) #doctest: +NORMALIZE_WHITESPACE
+    auth.auth dir
+    >
+    """
+    def __init__(self, client):
+        self.client=client
+        self.options=None
+
+        readline.set_completer(self.complete)
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer_delims(" \t:\"'")
+        readline.set_completion_display_matches_hook(self.display_matches)
+        pass
+    def complete(self, text, index):
+        if index==0:
+            self.options=sorted( self.client.call("dir", quiet=True) )
+            if text:
+                self.options=[x for x in self.options if x.startswith(text)]
+        if index<len(self.options):
+            return self.options[index]
+        return None
+    def display_matches(self, substitution, matches, longest_match_length):
+        line_buffer = readline.get_line_buffer()
+        columns = os.environ.get("COLUMNS", 80)
+
+        #print('\r'+(' '*(columns-1))+'\r', end='')
+
+        tpl = "{:<" + str(int(max(map(len, matches)) * 1.2)) + "}"
+
+        buffer = "\r"
+        for match in matches:
+            match = tpl.format(match[len(substitution):])
+            if len(buffer + match) > columns:
+                print(buffer)
+                buffer = ""
+            buffer += match
+
+        if buffer:
+            print(buffer)
+
+        print("> ", end="")
+        print(line_buffer, end="")
+        sys.stdout.flush()
 
 if __name__=='__main__':  # pragma: no cover
     histfile = os.path.join(os.path.expanduser("~/.config/serverboards/"), "cmd_history")
@@ -200,6 +262,7 @@ if __name__=='__main__':  # pragma: no cover
             for in_file in sys.argv[1:]:
                 client.parse_file(in_file)
         else:
+            completer=Completer(client)
             try:
                 while True:
                     line = input('> ')
