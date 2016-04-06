@@ -9,7 +9,8 @@ id: serverboards.auth.htpasswd
 
 components:
   - name: auth
-    type: iocmd+auth
+    type: iocmd
+    traits: auth
     id: auth
     timeout: 1000
     cmd: htpasswd-auth.py

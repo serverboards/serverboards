@@ -8,7 +8,16 @@ except:
 rpc_registry={}
 
 def rpc_method(f):
-    rpc_registry[f.__name__]=f
+    if type(f)==str:
+        method_name=f
+        def regf(f):
+            print("Registry %s: %s"%(method_name, repr(f)))
+            rpc_registry[method_name]=f
+            return f
+        return regf
+    else:
+        print("Registry %s"%(f.__name__))
+        rpc_registry[f.__name__]=f
     return f
 
 def call(rpc):
@@ -24,13 +33,19 @@ def call(rpc):
             'id' : rpc['id']
             }
 
+@rpc_method("dir")
+def __dir():
+    return rpc_registry.keys()
 
 def loop():
     while True:
-        l=input()
+        try:
+            l=input()
+        except EOFError:
+            return
         rpc = json.loads(l)
-        if 'method' in rpc_registry:
+        if rpc['method'] in rpc_registry:
             res=call(rpc)
             print(json.dumps(res))
         else:
-            print("***ERROR***")
+            print("***ERROR, no method: %s"%(str(__dir())))
