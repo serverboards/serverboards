@@ -4,7 +4,8 @@ defmodule Serverboards.Plugin.Component do
     name: nil,
     type: nil,
     traits: [],
-    extra: %{}
+    extra: %{},
+    plugin: nil # only filled when out of plugin struct.
   ]
 
 

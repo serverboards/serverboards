@@ -12,7 +12,6 @@ defmodule Serverboards.Supervisor do
 
 		 children=[
 			 worker(Serverboards.IO.TCP, [Serverboards.IO.TCP, 4040] ),
-			 worker(Serverboards.Plugins.Registry, [Serverboards.Plugins.Registry])
 		 ]
 
 		 supervisor(children, strategy: :one_for_one)

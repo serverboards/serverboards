@@ -4,5 +4,6 @@ defmodule Serverboards.PluginTest do
   #@moduletag :capture_log
 
   doctest Serverboards.Plugin.Parser, import: true
+  doctest Serverboards.Plugin.Registry, import: true
   #doctest Serverboards.Auth.Permission
 end
