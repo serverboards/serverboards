@@ -25,7 +25,8 @@ defmodule Serverboards.Mixfile do
             :postgrex,
             :comeonin,
             :mom,
-            :timex
+            :timex,
+            :yaml_elixir,
             ],
       mod: {Serverboards, []},
     ]
@@ -52,6 +53,8 @@ defmodule Serverboards.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:comeonin, "~> 2.1"},
       {:timex, "~> 2.1.4"},
-    ]
+      {:json,  "~> 0.3.0"},
+      {:yaml_elixir, "~> 1.0.0" },
+      {:yamerl, github: "yakaz/yamerl" }    ]
   end
 end
