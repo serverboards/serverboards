@@ -1,0 +1,15 @@
+name: htpasswd
+description: >
+  Allows to log in using a htpasswd file. See htpasswd(2).
+  Have the file at $INSTALLPATH/config/htpasswd file.
+author: David Moreno <dmoreno@serverboards.io>
+id: serverboards.auth.htpasswd
+version: 0.0.1
+id: serverboards.auth.htpasswd
+
+components:
+  - name: auth
+    type: iocmd+auth
+    id: auth
+    timeout: 1000
+    cmd: htpasswd-auth.py
