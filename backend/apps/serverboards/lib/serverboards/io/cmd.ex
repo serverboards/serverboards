@@ -16,7 +16,7 @@ defmodule Serverboards.IO.Cmd do
     "pang"
     iex> ( Enum.count call( ls, "ls", ["."], 2) ) > 1
     true
-    iex> call( ls, "invalid", [], 2)
+    iex> call ls, "invalid"
     ** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "invalid"
     iex> stop(ls)
     :ok
@@ -30,7 +30,14 @@ defmodule Serverboards.IO.Cmd do
     GenServer.stop(cmd)
   end
 
-  def call(cmd, method, params, id \\ 1) do
+  @doc ~S"""
+  Performs a call into the command.
+
+  By default uses id 1 as normally its used in synchronous fashion.
+
+  This function is used mainly in testing.
+  """
+  def call(cmd, method, params \\ [], id \\ 1) do
     case GenServer.call(cmd, {:call, method, params, id}) do
       {:ok, res} -> res
       {:error, "unknown_method"} -> raise Serverboards.MOM.RPC.UnknownMethod, method: method
