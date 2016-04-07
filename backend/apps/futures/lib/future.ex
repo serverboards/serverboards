@@ -1,2 +1,0 @@
-defmodule Future do
-end
