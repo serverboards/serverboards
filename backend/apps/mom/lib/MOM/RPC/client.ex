@@ -44,10 +44,6 @@ defmodule Serverboards.MOM.RPC.Client do
 		{:ok, to_serverboards} = MOM.RPC.start_link
 		{:ok, state} = Agent.start_link(fn -> %{} end)
 
-    MOM.Channel.subscribe(to_client.request, fn msg ->
-      RPC.Client.call_to_remote(msg.payload.method, msg.payload.params, msg.id)
-      :ok
-    end)
 
 		client = %Serverboards.MOM.RPC.Client{
 			to_client: to_client,
@@ -58,6 +54,25 @@ defmodule Serverboards.MOM.RPC.Client do
 			state: state,
       writef: writef,
 		}
+
+    MOM.Channel.subscribe(to_client.request, fn msg ->
+      RPC.Client.call_to_remote(client, msg.payload.method, msg.payload.params, msg.id)
+      :ok
+    end)
+
+    ## Final setup, basic methods
+    import Serverboards.MOM.RPC
+
+    #tap(client)
+    ts = client.to_serverboards
+    add_method ts, "version", fn _ ->
+      Keyword.get Serverboards.Mixfile.project, :version
+    end
+
+    add_method ts, "ping", fn _ ->
+      "pong"
+    end
+
 
 		{:ok, client }
 	end
@@ -73,31 +88,6 @@ defmodule Serverboards.MOM.RPC.Client do
 			Serverboards.MOM.RPC.tap(client.to_serverboards)
 			Serverboards.MOM.RPC.tap(client.to_client)
 		end
-		{:reply, :ok, client}
-	end
-
-	@doc ~S"""
-	Mark that client is ready and should start working.
-
-	This is a two step initialization (start_link / ready) to be able to
-	add necesary callbacks and connections before any message is processed.
-	"""
-	def ready(client) do
-		require Logger
-		#Logger.debug("#{inspect client}")
-		tap(client)
-
-		import Serverboards.MOM.RPC
-
-		ts = client.to_serverboards
-		add_method ts, "version", fn _ ->
-			Keyword.get Serverboards.Mixfile.project, :version
-		end
-
-		add_method ts, "ping", fn _ ->
-			"pong"
-		end
-
 		{:reply, :ok, client}
 	end
 

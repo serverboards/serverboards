@@ -44,6 +44,7 @@ defmodule Serverboards.Auth do
 	"""
 	def authenticate(client, cont \\ nil) do
 		import Serverboards.MOM.RPC
+		#Logger.debug("Asking for authentication #{inspect client}")
 
 		method_id = add_method(client.to_serverboards, "auth.auth", fn
 			%{ "type" => _ } = params ->
