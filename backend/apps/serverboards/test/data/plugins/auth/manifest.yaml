@@ -1,0 +1,13 @@
+name: Auth test
+description: >
+  Simple auth plugin, that logins using a simple token.
+author: David Moreno <dmoreno@serverboards.io>
+id: serverboards.test.auth
+version: 0.0.1
+
+components:
+  - name: auth
+    type: cmd
+    traits: auth
+    id: auth.test
+    command: auth.py

@@ -3,8 +3,8 @@ from __future__ import print_function
 import serverboards, sys
 
 @serverboards.rpc_method
-def auth(email, password):
-    if email=="dmoreno@serverboards.io" and password=="asdfghjkl":
+def auth(token=None):
+    if token=="XXX":
         return 'dmoreno@serverboards.io'
     return False
 

@@ -101,9 +101,9 @@ defmodule Serverboards.Plugin.Parser do
 
   ## Examples
 
-    iex> {:ok, plugin} = Serverboards.Plugin.Parser.read("test/data/plugins/test/manifest.yaml")
+    iex> {:ok, plugin} = Serverboards.Plugin.Parser.read("test/data/plugins/auth/manifest.yaml")
     iex> plugin.id
-    "serverboards.auth.htpasswd"
+    "serverboards.test.auth"
 
     iex> Serverboards.Plugin.Parser.read("test/data/plugins/invalid/manifest.yaml")
     {:error, :invalid_yaml}
@@ -136,7 +136,7 @@ defmodule Serverboards.Plugin.Parser do
     iex> Enum.count plugins
     1
     iex> (hd plugins).id
-    "serverboards.auth.htpasswd"
+    "serverboards.test.auth"
 
     iex> read_dir("test/data/invalid/")
     {:error, :enoent}
