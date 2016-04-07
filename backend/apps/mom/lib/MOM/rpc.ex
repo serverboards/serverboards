@@ -36,7 +36,7 @@ defmodule Serverboards.MOM.RPC do
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
-		** (Serverboards.MOM.RPC.UnknownMethod) unknown method "echo"
+		** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "echo"
 
 	"""
 	alias Serverboards.MOM.{RPC, Tap}
