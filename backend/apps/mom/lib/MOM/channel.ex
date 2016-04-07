@@ -85,6 +85,10 @@ defmodule Serverboards.MOM.Channel do
 		GenServer.call(channel, {:send, message})
 	end
 
+	def send(channel, %Message{} = message, options) do
+		GenServer.call(channel, {:send, message, options})
+	end
+
 	@doc ~S"""
 	Subscribes to a channel.
 
@@ -229,5 +233,14 @@ defmodule Serverboards.MOM.Channel do
 			end
 		end
 		{:reply, ok, state}
+	end
+
+	def handle_call({:send, msg, options}, from, state) do
+		# forces send to all, this is a hack over pointopoint channels
+		if Enum.member? options, :all do
+			handle_call({:send, msg}, from, state)
+		else
+			raise "Only allowed option is :all"
+		end
 	end
 end

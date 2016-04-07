@@ -65,4 +65,31 @@ defmodule Serverboards.RPCTest do
     end
     assert RPC.call(rpc, "echo", %{ type: :test}, 1) == "map with type"
   end
+
+
+  test "dir aggregates from all method callers and even calls remotes" do
+    {:ok, rpc} = RPC.start_link
+    RPC.tap( rpc )
+
+    RPC.add_method rpc, "echo", fn
+      [_] -> "one item"
+      [] -> "empty"
+      %{ type: _ } -> "map with type"
+    end, async: true
+
+    {:ok, mc1} = RPC.MethodCaller.start_link
+    RPC.MethodCaller.add_method mc1, "echo1", &(&1)
+
+    {:ok, mc2} = RPC.MethodCaller.start_link
+    RPC.MethodCaller.add_method mc2, "echo2", &(&1)
+
+    {:ok, mc3} = RPC.MethodCaller.start_link
+    RPC.MethodCaller.add_method mc2, "echo3", &(&1)
+
+    RPC.add_method_caller rpc, mc1
+    RPC.add_method_caller rpc, mc2
+    RPC.MethodCaller.add_method_caller mc2, mc3
+
+    assert RPC.call(rpc, "dir", [], 1) == ~w(dir echo echo1 echo2 echo3)
+  end
 end
