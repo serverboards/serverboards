@@ -83,7 +83,7 @@ defmodule Serverboards.IO.Client do
 			"pong"
 		end
 
-		if not get_user client do
+		if (get_user client) == false do
 			Serverboards.Auth.authenticate(client)
 		end
 
@@ -124,16 +124,27 @@ defmodule Serverboards.IO.Client do
 	Reply to a previous call to client. This is the answer from "on_call".
 	"""
 	def reply(client, result, id) do
-		Channel.send(client.to_client.reply, %MOM.Message{
+		MOM.Channel.send(client.to_client.reply, %MOM.Message{
 			id: id,
 			payload: result
+			})
+	end
+	@doc ~S"""
+	Reply to a previous call to client with an error. This is the answer from "on_call".
+	"""
+	def error(client, result, id) do
+		MOM.Channel.send(client.to_client.reply, %MOM.Message{
+			id: id,
+			error: result
 			})
 	end
 
 	@doc ~S"""
 	Sets the user for this client
+
+	User just needs to have email and permissions.
 	"""
-	def set_user(client, %Serverboards.Auth.User{} = user) do
+	def set_user(client, %{ email: _, perms: _} = user) do
 		Agent.update( client.state, &Map.put(&1, :user, user))
 	end
 

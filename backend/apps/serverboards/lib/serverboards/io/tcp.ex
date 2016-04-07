@@ -2,8 +2,6 @@ require Logger
 require JSON
 
 defmodule Serverboards.IO.TCP do
-	use Application
-
 	alias Serverboards.IO
 
 	def accept(port) do
@@ -24,7 +22,7 @@ defmodule Serverboards.IO.TCP do
 				{:ok, pid} = Task.Supervisor.start_child(Serverboards.IO.TaskSupervisor,
 					fn ->
 						{:ok, client} = IO.Client.start_link(name: "TCP")
-						IO.Client.on_call( client, &call_to_client(client_socket, &1, &2, &3) )
+						IO.Client.on_call( client, &call_to_tcp(client_socket, &1, &2, &3) )
 						IO.Client.ready( client )
 
 						IO.TCP.serve(client, client_socket)
@@ -48,7 +46,7 @@ defmodule Serverboards.IO.TCP do
 				#Logger.debug("Got line #{line}")
 				case JSON.decode(line) do
 					{:ok, %{ "method" => method, "params" => params, "id" => id}} ->
-						IO.Client.call(client, method, params, id, &reply(socket, id, &1))
+						IO.Client.call(client, method, params, id, &reply_to_tcp(socket, id, &1))
 					{:ok, %{ "method" => method, "params" => params}} ->
 						IO.Client.event(client, method, params)
 					{:ok, %{ "result" => result, "id" => id}} ->
@@ -69,7 +67,7 @@ defmodule Serverboards.IO.TCP do
 		end
 	end
 
-	def reply(socket, id, res) do
+	def reply_to_tcp(socket, id, res) do
 		res = case res do
 			{:error, error} ->
 				Logger.error("Error on method response: #{inspect error}")
@@ -83,12 +81,12 @@ defmodule Serverboards.IO.TCP do
 		:gen_tcp.send(socket, res <> "\n")
 	end
 
-	def call_to_client(socket, method, params, id) do
+	def call_to_tcp(socket, method, params, id) do
 		jmsg = %{ method: method, params: params }
 
 		# maybe has id, maybe not.
 		jmsg = if id do
-			%{ jmsg | id: id }
+			Map.put( jmsg, :id, id )
 		else
 			jmsg
 		end
