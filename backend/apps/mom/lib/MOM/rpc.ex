@@ -45,7 +45,7 @@ defmodule Serverboards.MOM.RPC do
 		defexception [method: nil]
 
 		def message(exception) do
-			"unknown method #{inspect(exception.method)}"
+			"Unknown method #{inspect(exception.method)}"
 		end
 	end
 
