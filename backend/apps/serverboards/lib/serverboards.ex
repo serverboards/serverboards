@@ -6,7 +6,8 @@ defmodule Serverboards do
 			supervisor(Serverboards.Repo, []),
 			supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
 			worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
-			worker(Serverboards.Auth, [:start_link, []])
+			worker(Serverboards.Auth, [:start_link, []]),
+			worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
 		]
 
 		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]

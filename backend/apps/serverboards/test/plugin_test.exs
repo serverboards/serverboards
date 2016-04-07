@@ -5,5 +5,6 @@ defmodule Serverboards.PluginTest do
 
   doctest Serverboards.Plugin.Parser, import: true
   doctest Serverboards.Plugin.Registry, import: true
+  doctest Serverboards.Plugin.Component, import: true
   #doctest Serverboards.Auth.Permission
 end

@@ -75,23 +75,45 @@ defmodule Serverboards.IO.Cmd do
 
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do
+    Logger.debug("Got line: <#{line}>")
     client=state.client
 
-    case JSON.decode( line ) do
-      {:ok, %{ "method" => method, "params" => params, "id" => id}} ->
-        IO.Client.call(client, method, params, id, &reply_to_cmd(state.port, id, &1))
-      {:ok, %{ "method" => method, "params" => params}} ->
-        IO.Client.event(client, method, params)
-      {:ok, %{ "result" => result, "id" => id}} ->
-        IO.Client.reply(client, result, id)
-      {:ok, %{ "error" => params, "id" => id}} ->
-        IO.Client.error(client, params, id)
-      _ ->
-        Logger.debug("Invalid message from client: #{line}")
-        raise Protocol.UndefinedError, "Invalid message from client. Closing."
+    case line do
+      '' ->
+        :empty
+      line ->
+        case JSON.decode( line ) do
+          {:ok, %{ "method" => method, "params" => params, "id" => id}} ->
+            IO.Client.call(client, method, params, id, &reply_to_cmd(state.port, id, &1))
+          {:ok, %{ "method" => method, "params" => params}} ->
+            IO.Client.event(client, method, params)
+          {:ok, %{ "result" => result, "id" => id}} ->
+            IO.Client.reply(client, result, id)
+          {:ok, %{ "error" => params, "id" => id}} ->
+            IO.Client.error(client, params, id)
+          _ ->
+            Logger.debug("Invalid message from client: #{line}")
+            raise Protocol.UndefinedError, "Invalid message from client. Closing."
+        end
     end
     {:noreply, state}
   end
+
+  def handle_info(a, state) do
+    Logger.debug("Got non managed info #{inspect a}")
+    {:noreply, state}
+  end
+
+  def handle_cast(a, state) do
+    Logger.debug("Got non managed cast #{inspect a}")
+    {:noreply, state}
+  end
+
+  def handle_call(a, from, state) do
+    Logger.debug("Got non managed call #{inspect a}")
+    {:reply, :ok, state}
+  end
+
 
   # Sends a reply to the cmd
   def reply_to_cmd(port, id, res) do

@@ -7,6 +7,8 @@ defmodule Serverboards.Plugin do
     version: nil,
 
     components: [],
-    extra: %{}
+    extra: %{},
+
+    path: nil # set by parser/loader
   ]
 end

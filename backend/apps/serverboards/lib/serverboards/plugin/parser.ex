@@ -165,12 +165,14 @@ defmodule Serverboards.Plugin.Parser do
         plugins = allfiles
             |> filter(&is_directory.(dirname, &1))
             |> filter(&has_manifest.(dirname<>"/"<>&1))
-            |> map(&read("#{dirname}/#{&1}/manifest.yaml"))
+            |> map(&{read("#{dirname}/#{&1}/manifest.yaml"), &1}) # returns {{:ok, plugin}, midpath}
             |> filter(fn
-                {:ok, _} -> true
+                {{:ok, _}, _} -> true
                 _ -> false
                 end)
-            |> map(fn {:ok, p} -> p end)
+            |> map(fn {{:ok, p}, midpath} ->
+              %Serverboards.Plugin{ p | path: "#{dirname}/#{midpath}" } # set plugin dirname
+            end)
 
         {:ok, plugins}
       e ->
