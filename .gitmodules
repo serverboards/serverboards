@@ -1,0 +1,12 @@
+[submodule "backend"]
+	path = backend
+	url = ssh://git@git.coralbits.com:10022/serverboards/backend.git
+[submodule "frontend"]
+	path = frontend
+	url = ssh://git@git.coralbits.com:10022/serverboards/frontend.git
+[submodule "cli"]
+	path = cli
+	url = ssh://git@git.coralbits.com:10022/serverboards/cli.git
+[submodule "plugins"]
+	path = plugins
+	url = ssh://git@git.coralbits.com:10022/serverboards/plugins.git
