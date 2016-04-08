@@ -3,3 +3,4 @@
 !.babelrc
 *~
 node_modules
+.semantic
