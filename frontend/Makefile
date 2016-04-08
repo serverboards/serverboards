@@ -1,10 +1,16 @@
-all: setup build-semantic build-react
+all: setup compile
 
-build-semantic: dist/js/semantic.min.js dist/css/semantic.min.css
+compile: dist/js/semantic.min.js dist/css/semantic.min.css dist/js/bundle.js \
+	dist/css/serverboards.min.css dist/js/jsquery-2.2.3.min.js \
+	 ../dist/css/themes/
 
 dist/css/semantic.min.css: semantic/dist/semantic.min.css
 	mkdir -p dist/css
 	cp semantic/dist/semantic.min.css dist/css
+
+dist/js/jsquery-2.2.3.min.js: static/*
+	cp static/* dist/ -a
+
 
 dist/js/semantic.min.js: semantic/dist/semantic.min.css
 	mkdir -p dist/js
@@ -16,12 +22,17 @@ semantic/dist/semantic.min.js: semantic/dist/
 
 semantic/dist/: semantic
 	cd semantic && ../node_modules/gulp/bin/gulp.js build
-	cp dist/themes/ ../dist/css/ -a
 
-build-react:
+../dist/css/themes/: semantic/dist/
+	cp semantic/dist/themes dist/css/ -a
+
+dist/css/serverboards.min.css: css/*.sass
+	sass $< $@
+
+dist/js/bundle.js:
 	npm run build
 
-start:
+start: compile
 	@echo "URL: http://localhost:8080/webpack-dev-server"
 	npm start
 
