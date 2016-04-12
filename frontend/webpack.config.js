@@ -26,7 +26,7 @@ module.exports = {
             { test: /\.js?$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
             { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
             { test: /\.css$/, loader: "style!css" },
-            { test: /\.sass$/, exclude: /node_modules/, loader: "!style!css?sourceMap!sass?sourceMap!../sass/serverboards.sass"},
+            //{ test: /\.sass$/, exclude: /node_modules/, loaders: ["style","css?sourceMap","sass?sourceMap"]},
         ]
     },
     plugins: [

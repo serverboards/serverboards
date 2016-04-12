@@ -1,20 +1,16 @@
 all: setup compile
 
-compile: dist/js/semantic.min.js dist/css/semantic.min.css dist/js/bundle.js \
-	dist/css/serverboards.min.css dist/js/jsquery-2.2.3.min.js \
-	 ../dist/css/themes/
+compile: dist/
 
-dist/css/semantic.min.css: semantic/dist/semantic.min.css
+dist/: app/* app/*/*
+	node_modules/.bin/webpack --progress --colors --display-error-detailsnode_modules/.bin/webpack --progress --colors --display-error-details
+
+app/css/semantic.min.css: semantic/dist/semantic.min.css
 	mkdir -p dist/css
-	cp semantic/dist/semantic.min.css dist/css
+	cp semantic/dist/semantic.min.css app/css
 
-dist/js/jsquery-2.2.3.min.js: static/*
-	cp static/* dist/ -a
-
-
-dist/js/semantic.min.js: semantic/dist/semantic.min.css
-	mkdir -p dist/js
-	cp semantic/dist/semantic.min.js dist/js
+app/js/semantic.min.js: semantic/dist/semantic.min.js
+	cp semantic/dist/semantic.min.js app/js
 
 semantic/dist/semantic.min.css: semantic/dist/
 
@@ -23,16 +19,10 @@ semantic/dist/semantic.min.js: semantic/dist/
 semantic/dist/: semantic
 	cd semantic && ../node_modules/gulp/bin/gulp.js build
 
-../dist/css/themes/: semantic/dist/
-	cp semantic/dist/themes dist/css/ -a
+app/css/themes/: semantic/dist/
+	cp semantic/dist/themes app/css/ -a
 
-dist/css/serverboards.min.css: css/*.sass
-	sass $< $@
-
-dist/js/bundle.js:
-	npm run build
-
-start: compile
+start:
 	@echo "URL: http://localhost:8080/webpack-dev-server"
 	npm start
 
