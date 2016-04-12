@@ -9,13 +9,26 @@ use Mix.Config
 # back to each application for organization purposes.
 import_config "../apps/*/config/config.exs"
 
-# Sample configuration (overrides the imported configuration above):
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
+# Configures Elixir's Logger
+config :logger, :console,
+  format: "$date $time $metadata[$level] $message\n",
+  metadata: [:request_id]
+
 
 config :serverboards,
-  debug: true,
   plugin_path: "../plugins/"
+
+config :serverboards, Serverboards.HTTP.Endpoint,
+  server: true,
+  url: [host: "localhost"],
+  http: [port: 8080],
+  root: Path.dirname(__DIR__),
+  secret_key_base: "z/AByyR5GKLMJjrMpW/a/pbenQxIYoa3Pa27Ibxs6LLPK1zev45A3zuGShA8aXoH",
+  render_errors: [accepts: ~w(html json)]
+  #pubsub: [name: Backend.PubSub,
+  #         adapter: Phoenix.PubSub.PG2]
+
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{Mix.env}.exs"

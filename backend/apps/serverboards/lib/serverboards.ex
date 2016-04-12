@@ -5,6 +5,7 @@ defmodule Serverboards do
 		children = [
 			supervisor(Serverboards.Repo, []),
 			supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
+			supervisor(Serverboards.HTTP.Endpoint, []),
 			worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
 			worker(Serverboards.Auth, [:start_link, []]),
 			worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
@@ -19,4 +20,8 @@ defmodule Serverboards do
 		Supervisor.start_link(children, opts)
 	end
 
+	def config_change(changed, _new, removed) do
+    Serverboards.HTTP.Endpoint.config_change(changed, removed)
+    :ok
+  end
 end

@@ -27,6 +27,8 @@ defmodule Serverboards.Mixfile do
             :mom,
             :timex,
             :yaml_elixir,
+            :phoenix,
+            :cowboy
             ],
       mod: {Serverboards, []},
     ]
@@ -54,6 +56,11 @@ defmodule Serverboards.Mixfile do
       {:timex, "~> 2.1.4"},
       {:json,  "~> 0.3.0"},
       {:yaml_elixir, "~> 1.0.0" },
-      {:yamerl, github: "yakaz/yamerl" }    ]
+      {:yamerl, github: "yakaz/yamerl" },
+      {:phoenix, "~> 1.1.4"},
+      {:phoenix_ecto, "~> 2.0"},
+      {:phoenix_live_reload, "~> 1.0", only: :dev},
+      {:cowboy, "~> 1.0"}
+    ]
   end
 end
