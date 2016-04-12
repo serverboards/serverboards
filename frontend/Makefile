@@ -31,7 +31,12 @@ help:
 	@echo "setup -- Setups the dev environment"
 	@echo "start -- Starts the webpack server at http://localhost:3000/webpack-dev-server"
 	@echo "clean -- Cleans generated code"
+	@echo "watch -- Watches sources and remakes if necessary"
 	@echo "mrproper -- Cleans all development environment (node modules, semantic...)"
+
+watch:
+	npm run-script watch
+
 
 setup: node_modules
 

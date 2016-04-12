@@ -13,7 +13,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: [
-      'webpack/hot/only-dev-server',
+      //'webpack/hot/only-dev-server',
       "./app/js/app.js"
     ],
     output: {
@@ -23,7 +23,7 @@ module.exports = {
     devtool: "source-map",
     module: {
         loaders: [
-            { test: /\.js?$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
+            { test: /\.js?$/, loaders: [/* 'react-hot', */ 'babel'], exclude: /node_modules/ },
             { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
             { test: /\.css$/, loader: "style!css" },
             //{ test: /\.sass$/, exclude: /node_modules/, loaders: ["style","css?sourceMap","sass?sourceMap"]},
