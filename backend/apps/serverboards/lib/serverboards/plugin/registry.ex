@@ -4,8 +4,9 @@ defmodule Serverboards.Plugin.Registry do
 
   def start_link(options \\ []) do
     res = Agent.start_link(fn ->
-      Logger.debug("Get plugins")
-      {:ok, plugins} = Serverboards.Plugin.Parser.read_dir("test/data/plugins/")
+      path=Application.fetch_env! :serverboards, :plugin_path
+      Logger.debug("Get plugins from #{path} ")
+      {:ok, plugins} = Serverboards.Plugin.Parser.read_dir(path)
       Logger.debug("Got plugins #{inspect plugins}")
       plugins
     end, options)

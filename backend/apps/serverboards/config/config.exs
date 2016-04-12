@@ -36,3 +36,6 @@ config :serverboards, Serverboards.Repo,
   password: "postgres",
   hostname: "localhost",
   port: 5433
+
+config :serverboards,
+  plugin_path: "test/data/plugins/"

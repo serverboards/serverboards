@@ -16,4 +16,6 @@ import_config "../apps/*/config/config.exs"
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
-config :serverboards, debug: true
+config :serverboards,
+  debug: true,
+  plugin_path: "../plugins/"
