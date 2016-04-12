@@ -20,6 +20,7 @@ class Login extends React.Component{
   handle_submit(){
     if ($(this.refs.el).form('validate form')){
       console.log("Try log in")
+      this.props.onLogin()
     }
   }
   componentDidMount( ){

@@ -4,11 +4,11 @@ var ReactDOM = require('react-dom');
 
 require("!style!css!sass!../sass/serverboards.sass")
 
-import Login from './components/login.js'
+import Main from './components/main.js'
 
 ReactDOM.render(
   (
-    <Login/>
+    <Main/>
   ),
   document.getElementById('react')
 );
