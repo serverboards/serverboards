@@ -11,7 +11,6 @@ defmodule Serverboards.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     compilers: [:phoenix] ++ Mix.compilers,
      deps: deps]
   end
 
@@ -28,8 +27,7 @@ defmodule Serverboards.Mixfile do
             :mom,
             :timex,
             :yaml_elixir,
-            :phoenix,
-            :cowboy
+            :cowboy, :ranch
             ],
       mod: {Serverboards, []},
     ]
@@ -58,9 +56,6 @@ defmodule Serverboards.Mixfile do
       {:json,  "~> 0.3.0"},
       {:yaml_elixir, "~> 1.0.0" },
       {:yamerl, github: "yakaz/yamerl" },
-      {:phoenix, "~> 1.1.4"},
-      {:phoenix_ecto, "~> 2.0"},
-      {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:cowboy, "~> 1.0"}
     ]
   end

@@ -5,8 +5,8 @@ defmodule Serverboards do
 		children = [
 			supervisor(Serverboards.Repo, []),
 			supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
-			supervisor(Serverboards.HTTP.Endpoint, []),
 			worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
+			worker(Serverboards.IO.HTTP, [:start_link, [8080]]),
 			worker(Serverboards.Auth, [:start_link, []]),
 			worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
 		]
