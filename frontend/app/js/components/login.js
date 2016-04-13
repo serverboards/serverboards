@@ -1,4 +1,5 @@
 import React from 'react';
+import rpc from '../rpc'
 
 class Login extends React.Component{
   constructor(props){
@@ -19,8 +20,22 @@ class Login extends React.Component{
   }
   handle_submit(){
     if ($(this.refs.el).form('validate form')){
+      rpc
+        .call("auth.auth",{email:this.state.email, password:this.state.password, type:"basic"})
+        .then(function(email){
+          console.log("Got answer for login %o", email)
+          if (email){
+            console.log("Logged in as %o",email)
+            this.props.onLogin()
+          }
+          else{
+            console.error("Invalid password")
+          }
+        })
+        .catch(function(msg){
+          console.error("Cant login, %o", error)
+        })
       console.log("Try log in")
-      this.props.onLogin()
     }
   }
   componentDidMount( ){

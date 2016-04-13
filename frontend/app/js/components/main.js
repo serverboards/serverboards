@@ -7,6 +7,7 @@ import Top from './top'
 var Sidebar = Empty
 var Central = Empty
 
+var flash_message_list
 
 var Main = React.createClass({
   getInitialState : function(){
@@ -29,7 +30,9 @@ var Main = React.createClass({
       )
     else
       return (
-        <Login onLogin={() => this.handle_login(true)}/>
+        <div>
+          <Login onLogin={() => this.handle_login(true)}/>
+        </div>
       )
   }
 })
