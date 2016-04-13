@@ -93,11 +93,11 @@ defmodule Serverboards.Auth do
 		end
 
 
-		if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
-			add_method client.to_serverboards, "debug.observer", fn [] ->
-				:observer.start
-			end
-		end
+		#if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
+		#	add_method client.to_serverboards, "debug.observer", fn [] ->
+		#		:observer.start
+		#	end
+		#end
 
 		user
 	end
