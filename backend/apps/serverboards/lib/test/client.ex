@@ -10,16 +10,12 @@ defmodule Test.Client do
 	"""
 	use GenServer
 
+	alias Serverboards.MOM.RPC
+
 	def start_link do
-		{:ok, client} = Serverboards.IO.Client.start_link
-		{:ok, pid } = GenServer.start_link __MODULE__, client, []
-		client = %Serverboards.IO.Client{ client | options: Map.put(client.options, :pid, pid) }
+		{:ok, pid} = GenServer.start_link __MODULE__, :ok, []
 
-		Serverboards.IO.Client.on_call(client, fn (method, params, id) ->
-			GenServer.call(pid, {:call, %{method: method, params: params, id: id} } )
-		end)
-
-		{:ok, client}
+		{:ok, GenServer.call(pid, {:get_client})}
 	end
 
 	@doc ~S"""
@@ -55,7 +51,16 @@ defmodule Test.Client do
 	end
 
 	## server impl
-	def init(client) do
+	def init(:ok) do
+		pid = self()
+		{:ok, client} = RPC.Client.start_link(fn line ->
+			Logger.debug("Write to test client: #{line}")
+			{:ok, rpc_call} = JSON.decode( line )
+			GenServer.call(pid, {:call, rpc_call } )
+		end, name: "TestClient")
+
+		client = %RPC.Client{ client | options: Map.put(client.options, :pid, pid) }
+
 		{:ok, %{
 				client: client,
 				messages: [],
@@ -76,13 +81,20 @@ defmodule Test.Client do
 	def handle_call({:call, msg}, _, status) do
 		if status.expecting do
 			if match(status.expecting.what, msg) do
+				#Logger.debug("Expecting, and got")
 				GenServer.reply(status.expecting.from, msg)
 				# consumed last, empty list, and no expecting anymore.
 				{:reply, :ok, %{
 					status | messages: [], expecting: nil
 					}}
+			else
+				#Logger.debug("Expecting #{inspect status.expecting.what}, but not got (got #{inspect msg})")
+				{:reply, :ok, %{
+					status | messages: status.messages ++ [msg]
+					}}
 			end
 		else
+			#Logger.debug("Not expecting, but got")
 			{:reply, :ok, %{
 				status | messages: status.messages ++ [msg]
 				}}
@@ -90,16 +102,20 @@ defmodule Test.Client do
 	end
 
 	def handle_call({:call_serverboards, method, params, id}, from, status) do
-		Serverboards.IO.Client.call(status.client, method, params, id, fn
+		RPC.Client.call(status.client, method, params, id, fn
 			res ->
 				GenServer.reply(from, res)
 		end)
 		{:noreply, status}
 	end
 
+	def handle_call({:get_client}, from, status) do
+		{:reply, status.client, status}
+	end
+
 	defp match(what, msg) do
 		Enum.all? what, fn {k, v} ->
-			Map.get(msg, k, nil) == v
+			Map.get(msg, to_string(k), nil) == v
 		end
 	end
 end

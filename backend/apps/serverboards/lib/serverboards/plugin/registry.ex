@@ -32,12 +32,12 @@ defmodule Serverboards.Plugin.Registry do
 
   ## Example
 
-    iex> [auth] = filter_component id: "auth"
+    iex> [auth] = filter_component id: "auth.test"
     iex> auth.id
-    "auth"
+    "auth.test"
     iex> [auth] = filter_component trait: "auth"
     iex> auth.id
-    "auth"
+    "auth.test"
     iex> filter_component trait: "XXX"
     []
 
@@ -86,9 +86,9 @@ defmodule Serverboards.Plugin.Registry do
   Find it.
 
     iex> {:ok, rg} = start_link # Using custom registry
-    iex> c = find(rg, "serverboards.auth.htpasswd/auth")
+    iex> c = find(rg, "serverboards.test.auth/auth.test")
     iex> c.id
-    "auth"
+    "auth.test"
     iex> c.type
     "cmd"
     iex> c.plugin != nil
@@ -96,7 +96,9 @@ defmodule Serverboards.Plugin.Registry do
 
   Dont find it. (using global registry)
 
-    iex> find("serverboards.auth.htpasswd/authx")
+    iex> find("serverboards.test.auth/authx")
+    nil
+    iex> find("serverboards.test.authx/auth.test")
     nil
 
   """

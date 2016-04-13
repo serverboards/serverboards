@@ -16,7 +16,7 @@ defmodule Serverboards.MOM.RPC do
 		iex> alias Serverboards.MOM.{Message, Channel, RPC}
 		iex> {:ok, rpc} = RPC.start_link
 		iex> Channel.subscribe(rpc.request, fn msg ->
-		...>  Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
+		...>	Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
 		...> 	:ok
 		...> 	end) # dirty echo rpc.
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
@@ -36,7 +36,7 @@ defmodule Serverboards.MOM.RPC do
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
-		** (Serverboards.MOM.RPC.UnknownMethod) unknown method "echo"
+		** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "echo"
 
 	"""
 	alias Serverboards.MOM.{RPC, Tap}
@@ -79,7 +79,27 @@ defmodule Serverboards.MOM.RPC do
 			method_caller: method_caller,
 		}
 
-		add_method_caller rpc, method_caller
+		# When new request, do the calls and return on the reply channel
+		Channel.subscribe(request, fn msg ->
+			RPC.MethodCaller.cast(method_caller, msg.payload.method, msg.payload.params, fn
+				{:ok, v} ->
+					reply = %Message{
+									payload: v,
+									id: msg.id
+					}
+					Channel.send(msg.reply_to, reply)
+					:ok
+				{:error, :not_found} ->
+					:nok
+				{:error, e} ->
+					reply = %Message{
+						error: e,
+						id: msg.id
+					}
+					Channel.send(msg.reply_to, reply)
+					:ok
+		 end) # returns :ok if has method, or :nok if not.
+		end)
 
 		{:ok, rpc}
 	end
@@ -207,23 +227,7 @@ defmodule Serverboards.MOM.RPC do
 	It is just a list of methods that can be called
 	"""
 	def add_method_caller(rpc, mc) do
-		Channel.subscribe(rpc.request, fn msg ->
-			#Logger.debug("Check method: #{msg.payload.method} #{method}")
-			RPC.MethodCaller.cast(mc, msg.payload.method, msg.payload.params, fn
-				{:ok, v} ->
-					reply = %Message{
-						payload: v,
-						id: msg.id
-					}
-					Channel.send(msg.reply_to, reply)
-				{:error, e} ->
-					reply = %Message{
-						error: e,
-						id: msg.id
-					}
-					Channel.send(msg.reply_to, reply)
-			end) # returns :ok if has method, or :nok if not.
-		end)
+		RPC.MethodCaller.add_method_caller( rpc.method_caller, mc )
 		:ok
 	end
 
@@ -283,6 +287,7 @@ defmodule Serverboards.MOM.RPC do
 	end
 
 	def handle_cast({:reply, message}, status) do
+		Logger.debug("Got reply: #{inspect message}")
 		f_reply_to = Map.get(status, message.id)
 		if f_reply_to do
 			try do
@@ -302,7 +307,7 @@ defmodule Serverboards.MOM.RPC do
 					Channel.send(:invalid, message)
 			end
 		else
-			Logger.error("Invalid answer, not registered. Maybe not a reply. Sent to :invalid channel.")
+			Logger.error("Invalid answer, not registered. Maybe not a reply. Sent to :invalid channel. (#{inspect status}, #{message.id})")
 			Channel.send(:invalid, message)
 		end
 		{:noreply, Map.delete(status, message.id) }

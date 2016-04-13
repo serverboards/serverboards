@@ -15,9 +15,13 @@ defmodule Serverboards.Plugin.Component do
   @doc ~S"""
   Executes the command of the component and returns an RPC endpoint.
 
-    iex> {:ok, pw} = run("serverboards.auth.htpasswd/auth")
+    iex> {:ok, pw} = run("serverboards.test.auth/auth.test")
     iex> Serverboards.IO.Cmd.call pw, "ping"
     "pong"
+    iex> Serverboards.IO.Cmd.call pw, "auth", %{ "token" => "XXX" }
+    "dmoreno@serverboards.io"
+    iex> Serverboards.IO.Cmd.call pw, "auth", %{ "token" => "XXXx" }
+    false
     #iex> Serverboards.IO.Cmd.call pw, "dir"
     #["ping","auth","dir"]
 
