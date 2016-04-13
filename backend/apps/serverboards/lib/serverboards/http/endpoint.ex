@@ -1,9 +1,7 @@
-require Logger
-
 defmodule Serverboards.HTTP.Endpoint do
   use Phoenix.Endpoint, otp_app: :serverboards
 
-  #socket "/socket", Serverboards.HTTP.UserSocket
+  socket "/ws", Serverboards.HTTP.WebSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #

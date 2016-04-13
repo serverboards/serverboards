@@ -9,15 +9,19 @@ defmodule Serverboards.HTTP.Router do
     plug :put_secure_browser_headers
   end
 
+  use Phoenix.Socket, mount: "/ws"
+
   #pipeline :api do
   #  plug :accepts, ["json"]
   #end
+  get "/", Serverboards.HTTP.Index, :index
+  #get "/ws", Serverboards.HTTP.Index, :ws
 
-  scope "/", Serverboards.HTTP do
-    pipe_through :browser # Use the default browser stack
 
-    get "/", Serverboards.HTTP.Index, :index
-  end
+  #scope "/", Serverboards.HTTP do
+  #  pipe_through :browser # Use the default browser stack
+  #
+  #  end
 
   # Other scopes may use custom stacks.
   # scope "/api", Backend do

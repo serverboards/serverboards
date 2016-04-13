@@ -11,6 +11,7 @@ defmodule Serverboards.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     compilers: [:phoenix] ++ Mix.compilers,
      deps: deps]
   end
 
