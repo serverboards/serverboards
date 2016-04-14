@@ -7,7 +7,9 @@ var RPC = function(url){
     else
       url="wss://"+window.location.host+"/ws"
   }
-  url="ws://localhost:8080/ws"
+  if (localStorage.ws_url) // Hack to connect to another server at dev.
+    url=localStorage.ws_url
+
   console.log("Connect RPC to %s", url)
   var rpc = new WebSocket(url)
 
