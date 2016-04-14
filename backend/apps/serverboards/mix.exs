@@ -48,7 +48,7 @@ defmodule Serverboards.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      { :mom, in_umbrella: true},
+      {:mom, in_umbrella: true},
       {:ecto, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
       {:comeonin, "~> 2.1"},

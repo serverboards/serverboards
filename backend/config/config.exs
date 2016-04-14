@@ -37,9 +37,12 @@ config :serverboards, Serverboards.Repo,
   port: 5433
 
 config :serverboards,
-  plugin_path: "test/data/plugins/",
+  plugin_paths: [
+    "apps/serverboards/test/data/plugins/",
+    "../serverboards/test/data/plugins/",
+  ],
   debug: false
-  
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -3,26 +3,26 @@ require Logger
 defmodule Serverboards.Plugin.Registry do
 
   def start_link(options \\ []) do
-    res = Agent.start_link(fn ->
-      path=Application.fetch_env! :serverboards, :plugin_path
-      Logger.debug("Get plugins from #{path} ")
-      {:ok, plugins} = Serverboards.Plugin.Parser.read_dir(path)
-      Logger.debug("Got plugins #{inspect plugins}")
+    {:ok, pid} = Agent.start_link(fn ->
+      paths=Application.fetch_env! :serverboards, :plugin_paths
+      plugins = Enum.flat_map paths, fn path ->
+        path = Path.expand path
+        Logger.debug("Get plugins from #{path} ")
+        case Serverboards.Plugin.Parser.read_dir(path) do
+          {:ok, plugins} -> plugins
+          {:error, err} ->
+            Logger.error("Error loading plugin directory #{path}: #{inspect err}")
+            []
+        end
+      end
+      #Logger.debug("Got plugins #{inspect plugins}")
       plugins
     end, options)
 
-    {:ok, pid} = res
     plugins = Agent.get pid, &(&1)
     Logger.info("Starting plugin registry #{inspect pid}, got #{Enum.count plugins}")
 
     {:ok, pid}
-  end
-  def start_link(a,b,c) do
-    Logger.info(inspect a)
-    Logger.info(inspect b)
-    Logger.info(inspect c)
-
-    start_link
   end
 
   @doc ~S"""
@@ -47,7 +47,7 @@ defmodule Serverboards.Plugin.Registry do
     alias Serverboards.Plugin.Component
 
     plugins = Agent.get registry, &(&1)
-
+    Logger.debug("Known plugins: #{inspect plugins}")
     #fields = q |> map(fn {k,_} -> k end)
 
     components = plugins |>

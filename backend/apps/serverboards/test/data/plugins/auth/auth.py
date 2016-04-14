@@ -12,5 +12,5 @@ def auth(token=None):
 def ping(*args):
     return 'pong'
 
-print(serverboards.__dir(), file=sys.stderr)
+#print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop(debug=sys.stderr)

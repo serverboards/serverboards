@@ -15,6 +15,10 @@ defmodule Serverboards.Plugin.Component do
   @doc ~S"""
   Executes the command of the component and returns an RPC endpoint.
 
+  Returns a Serverboards.IO.Cmd
+
+  ## Example
+
     iex> {:ok, pw} = run("serverboards.test.auth/auth.test")
     iex> Serverboards.IO.Cmd.call pw, "ping"
     "pong"

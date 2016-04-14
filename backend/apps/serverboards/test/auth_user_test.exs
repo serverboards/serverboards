@@ -12,6 +12,8 @@ defmodule Serverboards.AuthUserTest do
   import Ecto.Query
 
   setup_all do
+    Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
+
     Repo.delete_all(UserGroup)
     Repo.delete_all(GroupPerms)
     Repo.delete_all(Permission)
@@ -147,9 +149,9 @@ defmodule Serverboards.AuthUserTest do
     users = Repo.all( Group.users(admin) )
     assert Enum.sort(for u <- users, do: u.id)  == Enum.sort [user.id, userb.id]
 
-    assert_raise Ecto.ConstraintError, fn ->
-      Group.add_user(admin, userb)
-    end
+    # Readding is ok
+    Group.add_user(admin, userb)
+    Group.add_user(admin, userb)
 
     Group.add_perm(admin, "auth.modify_self")
     Group.add_perm(admin, "debug")

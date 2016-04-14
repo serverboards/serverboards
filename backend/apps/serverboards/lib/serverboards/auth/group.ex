@@ -40,7 +40,11 @@ defmodule Serverboards.Auth.Group do
 		alias Serverboards.Auth.UserGroup
 		alias Serverboards.Repo
 
-		Repo.insert( %UserGroup{ user_id: user.id, group_id: group.id })
+		case Repo.get_by(UserGroup, user_id: user.id, group_id: group.id) do
+			nil ->
+				Repo.insert( %UserGroup{ user_id: user.id, group_id: group.id } )
+			ug -> ug
+		end
 	end
 
 	def add_perm(group, code) do
@@ -48,6 +52,12 @@ defmodule Serverboards.Auth.Group do
 		alias Serverboards.Repo
 
 		perm = Permission.ensure_exists(code)
-		Repo.insert( %GroupPerms{ group_id: group.id, perm_id: perm.id } )
+
+
+		case Repo.get_by(GroupPerms, group_id: group.id, perm_id: perm.id) do
+			nil ->
+				Repo.insert( %GroupPerms{ group_id: group.id, perm_id: perm.id } )
+			gp -> gp
+		end
 	end
 end

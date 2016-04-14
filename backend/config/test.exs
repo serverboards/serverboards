@@ -1,8 +1,7 @@
 use Mix.Config
 
 config :serverboards,
-  debug: true,
-  plugin_path: "../plugins/"
+  debug: true
 
 config :serverboards, Serverboards.Repo,
   adapter: Ecto.Adapters.Postgres,
@@ -10,4 +9,5 @@ config :serverboards, Serverboards.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  port: 5433
+  port: 5433,
+  pool: Ecto.Adapters.SQL.Sandbox
