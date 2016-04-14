@@ -28,14 +28,3 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
-
-config :serverboards, Serverboards.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "serverboards",
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  port: 5433
-
-config :serverboards,
-  plugin_path: "test/data/plugins/"

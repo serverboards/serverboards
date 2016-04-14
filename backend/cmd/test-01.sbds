@@ -1,9 +1,0 @@
-# auth.user
-auth.auth type:token token:XXX
-# auth.user
-#auth.auth type:basic email:dmoreno@serverboards.io password:abcdefgh
-dir
-auth.user
-auth.set_password abcde
-
-debug.observer
