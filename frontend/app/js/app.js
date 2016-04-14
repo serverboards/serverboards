@@ -15,6 +15,7 @@ let store = createStore(
    redux_reducers,
    applyMiddleware( store => next => action => {
      console.group(action.type)
+     console.log(action)
      let result
      try{
        result = next(action)
@@ -27,6 +28,19 @@ let store = createStore(
      return result
    })
  )
+
+import Flash from './flash'
+import FlashActions from './actions/flash'
+
+Flash.log=function(message, options={}){
+  options=Object.assign({}, {timeout: 10000}, options)
+  store.dispatch( FlashActions.add(message, options) )
+  var close =function(){
+    store.dispatch(FlashActions.remove(message))
+  }
+  setTimeout(close, options.timeout)
+  return {close}
+}
 
 ReactDOM.render(
   (

@@ -1,26 +1,21 @@
 import React, { PropTypes } from 'react'
 
-function FlashMessage(props){
-
-  var maybe_close=[]
-
-  if (props.onClose !== undefined){
-    maybe_close = <i className="close icon" onClick={props.onClose}></i>
+var FlashMessage=React.createClass({
+  render: function(){
+    return (
+      <div className={"ui message "+this.props.level}>
+        <i className="close icon" onClick={() => this.props.onClose(this.props.message)}></i>
+        {this.props.message}
+      </div>
+    )
   }
+})
 
-  return (
-    <div className={"ui message "+props.level}>
-      {maybe_close}
-      {props.message}
-    </div>
-  )
-}
-
-function FlashMessageList({messages}){
+function FlashMessageList({messages, handleClose}){
   return (
     <div className="ui top messages">
       {messages.map(msg =>
-        <FlashMessage key={msg.id} {...msg}/>
+        <FlashMessage key={msg.id} {...msg} onClose={handleClose}/>
       )}
     </div>
   )
@@ -28,7 +23,6 @@ function FlashMessageList({messages}){
 
 FlashMessage.propTypes = {
   id: PropTypes.number.isRequired,
-  onClose: PropTypes.func,
   message: PropTypes.string.isRequired,
   level: PropTypes.string
 }
@@ -36,7 +30,6 @@ FlashMessage.propTypes = {
 FlashMessageList.propTypes = {
   messages: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.number.isRequired,
-    onClose: PropTypes.func,
     message: PropTypes.string.isRequired,
     level: PropTypes.string
   }))

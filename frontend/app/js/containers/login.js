@@ -9,6 +9,7 @@ var Login=React.createClass({
   },
   handleSubmit(params){
     if ($(this.refs.el).form('validate form')){
+      Flash.debug("Try login")
       rpc
         .call("auth.auth",{email:params.email, password:params.password, type:"basic"})
         .then(function(user){

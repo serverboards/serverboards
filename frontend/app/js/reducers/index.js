@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux'
-import {auth} from './auth'
+import auth from './auth'
+import flash from './flash'
 
 var reducers ={
-  auth
+  auth, flash
 }
 /*
 reducers.debug=(state={}, action) => {

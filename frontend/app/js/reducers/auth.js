@@ -18,3 +18,5 @@ export const auth = (state = default_state , action) => {
   }
   return state
 }
+
+export default auth
