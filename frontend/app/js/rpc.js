@@ -7,6 +7,7 @@ var RPC = function(url){
     else
       url="wss://"+window.location.host+"/ws"
   }
+  url="ws://localhost:8080/ws"
   console.log("Connect RPC to %s", url)
   var rpc = new WebSocket(url)
 

@@ -5,11 +5,15 @@ var ReactDOM = require('react-dom');
 require("!style!css!sass!../sass/serverboards.sass")
 require('./rpc')
 
-import Main from './components/main.js'
+import Router  from './router'
+import FlashMessageList from './containers/flashmessages'
 
 ReactDOM.render(
   (
-    <Main/>
+    <div>
+      <FlashMessageList/>
+      <Router/>
+    </div>
   ),
   document.getElementById('react')
 );

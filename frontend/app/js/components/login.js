@@ -1,62 +1,22 @@
-import React from 'react';
-import rpc from '../rpc'
-import Flash from '../flash'
+import React, {PropTypes} from 'react';
 
-class Login extends React.Component{
-  constructor(props){
-    super(props)
-
-    this.state = { email: '', password: '' }
-
-    // Really?? ES6 react...
-    this.handle_submit=this.handle_submit.bind(this)
-    this.update_password=this.update_password.bind(this)
-    this.update_email=this.update_email.bind(this)
-  }
+var LoginView = React.createClass({
+  getInitialState : function(){
+    return {email: '', password: ''}
+  },
   update_password(event){
     this.setState({password: event.target.value})
-  }
+  },
   update_email(event){
     this.setState({email: event.target.value})
-  }
-  handle_submit(){
-    if ($(this.refs.el).form('validate form')){
-      rpc
-        .call("auth.auth",{email:this.state.email, password:this.state.password, type:"basic"})
-        .then(function(user){
-          console.log("Got answer for login %o", user)
-          if (user){
-            Flash.log("Logged in as "+user.email)
-            this.props.onLogin()
-          }
-          else{
-            Flash.error("Invalid email/password")
-          }
-        }.bind(this))
-        .catch(function(msg){
-          console.error(msg)
-          Flash.error("Cant login "+error)
-        })
-      console.log("Try log in")
-    }
-    else{
-      Flash.error("Invalid email/password")
-    }
-  }
-  componentDidMount( ){
-    self=this
-    $(this.refs.el).form({
-      on: 'blur',
-      fields: {
-        email: 'email',
-        password: 'minLength[6]'
-      }
-    })
-    $(self.refs.el).find('[type=email]').focus()
-  }
-  render(){
+  },
+  handleSubmit(ev){
+    ev.preventDefault()
+    this.props._onSubmit(this.state)
+  },
+  render: function(){
     return (
-      <form className="ui form" ref="el">
+      <form className="ui form" method="POST" onSubmit={this.handleSubmit}>
         <div className="ui small modal active" id="login">
           <div className="header">
             Login
@@ -66,20 +26,22 @@ class Login extends React.Component{
             <div className="field">
               <label>Email</label>
               <input type="email" name="email" placeholder="user@company.com"
-                onChange={this.update_email} value={this.state.email}/>
+                onChange={this.update_email} value={this.state.email}
+                />
             </div>
 
             <div className="field">
               <label>Password</label>
               <input type="password" name="password" placeholder="*******"
-                onChange={this.update_password} value={this.state.password}/>
+                onChange={this.update_password} value={this.state.password}
+                />
             </div>
             <div class="ui error message"></div>
           </div>
 
           <div className="actions">
             <button type="button" className="ui positive right labeled icon button"
-              onClick={this.handle_submit}>
+              onClick={this.handleSubmit}>
               Login
               <i className="caret right icon"></i>
             </button>
@@ -87,7 +49,11 @@ class Login extends React.Component{
         </div>
       </form>
     )
+  },
+  propTypes: {
+    _onSubmit: PropTypes.func.isRequired
   }
-}
+})
 
-export default Login;
+
+export default LoginView
