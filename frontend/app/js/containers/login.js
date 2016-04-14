@@ -8,16 +8,13 @@ var Login=React.createClass({
     return { email: '', password: '' }
   },
   handleSubmit(params){
-    Flash.debug("Try login")
-
     if ($(this.refs.el).form('validate form')){
       rpc
         .call("auth.auth",{email:params.email, password:params.password, type:"basic"})
         .then(function(user){
-          console.log("Got answer for login %o", user)
           if (user){
+            this.props.onLogin(user)
             Flash.log("Logged in as "+user.email)
-            this.props.onLogin()
           }
           else{
             Flash.error("Invalid email/password")
@@ -25,9 +22,8 @@ var Login=React.createClass({
         }.bind(this))
         .catch(function(msg){
           console.error(msg)
-          Flash.error("Cant login "+error)
+          Flash.error("Cant login "+msg)
         })
-      console.log("Try log in")
     }
     else{
       Flash.error("Invalid email/password")

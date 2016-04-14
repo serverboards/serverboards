@@ -1,8 +1,7 @@
 import React from 'react';
 
 import Empty from './empty'
-import Login from './login'
-import Top from './top'
+import Top from '../containers/top'
 
 var Sidebar = Empty
 var Central = Empty
