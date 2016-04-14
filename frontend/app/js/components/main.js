@@ -3,6 +3,7 @@ import React from 'react';
 import Empty from './empty'
 import Login from './login'
 import Top from './top'
+import FlashMessageList from './flash'
 
 var Sidebar = Empty
 var Central = Empty
@@ -16,14 +17,15 @@ var Main = React.createClass({
     }
   },
   handle_login : function(status){
+    console.log("Handle login %o", status)
     this.setState({logged_in: status})
-    console.log("Handled login %o", status)
   },
   render : function(){
     if (this.state.logged_in)
       return (
         <div>
-          <Top onLogout={() => this.handle_login(false)}/>
+          <FlashMessageList/>
+          <Top onLogout={() => this.handle_login(false).bind(this)}/>
           <Sidebar/>
           <Central/>
         </div>
@@ -31,7 +33,8 @@ var Main = React.createClass({
     else
       return (
         <div>
-          <Login onLogin={() => this.handle_login(true)}/>
+          <FlashMessageList/>
+          <Login onLogin={() => this.handle_login(true).bind(this)}/>
         </div>
       )
   }

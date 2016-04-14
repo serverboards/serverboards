@@ -1,5 +1,6 @@
 import React from 'react';
 import rpc from '../rpc'
+import Flash from '../flash'
 
 class Login extends React.Component{
   constructor(props){
@@ -22,20 +23,24 @@ class Login extends React.Component{
     if ($(this.refs.el).form('validate form')){
       rpc
         .call("auth.auth",{email:this.state.email, password:this.state.password, type:"basic"})
-        .then(function(email){
-          console.log("Got answer for login %o", email)
-          if (email){
-            console.log("Logged in as %o",email)
+        .then(function(user){
+          console.log("Got answer for login %o", user)
+          if (user){
+            Flash.log("Logged in as "+user.email)
             this.props.onLogin()
           }
           else{
-            console.error("Invalid password")
+            Flash.error("Invalid email/password")
           }
-        })
+        }.bind(this))
         .catch(function(msg){
-          console.error("Cant login, %o", error)
+          console.error(msg)
+          Flash.error("Cant login "+error)
         })
       console.log("Try log in")
+    }
+    else{
+      Flash.error("Invalid email/password")
     }
   }
   componentDidMount( ){

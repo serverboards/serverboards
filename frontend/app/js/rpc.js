@@ -1,3 +1,5 @@
+import Flash from './flash'
+
 var RPC = function(url){
   if (!url){
     if (window.location.protocol=='http:')
@@ -12,9 +14,12 @@ var RPC = function(url){
     console.log("Connection success.")
 
     rpc.call("ping")
+
   }
   rpc.onerror = function(){
     console.error("Error connection.")
+
+    Flash.debug('Error on RPC connection.')
   }
 
   var pending_calls={}
