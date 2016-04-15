@@ -9,6 +9,7 @@ defmodule Serverboards do
 			worker(Serverboards.IO.HTTP, [:start_link, [8080]]),
 			worker(Serverboards.Auth, [:start_link, []]),
 			worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
+			worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
 		]
 
 		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]

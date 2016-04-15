@@ -107,16 +107,19 @@ defmodule Serverboards.Plugin.Registry do
     alias Serverboards.Plugin.Component
 
     # on the form .*/.*
-    [_, plugin_id, component_id] = Regex.run(~r"^([^/]+)/([^/]+)$", id )
+    case Regex.run(~r"^([^/]+)/([^/]+)$", id ) do
+      nil ->
+        nil
+      [_, plugin_id, component_id] ->
+        plugins = Agent.get registry, &(&1)
 
-    plugins = Agent.get registry, &(&1)
-
-    with %Plugin{} = plugin <- Enum.find(plugins, &(&1.id == plugin_id) ),
-         %Plugin.Component{} = component <- Enum.find(plugin.components, &(&1.id == component_id) )
-    do
-       %Plugin.Component{ component | plugin: plugin }
-    else
-       nil
+        with %Plugin{} = plugin <- Enum.find(plugins, &(&1.id == plugin_id) ),
+             %Plugin.Component{} = component <- Enum.find(plugin.components, &(&1.id == component_id) )
+        do
+           %Plugin.Component{ component | plugin: plugin }
+        else
+           nil
+        end
     end
   end
 
