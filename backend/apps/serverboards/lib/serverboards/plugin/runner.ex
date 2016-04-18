@@ -16,7 +16,17 @@ defmodule Serverboards.Plugin.Runner do
 
 
   def start_link (options \\ []) do
-    GenServer.start_link __MODULE__, :ok, options
+    {:ok, pid} = GenServer.start_link __MODULE__, :ok, options
+
+    Serverboards.MOM.Channel.subscribe(:auth_authenticated, fn msg ->
+      %{ user: user, client: client} = msg.payload
+      if Enum.member?(user.perms, "plugin") do
+        import Serverboards.MOM.RPC
+        add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
+      end
+    end)
+
+    {:ok, pid}
   end
 
   @doc ~S"""
@@ -28,7 +38,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> call cmd, "ping"
     "pong"
     iex> stop(cmd)
-    :ok
+    true
 
   Or if does not exist:
 
@@ -77,7 +87,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping"] # default [] params
     "pong"
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl]
-    :ok
+    true
 
   """
   def method_caller(runner) do
@@ -100,7 +110,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> call cmd, "unknown"
     ** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "unknown"
     iex> stop cmd
-    :ok
+    true
 
   If passing and unknown or already stopped cmdid
 

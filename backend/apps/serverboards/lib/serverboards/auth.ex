@@ -3,7 +3,8 @@ require Logger
 defmodule Serverboards.Auth do
 	use GenServer
 
-	import Serverboards.MOM.RPC
+	alias Serverboards.MOM.RPC
+
 	defstruct []
 
 	def start_link(_,_) do
@@ -32,6 +33,8 @@ defmodule Serverboards.Auth do
 					#%{ email: user.email, permissions: user.perms, first_name: user.first_name, last_name: user.last_name }
 			end
 		end
+
+		Serverboards.MOM.Channel.subscribe(:auth_authenticated, &authenticated(&1))
 		#Logger.debug("Auth server ready.")
 
 		{:ok, pid}
@@ -43,16 +46,15 @@ defmodule Serverboards.Auth do
 	Can call a continuation function f(user) when authentication succeds.
 	"""
 	def authenticate(client, cont \\ nil) do
-		import Serverboards.MOM.RPC
 		#Logger.debug("Asking for authentication #{inspect client}")
 
-		method_id = add_method(client.to_serverboards, "auth.auth", fn
+		RPC.add_method(client.to_serverboards, "auth.auth", fn
 			%{ "type" => _ } = params ->
 				user = GenServer.call(Serverboards.Auth, {:auth, params})
 				if user do
 					#remove_method(method_id)
 					#Logger.debug("Logged in!")
-					authenticated(client, user)
+					Serverboards.MOM.Channel.send(:auth_authenticated, %Serverboards.MOM.Message{ payload: %{ client: client, user: user } })
 
 					if cont do
 						cont.(user)
@@ -64,41 +66,34 @@ defmodule Serverboards.Auth do
 				end
 		end)
 
-		event( client.to_client, "auth.required", ["basic"] )
+		RPC.event( client.to_client, "auth.required", ["basic"] )
 		:ok
 	end
 
 	@doc ~S"""
 	After being authenticated, set up the client as that user
 	"""
-	defp authenticated(client, user) do
-		import Serverboards.MOM.RPC
-
-		add_method client.to_serverboards, "auth.user", fn [] ->
+	def authenticated(%Serverboards.MOM.Message{ payload: %{ client: client, user: user } }) do
+		RPC.add_method client.to_serverboards, "auth.user", fn [] ->
 			user
 		end
 
 		if Enum.member?(user.perms, "auth.modify_self") do
-			add_method client.to_serverboards, "auth.set_password", fn [password] ->
+			RPC.add_method client.to_serverboards, "auth.set_password", fn [password] ->
 				Logger.info("#{user.email} changes password.")
 				Serverboards.Auth.User.Password.set_password(user, password)
 			end
 		end
 
 		if Enum.member?(user.perms, "auth.create_token") do
-			add_method client.to_serverboards, "auth.create_token", fn [] ->
+			RPC.add_method client.to_serverboards, "auth.create_token", fn [] ->
 				Logger.info("#{user.email} created new token.")
 				Serverboards.Auth.User.Token.create(user)
 			end
 		end
 
-		if Enum.member?(user.perms, "plugin") do
-			add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
-		end
-
-
 		#if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
-		#	add_method client.to_serverboards, "debug.observer", fn [] ->
+		#	RPC.add_method client.to_serverboards, "debug.observer", fn [] ->
 		#		:observer.start
 		#	end
 		#end

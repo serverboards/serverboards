@@ -6,42 +6,7 @@ defmodule Serverboards.AuthTest do
 	#@moduletag :capture_log
 
   setup_all do
-    alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}
-    alias Serverboards.Repo
-    alias Serverboards.Auth.User.{Password, Token}
-    import Ecto.Query
-
-    Repo.delete_all(UserGroup)
-    Repo.delete_all(GroupPerms)
-    Repo.delete_all(Permission)
-    Repo.delete_all(Group)
-    Repo.delete_all(User)
-    Repo.delete_all(Token)
-    Repo.delete_all(Password)
-
-    {:ok, user} = Repo.insert(%User{
-      email: "dmoreno@serverboards.io",
-      first_name: "David",
-      last_name: "Moreno",
-      is_active: true,
-      })
-
-    user = User.get_user("dmoreno@serverboards.io")
-    User.Password.set_password(user, "asdfghjkl")
-
-    {:ok, g_admin} = Repo.insert(%Group{ name: "admin" })
-    {:ok, g_user} = Repo.insert(%Group{ name: "user" })
-
-    Group.add_perm(g_admin, "debug")
-    Group.add_perm(g_admin, "auth.modify_any")
-    Group.add_perm(g_admin, "auth.create_user")
-    Group.add_perm(g_user, "auth.modify_self")
-    Group.add_perm(g_user, "auth.create_token")
-    Group.add_perm(g_user, "plugin")
-
-    Group.add_user(g_admin, user)
-    Group.add_user(g_user, user)
-
+    Client.reset_db()
     :ok
   end
 
@@ -72,23 +37,5 @@ defmodule Serverboards.AuthTest do
 		Logger.info("#{inspect user}")
 
 	end
-
-  test "Can start/call/stop plugins" do
-    {:ok, client} = Client.start_link
-    Task.async( fn -> Serverboards.Auth.authenticate(client) end)
-
-    Client.expect( client, method: "auth.required" )
-    user = Serverboards.Auth.User.get_user "dmoreno@serverboards.io"
-    token = Serverboards.Auth.User.Token.create(user)
-
-    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token }, 2)
-
-    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"], 3)
-    assert Client.call(client, "plugin.call", [test_cmd, "ping"], 4) == "pong"
-    assert Client.call(client, "plugin.stop", [test_cmd], 5) == true
-
-    assert Client.call(client, "plugin.call", [test_cmd, "ping"], 6) == {:error, :unknown_cmd}
-
-  end
 
 end
