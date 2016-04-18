@@ -3,7 +3,7 @@ require Logger
 defmodule Serverboards.AuthTest do
   use ExUnit.Case, async: false
 	alias Test.Client
-	#@moduletag :capture_log
+	@moduletag :capture_log
 
   setup_all do
     Client.reset_db()
