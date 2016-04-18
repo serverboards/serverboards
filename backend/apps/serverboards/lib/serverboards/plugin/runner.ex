@@ -3,6 +3,12 @@ require Logger
 defmodule Serverboards.Plugin.Runner do
   @moduledoc ~S"""
   Server that stats plugins and connects the RPC channels.
+
+  Every started plugin has an UUID as id, and that UUID is later used
+  for succesive calls using the runner.
+
+  An UUID is used as ID as it can be considered an opaque secret token to
+  identify the clients that can be passed around.
   """
   use GenServer
   alias Serverboards.MOM.RPC.MethodCaller
@@ -19,9 +25,9 @@ defmodule Serverboards.Plugin.Runner do
   Example:
 
     iex> {:ok, cmd} = start("serverboards.test.auth/auth.test")
-    iex> Serverboards.IO.Cmd.call cmd, "ping"
+    iex> call cmd, "ping"
     "pong"
-    iex> stop("serverboards.test.auth/auth.test")
+    iex> stop(cmd)
     :ok
 
   Or if does not exist:
@@ -30,11 +36,14 @@ defmodule Serverboards.Plugin.Runner do
     {:error, :not_found}
 
   """
-  def start(runner, plugin_component_id) do
+  def start(runner, plugin_component_id) when is_pid(runner) or is_atom(runner) do
     case Plugin.Component.run plugin_component_id do
       {:ok, cmd } ->
-        :ok = GenServer.call(runner, {:start, plugin_component_id, cmd})
-        {:ok, cmd}
+        require UUID
+        uuid = UUID.uuid4
+        Logger.debug("Adding runner #{uuid} #{inspect cmd} to #{inspect runner}")
+        :ok = GenServer.call(runner, {:start, uuid, cmd})
+        {:ok, uuid}
       {:error, e} ->
         Logger.error("Error starting plugin component #{inspect plugin_component_id}")
         {:error, e}
@@ -43,7 +52,7 @@ defmodule Serverboards.Plugin.Runner do
   def start(plugin_component_id), do: start(Serverboards.Plugin.Runner, plugin_component_id)
 
   def stop(runner, id) do
-    case GenServer.call(runner, {:stop, id}) do # stop is almost a pop, so that cliet works more
+    case GenServer.call(runner, {:stop, id}) do # stop is almost a pop, so that caller works more then runner server
       {:error, e} ->
         Logger.error("Error stoping component #{inspect e}")
         {:error, e}
@@ -54,18 +63,88 @@ defmodule Serverboards.Plugin.Runner do
   end
   def stop(id), do: stop(Serverboards.Plugin.Runner, id)
 
+
+  @doc ~S"""
+  Returns method caller, so that it can be added to an authenticated client
+
+  ## Example:
+
+    iex> pl = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/auth.test"]
+    iex> is_binary(pl)
+    true
+    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]]
+    "pong"
+    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl]
+    :ok
+
+  """
+  def method_caller(runner) do
+    GenServer.call(runner, {:method_caller})
+  end
+  def method_caller do
+    method_caller(Serverboards.Plugin.Runner)
+  end
+
+  @doc ~S"""
+  Calls a runner started command method.
+
+  id is an opaque id that can be passed around to give access to this command.
+
+  Examples:
+
+    iex> {:ok, cmd} = start "serverboards.test.auth/auth.test"
+    iex> call cmd, "ping"
+    "pong"
+    iex> call cmd, "unknown"
+    ** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "unknown"
+    iex> stop cmd
+    :ok
+
+  If passing and unknown or already stopped cmdid
+
+    iex> call "nonvalid", "ping"
+    {:error, :unknown_cmd}
+
+    iex> {:ok, cmd} = start "serverboards.test.auth/auth.test"
+    iex> stop cmd
+    iex> call cmd, "ping"
+    {:error, :unknown_cmd}
+
+  """
+  def call(runner, id, method, params) when (is_pid(runner) or is_atom(runner)) and is_binary(id) and is_binary(method) do
+    case GenServer.call(runner, {:get, id}) do
+      {:error, e} ->
+        {:error, e}
+      cmd when is_pid(cmd) ->
+        Serverboards.IO.Cmd.call cmd, method, params # FIXME! Not proper way, should use MOM
+    end
+  end
+  def call(id, method, params \\ []) do
+    Logger.info("Calling #{id}.#{method}(#{inspect params})")
+    call(Serverboards.Plugin.Runner, id, method, params)
+  end
+
+
   ## server impl
   def init :ok do
     Logger.info("Plugin runner ready #{inspect self}")
 
     {:ok, method_caller} = MethodCaller.start_link
+    runner=self
 
-    MethodCaller.add_method method_caller, "plugin.start", fn plugin_component_id ->
-      Plugin.Runner.start self, plugin_component_id
+    MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id] ->
+      case Plugin.Runner.start runner, plugin_component_id do
+        {:ok, id} -> id
+        {:error, e} -> {:error, e}
+      end
     end
 
-    MethodCaller.add_method method_caller, "plugin.stop", fn plugin_component_id ->
-      Plugin.Runner.stop self, plugin_component_id
+    MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
+      Plugin.Runner.stop runner, plugin_component_id
+    end
+
+    MethodCaller.add_method method_caller, "plugin.call", fn [id, method, params] ->
+      Plugin.Runner.call runner, id, method, params
     end
 
     {:ok, %{
@@ -75,6 +154,7 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   def handle_call({:start, id, cmd}, _from, state) do
+    Logger.debug("Adding runner :start")
     {:reply, :ok,
       %{ state | running: Map.put(state.running, id, cmd) }
     }
@@ -87,5 +167,11 @@ defmodule Serverboards.Plugin.Runner do
     else
       {:reply, {:error, :not_running}, state }
     end
+  end
+  def handle_call({:method_caller}, _from, state) do
+    {:reply, state.method_caller, state}
+  end
+  def handle_call({:get, id}, _from, state) do
+    {:reply, Map.get(state.running, id, {:error, :unknown_cmd}), state}
   end
 end
