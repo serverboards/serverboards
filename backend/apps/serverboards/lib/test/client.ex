@@ -45,8 +45,10 @@ defmodule Test.Client do
 				res
 			{:error, :unknown_method} ->
 				raise Serverboards.MOM.RPC.UnknownMethod, method: method
+			{:error, e} ->
+				raise RuntimeError, message: "#{inspect e}"
 			e ->
-				raise e
+				raise RuntimeError, message: "#{inspect e}"
 		end
 	end
 

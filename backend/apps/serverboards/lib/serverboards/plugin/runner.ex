@@ -11,7 +11,7 @@ defmodule Serverboards.Plugin.Runner do
   identify the clients that can be passed around.
   """
   use GenServer
-  alias Serverboards.MOM.RPC.MethodCaller
+  alias Serverboards.MOM.RPC
   alias Serverboards.Plugin
 
 
@@ -24,6 +24,25 @@ defmodule Serverboards.Plugin.Runner do
         import Serverboards.MOM.RPC
         add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
       end
+
+
+      # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
+      RPC.MethodCaller.add_method_caller method_caller, fn msg ->
+        #Logger.info("Try to call #{inspect msg}")
+        case Regex.run(~r/(^[-0-9a-z]+)\.(.*)$/, msg.method) do
+         [_, id, method] ->
+           res=Plugin.Runner.call id, method, msg.params
+           case res do
+             {:error, :unknown_cmd} -> :nok
+             {:error, :unknown_method} -> :nok
+             {:error, e} -> {:error, e}
+             :nok -> :nok
+             res -> {:ok, res}
+           end
+          _ -> :nok
+        end
+      end
+
     end)
 
     {:ok, pid}
@@ -126,9 +145,13 @@ defmodule Serverboards.Plugin.Runner do
   def call(runner, id, method, params) when (is_pid(runner) or is_atom(runner)) and is_binary(id) and is_binary(method) do
     case GenServer.call(runner, {:get, id}) do
       {:error, e} ->
+        Logger.error("Could not find plugin id #{inspect id}: #{inspect e}")
         {:error, e}
       cmd when is_pid(cmd) ->
         Serverboards.IO.Cmd.call cmd, method, params
+      e ->
+        Logger.error("Could not find plugin id #{inspect id}")
+        e
     end
   end
   def call(id, method, params \\ []) do
@@ -141,21 +164,23 @@ defmodule Serverboards.Plugin.Runner do
   def init :ok do
     Logger.info("Plugin runner ready #{inspect self}")
 
-    {:ok, method_caller} = MethodCaller.start_link
+    {:ok, method_caller} = RPC.MethodCaller.start_link
     runner=self
 
-    MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id] ->
+    RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id], context ->
       case Plugin.Runner.start runner, plugin_component_id do
-        {:ok, id} -> id
-        {:error, e} -> {:error, e}
+        {:ok, id} ->
+          id
+        {:error, e} ->
+          {:error, e}
       end
-    end
+    end, context: true
 
-    MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
+    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
       Plugin.Runner.stop runner, plugin_component_id
     end
 
-    MethodCaller.add_method method_caller, "plugin.call", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.call", fn
       [id, method, params] ->
         Plugin.Runner.call runner, id, method, params
       [id, method] ->
