@@ -13,20 +13,14 @@ defmodule Serverboards.PluginTest do
 
   alias Test.Client
 
+  @tag :capture_log
   setup_all do
     Client.reset_db()
     :ok
   end
 
   test "Can start/call/stop plugins" do
-    {:ok, client} = Client.start_link
-    Task.async( fn -> Serverboards.Auth.authenticate(client) end)
-
-    Client.expect( client, method: "auth.required" )
-    user = Serverboards.Auth.User.get_user "dmoreno@serverboards.io"
-    token = Serverboards.Auth.User.Token.create(user)
-
-    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token }, 2)
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
     test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"], 3)
     assert Client.call(client, "plugin.call", [test_cmd, "ping"], 4) == "pong"

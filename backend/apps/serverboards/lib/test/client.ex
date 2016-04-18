@@ -11,11 +11,24 @@ defmodule Test.Client do
 	use GenServer
 
 	alias Serverboards.MOM.RPC
+	alias Test.Client
 
-	def start_link do
+	def start_link(options) do
 		{:ok, pid} = GenServer.start_link __MODULE__, :ok, []
+		client=GenServer.call(pid, {:get_client})
 
-		{:ok, GenServer.call(pid, {:get_client})}
+		maybe_user=Keyword.get(options, :as, false)
+		if maybe_user do
+			Serverboards.Auth.authenticate(client)
+
+	    Client.expect( client, method: "auth.required" )
+	    user = Serverboards.Auth.User.get_user maybe_user
+	    token = Serverboards.Auth.User.Token.create(user)
+
+	    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token }, 2)
+		end
+
+		{:ok, client}
 	end
 
 	@doc ~S"""
