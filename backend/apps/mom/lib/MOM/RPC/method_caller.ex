@@ -63,7 +63,11 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   This another caller can be even shared between several method callers.
 
-  Example:
+  Method callers are optimized callers, but a single function can be passed and
+  it will be called with an %RPC.Message. If it returns {:ok, res} or
+  {:error, error} its processed, :empty or :nok tries next callers.
+
+  ## Example:
 
   I will create three method callers, so that a calls, and b too. Method can
   be shadowed at parent too.
@@ -94,11 +98,27 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     iex> MethodCaller.call b, "c", [], context
     :c
 
+  Custom method caller that calls a function
+
+    iex> alias Serverboards.MOM.RPC.MethodCaller
+    iex> {:ok, mc} = MethodCaller.start_link
+    iex> MethodCaller.add_method_caller(mc, fn msg ->
+    ...>   case msg.method do
+    ...>     "hello."<>ret -> {:ok, ret}
+    ...>     _ -> :nok
+    ...>   end
+    ...> end)
+    iex> MethodCaller.call mc, "hello.world", [], nil
+    "world"
+    iex> MethodCaller.call mc, "world.hello", [], nil
+    ** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "world.hello"
+
   """
   def add_method_caller(pid, pid) do
-    raise "Cant add a method caller to itself."
+    raise Exception, "Cant add a method caller to itself."
   end
   def add_method_caller(pid, nmc) do
+    Logger.info("Add caller #{inspect nmc}")
     Agent.update pid, fn st ->
       %{ st | mc: st.mc ++ [nmc] }
     end
@@ -112,32 +132,44 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   executing the method,
   """
   def call(pid, method, params, context) do
-    case __call(pid, method, params, context) do
+    case __call(pid, %RPC.Message{ method: method, params: params, context: context}) do
       {:ok, ret} -> ret
       {:error, :unknown_method} -> raise RPC.UnknownMethod, method: method
+      nil -> raise RPC.UnknownMethod, method: method
       {:error, e} -> raise e
       #other -> Logger.error(inspect other)
     end
   end
 
   # same as call, but return {:ok, ret} or {:error, err}, easier to compose
-  defp __call(pid, method, params, context) do
-    #Logger.debug("Fast call #{method}")
+  defp __call(pid, msg) do
     st = Agent.get pid, &(&1)
-    case Map.get st.methods, method do
+    case Map.get st.methods, msg.method do
       {f, options} ->
+        Logger.debug("Fast call #{msg.method} #{inspect pid}")
         if Keyword.get(options, :context, false) do
-          {:ok, f.(params, context)}
+          {:ok, f.(msg.params, msg.context)}
         else
-          {:ok, f.(params)}
+          {:ok, f.(msg.params)}
         end
       nil ->
         Enum.reduce_while st.mc, nil, fn mc, _acc ->
-          case __call(mc, method, params, context) do
+          ret = case mc do
+            mc when is_pid(mc) ->
+              Logger.debug("Slow call PID #{msg.method} #{inspect mc}")
+              __call(mc, msg)
+            f when is_function(f) ->
+              Logger.debug("Slow call f #{msg.method} #{inspect mc}")
+              f.(msg)
+          end
+          Logger.debug("Result #{inspect ret}")
+          case ret do
             {:ok, ret} -> {:halt, {:ok, ret}}
             {:error, :unknown_method} -> {:cont, nil}
+            :nok -> {:cont, nil}
+            :empty -> {:cont, nil}
+
             {:error, other} -> {:halt, {:error, other}}
-            #other -> Logger.error(inspect other)
           end
         end
     end
@@ -153,6 +185,13 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   Callback is a function that can receive {:ok, value} or {:error, %Exception{...}}
 
+  Alternatively mc can be a function that receies a %RPC.Message and returns any of:
+
+  * {:ok, ret}
+  * {:error, error}
+  * :nok
+  * :empty
+
   Possible errors:
    * :unknown_method
    * :bad_arity
@@ -167,8 +206,26 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     iex> MethodCaller.call mc, "echo", ["test_"], context
     "test_ok"
 
+    iex> alias Serverboards.MOM.RPC.{Context, MethodCaller}
+    iex> MethodCaller.cast(fn msg -> {:ok, :ok} end, "any", [], nil, fn res -> :ok end)
+    :ok
+
   """
-  def cast(pid, method, params, context, cb) do
+  def cast(f, method, params, context, cb) when is_function(f)  do
+    case f.(%RPC.Message{ method: method, params: params, context: context}) do
+      {:ok, ret} ->
+        cb.({:ok, ret})
+        :ok
+      {:error, other} ->
+        cb.({:error, other})
+        :ok
+      {:error, :unknown_method} -> :nok
+      :nok -> :nok
+      :empty -> :empty
+    end
+  end
+
+  def cast(pid, method, params, context, cb) when is_pid(pid) do
     st = Agent.get pid, &(&1)
     case Map.get st.methods, method do
       {f, options} ->
