@@ -3,6 +3,7 @@ defmodule Serverboards.RPCTest do
   @moduletag :capture_log
   doctest Serverboards.MOM.RPC
   doctest Serverboards.MOM.RPC.MethodCaller
+  doctest Serverboards.MOM.RPC.Context, import: true
 
 	alias Serverboards.MOM.RPC
 

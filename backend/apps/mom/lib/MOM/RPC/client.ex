@@ -19,7 +19,6 @@ defmodule Serverboards.MOM.RPC.Client do
 	]
 	alias Serverboards.MOM
 	alias Serverboards.MOM.RPC
-	alias Serverboards.MOM.RPC.Client
 
 	@doc ~S"""
 	Starts a communication with a client.

@@ -14,9 +14,9 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     iex> alias Serverboards.MOM.RPC.MethodCaller
     iex> {:ok, mc} = MethodCaller.start_link
     iex> MethodCaller.add_method mc, "ping", fn _ -> "pong" end, async: false
-    iex> MethodCaller.call mc, "ping", []
+    iex> MethodCaller.call mc, "ping", [], nil
     "pong"
-    iex> MethodCaller.call mc, "dir", []
+    iex> MethodCaller.call mc, "dir", [], nil
     ["dir", "ping"]
 
   """
@@ -49,6 +49,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   Options may be:
 
   * `async`, default true. Execute in another task, returns a promise.
+  * `context`, the called function will be called with the client context. It is a Serverboards.MOM.MapAgent
   """
   def add_method(pid, name, f, options \\ []) do
     Agent.update pid, fn st ->
@@ -57,6 +58,43 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     :ok
   end
 
+  @doc ~S"""
+  Method callers can be chained, so that if current does not resolve, try on another
+
+  This another caller can be even shared between several method callers.
+
+  Example:
+
+  I will create three method callers, so that a calls, and b too. Method can
+  be shadowed at parent too.
+
+    iex> alias Serverboards.MOM.RPC.{MethodCaller, Context}
+    iex> {:ok, a} = MethodCaller.start_link
+    iex> {:ok, b} = MethodCaller.start_link
+    iex> {:ok, c} = MethodCaller.start_link
+    iex> MethodCaller.add_method a, "a", fn _ -> :a end
+    iex> MethodCaller.add_method b, "b", fn _ -> :b end
+    iex> MethodCaller.add_method c, "c", fn _ -> :c end
+    iex> MethodCaller.add_method c, "c_", fn _, context -> {:c, Context.get(context, :user, nil)} end, context: true
+    iex> MethodCaller.add_method_caller a, c
+    iex> MethodCaller.add_method_caller b, c
+    iex> {:ok, context} = Context.start_link
+    iex> Context.set context, :user, :me
+    iex> MethodCaller.call a, "c", [], context
+    :c
+    iex> MethodCaller.call a, "c_", [], context
+    {:c, :me}
+    iex> MethodCaller.call b, "c", [], context
+    :c
+    iex> MethodCaller.call b, "c_", [], context
+    {:c, :me}
+    iex> MethodCaller.add_method a, "c", fn _ -> :shadow end
+    iex> MethodCaller.call a, "c", [], context
+    :shadow
+    iex> MethodCaller.call b, "c", [], context
+    :c
+
+  """
   def add_method_caller(pid, pid) do
     raise "Cant add a method caller to itself."
   end
@@ -73,27 +111,33 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   Waits for execution always. Independent of async. Returns the value of
   executing the method,
   """
-  def call(pid, method, params) do
-    case __call(pid, method, params) do
+  def call(pid, method, params, context) do
+    case __call(pid, method, params, context) do
       {:ok, ret} -> ret
       {:error, :unknown_method} -> raise RPC.UnknownMethod, method: method
       {:error, e} -> raise e
+      #other -> Logger.error(inspect other)
     end
   end
 
   # same as call, but return {:ok, ret} or {:error, err}, easier to compose
-  defp __call(pid, method, params) do
+  defp __call(pid, method, params, context) do
     #Logger.debug("Fast call #{method}")
     st = Agent.get pid, &(&1)
     case Map.get st.methods, method do
-      {f, _} ->
-        {:ok, f.(params)}
+      {f, options} ->
+        if Keyword.get(options, :context, false) do
+          {:ok, f.(params, context)}
+        else
+          {:ok, f.(params)}
+        end
       nil ->
-        Enum.reduce_while st.mc, nil, fn mc, acc ->
-          case MethodCaller.__call(mc, method, params) do
-            {:ok, ret} -> {:stop, ret}
+        Enum.reduce_while st.mc, nil, fn mc, _acc ->
+          case __call(mc, method, params, context) do
+            {:ok, ret} -> {:halt, {:ok, ret}}
             {:error, :unknown_method} -> {:cont, nil}
-            e -> e
+            {:error, other} -> {:halt, {:error, other}}
+            #other -> Logger.error(inspect other)
           end
         end
     end
@@ -112,15 +156,33 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   Possible errors:
    * :unknown_method
    * :bad_arity
+
+  ## Examples
+
+    iex> alias Serverboards.MOM.RPC.{Context, MethodCaller}
+    iex> {:ok, mc} = MethodCaller.start_link
+    iex> MethodCaller.add_method mc, "echo", fn [what], context -> "#{what}#{Context.get(context, :test, :fail)}" end, context: true
+    iex> {:ok, context} = Context.start_link
+    iex> Context.set context, :test, "ok"
+    iex> MethodCaller.call mc, "echo", ["test_"], context
+    "test_ok"
+
   """
-  def cast(pid, method, params, cb) do
+  def cast(pid, method, params, context, cb) do
     st = Agent.get pid, &(&1)
     case Map.get st.methods, method do
       {f, options} ->
         # Calls the function and the callback with the result, used in async and sync.
         call_f = fn ->
           try do
-            v=f.(params)
+            v = if Keyword.get(options, :context, false) do
+              #Logger.debug("Calling with context #{inspect f} #{inspect options}")
+              f.(params, context)
+            else
+              #Logger.debug("Calling without context #{inspect f}")
+              f.(params)
+            end
+
             cb.({:ok, v })
           rescue
             Serverboards.MOM.RPC.UnknownMethod ->
@@ -146,21 +208,21 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
       nil ->
         # Look for it at method callers
         #Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
-        cast_mc(st.mc, method, params, cb)
+        cast_mc(st.mc, method, params, context, cb)
     end
   end
 
-  defp cast_mc([], _, _, cb) do # end of search, :unknown_method
-    # Just do nothing here, will backgtrack and do the right thing.
+  defp cast_mc([], _, _, _, _cb) do # end of search, :unknown_method
+    # Just do nothing here, will backtrack and do the right thing.
     :nok
   end
 
-  defp cast_mc([h | t], method, params, cb) do
+  defp cast_mc([h | t], method, params, context, cb) do
     #Logger.debug("Cast mc #{inspect h}")
-    cast(h, method, params, fn
+    cast(h, method, params, context, fn
       # Keep searching for it
       {:error, :unknown_method} ->
-        cast_mc(t, method, params, cb)
+        cast_mc(t, method, params, context, cb)
       # done, callback with whatever.
       other ->
         cb.(other)

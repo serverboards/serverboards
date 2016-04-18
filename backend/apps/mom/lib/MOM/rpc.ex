@@ -57,6 +57,7 @@ defmodule Serverboards.MOM.RPC do
 		pid: nil,
 		reply_id: nil, # subscription for reply, to unsubscribe
 		method_caller: nil,
+		context: nil
 	]
 
 	alias Serverboards.MOM.{Channel, Message, RPC}
@@ -67,6 +68,7 @@ defmodule Serverboards.MOM.RPC do
 		{:ok, request} = Channel.PointToPoint.start_link
 		{:ok, reply} = Channel.PointToPoint.start_link
 		{:ok, method_caller} = RPC.MethodCaller.start_link
+		{:ok, context} = RPC.Context.start_link
 
 		reply_id = Channel.subscribe(reply, &GenServer.cast( pid, {:reply, &1} ) )
 
@@ -77,11 +79,15 @@ defmodule Serverboards.MOM.RPC do
 			pid: pid,
 			reply_id: reply_id,
 			method_caller: method_caller,
+			context: context
 		}
 
 		# When new request, do the calls and return on the reply channel
 		Channel.subscribe(request, fn msg ->
-			RPC.MethodCaller.cast(method_caller, msg.payload.method, msg.payload.params, fn
+			RPC.MethodCaller.cast(
+													method_caller, msg.payload.method,
+													msg.payload.params, msg.payload.context,
+				fn
 				{:ok, v} ->
 					reply = %Message{
 									payload: v,
@@ -123,6 +129,7 @@ defmodule Serverboards.MOM.RPC do
 			payload: %RPC.Message{
 				method: method,
 				params: params,
+				context: rpc.context
 				}
 			} } )
 		Logger.debug("Result #{inspect ok}")
@@ -162,6 +169,7 @@ defmodule Serverboards.MOM.RPC do
 			payload: %RPC.Message{
 				method: method,
 				params: params,
+				context: rpc.context
 				}
 			}, cb } )
 	end
