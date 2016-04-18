@@ -14,8 +14,8 @@ defmodule Serverboards.MOM.RPC.Client do
 		to_client: nil,
 		to_serverboards: nil,
 		options: %{},
-		state: nil,
     writef: nil,
+		context: nil
 	]
 	alias Serverboards.MOM
 	alias Serverboards.MOM.RPC
@@ -39,10 +39,9 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	"""
 	def start_link(writef, options \\ []) do
-		{:ok, to_client} = MOM.RPC.start_link
-		{:ok, to_serverboards} = MOM.RPC.start_link
-		{:ok, state} = Agent.start_link(fn -> %{} end)
-
+		{:ok, context} = MOM.RPC.Context.start_link
+		{:ok, to_client} = MOM.RPC.start_link context: context
+		{:ok, to_serverboards} = MOM.RPC.start_link context: context
 
 		client = %Serverboards.MOM.RPC.Client{
 			to_client: to_client,
@@ -50,9 +49,11 @@ defmodule Serverboards.MOM.RPC.Client do
 			options: %{
 				name: Keyword.get(options, :name),
 			 },
-			state: state,
       writef: writef,
+			context: context
 		}
+
+		MOM.RPC.Context.set context, :client, client
 
     MOM.Channel.subscribe(to_client.request, fn msg ->
       RPC.Client.call_to_remote(client, msg.payload.method, msg.payload.params, msg.id)
@@ -133,19 +134,33 @@ defmodule Serverboards.MOM.RPC.Client do
 	Sets the user for this client
 
 	User just needs to have email and permissions.
+
+	## Example
+
+		iex> {:ok, client} = start_link
+		iex> set client, :user, :me
+		iex> get client, :user
+		:me
 	"""
 	def set(client, key, value) do
-		Agent.update( client.state, &Map.put(&1, key, value))
+		RPC.Context.set(client.context, key, value)
 	end
 
 	@doc ~S"""
 	Gets the user of this client
+
+	## Example
+
+		iex> {:ok, client} = start_link
+		iex> set client, :user, :me
+		iex> get client, :user
+		:me
+		iex> get client, :other, :default
+		:default
+
 	"""
 	def get(client, key, default \\ nil) do
-		#Logger.debug("Get user from #{inspect client}")
-		ret = Agent.get(client.state, &Map.get(&1, key, default))
-		#Logger.debug("#{inspect ret}")
-		ret
+		RPC.Context.get(client.context, key, default)
 	end
 
   @doc ~S"""

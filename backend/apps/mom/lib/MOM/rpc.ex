@@ -62,13 +62,21 @@ defmodule Serverboards.MOM.RPC do
 
 	alias Serverboards.MOM.{Channel, Message, RPC}
 
-	def start_link() do
+	def start_link(options \\ []) do
 		{:ok, pid} = GenServer.start_link(__MODULE__, :ok, [])
 
 		{:ok, request} = Channel.PointToPoint.start_link
 		{:ok, reply} = Channel.PointToPoint.start_link
 		{:ok, method_caller} = RPC.MethodCaller.start_link
-		{:ok, context} = RPC.Context.start_link
+
+		# Create new context, or reuse given one.
+		context = case Keyword.get(options, :context, nil) do
+			nil ->
+				{:ok, context} = RPC.Context.start_link
+				context
+			context ->
+				context
+		end
 
 		reply_id = Channel.subscribe(reply, &GenServer.cast( pid, {:reply, &1} ) )
 
