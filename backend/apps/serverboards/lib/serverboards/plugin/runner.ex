@@ -58,7 +58,7 @@ defmodule Serverboards.Plugin.Runner do
         {:error, e}
       {:ok, cmd} ->
         Serverboards.IO.Cmd.stop cmd
-        :ok
+        true
     end
   end
   def stop(id), do: stop(Serverboards.Plugin.Runner, id)
@@ -73,6 +73,8 @@ defmodule Serverboards.Plugin.Runner do
     iex> is_binary(pl)
     true
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]]
+    "pong"
+    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping"] # default [] params
     "pong"
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl]
     :ok
@@ -143,8 +145,11 @@ defmodule Serverboards.Plugin.Runner do
       Plugin.Runner.stop runner, plugin_component_id
     end
 
-    MethodCaller.add_method method_caller, "plugin.call", fn [id, method, params] ->
-      Plugin.Runner.call runner, id, method, params
+    MethodCaller.add_method method_caller, "plugin.call", fn
+      [id, method, params] ->
+        Plugin.Runner.call runner, id, method, params
+      [id, method] ->
+        Plugin.Runner.call runner, id, method, []
     end
 
     {:ok, %{

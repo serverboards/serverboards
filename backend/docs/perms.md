@@ -14,6 +14,10 @@ auth.modify_any  -- Modify any user
 auth.create_user -- Create user
 auth.create_token -- Creates an auth token
 
+## Plugins
+
+plugin -- Can start, stop and make calls into plugins
+
 ## Other
 
 debug -- Debug when in debug mode

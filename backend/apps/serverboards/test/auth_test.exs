@@ -37,6 +37,7 @@ defmodule Serverboards.AuthTest do
     Group.add_perm(g_admin, "auth.create_user")
     Group.add_perm(g_user, "auth.modify_self")
     Group.add_perm(g_user, "auth.create_token")
+    Group.add_perm(g_user, "plugin")
 
     Group.add_user(g_admin, user)
     Group.add_user(g_user, user)
@@ -71,5 +72,23 @@ defmodule Serverboards.AuthTest do
 		Logger.info("#{inspect user}")
 
 	end
+
+  test "Can start/call/stop plugins" do
+    {:ok, client} = Client.start_link
+    Task.async( fn -> Serverboards.Auth.authenticate(client) end)
+
+    Client.expect( client, method: "auth.required" )
+    user = Serverboards.Auth.User.get_user "dmoreno@serverboards.io"
+    token = Serverboards.Auth.User.Token.create(user)
+
+    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token }, 2)
+
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"], 3)
+    assert Client.call(client, "plugin.call", [test_cmd, "ping"], 4) == "pong"
+    assert Client.call(client, "plugin.stop", [test_cmd], 5) == true
+
+    assert Client.call(client, "plugin.call", [test_cmd, "ping"], 6) == {:error, :unknown_cmd}
+
+  end
 
 end

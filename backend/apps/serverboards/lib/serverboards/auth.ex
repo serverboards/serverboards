@@ -92,6 +92,10 @@ defmodule Serverboards.Auth do
 			end
 		end
 
+		if Enum.member?(user.perms, "plugin") do
+			add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
+		end
+
 
 		#if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
 		#	add_method client.to_serverboards, "debug.observer", fn [] ->
