@@ -128,7 +128,7 @@ defmodule Serverboards.Plugin.Runner do
       {:error, e} ->
         {:error, e}
       cmd when is_pid(cmd) ->
-        Serverboards.IO.Cmd.call cmd, method, params # FIXME! Not proper way, should use MOM
+        Serverboards.IO.Cmd.call cmd, method, params 
     end
   end
   def call(id, method, params \\ []) do
