@@ -79,14 +79,14 @@ defmodule Serverboards.Plugin.Runner do
 
   ## Example:
 
-    iex> pl = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/auth.test"]
+    iex> pl = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/auth.test"], nil
     iex> is_binary(pl)
     true
-    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]]
+    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]], nil
     "pong"
-    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping"] # default [] params
+    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping"], nil # default [] params
     "pong"
-    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl]
+    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl], nil
     true
 
   """
@@ -128,7 +128,7 @@ defmodule Serverboards.Plugin.Runner do
       {:error, e} ->
         {:error, e}
       cmd when is_pid(cmd) ->
-        Serverboards.IO.Cmd.call cmd, method, params 
+        Serverboards.IO.Cmd.call cmd, method, params
     end
   end
   def call(id, method, params \\ []) do
