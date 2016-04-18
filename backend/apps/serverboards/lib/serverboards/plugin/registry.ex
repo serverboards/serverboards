@@ -104,7 +104,6 @@ defmodule Serverboards.Plugin.Registry do
   """
   def find(registry, id) do
     alias Serverboards.Plugin
-    alias Serverboards.Plugin.Component
 
     # on the form .*/.*
     case Regex.run(~r"^([^/]+)/([^/]+)$", id ) do

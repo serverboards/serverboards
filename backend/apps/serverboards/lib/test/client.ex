@@ -57,7 +57,6 @@ defmodule Test.Client do
 		alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}
 		alias Serverboards.Repo
 		alias Serverboards.Auth.User.{Password, Token}
-		import Ecto.Query
 
 		Repo.delete_all(UserGroup)
 		Repo.delete_all(GroupPerms)
@@ -67,7 +66,7 @@ defmodule Test.Client do
 		Repo.delete_all(Token)
 		Repo.delete_all(Password)
 
-		{:ok, user} = Repo.insert(%User{
+		{:ok, _user} = Repo.insert(%User{
 			email: "dmoreno@serverboards.io",
 			first_name: "David",
 			last_name: "Moreno",
@@ -150,7 +149,7 @@ defmodule Test.Client do
 		{:noreply, status}
 	end
 
-	def handle_call({:get_client}, from, status) do
+	def handle_call({:get_client}, _from, status) do
 		{:reply, status.client, status}
 	end
 

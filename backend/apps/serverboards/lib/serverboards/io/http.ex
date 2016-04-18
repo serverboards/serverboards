@@ -55,7 +55,7 @@ defmodule Serverboards.IO.HTTP do
   end
 
   defp fetch_header([], _, d), do: d
-  defp fetch_header([ {tk, tv} | t ], k, d \\ nil) do
+  defp fetch_header([ {tk, tv} | t ], k, d) do
     if tk == k do
       tv
     else
@@ -66,7 +66,7 @@ defmodule Serverboards.IO.HTTP do
   defp update_header([], k, v) do
     [{k,v}] # not existed before, add it
   end
-  defp update_header([ {tk, tv} | t ], k, v) do
+  defp update_header([ {tk, _old_value} | t ], k, v) do
     if (tk==k) do
       [{k,v} | t ]
     else
@@ -80,7 +80,7 @@ defmodule Serverboards.IO.HTTP do
 
     alias Serverboards.MOM.RPC
 
-    def init({tcp, http}, _req, _opts) do
+    def init({_tcp, _http}, _req, _opts) do
       {:upgrade, :protocol, :cowboy_websocket}
     end
 
@@ -117,8 +117,8 @@ defmodule Serverboards.IO.HTTP do
     end
 
     # ignore other
-    def websocket_handle(_data, req, state) do
-      Logger.debug("Fallback ignore data #{inspect _data}")
+    def websocket_handle(data, req, state) do
+      Logger.debug("Fallback ignore data #{inspect data}")
       {:ok, req, state}
     end
 
@@ -131,8 +131,8 @@ defmodule Serverboards.IO.HTTP do
     end
 
     # fallback message handler
-    def websocket_info(_info, req, state) do
-      Logger.info("Fallback ignore info #{inspect _info}")
+    def websocket_info(info, req, state) do
+      Logger.info("Fallback ignore info #{inspect info}")
       {:ok, req, state}
     end
   end

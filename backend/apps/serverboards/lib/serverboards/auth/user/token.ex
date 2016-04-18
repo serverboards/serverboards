@@ -26,7 +26,7 @@ defmodule Serverboards.Auth.User.Token do
   def create(user) do
     require UUID
     token = UUID.uuid4
-    {:ok, tokenv} = Repo.insert(changeset(%User.Token{}, %{
+    {:ok, _tokenv} = Repo.insert(changeset(%User.Token{}, %{
       :user_id => user.id,
       :token => token
       }))
