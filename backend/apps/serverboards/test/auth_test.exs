@@ -15,27 +15,31 @@ defmodule Serverboards.AuthTest do
 		Task.async( fn -> Serverboards.Auth.authenticate(client) end)
 
     Client.expect( client, method: "auth.required" )
-		assert Client.call( client, "auth.auth", %{ "type" => "basic", "email" => "dmoreno@serverboards.io", "password" => "asdfghjkl" }, 1) != false
+		assert Client.call( client, "auth.auth", %{ "type" => "basic", "email" => "dmoreno@serverboards.io", "password" => "asdfghjkl" }) != false
   end
 
 
 	test "Token auth" do
-
 		{:ok, client} = Client.start_link
 		Task.async( fn -> Serverboards.Auth.authenticate(client) end)
 
 		Client.expect( client, method: "auth.required" )
-		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }, 1) == false
+		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }) == false
 
     user = Serverboards.Auth.User.get_user "dmoreno@serverboards.io"
     token = Serverboards.Auth.User.Token.create(user)
 
-		user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token }, 2)
+		user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
 		assert user != false
 		assert user.email == "dmoreno@serverboards.io"
 
 		Logger.info("#{inspect user}")
-
 	end
+
+  test "Dir after login" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    assert Client.call(client, "dir", []) != []
+  end
 
 end

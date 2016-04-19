@@ -13,7 +13,14 @@ defmodule Test.Client do
 	alias Serverboards.MOM.RPC
 	alias Test.Client
 
-	def start_link(options) do
+	@doc ~S"""
+	Starts a fake client for tests.
+
+	Options:
+
+	* as: email -- Starts as that email user
+	"""
+	def start_link(options \\ []) do
 		{:ok, pid} = GenServer.start_link __MODULE__, :ok, []
 		client=GenServer.call(pid, {:get_client})
 
@@ -25,7 +32,7 @@ defmodule Test.Client do
 	    user = Serverboards.Auth.User.get_user maybe_user
 	    token = Serverboards.Auth.User.Token.create(user)
 
-	    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token }, 2)
+	    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
 		end
 
 		{:ok, client}
@@ -52,8 +59,8 @@ defmodule Test.Client do
 	@doc ~S"""
 	Calls into the client
 	"""
-	def call(client, method, params, id) do
-		case GenServer.call(client.options.pid, {:call_serverboards, method, params, id}) do
+	def call(client, method, params) do
+		case GenServer.call(client.options.pid, {:call_serverboards, method, params}) do
 			{:ok, res} ->
 				res
 			{:error, :unknown_method} ->
@@ -120,6 +127,7 @@ defmodule Test.Client do
 				client: client,
 				messages: [],
 				expecting: nil,
+				maxid: 1
 		} }
 	end
 
@@ -156,12 +164,12 @@ defmodule Test.Client do
 		end
 	end
 
-	def handle_call({:call_serverboards, method, params, id}, from, status) do
-		RPC.Client.call(status.client, method, params, id, fn
+	def handle_call({:call_serverboards, method, params}, from, status) do
+		RPC.Client.call(status.client, method, params, status.maxid, fn
 			res ->
 				GenServer.reply(from, res)
 		end)
-		{:noreply, status}
+		{:noreply, %{ status | maxid: status.maxid + 1 }}
 	end
 
 	def handle_call({:get_client}, _from, status) do

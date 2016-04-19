@@ -22,20 +22,34 @@ defmodule Serverboards.PluginTest do
   test "Can start/call/stop plugins" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"], 3)
-    assert Client.call(client, "plugin.call", [test_cmd, "ping"], 4) == "pong"
-    assert Client.call(client, "plugin.stop", [test_cmd], 5) == true
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == "pong"
+    assert Client.call(client, "plugin.stop", [test_cmd]) == true
 
-    assert Client.call(client, "plugin.call", [test_cmd, "ping"], 6) == {:error, :unknown_cmd}
+    assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:error, :unknown_cmd}
 
     # Fallback UUID caller
     require Logger
     Logger.info("UUID Caller")
-    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"], 3)
-    assert Client.call(client, "#{test_cmd}.ping", [], 4) == "pong"
-    assert Client.call(client, "plugin.stop", [test_cmd], 5) == true
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    assert Client.call(client, "#{test_cmd}.ping", []) == "pong"
+    assert Client.call(client, "plugin.stop", [test_cmd]) == true
     assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
-      Client.call(client, "#{test_cmd}.ping", [], 4) == {:error, :unknown_cmd}
+      Client.call(client, "#{test_cmd}.ping", [])
+    end
+  end
+
+  test "Set alias" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    assert Client.call(client, "plugin.alias", [test_cmd, "test"])
+    assert Client.call(client, "test.ping", []) == "pong"
+    assert Client.call(client, "test.stop", ["test"]) == true
+    assert Client.call(client, "test.stop", ["test"]) == false
+    assert Client.call(client, "test.stop", [test_cmd]) == true
+    assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
+      Client.call(client, "#{test_cmd}.ping", [])
     end
   end
 
