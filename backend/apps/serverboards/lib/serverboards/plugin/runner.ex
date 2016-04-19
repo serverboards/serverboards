@@ -176,15 +176,21 @@ defmodule Serverboards.Plugin.Runner do
       ret = aliases
         |> Enum.flat_map(fn {alias_, cmd} ->
           try do
-            res = Serverboards.IO.Cmd.call cmd, "dir", []
-            res |> Enum.map(fn d ->
-                Logger.debug("Got function #{alias_} . #{d}")
-                "#{alias_}.#{d}"
-              end)
+            if Process.alive? cmd do
+              res = Serverboards.IO.Cmd.call cmd, "dir", []
+              res |> Enum.map(fn d ->
+                  Logger.debug("Got function #{alias_} . #{d}")
+                  "#{alias_}.#{d}"
+                end)
+            else
+              # remove from aliases
+              RPC.Context.update context, :plugin_aliases, [{alias_, nil}]
+              []
+            end
           rescue
             e ->
               Logger.error("Plugin with alias #{alias_} #{inspect cmd} does not implement dir. Fix it.")
-              :ok
+              []
           end
         end)
       {:ok, ret}
@@ -202,6 +208,7 @@ defmodule Serverboards.Plugin.Runner do
                 res -> {:ok, res}
               end
             else
+              # not running anymore, remove it
               RPC.Context.update context, :plugin_aliases, [{ alias_, nil }]
               :nok
             end
@@ -230,7 +237,6 @@ defmodule Serverboards.Plugin.Runner do
     end, context: true
 
     RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
-      Logger.warn("Remove dangling aliases!")
       Plugin.Runner.stop runner, plugin_component_id
     end
 

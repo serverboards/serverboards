@@ -72,6 +72,13 @@ defmodule Serverboards.PluginTest do
     assert dir != []
     assert not (Enum.member? dir, test_cmd1<>".ping")
     assert Enum.member? dir, "test.ping"
+
+    # after stop, must not be there.
+    Client.call(client, "plugin.stop", [test_cmd1])
+    Client.call(client, "plugin.stop", [test_cmd2])
+    dir = Client.call(client, "dir", [])
+    assert not (Enum.member? dir, test_cmd1<>".ping")
+    assert not (Enum.member? dir, "test.ping")
   end
 
 end
