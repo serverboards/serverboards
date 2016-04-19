@@ -127,4 +127,31 @@ defmodule Serverboards.Plugin.Registry do
     find(Serverboards.Plugin.Registry, id)
   end
 
+  def list(registry) do
+    Logger.warn("No permission checking for list of plugins. FIXME.")
+    plugins = Agent.get registry, &(&1)
+    Enum.reduce(plugins, %{}, fn plugin, acc ->
+      components = Enum.reduce(plugin.components, %{}, fn component, acc ->
+        Map.put(acc, component.id, %{
+          id: component.id,
+          name: component.name,
+          type: component.type,
+          traits: component.traits
+          })
+      end)
+      Map.put(acc, plugin.id, %{
+        version: plugin.version,
+        name: plugin.name,
+        id: plugin.id,
+        author: plugin.author,
+        description: plugin.description,
+        components: components
+        })
+    end)
+  end
+
+  def list do
+    list(Serverboards.Plugin.Registry)
+  end
+
 end

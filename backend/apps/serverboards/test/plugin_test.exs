@@ -81,4 +81,11 @@ defmodule Serverboards.PluginTest do
     assert not (Enum.member? dir, "test.ping")
   end
 
+  test "Plugin list" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    list = Client.call(client, "plugin.list", [])
+    Logger.debug("#{inspect list}")
+    assert Map.get list, "serverboards.test.auth", false
+  end
 end

@@ -255,6 +255,10 @@ defmodule Serverboards.Plugin.Runner do
         true
     end, context: true
 
+    RPC.MethodCaller.add_method method_caller, "plugin.list", fn [] ->
+        Serverboards.Plugin.Registry.list
+    end
+
     {:ok, %{
       method_caller: method_caller,
       running: %{}
