@@ -6,12 +6,16 @@ import { login, logout } from './actions/auth'
 
 import Main from './components/main.js'
 import Login from './containers/login.js'
+import Console from './containers/console.js'
 
 var ServerboardsRouter = React.createClass({
   render: function(){
     if (!this.props.logged_in){
       return (
-        <Login onLogin={this.props.onLogin}/>
+        <div>
+          <Console/>
+          <Login onLogin={this.props.onLogin}/>
+        </div>
       )
     }
     else{

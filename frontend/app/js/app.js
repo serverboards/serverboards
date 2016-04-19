@@ -4,7 +4,7 @@ var ReactDOM = require('react-dom');
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
 
-require("!style!css!sass!../sass/serverboards.sass")
+require("../sass/serverboards.sass")
 require('./rpc')
 
 import Router  from './router'
