@@ -46,11 +46,12 @@ defmodule Serverboards.PluginTest do
     test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
     assert Client.call(client, "plugin.alias", [test_cmd, "test"])
     assert Client.call(client, "test.ping", []) == "pong"
-    assert Client.call(client, "test.stop", ["test"]) == true
-    assert Client.call(client, "test.stop", ["test"]) == false
-    assert Client.call(client, "test.stop", [test_cmd]) == true
+    assert Client.call(client, "plugin.stop", [test_cmd]) == true
     assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
       Client.call(client, "#{test_cmd}.ping", [])
+    end
+    assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
+      Client.call(client, "test.ping", [])
     end
   end
 
@@ -65,10 +66,12 @@ defmodule Serverboards.PluginTest do
 
     test_cmd1 = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
     test_cmd2 = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    Client.call(client, "plugin.alias", [test_cmd1, "test"])
     dir = Client.call(client, "dir", [])
     Logger.info (inspect dir)
     assert dir != []
-    assert Enum.member? dir, test_cmd1<>".ping"
+    assert not (Enum.member? dir, test_cmd1<>".ping")
+    assert Enum.member? dir, "test.ping"
   end
 
 end
