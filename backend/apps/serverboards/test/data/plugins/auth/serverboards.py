@@ -41,15 +41,21 @@ def __dir():
     return rpc_registry.keys()
 
 def loop(debug=None):
-    if debug: debug.write("--- BEGIN ---\n")
+    if debug:
+        import os
+        pid="%d: "%os.getpid()
+        __debug=lambda x: debug.write(pid+x.strip()+'\n')
+    else:
+        __debug=lambda x: None
+    __debug("--- BEGIN ---")
     while True:
         l=sys.stdin.readline()
         if not l:
-            if debug: debug.write("--- EOF ---\n")
+            __debug("--- EOF ---")
             return
-        if debug: debug.write(l)
+        __debug(l)
         rpc = json.loads(l)
         res=call(rpc)
-        if debug: debug.write(json.dumps(res)+'\n')
+        __debug(json.dumps(res))
         print(json.dumps(res)+'\n')
         sys.stdout.flush()

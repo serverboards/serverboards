@@ -25,31 +25,15 @@ defmodule Serverboards.Plugin.Runner do
         add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
       end
 
-
       # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
-      RPC.MethodCaller.add_method_caller method_caller, fn msg ->
-        #Logger.info("Try to call #{inspect msg}")
-        case Regex.run(~r/(^[-0-9a-z]+)\.(.*)$/, msg.method) do
-         [_, id, method] ->
-           res=Plugin.Runner.call id, method, msg.params
-           case res do
-             {:error, :unknown_cmd} -> :nok
-             {:error, :unknown_method} -> :nok
-             {:error, e} -> {:error, e}
-             :nok -> :nok
-             res -> {:ok, res}
-           end
-          _ -> :nok
-        end
-      end
-
+      RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1, pid)
     end)
 
     {:ok, pid}
   end
 
   @doc ~S"""
-  Starts a component by name and adds it to the runnign registry.
+  Starts a component by name and adds it to the running registry.
 
   Example:
 
@@ -159,6 +143,31 @@ defmodule Serverboards.Plugin.Runner do
     call(Serverboards.Plugin.Runner, id, method, params)
   end
 
+  # Method caller function UUID.method.
+  def call_with_uuid(%Serverboards.MOM.RPC.Message{ method: method, params: params, context: context} = msg, runner) do
+    Logger.debug("Try to call #{inspect msg}")
+    if method == "dir" do
+      Logger.debug("dir!")
+      ret=GenServer.call(runner, {:dir})
+      Logger.debug("Dir result: #{inspect ret}")
+      ret
+    else
+      case Regex.run(~r/(^[-0-9a-f]{36})\.(.*)$/, method) do
+        [_, id, method] ->
+          res=Plugin.Runner.call id, method, params
+          case res do
+            {:error, :unknown_cmd} ->
+              Logger.debug("Trying to access invalid id #{id}")
+              :nok
+            {:error, :unknown_method} -> :nok
+            {:error, e} -> {:error, e}
+            :nok -> :nok
+            res -> {:ok, res}
+          end
+        _ -> :nok
+      end
+    end
+  end
 
   ## server impl
   def init :ok do
@@ -187,6 +196,37 @@ defmodule Serverboards.Plugin.Runner do
         Plugin.Runner.call runner, id, method, []
     end
 
+    RPC.MethodCaller.add_method method_caller, "plugin.alias", fn
+      [id, newalias], context ->
+        newalias="#{newalias}."
+        Logger.debug("Creating alias #{newalias} for #{id}")
+        try do
+          client_mc=(RPC.Context.get context, :client).to_serverboards
+          RPC.add_method_caller client_mc, fn msg ->
+            Logger.debug("Check alias #{msg.method} #{newalias} // #{String.starts_with? msg.method, newalias}")
+            if String.starts_with? msg.method, newalias do
+              case Plugin.Runner.call runner, id, msg.method, msg.params do
+                {:error, :unknown_cmd} ->
+                  Logger.error("Alias #{newalias} exists, but final aliased does not #{id}")
+                  :nok
+                {:error, :unknown_method} ->
+                  :nok
+                {:error, e} -> {:error, e}
+                :nok -> :nok
+                res -> {:ok, res}
+              end
+            else
+              :nok
+            end
+          end
+        rescue
+          other ->
+            Logger.error("#{Exception.format :error, other}")
+        end
+        #Plugin.Runner.call runner, id, method, params
+    end, context: true
+
+
     {:ok, %{
       method_caller: method_caller,
       running: %{}
@@ -213,5 +253,26 @@ defmodule Serverboards.Plugin.Runner do
   end
   def handle_call({:get, id}, _from, state) do
     {:reply, Map.get(state.running, id, {:error, :unknown_cmd}), state}
+  end
+  def handle_call({:dir}, from, state) do
+    Task.async fn ->
+      ret = state.running
+        |> Enum.flat_map(fn {uuid, cmd} ->
+          try do
+            res = Serverboards.IO.Cmd.call cmd, "dir", []
+            res |> Enum.map(fn d ->
+                Logger.debug("Got function #{uuid} . #{d}")
+                "#{uuid}.#{d}"
+              end)
+          rescue
+            e ->
+              Logger.error("Plugin #{inspect uuid} #{inspect cmd} does not implement dir. Fix it.")
+              []
+          end
+        end)
+      GenServer.reply(from, {:ok, ret})
+    end
+
+    {:noreply, state}
   end
 end

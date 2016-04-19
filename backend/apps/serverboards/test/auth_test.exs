@@ -36,10 +36,4 @@ defmodule Serverboards.AuthTest do
 		Logger.info("#{inspect user}")
 	end
 
-  test "Dir after login" do
-    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
-
-    assert Client.call(client, "dir", []) != []
-  end
-
 end

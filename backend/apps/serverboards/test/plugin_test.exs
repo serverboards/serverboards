@@ -1,3 +1,4 @@
+import Logger
 
 defmodule Serverboards.PluginTest do
   use ExUnit.Case
@@ -51,6 +52,23 @@ defmodule Serverboards.PluginTest do
     assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
       Client.call(client, "#{test_cmd}.ping", [])
     end
+  end
+
+
+  test "Dir after login at plugins" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    dir = Client.call(client, "dir", [])
+    assert dir != []
+    assert Enum.member? dir, "ping"
+
+
+    test_cmd1 = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    test_cmd2 = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    dir = Client.call(client, "dir", [])
+    Logger.info (inspect dir)
+    assert dir != []
+    assert Enum.member? dir, test_cmd1<>".ping"
   end
 
 end
