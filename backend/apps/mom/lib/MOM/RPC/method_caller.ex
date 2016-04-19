@@ -275,7 +275,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
               Logger.error("Bad arity error #{method}\n#{Exception.format_stacktrace System.stacktrace}")
               cb.({:error, :bad_arity})
             e ->
-              Logger.error("Error on method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
+              Logger.error("Error on method #{method}\n#{inspect e}\n#{Exception.format_stacktrace System.stacktrace}")
               cb.({:error, e})
             end
         end

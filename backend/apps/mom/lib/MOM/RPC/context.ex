@@ -67,4 +67,43 @@ defmodule Serverboards.MOM.RPC.Context do
   def delete(ma, k) do
     Agent.update ma, &Map.delete(&1, k)
   end
+
+  @doc ~S"""
+  Allows to update atomically a map into the context
+
+  Example:
+
+    iex> {:ok, c} = start_link
+    iex> update c, :test, a: 1
+    iex> get c, :test
+    %{ a: 1 }
+    iex> update c, :test, [a: nil]
+    iex> get c, :test
+    %{}
+    iex> update c, :test, [a: 1, b: 2, c: nil]
+    iex> get c, :test
+    %{ a: 1, b: 2 }
+
+  Also can bu strings
+
+    iex> {:ok, c} = start_link
+    iex> update c, :test, [{"string", 1}]
+    iex> get c, :test
+    %{ "string" => 1 }
+
+
+  """
+  def update(ctx, k, map) do
+    Agent.update ctx, fn st ->
+      oldv=Map.get(st, k, %{})
+      v=Enum.reduce(map, oldv, fn ({nk, nv}, acc) ->
+        if nv == nil do
+          Map.delete(acc, nk)
+        else
+          Map.put(acc, nk, nv)
+        end
+      end)
+      Map.put(st, k, v)
+    end
+  end
 end
