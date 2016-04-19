@@ -211,6 +211,7 @@ defmodule Serverboards.MOM.Channel do
 	"""
 	def handle_call({:send, msg}, _, state) do
 		ok = if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
+			#Logger.warn("Sending #{inspect msg} to :deadletter messages channel.")
 			Channel.send(:deadletter, %{msg | error: :deadletter})
 			:empty
 		else

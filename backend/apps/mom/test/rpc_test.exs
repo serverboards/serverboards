@@ -93,4 +93,22 @@ defmodule Serverboards.RPCTest do
 
     assert RPC.call(rpc, "dir", [], 1) == ~w(dir echo echo1 echo2 echo3)
   end
+
+  test "RPC function method callers" do
+    {:ok, rpc} = RPC.start_link
+
+    RPC.add_method_caller rpc, fn msg ->
+      case msg.method do
+        "dir" ->
+          {:ok, ["dir", "echo"]}
+        "echo" ->
+          {:ok, msg.params}
+        _ ->
+          :nok
+      end
+    end
+
+    assert RPC.call(rpc, "dir", [], 1) == ~w(dir echo)
+    assert RPC.call(rpc, "echo", [1,2,3], 1) == [1,2,3]
+  end
 end

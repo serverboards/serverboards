@@ -40,7 +40,7 @@ defmodule Serverboards.MOM.RPC.Client do
 	"""
 	def start_link(writef, options \\ []) do
 		{:ok, context} = MOM.RPC.Context.start_link
-		{:ok, to_client} = MOM.RPC.start_link context: context
+		{:ok, to_client} = MOM.RPC.start_link context: context, method_caller: false
 		{:ok, to_serverboards} = MOM.RPC.start_link context: context
 
 		client = %Serverboards.MOM.RPC.Client{

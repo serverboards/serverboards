@@ -79,10 +79,12 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 				end
 				ok == :ok
 			end)
-			Logger.debug("Any got it? #{inspect msg}, #{inspect any}")
+			#Logger.debug("Any got it? #{inspect msg}, #{inspect any}")
 			if any do
 				:ok
 			else
+				#Logger.warn("Sending #{inspect msg} to :deadletter messages channel.")
+				Channel.send(:deadletter, %{ msg | error: :deadletter })
 				:nok
 			end
 		end

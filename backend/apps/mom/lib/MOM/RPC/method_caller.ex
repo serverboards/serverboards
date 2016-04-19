@@ -26,21 +26,36 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   def start_link do
     {:ok, pid} = Agent.start_link fn -> %{ methods: %{}, mc: [] } end
 
-    add_method pid, "dir", fn _ ->
-      __dir(pid)
-    end, async: false
+    add_method pid, "dir", fn _, context ->
+      __dir(pid, context)
+    end, [async: false, context: true]
 
     {:ok, pid}
   end
 
-  def __dir(pid) do
+  def __dir(pid, context) when is_pid(pid) do
     st = Agent.get pid, &(&1)
     local = st.methods
       |> Enum.map(fn {name, _} ->
         name
         end)
-    other = Enum.flat_map( st.mc, &__dir(&1) )
+    other = Enum.flat_map( st.mc, &__dir(&1, context) )
     Enum.uniq Enum.sort( local ++ other )
+  end
+
+  def __dir(f, context) when is_function(f) do
+    try do
+      case f.(%RPC.Message{method: "dir", context: context}) do
+        {:ok, l} when is_list(l) -> l
+        o ->
+          Logger.error("dir dir not return list at #{inspect f}. Please fix.")
+          []
+      end
+    rescue
+      e ->
+        Logger.error("dir not implemented at #{inspect f}. Please fix.\n#{inspect e}\n#{ Exception.format_stacktrace System.stacktrace }")
+        []
+    end
   end
 
   @doc ~S"""
@@ -117,8 +132,8 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   def add_method_caller(pid, pid) do
     raise Exception, "Cant add a method caller to itself."
   end
-  def add_method_caller(pid, nmc) do
-    Logger.info("Add caller #{inspect nmc}")
+  def add_method_caller(pid, nmc) when is_pid(pid) do
+    Logger.debug("Add caller #{inspect nmc} to #{inspect pid}")
     Agent.update pid, fn st ->
       %{ st | mc: st.mc ++ [nmc] }
     end
@@ -212,20 +227,28 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   """
   def cast(f, method, params, context, cb) when is_function(f)  do
-    case f.(%RPC.Message{ method: method, params: params, context: context}) do
-      {:ok, ret} ->
-        cb.({:ok, ret})
-        :ok
-      {:error, other} ->
-        cb.({:error, other})
-        :ok
-      {:error, :unknown_method} -> :nok
-      :nok -> :nok
-      :empty -> :empty
+    ret = try do
+      f.(%RPC.Message{ method: method, params: params, context: context})
+    rescue
+      other ->
+        Logger.error("#{Exception.format :error, other}")
+        {:error, other}
     end
+    Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
+
+    cb_params = case ret do
+      {:ok, ret} -> {:ok, ret}
+      {:error, :unknown_method} -> {:error, :unknown_method}
+      {:error, other} -> {:error, other}
+      :nok -> {:error, :unknown_method}
+      :empty -> {:error, :unknown_method}
+    end
+
+    cb.(cb_params)
   end
 
   def cast(pid, method, params, context, cb) when is_pid(pid) do
+    Logger.debug("Method #{method} caller pid #{inspect pid}")
     st = Agent.get pid, &(&1)
     case Map.get st.methods, method do
       {f, options} ->
@@ -233,22 +256,26 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         call_f = fn ->
           try do
             v = if Keyword.get(options, :context, false) do
-              #Logger.debug("Calling with context #{inspect f} #{inspect options}")
+              Logger.debug("Calling with context #{inspect f} #{inspect options}")
               f.(params, context)
             else
-              #Logger.debug("Calling without context #{inspect f}")
+              Logger.debug("Calling without context #{inspect f}")
               f.(params)
             end
 
             cb.({:ok, v })
           rescue
             Serverboards.MOM.RPC.UnknownMethod ->
+              Logger.error("Unknown method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
               cb.({:error, :unknown_method})
             CaseClauseError ->
+              Logger.error("Case clause error method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
               cb.({:error, :bad_arity})
             BadArityError ->
+              Logger.error("Bad arity error #{method}\n#{Exception.format_stacktrace System.stacktrace}")
               cb.({:error, :bad_arity})
             e ->
+              Logger.error("Error on method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
               cb.({:error, e})
             end
         end
@@ -264,24 +291,27 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         :ok
       nil ->
         # Look for it at method callers
-        #Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
+        Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
         cast_mc(st.mc, method, params, context, cb)
     end
   end
 
   defp cast_mc([], _, _, _, _cb) do # end of search, :unknown_method
     # Just do nothing here, will backtrack and do the right thing.
+    Logger.debug("No more Method Callers to call")
     :nok
   end
 
   defp cast_mc([h | t], method, params, context, cb) do
-    #Logger.debug("Cast mc #{inspect h}")
+    Logger.debug("Cast mc #{inspect h}")
     cast(h, method, params, context, fn
       # Keep searching for it
       {:error, :unknown_method} ->
+        Logger.debug("Keep looking MC")
         cast_mc(t, method, params, context, cb)
       # done, callback with whatever.
       other ->
+        Logger.debug("Done #{inspect other}")
         cb.(other)
     end)
   end

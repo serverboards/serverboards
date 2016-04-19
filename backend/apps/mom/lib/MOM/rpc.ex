@@ -9,6 +9,14 @@ defmodule Serverboards.MOM.RPC do
 
 	It also has Method Caller lists to call directly and can be chained
 
+	Options:
+
+	 * `context` -- Use the given context, if none, creates one
+	 * `method_caller: [mc|nil|false]` -- Use the given method caller, if nil create one, false dont use.
+
+	`method_caller: false` is needed when connecting with an endpoint that provides all
+	method calling, for example a remote side.
+
 	## Example of use
 
 	It can be used in a blocking fasion
@@ -37,6 +45,13 @@ defmodule Serverboards.MOM.RPC do
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
 		** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "echo"
+
+	Without method caller, dir is a method caller functionality
+
+	iex> alias Serverboards.MOM.RPC
+	iex> {:ok, rpc} = RPC.start_link method_caller: false
+	iex> RPC.call(rpc, "dir", [], 1)
+	** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "dir"
 
 	"""
 	alias Serverboards.MOM.{RPC, Tap}
@@ -67,7 +82,12 @@ defmodule Serverboards.MOM.RPC do
 
 		{:ok, request} = Channel.PointToPoint.start_link
 		{:ok, reply} = Channel.PointToPoint.start_link
-		{:ok, method_caller} = RPC.MethodCaller.start_link
+		method_caller = case Keyword.get options, :method_caller, nil do
+			nil ->
+				{:ok, method_caller} = RPC.MethodCaller.start_link
+				method_caller
+			mc -> mc
+		end
 
 		# Create new context, or reuse given one.
 		context = case Keyword.get(options, :context, nil) do
@@ -91,29 +111,31 @@ defmodule Serverboards.MOM.RPC do
 		}
 
 		# When new request, do the calls and return on the reply channel
-		Channel.subscribe(request, fn msg ->
-			RPC.MethodCaller.cast(
-													method_caller, msg.payload.method,
-													msg.payload.params, msg.payload.context,
-				fn
-				{:ok, v} ->
-					reply = %Message{
-									payload: v,
-									id: msg.id
-					}
-					Channel.send(msg.reply_to, reply)
-					:ok
-				{:error, :not_found} ->
-					:nok
-				{:error, e} ->
-					reply = %Message{
-						error: e,
-						id: msg.id
-					}
-					Channel.send(msg.reply_to, reply)
-					:ok
-		 end) # returns :ok if has method, or :nok if not.
-		end)
+		if method_caller do
+			Channel.subscribe(request, fn msg ->
+				RPC.MethodCaller.cast(
+														method_caller, msg.payload.method,
+														msg.payload.params, msg.payload.context,
+					fn
+					{:ok, v} ->
+						reply = %Message{
+										payload: v,
+										id: msg.id
+						}
+						Channel.send(msg.reply_to, reply)
+						:ok
+					{:error, :not_found} ->
+						:nok
+					{:error, e} ->
+						reply = %Message{
+							error: e,
+							id: msg.id
+						}
+						Channel.send(msg.reply_to, reply)
+						:ok
+			 end) # returns :ok if has method, or :nok if not.
+			end)
+		end
 
 		{:ok, rpc}
 	end
