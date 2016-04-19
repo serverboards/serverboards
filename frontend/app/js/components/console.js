@@ -11,6 +11,9 @@ function ConsoleLine(props){
 }
 
 var Console=React.createClass({
+  getInitialState:function(){
+    return { stick_to_bottom: true }
+  },
   handleSubmit: function(ev){
     ev.preventDefault()
 
@@ -18,8 +21,44 @@ var Console=React.createClass({
     this.props.onSubmit(inpt.val())
     inpt.val('')
   },
+  onToggle: function(ev){
+    if (ev.keyCode==186){
+      ev.preventDefault()
+      console.log(this)
+      if (this.props.show)
+        this.props.onHide()
+      else{
+        this.props.onShow()
+        $('.top.console input').focus()
+      }
+    }
+  },
+  componentDidMount: function(){
+    $(window).on('keypress', this.onToggle)
+
+    return {}
+  },
+  componentWillUnmount: function(){
+    $(window).off('keypress', this.onToggle)
+  },
+  componentWillUpdate: function(){
+    if (this.state.stick_to_bottom){
+      let history=$('.top.console .history')
+      if (history.length){
+        var top=history.scrollTop() + history.find('.line:last').offset().top
+        history.animate({
+          scrollTop: top
+        }, 200)
+      }
+    }
+  },
   render: function(){
     var props=this.props
+    console.log(props)
+    if (!this.props.show)
+      return (
+        <div/>
+      )
 
     var lines=props.lines.map(function(l){
       return (

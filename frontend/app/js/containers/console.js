@@ -14,7 +14,8 @@ var parse_line = function(line){
 
 let Console = connect(
   (state) => ({
-    lines: state.console.lines
+    lines: state.console.lines,
+    show: state.console.show
   }),
   (dispatch) => ({
     onSubmit: function(text){
@@ -25,6 +26,12 @@ let Console = connect(
       }).catch(function(error){
         dispatch({type: "CONSOLE_ERROR", error: error })
       })
+    },
+    onShow: function(){
+      dispatch({type: "CONSOLE_SHOW"})
+    },
+    onHide: function(){
+      dispatch({type: "CONSOLE_HIDE"})
     }
   })
 )(ConsoleView)

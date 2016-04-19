@@ -10,21 +10,28 @@ import Console from './containers/console.js'
 
 var ServerboardsRouter = React.createClass({
   render: function(){
+    let contents
     if (!this.props.logged_in){
-      return (
+      contents=(
         <div>
-          <Console/>
           <Login onLogin={this.props.onLogin}/>
         </div>
       )
     }
     else{
-      return (
+      contents=(
         <Router history={hashHistory}>
           <Route path="/" component={Main}/>
         </Router>
       )
     }
+
+    return (
+      <div>
+        <Console/>
+        {contents}
+      </div>
+    )
   }
 })
 

@@ -33,7 +33,7 @@ import Flash from './flash'
 import FlashActions from './actions/flash'
 
 Flash.log=function(message, options={}){
-  options=Object.assign({}, {timeout: 10000}, options)
+  options=Object.assign({}, {timeout: message.length*100}, options)
   store.dispatch( FlashActions.add(message, options) )
   var close =function(){
     store.dispatch(FlashActions.remove(message))
