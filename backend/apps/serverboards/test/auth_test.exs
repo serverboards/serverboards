@@ -5,6 +5,8 @@ defmodule Serverboards.AuthTest do
 	alias Test.Client
 	@moduletag :capture_log
 
+  doctest Serverboards.Auth, import: true
+
   setup_all do
     Client.reset_db()
     :ok

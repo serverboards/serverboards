@@ -38,6 +38,9 @@ defmodule Serverboards.Plugin.Registry do
     iex> [auth] = filter_component trait: "auth"
     iex> auth.id
     "fake"
+    iex> [auth] = filter_component trait: "auth", id: "fake"
+    iex> auth.id
+    "fake"
     iex> filter_component trait: "XXX"
     []
 
@@ -47,7 +50,8 @@ defmodule Serverboards.Plugin.Registry do
     alias Serverboards.Plugin.Component
 
     plugins = Agent.get registry, &(&1)
-    Logger.debug("Known plugins: #{inspect plugins}")
+    #Logger.debug("Known plugins: #{inspect plugins}")
+    Logger.debug("filter Q #{inspect q}")
     #fields = q |> map(fn {k,_} -> k end)
 
     components = plugins |>

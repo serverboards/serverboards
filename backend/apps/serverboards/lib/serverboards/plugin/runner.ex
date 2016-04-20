@@ -51,9 +51,19 @@ defmodule Serverboards.Plugin.Runner do
     iex> start("nonexistantplugin")
     {:error, :not_found}
 
+  It can also be called with a component struct:
+
+    iex> component = hd (Serverboards.Plugin.Registry.filter_component trait: "auth")
+    iex> {:ok, cmd} = start(component)
+    iex> call cmd, "ping"
+    "pong"
+    iex> stop(cmd)
+    true
+
   """
-  def start(runner, plugin_component_id) when is_pid(runner) or is_atom(runner) do
-    case Plugin.Component.run plugin_component_id do
+  def start(runner, %Serverboards.Plugin.Component{} = component)
+  when (is_pid(runner) or is_atom(runner)) do
+    case Plugin.Component.run component do
       {:ok, cmd } ->
         require UUID
         uuid = UUID.uuid4
@@ -61,11 +71,19 @@ defmodule Serverboards.Plugin.Runner do
         :ok = GenServer.call(runner, {:start, uuid, cmd})
         {:ok, uuid}
       {:error, e} ->
-        Logger.error("Error starting plugin component #{inspect plugin_component_id}")
+        Logger.error("Error starting plugin component #{inspect component}")
         {:error, e}
+      end
     end
+  def start(runner, plugin_component_id)
+  when (is_pid(runner) or is_atom(runner)) and is_binary(plugin_component_id) do
+      case Serverboards.Plugin.Registry.find(plugin_component_id) do
+        nil -> {:error, :not_found}
+        c ->
+          start(runner, c)
+      end
   end
-  def start(plugin_component_id), do: start(Serverboards.Plugin.Runner, plugin_component_id)
+  def start(component), do: start(Serverboards.Plugin.Runner, component)
 
   def stop(runner, id) do
     case GenServer.call(runner, {:pop, id}) do

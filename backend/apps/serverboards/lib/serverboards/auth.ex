@@ -1,6 +1,31 @@
 require Logger
 
 defmodule Serverboards.Auth do
+	@moduledoc ~S"""
+	Manages authentication of users.
+
+	It can use custom auth methods (`add_auth`) in elixir code, or plugins,
+	which is any component with the `auth` trait.
+
+	## Example
+
+		iex> auth %{ "type" => "invalid" }
+		false
+
+	Create new auths:
+
+		iex> add_auth "letmein", fn %{ "email" => email } -> email end
+		iex> auth %{ "type" => "letmein", "email" => "dmoreno@serverboards.io" }
+		"dmoreno@serverboards.io"
+
+	Using the fake auth plugin:
+
+		iex> auth %{ "type" => "fake", "token" => "XXX" }
+		"dmoreno@serverboards.io"
+		iex> auth %{ "type" => "fake", "token" => "xxx" }
+		false
+
+	"""
 	use GenServer
 
 	alias Serverboards.MOM.RPC
@@ -41,6 +66,20 @@ defmodule Serverboards.Auth do
 	end
 
 	@doc ~S"""
+	Check is gien params allow for login.
+
+	Params must contain `type`.
+
+	Returns:
+		* false -- no login
+		* email -- Uses that email to get all the permissions and data from database
+
+	"""
+	def auth(%{ "type" => _ } = params) do
+		GenServer.call(Serverboards.Auth, {:auth, params})
+	end
+
+	@doc ~S"""
 	Sets up the client for authentication.
 
 	Can call a continuation function f(user) when authentication succeds.
@@ -50,7 +89,7 @@ defmodule Serverboards.Auth do
 
 		RPC.add_method(client.to_serverboards, "auth.auth", fn
 			%{ "type" => _ } = params ->
-				user = GenServer.call(Serverboards.Auth, {:auth, params})
+				user = auth(params)
 				if user do
 					#remove_method(method_id)
 					#Logger.debug("Logged in!")
@@ -126,8 +165,25 @@ defmodule Serverboards.Auth do
 					false
 			end
 		else
-			Logger.error("Unknown auth #{type}")
-			false
+			case Serverboards.Plugin.Registry.filter_component trait: "auth", id: type do
+				[] ->
+					Logger.error("Unknown auth #{type}")
+					false
+				[component] ->
+					case Serverboards.Plugin.Runner.start component do
+						{:ok, cmd} ->
+							res = case Serverboards.Plugin.Runner.call cmd, "auth", params do
+								{:error, _} ->
+									false
+								res ->
+									res
+							end
+							Serverboards.Plugin.Runner.stop cmd
+							res
+						_ ->
+							false
+					end
+			end
 		end
 		#Logger.debug("Auth result #{inspect auth}")
 

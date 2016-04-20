@@ -3,7 +3,7 @@ from __future__ import print_function
 import serverboards, sys
 
 @serverboards.rpc_method
-def auth(token=None):
+def auth(type="fake", token=None):
     if token=="XXX":
         return 'dmoreno@serverboards.io'
     return False

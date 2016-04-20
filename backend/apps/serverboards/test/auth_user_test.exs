@@ -4,7 +4,6 @@ defmodule Serverboards.AuthUserTest do
   use ExUnit.Case, async: false
   @moduletag :capture_log
 
-  doctest Serverboards.Auth
   doctest Serverboards.Auth.Permission
 
   alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}

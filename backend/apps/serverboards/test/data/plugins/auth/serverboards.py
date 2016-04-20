@@ -32,7 +32,7 @@ def call(rpc):
                 'result' : res,
                 'id' : rpc['id']
                 }
-        except e:
+        except Exception as e:
             return {'error':'exception: '+str(e),'id':rpc['id']}
     return {'error':'unknown_method','id':rpc['id']}
 
