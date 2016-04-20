@@ -28,7 +28,7 @@ defmodule Serverboards.MOM.RPC do
 		...> 	:ok
 		...> 	end) # dirty echo rpc.
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
-		"Hello world!"
+		{:ok, "Hello world!"}
 
 	Or non blocking
 
@@ -39,19 +39,19 @@ defmodule Serverboards.MOM.RPC do
 		iex> RPC.cast(rpc, "echo", "Hello world!", 1, fn answer -> Logger.info("Got the answer: #{answer}") end)
 		:ok
 
-	Returns exception when method does not exist
+	Returns `{:error, :unkown_method}` when method does not exist
 
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
-		** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "echo"
+		{:error, :unknown_method}
 
-	Without method caller, dir is a method caller functionality
+	dir is a method caller functionality, so no method caller, no dir.
 
-	iex> alias Serverboards.MOM.RPC
-	iex> {:ok, rpc} = RPC.start_link method_caller: false
-	iex> RPC.call(rpc, "dir", [], 1)
-	** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "dir"
+		iex> alias Serverboards.MOM.RPC
+		iex> {:ok, rpc} = RPC.start_link method_caller: false
+		iex> RPC.call(rpc, "dir", [], 1)
+		{:error, :unknown_method}
 
 	"""
 	alias Serverboards.MOM.{RPC, Tap}
@@ -164,10 +164,8 @@ defmodule Serverboards.MOM.RPC do
 			} } )
 		Logger.debug("Result #{inspect ok}")
 		case ok do
-			{:error, :unknown_method} -> raise RPC.UnknownMethod, method: method
-			{:error, :bad_arity} -> raise ClauseError
-			{:ok, ret} -> ret
 			:ok -> nil
+			ret -> ret
 		end
 	end
 
@@ -245,7 +243,7 @@ defmodule Serverboards.MOM.RPC do
 		iex> {:ok, rpc} = start_link
 		iex> add_method rpc, "echo", &(&1)
 		iex> call(rpc, "echo", "Hello", 1)
-		"Hello"
+		{:ok, "Hello"}
 
 	Sync mode
 
@@ -253,7 +251,7 @@ defmodule Serverboards.MOM.RPC do
 		iex> {:ok, rpc} = start_link
 		iex> add_method rpc, "echo", &(&1), async: false
 		iex> call(rpc, "echo", "Hello", 2)
-		"Hello"
+		{:ok, "Hello"}
 	"""
 	def add_method(rpc, method, f, options \\ []) do
 		RPC.MethodCaller.add_method rpc.method_caller, method, f, options
@@ -345,7 +343,7 @@ defmodule Serverboards.MOM.RPC do
 					Channel.send(:invalid, message)
 			end
 		else
-			Logger.error("Invalid answer, not registered. Maybe not a reply. Sent to :invalid channel. (#{inspect status}, #{message.id})")
+			Logger.error("Invalid answer id, not registered. Maybe not a reply. Sent to :invalid channel. (#{inspect status}, #{message.id})")
 			Channel.send(:invalid, message)
 		end
 		{:noreply, Map.delete(status, message.id) }

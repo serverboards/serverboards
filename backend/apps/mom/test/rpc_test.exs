@@ -14,7 +14,7 @@ defmodule Serverboards.RPCTest do
 		RPC.add_method rpc, "echo", &(&1), async: true
 
 		# simple direct call
-		assert RPC.call(rpc, "echo", "hello", 0) == "hello"
+		assert RPC.call(rpc, "echo", "hello", 0) == {:ok, "hello"}
 
 		# simple call through chain
 		{:ok, worker} = RPC.start_link
@@ -24,12 +24,10 @@ defmodule Serverboards.RPCTest do
 			"pong"
 		end
 		RPC.chain rpc, worker
-		assert RPC.call(rpc, "ping", [], 0) == "pong"
+		assert RPC.call(rpc, "ping", [], 0) == {:ok, "pong"}
 
 		# call unknown
-		assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
-			RPC.call(rpc, "pong", nil, 0)
-		end
+		assert RPC.call(rpc, "pong", nil, 0) == {:error, :unknown_method}
 
 		# chain a second worker
 		{:ok, worker2} = RPC.start_link
@@ -39,13 +37,11 @@ defmodule Serverboards.RPCTest do
 		end
 
 		# still not chained, excpt
-		assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
-			RPC.call(rpc, "pong", nil, 0)
-		end
+		assert RPC.call(rpc, "pong", nil, 0) == {:error, :unknown_method}
 
 		# now works
 		RPC.chain rpc, worker2
-		assert RPC.call(rpc, "pong", nil, 0) == "pong"
+		assert RPC.call(rpc, "pong", nil, 0) == {:ok, "pong"}
 	end
 
 
@@ -59,12 +55,10 @@ defmodule Serverboards.RPCTest do
       %{ type: _ } -> "map with type"
     end, async: true
 
-    assert RPC.call(rpc, "echo", [], 1) == "empty"
-    assert RPC.call(rpc, "echo", [1], 1) == "one item"
-    assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
-      RPC.call(rpc, "echo", %{}, 1)
-    end
-    assert RPC.call(rpc, "echo", %{ type: :test}, 1) == "map with type"
+    assert RPC.call(rpc, "echo", [], 1) == {:ok, "empty"}
+    assert RPC.call(rpc, "echo", [1], 1) == {:ok, "one item"}
+    assert RPC.call(rpc, "echo", %{}, 1) == {:error, :unknown_method}
+    assert RPC.call(rpc, "echo", %{ type: :test}, 1) == {:ok, "map with type"}
   end
 
 
@@ -91,7 +85,7 @@ defmodule Serverboards.RPCTest do
     RPC.add_method_caller rpc, mc2
     RPC.MethodCaller.add_method_caller mc2, mc3
 
-    assert RPC.call(rpc, "dir", [], 1) == ~w(dir echo echo1 echo2 echo3)
+    assert RPC.call(rpc, "dir", [], 1) == {:ok, ~w(dir echo echo1 echo2 echo3)}
   end
 
   test "RPC function method callers" do
@@ -108,7 +102,7 @@ defmodule Serverboards.RPCTest do
       end
     end
 
-    assert RPC.call(rpc, "dir", [], 1) == ~w(dir echo)
-    assert RPC.call(rpc, "echo", [1,2,3], 1) == [1,2,3]
+    assert RPC.call(rpc, "dir", [], 1) == {:ok, ~w(dir echo)}
+    assert RPC.call(rpc, "echo", [1,2,3], 1) == {:ok, [1,2,3]}
   end
 end
