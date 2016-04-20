@@ -72,7 +72,7 @@ defmodule Serverboards.Plugin.Runner do
         :ok = GenServer.call(runner, {:start, uuid, cmd})
         {:ok, uuid}
       {:error, e} ->
-        Logger.error("Error starting plugin component #{inspect component}")
+        Logger.error("Error starting plugin component #{inspect component}: #{inspect e}")
         {:error, e}
       end
     end

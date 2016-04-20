@@ -21,9 +21,9 @@ defmodule Serverboards.Auth do
 	Using the fake auth plugin:
 
 		iex> auth %{ "type" => "fake", "token" => "XXX" }
-		"dmoreno@serverboards.io"
+		{:ok, "dmoreno@serverboards.io"}
 		iex> auth %{ "type" => "fake", "token" => "xxx" }
-		false
+		{:ok, false}
 
 	"""
 	use GenServer

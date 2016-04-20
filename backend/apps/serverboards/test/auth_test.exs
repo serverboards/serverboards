@@ -26,12 +26,12 @@ defmodule Serverboards.AuthTest do
 		Task.async( fn -> Serverboards.Auth.authenticate(client) end)
 
 		Client.expect( client, method: "auth.required" )
-		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }) == false
+		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }) == {:ok, false}
 
     user = Serverboards.Auth.User.get_user "dmoreno@serverboards.io"
     token = Serverboards.Auth.User.Token.create(user)
 
-		user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+		{:ok, user} = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
 		assert user != false
 		assert user.email == "dmoreno@serverboards.io"
 
