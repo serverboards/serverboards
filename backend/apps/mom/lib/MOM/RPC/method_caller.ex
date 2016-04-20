@@ -291,9 +291,10 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
               Logger.debug("Calling without context #{inspect f}")
               f.(params)
             end
+            Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
             case v do
               {:error, e} ->
-                cb.({:error, v })
+                cb.({:error, e })
               {:ok, v} ->
                 cb.({:ok, v })
               v ->
@@ -331,9 +332,9 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     end
   end
 
-  defp cast_mc([], _, _, _, _cb) do # end of search, :unknown_method
-    # Just do nothing here, will backtrack and do the right thing.
+  defp cast_mc([], _, _, _, cb) do # end of search, :unknown_method
     Logger.debug("No more Method Callers to call")
+    cb.({:error, :unknown_method})
     :nok
   end
 
@@ -342,7 +343,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     cast(h, method, params, context, fn
       # Keep searching for it
       {:error, :unknown_method} ->
-        Logger.debug("Keep looking MC")
+        #Logger.debug("Keep looking MC")
         cast_mc(t, method, params, context, cb)
       # done, callback with whatever.
       other ->
