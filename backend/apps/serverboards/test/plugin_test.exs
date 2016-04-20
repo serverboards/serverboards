@@ -23,7 +23,7 @@ defmodule Serverboards.PluginTest do
   test "Can start/call/stop plugins" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == "pong"
     assert Client.call(client, "plugin.stop", [test_cmd]) == true
 
@@ -32,7 +32,7 @@ defmodule Serverboards.PluginTest do
     # Fallback UUID caller
     require Logger
     Logger.info("UUID Caller")
-    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     assert Client.call(client, "#{test_cmd}.ping", []) == "pong"
     assert Client.call(client, "plugin.stop", [test_cmd]) == true
     assert_raise Serverboards.MOM.RPC.UnknownMethod, fn ->
@@ -43,7 +43,7 @@ defmodule Serverboards.PluginTest do
   test "Set alias" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    test_cmd = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     assert Client.call(client, "plugin.alias", [test_cmd, "test"])
     assert Client.call(client, "test.ping", []) == "pong"
     assert Client.call(client, "plugin.stop", [test_cmd]) == true
@@ -64,8 +64,8 @@ defmodule Serverboards.PluginTest do
     assert Enum.member? dir, "ping"
 
 
-    test_cmd1 = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
-    test_cmd2 = Client.call(client, "plugin.start", ["serverboards.test.auth/auth.test"])
+    test_cmd1 = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    test_cmd2 = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     Client.call(client, "plugin.alias", [test_cmd1, "test"])
     dir = Client.call(client, "dir", [])
     Logger.info (inspect dir)

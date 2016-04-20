@@ -19,7 +19,7 @@ defmodule Serverboards.Plugin.Component do
 
   ## Example
 
-    iex> {:ok, pw} = run("serverboards.test.auth/auth.test")
+    iex> {:ok, pw} = run("serverboards.test.auth/fake")
     iex> Serverboards.IO.Cmd.call pw, "ping"
     "pong"
     iex> Serverboards.IO.Cmd.call pw, "auth", %{ "token" => "XXX" }

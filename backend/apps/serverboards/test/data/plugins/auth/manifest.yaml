@@ -6,8 +6,8 @@ id: serverboards.test.auth
 version: 0.0.1
 
 components:
-  - name: auth
+  - name: fake auth
     type: cmd
     traits: auth
-    id: auth.test
+    id: fake
     command: auth.py

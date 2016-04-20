@@ -40,7 +40,7 @@ defmodule Serverboards.Plugin.Runner do
 
   Example:
 
-    iex> {:ok, cmd} = start("serverboards.test.auth/auth.test")
+    iex> {:ok, cmd} = start("serverboards.test.auth/fake")
     iex> call cmd, "ping"
     "pong"
     iex> stop(cmd)
@@ -85,7 +85,7 @@ defmodule Serverboards.Plugin.Runner do
 
   ## Example:
 
-    iex> pl = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/auth.test"], nil
+    iex> pl = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/fake"], nil
     iex> is_binary(pl)
     true
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]], nil
@@ -110,7 +110,7 @@ defmodule Serverboards.Plugin.Runner do
 
   Examples:
 
-    iex> {:ok, cmd} = start "serverboards.test.auth/auth.test"
+    iex> {:ok, cmd} = start "serverboards.test.auth/fake"
     iex> call cmd, "ping"
     "pong"
     iex> call cmd, "unknown"
@@ -123,7 +123,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> call "nonvalid", "ping"
     {:error, :unknown_cmd}
 
-    iex> {:ok, cmd} = start "serverboards.test.auth/auth.test"
+    iex> {:ok, cmd} = start "serverboards.test.auth/fake"
     iex> stop cmd
     iex> call cmd, "ping"
     {:error, :unknown_cmd}
