@@ -133,6 +133,8 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     {:ok, :shadow}
     iex> MethodCaller.call b, "c", [], context
     {:ok, :c}
+    iex> MethodCaller.call b, "d", [], context
+    {:error, :unknown_method}
 
   Custom method caller that calls a function
 
@@ -193,7 +195,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
           v -> {:ok, v}
         end
       nil ->
-        Enum.reduce_while st.mc, nil, fn mc, _acc ->
+        Enum.reduce_while st.mc, :nok, fn mc, _acc ->
           ret = case mc do
             mc when is_pid(mc) ->
               Logger.debug("Slow call PID #{msg.method} #{inspect mc}")

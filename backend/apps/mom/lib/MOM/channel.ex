@@ -96,6 +96,11 @@ defmodule Serverboards.MOM.Channel do
 	is discarded, but on other implementations may require `:ok`, `:nok` or `:empty`
 	for further	processing, so its good practive to return these values.
 
+	Options:
+
+	* `front:` (true|false) -- The subscriber is added at the front so it will be called first.
+	  Useful for tapping, for example. Default false.
+
 	## Examples
 
 	A subscription normally calls a function when a message arrives
@@ -136,14 +141,6 @@ defmodule Serverboards.MOM.Channel do
 		subscribe(channel, subscriber, [])
 	end
 
-	@doc ~S"""
-	Subscribes to a channel with options.
-
-	Same as subscribe, but sets some options:
-
-	* `front:` (true|false) -- The subscriber is added at the front so it will be called first.
-	  Useful for tapping, for example. Default false.
-	"""
 	def subscribe(channel, subscriber, options) when is_atom(channel) do
 		channel = Channel.Named.ensure_exists(channel)
 		#Logger.debug("Got channel #{inspect channel}")

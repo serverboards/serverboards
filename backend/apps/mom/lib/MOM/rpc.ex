@@ -26,7 +26,7 @@ defmodule Serverboards.MOM.RPC do
 		iex> Channel.subscribe(rpc.request, fn msg ->
 		...>	Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
 		...> 	:ok
-		...> 	end) # dirty echo rpc.
+		...> 	end, front: true) # dirty echo rpc.
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
 		{:ok, "Hello world!"}
 
