@@ -32,9 +32,13 @@ defmodule Serverboards.Plugin.Component do
   """
   def run(%Serverboards.Plugin.Component{ type: "cmd" } = component) do
     cmd = component.extra["command"]
-    fullcmd = "#{component.plugin.path}/#{cmd}"
-    Logger.debug("Running command #{fullcmd}")
-    Cmd.start_link fullcmd
+    if cmd == "" or cmd == nil do
+      {:error, :invalid_component}
+    else
+      fullcmd = "#{component.plugin.path}/#{cmd}"
+      Logger.info("Running command #{fullcmd}")
+      Cmd.start_link fullcmd
+    end
   end
 
   def run(plugin_component) when is_binary(plugin_component) do

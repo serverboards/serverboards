@@ -38,8 +38,7 @@ config :serverboards, Serverboards.Repo,
 
 config :serverboards,
   plugin_paths: [
-    "apps/serverboards/test/data/plugins/",
-    "../serverboards/test/data/plugins/",
+    "../plugins/",
   ],
   debug: false
 
