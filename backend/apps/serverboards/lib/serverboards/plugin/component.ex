@@ -21,11 +21,11 @@ defmodule Serverboards.Plugin.Component do
 
     iex> {:ok, pw} = run("serverboards.test.auth/fake")
     iex> Serverboards.IO.Cmd.call pw, "ping"
-    "pong"
+    {:ok, "pong"}
     iex> Serverboards.IO.Cmd.call pw, "auth", %{ "token" => "XXX" }
-    "dmoreno@serverboards.io"
+    {:ok, "dmoreno@serverboards.io"}
     iex> Serverboards.IO.Cmd.call pw, "auth", %{ "token" => "XXXx" }
-    false
+    {:ok, false}
     #iex> Serverboards.IO.Cmd.call pw, "dir"
     #["ping","auth","dir"]
 

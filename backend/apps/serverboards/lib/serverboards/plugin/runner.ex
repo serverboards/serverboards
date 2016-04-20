@@ -24,6 +24,7 @@ defmodule Serverboards.Plugin.Runner do
         import Serverboards.MOM.RPC
         add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
       end
+      :ok
     end)
 
     # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
@@ -42,7 +43,7 @@ defmodule Serverboards.Plugin.Runner do
 
     iex> {:ok, cmd} = start("serverboards.test.auth/fake")
     iex> call cmd, "ping"
-    "pong"
+    {:ok, "pong"}
     iex> stop(cmd)
     true
 
@@ -56,7 +57,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> component = hd (Serverboards.Plugin.Registry.filter_component trait: "auth")
     iex> {:ok, cmd} = start(component)
     iex> call cmd, "ping"
-    "pong"
+    {:ok, "pong"}
     iex> stop(cmd)
     true
 
@@ -103,15 +104,15 @@ defmodule Serverboards.Plugin.Runner do
 
   ## Example:
 
-    iex> pl = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/fake"], nil
+    iex> {:ok, pl} = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/fake"], nil
     iex> is_binary(pl)
     true
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]], nil
-    "pong"
+    {:ok, "pong"}
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping"], nil # default [] params
-    "pong"
+    {:ok, "pong"}
     iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl], nil
-    true
+    {:ok, true}
 
   """
   def method_caller(runner) do
@@ -130,33 +131,30 @@ defmodule Serverboards.Plugin.Runner do
 
     iex> {:ok, cmd} = start "serverboards.test.auth/fake"
     iex> call cmd, "ping"
-    "pong"
+    {:ok, "pong"}
     iex> call cmd, "unknown"
-    ** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "unknown"
+    {:error, :unknown_method}
     iex> stop cmd
     true
 
   If passing and unknown or already stopped cmdid
 
     iex> call "nonvalid", "ping"
-    {:error, :unknown_cmd}
+    {:error, :unknown_method}
 
     iex> {:ok, cmd} = start "serverboards.test.auth/fake"
     iex> stop cmd
     iex> call cmd, "ping"
-    {:error, :unknown_cmd}
+    {:error, :unknown_method}
 
   """
   def call(runner, id, method, params) when (is_pid(runner) or is_atom(runner)) and is_binary(id) and is_binary(method) do
     case GenServer.call(runner, {:get, id}) do
-      {:error, e} ->
-        Logger.error("Could not find plugin id #{inspect id}: #{inspect e}")
-        {:error, e}
+      :not_found ->
+        Logger.error("Could not find plugin id #{inspect id}: :not_found")
+        {:error, :unknown_method}
       cmd when is_pid(cmd) ->
         Serverboards.IO.Cmd.call cmd, method, params
-      e ->
-        Logger.error("Could not find plugin id #{inspect id}")
-        e
     end
   end
   def call(id, method, params \\ []) do
@@ -172,16 +170,9 @@ defmodule Serverboards.Plugin.Runner do
     else
       case Regex.run(~r/(^[-0-9a-f]{36})\.(.*)$/, method) do
         [_, id, method] ->
-          res=Plugin.Runner.call id, method, params
-          case res do
-            {:error, :unknown_cmd} ->
-              Logger.debug("Trying to access invalid id #{id}")
-              :nok
-            {:error, :unknown_method} -> :nok
-            {:error, e} -> {:error, e}
-            :nok -> :nok
-            res -> {:ok, res}
-          end
+          res = Plugin.Runner.call runner, id, method, params
+          Logger.debug("UUID result #{inspect res}")
+          res
         _ -> :nok
       end
     end
@@ -190,28 +181,7 @@ defmodule Serverboards.Plugin.Runner do
   def call_with_alias(%Serverboards.MOM.RPC.Message{ method: method, params: params, context: context} = msg, runner) do
     Logger.debug("Call with alias #{inspect method}")
     if method == "dir" do
-      aliases = RPC.Context.get context, :plugin_aliases, %{}
-      ret = aliases
-        |> Enum.flat_map(fn {alias_, cmd} ->
-          try do
-            if Process.alive? cmd do
-              res = Serverboards.IO.Cmd.call cmd, "dir", []
-              res |> Enum.map(fn d ->
-                  Logger.debug("Got function #{alias_} . #{d}")
-                  "#{alias_}.#{d}"
-                end)
-            else
-              # remove from aliases
-              RPC.Context.update context, :plugin_aliases, [{alias_, nil}]
-              []
-            end
-          rescue
-            e ->
-              Logger.error("Plugin with alias #{alias_} #{inspect cmd} does not implement dir. Fix it.")
-              []
-          end
-        end)
-      {:ok, ret}
+      {:ok, alias_dir(context)}
     else
       case Regex.run(~r/(^[^.]+)\.(.*)$/, method) do
         [_, alias_, method] ->
@@ -219,12 +189,9 @@ defmodule Serverboards.Plugin.Runner do
           cmd = Map.get aliases, alias_
           if cmd do
             if Process.alive? cmd do
-              res=Serverboards.IO.Cmd.call cmd, method, params
-              case res do
-                {:error, e} -> {:error, e}
-                :nok -> :nok
-                res -> {:ok, res}
-              end
+              ret=Serverboards.IO.Cmd.call cmd, method, params
+              Logger.debug("Alias result #{inspect ret}")
+              ret
             else
               # not running anymore, remove it
               RPC.Context.update context, :plugin_aliases, [{ alias_, nil }]
@@ -236,6 +203,33 @@ defmodule Serverboards.Plugin.Runner do
         _ -> :nok
       end
     end
+  end
+
+  # returns a list of all known methods that use alias
+  defp alias_dir(context) do
+    aliases = RPC.Context.get context, :plugin_aliases, %{}
+    ret = aliases
+      |> Enum.flat_map(fn {alias_, cmd} ->
+        try do
+          if Process.alive? cmd do
+            {:ok, res} = Serverboards.IO.Cmd.call cmd, "dir", []
+            res |> Enum.map(fn d ->
+                #Logger.debug("Got function #{alias_} . #{d}")
+                "#{alias_}.#{d}"
+              end)
+          else
+            # remove from aliases
+            RPC.Context.update context, :plugin_aliases, [{alias_, nil}]
+            []
+          end
+        rescue
+          e ->
+            Logger.error("Plugin with alias #{alias_} #{inspect cmd} does not implement dir. Fix it.\n#{inspect e}\n#{Exception.format_stacktrace}")
+            []
+        end
+      end)
+    Logger.debug("Alias methods are: #{inspect ret}")
+    ret
   end
 
   ## server impl
@@ -302,6 +296,6 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, state.method_caller, state}
   end
   def handle_call({:get, id}, _from, state) do
-    {:reply, Map.get(state.running, id, {:error, :unknown_cmd}), state}
+    {:reply, Map.get(state.running, id, :not_found), state}
   end
 end

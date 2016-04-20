@@ -11,13 +11,14 @@ defmodule Serverboards.IO.Cmd do
 
     iex> {:ok, ls} = start_link("test/data/cmd/ls.py")
     iex> call( ls, "ping", ["pong"])
-    "pong"
+    {:ok, "pong"}
     iex> call( ls, "ping", ["pang"])
-    "pang"
-    iex> ( Enum.count call( ls, "ls", ["."]) ) > 1
+    {:ok, "pang"}
+    iex> {:ok, ls_res} = call( ls, "ls", ["."])
+    iex> ( Enum.count ls_res ) > 1
     true
     iex> call ls, "invalid"
-    ** (Serverboards.MOM.RPC.UnknownMethod) Unknown method "invalid"
+    {:error, :unknown_method}
     iex> stop(ls)
     :ok
 
@@ -39,9 +40,9 @@ defmodule Serverboards.IO.Cmd do
   """
   def call(cmd, method, params \\ []) do
     case GenServer.call(cmd, {:call, method, params}) do
-      {:ok, res} -> res
-      {:error, "unknown_method"} -> raise Serverboards.MOM.RPC.UnknownMethod, method: method
-      {:error, err} -> raise err
+      {:ok, res} -> {:ok, res}
+      {:error, "unknown_method"} -> {:error, :unknown_method}
+      {:error, err} -> {:error, err}
     end
   end
 
