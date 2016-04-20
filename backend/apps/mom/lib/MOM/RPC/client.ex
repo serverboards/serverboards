@@ -14,7 +14,8 @@ defmodule Serverboards.MOM.RPC.Client do
 		to_client: nil,
 		to_serverboards: nil,
 		options: %{},
-    writef: nil,
+		writef: nil,
+    closef: nil,
 		context: nil
 	]
 	alias Serverboards.MOM
@@ -25,12 +26,13 @@ defmodule Serverboards.MOM.RPC.Client do
 
   Comunication is using JSON RPC.
 
-  At initialization a funciton to write into the other end must be suplied, and
+  At initialization a function to write into the other end must be suplied, and
   new lines are added calling `parse_line`.
 
   Params:
 
-  * writef is a function that receives a line and writes it to the client.
+  * writef(line) is a function that receives a line and writes it to the client.
+	* closef(reason) to be called when needed to close client
   * options
 
 	## Options
@@ -38,7 +40,7 @@ defmodule Serverboards.MOM.RPC.Client do
 	* `name` -- Provides a name for this connection. For debug pourposes.
 
 	"""
-	def start_link(writef, options \\ []) do
+	def start_link(writef, closef, options \\ []) do
 		{:ok, context} = MOM.RPC.Context.start_link
 		{:ok, to_client} = MOM.RPC.start_link context: context, method_caller: false
 		{:ok, to_serverboards} = MOM.RPC.start_link context: context
@@ -49,7 +51,8 @@ defmodule Serverboards.MOM.RPC.Client do
 			options: %{
 				name: Keyword.get(options, :name),
 			 },
-      writef: writef,
+			writef: writef,
+      closef: closef,
 			context: context
 		}
 
@@ -75,6 +78,18 @@ defmodule Serverboards.MOM.RPC.Client do
 
 
 		{:ok, client }
+	end
+
+	@doc ~S"""
+	Stops cleanly the client and its childs
+	"""
+	def stop(client) do
+		if client.closef do
+			client.closef.(:shutdown)
+		end
+		MOM.RPC.Context.stop client.context
+		MOM.RPC.stop client.to_serverboards
+		MOM.RPC.stop client.to_client
 	end
 
 	@doc ~S"""
@@ -137,7 +152,7 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	## Example
 
-		iex> {:ok, client} = start_link
+		iex> {:ok, client} = start_link nil, nil
 		iex> set client, :user, :me
 		iex> get client, :user
 		:me
@@ -151,7 +166,7 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	## Example
 
-		iex> {:ok, client} = start_link
+		iex> {:ok, client} = start_link nil, nil
 		iex> set client, :user, :me
 		iex> get client, :user
 		:me
@@ -178,11 +193,11 @@ defmodule Serverboards.MOM.RPC.Client do
             RPC.Client.event(client, method, params)
           {:ok, %{ "result" => result, "id" => id}} ->
             RPC.Client.reply(client, result, id)
-          {:ok, %{ "error" => params, "id" => id}} ->
-            RPC.Client.error(client, params, id)
+          {:ok, %{ "error" => error, "id" => id}} ->
+            RPC.Client.error(client, error, id)
           _ ->
-            Logger.debug("Invalid message from client: #{line}")
-            raise Protocol.UndefinedError, "Invalid message from client. Closing."
+            Logger.error("Invalid message from client: #{line}. Closing.")
+						client.closef.(:bad_protocol)
         end
     end
   end

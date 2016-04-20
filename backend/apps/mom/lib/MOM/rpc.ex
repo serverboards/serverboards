@@ -140,6 +140,12 @@ defmodule Serverboards.MOM.RPC do
 		{:ok, rpc}
 	end
 
+	@doc ~S"""
+	Stops the server
+	"""
+	def stop(rpc) do
+		GenServer.stop(rpc.pid)
+	end
 
 
 	def tap(%RPC{ uuid: uuid, request: request, reply: reply}, id \\ nil) do
