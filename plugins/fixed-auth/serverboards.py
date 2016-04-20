@@ -11,12 +11,12 @@ def rpc_method(f):
     if type(f)==str:
         method_name=f
         def regf(f):
-            print("Registry %s: %s"%(method_name, repr(f)))
+            #print("Registry %s: %s"%(method_name, repr(f)))
             rpc_registry[method_name]=f
             return f
         return regf
     else:
-        print("Registry %s"%(f.__name__))
+        #print("Registry %s"%(f.__name__))
         rpc_registry[f.__name__]=f
     return f
 
