@@ -198,7 +198,7 @@ class Completer:
                 readline.set_history_length(1000)
             except FileNotFoundError:
                 pass
-                atexit.register(readline.write_history_file, histfile)
+        atexit.register(readline.write_history_file, histfile)
 
         readline.set_completer(self.complete)
         readline.parse_and_bind("tab: complete")
