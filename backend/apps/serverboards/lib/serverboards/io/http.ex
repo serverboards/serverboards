@@ -85,7 +85,7 @@ defmodule Serverboards.IO.HTTP do
     end
 
     def websocket_init(_TransportName, req, _opts) do
-      Logger.info("Websocket connected!")
+      Logger.info("Websocket connected.")
 
       # Here I'm starting a standard erlang timer that will send
       # an empty message [] to this process in one second. If your handler
@@ -106,6 +106,7 @@ defmodule Serverboards.IO.HTTP do
       {:ok, req, %{client: client} }
     end
     def websocket_terminate(_reason, _req, _state) do
+      Logger.info("Websocket disconnected.")
       :ok
     end
 
@@ -113,8 +114,15 @@ defmodule Serverboards.IO.HTTP do
     Receives a line from WS.
     """
     def websocket_handle({:text, line}, req, state) do
-      RPC.Client.parse_line(state.client, line)
-      {:ok, req, state}
+      case RPC.Client.parse_line(state.client, line) do
+        {:error, e} ->
+          Logger.error("Error parsing websockets data: #{inspect e}. Close connection.")
+          Logger.debug("Offending line is #{inspect line}")
+          {:shutdown, req, state}
+        _ ->
+          nil
+          {:ok, req, state}
+      end
     end
 
     # ignore other
