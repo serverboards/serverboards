@@ -156,7 +156,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     raise Exception, "Cant add a method caller to itself."
   end
   def add_method_caller(pid, nmc) when is_pid(pid) do
-    Logger.debug("Add caller #{inspect nmc} to #{inspect pid}")
+    #Logger.debug("Add caller #{inspect nmc} to #{inspect pid}")
     Agent.update pid, fn st ->
       %{ st | mc: st.mc ++ [nmc] }
     end
@@ -183,7 +183,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     st = Agent.get pid, &(&1)
     case Map.get st.methods, msg.method do
       {f, options} ->
-        Logger.debug("Fast call #{msg.method} #{inspect pid}")
+        #Logger.debug("Fast call #{msg.method} #{inspect pid}")
         v = if Keyword.get(options, :context, false) do
           f.(msg.params, msg.context)
         else
@@ -198,13 +198,13 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         Enum.reduce_while st.mc, :nok, fn mc, _acc ->
           ret = case mc do
             mc when is_pid(mc) ->
-              Logger.debug("Slow call PID #{msg.method} #{inspect mc}")
+              #Logger.debug("Slow call PID #{msg.method} #{inspect mc}")
               __call(mc, msg)
             f when is_function(f) ->
-              Logger.debug("Slow call f #{msg.method} #{inspect mc}")
+              #Logger.debug("Slow call f #{msg.method} #{inspect mc}")
               f.(msg)
           end
-          Logger.debug("Result #{inspect ret}")
+          #Logger.debug("Result #{inspect ret}")
           no_method={:error, :unknown_method}
           case ret do
             {:ok, ret} -> {:halt, {:ok, ret}}
@@ -265,7 +265,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         Logger.error("#{Exception.format :error, other}")
         {:error, other}
     end
-    Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
+    #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
 
     cb_params = case ret do
       {:ok, ret} -> {:ok, ret}
@@ -279,7 +279,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   end
 
   def cast(pid, method, params, context, cb) when is_pid(pid) do
-    Logger.debug("Method #{method} caller pid #{inspect pid}")
+    #Logger.debug("Method #{method} caller pid #{inspect pid}")
     st = Agent.get pid, &(&1)
     case Map.get st.methods, method do
       {f, options} ->
@@ -287,13 +287,13 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         call_f = fn ->
           try do
             v = if Keyword.get(options, :context, false) do
-              Logger.debug("Calling with context #{inspect f} #{inspect options}")
+              #Logger.debug("Calling with context #{inspect f} #{inspect options}")
               f.(params, context)
             else
-              Logger.debug("Calling without context #{inspect f}")
+              #Logger.debug("Calling without context #{inspect f}")
               f.(params)
             end
-            Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
+            #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
             case v do
               {:error, e} ->
                 cb.({:error, e })
@@ -329,19 +329,19 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         :ok
       nil ->
         # Look for it at method callers
-        Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
+        #Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
         cast_mc(st.mc, method, params, context, cb)
     end
   end
 
   defp cast_mc([], _, _, _, cb) do # end of search, :unknown_method
-    Logger.debug("No more Method Callers to call")
+    #Logger.debug("No more Method Callers to call")
     cb.({:error, :unknown_method})
     :nok
   end
 
   defp cast_mc([h | t], method, params, context, cb) do
-    Logger.debug("Cast mc #{inspect h}")
+    #Logger.debug("Cast mc #{inspect h}")
     cast(h, method, params, context, fn
       # Keep searching for it
       {:error, :unknown_method} ->
@@ -349,7 +349,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         cast_mc(t, method, params, context, cb)
       # done, callback with whatever.
       other ->
-        Logger.debug("Done #{inspect other}")
+        #Logger.debug("Done #{inspect other}")
         cb.(other)
     end)
   end

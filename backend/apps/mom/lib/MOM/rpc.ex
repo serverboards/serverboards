@@ -340,7 +340,7 @@ defmodule Serverboards.MOM.RPC do
 	end
 
 	def handle_cast({:reply, message}, status) do
-		Logger.debug("Got reply: #{inspect message}")
+		#Logger.debug("Got reply: #{inspect message}")
 		f_reply_to = Map.get(status, message.id)
 		if f_reply_to do
 			params = case message.error do

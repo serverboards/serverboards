@@ -90,13 +90,9 @@ defmodule Serverboards.IO.HTTP do
     def websocket_init(_TransportName, req, _opts) do
       Logger.info("Websocket connected.")
 
-      # Here I'm starting a standard erlang timer that will send
-      # an empty message [] to this process in one second. If your handler
-      # can handle more that one kind of message that wouldn't be empty.
-      #:erlang.start_timer(1000, self(), [])
       wspid=self()
       write_line_to_ws = fn line ->
-        Logger.info("Write to WS #{line}")
+        #Logger.info("Write to WS #{line}")
         send(wspid, {:send_line, line})
       end
 
@@ -138,7 +134,7 @@ defmodule Serverboards.IO.HTTP do
     Sends a line to the WS.
     """
     def websocket_info({:send_line, line}, req, state) do
-      Logger.info("Call to WS #{line}")
+      #Logger.info("Call to WS #{line}")
       { :reply, {:text, line}, req, state}
     end
 
