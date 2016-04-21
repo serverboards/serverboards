@@ -1,9 +1,11 @@
 #!/bin/sh
 
-case "$1"
+case "$1" in
   start)
     cd backend
-    mix run --no-halt
+    MIX_ENV=prod mix compile.app mom
+    MIX_ENV=prod mix compile.app serverboards
+    MIX_ENV=prod mix run --no-halt
   ;;
   stop)
     echo "Not yet"
