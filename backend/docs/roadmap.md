@@ -11,7 +11,7 @@ permissions.
 
 Pro: Various auth mechanisms using plugins.
 
-## 2016-04-15 - Basic web app, basic comm with plugins.
+## 2016-04-15 - ~~Basic web app, basic comm with plugins.~~
 
 Basic web app with authentication. Use react.
 
