@@ -13,7 +13,7 @@ defmodule Serverboards.IO.HTTP do
         ]
       }
     ])
-    {:ok, _} = :cowboy.start_http(
+    {:ok, res} = :cowboy.start_http(
       :http,
       100,
       [{:port, port}],
@@ -23,6 +23,9 @@ defmodule Serverboards.IO.HTTP do
         {:onresponse, &postrequest/4}
       ]
     )
+    Logger.info("Accepting HTTP connections at http://localhost:#{port}")
+
+    {:ok, res}
   end
 
   defp postrequest(404, headers, _, req) do
