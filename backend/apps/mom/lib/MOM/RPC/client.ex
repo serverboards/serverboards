@@ -73,7 +73,7 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	When reply callback will be called with {:ok, value} or {:error, reason}.
 	"""
-	def call(client, method, params, id, callback) do
+	def call(client, method, params, id, callback) when is_function(callback) do
 		GenServer.call(client, {:call, method, params, id, callback})
 	end
 
@@ -180,7 +180,7 @@ defmodule Serverboards.MOM.RPC.Client do
     {:ok, res} = JSON.encode( res )
     #Logger.debug("Got answer #{res}, writing to #{inspect client}")
 
-		GenServer.call(client, {:write_line, res})
+		GenServer.cast(client, {:write_line, res})
 	end
 
   # calls a method in the client
@@ -196,7 +196,7 @@ defmodule Serverboards.MOM.RPC.Client do
 
     # encode and send
     {:ok, json} = JSON.encode( jmsg )
-		GenServer.call(client, {:write_line, json})
+		GenServer.cast(client, {:write_line, json})
   end
 
 	## server impl
@@ -230,7 +230,7 @@ defmodule Serverboards.MOM.RPC.Client do
 
 		me=self()
 
-    MOM.Channel.subscribe(to_client.request, fn msg ->
+		MOM.Channel.subscribe(to_client.request, fn msg ->
       RPC.Client.call_to_remote(me, msg.payload.method, msg.payload.params, msg.id)
       :ok
     end)
@@ -266,15 +266,17 @@ defmodule Serverboards.MOM.RPC.Client do
 		{:reply, :ok, client}
 	end
 	def handle_call({:call, method, params, id, callback}, _from, client) do
+		#Logger.debug("Call start #{inspect method}")
 		ret = case RPC.cast(client.to_serverboards, method, params, id, callback) do
 			:nok ->
 				callback.({ :error, :unknown_method })
 			:ok -> :ok
 		end
+		#Logger.debug("Call end #{inspect method} -> #{inspect ret}")
 		{:reply, ret, client}
 	end
 	def handle_call({:event, method, params}, _from, client) do
-		{:ok, RPC.event(client.to_serverboards, method, params), client}
+		{:reply, RPC.event(client.to_serverboards, method, params), client}
 	end
 	def handle_call({:reply, result, id}, _from, client) do
 		ret = MOM.Channel.send(client.to_client.reply, %MOM.Message{
@@ -304,8 +306,15 @@ defmodule Serverboards.MOM.RPC.Client do
 		ret = RPC.Context.get(client.context, key, default)
 		{:reply, ret, client}
 	end
-	def handle_call({:write_line, line}, _from, client) do
+	~S"""
+	Write line has to be cast to unblock deadlock when client writes to server,
+	it does all the processing and as last part from another thread writes the
+	answer.
+
+	If its cast the write is queued, but not blocks.
+	"""
+	def handle_cast({:write_line, line}, client) do
     ret = client.writef.(line<>"\n")
-		{:reply, ret, client}
+		{:noreply, client}
   end
 end

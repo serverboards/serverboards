@@ -64,4 +64,23 @@ defmodule Serverboards.RPC.ClientTest do
 
     Client.stop(client)
   end
+
+  test "Call from client" do
+    {:ok, client} = Client.start_link writef: :context
+
+    # events, have no reply never
+    {:ok, json} = JSON.encode(%{ method: "ready", params: [] })
+    assert (Client.parse_line client, json) == :ok
+    :timer.sleep(20)
+    assert (Client.get client, :last_line) == nil
+
+    # method calls, have it, for example, unknown
+    {:ok, json} = JSON.encode(%{ method: "ready", params: [], id: 1})
+    assert (Client.parse_line client, json) == :ok
+    :timer.sleep(20)
+    {:ok, js} = JSON.decode(Client.get client, :last_line)
+    assert Map.get(js,"error") == "unknown_method"
+
+    Client.stop(client)
+  end
 end

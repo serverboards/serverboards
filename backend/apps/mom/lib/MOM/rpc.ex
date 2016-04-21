@@ -180,24 +180,27 @@ defmodule Serverboards.MOM.RPC do
 
 	Callback will be called when the call is processed, with the answer.
 
+	It always returns :ok, and on callback it will call {:ok, v} or {:error, e}
+
 	## Example
 
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.add_method rpc, "test", fn [] -> :ok end
-		iex> RPC.cast(rpc, "test", [], 0, fn :ok -> :ok end)
+		iex> RPC.cast(rpc, "test", [], 0, fn {:ok,:ok} -> :ok end)
 		:ok
 
-	If cast to a non existent method, returns :nok
+	If cast to a non existent method, will call cast with {:error, :unknown_method}
 
 		iex> alias Serverboards.MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
-		iex> RPC.cast(rpc, "test", [], 0, fn :ok -> :ok end)
-		:nok
+		iex> RPC.cast(rpc, "test", [], 0, fn {:error, :unknown_method} -> :ok end)
+		:ok
 
 	"""
-	def cast(rpc, method, params, id, cb) do
-		GenServer.call( rpc.pid, { :cast, rpc.request, %Message{
+	def cast(rpc, method, params, id, cb) when is_function(cb) do
+		#Logger.debug("RPC cast start #{method}")
+		GenServer.cast( rpc.pid, { :cast, rpc.request, %Message{
 			reply_to: if id do rpc.reply else nil end,
 			id: id,
 			payload: %RPC.Message{
@@ -225,7 +228,7 @@ defmodule Serverboards.MOM.RPC do
 
 	"""
 	def event(rpc, method, params) do
-		cast(rpc, method, params, nil, nil)
+		cast(rpc, method, params, nil, fn _ -> :ok end)
 		:ok
 	end
 
@@ -309,40 +312,49 @@ defmodule Serverboards.MOM.RPC do
 		end
 	end
 
-	def handle_call({:cast, channel, message, cb}, _, status) do
-		case Channel.send(channel, message) do
+	def handle_cast({:cast, channel, message, cb}, status) do
+		status = case Channel.send(channel, message) do
 			:ok ->
 				if message.id do
-					{:reply, :ok, Map.put(status, message.id, cb ) }
+					Map.put(status, message.id, cb )
 				else
-					{:reply, :ok, status}
+					status
 				end
 			:nok ->
-				Logger.debug("Invalid method")
+				if message.id do
+					Logger.debug("Invalid method #{inspect message.payload.method}")
+				else
+					Logger.debug("Invalid event #{inspect message.payload.method}")
+				end
 				#Channel.send(:invalid, message)
-				{:reply, :nok, status}
+				cb.({:error, :unknown_method})
+				status
 			:empty ->
 				Logger.debug("Empty channel")
+				cb.({:error, :unknown_method})
+				status
 				#Channel.send(:deadletter, message)
-				{:reply, :nok, status}
 		end
+		#Logger.debug("Cast result: #{inspect ret}")
+		{:noreply, status}
 	end
 
 	def handle_cast({:reply, message}, status) do
 		Logger.debug("Got reply: #{inspect message}")
 		f_reply_to = Map.get(status, message.id)
 		if f_reply_to do
+			params = case message.error do
+				:unknown_method ->
+					{:error, :unknown_method}
+				%FunctionClauseError{ arity: _ } ->
+					{:error, :unknown_method}
+				nil ->
+					{:ok, message.payload}
+				_ ->
+					{:error, message.error}
+			end
 			try do
-				case message.error do
-					:unknown_method ->
-						f_reply_to.( {:error, :unknown_method} )
-					%FunctionClauseError{ arity: _ } ->
-						f_reply_to.( {:error, :unknown_method} )
-					nil ->
-						f_reply_to.( {:ok, message.payload} )
-					_ ->
-						f_reply_to.( {:error, message.error} )
-				end
+				f_reply_to.( params )
 			rescue
 				e ->
 					Logger.error("Error processing reply. Check :invalid channel.\n#{inspect e}\n#{Exception.format_stacktrace}")
