@@ -81,7 +81,14 @@ defmodule Serverboards.MOM.RPC.Client do
 	Call event from external client to serverboards
 	"""
 	def event(client, method, params) do
-		GenServer.call(client, {:event, method, params})
+		GenServer.cast(client, {:event, method, params})
+	end
+
+	@doc ~S"""
+	Call event from serverboards to client
+	"""
+	def event_to_client(client, method, params) do
+		GenServer.cast(client, {:event_to_client, method, params})
 	end
 
 	@doc ~S"""
@@ -275,9 +282,6 @@ defmodule Serverboards.MOM.RPC.Client do
 		#Logger.debug("Call end #{inspect method} -> #{inspect ret}")
 		{:reply, ret, client}
 	end
-	def handle_call({:event, method, params}, _from, client) do
-		{:reply, RPC.event(client.to_serverboards, method, params), client}
-	end
 	def handle_call({:reply, result, id}, _from, client) do
 		ret = MOM.Channel.send(client.to_client.reply, %MOM.Message{
 			id: id,
@@ -314,7 +318,15 @@ defmodule Serverboards.MOM.RPC.Client do
 	If its cast the write is queued, but not blocks.
 	"""
 	def handle_cast({:write_line, line}, client) do
-    ret = client.writef.(line<>"\n")
+    client.writef.(line<>"\n")
 		{:noreply, client}
   end
+	def handle_cast({:event, method, params}, client) do
+		RPC.event(client.to_serverboards, method, params)
+		{:noreply,  client}
+	end
+	def handle_cast({:event_to_client, method, params}, client) do
+		RPC.event(client.to_client, method, params)
+		{:noreply,  client}
+	end
 end

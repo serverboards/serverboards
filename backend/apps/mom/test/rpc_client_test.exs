@@ -62,6 +62,14 @@ defmodule Serverboards.RPC.ClientTest do
 
     assert (Client.get client, :called) == true
 
+
+    Client.event_to_client client, "auth", ["basic"]
+    :timer.sleep(20)
+    {:ok, js} = JSON.decode(Client.get client, :last_line)
+    assert Map.get(js,"method") == "auth"
+    assert Map.get(js,"params") == ["basic"]
+    assert Map.get(js,"id") == nil
+
     Client.stop(client)
   end
 
