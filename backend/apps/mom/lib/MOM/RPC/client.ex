@@ -15,11 +15,19 @@ defmodule Serverboards.MOM.RPC.Client do
 		to_serverboards: nil,
 		options: %{},
 		writef: nil,
-    closef: nil,
 		context: nil
 	]
 	alias Serverboards.MOM
 	alias Serverboards.MOM.RPC
+
+	defmodule BadProtocol do
+		defexception [line: nil]
+
+		def message(exception) do
+			"Bad protocol at line #{inspect(exception.line)}"
+		end
+	end
+
 
 	@doc ~S"""
 	Starts a communication with a client.
@@ -29,81 +37,35 @@ defmodule Serverboards.MOM.RPC.Client do
   At initialization a function to write into the other end must be suplied, and
   new lines are added calling `parse_line`.
 
-  Params:
-
-  * writef(line) is a function that receives a line and writes it to the client.
-	* closef(reason) to be called when needed to close client
-  * options
-
 	## Options
 
 	* `name` -- Provides a name for this connection. For debug pourposes.
+	* `writef`(line)  -- is a function that receives a line and writes it to the client.
+
+	writef is a mandatory option
 
 	"""
-	def start_link(writef, closef, options \\ []) do
-		{:ok, context} = MOM.RPC.Context.start_link
-		{:ok, to_client} = MOM.RPC.start_link context: context, method_caller: false
-		{:ok, to_serverboards} = MOM.RPC.start_link context: context
-
-		client = %Serverboards.MOM.RPC.Client{
-			to_client: to_client,
-			to_serverboards: to_serverboards,
-			options: %{
-				name: Keyword.get(options, :name),
-			 },
-			writef: writef,
-      closef: closef,
-			context: context
-		}
-
-		MOM.RPC.Context.set context, :client, client
-
-    MOM.Channel.subscribe(to_client.request, fn msg ->
-      RPC.Client.call_to_remote(client, msg.payload.method, msg.payload.params, msg.id)
-      :ok
-    end)
-
-    ## Final setup, basic methods
-    import Serverboards.MOM.RPC
-
-    #tap(client)
-    ts = client.to_serverboards
-    add_method ts, "version", fn _ ->
-      Keyword.get Serverboards.Mixfile.project, :version
-    end
-
-    add_method ts, "ping", fn _ ->
-      "pong"
-    end
-
-
-		{:ok, client }
+	def start_link(options \\ []) do
+		writef=Keyword.get(options, :writef)
+		if writef do
+			GenServer.start_link __MODULE__, options, []
+		else
+			{:error, :required_writef}
+		end
 	end
 
 	@doc ~S"""
 	Stops cleanly the client and its childs
 	"""
 	def stop(client) do
-		if client.closef do
-			client.closef.(:shutdown)
-		end
-		MOM.RPC.Context.stop client.context
-		MOM.RPC.stop client.to_serverboards
-		MOM.RPC.stop client.to_client
+		GenServer.stop(client)
 	end
 
 	@doc ~S"""
 	Taps all the channels, to ease debug of messages.
 	"""
 	def tap(client) do
-		if client.options.name do
-			Serverboards.MOM.RPC.tap(client.to_serverboards, ">#{client.options.name}")
-			Serverboards.MOM.RPC.tap(client.to_client, "<#{client.options.name}")
-		else
-			Serverboards.MOM.RPC.tap(client.to_serverboards)
-			Serverboards.MOM.RPC.tap(client.to_client)
-		end
-		{:reply, :ok, client}
+		GenServer.call(client, {:tap})
 	end
 
 	@doc ~S"""
@@ -112,37 +74,27 @@ defmodule Serverboards.MOM.RPC.Client do
 	When reply callback will be called with {:ok, value} or {:error, reason}.
 	"""
 	def call(client, method, params, id, callback) do
-		case RPC.cast(client.to_serverboards, method, params, id, callback) do
-			:nok ->
-				callback.({ :error, :unknown_method })
-			:ok -> :ok
-		end
+		GenServer.call(client, {:call, method, params, id, callback})
 	end
 
 	@doc ~S"""
 	Call event from external client to serverboards
 	"""
 	def event(client, method, params) do
-		RPC.event(client.to_serverboards, method, params)
+		GenServer.call(client, {:event, method, params})
 	end
 
 	@doc ~S"""
 	Reply to a previous call to client. This is the answer from "on_call".
 	"""
 	def reply(client, result, id) do
-		MOM.Channel.send(client.to_client.reply, %MOM.Message{
-			id: id,
-			payload: result
-			})
+		GenServer.call(client, {:reply, result, id})
 	end
 	@doc ~S"""
 	Reply to a previous call to client with an error. This is the answer from "on_call".
 	"""
 	def error(client, result, id) do
-		MOM.Channel.send(client.to_client.reply, %MOM.Message{
-			id: id,
-			error: result
-			})
+		GenServer.call(client, {:error, result, id})
 	end
 
 	@doc ~S"""
@@ -152,13 +104,13 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	## Example
 
-		iex> {:ok, client} = start_link nil, nil
+		iex> {:ok, client} = start_link writef: :context
 		iex> set client, :user, :me
 		iex> get client, :user
 		:me
 	"""
 	def set(client, key, value) do
-		RPC.Context.set(client.context, key, value)
+		GenServer.call(client, {:set, key, value})
 	end
 
 	@doc ~S"""
@@ -166,7 +118,7 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	## Example
 
-		iex> {:ok, client} = start_link nil, nil
+		iex> {:ok, client} = start_link writef: :context
 		iex> set client, :user, :me
 		iex> get client, :user
 		:me
@@ -175,11 +127,16 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	"""
 	def get(client, key, default \\ nil) do
-		RPC.Context.get(client.context, key, default)
+		GenServer.call(client, {:get, key, default})
 	end
 
   @doc ~S"""
   Parses a line from the client
+
+	Returns:
+
+	* :ok -- parsed and in processing
+	* {:error, :bad_protocol} -- Invalid message, maybe not json, maybe not proper fields.
   """
   def parse_line(client, line) do
     case line do
@@ -196,8 +153,7 @@ defmodule Serverboards.MOM.RPC.Client do
           {:ok, %{ "error" => error, "id" => id}} ->
             RPC.Client.error(client, error, id)
           _ ->
-            Logger.error("Invalid message from client: #{line}. Closing.")
-						client.closef.(:bad_protocol)
+						{:error, :bad_protocol}
         end
     end
   end
@@ -206,16 +162,16 @@ defmodule Serverboards.MOM.RPC.Client do
   def reply_to_remote(client, id, res) do
     res = case res do
       {:error, error} ->
-        Logger.error("Error on method response: #{inspect error}")
+        #Logger.error("Error on method response: #{inspect error}")
         %{ "error" => error, "id" => id}
       {:ok, res} ->
         %{ "result" => res, "id" => id}
     end
     {:ok, res} = JSON.encode( res )
-    Logger.debug("Got answer #{res}, writing to #{inspect client}")
+    #Logger.debug("Got answer #{res}, writing to #{inspect client}")
 
-    client.writef.("#{res}\n")
-  end
+		GenServer.call(client, {:write_line, res})
+	end
 
   # calls a method in the client
   def call_to_remote(client, method, params, id) do
@@ -230,7 +186,101 @@ defmodule Serverboards.MOM.RPC.Client do
 
     # encode and send
     {:ok, json} = JSON.encode( jmsg )
-    client.writef.("#{json}\n")
+		GenServer.call(client, {:write_line, json})
   end
 
+	## server impl
+	def init options do
+		{:ok, context} = MOM.RPC.Context.start_link
+		{:ok, to_client} = MOM.RPC.start_link context: context, method_caller: false
+		{:ok, to_serverboards} = MOM.RPC.start_link context: context
+
+		writef = case Keyword.get(options, :writef) do
+			:context -> fn line ->
+					Logger.debug("Write to context: :last_line: #{inspect line}")
+					MOM.RPC.Context.set context, :last_line, line
+				end
+			other -> other
+		end
+
+
+		client = %Serverboards.MOM.RPC.Client{
+			to_client: to_client,
+			to_serverboards: to_serverboards,
+			writef: writef,
+			context: context
+		}
+
+		name = with nil <- Keyword.get(options, :name),
+			{:ok, uuid} <- UUID.uuid4,
+			do: uuid
+
+		MOM.RPC.Context.set context, :client, client
+		MOM.RPC.Context.set context, :name, name
+
+    MOM.Channel.subscribe(to_client.request, fn msg ->
+      RPC.Client.call_to_remote(client, msg.payload.method, msg.payload.params, msg.id)
+      :ok
+    end)
+
+    ts = client.to_serverboards
+    RPC.add_method ts, "version", fn _ ->
+      Keyword.get Serverboards.Mixfile.project, :version
+    end
+
+    RPC.add_method ts, "ping", fn _ ->
+      "pong"
+    end
+
+		{:ok, client }
+	end
+	def terminate(reason, client) do
+		Logger.error("Terminating client #{RPC.Context.get client.context, :name} because of #{inspect reason}")
+		reason
+	end
+
+
+	def handle_call({:tap}, _from, client) do
+		name = Client.get client, :name
+		Serverboards.MOM.RPC.tap(client.to_serverboards, ">#{name}")
+		Serverboards.MOM.RPC.tap(client.to_client, "<#{name}")
+		{:reply, :ok, client}
+	end
+	def handle_call({:call, method, params, id, callback}, _from, client) do
+		ret = case RPC.cast(client.to_serverboards, method, params, id, callback) do
+			:nok ->
+				callback.({ :error, :unknown_method })
+			:ok -> :ok
+		end
+		{:reply, ret, client}
+	end
+	def handle_call({:event, method, params}, _from, client) do
+		{:ok, RPC.event(client.to_serverboards, method, params), client}
+	end
+	def handle_call({:reply, result, id}, _from, client) do
+		ret = MOM.Channel.send(client.to_client.reply, %MOM.Message{
+			id: id,
+			payload: result
+			})
+		{:reply, ret, client}
+	end
+	def handle_call({:error, result, id}, _form, client) do
+		ret = MOM.Channel.send(client.to_client.reply, %MOM.Message{
+			id: id,
+			error: result
+			})
+		{:reply, ret, client}
+	end
+	def handle_call({:set, key, value}, _from, client) do
+		ret = RPC.Context.set(client.context, key, value)
+		{:reply, ret, client}
+	end
+	def handle_call({:get, key, default}, _from, client) do
+		ret = RPC.Context.get(client.context, key, default)
+		{:reply, ret, client}
+	end
+	def handle_call({:write_line, line}, _from, client) do
+    ret = client.writef.(line<>"\n")
+		{:reply, ret, client}
+  end
 end
