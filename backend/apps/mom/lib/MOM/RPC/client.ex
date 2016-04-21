@@ -114,7 +114,12 @@ defmodule Serverboards.MOM.RPC.Client do
 	end
 
 	@doc ~S"""
-	Gets the user of this client
+	Gets info from context of this client
+
+	There are special keys, that get info from the client itself:
+
+	* `:to_serverboards`
+	* `:to_client`
 
 	## Example
 
@@ -125,6 +130,11 @@ defmodule Serverboards.MOM.RPC.Client do
 		iex> get client, :other, :default
 		:default
 
+		iex> {:ok, client} = start_link writef: :context
+		iex> %Serverboards.MOM.RPC{} = get client, :to_serverboards
+		iex> %Serverboards.MOM.RPC{} = get client, :to_client
+		iex> true # make exdoc happy
+		true
 	"""
 	def get(client, key, default \\ nil) do
 		GenServer.call(client, {:get, key, default})
@@ -274,6 +284,12 @@ defmodule Serverboards.MOM.RPC.Client do
 	def handle_call({:set, key, value}, _from, client) do
 		ret = RPC.Context.set(client.context, key, value)
 		{:reply, ret, client}
+	end
+	def handle_call({:get, :to_client, nil}, _from, client) do
+		{:reply, client.to_client, client}
+	end
+	def handle_call({:get, :to_serverboards, nil}, _from, client) do
+		{:reply, client.to_serverboards, client}
 	end
 	def handle_call({:get, key, default}, _from, client) do
 		ret = RPC.Context.get(client.context, key, default)
