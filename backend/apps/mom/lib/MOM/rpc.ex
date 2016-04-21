@@ -344,8 +344,8 @@ defmodule Serverboards.MOM.RPC do
 						f_reply_to.( {:error, message.error} )
 				end
 			rescue
-				_ ->
-					Logger.error("Error processing reply. Check :invalid channel.")
+				e ->
+					Logger.error("Error processing reply. Check :invalid channel.\n#{inspect e}\n#{Exception.format_stacktrace}")
 					Channel.send(:invalid, message)
 			end
 		else

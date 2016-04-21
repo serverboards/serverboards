@@ -228,8 +228,10 @@ defmodule Serverboards.MOM.RPC.Client do
 		MOM.RPC.Context.set context, :client, client
 		MOM.RPC.Context.set context, :name, name
 
+		me=self()
+
     MOM.Channel.subscribe(to_client.request, fn msg ->
-      RPC.Client.call_to_remote(client, msg.payload.method, msg.payload.params, msg.id)
+      RPC.Client.call_to_remote(me, msg.payload.method, msg.payload.params, msg.id)
       :ok
     end)
 
@@ -245,7 +247,14 @@ defmodule Serverboards.MOM.RPC.Client do
 		{:ok, client }
 	end
 	def terminate(reason, client) do
-		Logger.error("Terminating client #{RPC.Context.get client.context, :name} because of #{inspect reason}")
+		case reason do
+			:normal ->
+				Logger.debug("Terminating client #{RPC.Context.get client.context, :name} because of #{inspect reason}")
+			:shutdown ->
+				Logger.debug("Terminating client #{RPC.Context.get client.context, :name} because of #{inspect reason}")
+			reason ->
+				Logger.error("Terminating client #{RPC.Context.get client.context, :name} because of #{inspect reason}")
+		end
 		reason
 	end
 
