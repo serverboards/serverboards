@@ -82,4 +82,19 @@ defmodule Serverboards.PluginTest do
     Logger.debug("#{inspect list}")
     assert Map.get list, "serverboards.test.auth", false
   end
+
+  test "Bad protocol" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, pl} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+
+    # .bad_protocol writes garbage to protocol, but its logged and ignored.
+    # Client (TestClient) could decide to close connection if needed.
+    assert Client.call(client, pl<>".bad_protocol", []) == {:ok, true}
+
+    # All keeps working as normal.
+    assert Client.call(client, pl<>".ping", []) == {:ok, "pong"}
+
+    Client.stop(client)
+  end
 end

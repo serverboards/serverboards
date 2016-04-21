@@ -87,7 +87,7 @@ defmodule Serverboards.Auth do
 	def authenticate(client, cont \\ nil) do
 		#Logger.debug("Asking for authentication #{inspect client}")
 
-		RPC.add_method(client.to_serverboards, "auth.auth", fn
+		RPC.add_method((RPC.Client.get client, :to_serverboards), "auth.auth", fn
 			%{ "type" => _ } = params ->
 				user = auth(params)
 				if user do
@@ -105,7 +105,7 @@ defmodule Serverboards.Auth do
 				end
 		end)
 
-		RPC.event( client.to_client, "auth.required", ["basic"] )
+		RPC.Client.event_to_client( client, "auth.required", ["basic"] )
 		:ok
 	end
 
@@ -113,19 +113,20 @@ defmodule Serverboards.Auth do
 	After being authenticated, set up the client as that user
 	"""
 	def authenticated(%Serverboards.MOM.Message{ payload: %{ client: client, user: user } }) do
-		RPC.add_method client.to_serverboards, "auth.user", fn [] ->
+		to_serverboards = RPC.Client.get client, :to_serverboards
+		RPC.add_method to_serverboards, "auth.user", fn [] ->
 			user
 		end
 
 		if Enum.member?(user.perms, "auth.modify_self") do
-			RPC.add_method client.to_serverboards, "auth.set_password", fn [password] ->
+			RPC.add_method to_serverboards, "auth.set_password", fn [password] ->
 				Logger.info("#{user.email} changes password.")
 				Serverboards.Auth.User.Password.set_password(user, password)
 			end
 		end
 
 		if Enum.member?(user.perms, "auth.create_token") do
-			RPC.add_method client.to_serverboards, "auth.create_token", fn [] ->
+			RPC.add_method to_serverboards, "auth.create_token", fn [] ->
 				Logger.info("#{user.email} created new token.")
 				Serverboards.Auth.User.Token.create(user)
 			end

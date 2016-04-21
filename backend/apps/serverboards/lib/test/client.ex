@@ -38,6 +38,10 @@ defmodule Test.Client do
 		{:ok, client}
 	end
 
+	def stop(client) do
+		GenServer.stop(client)
+	end
+
 	@doc ~S"""
 	Ignore events until this appears or timeout. What is a keyword/value list.
 
@@ -53,14 +57,14 @@ defmodule Test.Client do
 
 	"""
 	def expect(client, what) do
-		GenServer.call(client.options.pid, {:expect, what})
+		GenServer.call(RPC.Client.get(client, :pid), {:expect, what})
 	end
 
 	@doc ~S"""
 	Calls into the client
 	"""
 	def call(client, method, params) do
-		GenServer.call(client.options.pid, {:call_serverboards, method, params})
+		GenServer.call(RPC.Client.get(client, :pid), {:call_serverboards, method, params})
 	end
 
 	@doc ~S"""
@@ -106,13 +110,16 @@ defmodule Test.Client do
 	## server impl
 	def init(:ok) do
 		pid = self()
-		{:ok, client} = RPC.Client.start_link(fn line ->
-			Logger.debug("Write to test client: #{line}")
-			{:ok, rpc_call} = JSON.decode( line )
-			GenServer.call(pid, {:call, rpc_call } )
-		end, name: "TestClient")
+		{:ok, client} = RPC.Client.start_link [
+			writef: fn line ->
+				Logger.debug("Write to test client: #{line}")
+				{:ok, rpc_call} = JSON.decode( line )
+				GenServer.call(pid, {:call, rpc_call } )
+				end,
+			name: "TestClient"
+			]
 
-		client = %RPC.Client{ client | options: Map.put(client.options, :pid, pid) }
+		RPC.Client.set client, :pid, pid
 
 		{:ok, %{
 				client: client,

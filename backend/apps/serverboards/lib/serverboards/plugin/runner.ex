@@ -22,7 +22,7 @@ defmodule Serverboards.Plugin.Runner do
       %{ user: user, client: client} = msg.payload
       if Enum.member?(user.perms, "plugin") do
         import Serverboards.MOM.RPC
-        add_method_caller client.to_serverboards, Serverboards.Plugin.Runner.method_caller
+        add_method_caller (RPC.Client.get client, :to_serverboards), Serverboards.Plugin.Runner.method_caller
       end
       :ok
     end)

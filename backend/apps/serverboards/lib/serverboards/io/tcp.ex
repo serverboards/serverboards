@@ -21,10 +21,10 @@ defmodule Serverboards.IO.TCP do
 			{:ok, client_socket} ->
 				{:ok, pid} = Task.Supervisor.start_child(Serverboards.IO.TaskSupervisor,
 					fn ->
-						{:ok, client} = RPC.Client.start_link(
-							&:gen_tcp.send(client_socket, &1),
+						{:ok, client} = RPC.Client.start_link [
+							writef: &:gen_tcp.send(client_socket, &1),
 							name: "TCP",
-							)
+						]
 						Serverboards.Auth.authenticate(client)
 
 						serve(client, client_socket)

@@ -7,6 +7,8 @@ def run_ls(path='.'):
 
 def run_line(s):
     msg=json.loads(s)
+    if msg.get('method') == None: # maybe a ready answer, or bad protocol.
+        return None
     if msg['method'] == 'ls':
         result=run_ls(*msg['params'])
     elif msg['method'] == 'ping':
@@ -28,7 +30,9 @@ def run_line(s):
 
 log=open("/tmp/log","w")
 if __name__=='__main__':
-    print '{"method":"ready", "params":[]}'
+    l='{"method":"ready", "params":[]}'
+    print l
+    log.write(l+'\n')
     sys.stdout.flush()
     while True:
         l=sys.stdin.readline().strip()

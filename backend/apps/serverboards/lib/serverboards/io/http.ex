@@ -97,9 +97,10 @@ defmodule Serverboards.IO.HTTP do
         send(wspid, {:send_line, line})
       end
 
-      {:ok, client} = RPC.Client.start_link(
-        write_line_to_ws,
-        name: "WebSocket")
+      {:ok, client} = RPC.Client.start_link [
+          writef: write_line_to_ws,
+          name: "WebSocket"
+        ]
       Serverboards.Auth.authenticate(client)
 
       {:ok, req, %{client: client} }
