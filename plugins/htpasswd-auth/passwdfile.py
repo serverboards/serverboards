@@ -120,6 +120,12 @@ class PasswdFile:
             os.unlink(tempfilename)
             raise
 
+    def list(self):
+        with open(self.filename, 'r') as rfd:
+            for l in rfd:
+                if l.startswith('#'):
+                    continue
+                yield l.split(':')[0]
 
     def check(self, email, passwd):
         email_colon=email+':'

@@ -26,6 +26,10 @@ def cmd_mode(options):
         if user=='--set':
             print("Entering in check mode")
             check=False
+        elif user=='--list':
+            print("users")
+            print("----------")
+            print('\n'.join(pwf.list()))
         else:
             if check:
                 print("Check %s password"%user)

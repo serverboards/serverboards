@@ -1,0 +1,22 @@
+name: htpasswd
+description: >
+  Allows to log in using a htpasswd-like file.
+  Have the file at $INSTALLPATH/auth/htpasswd file.
+
+  User can create new users executing manually the
+  `./htpasswd-auth.py --set [email]`
+
+  With the proper SERVERBOARDS_PATH environment
+  variable.
+author: David Moreno <dmoreno@serverboards.io>
+id: serverboards.auth.htpasswd
+version: 0.0.2
+id: serverboards.auth.htpasswd
+
+components:
+  - name: htpasswd
+    type: cmd
+    traits: auth
+    id: htpasswd
+    timeout: 1000
+    command: htpasswd-auth.py
