@@ -6,12 +6,14 @@ import TopView from '../components/top'
 var Top=connect(
   (state) => {
     return {
-      email: state.auth.user && state.auth.user.email
+      user: state.auth.user,
+      menu: state.top.menu
     }
   },
   (dispatch) => {
     return {
-      onLogout: () => dispatch(logout())
+      onLogout: () => dispatch(logout()),
+      toggleUserMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: 'user'})
     }
   }
 )(TopView)

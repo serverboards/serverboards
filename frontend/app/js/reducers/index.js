@@ -2,7 +2,7 @@ import { combineReducers } from 'redux'
 import auth from './auth'
 import flash from './flash'
 
-var reducers = ['auth','flash','console']
+var reducers = ['auth','flash','console','top']
 
 reducers = reducers.reduce(function(acc, r){ acc[r]=require('./'+r).default; return acc; }, {})
 

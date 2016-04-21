@@ -36,7 +36,10 @@ module.exports = {
         {from:'app/css', to:'css'},
         {from:'app/js/jquery-2.2.3.min.js', to:'js'},
         {from:'app/js/semantic.min.js', to:'js'},
-      ])
+      ]),
+      new webpack.DefinePlugin({
+        __DEV__: JSON.stringify(process.env.NODE_ENV !== 'production')
+      })
     ],
     sassLoader: {
       includePaths: [path.resolve(__dirname, "./sass")]
