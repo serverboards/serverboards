@@ -19,6 +19,7 @@
     "gulp": "^3.9.1",
     "html-webpack-plugin": "^2.15.0",
     "jquery": "^2.2.3",
+    "md5": "^2.1.0",
     "node-sass": "^3.4.2",
     "react": "^15.0.0",
     "react-dom": "^15.0.0",

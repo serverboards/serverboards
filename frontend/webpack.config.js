@@ -13,7 +13,8 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: [
-      //'webpack/hot/only-dev-server',
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
       "./app/js/app.js"
     ],
     output: {
@@ -23,8 +24,8 @@ module.exports = {
     devtool: "source-map",
     module: {
         loaders: [
-            { test: /\.jsx$/, loaders: [/* 'react-hot', */ 'babel'], exclude: /node_modules/ },
-            { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
+            //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
+            { test: /\.js$/, exclude: /node_modules/, loaders: ["react-hot", "babel"] },
             { test: /\.css$/, loader: "style!css" },
             { test: /\.sass$/, exclude: /node_modules/, loader: "style!css!sass"},
         ]
