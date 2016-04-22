@@ -23,6 +23,7 @@ var Console=React.createClass({
   },
   onToggle: function(ev){
     if (ev.keyCode==186){
+      console.debug("Toggle RPC console")
       ev.preventDefault()
       console.log(this)
       if (this.props.show)

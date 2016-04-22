@@ -15,8 +15,6 @@ function Main(props){
   if (props.logged_in)
     contents=(
       <div>
-        <FlashMessageList/>
-        <Console/>
         <Top onLogout={props.onLogout}/>
         <Sidebar/>
         <Router/>
