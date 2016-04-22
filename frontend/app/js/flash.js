@@ -9,6 +9,10 @@ var Flash = {
   error : function(message, options={}){
     options.level='error'
     this.log(message, options)
+  },
+  success : function(message, options={}){
+    options.level='success'
+    this.log(message, options)
   }
 }
 

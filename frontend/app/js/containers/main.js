@@ -2,6 +2,7 @@ import MainView from '../components/main'
 import flash from '../actions/flash'
 import { connect } from 'react-redux'
 import { login, logout } from '../actions/auth'
+import rpc from '../rpc'
 
 var Main=connect(
   (state) => {
@@ -13,7 +14,10 @@ var Main=connect(
     console.log("Got main dispatch functions")
     return {
       onLogin: (user) => dispatch(login(user)),
-      onLogout: () => dispatch(logout())
+      onLogout: () => {
+        rpc.close()
+        return dispatch(logout())
+      }
     }
   }
 )(MainView)

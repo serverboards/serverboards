@@ -1,9 +1,17 @@
 import React, { PropTypes } from 'react'
 
+const level_to_class = {
+  error: 'negative',
+  success: 'success',
+  debug: 'olive'
+}
+
 var FlashMessage=React.createClass({
   render: function(){
+    let color=level_to_class[this.props.level] || ''
+
     return (
-      <div className={"ui message "+this.props.level}>
+      <div className={"ui message "+color}>
         <i className="close icon" onClick={() => this.props.onClose(this.props.message)}></i>
         {this.props.message}
       </div>

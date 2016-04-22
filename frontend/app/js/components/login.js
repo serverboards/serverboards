@@ -36,10 +36,16 @@ var LoginView = React.createClass({
                 onChange={this.update_password} value={this.state.password}
                 />
             </div>
-            <div class="ui error message"></div>
+            <div className="ui error message"></div>
           </div>
 
           <div className="actions">
+            <span className="ui checkbox action left" style={{float: "left"}}>
+                <input type="checkbox" name="keep_logged_in"/>
+                <label>
+                Keep logged login
+              </label>
+            </span>
             <button type="button" className="ui positive right labeled icon button"
               onClick={this.handleSubmit}>
               Login

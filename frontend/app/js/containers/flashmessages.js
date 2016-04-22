@@ -13,7 +13,6 @@ let FlashMessageList = connect(
   },
   (dispatch) => ({
     handleClose: (message) =>{
-      console.log("Handle close of %o", message)
        return dispatch(flash.remove(message))
      }
   })

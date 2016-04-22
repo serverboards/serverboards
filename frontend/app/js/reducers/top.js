@@ -9,7 +9,6 @@ function top(state=default_state, action){
         state=Object.assign({}, state, {menu: action.menu})
       break;
   }
-  console.log("Current state is %o", state)
   return state
 }
 

@@ -6,7 +6,7 @@ function flash(state={messages:[]}, action){
       flashid+=1
       return {messages: state.messages.concat({
         message: action.message,
-        level: action.level || 'log',
+        level: action.options.level || 'log',
         id: flashid
       })}
     case 'FLASH_REMOVE':
