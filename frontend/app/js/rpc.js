@@ -4,7 +4,10 @@ var RPC = function(url){
   var rpc={
     reconnect_time: 1000,
     maxid: 1,
-    status: 'NOTCONNECTED'
+    status: 'NOTCONNECTED',
+    reconnect_token: undefined,
+    store: undefined,
+    reconnect_max: 10 // max count of reconnects, if more reload page.
   }
 
   if (!url){
@@ -15,13 +18,22 @@ var RPC = function(url){
   }
   if (localStorage.ws_url) // Hack to connect to another server at dev.
     rpc.url=localStorage.ws_url
+  if (localStorage.reconnect_token)
+    rpc.reconnect_token=localStorage.reconnect_token
 
+  rpc.set_status = function(newstatus){
+    if (!rpc.store)
+      return
+    rpc.store.dispatch({type: "RPC_STATUS", status: status})
+    rpc.status=status
+  }
+  rpc.set_status("NOTCONNECTED")
 
   rpc.connect = function(){
     if (rpc.status=="RECONNECT")
       console.warn("Assert already in connecting!")
     console.debug("Connect RPC to %s: %s %o", rpc.url, rpc.status, rpc)
-    rpc.status="CONNECTING"
+    rpc.set_status("CONNECTING")
     try{
       rpc.rpc = new WebSocket(rpc.url)
     }
@@ -35,13 +47,23 @@ var RPC = function(url){
   }
 
   rpc.onopen=function(){
-    rpc.status="CONNECTED"
+    rpc.set_status("CONNECTED")
     if (rpc.reconnect_time>1000){
       Flash.success("Connected to remote RPC server.")
     }
     console.debug("Connection success.")
+    if (rpc.reconnect_token){
+      rpc.call('auth.auth',{type:'token',token:rpc.reconnect_token}).then(function(user){
+        if (user==false){
+          Flash.error("Could not reauthenticate automatically. Reload.")
+          rpc.reconnect_token=false
+          return
+        }
+        Flash.success("Reconnection succeded.")
+        rpc.store.dispatch({ type: 'AUTH_LOGIN', user })
+      })
+    }
 
-    rpc.call("ping")
     rpc.reconnect_time=1000
   }
   rpc.onclose=function(ev){
@@ -50,7 +72,7 @@ var RPC = function(url){
     console.debug("WS closed because of %o",ev.code)
     if (rpc.status=="CONNECTED")
       Flash.debug("Closed connection")
-    rpc.status="CLOSED"
+    rpc.set_status("CLOSED")
     if (ev.code!=1000){
       Flash.error('Error on RPC connection. Reconnect in '+(rpc.reconnect_time/1000.0)+' s')
       rpc.reconnect()
@@ -62,17 +84,22 @@ var RPC = function(url){
 
   }
   rpc.reconnect = function(){
+    rpc.reconnect_max-=1
+    if (rpc.reconnect_max<0){
+      Flash.error("Tried to reconnect too many times. Will not try again. Reload page.")
+      return
+    }
     console.debug("WS reconnecting %o", rpc.status)
     if (rpc.status=="RECONNECT")
       console.warn("Assert already in reconnect!")
-    rpc.status="RECONNECT"
+    rpc.set_status("RECONNECT")
 
     setTimeout(function(){
       if (rpc.status != "RECONNECT"){
         console.warn("RPC status whould be RECONNECT. It is %o. Not reconnecting.", rpc.status)
         return;
       }
-      rpc.status="RECONNECTING"
+      rpc.set_status("RECONNECTING")
       rpc.connect()
     }, rpc.reconnect_time)
 
@@ -80,6 +107,29 @@ var RPC = function(url){
     rpc.reconnect_time=rpc.reconnect_time*2
     if (rpc.reconnect_time>30000)
       rpc.reconnect_time=30000
+  }
+
+  rpc.set_redux_store = function(store){
+    rpc.store=store
+    store.on('auth.user', function(user){
+      if (user){
+        if (!rpc.reconnect_token){
+          rpc.call("auth.create_token").then(function(token){
+            console.debug("My reconnect token is "+token)
+            rpc.reconnect_token=token
+            localStorage.reconnect_token=token
+          })
+        }
+      }
+      else{
+        //console.log("User disconnected, removing tokens")
+
+        rpc.reconnect_token=false
+        delete localStorage.reconnect_token
+        rpc.reconnect()
+      }
+    })
+    rpc.store.dispatch({type: "RPC_STATUS", status: status})
   }
 
   var pending_calls={}
@@ -98,7 +148,8 @@ var RPC = function(url){
         pc[1]( "Invalid message" )
       delete pending_calls[id]
     }
-    else{
+    else if (jmsg['method']){
+      rpc.store.dispatch({type: "RPC_EVENT", method: jmsg['method'], params: jmsg['params']})
       console.log("Event: %o", jmsg)
     }
   }

@@ -40,12 +40,14 @@ var LoginView = React.createClass({
           </div>
 
           <div className="actions">
+          /*
             <span className="ui checkbox action left" style={{float: "left"}}>
                 <input type="checkbox" name="keep_logged_in"/>
                 <label>
                 Keep logged login
               </label>
             </span>
+          */
             <button type="button" className="ui positive right labeled icon button"
               onClick={this.handleSubmit}>
               Login
