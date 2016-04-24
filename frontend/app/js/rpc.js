@@ -1,16 +1,24 @@
 import Flash from './flash'
 
-var RPC = function(url){
+/**
+ * @short Starts a new RPC connection, with the given options
+ *
+ * Options:
+ *  * url -- Url to connect to
+ *  * store -- redux store
+ */
+var RPC = function(options={}){
   var rpc={
     reconnect_time: 1000,
     maxid: 1,
     status: 'NOTCONNECTED',
     reconnect_token: undefined,
-    store: undefined,
+    store: options.store,
+    url: options.url,
     reconnect_max: 10 // max count of reconnects, if more reload page.
   }
 
-  if (!url){
+  if (!rpc.url){
     if (window.location.protocol=='http:')
       rpc.url="ws://"+window.location.host+"/ws"
     else
@@ -24,8 +32,8 @@ var RPC = function(url){
   rpc.set_status = function(newstatus){
     if (!rpc.store)
       return
-    rpc.store.dispatch({type: "RPC_STATUS", status: status})
-    rpc.status=status
+    rpc.store.dispatch({type: "RPC_STATUS", status: newstatus})
+    rpc.status=newstatus
   }
   rpc.set_status("NOTCONNECTED")
 
@@ -129,7 +137,7 @@ var RPC = function(url){
         rpc.reconnect()
       }
     })
-    rpc.store.dispatch({type: "RPC_STATUS", status: status})
+    rpc.store.dispatch({type: "RPC_STATUS", status: rpc.status})
   }
 
   var pending_calls={}
@@ -169,7 +177,7 @@ var RPC = function(url){
       rpc.rpc.send( msg )
     }
     catch(e){
-      self.reconnect()
+      rpc.reconnect()
     }
     rpc.maxid+=1
 

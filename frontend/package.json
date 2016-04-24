@@ -6,6 +6,7 @@
   "dependencies": {
     "react-redux": "^4.4.4",
     "react-router": "^2.2.1",
+    "redux-thunk": "^2.0.1",
     "semantic-ui": "^2.1.8"
   },
   "devDependencies": {
@@ -35,7 +36,7 @@
     "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
-    "start": "webpack-dev-server --hot --progress --colors --port=8000",
+    "start": "webpack-dev-server --hot --progress --colors --port=3000",
     "build": "webpack --progress --colors",
     "watch": "webpack --watch --progress --colors"
   },

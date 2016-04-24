@@ -23,7 +23,7 @@ app/css/themes/: semantic/dist/
 	cp semantic/dist/themes app/css/ -a
 
 start:
-	@echo "URL: http://localhost:8000/webpack-dev-server"
+	@echo "URL: http://localhost:3000/webpack-dev-server"
 	npm start
 
 help:

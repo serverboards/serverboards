@@ -1,34 +1,21 @@
 import redux_reducers from '../reducers'
+import thunk from 'redux-thunk';
 import rpc from '../rpc'
 
-var redux_middleware, redux_extra
-import { createStore, applyMiddleware } from 'redux'
+var redux_extra
+import { createStore, applyMiddleware, compose } from 'redux'
 if (__DEV__){
   console.warn("Running in DEBUG mode")
 
-/*
-  redux_middleware=applyMiddleware( store => next => action => {
-    console.group(action.type)
-    console.log(action)
-    let result
-    try{
-      result = next(action)
-    }
-    catch(e){
-      console.log("Error processing %o: %o", action.type, e)
-    }
-    console.log(store.getState())
-    console.groupEnd(action.type)
-    return result
-  })
-*/
   redux_extra=window.devToolsExtension ? window.devToolsExtension() : f => f
 }
 
 let store = createStore(
-  redux_reducers,
-  redux_middleware,
-  redux_extra
+  redux_reducers, {},
+  compose(
+    applyMiddleware(thunk),
+    redux_extra
+  )
 )
 
 function get_value(what){

@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 
 var LoginView = React.createClass({
   getInitialState : function(){
-    return {email: '', password: ''}
+    return {type: 'basic', email: '', password: ''}
   },
   update_password(event){
     this.setState({password: event.target.value})
@@ -12,11 +12,27 @@ var LoginView = React.createClass({
   },
   handleSubmit(ev){
     ev.preventDefault()
-    this.props._onSubmit(this.state)
+    if ($(this.refs.el).form('validate form')){
+      this.props._onSubmit(this.state)
+    }
+    else{
+      this.props._onInvalidForm();
+    }
+  },
+  componentDidMount( ){
+    self=this
+    $(this.refs.el).form({
+      on: 'blur',
+      fields: {
+        email: 'email',
+        password: 'minLength[6]'
+      }
+    })
+    $(self.refs.el).find('[type=email]').focus()
   },
   render: function(){
     return (
-      <form className="ui form" method="POST" onSubmit={this.handleSubmit}>
+      <form ref="el" className="ui form" method="POST" onSubmit={this.handleSubmit}>
         <div className="ui small modal active" id="login">
           <div className="header">
             Login
@@ -40,14 +56,12 @@ var LoginView = React.createClass({
           </div>
 
           <div className="actions">
-          /*
             <span className="ui checkbox action left" style={{float: "left"}}>
                 <input type="checkbox" name="keep_logged_in"/>
                 <label>
                 Keep logged login
               </label>
             </span>
-          */
             <button type="button" className="ui positive right labeled icon button"
               onClick={this.handleSubmit}>
               Login
