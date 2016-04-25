@@ -24,7 +24,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   alias Serverboards.MOM.RPC
 
   def start_link do
-    {:ok, pid} = Agent.start_link fn -> %{ methods: %{}, mc: [] } end
+    {:ok, pid} = Agent.start_link fn -> %{ methods: %{}, mc: [], guards: [] } end
 
     add_method pid, "dir", fn _, context ->
       __dir(pid, context)
@@ -36,10 +36,20 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   def __dir(pid, context) when is_pid(pid) do
     st = Agent.get pid, &(&1)
     local = st.methods
-      |> Enum.map(fn {name, _} ->
-        name
+      |> Enum.flat_map(fn {name, {_, options}} ->
+          if check_guards(%Serverboards.MOM.RPC.Message{ method: name, context: context}, options, st.guards) do
+            [name]
+          else
+            []
+          end
         end)
-    other = Enum.flat_map( st.mc, &__dir(&1, context) )
+    other = Enum.flat_map( st.mc, fn {smc, options} ->
+      if check_guards(%Serverboards.MOM.RPC.Message{ method: "dir", context: context}, options, st.guards) do
+        __dir(smc, context)
+      else
+        []
+      end
+    end)
     Enum.uniq Enum.sort( local ++ other )
   end
 
@@ -152,15 +162,101 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     {:error, :unknown_method}
 
   """
-  def add_method_caller(pid, pid) do
+  def add_method_caller(pid, pid, _) do
     raise Exception, "Cant add a method caller to itself."
   end
-  def add_method_caller(pid, nmc) when is_pid(pid) do
+  def add_method_caller(pid, nmc, options \\ []) when is_pid(pid) do
     #Logger.debug("Add caller #{inspect nmc} to #{inspect pid}")
     Agent.update pid, fn st ->
-      %{ st | mc: st.mc ++ [nmc] }
+      %{ st | mc: st.mc ++ [{nmc, options}] }
     end
     :ok
+  end
+
+
+  @doc ~S"""
+  Adds a guard to the method caller
+
+  This guards are used to ensure that a called method is allowed.
+
+  If the mehtod is not allowed, it will be skipped as if never added, and
+  `dir` will not return it neither.
+
+  Guards are functions that receive the RPC message and the options of the
+  method, and return true or false as they allow or not that method.
+  This way generic guards can be created.
+
+  name is a debug name used to log what guard failed. Any error/exception on
+  guards are interpreted as denial. Clause errors are not logged. Other errors
+  are reraised.
+
+  The very same "dir" that would be called with a method aller can have guards
+  that prevent its call, but the dir implementation has to make sure to return
+  only the approved methods.
+
+  ## Example
+
+  It creates a classic method and a function method caller. Both do the same.
+
+    iex> require Logger
+    iex> {:ok, mc} = start_link
+    iex> add_method mc, "echo", &(&1), require_perm: "echo"
+    iex> add_method_caller mc, fn
+    ...>   %{ method: "dir" } -> {:ok, ["echo_fn"]}
+    ...>   %{ method: "echo_fn", params: params } -> {:ok, params}
+    ...>   _ -> {:error, :unknown_method }
+    ...> end, require_perm: "echo"
+    iex> add_guard mc, "perms", fn %{ context: context }, options ->
+    ...>   case Keyword.get(options, :require_perm) do
+    ...>     nil -> true # no require perms, ok
+    ...>     required_perm ->
+    ...>       Enum.member? Map.get(context, :perms, []), required_perm
+    ...>   end
+    ...> end
+    iex> call mc, "echo", [1,2,3], %{ } # no context
+    {:error, :unknown_method}
+    iex> call mc, "echo", [1,2,3], %{ perms: [] } # no perms
+    {:error, :unknown_method}
+    iex> call mc, "echo", [1,2,3], %{ perms: ["echo"] } # no perms
+    {:ok, [1,2,3]}
+    iex> call mc, "echo_fn", [1,2,3], %{ } # no context
+    {:error, :unknown_method}
+    iex> call mc, "echo_fn", [1,2,3], %{ perms: [] } # no perms
+    {:error, :unknown_method}
+    iex> call mc, "echo_fn", [1,2,3], %{ perms: ["echo"] } # no perms
+    {:ok, [1,2,3]}
+    iex> call mc, "dir", [], %{}
+    {:ok, ["dir"]}
+    iex> call mc, "dir", [], %{ perms: ["echo"] }
+    {:ok, ["dir", "echo", "echo_fn"]}
+
+  In this example a map is used as context. Normally it would be a RPC.Context.
+  """
+  def add_guard(pid, name, guard_f) when is_pid(pid) and is_function(guard_f) do
+    Agent.update pid, fn st ->
+      %{ st | guards: st.guards ++ [{name, guard_f}] }
+    end
+  end
+
+  # Checks all the guards, return false if any fails.
+  defp check_guards(%Serverboards.MOM.RPC.Message{}, _, []), do: true
+  defp check_guards(%Serverboards.MOM.RPC.Message{} = msg, options, [{gname, gf} | rest]) do
+    try do
+      if gf.(msg, options) do
+        #Logger.debug("Guard #{inspect msg} #{inspect gname} allowed pass")
+        check_guards(msg, options, rest)
+      else
+        #Logger.debug("Guard #{inspect msg} #{inspect gname} STOPPED pass")
+        false
+      end
+    rescue
+      FunctionClauseError ->
+        #Logger.debug("Guard #{inspect msg} #{inspect gname} STOPPED pass (Function Clause Error)")
+        false
+      e ->
+        #Logger.error("Error checking method caller guard #{gname}: #{inspect e}\n#{Exception.format_stacktrace}")
+        false
+    end
   end
 
   @doc ~S"""
@@ -183,26 +279,34 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     st = Agent.get pid, &(&1)
     case Map.get st.methods, msg.method do
       {f, options} ->
-        #Logger.debug("Fast call #{msg.method} #{inspect pid}")
-        v = if Keyword.get(options, :context, false) do
-          f.(msg.params, msg.context)
+        if check_guards(msg, options, st.guards) do
+          #Logger.debug("Fast call #{msg.method} #{inspect pid}")
+          v = if Keyword.get(options, :context, false) do
+            f.(msg.params, msg.context)
+          else
+            f.(msg.params)
+          end
+          case v do
+            {:ok, v} -> {:ok, v}
+            {:error, e} -> {:error, e}
+            v -> {:ok, v}
+          end
         else
-          f.(msg.params)
-        end
-        case v do
-          {:ok, v} -> {:ok, v}
-          {:error, e} -> {:error, e}
-          v -> {:ok, v}
+          {:error, :unknown_method}
         end
       nil ->
-        Enum.reduce_while st.mc, :nok, fn mc, _acc ->
-          ret = case mc do
-            mc when is_pid(mc) ->
-              #Logger.debug("Slow call PID #{msg.method} #{inspect mc}")
-              __call(mc, msg)
-            f when is_function(f) ->
-              #Logger.debug("Slow call f #{msg.method} #{inspect mc}")
-              f.(msg)
+        Enum.reduce_while st.mc, :nok, fn {mc, options}, _acc ->
+          ret = if check_guards(msg, options, st.guards) do
+            case mc do
+              mc when is_pid(mc) ->
+                #Logger.debug("Slow call PID #{msg.method} #{inspect mc}")
+                __call(mc, msg)
+              f when is_function(f) ->
+                #Logger.debug("Slow call f #{msg.method} #{inspect mc}")
+                f.(msg)
+            end
+          else
+            {:error, :unknown_method}
           end
           #Logger.debug("Result #{inspect ret}")
           no_method={:error, :unknown_method}
@@ -250,7 +354,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     {:ok, "test_ok"}
 
     iex> alias Serverboards.MOM.RPC.{Context, MethodCaller}
-    iex> MethodCaller.cast(fn msg -> {:ok, :ok} end, "any", [], nil, fn
+    iex> MethodCaller.cast(fn _ -> {:ok, :ok} end, "any", [], nil, fn
     ...>   {:ok, _v} -> :ok
     ...>   {:error, e} -> {:error, e}
     ...> end)
@@ -285,37 +389,41 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
       {f, options} ->
         # Calls the function and the callback with the result, used in async and sync.
         call_f = fn ->
-          try do
-            v = if Keyword.get(options, :context, false) do
-              #Logger.debug("Calling with context #{inspect f} #{inspect options}")
-              f.(params, context)
-            else
-              #Logger.debug("Calling without context #{inspect f}")
-              f.(params)
+          if check_guards(%RPC.Message{ method: method, params: params, context: context}, options, st.guards) do
+            try do
+              v = if Keyword.get(options, :context, false) do
+                #Logger.debug("Calling with context #{inspect f} #{inspect options}")
+                f.(params, context)
+              else
+                #Logger.debug("Calling without context #{inspect f}")
+                f.(params)
+              end
+              #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
+              case v do
+                {:error, e} ->
+                  cb.({:error, e })
+                {:ok, v} ->
+                  cb.({:ok, v })
+                v ->
+                  cb.({:ok, v })
+              end
+            rescue
+              Serverboards.MOM.RPC.UnknownMethod ->
+                Logger.error("Unknown method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
+                cb.({:error, :unknown_method})
+              CaseClauseError ->
+                Logger.error("Case clause error method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
+                cb.({:error, :bad_arity})
+              BadArityError ->
+                Logger.error("Bad arity error #{method}\n#{Exception.format_stacktrace System.stacktrace}")
+                cb.({:error, :bad_arity})
+              e ->
+                Logger.error("Error on method #{method}\n#{inspect e}\n#{Exception.format_stacktrace System.stacktrace}")
+                cb.({:error, e})
             end
-            #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
-            case v do
-              {:error, e} ->
-                cb.({:error, e })
-              {:ok, v} ->
-                cb.({:ok, v })
-              v ->
-                cb.({:ok, v })
-            end
-          rescue
-            Serverboards.MOM.RPC.UnknownMethod ->
-              Logger.error("Unknown method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
-              cb.({:error, :unknown_method})
-            CaseClauseError ->
-              Logger.error("Case clause error method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
-              cb.({:error, :bad_arity})
-            BadArityError ->
-              Logger.error("Bad arity error #{method}\n#{Exception.format_stacktrace System.stacktrace}")
-              cb.({:error, :bad_arity})
-            e ->
-              Logger.error("Error on method #{method}\n#{inspect e}\n#{Exception.format_stacktrace System.stacktrace}")
-              cb.({:error, e})
-            end
+          else
+            cb.({:error, :unknown_method })
+          end
         end
 
         # sync or async
@@ -330,28 +438,34 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
       nil ->
         # Look for it at method callers
         #Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
-        cast_mc(st.mc, method, params, context, cb)
+        cast_mc(st.mc, method, params, context, st.guards, cb)
     end
   end
 
-  defp cast_mc([], _, _, _, cb) do # end of search, :unknown_method
+  defp cast_mc([], _, _, _, _, cb) do # end of search, :unknown_method
     #Logger.debug("No more Method Callers to call")
     cb.({:error, :unknown_method})
     :nok
   end
 
-  defp cast_mc([h | t], method, params, context, cb) do
+  defp cast_mc([{h, options} | t], method, params, context, guards, cb) do
     #Logger.debug("Cast mc #{inspect h}")
-    cast(h, method, params, context, fn
-      # Keep searching for it
-      {:error, :unknown_method} ->
-        #Logger.debug("Keep looking MC")
-        cast_mc(t, method, params, context, cb)
-      # done, callback with whatever.
-      other ->
-        #Logger.debug("Done #{inspect other}")
-        cb.(other)
-    end)
+    if check_guards(
+        %RPC.Message{ method: method, params: params, context: context},
+        options, guards) do
+      cast(h, method, params, context, fn
+        # Keep searching for it
+        {:error, :unknown_method} ->
+          #Logger.debug("Keep looking MC")
+          cast_mc(t, method, params, context, guards, cb)
+        # done, callback with whatever.
+        other ->
+          #Logger.debug("Done #{inspect other}")
+          cb.(other)
+      end)
+    else
+      cast_mc(t, method, params, context, guards, cb)
+    end
   end
 
 end
