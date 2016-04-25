@@ -5,7 +5,7 @@ defmodule Serverboards.Service.Component do
 	schema "service_component" do
 			field :name, :string
 			field :type, :string
-			field :creator, :string
+			field :creator_id, :id
 			field :priority, :integer
 			timestamps
 	 end
@@ -39,12 +39,18 @@ defmodule Serverboards.Service.Service do
     field :shortname, :string
     field :name, :string
     field :description, :string
-    field :creator, :id
+    field :creator_id, :id
     field :priority, :integer
     timestamps
 	end
-	@required_fields ~w(component_id name)
-	@optional_fields ~w()
+
+	@required_fields ~w(shortname)
+	@optional_fields ~w(name description creator_id priority)
+	def changeset(service, changes \\ :empty) do
+		import Ecto.Changeset
+		service
+			|> cast(changes, @required_fields, @optional_fields)
+	end
 end
 
 defmodule Serverboards.Service.ServiceTag do

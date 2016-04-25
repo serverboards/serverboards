@@ -8,7 +8,7 @@ defmodule Serverboards.Repo.Migrations.InitComponent do
     create table :service_component do
       add :name, :string
       add :type, :string
-      add :creator, :id
+      add :creator_id, :id
       add :priority, :integer
       timestamps
     end
@@ -36,7 +36,7 @@ defmodule Serverboards.Repo.Migrations.InitComponent do
       add :shortname, :string
       add :name, :string
       add :description, :string
-      add :creator, :id
+      add :creator_id, :id
       add :priority, :integer
       timestamps
     end
