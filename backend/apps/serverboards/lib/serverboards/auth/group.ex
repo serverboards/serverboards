@@ -60,4 +60,11 @@ defmodule Serverboards.Auth.Group do
 			gp -> gp
 		end
 	end
+
+	def changeset(group, params \\ :empty) do
+		import Ecto.Changeset
+		group
+			|> cast(params, [:name], [])
+			|> unique_constraint(:name)
+	end
 end

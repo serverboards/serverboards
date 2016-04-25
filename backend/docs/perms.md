@@ -18,6 +18,19 @@ auth.create_token -- Creates an auth token
 
 plugin -- Can start, stop and make calls into plugins
 
+
+## Services
+
+service.add -- Add new services
+service.update -- Modify service
+service.delete -- Deletes service
+service.info -- Gets all info from service
+
+service.component.add -- Add new components
+service.component.attach -- Attach/detach a component to an existing service
+service.component.update -- Modifies component configuration
+service.component.delete -- Deletes components
+
 ## Other
 
 debug -- Debug when in debug mode
