@@ -357,7 +357,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         Logger.error("#{Exception.format :error, other}")
         {:error, other}
     end
-    #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
+    Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
 
     cb_params = case ret do
       {:ok, ret} -> {:ok, ret}
@@ -371,8 +371,8 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   end
 
   def cast(pid, method, params, context, cb) when is_pid(pid) do
-    #Logger.debug("Method #{method} caller pid #{inspect pid}")
     st = Agent.get pid, &(&1)
+    Logger.debug("Method #{method} caller pid #{inspect pid}, in #{inspect (Map.keys st.methods)} #{inspect Enum.map(st.mc, fn {f, options} -> Keyword.get options, :name, (inspect f) end) }")
     case Map.get st.methods, method do
       {f, options} ->
         # Calls the function and the callback with the result, used in async and sync.
@@ -386,7 +386,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
                 #Logger.debug("Calling without context #{inspect f}")
                 f.(params)
               end
-              #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
+              Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
               case v do
                 {:error, e} ->
                   cb.({:error, e })
@@ -425,8 +425,10 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         :ok
       nil ->
         # Look for it at method callers
-        #Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
-        cast_mc(st.mc, method, params, context, st.guards, cb)
+        Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
+        ret = cast_mc(st.mc, method, params, context, st.guards, cb)
+        Logger.debug("#{inspect ret} at #{inspect pid}")
+        ret
     end
   end
 
@@ -436,22 +438,49 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     :nok
   end
 
+  ~S"""
+  Casts a method caller from a list, and if any is ok, calls the callback
+  with the data, or error.
+
+  It must return :ok|:nok depending on if it was performed or not, and that makes
+  things more difficult.
+
+  To check each method caller, we have to cast into it in turns, and it signals
+  if it worked using the continuation function, whtat will be called with the
+  result ({:ok, v}, {:error, e}).
+
+  If the error is :unknown_method, we can asume this method caller did not
+  succed, so we can call the tail of the list t. If succeed, we call our
+  own continuation cb. And then using a process signal we give the
+  result to the original cast_mc.
+  """
   defp cast_mc([{h, options} | t], method, params, context, guards, cb) do
-    #Logger.debug("Cast mc #{inspect h}")
+    Logger.debug("Cast mc #{Keyword.get options, :name, (inspect h)}")
     if check_guards(
         %RPC.Message{ method: method, params: params, context: context},
         options, guards) do
-      cast(h, method, params, context, fn
-        # Keep searching for it
-        {:error, :unknown_method} ->
-          #Logger.debug("Keep looking MC")
-          cast_mc(t, method, params, context, guards, cb)
-        # done, callback with whatever.
-        other ->
-          #Logger.debug("Done #{inspect other}")
-          cb.(other)
-      end)
+      task = Task.async fn ->
+        task = self()
+        cast(h, method, params, context, fn
+          # Keep searching for it
+          {:error, :unknown_method} ->
+            #Logger.debug("Keep looking MC")
+            ok = cast_mc(t, method, params, context, guards, cb)
+            # signal that it did it.
+            send task, ok
+          other ->
+            #Logger.debug("Done #{inspect other}")
+            send task, :ok # done! Dont make it wait more.
+            cb.(other)
+        end)
+        receive do
+          a -> a
+        end
+      end
+
+      Task.await(task)
     else
+      # skip, guards not passed
       cast_mc(t, method, params, context, guards, cb)
     end
   end
