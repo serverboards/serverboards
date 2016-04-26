@@ -23,8 +23,8 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   alias Serverboards.MOM.RPC
 
-  def start_link do
-    {:ok, pid} = Agent.start_link fn -> %{ methods: %{}, mc: [], guards: [] } end
+  def start_link(options \\ []) do
+    {:ok, pid} = Agent.start_link fn -> %{ methods: %{}, mc: [], guards: [] } end, options
 
     add_method pid, "dir", fn _, context ->
       __dir(pid, context)
