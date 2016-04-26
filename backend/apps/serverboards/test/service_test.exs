@@ -33,6 +33,9 @@ defmodule ServiceTest do
     assert Enum.member? dir, "service.delete"
     assert Enum.member? dir, "service.info"
 
+    {:ok, json} = JSON.encode(Test.Client.debug client)
+    Logger.info("Debug information: #{json}")
+
     {:ok, l} = Test.Client.call client, "service.list", []
     assert (Enum.count l) == 0
 

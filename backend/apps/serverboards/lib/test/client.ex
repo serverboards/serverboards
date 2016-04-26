@@ -42,6 +42,10 @@ defmodule Test.Client do
 		GenServer.stop(client)
 	end
 
+	def debug(client) do
+		GenServer.call(RPC.Client.get(client, :pid), {:debug})
+	end
+
 	@doc ~S"""
 	Ignore events until this appears or timeout. What is a keyword/value list.
 
@@ -171,6 +175,10 @@ defmodule Test.Client do
 
 	def handle_call({:get_client}, _from, status) do
 		{:reply, status.client, status}
+	end
+
+	def handle_call({:debug}, _from, status) do
+		{:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
 	end
 
 	defp match(what, msg) do

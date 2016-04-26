@@ -28,10 +28,10 @@ defmodule Serverboards.Plugin.Runner do
     end)
 
     # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
-    RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1, pid)
+    RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1, pid), name: :call_with_uuid
 
     # Catches all [alias].method calls and do it. Alias are stores into the context
-    RPC.MethodCaller.add_method_caller method_caller, &call_with_alias(&1, pid)
+    RPC.MethodCaller.add_method_caller method_caller, &call_with_alias(&1, pid), name: :call_with_alias
 
     {:ok, pid}
   end
