@@ -86,7 +86,7 @@ defmodule Serverboards.MethodCallerTest do
     assert (call mc, "echo_mc3", "Hello world", context) == {:error, :unknown_method}
   end
 
-  test "Nested method handlers" do
+  test "Complex method handlers, many calls" do
     import Serverboards.MOM.RPC.MethodCaller
     {:ok, context} = RPC.Context.start_link
     {:ok, mc} = RPC.MethodCaller.start_link
@@ -147,6 +147,7 @@ defmodule Serverboards.MethodCallerTest do
       assert (call mc, "mc22", [], context) == {:ok, []}
       assert (call mc, "mc22_", [], context) == {:ok, []}
       assert (call mc, "mc211", [], context) == {:ok, []}
+      assert (call mc, "mc211", [], context) == {:ok, []}
 
       assert (call mc, "mc_", [], context) == {:ok, "mc_"}
       assert (call mc, "mc_1", [], context) == {:ok, "mc_1"}
@@ -156,9 +157,38 @@ defmodule Serverboards.MethodCallerTest do
       assert (call mc, "mc21_1", [], context) == {:ok, "mc21_1"}
       assert (call mc, "mc211_", [], context) == {:ok, "mc211_"}
       assert (call mc, "mc_2", [], context) == {:ok, "mc_2"}
+      assert (call mc, "mc211_", [], context) == {:ok, "mc211_"}
+      assert (call mc, "mc_2", [], context) == {:ok, "mc_2"}
     end
     tend = :erlang.timestamp
     tdiff=:timer.now_diff(tend, tini)
-    Logger.info("17_000 RPC calls in #{tdiff / 1000.0} ms, #{17_000 / (tdiff / 1_000_000)} call/s")
+    Logger.info("20_000 RPC calls in #{tdiff / 1000.0} ms, #{20_000 / (tdiff / 1_000_000)} call/s")
+  end
+
+  # Checks a strange bug, explained at MethodCaller.cast_mc
+  test "Bug RPC mc :nok, :ok" do
+    {:ok, rpc} = RPC.start_link
+    {:ok, mc} = RPC.MethodCaller.start_link
+    {:ok, mc2} = RPC.MethodCaller.start_link
+
+    RPC.add_method_caller rpc, mc
+    #RPC.add_method_caller rpc, mc2
+
+    RPC.MethodCaller.add_method mc, "foo", fn _ ->
+      {:error, :why_you_call_me}
+    end
+
+    RPC.MethodCaller.add_method_caller mc, fn _ ->
+      Logger.debug("Will not resolve it")
+      :timer.sleep(100) # slow process
+      :nok
+    end, name: :fail
+    RPC.MethodCaller.add_method_caller mc, mc2, name: :mc2
+    RPC.MethodCaller.add_method mc2, "test", fn _ ->
+      :timer.sleep(200) # slow process
+      {:ok, :ok}
+    end
+
+    assert (RPC.call rpc, "test", [], 1) == {:ok, :ok}
   end
 end
