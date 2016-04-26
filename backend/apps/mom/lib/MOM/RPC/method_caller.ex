@@ -33,6 +33,10 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     {:ok, pid}
   end
 
+  def stop(pid) do
+    Agent.stop pid
+  end
+
   def __dir(pid, context) when is_pid(pid) do
     st = Agent.get pid, &(&1)
     local = st.methods
@@ -328,6 +332,9 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     ret = try do
       f.(%RPC.Message{ method: method, params: params, context: context})
     rescue
+      FunctionClauseError ->
+        Logger.warn("Function method caller did not accept input. May be too strict.\n #{Exception.format_stacktrace}")
+        {:error, :unknown_method}
       other ->
         Logger.error("#{Exception.format :error, other}")
         {:error, other}
