@@ -140,6 +140,13 @@ defmodule Serverboards.MOM.RPC do
 		{:ok, rpc}
 	end
 
+	def debug(rpc) do
+		%{
+			method_caller: RPC.MethodCaller.debug(rpc.method_caller),
+			uuid: rpc.uuid
+		}
+	end
+
 	@doc ~S"""
 	Stops the server
 	"""

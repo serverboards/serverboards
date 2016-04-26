@@ -38,6 +38,10 @@ defmodule Serverboards.MOM.RPC.Context do
     Agent.stop(ma)
   end
 
+  def debug(pid) do
+    Agent.get pid, &(Map.keys &1)
+  end
+
   @doc ~S"""
   Puts a value into the MapAgent.
 

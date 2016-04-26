@@ -37,6 +37,24 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     Agent.stop pid
   end
 
+  def debug(false) do
+    false
+  end
+
+  def debug(pid) do
+    st = Agent.get pid, &(&1)
+    %{
+      methods: (Map.keys st.methods),
+      mc: Enum.map(st.mc, fn
+        {mc, options} when is_function(mc) ->
+          name = Keyword.get options, :name, (inspect mc)
+          "fn #{name}"
+        {pid, _options} when is_pid(pid) -> debug(pid)
+        _ -> "??"
+      end)
+    }
+  end
+
   def __dir(pid, context) when is_pid(pid) do
     st = Agent.get pid, &(&1)
     local = st.methods
