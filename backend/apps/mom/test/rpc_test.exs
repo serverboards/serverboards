@@ -2,7 +2,6 @@ defmodule Serverboards.RPCTest do
   use ExUnit.Case
   @moduletag :capture_log
   doctest Serverboards.MOM.RPC
-  doctest Serverboards.MOM.RPC.MethodCaller, import: true
   doctest Serverboards.MOM.RPC.Context, import: true
 
 	alias Serverboards.MOM.RPC
