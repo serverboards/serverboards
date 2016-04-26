@@ -57,7 +57,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     try do
       case f.(%RPC.Message{method: "dir", context: context}) do
         {:ok, l} when is_list(l) -> l
-        o ->
+        _o ->
           Logger.error("dir dir not return list at #{inspect f}. Please fix.")
           []
       end
@@ -165,13 +165,14 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   def add_method_caller(pid, pid, _) do
     raise Exception, "Cant add a method caller to itself."
   end
-  def add_method_caller(pid, nmc, options \\ []) when is_pid(pid) do
+  def add_method_caller(pid, nmc, options) when is_pid(pid) do
     #Logger.debug("Add caller #{inspect nmc} to #{inspect pid}")
     Agent.update pid, fn st ->
       %{ st | mc: st.mc ++ [{nmc, options}] }
     end
     :ok
   end
+  def add_method_caller(pid, nmc), do: add_method_caller(pid, nmc, [])
 
 
   @doc ~S"""
@@ -254,7 +255,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         #Logger.debug("Guard #{inspect msg} #{inspect gname} STOPPED pass (Function Clause Error)")
         false
       e ->
-        #Logger.error("Error checking method caller guard #{gname}: #{inspect e}\n#{Exception.format_stacktrace}")
+        Logger.error("Error checking method caller guard #{gname}: #{inspect e}\n#{Exception.format_stacktrace}")
         false
     end
   end
@@ -271,55 +272,17 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   """
   def call(pid, method, params, context) do
-    __call(pid, %RPC.Message{ method: method, params: params, context: context})
-  end
-
-  # same as call, but uses a RPC.Message
-  defp __call(pid, %Serverboards.MOM.RPC.Message{} = msg) do
-    st = Agent.get pid, &(&1)
-    case Map.get st.methods, msg.method do
-      {f, options} ->
-        if check_guards(msg, options, st.guards) do
-          #Logger.debug("Fast call #{msg.method} #{inspect pid}")
-          v = if Keyword.get(options, :context, false) do
-            f.(msg.params, msg.context)
-          else
-            f.(msg.params)
-          end
-          case v do
-            {:ok, v} -> {:ok, v}
-            {:error, e} -> {:error, e}
-            v -> {:ok, v}
-          end
-        else
-          {:error, :unknown_method}
-        end
-      nil ->
-        Enum.reduce_while st.mc, :nok, fn {mc, options}, _acc ->
-          ret = if check_guards(msg, options, st.guards) do
-            case mc do
-              mc when is_pid(mc) ->
-                #Logger.debug("Slow call PID #{msg.method} #{inspect mc}")
-                __call(mc, msg)
-              f when is_function(f) ->
-                #Logger.debug("Slow call f #{msg.method} #{inspect mc}")
-                f.(msg)
-            end
-          else
-            {:error, :unknown_method}
-          end
-          #Logger.debug("Result #{inspect ret}")
-          no_method={:error, :unknown_method}
-          case ret do
-            {:ok, ret} -> {:halt, {:ok, ret}}
-            {:error, :unknown_method} -> {:cont, no_method}
-            :nok -> {:cont, no_method}
-            :empty -> {:cont, no_method}
-
-            {:error, other} -> {:halt, {:error, other}}
-          end
-        end
-    end
+    #__call(pid, %RPC.Message{ method: method, params: params, context: context})
+    async = Task.async(fn ->
+      async = self()
+      cast(pid, method, params, context, fn res ->
+        send async, res
+      end)
+      receive do
+        res -> res
+      end
+    end)
+    Task.await async
   end
 
   @doc ~S"""
