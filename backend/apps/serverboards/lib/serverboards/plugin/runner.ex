@@ -179,7 +179,6 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   def call_with_alias(%Serverboards.MOM.RPC.Message{ method: method, params: params, context: context} = msg, runner) do
-    Logger.debug("Call with alias #{inspect method}")
     if method == "dir" do
       {:ok, alias_dir(context)}
     else
@@ -187,18 +186,20 @@ defmodule Serverboards.Plugin.Runner do
         [_, alias_, method] ->
           aliases = RPC.Context.get context, :plugin_aliases, %{}
           cmd = Map.get aliases, alias_
-          if cmd do
-            if Process.alive? cmd do
+          Logger.debug("Call with alias #{inspect alias_}")
+          cond do
+            cmd == nil ->
+              Logger.debug("Not alias")
+              :nok
+            Process.alive? cmd ->
               ret=Serverboards.IO.Cmd.call cmd, method, params
               Logger.debug("Alias result #{inspect ret}")
               ret
-            else
+            true ->
               # not running anymore, remove it
+              Logger.debug("Plugin not running anymore")
               RPC.Context.update context, :plugin_aliases, [{ alias_, nil }]
               :nok
-            end
-          else
-            :nok
           end
         _ -> :nok
       end

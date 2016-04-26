@@ -5,11 +5,13 @@ defmodule Serverboards.Service do
   import Ecto.Query
 
   alias Serverboards.MOM.RPC
+  alias Serverboards.MOM.RPC.Context
+  alias Serverboards.MOM
   alias Serverboards.Repo
   alias Serverboards.Service
 
-  def start_link do
-    {:ok, mc} = MethodCaller.start_link
+  def start_link(options \\ []) do
+    {:ok, mc} = RPC.MethodCaller.start_link options
 
     # Adds that it needs permissions.
     Serverboards.Utils.Decorators.permission_method_caller mc
@@ -32,12 +34,14 @@ defmodule Serverboards.Service do
     end, [requires_perm: "service.add", context: true]
 
     RPC.MethodCaller.add_method mc, "service.list", fn [], context ->
+      Logger.info("Service List!!!")
       service_list Context.get(context, :user)
-    end, [requires_perm: "service.add", context: true]
+    end, [requires_perm: "service.list", context: true]
 
     # All authenticated users may use this method caller, but it ensures permissions before any call.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
-      RPC.Client.add_method_caller client, mc
+      RPC.add_method_caller (RPC.Client.get client, :to_serverboards), mc
+      :ok
     end)
 
     {:ok, mc}
@@ -57,11 +61,11 @@ defmodule Serverboards.Service do
   ## Example
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
-    iex> {:ok, service} = service_add "SBDS-TST", %{ "name" => "serverboards" }, user
+    iex> {:ok, service} = service_add "SBDS-TST1", %{ "name" => "serverboards" }, user
     iex> {:ok, info} = service_info service.id, user
-    iex> info.name
+    iex> info["name"]
     "serverboards"
-    iex> service_delete "SBDS-TST", user
+    iex> service_delete "SBDS-TST1", user
     :ok
 
   """
@@ -81,12 +85,12 @@ defmodule Serverboards.Service do
   ## Example:
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
-    iex> {:ok, service} = service_add "SBDS-TST", %{ "name" => "serverboards" }, user
+    iex> {:ok, service} = service_add "SBDS-TST2", %{ "name" => "serverboards" }, user
     iex> {:ok, service} = service_update service.id, %{ "name" => "Serverboards" }, user
     iex> {:ok, info} = service_info service.id, user
-    iex> info.name
+    iex> info["name"]
     "Serverboards"
-    iex> service_delete "SBDS-TST", user
+    iex> service_delete "SBDS-TST2", user
     :ok
 
   """
@@ -112,6 +116,9 @@ defmodule Serverboards.Service do
       ) )
   end
 
+  @doc ~S"""
+  Deletes a service by id or name
+  """
   def service_delete(service_id, _me) when is_number(service_id) do
     Repo.delete( Repo.get_by(Service.Service, [id: service_id]) )
   end
@@ -120,15 +127,42 @@ defmodule Serverboards.Service do
     :ok
   end
 
+  @doc ~S"""
+  Returns the information of a service by id or name
+  """
   def service_info(service_id, _me) when is_number(service_id) do
-    {:ok, Repo.get_by(Service.Service, [id: service_id])}
+    case Repo.get_by(Service.Service, [id: service_id]) do
+      nil -> {:error, :not_found}
+      service -> {:ok, Serverboards.Utils.clean_struct(service)}
+    end
   end
   def service_info(service_shortname, _me) when is_binary(service_shortname) do
-    {:ok, Repo.get_by(Service.Service, [shortname: service_shortname])}
+    case Repo.get_by(Service.Service, [shortname: service_shortname]) do
+      nil -> {:error, :not_found}
+      service -> {:ok, Serverboards.Utils.clean_struct(service) }
+    end
   end
 
+  @doc ~S"""
+  Returns a list with all services and its information
+
+  ## Example
+
+    iex> require Logger
+    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> service_list user.id
+    {:ok, []}
+    iex> {:ok, service} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
+    iex> {:ok, l} = service_list user.id
+    iex> Logger.debug(inspect l)
+    iex> (Enum.count l) == 1
+    true
+    iex> service_delete "SBDS-TST4", user
+    :ok
+
+  """
   def service_list(_me) do
-    []
+    {:ok, Enum.map(Serverboards.Repo.all(Serverboards.Service.Service), &Serverboards.Utils.clean_struct(&1)) }
   end
 
 end
