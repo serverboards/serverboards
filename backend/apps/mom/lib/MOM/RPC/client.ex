@@ -62,6 +62,13 @@ defmodule Serverboards.MOM.RPC.Client do
 	end
 
 	@doc ~S"""
+	Returns a debug structure.
+	"""
+	def debug(client) do
+		GenServer.call(client, {:debug})
+	end
+
+	@doc ~S"""
 	Taps all the channels, to ease debug of messages.
 	"""
 	def tap(client) do
@@ -310,6 +317,15 @@ defmodule Serverboards.MOM.RPC.Client do
 		ret = RPC.Context.get(client.context, key, default)
 		{:reply, ret, client}
 	end
+	def handle_call({:debug}, _from, client) do
+		{:reply, %{
+			to_client: RPC.debug(client.to_client),
+			to_serverboards: RPC.debug(client.to_serverboards),
+			context: RPC.Context.debug(client.context),
+			options: client.options
+			}, client}
+	end
+
 	~S"""
 	Write line has to be cast to unblock deadlock when client writes to server,
 	it does all the processing and as last part from another thread writes the
