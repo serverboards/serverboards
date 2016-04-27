@@ -68,6 +68,11 @@ defmodule EventSourcing do
     GenServer.call(pid, {:dispatch, type, data})
   end
 
+  def subscribe(pid, :debug) do
+    subscribe(pid, fn type, _data ->
+      Logger.debug("Event #{type}")
+    end)
+  end
   def subscribe(pid, reducer, options) when is_function(reducer) do
     GenServer.call(pid, {:subscribe, reducer, options})
   end

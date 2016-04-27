@@ -74,9 +74,10 @@ defmodule EventsourcingTest do
     {:ok, es} = EventSourcing.start_link
     {:ok, items} = Agent.start_link fn -> %{} end
 
+    EventSourcing.subscribe es, :debug
+
     # it defines an event and an initial implementation. Can be redefined.
     # when called it dispatchs the event, does not call the implementation
-
     add_item = EventSourcing.defevent es, :add_item, fn item ->
       Agent.update items, fn st ->
         Map.update(st, item, 1, &( &1 + 1 ) )
