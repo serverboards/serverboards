@@ -103,4 +103,23 @@ defmodule EventsourcingTest do
     add_item.(:milk)
 
   end
+
+  test "Reducers can return result" do
+    {:ok, es} = EventSourcing.start_link
+    {:ok, items} = Agent.start_link fn -> %{} end
+
+    EventSourcing.subscribe es, :debug_full
+
+    add_item = EventSourcing.defevent es, :add_item, fn item ->
+      cart = Agent.get_and_update items, fn st ->
+        st=Map.update(st, item, 1, &( &1 + 1 ) )
+        {st, st}
+      end
+      cart
+    end, name: :status
+
+    assert Map.get(add_item.(:milk), :status) == %{ milk: 1 }
+    assert Map.get(add_item.(:milk), :status) == %{ milk: 2 }
+
+  end
 end

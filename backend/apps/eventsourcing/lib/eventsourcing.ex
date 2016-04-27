@@ -64,19 +64,48 @@ defmodule EventSourcing do
     GenServer.start_link __MODULE__, :ok, options
   end
 
+  @doc ~S"""
+  Subscribes the given event with the given data.
+
+  Returns a map of named dispatchers results.
+
+  This map is usefull to avoid round trips to get data after a change, for
+  example return the status of a database record.
+  """
   def dispatch(pid, type, data) do
     GenServer.call(pid, {:dispatch, type, data})
   end
 
+  @doc ~S"""
+  Subscribes the event sourcer.
+
+  It has several options:
+
+    * special_subscriber
+    * function
+    * function, options
+    * :type, function, options
+
+  Special subscribers:
+   * :debug -- Show the events and type as done
+   * :debug_full -- Show also the data
+
+  """
   def subscribe(pid, :debug) do
     subscribe(pid, fn type, _data ->
       Logger.debug("Event #{type}")
     end)
   end
+  def subscribe(pid, :debug_full) do
+    subscribe(pid, fn type, data ->
+      Logger.debug("Event #{type}(#{inspect data})")
+    end)
+  end
+  def subscribe(pid, reducer), do: subscribe(pid, reducer, [])
+
   def subscribe(pid, reducer, options) when is_function(reducer) do
     GenServer.call(pid, {:subscribe, reducer, options})
   end
-  def subscribe(pid, reducer), do: subscribe(pid, reducer, [])
   def subscribe(pid, type, reducer, options \\ []) when is_atom(type) and is_function(reducer) do
     GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
   end
@@ -102,8 +131,9 @@ defmodule EventSourcing do
   end
 
   defp dispatchp(reducers, type, data) do
-    for {reducer, options} <- reducers do
-      try do
+    Enum.reduce reducers, %{}, fn {reducer, options}, acc ->
+      # Do the reducer and keep result.
+      res = try do
         case Keyword.get(options, :type, :any) do
           :any ->
             reducer.(type, data)
@@ -122,6 +152,12 @@ defmodule EventSourcing do
             _ ->
               reraise e, stacktrace
           end
+      end
+      # Set it into the return map, or not.
+      case {res, Keyword.get(options, :name)} do
+        {nil, _ }   -> acc
+        {res, name} -> Map.put(acc, name, res)
+        _           -> acc
       end
     end
   end
