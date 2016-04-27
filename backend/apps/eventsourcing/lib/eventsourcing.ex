@@ -94,12 +94,12 @@ defmodule EventSourcing do
   def subscribe(pid, :debug) do
     subscribe(pid, fn type, _data ->
       Logger.debug("Event #{type}")
-    end)
+    end, name: :debug)
   end
   def subscribe(pid, :debug_full) do
     subscribe(pid, fn type, data ->
       Logger.debug("Event #{type}(#{inspect data})")
-    end)
+    end, name: :debug_full)
   end
   def subscribe(pid, reducer), do: subscribe(pid, reducer, [])
 
@@ -131,13 +131,16 @@ defmodule EventSourcing do
   end
 
   defp dispatchp(reducers, type, data) do
+    #Logger.debug("Dispatch #{type}")
     Enum.reduce reducers, %{}, fn {reducer, options}, acc ->
       # Do the reducer and keep result.
       res = try do
         case Keyword.get(options, :type, :any) do
           :any ->
+            #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
             reducer.(type, data)
           ^type ->
+            #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
             reducer.(data)
           _ ->
             nil
@@ -146,6 +149,7 @@ defmodule EventSourcing do
         e in FunctionClauseError ->
           # Some voodoo to check it it was us with a wrong action type, if so ignore
           stacktrace = System.stacktrace
+          #Logger.debug("Error processing reducer #{Keyword.get options, :name, :unkonwn}\n#{inspect e}\n#{Exception.format_stacktrace}")
           case (hd (tl stacktrace)) do
             {EventSourcing, _, _, _} ->
               nil
