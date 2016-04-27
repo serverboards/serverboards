@@ -4,11 +4,11 @@ defmodule ServiceTest do
   use ExUnit.Case
   @moduletag :capture_log
 
-  doctest Serverboards.Service, import: true
+  doctest Serverboards.Service.Service, import: true
 
 
   test "Service lifecycle" do
-    import Serverboards.Service
+    import Serverboards.Service.Service
 
     user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     {:ok, service} = service_add "SBDS-TST3", %{ "name" => "serverboards" }, user
@@ -21,7 +21,7 @@ defmodule ServiceTest do
   end
 
   test "Update services tags" do
-    import Serverboards.Service
+    import Serverboards.Service.Service
 
     user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     {:ok, _service} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user

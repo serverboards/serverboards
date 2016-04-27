@@ -10,7 +10,7 @@ defmodule Serverboards do
 			worker(Serverboards.Auth, [:start_link, []]),
 			worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
 			worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
-			worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
+			worker(Serverboards.Service.RPC, [ [name: Serverboards.Service.RPC] ]),
 		]
 
 		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]
