@@ -94,8 +94,8 @@ defmodule Serverboards.Service do
     :ok
 
   """
-  def service_update(service_id, operations, me) when is_number(service_id) do
-    Logger.debug("#{inspect {service_id, operations, me}}")
+  def service_update(service, operations, me) when is_map(service) do
+    Logger.debug("#{inspect {service.shortname, operations, me}}")
     changes = Enum.reduce(operations, %{}, fn op, acc ->
       Logger.debug("#{inspect op}")
       {opname, newval} = op
@@ -105,15 +105,22 @@ defmodule Serverboards.Service do
         "priority" -> :priority
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
-          raise Exception, "Unknown operation updating service #{service_id}: #{inspect e}. Failing."
-      end
-      Map.put acc, opatom, newval
-    end)
+          raise Exception, "Unknown operation updating service #{service.shortname}: #{inspect e}. Failing."
+        end
+        Map.put acc, opatom, newval
+      end)
 
-    Repo.update( Service.Service.changeset(
-        Repo.get_by(Service.Service, [id: service_id]),
-        changes
+      {:ok, upd} = Repo.update( Service.Service.changeset(
+      service,
+      changes
       ) )
+      {:ok, Serverboards.Utils.clean_struct(upd)}
+  end
+  def service_update(service_id, operations, me) when is_number(service_id) do
+    service_update(Repo.get_by(Service.Service, [id: service_id]), operations, me)
+  end
+  def service_update(servicename, operations, me) when is_binary(servicename) do
+    service_update(Repo.get_by(Service.Service, [shortname: servicename]), operations, me)
   end
 
   @doc ~S"""
