@@ -113,6 +113,7 @@ defmodule Serverboards.Auth do
 	After being authenticated, set up the client as that user
 	"""
 	def authenticated(%Serverboards.MOM.Message{ payload: %{ client: client, user: user } }) do
+		RPC.Client.set client, :user, user
 		to_serverboards = RPC.Client.get client, :to_serverboards
 		RPC.add_method to_serverboards, "auth.user", fn [] ->
 			user

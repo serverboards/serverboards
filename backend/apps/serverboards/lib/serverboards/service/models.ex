@@ -41,6 +41,8 @@ defmodule Serverboards.Service.Service do
     field :description, :string
     field :creator_id, :id
     field :priority, :integer
+
+		has_many :tags, Serverboards.Service.ServiceTag
     timestamps
 	end
 
@@ -56,8 +58,10 @@ end
 defmodule Serverboards.Service.ServiceTag do
 	use Ecto.Schema
 	schema "service_service_tag" do
-		field :service_id, :id
+		#field :service_id, :id
 		field :name, :string
+
+		belongs_to :service, Serverboards.Service.Service
 	end
 	@required_fields ~w(service_id name)
 	@optional_fields ~w()

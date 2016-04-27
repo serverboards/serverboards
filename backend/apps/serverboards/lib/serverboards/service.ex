@@ -17,12 +17,15 @@ defmodule Serverboards.Service do
     Serverboards.Utils.Decorators.permission_method_caller mc
 
     RPC.MethodCaller.add_method mc, "service.add", fn [servicename, options], context ->
-      service_add servicename, options, Context.get(context, :user)
+      #Logger.debug("#{inspect Context.debug(context)}")
+      {:ok, service} = service_add servicename, options, Context.get(context, :user)
+      {:ok, Serverboards.Utils.clean_struct service}
     end, [requires_perm: "service.add", context: true]
 
     RPC.MethodCaller.add_method mc, "service.update", fn
       [service_id, operations], context ->
-        service_update service_id, operations, Context.get(context, :user)
+        {:ok, service} = service_update service_id, operations, Context.get(context, :user)
+        {:ok, Serverboards.Utils.clean_struct service}
     end, [requires_perm: "service.add", context: true]
 
     RPC.MethodCaller.add_method mc, "service.delete", fn [service_id], context ->
@@ -30,12 +33,14 @@ defmodule Serverboards.Service do
     end, [requires_perm: "service.add", context: true]
 
     RPC.MethodCaller.add_method mc, "service.info", fn [service_id], context ->
-      service_info service_id, Context.get(context, :user)
+      {:ok, service} = service_info service_id, Context.get(context, :user)
+      {:ok, Serverboards.Utils.clean_struct service}
     end, [requires_perm: "service.add", context: true]
 
     RPC.MethodCaller.add_method mc, "service.list", fn [], context ->
       Logger.info("Service List!!!")
-      service_list Context.get(context, :user)
+      {:ok, services} = service_list Context.get(context, :user)
+      Enum.map services, &Serverboards.Utils.clean_struct(&1)
     end, [requires_perm: "service.list", context: true]
 
     # All authenticated users may use this method caller, but it ensures permissions before any call.
@@ -63,7 +68,7 @@ defmodule Serverboards.Service do
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     iex> {:ok, service} = service_add "SBDS-TST1", %{ "name" => "serverboards" }, user
     iex> {:ok, info} = service_info service.id, user
-    iex> info["name"]
+    iex> info.name
     "serverboards"
     iex> service_delete "SBDS-TST1", user
     :ok
@@ -88,14 +93,33 @@ defmodule Serverboards.Service do
     iex> {:ok, service} = service_add "SBDS-TST2", %{ "name" => "serverboards" }, user
     iex> {:ok, service} = service_update service.id, %{ "name" => "Serverboards" }, user
     iex> {:ok, info} = service_info service.id, user
-    iex> info["name"]
+    iex> info.name
     "Serverboards"
     iex> service_delete "SBDS-TST2", user
     :ok
 
   """
   def service_update(service, operations, me) when is_map(service) do
-    Logger.debug("#{inspect {service.shortname, operations, me}}")
+    import Ecto.Query, only: [from: 2]
+    Logger.debug("service_update #{inspect {service.shortname, operations, me}}, service id #{service.id}")
+
+    # update tags
+    tags = MapSet.new Map.get(operations, "tags", [])
+    current_tags = MapSet.new Repo.all(Service.ServiceTag, service_id: service.id), fn t -> t.name end
+    new_tags = MapSet.difference(tags, current_tags)
+    expired_tags = MapSet.difference(current_tags, tags)
+
+    Logger.debug("Update service tags. Add #{inspect new_tags}, remove #{inspect expired_tags}")
+
+    if (Enum.count expired_tags) > 0 do
+      expired_tags = MapSet.to_list expired_tags
+      Repo.delete_all( from t in Service.ServiceTag, where: t.service_id == ^service.id and t.name in ^expired_tags )
+    end
+    Enum.map(new_tags, fn name ->
+      Repo.insert(%Service.ServiceTag{name: name, service_id: service.id} )
+    end)
+
+    # changes on service itself.
     changes = Enum.reduce(operations, %{}, fn op, acc ->
       Logger.debug("#{inspect op}")
       {opname, newval} = op
@@ -103,18 +127,23 @@ defmodule Serverboards.Service do
         "name" -> :name
         "description" -> :description
         "priority" -> :priority
+        "tags" -> nil
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise Exception, "Unknown operation updating service #{service.shortname}: #{inspect e}. Failing."
         end
-        Map.put acc, opatom, newval
+        if opatom do
+          Map.put acc, opatom, newval
+        else
+          acc
+        end
       end)
 
-      {:ok, upd} = Repo.update( Service.Service.changeset(
-      service,
-      changes
-      ) )
-      {:ok, Serverboards.Utils.clean_struct(upd)}
+    {:ok, upd} = Repo.update( Service.Service.changeset(
+    service,
+    changes
+    ) )
+    {:ok, upd}
   end
   def service_update(service_id, operations, me) when is_number(service_id) do
     service_update(Repo.get_by(Service.Service, [id: service_id]), operations, me)
@@ -138,15 +167,19 @@ defmodule Serverboards.Service do
   Returns the information of a service by id or name
   """
   def service_info(service_id, _me) when is_number(service_id) do
-    case Repo.get_by(Service.Service, [id: service_id]) do
+    case Repo.one( from( s in Service.Service, where: s.id == ^service_id, preload: :tags ) ) do
       nil -> {:error, :not_found}
-      service -> {:ok, Serverboards.Utils.clean_struct(service)}
+      service ->
+        service = %{ service | tags: Enum.map(service.tags, fn t -> t.name end)}
+        {:ok, service }
     end
   end
   def service_info(service_shortname, _me) when is_binary(service_shortname) do
-    case Repo.get_by(Service.Service, [shortname: service_shortname]) do
+    case Repo.one( from(s in Service.Service, where: s.shortname == ^service_shortname, preload: :tags ) ) do
       nil -> {:error, :not_found}
-      service -> {:ok, Serverboards.Utils.clean_struct(service) }
+      service ->
+        service = %{ service | tags: Enum.map(service.tags, fn t -> t.name end)}
+        {:ok, service }
     end
   end
 
@@ -157,12 +190,13 @@ defmodule Serverboards.Service do
 
     iex> require Logger
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
-    iex> service_list user.id
-    {:ok, []}
-    iex> {:ok, service} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
+    iex> {:ok, l} = service_list user.id
+    iex> is_list(l) # may be empty or has something from before, but lists
+    true
+    iex> {:ok, _service} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
     iex> {:ok, l} = service_list user.id
     iex> Logger.debug(inspect l)
-    iex> (Enum.count l) == 1
+    iex> Enum.any? l, &(&1["shortname"]=="SBDS-TST4") # exists in the list?
     true
     iex> service_delete "SBDS-TST4", user
     :ok
