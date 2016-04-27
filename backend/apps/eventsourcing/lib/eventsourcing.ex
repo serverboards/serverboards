@@ -68,8 +68,12 @@ defmodule EventSourcing do
     GenServer.call(pid, {:dispatch, type, data})
   end
 
-  def subscribe(pid, reducer, options \\ []) do
+  def subscribe(pid, reducer, options) when is_function(reducer) do
     GenServer.call(pid, {:subscribe, reducer, options})
+  end
+  def subscribe(pid, reducer), do: subscribe(pid, reducer, [])
+  def subscribe(pid, type, reducer, options \\ []) when is_atom(type) and is_function(reducer) do
+    GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
   end
 
   def replay(pid, list_of_events) do
@@ -77,7 +81,7 @@ defmodule EventSourcing do
   end
 
   def defevent(pid, type, reducer, options \\ []) do
-    GenServer.call(pid, {:subscribe, fn ^type, args -> reducer.(args) end, options})
+    GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
     # return a caller
     fn
       args ->
@@ -93,9 +97,16 @@ defmodule EventSourcing do
   end
 
   defp dispatchp(reducers, type, data) do
-    for {reducer, _options} <- reducers do
+    for {reducer, options} <- reducers do
       try do
-        reducer.(type, data)
+        case Keyword.get(options, :type, :any) do
+          :any ->
+            reducer.(type, data)
+          ^type ->
+            reducer.(data)
+          _ ->
+            nil
+        end
       rescue
         e in FunctionClauseError ->
           # Some voodoo to check it it was us with a wrong action type, if so ignore
