@@ -7,6 +7,61 @@ defmodule Serverboards.Service.Service do
   alias Serverboards.Repo
   alias Serverboards.Service.Model
 
+
+  def start_link(options) do
+    {:ok, es} = EventSourcing.start_link name: :service
+    {:ok, rpc} = Serverboards.Service.RPC.start_link
+
+    EventSourcing.subscribe :service, :debug_full
+    
+    EventSourcing.subscribe :service, :add_service, fn attributes ->
+      {:ok, service} = Repo.insert( Model.Service.changeset(%Model.Service{}, attributes) )
+
+      Enum.map(Map.get(attributes, :tags, []), fn name ->
+        Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
+      end)
+
+      service
+    end, name: :service
+
+    EventSourcing.subscribe :service, :update_service, fn {shortname, operations} ->
+      # update tags
+      service = Repo.get_by!(Model.Service, shortname: shortname)
+
+      tags = MapSet.new Map.get(operations, :tags, [])
+
+      current_tags = Repo.all(Model.ServiceTag, service_id: service.id)
+      Logger.debug("Current tags: #{inspect current_tags}")
+
+      current_tags = MapSet.new current_tags, fn t -> t.name end
+      new_tags = MapSet.difference(tags, current_tags)
+      expired_tags = MapSet.difference(current_tags, tags)
+
+      Logger.debug("Update service tags. Add #{inspect new_tags}, remove #{inspect expired_tags}")
+
+      if (Enum.count expired_tags) > 0 do
+        expired_tags = MapSet.to_list expired_tags
+        Repo.delete_all( from t in Model.ServiceTag, where: t.service_id == ^service.id and t.name in ^expired_tags )
+      end
+      Enum.map(new_tags, fn name ->
+        Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
+      end)
+
+      import Ecto.Query, only: [from: 2]
+
+      {:ok, upd} = Repo.update( Model.Service.changeset(
+        service, operations
+      ) )
+      upd
+    end, name: :service
+
+    EventSourcing.subscribe :service, :delete_service, fn shortname ->
+      Repo.delete_all( from s in Model.Service, where: s.shortname == ^shortname )
+    end
+
+    {:ok, es}
+  end
+
   @doc ~S"""
   Creates a new service given the shortname, attributes and creator_id
 
@@ -30,15 +85,18 @@ defmodule Serverboards.Service.Service do
 
   """
   def service_add(shortname, attributes, me) do
-    Logger.info("Me #{inspect me}")
-    Repo.insert( Model.Service.changeset(%Model.Service{}, %{
+    %{ service: service } = EventSourcing.dispatch :service, :add_service, %{
       shortname: shortname,
       creator_id: me.id,
       name: Map.get(attributes,"name", shortname),
       description: Map.get(attributes, "description", ""),
       priority: Map.get(attributes, "priority", 50),
-      } ) )
+      tags: Map.get(attributes, "tags", [])
+    }
+    {:ok, service}
   end
+
+
 
   @doc ~S"""
   Updates a service by id or shortname
@@ -56,26 +114,9 @@ defmodule Serverboards.Service.Service do
 
   """
   def service_update(service, operations, me) when is_map(service) do
-    import Ecto.Query, only: [from: 2]
-    Logger.debug("service_update #{inspect {service.shortname, operations, me}}, service id #{service.id}")
+    #Logger.debug("service_update #{inspect {service.shortname, operations, me}}, service id #{service.id}")
 
-    # update tags
-    tags = MapSet.new Map.get(operations, "tags", [])
-    current_tags = MapSet.new Repo.all(Model.ServiceTag, service_id: service.id), fn t -> t.name end
-    new_tags = MapSet.difference(tags, current_tags)
-    expired_tags = MapSet.difference(current_tags, tags)
-
-    Logger.debug("Update service tags. Add #{inspect new_tags}, remove #{inspect expired_tags}")
-
-    if (Enum.count expired_tags) > 0 do
-      expired_tags = MapSet.to_list expired_tags
-      Repo.delete_all( from t in Model.ServiceTag, where: t.service_id == ^service.id and t.name in ^expired_tags )
-    end
-    Enum.map(new_tags, fn name ->
-      Repo.insert(%Model.ServiceTag{name: name, service_id: service.id} )
-    end)
-
-    # changes on service itself.
+    # Calculate changes on service itself.
     changes = Enum.reduce(operations, %{}, fn op, acc ->
       Logger.debug("#{inspect op}")
       {opname, newval} = op
@@ -83,7 +124,7 @@ defmodule Serverboards.Service.Service do
         "name" -> :name
         "description" -> :description
         "priority" -> :priority
-        "tags" -> nil
+        "tags" -> :tags
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise Exception, "Unknown operation updating service #{service.shortname}: #{inspect e}. Failing."
@@ -95,11 +136,9 @@ defmodule Serverboards.Service.Service do
         end
       end)
 
-    {:ok, upd} = Repo.update( Model.Service.changeset(
-    service,
-    changes
-    ) )
-    {:ok, upd}
+    {:ok,
+      EventSourcing.dispatch(:service, :update_service, {service.shortname, changes}).service
+    }
   end
   def service_update(service_id, operations, me) when is_number(service_id) do
     service_update(Repo.get_by(Model.Service, [id: service_id]), operations, me)
@@ -111,12 +150,15 @@ defmodule Serverboards.Service.Service do
   @doc ~S"""
   Deletes a service by id or name
   """
-  def service_delete(service_id, _me) when is_number(service_id) do
-    Repo.delete( Repo.get_by(Model.Service, [id: service_id]) )
-  end
-  def service_delete(service_shortname, _me) when is_binary(service_shortname) do
-    Repo.delete( Repo.get_by(Model.Service, [shortname: service_shortname]) )
+  def service_delete(%Model.Service{ shortname: shortname } = service, _me) do
+    EventSourcing.dispatch(:service, :delete_service, shortname)
     :ok
+  end
+  def service_delete(service_id, me) when is_number(service_id) do
+    service_delete( Repo.get_by(Model.Service, [id: service_id]), me )
+  end
+  def service_delete(service_shortname, me) when is_binary(service_shortname) do
+    service_delete( Repo.get_by(Model.Service, [shortname: service_shortname]), me )
   end
 
   @doc ~S"""
