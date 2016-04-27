@@ -2,7 +2,7 @@ require Logger
 
 defmodule ServiceTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  #@moduletag :capture_log
 
   doctest Serverboards.Service.Service, import: true
 
