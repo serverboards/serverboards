@@ -48,12 +48,12 @@ defmodule EventSourcing do
 
     iex> {:ok, es} = start_link
     iex> {:ok, counter} = Agent.start_link fn -> 0 end
-    iex> inc = defevent es, :inc, fn [] -> Agent.update counter, &(&1 + 1) end
-    iex> dec = defevent es, :dec, fn [] -> Agent.update counter, &(&1 - 1) end
-    iex> inc.([])
-    iex> inc.([])
-    iex> inc.([])
-    iex> dec.([])
+    iex> inc = defevent es, :inc, fn [], _author -> Agent.update counter, &(&1 + 1) end
+    iex> dec = defevent es, :dec, fn [], _author -> Agent.update counter, &(&1 - 1) end
+    iex> inc.([],"me")
+    iex> inc.([],"me")
+    iex> inc.([],"me")
+    iex> dec.([],"me")
     iex> Agent.get counter, &(&1)
     2
 
@@ -72,8 +72,8 @@ defmodule EventSourcing do
   This map is usefull to avoid round trips to get data after a change, for
   example return the status of a database record.
   """
-  def dispatch(pid, type, data) do
-    GenServer.call(pid, {:dispatch, type, data})
+  def dispatch(pid, type, data, author) do
+    GenServer.call(pid, {:dispatch, type, data, author})
   end
 
   @doc ~S"""
@@ -86,19 +86,22 @@ defmodule EventSourcing do
     * function, options
     * :type, function, options
 
+  Function receives the type, data and author, or just data and author if
+  type is preset.
+
   Special subscribers:
    * :debug -- Show the events and type as done
    * :debug_full -- Show also the data
 
   """
   def subscribe(pid, :debug) do
-    subscribe(pid, fn type, _data ->
-      Logger.debug("Event #{type}")
+    subscribe(pid, fn type, _data, author ->
+      Logger.debug("Event #{author}: #{type}")
     end, name: :debug)
   end
   def subscribe(pid, :debug_full) do
-    subscribe(pid, fn type, data ->
-      Logger.debug("Event #{type}(#{inspect data})")
+    subscribe(pid, fn type, data, author ->
+      Logger.debug("Event #{author}: #{type}(#{inspect data})")
     end, name: :debug_full)
   end
   def subscribe(pid, reducer), do: subscribe(pid, reducer, [])
@@ -118,8 +121,8 @@ defmodule EventSourcing do
     GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
     # return a caller
     fn
-      args ->
-        EventSourcing.dispatch(pid, type, args)
+      args, author ->
+        EventSourcing.dispatch(pid, type, args, author)
     end
   end
 
@@ -130,7 +133,7 @@ defmodule EventSourcing do
     } }
   end
 
-  defp dispatchp(reducers, type, data) do
+  defp dispatchp(reducers, type, data, author) do
     #Logger.debug("Dispatch #{type}")
     Enum.reduce reducers, %{}, fn {reducer, options}, acc ->
       # Do the reducer and keep result.
@@ -138,10 +141,10 @@ defmodule EventSourcing do
         case Keyword.get(options, :type, :any) do
           :any ->
             #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
-            reducer.(type, data)
+            reducer.(type, data, author)
           ^type ->
             #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
-            reducer.(data)
+            reducer.(data, author)
           _ ->
             nil
         end
@@ -166,8 +169,8 @@ defmodule EventSourcing do
     end
   end
 
-  def handle_call({:dispatch, type, data}, _from, status) do
-    {:reply, dispatchp(status.reducers, type, data), status}
+  def handle_call({:dispatch, type, data, author}, _from, status) do
+    {:reply, dispatchp(status.reducers, type, data, author), status}
   end
 
   def handle_call({:subscribe, reducer, options}, from, status) do
@@ -177,7 +180,7 @@ defmodule EventSourcing do
   end
 
   def handle_call({:replay, list_of_events}, from, status) do
-    ret = Enum.map( list_of_events, fn {type, data} -> dispatchp(status.reducers, type, data) end)
+    ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author) end)
     {:reply, ret, status}
   end
 end

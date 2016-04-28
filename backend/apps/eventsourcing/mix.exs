@@ -1,4 +1,4 @@
-defmodule Eventsourcing.Mixfile do
+defmodule EventSourcing.Mixfile do
   use Mix.Project
 
   def project do
@@ -18,7 +18,11 @@ defmodule Eventsourcing.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [
+      :logger,
+      :ecto,
+      :postgrex
+    ]]
   end
 
   # Dependencies can be Hex packages:
@@ -35,6 +39,10 @@ defmodule Eventsourcing.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:ecto, "~> 1.0"},
+      {:postgrex, ">= 0.0.0"},
+      {:poison, "~> 1.0"}
+    ]
   end
 end
