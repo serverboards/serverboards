@@ -3,6 +3,7 @@ defmodule Serverboards.Service.Model do
 	defmodule Component do
 		use Ecto.Schema
 		schema "service_component" do
+				field :uuid, Ecto.UUID
 				field :name, :string
 				field :type, :string
 				field :creator_id, :id

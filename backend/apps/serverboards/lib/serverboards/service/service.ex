@@ -1,5 +1,4 @@
 require Logger
-require EventSourcing
 
 defmodule Serverboards.Service.Service do
   import Ecto.Changeset
