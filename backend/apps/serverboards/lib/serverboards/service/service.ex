@@ -14,6 +14,7 @@ defmodule Serverboards.Service.Service do
     {:ok, es} = EventSourcing.start_link name: :service
     {:ok, rpc} = Serverboards.Service.RPC.start_link
 
+    EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
     EventSourcing.subscribe :service, :debug_full
 
     Component.setup_eventsourcing(es)
@@ -23,7 +24,7 @@ defmodule Serverboards.Service.Service do
   end
 
   def setup_eventsourcing(es) do
-    EventSourcing.subscribe :service, :add_service, fn attributes ->
+    EventSourcing.subscribe :service, :add_service, fn attributes, _me ->
       {:ok, service} = Repo.insert( Model.Service.changeset(%Model.Service{}, attributes) )
 
       Enum.map(Map.get(attributes, :tags, []), fn name ->
@@ -33,7 +34,7 @@ defmodule Serverboards.Service.Service do
       service.shortname
     end, name: :service
 
-    EventSourcing.subscribe :service, :update_service, fn {shortname, operations} ->
+    EventSourcing.subscribe :service, :update_service, fn [shortname, operations], _me ->
       import Ecto.Query
       # update tags
       service = Repo.get_by!(Model.Service, shortname: shortname)
@@ -62,7 +63,7 @@ defmodule Serverboards.Service.Service do
       :ok
     end, name: :service
 
-    EventSourcing.subscribe :service, :delete_service, fn shortname ->
+    EventSourcing.subscribe :service, :delete_service, fn shortname, _me ->
       Repo.delete_all( from s in Model.Service, where: s.shortname == ^shortname )
     end
   end
@@ -97,7 +98,7 @@ defmodule Serverboards.Service.Service do
       description: Map.get(attributes, "description", ""),
       priority: Map.get(attributes, "priority", 50),
       tags: Map.get(attributes, "tags", [])
-    }
+    }, me.email
     {:ok, service}
   end
 
@@ -141,7 +142,7 @@ defmodule Serverboards.Service.Service do
         end
       end)
 
-    EventSourcing.dispatch(:service, :update_service, {service.shortname, changes}).service
+    EventSourcing.dispatch(:service, :update_service, [service.shortname, changes], me.email).service
   end
   def service_update(service_id, operations, me) when is_number(service_id) do
     service_update(Repo.get_by(Model.Service, [id: service_id]), operations, me)
@@ -153,8 +154,8 @@ defmodule Serverboards.Service.Service do
   @doc ~S"""
   Deletes a service by id or name
   """
-  def service_delete(%Model.Service{ shortname: shortname } = service, _me) do
-    EventSourcing.dispatch(:service, :delete_service, shortname)
+  def service_delete(%Model.Service{ shortname: shortname } = service, me) do
+    EventSourcing.dispatch(:service, :delete_service, shortname, me.email)
     :ok
   end
   def service_delete(service_id, me) when is_number(service_id) do
