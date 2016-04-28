@@ -7,11 +7,18 @@ defmodule Serverboards.Service.Model do
 				field :type, :string
 				field :creator_id, :id
 				field :priority, :integer
+
+				has_many :tags, Serverboards.Service.Model.ComponentTag
 				timestamps
 		 end
 
-		 @required_fields ~w(name type creator tags priority)
+		 @required_fields ~w(name type creator_id priority)
 		 @optional_fields ~w()
+		 def changeset(component, changes \\ :empty) do
+			import Ecto.Changeset
+			component
+				|> cast(changes, @required_fields, @optional_fields)
+		end
 	end
 	defmodule ComponentTag do
 		use Ecto.Schema

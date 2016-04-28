@@ -10,6 +10,7 @@ defmodule Serverboards.Service.Component do
     import EventSourcing
 
     subscribe :service, :add_component, fn {attributes, me} ->
+      Logger.info("attributes #{inspect attributes}")
       user = Serverboards.Auth.User.get_user( me )
       {:ok, component} = Repo.insert( %Model.Component{
         name: attributes.name,
@@ -17,12 +18,24 @@ defmodule Serverboards.Service.Component do
         creator_id: user.id,
         priority: attributes.priority
       } )
-      component
+
+      Enum.map(attributes.tags, fn name ->
+        Repo.insert( %Model.ComponentTag{name: name, component_id: component.id} )
+      end)
+
+      component.id
     end, name: :component
     subscribe :service, :delete_component, fn {component, _me} ->
       import Ecto.Query
       #user = Serverboards.Auth.User.get_user( me )
-      # 1 removed
+
+      # remove it when used inside any service
+      Repo.delete_all(
+        from sc in Model.ServiceComponent,
+        where: sc.component_id == ^component
+        )
+
+        # 1 removed
       {1, _} = Repo.delete_all( from c in Model.Component, where: c.id == ^component )
       :ok
     end
@@ -36,6 +49,44 @@ defmodule Serverboards.Service.Component do
       } )
       :ok
     end
+    subscribe :service, :detach_component, fn {service, component_id, me} ->
+      import Ecto.Query
+
+      Repo.delete_all(
+        from sc in Model.ServiceComponent,
+        join: s in Model.Service, on: s.id == sc.service_id,
+        where: sc.component_id == ^component_id and s.shortname == ^service
+        )
+
+      :ok
+    end
+    subscribe :service, :update_component, fn {component, operations, me} ->
+      import Ecto.Query
+      component = Repo.get_by!(Model.Component, id: component)
+
+      tags = MapSet.new Map.get(operations, :tags, [])
+
+      current_tags = Repo.all(from ct in Model.ComponentTag, where: ct.component_id == ^component.id, select: ct.name )
+      current_tags = MapSet.new current_tags
+
+      new_tags = MapSet.difference(tags, current_tags)
+      expired_tags = MapSet.difference(current_tags, tags)
+
+      Logger.debug("Update component tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
+      if (Enum.count expired_tags) > 0 do
+        expired_tags = MapSet.to_list expired_tags
+        Repo.delete_all( from t in Model.ComponentTag, where: t.component_id == ^component.id and t.name in ^expired_tags )
+      end
+      Enum.map(new_tags, fn name ->
+        Repo.insert( %Model.ComponentTag{name: name, component_id: component.id} )
+      end)
+
+      {:ok, upd} = Repo.update( Model.Component.changeset(
+        component, operations
+      ) )
+
+      :ok
+    end, name: :component
   end
 
   @doc ~S"""
@@ -45,18 +96,20 @@ defmodule Serverboards.Service.Component do
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     iex> {:ok, component} = component_add %{ "name" => "Generic", "type" => "generic" }, user
-    iex> component.priority
+    iex> {:ok, info} = component_info component, user
+    iex> info.priority
     50
-    iex> component.name
+    iex> info.name
     "Generic"
-    iex> component_delete component.id, user
+    iex> component_delete component, user
     :ok
   """
   def component_add(attributes, me) do
     attributes = %{
       name: attributes["name"],
       type: attributes["type"],
-      priority: Map.get(attributes,"priority", 50)
+      priority: Map.get(attributes,"priority", 50),
+      tags: Map.get(attributes,"tags", [])
     }
 
     {:ok, EventSourcing.dispatch(:service, :add_component, {attributes, me.email}).component}
@@ -129,11 +182,11 @@ defmodule Serverboards.Service.Component do
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     iex> {:ok, component} = component_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, service} = Serverboards.Service.Service.service_add "SBDS-TST7", %{ "name" => "serverboards" }, user
-    iex> :ok = component_attach "SBDS-TST7", component.id, user
+    iex> :ok = component_attach "SBDS-TST7", component, user
     iex> components = component_list service: "SBDS-TST7"
     iex> Enum.map(components, fn c -> c.name end )
     ["Email server"]
-    iex> :ok = component_delete component.id, user
+    iex> :ok = component_delete component, user
     iex> components = component_list service: "SBDS-TST7"
     iex> Enum.map(components, fn c -> c.name end )
     []
@@ -141,5 +194,65 @@ defmodule Serverboards.Service.Component do
   def component_attach(service, component, me) do
     EventSourcing.dispatch(:service, :attach_component, {service, component, me.email})
     :ok
+  end
+
+  @doc ~S"""
+  Attaches existing components from a service
+
+  ## Example
+
+    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> {:ok, component} = component_add %{ "name" => "Email server", "type" => "email" }, user
+    iex> {:ok, service} = Serverboards.Service.Service.service_add "SBDS-TST9", %{ "name" => "serverboards" }, user
+    iex> :ok = component_attach "SBDS-TST9", component, user
+    iex> components = component_list service: "SBDS-TST9"
+    iex> Enum.map(components, fn c -> c.name end )
+    ["Email server"]
+    iex> :ok = component_detach "SBDS-TST9", component, user
+    iex> components = component_list service: "SBDS-TST9"
+    iex> Enum.map(components, fn c -> c.name end )
+    []
+    iex> {:ok, info} = component_info component, user
+    iex> info.name
+    "Email server"
+
+  """
+  def component_detach(service, component, me) do
+    EventSourcing.dispatch(:service, :detach_component, {service, component, me.email})
+    :ok
+  end
+
+  def component_info(component, me) do
+    import Ecto.Query
+
+    case Repo.one( from c in Model.Component, where: c.id == ^component, preload: :tags ) do
+      nil -> {:error, :not_found}
+      component ->
+        {:ok, %{ component | tags: Enum.map(component.tags, &(&1.name)) } }
+    end
+  end
+
+  def component_update(component, operations, me) do
+    changes = Enum.reduce(operations, %{}, fn op, acc ->
+      Logger.debug("#{inspect op}")
+      {opname, newval} = op
+      opatom = case opname do
+        "name" -> :name
+        "priority" -> :priority
+        "tags" -> :tags
+        e ->
+          Logger.error("Unknown operation #{inspect e}. Failing.")
+          raise Exception, "Unknown operation updating component #{component}: #{inspect e}. Failing."
+        end
+        if opatom do
+          Map.put acc, opatom, newval
+        else
+          acc
+        end
+      end)
+
+    {:ok,
+      EventSourcing.dispatch(:service, :update_component, {component, changes, me.email}).component
+    }
   end
 end

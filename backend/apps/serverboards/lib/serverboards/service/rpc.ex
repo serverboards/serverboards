@@ -16,8 +16,7 @@ defmodule Serverboards.Service.RPC do
     # Services
     RPC.MethodCaller.add_method mc, "service.add", fn [servicename, options], context ->
       #Logger.debug("#{inspect Context.debug(context)}")
-      {:ok, service} = service_add servicename, options, Context.get(context, :user)
-      {:ok, Serverboards.Utils.clean_struct service}
+      service_add servicename, options, Context.get(context, :user)
     end, [requires_perm: "service.add", context: true]
 
     RPC.MethodCaller.add_method mc, "service.update", fn
