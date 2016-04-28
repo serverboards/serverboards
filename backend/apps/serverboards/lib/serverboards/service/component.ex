@@ -9,7 +9,7 @@ defmodule Serverboards.Service.Component do
   def setup_eventsourcing(es) do
     import EventSourcing
 
-    subscribe :service, :add_component, fn {attributes, me} ->
+    subscribe :service, :add_component, fn attributes, me ->
       Logger.info("attributes #{inspect attributes}")
       user = Serverboards.Auth.User.get_user( me )
       {:ok, component} = Repo.insert( %Model.Component{
@@ -26,7 +26,7 @@ defmodule Serverboards.Service.Component do
 
       component.uuid
     end, name: :component
-    subscribe :service, :delete_component, fn {component, _me} ->
+    subscribe :service, :delete_component, fn component, _me ->
       import Ecto.Query
       #user = Serverboards.Auth.User.get_user( me )
 
@@ -41,7 +41,7 @@ defmodule Serverboards.Service.Component do
       {1, _} = Repo.delete_all( from c in Model.Component, where: c.uuid == ^component )
       :ok
     end
-    subscribe :service, :attach_component, fn {service, component, me} ->
+    subscribe :service, :attach_component, fn [service, component], me ->
       user = Serverboards.Auth.User.get_user( me )
       service = Repo.get_by!(Model.Service, shortname: service)
       component = Repo.get_by!(Model.Component, uuid: component)
@@ -51,7 +51,7 @@ defmodule Serverboards.Service.Component do
       } )
       :ok
     end
-    subscribe :service, :detach_component, fn {service, component, me} ->
+    subscribe :service, :detach_component, fn [service, component], _me ->
       import Ecto.Query
 
       to_remove = Repo.all(
@@ -68,7 +68,7 @@ defmodule Serverboards.Service.Component do
 
       :ok
     end
-    subscribe :service, :update_component, fn {component, operations, me} ->
+    subscribe :service, :update_component, fn [component, operations], _me ->
       import Ecto.Query
       component = Repo.get_by!(Model.Component, uuid: component)
 
@@ -121,11 +121,11 @@ defmodule Serverboards.Service.Component do
       tags: Map.get(attributes,"tags", [])
     }
 
-    {:ok, EventSourcing.dispatch(:service, :add_component, {attributes, me.email}).component}
+    {:ok, EventSourcing.dispatch(:service, :add_component, attributes, me.email).component}
   end
 
   def component_delete(component, me) do
-    EventSourcing.dispatch(:service, :delete_component, {component, me.email})
+    EventSourcing.dispatch(:service, :delete_component, component, me.email)
     :ok
   end
 
@@ -201,7 +201,7 @@ defmodule Serverboards.Service.Component do
     []
   """
   def component_attach(service, component, me) do
-    EventSourcing.dispatch(:service, :attach_component, {service, component, me.email})
+    EventSourcing.dispatch(:service, :attach_component, [service, component], me.email)
     :ok
   end
 
@@ -227,7 +227,7 @@ defmodule Serverboards.Service.Component do
 
   """
   def component_detach(service, component, me) do
-    EventSourcing.dispatch(:service, :detach_component, {service, component, me.email})
+    EventSourcing.dispatch(:service, :detach_component, [service, component], me.email)
     :ok
   end
 
@@ -261,7 +261,7 @@ defmodule Serverboards.Service.Component do
       end)
 
     {:ok,
-      EventSourcing.dispatch(:service, :update_component, {component, changes, me.email}).component
+      EventSourcing.dispatch(:service, :update_component, [component, changes], me.email).component
     }
   end
 end
