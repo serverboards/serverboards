@@ -31,7 +31,7 @@ defmodule Serverboards.Service.Service do
         Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
       end)
 
-      service
+      service.shortname
     end, name: :service
 
     EventSourcing.subscribe :service, :update_service, fn {shortname, operations} ->
@@ -47,7 +47,6 @@ defmodule Serverboards.Service.Service do
       new_tags = MapSet.difference(tags, current_tags)
       expired_tags = MapSet.difference(current_tags, tags)
 
-      Logger.debug("Current tags: #{inspect current_tags}")
       Logger.debug("Update service tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
 
       if (Enum.count expired_tags) > 0 do
@@ -58,12 +57,10 @@ defmodule Serverboards.Service.Service do
         Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
       end)
 
-      import Ecto.Query, only: [from: 2]
-
       {:ok, upd} = Repo.update( Model.Service.changeset(
         service, operations
       ) )
-      upd
+      :ok
     end, name: :service
 
     EventSourcing.subscribe :service, :delete_service, fn shortname ->
@@ -85,8 +82,8 @@ defmodule Serverboards.Service.Service do
   ## Example
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
-    iex> {:ok, service} = service_add "SBDS-TST1", %{ "name" => "serverboards" }, user
-    iex> {:ok, info} = service_info service.id, user
+    iex> {:ok, "SBDS-TST1"} = service_add "SBDS-TST1", %{ "name" => "serverboards" }, user
+    iex> {:ok, info} = service_info "SBDS-TST1", user
     iex> info.name
     "serverboards"
     iex> service_delete "SBDS-TST1", user
@@ -113,9 +110,9 @@ defmodule Serverboards.Service.Service do
   ## Example:
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
-    iex> {:ok, service} = service_add "SBDS-TST2", %{ "name" => "serverboards" }, user
-    iex> {:ok, service} = service_update service.id, %{ "name" => "Serverboards" }, user
-    iex> {:ok, info} = service_info service.id, user
+    iex> {:ok, "SBDS-TST2"} = service_add "SBDS-TST2", %{ "name" => "serverboards" }, user
+    iex> :ok = service_update "SBDS-TST2", %{ "name" => "Serverboards" }, user
+    iex> {:ok, info} = service_info "SBDS-TST2", user
     iex> info.name
     "Serverboards"
     iex> service_delete "SBDS-TST2", user
@@ -145,9 +142,7 @@ defmodule Serverboards.Service.Service do
         end
       end)
 
-    {:ok,
-      EventSourcing.dispatch(:service, :update_service, {service.shortname, changes}).service
-    }
+    EventSourcing.dispatch(:service, :update_service, {service.shortname, changes}).service
   end
   def service_update(service_id, operations, me) when is_number(service_id) do
     service_update(Repo.get_by(Model.Service, [id: service_id]), operations, me)
@@ -200,7 +195,7 @@ defmodule Serverboards.Service.Service do
     iex> {:ok, l} = service_list user.id
     iex> is_list(l) # may be empty or has something from before, but lists
     true
-    iex> {:ok, _service} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
+    iex> {:ok, "SBDS-TST4"} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
     iex> {:ok, l} = service_list user.id
     iex> Logger.debug(inspect l)
     iex> Enum.any? l, &(&1["shortname"]=="SBDS-TST4") # exists in the list?
