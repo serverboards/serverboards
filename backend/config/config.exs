@@ -36,6 +36,15 @@ config :serverboards, Serverboards.Repo,
   hostname: "localhost",
   port: 5433
 
+config :eventsourcing, Eventsourcing.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: "serverboards",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  port: 5433,
+  pool: Ecto.Adapters.SQL.Sandbox
+
 config :serverboards,
   plugin_paths: [
     "../plugins/",
