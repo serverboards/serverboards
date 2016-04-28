@@ -49,6 +49,7 @@ defmodule Serverboards.Mixfile do
   defp deps do
     [
       {:mom, in_umbrella: true},
+      {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
       {:comeonin, "~> 2.1"},

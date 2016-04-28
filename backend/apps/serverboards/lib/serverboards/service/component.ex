@@ -13,6 +13,7 @@ defmodule Serverboards.Service.Component do
       Logger.info("attributes #{inspect attributes}")
       user = Serverboards.Auth.User.get_user( me )
       {:ok, component} = Repo.insert( %Model.Component{
+        uuid: attributes.uuid,
         name: attributes.name,
         type: attributes.type,
         creator_id: user.id,
@@ -23,7 +24,7 @@ defmodule Serverboards.Service.Component do
         Repo.insert( %Model.ComponentTag{name: name, component_id: component.id} )
       end)
 
-      component.id
+      component.uuid
     end, name: :component
     subscribe :service, :delete_component, fn {component, _me} ->
       import Ecto.Query
@@ -32,37 +33,44 @@ defmodule Serverboards.Service.Component do
       # remove it when used inside any service
       Repo.delete_all(
         from sc in Model.ServiceComponent,
-        where: sc.component_id == ^component
+        join: c in Model.Component, on: c.id == sc.component_id,
+        where: c.uuid == ^component
         )
 
         # 1 removed
-      {1, _} = Repo.delete_all( from c in Model.Component, where: c.id == ^component )
+      {1, _} = Repo.delete_all( from c in Model.Component, where: c.uuid == ^component )
       :ok
     end
-    subscribe :service, :attach_component, fn {service, component_id, me} ->
+    subscribe :service, :attach_component, fn {service, component, me} ->
       user = Serverboards.Auth.User.get_user( me )
       service = Repo.get_by!(Model.Service, shortname: service)
-      #component = Repo.get_by!(Model.Component, id: component)
+      component = Repo.get_by!(Model.Component, uuid: component)
       {:ok, _service_component} = Repo.insert( %Model.ServiceComponent{
         service_id: service.id,
-        component_id: component_id
+        component_id: component.id
       } )
       :ok
     end
-    subscribe :service, :detach_component, fn {service, component_id, me} ->
+    subscribe :service, :detach_component, fn {service, component, me} ->
       import Ecto.Query
 
-      Repo.delete_all(
+      to_remove = Repo.all(
         from sc in Model.ServiceComponent,
         join: s in Model.Service, on: s.id == sc.service_id,
-        where: sc.component_id == ^component_id and s.shortname == ^service
-        )
+        join: c in Model.Component, on: c.id == sc.component_id,
+        where: c.uuid == ^component and s.shortname == ^service,
+        select: sc.id
+       )
+
+      Repo.delete_all(
+        from sc_ in Model.ServiceComponent,
+        where: sc_.id in ^to_remove )
 
       :ok
     end
     subscribe :service, :update_component, fn {component, operations, me} ->
       import Ecto.Query
-      component = Repo.get_by!(Model.Component, id: component)
+      component = Repo.get_by!(Model.Component, uuid: component)
 
       tags = MapSet.new Map.get(operations, :tags, [])
 
@@ -106,6 +114,7 @@ defmodule Serverboards.Service.Component do
   """
   def component_add(attributes, me) do
     attributes = %{
+      uuid: UUID.uuid4,
       name: attributes["name"],
       type: attributes["type"],
       priority: Map.get(attributes,"priority", 50),
@@ -225,7 +234,7 @@ defmodule Serverboards.Service.Component do
   def component_info(component, me) do
     import Ecto.Query
 
-    case Repo.one( from c in Model.Component, where: c.id == ^component, preload: :tags ) do
+    case Repo.one( from c in Model.Component, where: c.uuid == ^component, preload: :tags ) do
       nil -> {:error, :not_found}
       component ->
         {:ok, %{ component | tags: Enum.map(component.tags, &(&1.name)) } }
