@@ -2,9 +2,10 @@ require Logger
 
 defmodule ServiceTest do
   use ExUnit.Case
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   doctest Serverboards.Service.Service, import: true
+  doctest Serverboards.Service.Component, import: true
 
 
   test "Service lifecycle" do
@@ -24,24 +25,28 @@ defmodule ServiceTest do
     import Serverboards.Service.Service
 
     user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
-    {:ok, _service} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
+    {:error, :not_found } = service_info "SBDS-TST5", user
 
-    {:ok, _service} = service_update "SBDS-TST4", %{ "tags" => ~w(tag1 tag2 tag3)}, user
-    {:ok, info } = service_info "SBDS-TST4", user
+    {:ok, _service} = service_add "SBDS-TST5", %{ "name" => "serverboards" }, user
+    {:ok, info } = service_info "SBDS-TST5", user
+    assert info.tags == []
+
+    {:ok, _service} = service_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag3)}, user
+    {:ok, info } = service_info "SBDS-TST5", user
     Logger.debug("Current service info: #{inspect info}")
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert Enum.member? info.tags, "tag3"
     assert not (Enum.member? info.tags, "tag4")
 
-    service_update "SBDS-TST4", %{ "tags" => ~w(tag1 tag2 tag4) }, user
-    {:ok, info } = service_info "SBDS-TST4", user
+    service_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag4) }, user
+    {:ok, info } = service_info "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert not (Enum.member? info.tags, "tag3")
     assert Enum.member? info.tags, "tag4"
 
-    :ok = service_delete "SBDS-TST4", user
+    :ok = service_delete "SBDS-TST5", user
   end
 
   test "Services as a client" do
@@ -61,12 +66,12 @@ defmodule ServiceTest do
     Logger.info("Got services: #{inspect l}")
     assert (Enum.count l) >= 0
 
-    {:ok, cl} = Test.Client.call client, "service.add", ["SBDS-TST5", %{ "name" => "Serverboards test", "tags" => ["tag1", "tag2"]}]
+    {:ok, cl} = Test.Client.call client, "service.add", ["SBDS-TST8", %{ "name" => "Serverboards test", "tags" => ["tag1", "tag2"]}]
     Logger.info("Created service #{inspect cl}")
     {:ok, json} = JSON.encode(cl)
     assert not String.contains? json, "__"
 
-    {:ok, cl} = Test.Client.call client, "service.info", ["SBDS-TST5"]
+    {:ok, cl} = Test.Client.call client, "service.info", ["SBDS-TST8"]
     Logger.info("Info from service #{inspect cl}")
     {:ok, json} = JSON.encode(cl)
     assert not String.contains? json, "__"
@@ -75,7 +80,7 @@ defmodule ServiceTest do
     Logger.info("Info from service #{inspect cls}")
     {:ok, json} = JSON.encode(cls)
     assert not String.contains? json, "__"
-    assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST5"))
+    assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
     Test.Client.stop(client)

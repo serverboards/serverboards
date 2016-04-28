@@ -12,6 +12,8 @@ defmodule Serverboards.Service.RPC do
     # Adds that it needs permissions.
     Serverboards.Utils.Decorators.permission_method_caller mc
 
+
+    # Services
     RPC.MethodCaller.add_method mc, "service.add", fn [servicename, options], context ->
       #Logger.debug("#{inspect Context.debug(context)}")
       {:ok, service} = service_add servicename, options, Context.get(context, :user)

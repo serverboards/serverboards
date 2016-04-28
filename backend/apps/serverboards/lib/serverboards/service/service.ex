@@ -1,4 +1,5 @@
 require Logger
+require EventSourcing
 
 defmodule Serverboards.Service.Service do
   import Ecto.Changeset
@@ -9,11 +10,20 @@ defmodule Serverboards.Service.Service do
 
 
   def start_link(options) do
+    alias Serverboards.Service.{Component, Service}
+
     {:ok, es} = EventSourcing.start_link name: :service
     {:ok, rpc} = Serverboards.Service.RPC.start_link
 
     EventSourcing.subscribe :service, :debug_full
-    
+
+    Component.setup_eventsourcing(es)
+    Service.setup_eventsourcing(es)
+
+    {:ok, es}
+  end
+
+  def setup_eventsourcing(es) do
     EventSourcing.subscribe :service, :add_service, fn attributes ->
       {:ok, service} = Repo.insert( Model.Service.changeset(%Model.Service{}, attributes) )
 
@@ -25,19 +35,20 @@ defmodule Serverboards.Service.Service do
     end, name: :service
 
     EventSourcing.subscribe :service, :update_service, fn {shortname, operations} ->
+      import Ecto.Query
       # update tags
       service = Repo.get_by!(Model.Service, shortname: shortname)
 
       tags = MapSet.new Map.get(operations, :tags, [])
 
-      current_tags = Repo.all(Model.ServiceTag, service_id: service.id)
-      Logger.debug("Current tags: #{inspect current_tags}")
+      current_tags = Repo.all(from st in Model.ServiceTag, where: st.service_id == ^service.id, select: st.name )
+      current_tags = MapSet.new current_tags
 
-      current_tags = MapSet.new current_tags, fn t -> t.name end
       new_tags = MapSet.difference(tags, current_tags)
       expired_tags = MapSet.difference(current_tags, tags)
 
-      Logger.debug("Update service tags. Add #{inspect new_tags}, remove #{inspect expired_tags}")
+      Logger.debug("Current tags: #{inspect current_tags}")
+      Logger.debug("Update service tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
 
       if (Enum.count expired_tags) > 0 do
         expired_tags = MapSet.to_list expired_tags
@@ -58,8 +69,6 @@ defmodule Serverboards.Service.Service do
     EventSourcing.subscribe :service, :delete_service, fn shortname ->
       Repo.delete_all( from s in Model.Service, where: s.shortname == ^shortname )
     end
-
-    {:ok, es}
   end
 
   @doc ~S"""
