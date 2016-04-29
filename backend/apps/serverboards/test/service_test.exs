@@ -80,6 +80,17 @@ defmodule ServiceTest do
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
+    {:ok, component} = Test.Client.call client, "component.add", %{ "tags" => ["email","test"], "type" => "email", "name" => "Email" }
+    Test.Client.call client, "component.attach", ["SBDS-TST8", component]
+    Test.Client.call client, "component.info", [component]
+    Test.Client.call client, "component.list", []
+    Test.Client.call client, "component.list", [["type","email"]]
+    Test.Client.call client, "component.delete", [component]
+    Test.Client.call client, "component.list", [["type","email"]]
+
+    Test.Client.call client, "component.delete", [component]
+
+
     Test.Client.stop(client)
   end
 
