@@ -17,7 +17,8 @@ defmodule Serverboards.Service.Component do
         name: attributes.name,
         type: attributes.type,
         creator_id: user.id,
-        priority: attributes.priority
+        priority: attributes.priority,
+        config: attributes.config
       } )
 
       Enum.map(attributes.tags, fn name ->
@@ -120,7 +121,8 @@ defmodule Serverboards.Service.Component do
       name: attributes["name"],
       type: attributes["type"],
       priority: Map.get(attributes,"priority", 50),
-      tags: Map.get(attributes,"tags", [])
+      tags: Map.get(attributes,"tags", []),
+      config: Map.get(attributes,"config", %{}),
     }
 
     {:ok, EventSourcing.dispatch(:service, :add_component, attributes, me.email).component}
