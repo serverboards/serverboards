@@ -6,10 +6,12 @@ defmodule Serverboards.Repo.Migrations.InitComponent do
     # First components
 
     create table :service_component do
+      add :uuid, :uuid
       add :name, :string
       add :type, :string
       add :creator_id, :id
       add :priority, :integer
+      add :config, :map
       timestamps
     end
 
@@ -18,17 +20,10 @@ defmodule Serverboards.Repo.Migrations.InitComponent do
       add :name, :string
     end
 
-    create table :service_component_config do
-      add :component_id, :id
-      add :key, :string
-      add :value, :string
-    end
-
+    create index(:service_component, [:uuid])
     create index(:service_component, [:type])
     create index(:service_component_tag, [:component_id])
     create index(:service_component_tag, [:component_id, :name])
-    create index(:service_component_config, [:component_id])
-    create index(:service_component_config, [:component_id, :key])
 
     # Now services
 
