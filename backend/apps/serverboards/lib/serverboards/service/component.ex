@@ -138,7 +138,7 @@ defmodule Serverboards.Service.Component do
     iex> {:ok, _component_a} = component_add %{ "name" => "Generic A", "type" => "generic" }, user
     iex> {:ok, _component_b} = component_add %{ "name" => "Generic B", "type" => "email" }, user
     iex> {:ok, _component_c} = component_add %{ "name" => "Generic C", "type" => "generic" }, user
-    iex> components = component_list
+    iex> components = component_list [], user
     iex> component_names = Enum.map(components, fn c -> c.name end )
     iex> Enum.member? component_names, "Generic A"
     true
@@ -146,7 +146,7 @@ defmodule Serverboards.Service.Component do
     true
     iex> Enum.member? component_names, "Generic C"
     true
-    iex> components = component_list type: "email"
+    iex> components = component_list type: "email", user
     iex> component_names = Enum.map(components, fn c -> c.name end )
     iex> require Logger
     iex> Logger.info(inspect component_names)
@@ -158,7 +158,7 @@ defmodule Serverboards.Service.Component do
     true
 
   """
-  def component_list(filter \\ []) do
+  def component_list(filter, _me) do
     import Ecto.Query
     query = if filter do
         Enum.reduce(filter, from(c in Model.Component), fn {k, v}, acc ->
