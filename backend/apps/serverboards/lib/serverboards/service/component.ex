@@ -38,8 +38,10 @@ defmodule Serverboards.Service.Component do
         )
 
         # 1 removed
-      {1, _} = Repo.delete_all( from c in Model.Component, where: c.uuid == ^component )
-      :ok
+      case Repo.delete_all( from c in Model.Component, where: c.uuid == ^component ) do
+        {1, _} -> :ok
+        {0, _} -> {:error, :not_found}
+      end
     end
     subscribe :service, :attach_component, fn [service, component], me ->
       user = Serverboards.Auth.User.get_user( me )
@@ -146,7 +148,7 @@ defmodule Serverboards.Service.Component do
     true
     iex> Enum.member? component_names, "Generic C"
     true
-    iex> components = component_list type: "email", user
+    iex> components = component_list [type: "email"], user
     iex> component_names = Enum.map(components, fn c -> c.name end )
     iex> require Logger
     iex> Logger.info(inspect component_names)
@@ -161,7 +163,11 @@ defmodule Serverboards.Service.Component do
   def component_list(filter, _me) do
     import Ecto.Query
     query = if filter do
-        Enum.reduce(filter, from(c in Model.Component), fn {k, v}, acc ->
+        Enum.reduce(filter, from(c in Model.Component), fn kv, acc ->
+          {k,v} = case kv do # decompose both tuples and lists / from RPC and from code.
+            [k,v] -> {k,v}
+            {k,v} -> {k,v}
+          end
           case k do
             :name ->
               acc |>
@@ -190,13 +196,13 @@ defmodule Serverboards.Service.Component do
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     iex> {:ok, component} = component_add %{ "name" => "Email server", "type" => "email" }, user
-    iex> {:ok, service} = Serverboards.Service.Service.service_add "SBDS-TST7", %{ "name" => "serverboards" }, user
+    iex> {:ok, _service} = Serverboards.Service.Service.service_add "SBDS-TST7", %{ "name" => "serverboards" }, user
     iex> :ok = component_attach "SBDS-TST7", component, user
-    iex> components = component_list service: "SBDS-TST7"
+    iex> components = component_list [service: "SBDS-TST7"], user
     iex> Enum.map(components, fn c -> c.name end )
     ["Email server"]
     iex> :ok = component_delete component, user
-    iex> components = component_list service: "SBDS-TST7"
+    iex> components = component_list [service: "SBDS-TST7"], user
     iex> Enum.map(components, fn c -> c.name end )
     []
   """
@@ -212,13 +218,13 @@ defmodule Serverboards.Service.Component do
 
     iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     iex> {:ok, component} = component_add %{ "name" => "Email server", "type" => "email" }, user
-    iex> {:ok, service} = Serverboards.Service.Service.service_add "SBDS-TST9", %{ "name" => "serverboards" }, user
+    iex> {:ok, _service} = Serverboards.Service.Service.service_add "SBDS-TST9", %{ "name" => "serverboards" }, user
     iex> :ok = component_attach "SBDS-TST9", component, user
-    iex> components = component_list service: "SBDS-TST9"
+    iex> components = component_list [service: "SBDS-TST9"], user
     iex> Enum.map(components, fn c -> c.name end )
     ["Email server"]
     iex> :ok = component_detach "SBDS-TST9", component, user
-    iex> components = component_list service: "SBDS-TST9"
+    iex> components = component_list [service: "SBDS-TST9"], user
     iex> Enum.map(components, fn c -> c.name end )
     []
     iex> {:ok, info} = component_info component, user
