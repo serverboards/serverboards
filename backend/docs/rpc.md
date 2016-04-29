@@ -44,3 +44,29 @@ Performs the call on that uuid or allias
 ## plugin.stop(uuid or alias)
 
 Stops the plugin.
+
+# Services and components
+
+## service.add(shortname, attributes)
+
+## service.update(shortname, attributes)
+
+## service.delete(shortname)
+
+## service.list()
+
+## service.info(shortname)
+
+## component.add(attributes) -> UUID
+
+## component.delete(uuid)
+
+## component.update(uuid, attributes)
+
+## component.list(filter \\ [])
+
+## component.info(uuid)
+
+## component.attach(service_shortname, component_uuid)
+
+## component.detach(service_shortname, component_uuid)
