@@ -18,14 +18,36 @@
   z-index: 1010
   margin: auto
   position: absolute
-  width: 900px
-  left: calc( 50% - 450px )
+  width: 100%
+  text-align: center
+  .message
+    width: 800px
+    max-width: 80%
+    text-align: left
 
 .ui.background.white
   background: white
   color: black
 
-.ui.main.area
-  padding-top: 45px
-  width: 100vw
-  height: 100vh
+body
+  height: auto !important
+
+
+.ui.main
+  display: flex
+  margin: 45px 0 0 0
+  height: calc( 100vh - 45px )
+  overflow: hidden
+  align-items: stretch
+  align-content: stretch
+
+  > .ui.left
+    flex-grow: 0
+    width: 300px
+    max-height: calc( 100vh - 45px )
+
+  > .ui.main.area
+    flex-grow: 1
+    margin: 0
+    height: calc( 100vh - 45px )
+    overflow: auto
