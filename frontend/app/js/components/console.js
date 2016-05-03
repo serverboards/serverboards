@@ -55,7 +55,7 @@ var Console=React.createClass({
   },
   render: function(){
     var props=this.props
-    console.log(props)
+    //console.log(props)
     if (!this.props.show)
       return (
         <div/>

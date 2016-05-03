@@ -1,6 +1,6 @@
 let flash={
   add: (message, options) => {
-    console.log("Flash message: %o, %o", message, options.level)
+    //console.log("Flash message: %o, %o", message, options.level)
     return {
      type: 'FLASH_ADD',
      message, options

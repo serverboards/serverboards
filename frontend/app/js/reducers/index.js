@@ -1,13 +1,15 @@
 import { combineReducers } from 'redux'
 import auth from './auth'
 import flash from './flash'
+import { routerReducer } from 'react-router-redux'
 
-var reducers = ['auth','flash','console','top']
+var reducers = ['auth','flash','console','top','service']
 
 reducers = reducers.reduce(function(acc, r){ acc[r]=require('./'+r).default; return acc; }, {})
+reducers.routing = routerReducer
 
-console.log(reducers)
 /*
+console.log(reducers)
 reducers.debug=(state={}, action) => {
     console.log("REDUX %s: %o",action.type, action)
     return state

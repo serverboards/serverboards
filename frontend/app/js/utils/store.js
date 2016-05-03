@@ -1,9 +1,12 @@
 import redux_reducers from '../reducers'
 import thunk from 'redux-thunk';
 import rpc from '../rpc'
+import { createStore, applyMiddleware, compose } from 'redux'
+import { hashHistory } from 'react-router'
+import { routerMiddleware } from 'react-router-redux'
 
 var redux_extra
-import { createStore, applyMiddleware, compose } from 'redux'
+
 if (__DEV__){
   console.warn("Running in DEBUG mode")
 
@@ -13,7 +16,7 @@ if (__DEV__){
 let store = createStore(
   redux_reducers, {},
   compose(
-    applyMiddleware(thunk),
+    applyMiddleware(thunk, routerMiddleware(hashHistory)),
     redux_extra
   )
 )

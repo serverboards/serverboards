@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Sidebar from './sidebar'
+import Sidebar from '../containers/sidebar'
 import Top from '../containers/top'
 import Login from '../containers/login.js'
 import Console from '../containers/console.js'
@@ -8,7 +8,7 @@ import FlashMessageList from '../containers/flashmessages.js'
 import Router from '../router'
 
 function Main(props){
-  console.log("Main component props %o", props.onLogin)
+  //console.log("Main component props %o", props.onLogin)
   var contents=[]
   if (props.logged_in)
     contents=(

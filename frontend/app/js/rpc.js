@@ -158,7 +158,7 @@ var RPC = function(options={}){
     }
     else if (jmsg['method']){
       rpc.store.dispatch({type: "RPC_EVENT", method: jmsg['method'], params: jmsg['params']})
-      console.log("Event: %o", jmsg)
+      console.log("Event: %o %o", jmsg.method, jmsg)
     }
   }
 

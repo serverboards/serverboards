@@ -32,14 +32,16 @@
 body
   height: auto !important
 
+#react > div > div.ui.main
+  height: calc( 100vh - 45px )
+  margin: 45px 0 0 0
 
 .ui.main
   display: flex
-  margin: 45px 0 0 0
-  height: calc( 100vh - 45px )
   overflow: hidden
   align-items: stretch
   align-content: stretch
+  width: 100%
 
   > .ui.left
     flex-grow: 0
@@ -51,3 +53,32 @@ body
     margin: 0
     height: calc( 100vh - 45px )
     overflow: auto
+
+.ui.vertical.menu.services
+  height: calc( 100vh - 45px )
+  border-radius: 0
+  overflow: auto
+  margin: 0
+
+  .item
+    max-width: 100px
+    overflow: hidden
+    text-overflow: ellipsis
+
+    &.active
+      border-left: 4px solid #22a397
+      padding-left: 12px
+
+    span.logo
+      display: block
+      font-size: 40px
+      color: black
+      background: #22a397
+      border-radius: 5px
+      width: 64px
+      height: 64px
+      vertical-align: middle
+      padding-top: 10px
+      text-align: center
+      border-radius: 15px
+      color: white

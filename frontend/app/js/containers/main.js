@@ -11,7 +11,6 @@ var Main=connect(
     }
   },
   (dispatch) => {
-    console.log("Got main dispatch functions")
     return {
       onLogin: (user) => dispatch(login(user)),
       onLogout: () => {
