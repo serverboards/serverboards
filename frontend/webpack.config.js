@@ -13,8 +13,8 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: [
-      'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
+      'webpack-dev-server/client?http://localhost:3000',
       "./app/js/app.js"
     ],
     output: {
