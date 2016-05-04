@@ -8,6 +8,7 @@ import store from './utils/store'
 import Empty from './components/empty.js'
 import Profile from './containers/profile.js'
 import Service from './containers/service.js'
+import ServiceAdd from './components/service/add.js'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -19,6 +20,7 @@ var ServerboardsRouter = React.createClass({
           <Route path="/" component={Empty}/>
           <Route path="/user/profile" component={Profile}/>
           <Route path="/service/">
+            <Route path="add" component={ServiceAdd}/>
             <Route path=":service/" component={Service}/>
             <Route path=":service/:section" component={Service}/>
           </Route>

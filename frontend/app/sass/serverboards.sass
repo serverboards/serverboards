@@ -48,11 +48,15 @@ body
     width: 300px
     max-height: calc( 100vh - 45px )
 
-  > .ui.main.area
+  > .ui.central
     flex-grow: 1
     margin: 0
     height: calc( 100vh - 45px )
     overflow: auto
+  > .ui.central.with.menu
+    display: flex
+    > .ui.central
+      flex-grow: 1
 
 .ui.vertical.menu.services
   height: calc( 100vh - 45px )
@@ -69,16 +73,24 @@ body
       border-left: 4px solid #22a397
       padding-left: 12px
 
-    span.logo
-      display: block
-      font-size: 40px
-      color: black
-      background: #22a397
-      border-radius: 5px
-      width: 64px
-      height: 64px
-      vertical-align: middle
-      padding-top: 10px
-      text-align: center
-      border-radius: 15px
-      color: white
+div.ui.logo
+  display: flex
+  align-items: center
+  justify-content: center
+  font-size: 35px
+  color: black
+  background: #22a397
+  width: 64px
+  height: 64px
+  text-align: center
+  border-radius: 15px
+  color: white
+  &.grey
+    background: #e0e1e2
+
+
+
+
+
+.ui.scroll
+  overflow: auto

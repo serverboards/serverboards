@@ -4,8 +4,6 @@ require("../../sass/service.sass")
 
 var SidebarSections = function(props){
   function MenuItem(menu_props){
-    console.log("props", props)
-    console.log("menu_props", menu_props)
     let klass="item"
     if (menu_props.section==props.section)
       klass+=" active"
@@ -29,11 +27,12 @@ var SidebarSections = function(props){
 var Service = function(props){
   console.log("props", props)
   return (
-    <div className="ui main">
+    <div className="ui central with menu">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
-      <div className="ui main area white background">
+      <div className="ui central white background">
         <h1>Service {props.service.name} {props.params.section}</h1>
       </div>
+      <a onClick={props.onAdd}><i className="ui massive button plus icon floating"></i></a>
     </div>
   )
 }

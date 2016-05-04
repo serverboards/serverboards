@@ -16,7 +16,8 @@ var Service=connect(
     handleSectionChange : function(section){
       let service=props.params.service
       dispatch(push(`/service/${service}/${section}`))
-    }
+    },
+    onAdd : () => dispatch( push("/service/add") )
   })
 )(ServiceView)
 
