@@ -6,6 +6,7 @@ defmodule Serverboards.Service.Service do
 
   alias Serverboards.Repo
   alias Serverboards.Service.Model
+  alias Serverboards.MOM
 
 
   def start_link(options) do
@@ -30,6 +31,8 @@ defmodule Serverboards.Service.Service do
       Enum.map(Map.get(attributes, :tags, []), fn name ->
         Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
       end)
+
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.added", data: %{ service: service} } } )
 
       service.shortname
     end, name: :service
@@ -60,11 +63,16 @@ defmodule Serverboards.Service.Service do
       {:ok, upd} = Repo.update( Model.Service.changeset(
         service, operations
       ) )
+
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.updated", data: [shortname, operations] } } )
+
       :ok
     end, name: :service
 
     EventSourcing.subscribe :service, :delete_service, fn shortname, _me ->
       Repo.delete_all( from s in Model.Service, where: s.shortname == ^shortname )
+
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.deleted", data: shortname } } )
     end
   end
 
