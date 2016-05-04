@@ -357,7 +357,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         Logger.error("#{Exception.format :error, other}")
         {:error, other}
     end
-    Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
+    #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect ret}.")
 
     cb_params = case ret do
       {:ok, ret} -> {:ok, ret}
@@ -372,7 +372,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   def cast(pid, method, params, context, cb) when is_pid(pid) do
     st = Agent.get pid, &(&1)
-    Logger.debug("Method #{method} caller pid #{inspect pid}, in #{inspect (Map.keys st.methods)} #{inspect Enum.map(st.mc, fn {f, options} -> Keyword.get options, :name, (inspect f) end) }")
+    #Logger.debug("Method #{method} caller pid #{inspect pid}, in #{inspect (Map.keys st.methods)} #{inspect Enum.map(st.mc, fn {f, options} -> Keyword.get options, :name, (inspect f) end) }")
     case Map.get st.methods, method do
       {f, options} ->
         # Calls the function and the callback with the result, used in async and sync.
@@ -386,7 +386,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
                 #Logger.debug("Calling without context #{inspect f}")
                 f.(params)
               end
-              Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
+              #Logger.debug("Method #{method} caller function #{inspect f} -> #{inspect v}.")
               case v do
                 {:error, e} ->
                   cb.({:error, e })
@@ -425,9 +425,9 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
         :ok
       nil ->
         # Look for it at method callers
-        Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
+        #Logger.debug("Call cast from #{inspect pid} to #{inspect st.mc}")
         ret = cast_mc(st.mc, method, params, context, st.guards, cb)
-        Logger.debug("#{inspect ret} at #{inspect pid}")
+        #Logger.debug("#{inspect ret} at #{inspect pid}")
         ret
     end
   end
@@ -455,7 +455,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   result to the original cast_mc.
   """
   defp cast_mc([{h, options} | t], method, params, context, guards, cb) do
-    Logger.debug("Cast mc #{Keyword.get options, :name, (inspect h)}")
+    #Logger.debug("Cast mc #{Keyword.get options, :name, (inspect h)}")
     if check_guards(
         %RPC.Message{ method: method, params: params, context: context},
         options, guards) do
