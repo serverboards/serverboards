@@ -25,7 +25,6 @@ var SidebarSections = function(props){
 }
 
 var Service = function(props){
-  console.log("props", props)
   return (
     <div className="ui central with menu">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>

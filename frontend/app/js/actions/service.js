@@ -41,6 +41,14 @@ function update_components(){
   }
 }
 
+function update_all_services(){
+  return function(dispatch){
+    rpc.call("service.list",[]).then(function(data){
+      dispatch({type: "UPDATE_ALL_SERVICES", services: data})
+    })
+  }
+}
+
 function add_service(data){
   return function(dispatch, store){
     rpc.call("service.add",
@@ -51,4 +59,4 @@ function add_service(data){
   }
 }
 
-export {update_components, add_service}
+export {update_components, add_service, update_all_services}

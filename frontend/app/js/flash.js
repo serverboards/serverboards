@@ -13,6 +13,10 @@ var Flash = {
   success : function(message, options={}){
     options.level='success'
     this.log(message, options)
+  },
+  info : function(message, options={}){
+    options.level='info'
+    this.log(message, options)
   }
 }
 
