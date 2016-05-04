@@ -22,6 +22,7 @@ to, or tapped using RPC.
 * `:client_events` -- payload: `%{ type, data, guard, ...}`
 
 `type` must be a verb in past tense, scoped into the module that emmited it.
+`data` must be a dictionary/map.
 
 There is a system wide channel for system events, `:client_events`, in which
 anyone can post a status change.
@@ -37,7 +38,7 @@ MOM.Channel.send(
   %MOM.Message{
     payload: %{
       type: "service.deleted",
-      data: shortname,
+      data: %{ shortname: shortname},
       guard: fn msg, user -> true end
       }
     }

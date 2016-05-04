@@ -64,7 +64,12 @@ defmodule Serverboards.Service.Service do
         service, operations
       ) )
 
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.updated", data: [shortname, operations] } } )
+      MOM.Channel.send( :client_events, %MOM.Message{
+        payload: %{ type: "service.updated",
+          data: %{
+            shortname: shortname, operations: operations
+            }
+          } } )
 
       :ok
     end, name: :service
@@ -72,7 +77,7 @@ defmodule Serverboards.Service.Service do
     EventSourcing.subscribe :service, :delete_service, fn shortname, _me ->
       Repo.delete_all( from s in Model.Service, where: s.shortname == ^shortname )
 
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.deleted", data: shortname } } )
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.deleted", data: %{ shortname: shortname } } } )
     end
   end
 
