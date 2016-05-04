@@ -32,7 +32,6 @@ var Add=React.createClass({
   },
   render : function(){
     let props=this.props
-    console.log("state", this)
 
     function WrappedComponent(c){
       return (
