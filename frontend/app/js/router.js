@@ -5,10 +5,10 @@ import { connect } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 import store from './utils/store'
 
-import Empty from './components/empty.js'
+import DashBoard from './components/dashboard.js'
 import Profile from './containers/profile.js'
 import Service from './containers/service.js'
-import ServiceAdd from './components/service/add.js'
+import ServiceAdd from './containers/service/add.js'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -17,7 +17,7 @@ var ServerboardsRouter = React.createClass({
     //console.log("Router Props: %o", this.props)
     return (
         <Router history={history}>
-          <Route path="/" component={Empty}/>
+          <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
           <Route path="/service/">
             <Route path="add" component={ServiceAdd}/>
