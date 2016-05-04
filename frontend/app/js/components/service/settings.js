@@ -10,19 +10,20 @@ function Component(props){
   )
 }
 
-var Add=React.createClass({
+var Settings=React.createClass({
   getInitialState : function(){
+    let service=this.props.service
     return {
-      name: "",
-      shortname: "",
-      tags: "",
-      description:""
+      name: service.name,
+      shortname: service.shortname,
+      tags: [],
+      description: service.description
     }
   },
-  componentWillMount : function(){
+  __componentWillMount : function(){
     let props=this.props
-    if (props.components.length == 0){
-      props.updateComponentCatalog()
+    if ((props.components || []).length == 0){
+      props.updateComponents()
     }
   },
   change : function(what, ev){
@@ -30,6 +31,9 @@ var Add=React.createClass({
   },
   handleSubmit : function(){
     this.props.onSubmit( this.state )
+  },
+  handleDelete : function(){
+    this.props.onDelete( this.props.service.shortname )
   },
   render : function(){
     let props=this.props
@@ -45,25 +49,25 @@ var Add=React.createClass({
       <div className="ui background white central">
         <div className="ui text container">
           <form className="ui form" ref="form">
-            <h1 className="ui header">Add a new service</h1>
+            <h1 className="ui header">Update this service settings</h1>
             <div className="field">
               <label>Shortname</label>
-              <input type="text" value={this.shortname} onChange={(ev) => this.change("shortname", ev)}
+              <input type="text" value={this.state.shortname} onChange={(ev) => this.change("shortname", ev)}
                 placeholder="Ex. CMPNY"/>
             </div>
             <div className="field">
               <label>Service Name</label>
-              <input type="text" value={this.name} onChange={(ev) => this.change("name", ev)}
+              <input type="text" value={this.state.name} onChange={(ev) => this.change("name", ev)}
                 placeholder="Ex. My company name, web services, external services..."/>
             </div>
             <div className="field">
               <label>Tags</label>
-              <input type="text" value={this.tags} onChange={(ev) => this.change("tags", ev)}
+              <input type="text" value={this.state.tags} onChange={(ev) => this.change("tags", ev)}
                 placeholder="Ex. web, mail, external..."/>
             </div>
             <div className="field">
               <label>Description</label>
-              <textarea value={this.description} onChange={(ev) => this.change("description", ev)} placeholder="Long description"/>
+              <textarea value={this.state.description} onChange={(ev) => this.change("description", ev)} placeholder="Long description"/>
             </div>
 
             <div className="field">
@@ -71,7 +75,7 @@ var Add=React.createClass({
               <div className="ui stackable grid" style={{ marginTop: 10 }}>
                 <div className="fourteen wide column">
                   <div className="ui five column grid">
-                    {props.components.map((c) => WrappedComponent(c) )}
+                    {(props.components || []).map((c) => WrappedComponent(c) )}
                   </div>
                 </div>
                 <div className="one wide column">
@@ -83,8 +87,13 @@ var Add=React.createClass({
               </div>
             </div>
 
-            <div className="field">
-              <button type="button" className="ui button positive" onClick={this.handleSubmit}>Create service</button>
+            <div className="two fields">
+              <div className="field">
+                <button type="button" className="ui button positive" onClick={this.handleSubmit}>Update service</button>
+              </div>
+              <div className="ui field right aligned">
+                <button type="button" className="ui button negative" onClick={this.handleDelete}>Delete service</button>
+              </div>
             </div>
           </form>
         </div>
@@ -93,4 +102,4 @@ var Add=React.createClass({
   }
 })
 
-export default Add
+export default Settings

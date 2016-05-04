@@ -14,8 +14,10 @@ function service(state=default_state, action){
     case 'UPDATE_COMPONENTS':
       return Object.assign({}, state, {components: action.components} )
     case '@RPC_EVENT/service.added':
-      console.log(action.service)
       return Object.assign({}, state, {services: state.services.concat(action.service) } )
+    case '@RPC_EVENT/service.deleted':
+      console.log(action)
+      return Object.assign({}, state, {services: state.services.filter( s => s.shortname != action.shortname ) } )
   }
   return state
 }

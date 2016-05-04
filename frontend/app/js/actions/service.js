@@ -1,7 +1,7 @@
 import rpc from '../rpc'
 import Flash from '../flash'
 
-function update_components(){
+function components_update_catalog(){
   return {
     type:"UPDATE_COMPONENTS",
     components: [
@@ -41,7 +41,7 @@ function update_components(){
   }
 }
 
-function update_all_services(){
+function service_update_all(){
   return function(dispatch){
     rpc.call("service.list",[]).then(function(data){
       dispatch({type: "UPDATE_ALL_SERVICES", services: data})
@@ -49,7 +49,7 @@ function update_all_services(){
   }
 }
 
-function add_service(data){
+function service_add(data){
   return function(dispatch, store){
     rpc.call("service.add",
         [ data.shortname, {name: data.name || "", tags: data.tags.split(' ')}]
@@ -59,4 +59,18 @@ function add_service(data){
   }
 }
 
-export {update_components, add_service, update_all_services}
+function service_delete(shortname){
+  return function(dispatch){
+    rpc.call("service.delete", [shortname]).then(function(){
+      Flash.info(`Removed service ${shortname}`)
+    })
+  }
+}
+
+
+export {
+  components_update_catalog,
+  service_add,
+  service_update_all,
+  service_delete
+  }

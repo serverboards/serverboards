@@ -1,16 +1,16 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import AddView from '../../components/service/add'
-import { update_components, add_service } from '../../actions/service'
+import { components_update_catalog, service_add } from '../../actions/service'
 
 var Add=connect(
   (state) => ({
     components: state.service.components
   }),
   (dispatch) => ({
-    updateComponents: () => dispatch( update_components() ),
+    updateComponentCatalog: () => dispatch( components_update_catalog() ),
     onSubmit: (data) => {
-      dispatch( add_service(data) )
+      dispatch( service_add(data) )
     }
   })
 )(AddView)

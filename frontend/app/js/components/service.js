@@ -20,16 +20,20 @@ var SidebarSections = function(props){
       <MenuItem section="permissions">Permissions</MenuItem>
       <MenuItem section="rules">Rules</MenuItem>
       <MenuItem section="logs">Logs</MenuItem>
+      <MenuItem section="settings">Settings</MenuItem>
     </div>
   )
 }
 
 var Service = function(props){
+  let section = props.params.section || 'default'
+  let Section = require(`../containers/service/${section}`).default
+
   return (
     <div className="ui central with menu">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
       <div className="ui central white background">
-        <h1>Service {props.service.name} {props.params.section}</h1>
+        <Section service={props.service}/>
       </div>
       <a onClick={props.onAdd}><i className="ui massive button plus icon floating"></i></a>
     </div>
