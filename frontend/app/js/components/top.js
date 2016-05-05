@@ -10,12 +10,13 @@ var Top = function(props){
       <TopUser user={props.user} onLogout={props.onLogout}/>
     )
   }
+  let logo=require("../../imgs/logo.svg")
 
   return (
     <nav className="ui top fixed menu">
-      <div className="item">
+      <div className="item" style={{padding: 0}}>
         <a href="#/">
-          Serverboards
+          <img src={logo} style={{height: 40}}/>
         </a>
       </div>
       <a className="item right" onClick={props.toggleUserMenu}>
