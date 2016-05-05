@@ -7,17 +7,48 @@ defmodule ServiceTest do
   doctest Serverboards.Service.Service, import: true
   doctest Serverboards.Service.Component, import: true
 
+  setup_all do
+    {:ok, agent } = Agent.start_link fn -> %{} end
+    Serverboards.MOM.Channel.subscribe( :client_events, fn %{ payload: msg } ->
+      Agent.update agent, fn status ->
+        Logger.info("New message to client #{inspect msg}. #{inspect agent} ")
+        Map.put( status, msg.type, Map.get(status, msg.type, []) ++ [msg] )
+      end
+    end )
+    {:ok, %{ agent: agent} }
+  end
 
-  test "Service lifecycle" do
+  def check_if_event_on_service(agent, event, shortname) do
+    Agent.get agent, fn status ->
+      deleted =Map.get(status,event,[])
+      Logger.debug("Check if #{shortname} in #{inspect deleted}")
+      ret = Enum.any? deleted, fn event ->
+        if Map.get(event.data, :service) do
+          event.data.service.shortname == shortname
+        else
+          event.data.shortname == shortname
+        end
+      end
+    end
+  end
+
+
+  test "Service lifecycle", %{ agent: agent } do
     import Serverboards.Service.Service
 
     user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
     {:ok, "SBDS-TST3"} = service_add "SBDS-TST3", %{ "name" => "serverboards" }, user
+    assert check_if_event_on_service(agent, "service.added", "SBDS-TST3")
+
     :ok = service_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
+    assert check_if_event_on_service(agent, "service.updated", "SBDS-TST3")
+
     {:ok, info} = service_info "SBDS-TST3", user
     assert info.name == "Serverboards"
 
     :ok = service_delete "SBDS-TST3", user
+    assert check_if_event_on_service(agent, "service.deleted", "SBDS-TST3")
+
     assert {:error, :not_found} == service_info "SBDS-TST3", user
   end
 
@@ -49,7 +80,7 @@ defmodule ServiceTest do
     :ok = service_delete "SBDS-TST5", user
   end
 
-  test "Services as a client" do
+  test "Services as a client", %{ agent: agent } do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, dir} = Test.Client.call client, "dir", []
@@ -67,6 +98,10 @@ defmodule ServiceTest do
     assert (Enum.count l) >= 0
 
     {:ok, "SBDS-TST8"} = Test.Client.call client, "service.add", ["SBDS-TST8", %{ "name" => "Serverboards test", "tags" => ["tag1", "tag2"]}]
+    assert check_if_event_on_service(agent, "service.added", "SBDS-TST8")
+    deleted=check_if_event_on_service(agent, "service.deleted", "SBDS-TST8")
+    Logger.info("At service deleted? #{deleted}")
+    assert not deleted
 
     {:ok, cl} = Test.Client.call client, "service.info", ["SBDS-TST8"]
     Logger.info("Info from service #{inspect cl}")
@@ -89,6 +124,10 @@ defmodule ServiceTest do
     Test.Client.call client, "component.list", [["type","email"]]
 
     Test.Client.call client, "component.delete", [component]
+    Test.Client.call client, "service.delete", ["SBDS-TST8"]
+
+    assert check_if_event_on_service(agent, "service.added", "SBDS-TST8")
+    assert check_if_event_on_service(agent, "service.deleted", "SBDS-TST8")
 
 
     Test.Client.stop(client)
