@@ -272,4 +272,8 @@ defmodule Serverboards.Service.Component do
       EventSourcing.dispatch(:service, :update_component, [component, changes], me.email).component
     }
   end
+
+  def component_list_available(filter, me) do
+    Serverboards.Plugin.Registry.filter_component type: "component"
+  end
 end

@@ -61,6 +61,15 @@ defmodule Serverboards.Service.RPC do
       Enum.map components, &Serverboards.Utils.clean_struct(&1)
     end, [requires_perm: "component.info", context: true]
 
+    RPC.MethodCaller.add_method mc, "component.available", fn filter, context ->
+      components = component_list_available filter, Context.get(context, :user)
+      Enum.map components, fn component ->
+        component = %{ component | id: component.plugin.id <> "/" <> component.id }
+        component = Map.drop(component, [:plugin])
+        Serverboards.Utils.clean_struct(component)
+      end
+    end, [requires_perm: "component.info", context: true]
+
     RPC.MethodCaller.add_method mc, "component.attach", fn [service, component], context ->
       component_attach service, component, Context.get(context, :user)
     end, [requires_perm: "component.attach", context: true]

@@ -65,6 +65,8 @@ defmodule Serverboards.Plugin.Registry do
                   Map.get(c, :id) == v
                 :trait ->
                   member? Map.get(c, :traits), v
+                :type ->
+                  Map.get(c, :type) == v
               end
             end)
           end)
