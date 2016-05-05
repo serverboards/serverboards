@@ -1,16 +1,11 @@
 require Logger
 
 defmodule Serverboards.AuthTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case
 	alias Test.Client
 	@moduletag :capture_log
 
   doctest Serverboards.Auth, import: true
-
-  setup_all do
-    Client.reset_db()
-    :ok
-  end
 
   test "User auth" do
     {:ok, client} = Client.start_link

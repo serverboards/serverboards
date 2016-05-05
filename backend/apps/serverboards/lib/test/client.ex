@@ -71,46 +71,6 @@ defmodule Test.Client do
 		GenServer.call(RPC.Client.get(client, :pid), {:call_serverboards, method, params})
 	end
 
-	@doc ~S"""
-	Resets the database to a known state, needed for some tests
-	"""
-	def reset_db do
-		alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}
-		alias Serverboards.Repo
-		alias Serverboards.Auth.User.{Password, Token}
-
-		Repo.delete_all(UserGroup)
-		Repo.delete_all(GroupPerms)
-		Repo.delete_all(Permission)
-		Repo.delete_all(Group)
-		Repo.delete_all(User)
-		Repo.delete_all(Token)
-		Repo.delete_all(Password)
-
-		{:ok, _user} = Repo.insert(%User{
-			email: "dmoreno@serverboards.io",
-			first_name: "David",
-			last_name: "Moreno",
-			is_active: true,
-			})
-
-		user = User.get_user("dmoreno@serverboards.io")
-		User.Password.set_password(user, "asdfghjkl")
-
-		{:ok, g_admin} = Repo.insert(%Group{ name: "admin" })
-		{:ok, g_user} = Repo.insert(%Group{ name: "user" })
-
-		Group.add_perm(g_admin, "debug")
-		Group.add_perm(g_admin, "auth.modify_any")
-		Group.add_perm(g_admin, "auth.create_user")
-		Group.add_perm(g_user, "auth.modify_self")
-		Group.add_perm(g_user, "auth.create_token")
-		Group.add_perm(g_user, "plugin")
-
-		Group.add_user(g_admin, user)
-		Group.add_user(g_user, user)
-	end
-
 	## server impl
 	def init(:ok) do
 		pid = self()

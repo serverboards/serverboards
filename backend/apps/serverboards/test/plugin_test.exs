@@ -14,12 +14,6 @@ defmodule Serverboards.PluginTest do
 
   alias Test.Client
 
-  @tag :capture_log
-  setup_all do
-    Client.reset_db()
-    :ok
-  end
-
   test "Can start/call/stop plugins" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 

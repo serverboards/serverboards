@@ -210,9 +210,9 @@ defmodule Serverboards.Service.Service do
     iex> is_list(l) # may be empty or has something from before, but lists
     true
     iex> {:ok, "SBDS-TST4"} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
-    iex> {:ok, l} = service_list user.id
+    iex> {:ok, l} = service_list user
     iex> Logger.debug(inspect l)
-    iex> Enum.any? l, &(&1["shortname"]=="SBDS-TST4") # exists in the list?
+    iex> Enum.any? l, &(&1.shortname=="SBDS-TST4") # exists in the list?
     true
     iex> service_delete "SBDS-TST4", user
     :ok

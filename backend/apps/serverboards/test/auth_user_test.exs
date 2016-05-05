@@ -1,7 +1,7 @@
 require Logger
 
 defmodule Serverboards.AuthUserTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case
   @moduletag :capture_log
 
   doctest Serverboards.Auth.Permission
@@ -11,18 +11,10 @@ defmodule Serverboards.AuthUserTest do
   import Ecto.Query
 
   setup_all do
-    Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
-
-    Repo.delete_all(UserGroup)
-    Repo.delete_all(GroupPerms)
-    Repo.delete_all(Permission)
-    Repo.delete_all(User.Password)
-    Repo.delete_all(User.Token)
-    Repo.delete_all(Group)
-    Repo.delete_all(User)
+    #Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
 
     {:ok, user} = Repo.insert(%User{
-      email: "dmoreno@serverboards.io",
+      email: "dmoreno+a@serverboards.io",
       first_name: "David",
       last_name: "Moreno",
       is_active: true,
@@ -36,12 +28,8 @@ defmodule Serverboards.AuthUserTest do
       })
 
 
-    {:ok, group} = Repo.insert(%Group{ name: "admin" })
-    {:ok, group} = Repo.insert(%Group{ name: "user" })
-
-    {:ok, perm} = Repo.insert(%Permission{ code: "auth.create_user" })
-    {:ok, perm} = Repo.insert(%Permission{ code: "auth.view_all_users" })
-
+    #{:ok, group} = Repo.insert(%Group{ name: "admin" })
+    {:ok, group} = Repo.insert(%Group{ name: "admin+a" })
 
     {:ok, %{ user: user, userb: userb }}
   end
@@ -51,17 +39,17 @@ defmodule Serverboards.AuthUserTest do
     query = from u in User
 
     res = Repo.all(query)
-    assert (Enum.count res) == 2
+    assert (Enum.count res) >= 2
     #Logger.debug("#{inspect res}")
 
-    user = Repo.get_by(User, email: "dmoreno@serverboards.io")
-    assert user.email == "dmoreno@serverboards.io"
+    user = Repo.get_by(User, email: "dmoreno+a@serverboards.io")
+    assert user.email == "dmoreno+a@serverboards.io"
     assert user.first_name == "David"
     assert user.last_name == "Moreno"
     #Logger.debug("#{inspect user}")
 
     user2 = Repo.get(User, user.id)
-    assert user2.email == "dmoreno@serverboards.io"
+    assert user2.email == "dmoreno+a@serverboards.io"
     assert user2.first_name == "David"
     assert user2.last_name == "Moreno"
     #Logger.debug("#{inspect user2}")
@@ -85,12 +73,12 @@ defmodule Serverboards.AuthUserTest do
     password = "abcdefgh"
     :ok = User.Password.set_password(user, password)
 
-    userb = User.Password.auth("dmoreno@serverboards.io", password)
+    userb = User.Password.auth("dmoreno+a@serverboards.io", password)
     assert userb.id == user.id
     Logger.debug("Permissions: #{inspect User.get_perms user}")
 
     Repo.update(User.changeset(user, %{ is_active: false }))
-    userb = User.Password.auth("dmoreno@serverboards.io", password)
+    userb = User.Password.auth("dmoreno+a@serverboards.io", password)
     assert userb == false
 
     Repo.update(User.changeset(user, %{ is_active: true }))
@@ -131,9 +119,9 @@ defmodule Serverboards.AuthUserTest do
 
 
   test "Groups and permissions", %{ user: user, userb: userb } do
-    admin = Repo.get_by(Group, name: "admin")
+    admin = Repo.get_by(Group, name: "admin+a")
 
-    assert admin.name == "admin"
+    assert admin.name == "admin+a"
 
     users = Repo.all( Group.users(admin) )
     assert users == []
