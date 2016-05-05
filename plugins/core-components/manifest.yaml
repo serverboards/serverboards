@@ -1,0 +1,55 @@
+id: serverboards.core.components
+name: core components
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Definition of core components and fields to store in them.
+
+  This is just the list of available core components; other plugins
+  add the required functionalities.
+
+# name and tags fields are always assumed
+
+components:
+  - name: Web Server
+    type: component
+    traits: url
+    id: web_server
+    fields:
+      - label: URL
+        name: url
+        type: text
+
+  - name: Email Account
+    type: component
+    traits: email
+    id: email
+    fields:
+      - label: SMTP Server Address
+        name: smtp
+        type: text
+      - label: SMTP Username
+        name: smtp_username
+        type: text
+      - label: SMTP Password
+        name: smtp_pw
+        type: password
+
+  - name: SSH access
+    type: component
+    traits: ssh
+    id: ssh
+    fields:
+      - label: SSH Address
+        name: url
+        type: text
+
+  - name: Server
+    type: component
+    traits: ip
+    id: server
+    fields:
+      - label: IP Addresses
+        description: Space or comma separated list of ip addresses and DNS names that point to this server
+        name: ip
+        type: text
