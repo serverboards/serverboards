@@ -143,7 +143,7 @@ class Client:
 
     def get_response(self):
         try:
-            nl = self.socket.recv(1024).decode('utf8')
+            nl = self.socket.recv(1024*1024).decode('utf8')
         except BlockingIOError:
             return None
         if len(nl)==0:
