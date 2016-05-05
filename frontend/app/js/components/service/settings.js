@@ -16,7 +16,7 @@ var Settings=React.createClass({
     return {
       name: service.name,
       shortname: service.shortname,
-      tags: [],
+      tags: (service.tags || []).join(' '),
       description: service.description
     }
   },
@@ -29,8 +29,9 @@ var Settings=React.createClass({
   change : function(what, ev){
     this.setState({ [what]: ev.target.value })
   },
-  handleSubmit : function(){
-    this.props.onSubmit( this.state )
+  handleUpdate : function(){
+    let changes = Object.assign({}, this.state, {tags: this.state.tags.split(' ')})
+    this.props.onUpdate( this.props.service.shortname, changes )
   },
   handleDelete : function(){
     this.props.onDelete( this.props.service.shortname )
@@ -89,7 +90,7 @@ var Settings=React.createClass({
 
             <div className="two fields">
               <div className="field">
-                <button type="button" className="ui button positive" onClick={this.handleSubmit}>Update service</button>
+                <button type="button" className="ui button positive" onClick={this.handleUpdate}>Update service</button>
               </div>
               <div className="ui field right aligned">
                 <button type="button" className="ui button negative" onClick={this.handleDelete}>Delete service</button>

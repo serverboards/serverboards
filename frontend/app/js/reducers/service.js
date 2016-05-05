@@ -18,6 +18,14 @@ function service(state=default_state, action){
     case '@RPC_EVENT/service.deleted':
       console.log(action)
       return Object.assign({}, state, {services: state.services.filter( s => s.shortname != action.shortname ) } )
+    case '@RPC_EVENT/service.updated':
+      console.log(action)
+      return Object.assign({}, state, {services: state.services.map( s => {
+        if (s.shortname == action.shortname){
+          return action.service
+        }
+        return s
+      }) })
   }
   return state
 }

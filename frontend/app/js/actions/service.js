@@ -67,10 +67,19 @@ function service_delete(shortname){
   }
 }
 
+function service_update(shortname, changes){
+  console.log("Update service %s %o", shortname, changes)
+  return function(dispatch){
+    rpc.call("service.update", [shortname, changes]).then(function(){
+      Flash.info(`Updated service ${shortname}`)
+    })
+  }
+}
 
 export {
   components_update_catalog,
   service_add,
   service_update_all,
-  service_delete
+  service_delete,
+  service_update,
   }
