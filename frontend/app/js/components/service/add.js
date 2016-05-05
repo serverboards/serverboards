@@ -1,5 +1,7 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
+import AddComponentModal from './addcomponent'
+import SetupComponentModal from './setupcomponent'
 
 function Component(props){
   return (
@@ -16,7 +18,10 @@ var Add=React.createClass({
       name: "",
       shortname: "",
       tags: "",
-      description:""
+      description:"",
+      show_dialog: false,
+      components: [],
+      maxid: 1
     }
   },
   componentWillMount : function(){
@@ -29,18 +34,76 @@ var Add=React.createClass({
     this.setState({ [what]: ev.target.value })
   },
   handleSubmit : function(){
-    this.props.onSubmit( this.state )
+    state=this.state
+    this.props.onSubmit( {
+      name: state.name,
+      shortname: state.shortname,
+      tags: state.tags,
+      description: state.description
+    } )
+  },
+  openAddComponentModal : function(ev){
+    ev.preventDefault()
+    this.setState({ show_dialog: 'add_component' })
+  },
+  handleAddComponent : function(component_id){
+    let current_component=Object.assign({}, this.props.components.find((c) => c.id == component_id))
+    current_component.fields=current_component.extra.fields
+    current_component.type=current_component.id
+    current_component.id=this.state.maxid+1
+    delete current_component.extra
+    this.setState({
+      components: this.state.components.concat(current_component),
+      maxid: current_component.id
+    })
+
+    this.setState({ show_dialog: 'setup_component', current_component })
+    console.log("Add component %o", current_component)
+  },
+  closeModal : function(component_id){
+    this.setState({ show_dialog: false })
+  },
+  handleUpdateComponent : function(component){
+    console.log("Update component ", component)
+    this.setState({
+      components: this.state.components.map(
+        (c) => c.id == component.id ? component : c)
+    })
+    this.setState({ show_dialog: false })
+  },
+  handleOpenUpdateComponent : function(current_component, ev){
+    ev && ev.preventDefault()
+
+    this.setState({ show_dialog: 'setup_component', current_component })
   },
   render : function(){
     let props=this.props
+    let self=this
 
     function WrappedComponent(c){
       return (
         <div key={c.id} className="column">
-        {Component(c)}
+          <a href="#" onClick={(ev) => self.handleOpenUpdateComponent(c, ev)}>
+            {Component(c)}
+          </a>
         </div>
       )
     }
+    let popup=[]
+    switch(this.state.show_dialog){
+      case 'add_component':
+        popup=(
+          <AddComponentModal onAdd={this.handleAddComponent} onClose={this.closeModal} components={props.components}/>
+        )
+        break;
+      case 'setup_component':
+        popup=(
+          <SetupComponentModal onUpdate={this.handleUpdateComponent} onClose={this.closeModal} component={this.state.current_component}/>
+        )
+        break;
+    }
+
+
     return (
       <div className="ui background white central">
         <div className="ui text container">
@@ -71,13 +134,12 @@ var Add=React.createClass({
               <div className="ui stackable grid" style={{ marginTop: 10 }}>
                 <div className="fourteen wide column">
                   <div className="ui five column grid">
-                    {props.components.map((c) => WrappedComponent(c) )}
+                    {this.state.components.map((c) => WrappedComponent(c) )}
                   </div>
                 </div>
                 <div className="one wide column">
-                  <a onClick={() => true}>
+                  <a href="#" onClick={this.openAddComponentModal}>
                     <LogoIcon name="+" color="grey"/>
-                    Add new
                   </a>
                 </div>
               </div>
@@ -88,6 +150,7 @@ var Add=React.createClass({
             </div>
           </form>
         </div>
+        {popup}
       </div>
     )
   }
