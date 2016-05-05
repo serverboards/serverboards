@@ -20,7 +20,7 @@ defmodule Serverboards.Events do
     end)
 
     Serverboards.MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
-      Logger.info("Sent #{payload.type} event.")
+      Logger.info("Sent #{payload.type} event: #{inspect payload}.")
     end)
     :ok
   end

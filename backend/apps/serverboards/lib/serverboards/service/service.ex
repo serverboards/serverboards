@@ -67,7 +67,7 @@ defmodule Serverboards.Service.Service do
       MOM.Channel.send( :client_events, %MOM.Message{
         payload: %{ type: "service.updated",
           data: %{
-            shortname: shortname, operations: operations
+            shortname: shortname, service: upd
             }
           } } )
 
@@ -144,6 +144,7 @@ defmodule Serverboards.Service.Service do
         "description" -> :description
         "priority" -> :priority
         "tags" -> :tags
+        "shortname" -> :shortname
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise Exception, "Unknown operation updating service #{service.shortname}: #{inspect e}. Failing."
@@ -218,7 +219,11 @@ defmodule Serverboards.Service.Service do
 
   """
   def service_list(_me) do
-    {:ok, Enum.map(Serverboards.Repo.all(Serverboards.Service.Model.Service), &Serverboards.Utils.clean_struct(&1)) }
+    services = Serverboards.Repo.all(from s in Serverboards.Service.Model.Service, preload: :tags )
+     |> Enum.map( fn service ->
+       %{ service | tags: Enum.map(service.tags, &(&1.name)) }
+     end)
+    {:ok, services }
   end
 
 end
