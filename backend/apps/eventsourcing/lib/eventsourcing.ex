@@ -71,9 +71,16 @@ defmodule EventSourcing do
 
   This map is usefull to avoid round trips to get data after a change, for
   example return the status of a database record.
+
+  Options:
+
+  * except: Will be delivered to subscribers that do not have this option set,
+            for example, except: :store, will not send it to subscribers with
+            store: true.
+
   """
-  def dispatch(pid, type, data, author) do
-    GenServer.call(pid, {:dispatch, type, data, author})
+  def dispatch(pid, type, data, author, options \\ []) do
+    GenServer.call(pid, {:dispatch, type, data, author, options})
   end
 
   @doc ~S"""
@@ -117,12 +124,24 @@ defmodule EventSourcing do
     GenServer.call(pid, {:replay, list_of_events})
   end
 
-  def defevent(pid, type, reducer, options \\ []) do
-    GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
+  @doc ~S"""
+  Defines an event with an optional default implementation and options.
+
+  Returns a callable that will emit this event, calling the function as a
+  subscribed event.
+
+  The options are for both the dispatching (:except) and the event (:name).
+
+  This is just a shortcut function.
+  """
+  def defevent(pid, type, reducer \\ nil, options \\ []) do
+    if reducer do
+      GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
+    end
     # return a caller
     fn
       args, author ->
-        EventSourcing.dispatch(pid, type, args, author)
+        EventSourcing.dispatch(pid, type, args, author, options)
     end
   end
 
@@ -133,44 +152,59 @@ defmodule EventSourcing do
     } }
   end
 
-  defp dispatchp(reducers, type, data, author) do
+  # Dispatch to one reducer, checking if has any type, and errors.
+  defp dispatch_one(type, data, author, reducer, options) do
+    res = try do
+      case Keyword.get(options, :type, :any) do
+        :any ->
+          #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
+          reducer.(type, data, author)
+        ^type ->
+          #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
+          reducer.(data, author)
+        _ ->
+          nil
+      end
+    rescue
+      e in FunctionClauseError ->
+        # Some voodoo to check it it was us with a wrong action type, if so ignore
+        stacktrace = System.stacktrace
+        #Logger.debug("Error processing reducer #{Keyword.get options, :name, :unkonwn}\n#{inspect e}\n#{Exception.format_stacktrace}")
+        case (hd (tl stacktrace)) do
+          {EventSourcing, _, _, _} ->
+            nil
+          _ ->
+            reraise e, stacktrace
+        end
+    end
+  end
+
+  defp dispatchp(reducers, type, data, author, event_options) do
     #Logger.debug("Dispatch #{type}")
     Enum.reduce reducers, %{}, fn {reducer, options}, acc ->
-      # Do the reducer and keep result.
-      res = try do
-        case Keyword.get(options, :type, :any) do
-          :any ->
-            #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
-            reducer.(type, data, author)
-          ^type ->
-            #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
-            reducer.(data, author)
-          _ ->
-            nil
-        end
-      rescue
-        e in FunctionClauseError ->
-          # Some voodoo to check it it was us with a wrong action type, if so ignore
-          stacktrace = System.stacktrace
-          #Logger.debug("Error processing reducer #{Keyword.get options, :name, :unkonwn}\n#{inspect e}\n#{Exception.format_stacktrace}")
-          case (hd (tl stacktrace)) do
-            {EventSourcing, _, _, _} ->
-              nil
-            _ ->
-              reraise e, stacktrace
-          end
+      # Will skip if any of the except elements is at options as true
+      skip = Enum.any? List.wrap(Keyword.get(event_options, :except,[])), fn k ->
+        Keyword.get(options, k, false)
       end
-      # Set it into the return map, or not.
-      case {res, Keyword.get(options, :name)} do
-        {nil, _ }   -> acc
-        {res, name} -> Map.put(acc, name, res)
-        _           -> acc
+
+      if skip do
+        Logger.debug("Skipping event sourcing #{Keyword.get(options, :name)}")
+        acc
+      else
+        # Do the reducer and keep result.
+        res = dispatch_one(type, data, author, reducer, options)
+        # Set it into the return map, or not.
+        case {res, Keyword.get(options, :name)} do
+          {nil, _ }   -> acc
+          {res, name} -> Map.put(acc, name, res)
+          _           -> acc
+        end
       end
     end
   end
 
-  def handle_call({:dispatch, type, data, author}, _from, status) do
-    {:reply, dispatchp(status.reducers, type, data, author), status}
+  def handle_call({:dispatch, type, data, author, options}, _from, status) do
+    {:reply, dispatchp(status.reducers, type, data, author, options), status}
   end
 
   def handle_call({:subscribe, reducer, options}, from, status) do
@@ -180,7 +214,7 @@ defmodule EventSourcing do
   end
 
   def handle_call({:replay, list_of_events}, from, status) do
-    ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author) end)
+    ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author, []) end)
     {:reply, ret, status}
   end
 end

@@ -123,4 +123,28 @@ defmodule EventsourcingTest do
     assert Map.get(add_item.(:milk, "me"), :status) == %{ milk: 2 }
 
   end
+
+  test "Except events" do
+    {:ok, es} = EventSourcing.start_link
+    {:ok, items} = Agent.start_link fn -> %{} end
+
+    EventSourcing.subscribe es, :debug_full
+
+    add_item = EventSourcing.defevent es, :add_item, nil, except: :store
+
+    EventSourcing.subscribe es, :add_item, fn item, _author ->
+      cart = Agent.get_and_update items, fn st ->
+        st=Map.update(st, item, 1, &( &1 + 1 ) )
+        {st, st}
+      end
+      cart
+    end, name: :status
+
+    EventSourcing.subscribe es, :add_item, fn item, _author ->
+      raise Exception, "Never call me!"
+    end, store: true
+
+    assert Map.get(add_item.(:milk, "me"), :status) == %{ milk: 1 }
+    assert Map.get(add_item.(:milk, "me"), :status) == %{ milk: 2 }
+  end
 end

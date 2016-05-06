@@ -46,7 +46,7 @@ defmodule EventSourcing.Model do
         }) )
       Logger.debug("Store #{type} #{inspect res}")
       res
-    end, name: :database)
+    end, name: :database, store: true)
   end
 
 
