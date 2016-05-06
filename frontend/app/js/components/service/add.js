@@ -2,6 +2,7 @@ import React from 'react'
 import LogoIcon from '../logoicon'
 import AddComponentModal from './addcomponent'
 import SetupComponentModal from './setupcomponent'
+import {to_map, map_drop} from '../../utils'
 
 function Component(props){
   let name = props.fields[0].value
@@ -55,12 +56,21 @@ var Add=React.createClass({
   handleSubmit : function(){
     if ($(this.refs.form).form('validate form')){
       let state=this.state
-      this.props.onSubmit( {
+      let service = {
         name: state.name,
         shortname: state.shortname,
         tags: state.tags,
-        description: state.description
-      } )
+        description: state.description,
+        components: state.components.map( (c) => {
+          let config =  to_map( c.fields.map( (f) => [f.name, f.value] ) )
+          return {
+            name: config.name, description: config.description,
+            tags: config.tags || [], type: c.type,
+            config: map_drop(config, ["name", "description", "tags"])
+          }
+        } ),
+      }
+      this.props.onSubmit( service )
     }
   },
   openAddComponentModal : function(ev){
