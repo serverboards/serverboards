@@ -203,8 +203,15 @@ defmodule EventSourcing do
     end
   end
 
-  def handle_call({:dispatch, type, data, author, options}, _from, status) do
-    {:reply, dispatchp(status.reducers, type, data, author, options), status}
+  def handle_call({:dispatch, type, data, author, options}, from, status) do
+    # Do it in a new task, allow reentry and leaves this channel ready for more.
+    Task.start_link fn ->
+      Logger.debug("   At task #{inspect self}")
+      res=dispatchp(status.reducers, type, data, author, options)
+      Logger.debug("   At task #{inspect self}: #{inspect res}")
+      GenServer.reply(from, res)
+    end
+    {:noreply, status}
   end
 
   def handle_call({:subscribe, reducer, options}, from, status) do
