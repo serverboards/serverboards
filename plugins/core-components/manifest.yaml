@@ -19,6 +19,7 @@ components:
       - label: URL
         name: url
         type: text
+        validation: empty
 
   - name: Email Account
     type: component
@@ -28,6 +29,7 @@ components:
       - label: SMTP Server Address
         name: smtp
         type: text
+        validation: empty
       - label: SMTP Username
         name: smtp_username
         type: text
@@ -43,6 +45,7 @@ components:
       - label: SSH Address
         name: url
         type: text
+        validation: empty
 
   - name: Server
     type: component
