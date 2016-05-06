@@ -12,10 +12,12 @@ function Component(props){
   )
 }
 
-const default_component_fields = [
-  { label: 'Name', name: 'name', type: 'text', description: 'Component name as shown in UI'},
-  { label: 'Description', name: 'description', type: 'textarea', description: 'Comments about this component'},
-]
+function default_component_fields(name){
+  return [
+    { label: 'Name', name: 'name', type: 'text', description: 'Component name as shown in UI', value: name},
+    { label: 'Description', name: 'description', type: 'textarea', description: 'Comments about this component'},
+  ]
+}
 
 var Add=React.createClass({
   getInitialState : function(){
@@ -63,7 +65,7 @@ var Add=React.createClass({
     current_component.fields=current_component.extra.fields
     current_component.type=current_component.id
     current_component.id=this.state.maxid+1
-    current_component.fields=default_component_fields.concat(current_component.fields)
+    current_component.fields=default_component_fields(current_component.name).concat(current_component.fields)
     delete current_component.extra
     this.setState({
       components: this.state.components.concat(current_component),
@@ -100,7 +102,7 @@ var Add=React.createClass({
 
     function WrappedComponent(c){
       return (
-        <div key={c.id} className="column">
+        <div key={c.id} className="column center aligned">
           <a href="#" onClick={(ev) => self.handleOpenUpdateComponent(c, ev)}>
             {Component(c)}
           </a>
