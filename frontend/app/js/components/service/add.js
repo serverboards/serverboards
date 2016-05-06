@@ -90,6 +90,17 @@ var Add=React.createClass({
     this.setModal('setup_component')
     this.setState({ current_component })
   },
+  handleDeleteComponent : function(ev){
+    ev && ev.preventDefault()
+    let component=this.state.current_component
+    if (component)
+      this.setState({
+        components: this.state.components.filter(
+          (c) => c.id != component.id
+        )
+      })
+    this.setModal(false)
+  },
   contextTypes: {
     router: React.PropTypes.object
   },
@@ -110,13 +121,20 @@ var Add=React.createClass({
     switch(this.props.location.state && this.props.location.state.modal){
       case 'add_component':
         popup=(
-          <AddComponentModal onAdd={this.handleAddComponent} onClose={this.closeModal} components={props.components}/>
+          <AddComponentModal
+            onAdd={this.handleAddComponent}
+            onClose={this.closeModal}
+            components={props.components}/>
         )
         break;
       case 'setup_component':
         if (this.state.current_component)
           popup=(
-            <SetupComponentModal onUpdate={this.handleUpdateComponent} onClose={this.closeModal} component={this.state.current_component}/>
+            <SetupComponentModal
+              onUpdate={this.handleUpdateComponent}
+              onClose={this.closeModal}
+              onDelete={this.handleDeleteComponent}
+              component={this.state.current_component}/>
           )
         break;
     }

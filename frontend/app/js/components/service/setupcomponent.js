@@ -34,8 +34,9 @@ let SetupComponent=React.createClass({
           <GenericForm fields={props.component.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
-          <div className="ui ok green button" onClick={this.handleAccept}>Accept</div>
-          <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
+          <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>
+          <button className="ui red button" onClick={props.onDelete}>Delete</button>
+          <button className="ui cancel button" onClick={props.onClose}>Cancel</button>
         </div>
       </Modal>
     )
