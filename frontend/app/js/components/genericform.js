@@ -57,7 +57,7 @@ let GenericForm=React.createClass({
     }
 
     return (
-      <form className="ui form">
+      <form className="ui form" onSubmit={this.props.onSubmit}>
         {this.props.fields.map((f) => generic_field(f)) }
         {this.props.children}
       </form>

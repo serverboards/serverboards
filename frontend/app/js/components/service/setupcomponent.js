@@ -3,7 +3,16 @@ import Modal from '../modal'
 import GenericForm from '../genericform'
 
 let SetupComponent=React.createClass({
-  handleAccept : function(){
+  getInitialState : function(){
+    let r={}
+    this.props.component.fields.map( (f) =>{
+      r[f.name]=f.value || ''
+    })
+    return r
+  },
+  handleAccept : function(ev){
+    ev && ev.preventDefault()
+    
     let component=Object.assign({}, this.props.component)
     let values = this.state
     component.fields.map( (f) => {
@@ -23,7 +32,7 @@ let SetupComponent=React.createClass({
           Update settings for {props.component.name}
         </div>
         <div className="content">
-          <GenericForm fields={props.component.fields} updateForm={this.handleUpdateForm}/>
+          <GenericForm fields={props.component.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
           <div className="ui ok green button" onClick={this.handleAccept}>Accept</div>
