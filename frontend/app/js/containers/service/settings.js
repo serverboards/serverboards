@@ -5,7 +5,6 @@ import { service_delete, service_update } from '../../actions/service'
 
 var Settings=connect(
   (state) => ({
-    components: []
   }),
   (dispatch) => ({
     onUpdate: (shortname, changes) => dispatch( service_update(shortname, changes) ),
