@@ -44,7 +44,14 @@ var Add=React.createClass({
   },
   openAddComponentModal : function(ev){
     ev.preventDefault()
-    this.setState({ show_dialog: 'add_component' })
+    console.log(this.context)
+    this.setModal('add_component')
+  },
+  setModal: function(modal){
+    this.context.router.push( {
+      pathname: this.props.location.pathname,
+      state: {modal }
+    } )
   },
   handleAddComponent : function(component_id){
     let current_component=Object.assign({}, this.props.components.find((c) => c.id == component_id))
@@ -57,11 +64,12 @@ var Add=React.createClass({
       maxid: current_component.id
     })
 
-    this.setState({ show_dialog: 'setup_component', current_component })
+    this.setModal('setup_component')
+    this.setState({ current_component })
     console.log("Add component %o", current_component)
   },
   closeModal : function(component_id){
-    this.setState({ show_dialog: false })
+    this.setModal(false)
   },
   handleUpdateComponent : function(component){
     console.log("Update component ", component)
@@ -69,12 +77,16 @@ var Add=React.createClass({
       components: this.state.components.map(
         (c) => c.id == component.id ? component : c)
     })
-    this.setState({ show_dialog: false })
+    this.setModal(false)
   },
   handleOpenUpdateComponent : function(current_component, ev){
     ev && ev.preventDefault()
 
-    this.setState({ show_dialog: 'setup_component', current_component })
+    this.setModal('setup_component')
+    this.setState({ current_component })
+  },
+  contextTypes: {
+    router: React.PropTypes.object
   },
   render : function(){
     let props=this.props
@@ -90,7 +102,7 @@ var Add=React.createClass({
       )
     }
     let popup=[]
-    switch(this.state.show_dialog){
+    switch(this.props.location.state && this.props.location.state.modal){
       case 'add_component':
         popup=(
           <AddComponentModal onAdd={this.handleAddComponent} onClose={this.closeModal} components={props.components}/>
