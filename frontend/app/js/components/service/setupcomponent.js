@@ -12,7 +12,7 @@ let SetupComponent=React.createClass({
   },
   handleAccept : function(ev){
     ev && ev.preventDefault()
-    
+
     let component=Object.assign({}, this.props.component)
     let values = this.state
     component.fields.map( (f) => {

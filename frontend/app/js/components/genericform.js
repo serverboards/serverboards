@@ -20,6 +20,13 @@ let GenericField=React.createClass({
         <input type="text" name={props.name} placeholder={props.description} value={this.state.value} onChange={this.handleChange}/>
         </div>
       )
+      case 'textarea':
+      return (
+        <div className="field">
+        <label>{props.label}</label>
+        <textarea name={props.name} placeholder={props.description} value={this.state.value} onChange={this.handleChange}/>
+        </div>
+      )
       case 'password':
       return (
         <div className="field">
@@ -52,10 +59,9 @@ let GenericForm=React.createClass({
     let self=this
     function generic_field(f){
       return (
-        <GenericField setValue={(ev) => self.setValue(ev, f.name)} {...f}/>
+        <GenericField key={f.name} setValue={(ev) => self.setValue(ev, f.name)} {...f}/>
       )
     }
-
     return (
       <form className="ui form" onSubmit={this.props.onSubmit}>
         {this.props.fields.map((f) => generic_field(f)) }

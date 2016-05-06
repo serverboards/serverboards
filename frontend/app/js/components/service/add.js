@@ -12,6 +12,11 @@ function Component(props){
   )
 }
 
+const default_component_fields = [
+  { label: 'Name', name: 'name', type: 'text', description: 'Component name as shown in UI'},
+  { label: 'Description', name: 'description', type: 'textarea', description: 'Comments about this component'},
+]
+
 var Add=React.createClass({
   getInitialState : function(){
     return {
@@ -58,6 +63,7 @@ var Add=React.createClass({
     current_component.fields=current_component.extra.fields
     current_component.type=current_component.id
     current_component.id=this.state.maxid+1
+    current_component.fields=default_component_fields.concat(current_component.fields)
     delete current_component.extra
     this.setState({
       components: this.state.components.concat(current_component),
