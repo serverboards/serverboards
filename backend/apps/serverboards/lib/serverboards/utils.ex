@@ -18,7 +18,7 @@ defmodule Serverboards.Utils do
     true
 
   """
-  def clean_struct(st) do
+  def clean_struct(st) when is_map(st) do
     st = Map.to_list st
     l = Enum.flat_map st, fn {k,v} ->
       k = if is_atom(k) do
@@ -29,10 +29,15 @@ defmodule Serverboards.Utils do
       cond do
         String.starts_with? k, "__" -> []
         String.ends_with? k, "_pw" -> []
-        is_map(v) -> [{k, clean_struct(v)}]
-        true -> [{k,v}]
+        true -> [{k,clean_struct(v)}]
       end
     end
     Map.new(l)
+  end
+  def clean_struct(l) when is_list(l) do
+    Enum.map(l, fn i -> clean_struct(i) end)
+  end
+  def clean_struct(other) do
+    other
   end
 end

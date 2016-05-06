@@ -97,7 +97,17 @@ defmodule ServiceTest do
     Logger.info("Got services: #{inspect l}")
     assert (Enum.count l) >= 0
 
-    {:ok, "SBDS-TST8"} = Test.Client.call client, "service.add", ["SBDS-TST8", %{ "name" => "Serverboards test", "tags" => ["tag1", "tag2"]}]
+    {:ok, "SBDS-TST8"} = Test.Client.call client, "service.add", [
+      "SBDS-TST8",
+      %{
+        "name" => "Serverboards test",
+        "tags" => ["tag1", "tag2"],
+        "components" => [
+          %{ "type" => "test", "name" => "main web", "config" => %{ "url" => "http://serverboards.io" } },
+          %{ "type" => "test", "name" => "blog", "config" => %{ "url" => "http://serverboards.io/blog" } },
+        ]
+      }
+    ]
     assert check_if_event_on_service(agent, "service.added", "SBDS-TST8")
     deleted=check_if_event_on_service(agent, "service.deleted", "SBDS-TST8")
     Logger.info("At service deleted? #{deleted}")
@@ -107,6 +117,8 @@ defmodule ServiceTest do
     Logger.info("Info from service #{inspect cl}")
     {:ok, json} = JSON.encode(cl)
     assert not String.contains? json, "__"
+    assert (hd cl["components"])["name"] == "main web"
+    assert (hd (tl cl["components"]))["name"] == "blog"
 
     {:ok, cls} = Test.Client.call client, "service.list", []
     Logger.info("Info from service #{inspect cls}")

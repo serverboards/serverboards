@@ -32,6 +32,26 @@ defmodule Serverboards.Service.Service do
         Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
       end)
 
+      Enum.map(Map.get(attributes, :components, []), fn attributes ->
+        component_uuid=UUID.uuid4
+        attributes = %{
+          uuid: component_uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        EventSourcing.dispatch(
+            :service, :add_component, attributes, _me, except: :store
+          )
+        EventSourcing.dispatch(
+            :service, :attach_component, [service.shortname, component_uuid],
+            _me, except: :store
+          )
+      end)
+
       MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.added", data: %{ service: service} } } )
 
       service.shortname
@@ -110,7 +130,8 @@ defmodule Serverboards.Service.Service do
       name: Map.get(attributes,"name", shortname),
       description: Map.get(attributes, "description", ""),
       priority: Map.get(attributes, "priority", 50),
-      tags: Map.get(attributes, "tags", [])
+      tags: Map.get(attributes, "tags", []),
+      components: Map.get(attributes, "components", [])
     }, me.email
     {:ok, service}
   end
@@ -182,20 +203,35 @@ defmodule Serverboards.Service.Service do
   @doc ~S"""
   Returns the information of a service by id or name
   """
+  def service_info(%Serverboards.Service.Model.Service{} = service) do
+    service = %{
+      service |
+      tags: Enum.map(service.tags, fn t -> t.name end)
+    }
+
+    components = Repo.all(from c in Model.Component,
+        join: sc in Model.ServiceComponent,
+          on: sc.component_id==c.id,
+       where: sc.service_id == ^service.id,
+      select: c)
+    service = Map.put(service, :components, components)
+    
+    Logger.info("Got service #{inspect service}")
+    service
+  end
+
   def service_info(service_id, _me) when is_number(service_id) do
     case Repo.one( from( s in Model.Service, where: s.id == ^service_id, preload: :tags ) ) do
       nil -> {:error, :not_found}
       service ->
-        service = %{ service | tags: Enum.map(service.tags, fn t -> t.name end)}
-        {:ok, service }
+        {:ok, service_info(service)}
     end
   end
   def service_info(service_shortname, _me) when is_binary(service_shortname) do
     case Repo.one( from(s in Model.Service, where: s.shortname == ^service_shortname, preload: :tags ) ) do
       nil -> {:error, :not_found}
       service ->
-        service = %{ service | tags: Enum.map(service.tags, fn t -> t.name end)}
-        {:ok, service }
+        {:ok, service_info(service)}
     end
   end
 
