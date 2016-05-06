@@ -13,12 +13,16 @@ let SetupComponent=React.createClass({
   handleAccept : function(ev){
     ev && ev.preventDefault()
 
-    let component=Object.assign({}, this.props.component)
-    let values = this.state
-    component.fields.map( (f) => {
-      f.value=values[f.name] || ''
-    })
-    this.props.onUpdate( component )
+    let form = this.refs.form.refs.form
+    if ( $(form).form('validate form' ) ){
+      console.log("Ok")
+      let component=Object.assign({}, this.props.component)
+      let values = this.state
+      component.fields.map( (f) => {
+        f.value=values[f.name] || ''
+      })
+      this.props.onUpdate( component )
+    }
   },
   handleUpdateForm : function(data){
     this.setState(data)
@@ -31,7 +35,7 @@ let SetupComponent=React.createClass({
           Update settings for {props.component.name}
         </div>
         <div className="content">
-          <GenericForm fields={props.component.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+          <GenericForm ref="form" fields={props.component.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
           <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>

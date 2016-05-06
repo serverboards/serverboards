@@ -15,8 +15,19 @@ function Component(props){
 
 function default_component_fields(name){
   return [
-    { label: 'Name', name: 'name', type: 'text', description: 'Component name as shown in UI', value: name},
-    { label: 'Description', name: 'description', type: 'textarea', description: 'Comments about this component'},
+    {
+      label: 'Name',
+      name: 'name',
+      type: 'text',
+      description: 'Component name as shown in UI',
+      value: name,
+      validation: 'empty'
+    }, {
+      label: 'Description',
+      name: 'description',
+      type: 'textarea',
+      description: 'Comments about this component'
+    },
   ]
 }
 
@@ -42,13 +53,15 @@ var Add=React.createClass({
     this.setState({ [what]: ev.target.value })
   },
   handleSubmit : function(){
-    state=this.state
-    this.props.onSubmit( {
-      name: state.name,
-      shortname: state.shortname,
-      tags: state.tags,
-      description: state.description
-    } )
+    if ($(this.refs.form).form('validate form')){
+      let state=this.state
+      this.props.onSubmit( {
+        name: state.name,
+        shortname: state.shortname,
+        tags: state.tags,
+        description: state.description
+      } )
+    }
   },
   openAddComponentModal : function(ev){
     ev.preventDefault()
@@ -104,6 +117,15 @@ var Add=React.createClass({
   contextTypes: {
     router: React.PropTypes.object
   },
+  componentDidMount : function(){
+    $(this.refs.form).form({
+      on: 'blur',
+      fields: {
+        shortname: 'minLength[4]',
+        name: 'minLength[4]'
+      }
+    })
+  },
   render : function(){
     let props=this.props
     let self=this
@@ -147,12 +169,12 @@ var Add=React.createClass({
             <h1 className="ui header">Add a new service</h1>
             <div className="field">
               <label>Shortname</label>
-              <input type="text" value={this.shortname} onChange={(ev) => this.change("shortname", ev)}
+              <input type="text" name="shortname" value={this.shortname} onChange={(ev) => this.change("shortname", ev)}
                 placeholder="Ex. CMPNY"/>
             </div>
             <div className="field">
               <label>Service Name</label>
-              <input type="text" value={this.name} onChange={(ev) => this.change("name", ev)}
+              <input type="text" name="name" value={this.name} onChange={(ev) => this.change("name", ev)}
                 placeholder="Ex. My company name, web services, external services..."/>
             </div>
             <div className="field">
