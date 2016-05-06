@@ -21,7 +21,6 @@ let SetupComponent=React.createClass({
     this.props.onUpdate( component )
   },
   handleUpdateForm : function(data){
-    console.log("Update form data ", data)
     this.setState(data)
   },
   render: function(){

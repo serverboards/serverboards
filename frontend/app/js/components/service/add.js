@@ -4,10 +4,11 @@ import AddComponentModal from './addcomponent'
 import SetupComponentModal from './setupcomponent'
 
 function Component(props){
+  let name = props.fields[0].value
   return (
     <div>
-      <LogoIcon name={props.name} color="teal"/>
-      {props.name}
+      <LogoIcon name={name}/>
+      {name}
     </div>
   )
 }
@@ -51,7 +52,6 @@ var Add=React.createClass({
   },
   openAddComponentModal : function(ev){
     ev.preventDefault()
-    console.log(this.context)
     this.setModal('add_component')
   },
   setModal: function(modal){
@@ -62,10 +62,9 @@ var Add=React.createClass({
   },
   handleAddComponent : function(component_id){
     let current_component=Object.assign({}, this.props.components.find((c) => c.id == component_id))
-    current_component.fields=current_component.extra.fields
+    current_component.fields=$.extend(true, [], default_component_fields(current_component.name).concat( current_component.extra.fields ) )
     current_component.type=current_component.id
     current_component.id=this.state.maxid+1
-    current_component.fields=default_component_fields(current_component.name).concat(current_component.fields)
     delete current_component.extra
     this.setState({
       components: this.state.components.concat(current_component),
@@ -74,13 +73,11 @@ var Add=React.createClass({
 
     this.setModal('setup_component')
     this.setState({ current_component })
-    console.log("Add component %o", current_component)
   },
   closeModal : function(component_id){
     this.setModal(false)
   },
   handleUpdateComponent : function(component){
-    console.log("Update component ", component)
     this.setState({
       components: this.state.components.map(
         (c) => c.id == component.id ? component : c)
@@ -117,9 +114,10 @@ var Add=React.createClass({
         )
         break;
       case 'setup_component':
-        popup=(
-          <SetupComponentModal onUpdate={this.handleUpdateComponent} onClose={this.closeModal} component={this.state.current_component}/>
-        )
+        if (this.state.current_component)
+          popup=(
+            <SetupComponentModal onUpdate={this.handleUpdateComponent} onClose={this.closeModal} component={this.state.current_component}/>
+          )
         break;
     }
 
