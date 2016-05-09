@@ -1,4 +1,5 @@
 import React from 'react'
+import Loading from './loading'
 
 require("../../sass/service.sass")
 
@@ -28,9 +29,9 @@ var SidebarSections = function(props){
 var Service = function(props){
   if (!props.service)
     return (
-      <h1>Loading data..</h1>
+      <Loading/>
     )
-  
+
   let section = props.params.section || 'default'
   let Section = require(`../containers/service/${section}`).default
 

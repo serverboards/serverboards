@@ -5,7 +5,8 @@ import SetupComponentModal from './setupcomponent'
 import {to_map, map_drop} from '../../utils'
 
 function Component(props){
-  let name = props.fields[0].value
+  console.log(props)
+  let name = props.fields[0].value || props.name
   return (
     <div>
       <LogoIcon name={name}/>
@@ -37,13 +38,14 @@ var Settings=React.createClass({
     let service=this.props.service || {}
     return {
       show_dialog: false,
-      components: service.components || [],
-      maxid: 1
+      components: this.props.initial_components || [],
+      maxid: 1,
+      current_component: undefined,
     }
   },
   componentWillMount : function(){
     let props=this.props
-    if (props.components.length == 0){
+    if (props.available_components.length == 0){
       props.updateComponentCatalog()
     }
   },
@@ -88,7 +90,7 @@ var Settings=React.createClass({
     } )
   },
   handleAddComponent : function(component_id){
-    let current_component=Object.assign({}, this.props.components.find((c) => c.id == component_id))
+    let current_component=Object.assign({}, this.props.available_components.find((c) => c.id == component_id))
     current_component.fields=$.extend(true, [], default_component_fields(current_component.name).concat( current_component.extra.fields ) )
     current_component.type=current_component.id
     current_component.id=this.state.maxid+1
@@ -160,7 +162,7 @@ var Settings=React.createClass({
           <AddComponentModal
             onAdd={this.handleAddComponent}
             onClose={this.closeModal}
-            components={props.components}/>
+            components={props.available_components}/>
         )
         break;
       case 'setup_component':
@@ -255,3 +257,4 @@ var Settings=React.createClass({
 })
 
 export default Settings
+export {default_component_fields}

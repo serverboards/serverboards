@@ -1,18 +1,25 @@
 var default_state={
   services: [],
   current: undefined,
-  components: []
+  current_components: undefined,
+  available_components: undefined
 }
 
 function service(state=default_state, action){
   switch(action.type){
     case '@@router/LOCATION_CHANGE':
       var current=action.payload.pathname.replace(RegExp("^/service/([^/]*)/.*"), "$1")
-      return Object.assign({}, state, {current: current} )
+      var current_components=status.current_component
+      if (current!=state.current){ // On change of location, no current components
+        current_components=undefined
+      }
+      return Object.assign({}, state, {current, current_components} )
     case 'UPDATE_ALL_SERVICES':
       return Object.assign({}, state, {services: action.services} )
     case 'UPDATE_COMPONENTS':
-      return Object.assign({}, state, {components: action.components} )
+      return Object.assign({}, state, {available_components: action.components} )
+    case 'UPDATE_SERVICE_COMPONENTS':
+      return Object.assign({}, state, {current_components: action.components} )
     case '@RPC_EVENT/service.added':
       return Object.assign({}, state, {services: state.services.concat(action.service) } )
     case '@RPC_EVENT/service.deleted':

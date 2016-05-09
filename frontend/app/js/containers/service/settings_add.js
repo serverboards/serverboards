@@ -6,7 +6,7 @@ import { components_update_catalog } from '../../actions/service'
 var SettingsAdd=connect(
   (state) => {
     return {
-      components: state.service.components,
+      available_components: state.service.available_components,
       location: state.routing.locationBeforeTransitions
     }
   },
