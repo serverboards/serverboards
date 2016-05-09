@@ -1,38 +1,34 @@
 import React, {PropTypes} from 'react';
 
 var LoginView = React.createClass({
-  getInitialState : function(){
-    return {type: 'basic', email: '', password: ''}
-  },
-  update_password(event){
-    this.setState({password: event.target.value})
-  },
-  update_email(event){
-    this.setState({email: event.target.value})
-  },
   handleSubmit(ev){
+    let $form = $(this.refs.el)
+    let fields = $form.form('get values')
+
+    console.log("%o %o", ev, fields);
+    if ($form.form('validate form')){
+      this.props._onSubmit(
+        Object.assign({type: 'basic'}, fields)
+      )
+    }
     ev.preventDefault()
-    if ($(this.refs.el).form('validate form')){
-      this.props._onSubmit(this.state)
-    }
-    else{
-      this.props._onInvalidForm();
-    }
   },
   componentDidMount( ){
     self=this
+
     $(this.refs.el).form({
       on: 'blur',
       fields: {
         email: 'email',
         password: 'minLength[6]'
       }
-    })
+    }).on('submit', self.handleSubmit)
+
     $(self.refs.el).find('[type=email]').focus()
   },
   render: function(){
     return (
-      <form ref="el" className="ui form" method="POST" onSubmit={this.handleSubmit}>
+      <form ref="el" className="ui form" method="POST">
         <div className="ui small modal active" id="login">
           <div className="header">
             Login
@@ -42,14 +38,12 @@ var LoginView = React.createClass({
             <div className="field">
               <label>Email</label>
               <input type="email" name="email" placeholder="user@company.com"
-                onChange={this.update_email} value={this.state.email}
                 />
             </div>
 
             <div className="field">
               <label>Password</label>
               <input type="password" name="password" placeholder="*******"
-                onChange={this.update_password} value={this.state.password}
                 />
             </div>
             <div className="ui error message"></div>
@@ -62,8 +56,7 @@ var LoginView = React.createClass({
                 Keep logged login
               </label>
             </span>
-            <button type="button" className="ui positive right labeled icon button"
-              onClick={this.handleSubmit}>
+            <button type="submit" className="ui positive right labeled icon button">
               Login
               <i className="caret right icon"></i>
             </button>
