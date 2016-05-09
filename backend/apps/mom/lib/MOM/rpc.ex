@@ -124,7 +124,7 @@ defmodule Serverboards.MOM.RPC do
 						}
 						Channel.send(msg.reply_to, reply)
 						:ok
-					{:error, :not_found} ->
+					{:error, :unknown_method} ->
 						:nok
 					{:error, e} ->
 						reply = %Message{
