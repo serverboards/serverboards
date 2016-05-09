@@ -40,4 +40,18 @@ defmodule Serverboards.Utils do
   def clean_struct(other) do
     other
   end
+
+
+  @doc ~S"""
+  Drops elements from a map with an empty value
+  """
+  def drop_empty_values(map) do
+    map
+      |> Enum.filter(fn
+        {_k, %{}} -> false
+        {_k, []} -> false
+        {_k,v} -> v != nil
+      end)
+      |> Map.new
+  end
 end

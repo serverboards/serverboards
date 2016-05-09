@@ -10,87 +10,30 @@ defmodule Serverboards.Service.Component do
     import EventSourcing
 
     subscribe :service, :add_component, fn attributes, me ->
-      Logger.info("attributes #{inspect attributes}")
-      user = Serverboards.Auth.User.get_user( me )
-      {:ok, component} = Repo.insert( %Model.Component{
-        uuid: attributes.uuid,
-        name: attributes.name,
-        type: attributes.type,
-        creator_id: user.id,
-        priority: attributes.priority,
-        config: attributes.config
-      } )
-
-      Enum.map(attributes.tags, fn name ->
-        Repo.insert( %Model.ComponentTag{name: name, component_id: component.id} )
-      end)
-
-      component.uuid
-    end, name: :component
-    subscribe :service, :delete_component, fn component, _me ->
-      import Ecto.Query
-      #user = Serverboards.Auth.User.get_user( me )
-
-      # remove it when used inside any service
-      Repo.delete_all(
-        from sc in Model.ServiceComponent,
-        join: c in Model.Component, on: c.id == sc.component_id,
-        where: c.uuid == ^component
-        )
-
-        # 1 removed
-      case Repo.delete_all( from c in Model.Component, where: c.uuid == ^component ) do
-        {1, _} -> :ok
-        {0, _} -> {:error, :not_found}
-      end
+      component_add_real(attributes.uuid, attributes, me)
     end
-
+    subscribe :service, :delete_component, fn component, me ->
+      component_delete_real(component, me)
+    end
     # This attach_component is idempotent
     subscribe :service, :attach_component, fn [service, component], me ->
-      import Ecto.Query
-      case Repo.one(
-          from sc in Model.ServiceComponent,
-            join: s in Model.Service,
-              on: s.id == sc.service_id,
-            join: c in Model.Component,
-              on: c.id == sc.component_id,
-            where: s.shortname == ^service and
-                   c.uuid == ^component,
-            select: sc.id ) do
-        nil ->
-          user = Serverboards.Auth.User.get_user( me )
-          service = Repo.get_by!(Model.Service, shortname: service)
-          component = Repo.get_by!(Model.Component, uuid: component)
-          {:ok, _service_component} = Repo.insert( %Model.ServiceComponent{
-            service_id: service.id,
-            component_id: component.id
-          } )
-        _ ->  #  already in
-          nil
-      end
-      :ok
+      component_attach_real(service, component, me)
     end
-    subscribe :service, :detach_component, fn [service, component], _me ->
-      import Ecto.Query
-
-      to_remove = Repo.all(
-        from sc in Model.ServiceComponent,
-        join: s in Model.Service, on: s.id == sc.service_id,
-        join: c in Model.Component, on: c.id == sc.component_id,
-        where: c.uuid == ^component and s.shortname == ^service,
-        select: sc.id
-       )
-
-      Repo.delete_all(
-        from sc_ in Model.ServiceComponent,
-        where: sc_.id in ^to_remove )
-
-      :ok
+    subscribe :service, :detach_component, fn [service, component], me ->
+      component_detach_real(service, component, me)
     end
-    subscribe :service, :update_component, fn [component, operations], _me ->
-      import Ecto.Query
-      component = Repo.get_by!(Model.Component, uuid: component)
+    subscribe :service, :update_component, fn [component, operations], me ->
+      component_update_real( component, operations, me)
+    end
+    subscribe :service, :update_service, fn [service, attributes], me ->
+      component_update_service_real( service, attributes, me)
+    end
+  end
 
+  defp component_update_real( uuid, operations, _me) do
+    import Ecto.Query
+    component = Repo.get_by(Model.Component, uuid: uuid)
+    if component do
       tags = MapSet.new Map.get(operations, :tags, [])
 
       current_tags = Repo.all(from ct in Model.ComponentTag, where: ct.component_id == ^component.id, select: ct.name )
@@ -99,7 +42,6 @@ defmodule Serverboards.Service.Component do
       new_tags = MapSet.difference(tags, current_tags)
       expired_tags = MapSet.difference(current_tags, tags)
 
-      Logger.debug("Update component tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
       if (Enum.count expired_tags) > 0 do
         expired_tags = MapSet.to_list expired_tags
         Repo.delete_all( from t in Model.ComponentTag, where: t.component_id == ^component.id and t.name in ^expired_tags )
@@ -109,11 +51,143 @@ defmodule Serverboards.Service.Component do
       end)
 
       {:ok, upd} = Repo.update( Model.Component.changeset(
-        component, operations
+      component, operations
       ) )
-
       :ok
-    end, name: :component
+    else
+      {:error, :not_found}
+    end
+
+  end
+
+  def component_update_service_real( service, attributes, me) do
+    case attributes do
+      %{ components: components } ->
+        components
+          |> component_update_list_real(me)
+          |> Enum.map(fn uuid ->
+            component_attach_real(service, uuid, me)
+          end)
+      _ ->
+        nil
+    end
+    :ok
+  end
+
+  defp component_add_real( uuid, attributes, me) do
+    user = Serverboards.Auth.User.get_user( me )
+    {:ok, component} = Repo.insert( %Model.Component{
+      uuid: uuid,
+      name: attributes.name,
+      type: attributes.type,
+      creator_id: user.id,
+      priority: attributes.priority,
+      config: attributes.config
+    } )
+
+    Enum.map(attributes.tags, fn name ->
+      Repo.insert( %Model.ComponentTag{name: name, component_id: component.id} )
+    end)
+  end
+
+  defp component_delete_real( component, _me) do
+    import Ecto.Query
+    #user = Serverboards.Auth.User.get_user( me )
+
+    # remove it when used inside any service
+    Repo.delete_all(
+      from sc in Model.ServiceComponent,
+      join: c in Model.Component, on: c.id == sc.component_id,
+      where: c.uuid == ^component
+      )
+
+      # 1 removed
+    case Repo.delete_all( from c in Model.Component, where: c.uuid == ^component ) do
+      {1, _} -> :ok
+      {0, _} -> {:error, :not_found}
+    end
+  end
+
+  defp component_attach_real( service, component, me ) do
+    import Ecto.Query
+    case Repo.one(
+        from sc in Model.ServiceComponent,
+          join: s in Model.Service,
+            on: s.id == sc.service_id,
+          join: c in Model.Component,
+            on: c.id == sc.component_id,
+          where: s.shortname == ^service and
+                 c.uuid == ^component,
+          select: sc.id ) do
+      nil ->
+        user = Serverboards.Auth.User.get_user( me )
+        service_obj = Repo.get_by(Model.Service, shortname: service)
+        component_obj = Repo.get_by(Model.Component, uuid: component)
+        if Enum.all?([service_obj, component_obj]) do
+          {:ok, _service_component} = Repo.insert( %Model.ServiceComponent{
+            service_id: service_obj.id,
+            component_id: component_obj.id
+          } )
+        else
+          Logger.warn("Trying to attach invalid service or component (#{service} (#{inspect service_obj}), #{component} (#{inspect component_obj}))")
+        end
+      _ ->  #  already in
+        nil
+    end
+    :ok
+  end
+
+  defp component_detach_real(service, component, _me ) do
+    import Ecto.Query
+
+    to_remove = Repo.all(
+      from sc in Model.ServiceComponent,
+      join: s in Model.Service, on: s.id == sc.service_id,
+      join: c in Model.Component, on: c.id == sc.component_id,
+      where: c.uuid == ^component and s.shortname == ^service,
+      select: sc.id
+     )
+
+    Repo.delete_all(
+      from sc_ in Model.ServiceComponent,
+      where: sc_.id in ^to_remove )
+
+    :ok
+  end
+
+  # Updates all components in a give service, or creates them. Returns list of uuids.
+  defp component_update_list_real( [], _me), do: []
+  defp component_update_list_real( [ attributes | rest ], me) do
+    uuid = case Map.get(attributes,"uuid",false) do
+      false ->
+        uuid=UUID.uuid4
+        attributes = %{
+          uuid: uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        component_add_real( uuid, attributes, me )
+        uuid
+      uuid ->
+        attributes = %{
+          uuid: uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        nattributes = Serverboards.Utils.drop_empty_values attributes
+
+        component_update_real( uuid, nattributes, me )
+        uuid
+      end
+    [uuid | component_update_list_real(rest, me)]
   end
 
   @doc ~S"""
@@ -141,7 +215,7 @@ defmodule Serverboards.Service.Component do
       config: Map.get(attributes,"config", %{}),
     }
 
-    EventSourcing.dispatch(:service, :add_component, attributes, me.email).component
+    EventSourcing.dispatch(:service, :add_component, attributes, me.email)
     {:ok, attributes.uuid}
   end
 
@@ -186,6 +260,12 @@ defmodule Serverboards.Service.Component do
           {k,v} = case kv do # decompose both tuples and lists / from RPC and from code.
             [k,v] -> {k,v}
             {k,v} -> {k,v}
+          end
+          k = case k do
+            "name" -> :name
+            "type" -> :type
+            "service" -> :service
+            other -> other
           end
           case k do
             :name ->
@@ -292,42 +372,5 @@ defmodule Serverboards.Service.Component do
 
   def component_list_available(filter, me) do
     Serverboards.Plugin.Registry.filter_component type: "component"
-  end
-
-  # Updates all components in a give service, or creates them. Returns list of uuids.
-  def component_update_list( [], _me), do: []
-  def component_update_list( [ attributes | rest ], me) do
-    uuid = case Map.get(attributes,"uuid",false) do
-      false ->
-        uuid=UUID.uuid4
-        attributes = %{
-          uuid: uuid,
-          name: attributes["name"],
-          type: attributes["type"],
-          priority: Map.get(attributes,"priority", 50),
-          tags: Map.get(attributes,"tags", []),
-          config: Map.get(attributes,"config", %{}),
-        }
-
-        EventSourcing.dispatch(
-            :service, :add_component, attributes, me, except: :store
-          )
-        uuid
-      uuid ->
-        attributes = %{
-          uuid: uuid,
-          name: attributes["name"],
-          type: attributes["type"],
-          priority: Map.get(attributes,"priority", 50),
-          tags: Map.get(attributes,"tags", []),
-          config: Map.get(attributes,"config", %{}),
-        }
-
-        EventSourcing.dispatch(
-            :service, :update_component, attributes, me, except: :store
-          )
-        uuid
-      end
-    [uuid | component_update_list(rest, me)]
   end
 end

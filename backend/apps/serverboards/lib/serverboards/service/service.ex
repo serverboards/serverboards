@@ -30,15 +30,7 @@ defmodule Serverboards.Service.Service do
         Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
       end)
 
-      Component.component_update_list(
-          Map.get(attributes, :components, []),
-          me
-        ) |> Enum.map(fn uuid ->
-          EventSourcing.dispatch(
-            :service, :attach_component, [service.shortname, uuid],
-            me, except: :store
-            )
-        end)
+      Component.component_update_service_real( service.shortname, attributes, me )
 
       MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.added", data: %{ service: service} } } )
 
@@ -71,15 +63,6 @@ defmodule Serverboards.Service.Service do
       {:ok, upd} = Repo.update( Model.Service.changeset(
         service, operations
       ) )
-
-      Component.component_update_list(Map.get(operations, :components, []), me) |> Enum.map(fn uuid ->
-        EventSourcing.dispatch(
-          :service, :attach_component, [service.shortname, uuid],
-          me, except: :store
-          )
-      end)
-
-      {:ok, service} = service_info( upd )
 
       MOM.Channel.send( :client_events, %MOM.Message{
         payload: %{ type: "service.updated",

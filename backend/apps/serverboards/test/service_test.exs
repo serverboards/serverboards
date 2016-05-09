@@ -132,8 +132,6 @@ defmodule ServiceTest do
     Test.Client.call client, "component.info", [component]
     Test.Client.call client, "component.list", []
     Test.Client.call client, "component.list", [["type","email"]]
-    Test.Client.call client, "component.delete", [component]
-    Test.Client.call client, "component.list", [["type","email"]]
 
     Test.Client.call client, "service.update", [
       "SBDS-TST8",
@@ -146,8 +144,11 @@ defmodule ServiceTest do
     {:ok, info} = Test.Client.call client, "component.info", [component]
     assert info.name == "new name"
 
-
     Test.Client.call client, "component.delete", [component]
+    {:ok, components} = Test.Client.call client, "component.list", [["type","email"]]
+    assert not (Enum.any? components, &(&1["uuid"] == component))
+
+
     Test.Client.call client, "service.delete", ["SBDS-TST8"]
 
     assert check_if_event_on_service(agent, "service.added", "SBDS-TST8")
