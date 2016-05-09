@@ -371,6 +371,13 @@ defmodule Serverboards.Service.Component do
   end
 
   def component_list_available(filter, me) do
-    Serverboards.Plugin.Registry.filter_component type: "component"
+    Serverboards.Plugin.Registry.filter_component(type: "component")
+      |> Enum.map(fn component ->
+        c = %{
+          name: component.name,
+          type: component.plugin.id <> "/" <> component.id,
+          fields: component.extra["fields"]
+         }
+      end)
   end
 end

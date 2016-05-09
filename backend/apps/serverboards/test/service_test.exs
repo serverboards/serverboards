@@ -173,4 +173,14 @@ defmodule ServiceTest do
 
     component_delete component, user
   end
+
+  test "List available components" do
+    import Serverboards.Service.{Service, Component}
+
+
+    components = component_list_available [], "dmoreno@serverboards.io"
+
+    assert Enum.count(components) > 0
+    assert Enum.count((hd components).fields) > 0
+  end
 end

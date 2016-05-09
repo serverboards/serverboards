@@ -11,3 +11,13 @@ components:
     traits: auth
     id: fake
     command: auth.py
+
+  - name: generic component
+    type: component
+    traits: generic
+    id: server
+    fields:
+      - name: url
+        label: URL
+        placeholder: https://example.com
+        
