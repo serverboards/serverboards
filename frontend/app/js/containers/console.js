@@ -5,10 +5,34 @@ import rpc from '../rpc'
 import {parse} from 'shell-quote'
 
 
+var parse_param = function(param){
+  if (param.indexOf(':')){
+    let [k,v] = param.split(':')
+    return { [k]: v }
+  }
+  if (param.indexOf('=')){
+    let [k,v] = param.split('=')
+    return { [k]: v }
+  }
+  return param
+}
+
+var parse_params = function(params){
+  params = params.map( parse_param )
+
+  let is_dict = params.every( (v) => typeof(v) == 'object' )
+  if (is_dict){
+    params=Object.assign({}, ...params)
+  }
+
+  return params
+}
+
 var parse_line = function(line){
   let cmd = parse(line, {})
 
-  return {method: cmd[0], params: cmd.slice(1)}
+  let rpc= {method: cmd[0], params: parse_params(cmd.slice(1))}
+  return rpc
 }
 
 
