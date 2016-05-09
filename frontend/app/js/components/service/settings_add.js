@@ -36,10 +36,6 @@ var Settings=React.createClass({
   getInitialState : function(){
     let service=this.props.service || {}
     return {
-      name: service.name || "",
-      shortname: service.shortname || "",
-      tags: (service.tags || []).join(' '),
-      description: service.description || "",
       show_dialog: false,
       components: service.components || [],
       maxid: 1
@@ -54,22 +50,29 @@ var Settings=React.createClass({
   change : function(what, ev){
     this.setState({ [what]: ev.target.value })
   },
-  handleSubmit : function(){
-    if ($(this.refs.form).form('validate form')){
-      let state=this.state
+  handleSubmit : function(ev){
+    ev.preventDefault()
+
+    let $form=$(this.refs.form)
+
+    if ($form.form('validate form')){
+      let fields=$form.form('get values')
+
+      let components = this.state.components.map( (c) => {
+        let config =  to_map( c.fields.map( (f) => [f.name, f.value] ) )
+        return {
+          name: config.name, description: config.description,
+          tags: config.tags || [], type: c.type,
+          config: map_drop(config, ["name", "description", "tags"])
+        }
+      })
+
       let service = {
-        name: state.name,
-        shortname: state.shortname,
-        tags: state.tags,
-        description: state.description,
-        components: state.components.map( (c) => {
-          let config =  to_map( c.fields.map( (f) => [f.name, f.value] ) )
-          return {
-            name: config.name, description: config.description,
-            tags: config.tags || [], type: c.type,
-            config: map_drop(config, ["name", "description", "tags"])
-          }
-        } ),
+        name: fields.name,
+        shortname: fields.shortname,
+        tags: fields.tags.split(' '),
+        description: fields.description,
+        components: components
       }
       this.props.onSubmit( service )
     }
@@ -135,7 +138,7 @@ var Settings=React.createClass({
         shortname: 'minLength[4]',
         name: 'minLength[4]'
       }
-    })
+    }).on('submit', this.handleSubmit)
   },
   render : function(){
     let props=this.props
@@ -176,7 +179,7 @@ var Settings=React.createClass({
     if (!props.edit){
       accept_buttons=(
         <div className="field">
-          <button type="button" className="ui button positive" onClick={this.handleSubmit}>Create service</button>
+          <button type="submit" className="ui button positive">Create service</button>
         </div>
       )
     }
@@ -184,7 +187,7 @@ var Settings=React.createClass({
       accept_buttons=(
         <div className="two fields">
           <div className="field">
-            <button type="button" className="ui button positive" onClick={this.handleSubmit}>Update service</button>
+            <button type="submit" className="ui button positive">Update service</button>
           </div>
           <div className="ui field right aligned">
             <button type="button" className="ui button negative" onClick={this.handleDelete}>Delete service</button>
@@ -194,6 +197,7 @@ var Settings=React.createClass({
     }
 
     let state=this.state
+    let service=this.props.service
 
     return (
       <div className="ui background white central">
@@ -202,22 +206,27 @@ var Settings=React.createClass({
             <h1 className="ui header">Add a new service</h1>
             <div className="field">
               <label>Shortname</label>
-              <input type="text" name="shortname" value={state.shortname} onChange={(ev) => this.change("shortname", ev)}
+              <input type="text" name="shortname"
+                defaultValue={service.shortname}
                 placeholder="Ex. CMPNY"/>
             </div>
             <div className="field">
               <label>Service Name</label>
-              <input type="text" name="name" value={state.name} onChange={(ev) => this.change("name", ev)}
+              <input type="text" name="name"
+                defaultValue={service.name}
                 placeholder="Ex. My company name, web services, external services..."/>
             </div>
             <div className="field">
               <label>Tags</label>
-              <input type="text" value={state.tags} onChange={(ev) => this.change("tags", ev)}
+              <input type="text" name="tags"
+                defaultValue={service.tags.join(' ')}
                 placeholder="Ex. web, mail, external..."/>
             </div>
             <div className="field">
               <label>Description</label>
-              <textarea value={state.description} onChange={(ev) => this.change("description", ev)} placeholder="Long description"/>
+              <textarea placeholder="Long description"  name="description"
+                defaultValue={service.description}
+                />
             </div>
 
             <div className="field">

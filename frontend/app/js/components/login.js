@@ -3,10 +3,9 @@ import React, {PropTypes} from 'react';
 var LoginView = React.createClass({
   handleSubmit(ev){
     let $form = $(this.refs.el)
-    let fields = $form.form('get values')
 
-    console.log("%o %o", ev, fields);
     if ($form.form('validate form')){
+      let fields = $form.form('get values')
       this.props._onSubmit(
         Object.assign({type: 'basic'}, fields)
       )
