@@ -1,6 +1,6 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
-import AddComponentModal from './addcomponent'
+import AddComponentModal from '../../containers/service/addcomponent'
 import SetupComponentModal from './setupcomponent'
 import {to_map, map_drop} from '../../utils'
 
@@ -43,12 +43,6 @@ var Settings=React.createClass({
       current_component: undefined,
     }
   },
-  componentWillMount : function(){
-    let props=this.props
-    if (props.available_components.length == 0){
-      props.updateComponentCatalog()
-    }
-  },
   change : function(what, ev){
     this.setState({ [what]: ev.target.value })
   },
@@ -89,12 +83,8 @@ var Settings=React.createClass({
       state: {modal }
     } )
   },
-  handleAddComponent : function(component_id){
-    let current_component=Object.assign({}, this.props.available_components.find((c) => c.id == component_id))
-    current_component.fields=$.extend(true, [], default_component_fields(current_component.name).concat( current_component.extra.fields ) )
-    current_component.type=current_component.id
+  handleAddComponent : function(current_component){
     current_component.id=this.state.maxid+1
-    delete current_component.extra
     this.setState({
       components: this.state.components.concat(current_component),
       maxid: current_component.id
@@ -161,8 +151,7 @@ var Settings=React.createClass({
         popup=(
           <AddComponentModal
             onAdd={this.handleAddComponent}
-            onClose={this.closeModal}
-            components={props.available_components}/>
+            onClose={this.closeModal}/>
         )
         break;
       case 'setup_component':
@@ -199,7 +188,7 @@ var Settings=React.createClass({
     }
 
     let state=this.state
-    let service=this.props.service
+    let service=this.props.service || { tags: [], name: '', description: ''}
 
     return (
       <div className="ui background white central">

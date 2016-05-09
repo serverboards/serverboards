@@ -5,7 +5,6 @@ import { service_delete, service_update, service_reload_components, components_u
 
 var Settings=connect(
   (state) => {
-    console.log("Update settings: %o", state.service.current_components)
     return {
       available_components: state.service.available_components,
       current_components: state.service.current_components

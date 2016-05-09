@@ -23,7 +23,7 @@ function service_update_all(){
 function service_add(data){
   return function(dispatch, store){
     rpc.call("service.add",
-        [ data.shortname, {name: data.name || "", tags: data.tags.split(' ')}]
+        [ data.shortname, {name: data.name, tags: data.tags, description: data.description}]
       ).then(function(){
         Flash.info(`Added service ${data.name}`)
       })
