@@ -1,10 +1,11 @@
 import React from 'react'
+import {random_color} from '../../utils'
 
 function Overview(props){
-  function tag(props){
+  function tag(tagname){
     return (
-      <span className="ui label">
-        {props}
+      <span key={tagname} className={`ui label ${random_color(tagname)}`}>
+        {tagname}
       </span>
     )
   }
