@@ -135,6 +135,18 @@ defmodule ServiceTest do
     Test.Client.call client, "component.delete", [component]
     Test.Client.call client, "component.list", [["type","email"]]
 
+    Test.Client.call client, "service.update", [
+      "SBDS-TST8",
+      %{
+        "components" => [
+          %{ "uuid" => component, "name" => "new name" }
+        ]
+      }
+    ]
+    {:ok, info} = Test.Client.call client, "component.info", [component]
+    assert info.name == "new name"
+
+
     Test.Client.call client, "component.delete", [component]
     Test.Client.call client, "service.delete", ["SBDS-TST8"]
 

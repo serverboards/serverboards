@@ -44,14 +44,30 @@ defmodule Serverboards.Service.Component do
         {0, _} -> {:error, :not_found}
       end
     end
+
+    # This attach_component is idempotent
     subscribe :service, :attach_component, fn [service, component], me ->
-      user = Serverboards.Auth.User.get_user( me )
-      service = Repo.get_by!(Model.Service, shortname: service)
-      component = Repo.get_by!(Model.Component, uuid: component)
-      {:ok, _service_component} = Repo.insert( %Model.ServiceComponent{
-        service_id: service.id,
-        component_id: component.id
-      } )
+      import Ecto.Query
+      case Repo.one(
+          from sc in Model.ServiceComponent,
+            join: s in Model.Service,
+              on: s.id == sc.service_id,
+            join: c in Model.Component,
+              on: c.id == sc.component_id,
+            where: s.shortname == ^service and
+                   c.uuid == ^component,
+            select: sc.id ) do
+        nil ->
+          user = Serverboards.Auth.User.get_user( me )
+          service = Repo.get_by!(Model.Service, shortname: service)
+          component = Repo.get_by!(Model.Component, uuid: component)
+          {:ok, _service_component} = Repo.insert( %Model.ServiceComponent{
+            service_id: service.id,
+            component_id: component.id
+          } )
+        _ ->  #  already in
+          nil
+      end
       :ok
     end
     subscribe :service, :detach_component, fn [service, component], _me ->
@@ -125,7 +141,8 @@ defmodule Serverboards.Service.Component do
       config: Map.get(attributes,"config", %{}),
     }
 
-    {:ok, EventSourcing.dispatch(:service, :add_component, attributes, me.email).component}
+    EventSourcing.dispatch(:service, :add_component, attributes, me.email).component
+    {:ok, attributes.uuid}
   end
 
   def component_delete(component, me) do
@@ -268,12 +285,49 @@ defmodule Serverboards.Service.Component do
         end
       end)
 
-    {:ok,
-      EventSourcing.dispatch(:service, :update_component, [component, changes], me.email).component
-    }
+    EventSourcing.dispatch(:service, :update_component, [component, changes], me.email)
+
+    {:ok, component }
   end
 
   def component_list_available(filter, me) do
     Serverboards.Plugin.Registry.filter_component type: "component"
+  end
+
+  # Updates all components in a give service, or creates them. Returns list of uuids.
+  def component_update_list( [], _me), do: []
+  def component_update_list( [ attributes | rest ], me) do
+    uuid = case Map.get(attributes,"uuid",false) do
+      false ->
+        uuid=UUID.uuid4
+        attributes = %{
+          uuid: uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        EventSourcing.dispatch(
+            :service, :add_component, attributes, me, except: :store
+          )
+        uuid
+      uuid ->
+        attributes = %{
+          uuid: uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        EventSourcing.dispatch(
+            :service, :update_component, attributes, me, except: :store
+          )
+        uuid
+      end
+    [uuid | component_update_list(rest, me)]
   end
 end

@@ -7,11 +7,9 @@ defmodule Serverboards.Service.Service do
   alias Serverboards.Repo
   alias Serverboards.Service.Model
   alias Serverboards.MOM
-
+  alias Serverboards.Service.{Component, Service}
 
   def start_link(options) do
-    alias Serverboards.Service.{Component, Service}
-
     {:ok, es} = EventSourcing.start_link name: :service
     {:ok, rpc} = Serverboards.Service.RPC.start_link
 
@@ -25,39 +23,29 @@ defmodule Serverboards.Service.Service do
   end
 
   def setup_eventsourcing(es) do
-    EventSourcing.subscribe :service, :add_service, fn attributes, _me ->
+    EventSourcing.subscribe :service, :add_service, fn attributes, me ->
       {:ok, service} = Repo.insert( Model.Service.changeset(%Model.Service{}, attributes) )
 
       Enum.map(Map.get(attributes, :tags, []), fn name ->
         Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
       end)
 
-      Enum.map(Map.get(attributes, :components, []), fn attributes ->
-        component_uuid=UUID.uuid4
-        attributes = %{
-          uuid: component_uuid,
-          name: attributes["name"],
-          type: attributes["type"],
-          priority: Map.get(attributes,"priority", 50),
-          tags: Map.get(attributes,"tags", []),
-          config: Map.get(attributes,"config", %{}),
-        }
-
-        EventSourcing.dispatch(
-            :service, :add_component, attributes, _me, except: :store
-          )
-        EventSourcing.dispatch(
-            :service, :attach_component, [service.shortname, component_uuid],
-            _me, except: :store
-          )
-      end)
+      Component.component_update_list(
+          Map.get(attributes, :components, []),
+          me
+        ) |> Enum.map(fn uuid ->
+          EventSourcing.dispatch(
+            :service, :attach_component, [service.shortname, uuid],
+            me, except: :store
+            )
+        end)
 
       MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.added", data: %{ service: service} } } )
 
       service.shortname
     end, name: :service
 
-    EventSourcing.subscribe :service, :update_service, fn [shortname, operations], _me ->
+    EventSourcing.subscribe :service, :update_service, fn [shortname, operations], me ->
       import Ecto.Query
       # update tags
       service = Repo.get_by!(Model.Service, shortname: shortname)
@@ -84,10 +72,19 @@ defmodule Serverboards.Service.Service do
         service, operations
       ) )
 
+      Component.component_update_list(Map.get(operations, :components, []), me) |> Enum.map(fn uuid ->
+        EventSourcing.dispatch(
+          :service, :attach_component, [service.shortname, uuid],
+          me, except: :store
+          )
+      end)
+
+      {:ok, service} = service_info( upd )
+
       MOM.Channel.send( :client_events, %MOM.Message{
         payload: %{ type: "service.updated",
           data: %{
-            shortname: shortname, service: upd
+            shortname: shortname, service: service
             }
           } } )
 
@@ -124,7 +121,7 @@ defmodule Serverboards.Service.Service do
 
   """
   def service_add(shortname, attributes, me) do
-    %{ service: service } = EventSourcing.dispatch :service, :add_service, %{
+    EventSourcing.dispatch :service, :add_service, %{
       shortname: shortname,
       creator_id: me.id,
       name: Map.get(attributes,"name", shortname),
@@ -133,7 +130,7 @@ defmodule Serverboards.Service.Service do
       tags: Map.get(attributes, "tags", []),
       components: Map.get(attributes, "components", [])
     }, me.email
-    {:ok, service}
+    {:ok, shortname}
   end
 
 
@@ -166,6 +163,7 @@ defmodule Serverboards.Service.Service do
         "priority" -> :priority
         "tags" -> :tags
         "shortname" -> :shortname
+        "components" -> :components
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise Exception, "Unknown operation updating service #{service.shortname}: #{inspect e}. Failing."
@@ -177,7 +175,9 @@ defmodule Serverboards.Service.Service do
         end
       end)
 
-    EventSourcing.dispatch(:service, :update_service, [service.shortname, changes], me.email).service
+    EventSourcing.dispatch(:service, :update_service, [service.shortname, changes], me.email)
+    
+    :ok
   end
   def service_update(service_id, operations, me) when is_number(service_id) do
     service_update(Repo.get_by(Model.Service, [id: service_id]), operations, me)
@@ -204,6 +204,8 @@ defmodule Serverboards.Service.Service do
   Returns the information of a service by id or name
   """
   def service_info(%Serverboards.Service.Model.Service{} = service) do
+    service = Repo.preload(service, :tags)
+
     service = %{
       service |
       tags: Enum.map(service.tags, fn t -> t.name end)
@@ -215,23 +217,23 @@ defmodule Serverboards.Service.Service do
        where: sc.service_id == ^service.id,
       select: c)
     service = Map.put(service, :components, components)
-    
-    Logger.info("Got service #{inspect service}")
-    service
+
+    #Logger.info("Got service #{inspect service}")
+    {:ok, service}
   end
 
   def service_info(service_id, _me) when is_number(service_id) do
     case Repo.one( from( s in Model.Service, where: s.id == ^service_id, preload: :tags ) ) do
       nil -> {:error, :not_found}
       service ->
-        {:ok, service_info(service)}
+        service_info(service)
     end
   end
   def service_info(service_shortname, _me) when is_binary(service_shortname) do
     case Repo.one( from(s in Model.Service, where: s.shortname == ^service_shortname, preload: :tags ) ) do
       nil -> {:error, :not_found}
       service ->
-        {:ok, service_info(service)}
+        service_info(service)
     end
   end
 
@@ -261,5 +263,4 @@ defmodule Serverboards.Service.Service do
      end)
     {:ok, services }
   end
-
 end
