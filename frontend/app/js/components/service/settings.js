@@ -4,6 +4,29 @@ import Loading from '../loading'
 import {default_component_fields} from './settings_add'
 
 let Settings=React.createClass({
+  initialComponents : function(){
+    if (this.props.current_components){
+      let components = this.props.current_components.map( (c) =>{
+        let componentbase = this.props.available_components.find((cb) => cb.type == c.type )
+        let fields = default_component_fields(componentbase.name)
+        fields = $.extend(true, [], fields.concat( componentbase.fields )) // dup
+        for (let f of fields){
+          f.value=c.config[f.name]
+        }
+
+        return {
+          uuid: c.uuid,
+          type: c.type,
+          fields : fields,
+          name: c.name
+        }
+      })
+      console.log("Set components: %o", components)
+      return components
+    }
+    console.log("No components")
+    return []
+  },
   handleUpdate : function( service ){
     this.props.onUpdate( this.props.service.shortname, service )
   },
@@ -11,36 +34,26 @@ let Settings=React.createClass({
     this.props.onDelete( this.props.service.shortname )
   },
   componentDidMount : function(){
-    if (this.props.current_components == undefined){
+    if (!this.props.current_components){
+      console.log("Refresh components")
       this.props.refreshComponents( this.props.service.shortname )
     }
-    if (this.props.available_components == undefined){
+    if (!this.props.available_components){
+      console.log("Refresh component catalog")
       this.props.updateComponentCatalog()
     }
   },
   render: function(){
-    // This is a hack because just changing a property does not work in react (maybe bug?)
-    // Anyway, shows loading fr a sec, when data ready shows it all.
-    if (this.props.current_components == undefined || this.props.available_components == undefined )
+    // Show loading until all data is ready to show.
+    if (!this.props.current_components || !this.props.available_components){
       return (
-        <Loading/>
+        <Loading>
+          Getting components at {this.props.service.name}
+        </Loading>
       )
+    }
 
-    let components = this.props.current_components.map( (c) =>{
-      let componentbase = this.props.available_components.find((cb) => cb.type == c.type )
-      let fields = default_component_fields(componentbase.name)
-      fields = $.extend(true, [], fields.concat( componentbase.fields )) // dup
-      for (let f of fields){
-        f.value=c.config[f.name]
-      }
-
-      return {
-        uuid: c.uuid,
-        type: c.type,
-        fields : fields,
-        name: c.name
-      }
-    })
+    let initial_components=this.initialComponents()
 
     return (
       <SettingsAdd
@@ -48,7 +61,7 @@ let Settings=React.createClass({
         edit={true}
         onSubmit={this.handleUpdate}
         onDelete={this.handleDelete}
-        initial_components={components}
+        initial_components={initial_components}
         updateComponentCatalog={this.props.updateComponentCatalog}
         />
     )

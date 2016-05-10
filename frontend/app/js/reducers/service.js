@@ -9,7 +9,7 @@ function service(state=default_state, action){
   switch(action.type){
     case '@@router/LOCATION_CHANGE':
       var current=action.payload.pathname.replace(RegExp("^/service/([^/]*)/.*"), "$1")
-      var current_components=status.current_component
+      var current_components=state.current_components
       if (current!=state.current){ // On change of location, no current components
         current_components=undefined
       }
