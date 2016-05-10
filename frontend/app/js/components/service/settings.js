@@ -44,7 +44,6 @@ let Settings=React.createClass({
   },
   render: function(){
     // Show loading until all data is ready to show.
-    console.log(this.props.current_components, this.props.available_components)
     if (!this.props.current_components || !this.props.available_components){
       return (
         <Loading>
@@ -57,6 +56,7 @@ let Settings=React.createClass({
 
     return (
       <SettingsAdd
+        title={`Edit ${this.props.service.name}`}
         service={this.props.service}
         edit={true}
         onSubmit={this.handleUpdate}

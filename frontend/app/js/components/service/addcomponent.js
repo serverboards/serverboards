@@ -37,7 +37,6 @@ let AddComponent=React.createClass({
     }
 
 
-    console.log(props)
     let self=this
 
     function WrappedComponent(props){

@@ -205,7 +205,7 @@ var Settings=React.createClass({
       <div className="ui background white central">
         <div className="ui text container">
           <form className="ui form" ref="form">
-            <h1 className="ui header">Add a new service</h1>
+            <h1 className="ui header">{this.props.title}</h1>
             <div className="field">
               <label>Shortname</label>
               <input type="text" name="shortname"
