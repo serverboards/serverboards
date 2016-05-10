@@ -33,7 +33,7 @@ function service(state=default_state, action){
       })
       let current_components=state.current_components
       if (state.current==action.shortname)
-        current_components=action.components
+        current_components=action.service.components
 
       return Object.assign({}, state, {services, current_components})
   }
