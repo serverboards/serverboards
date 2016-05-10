@@ -2,7 +2,10 @@ import React from 'react'
 
 function Loading(props){
   return (
-    <h1>Loading data..</h1>
+    <div className="">
+      <h1>Loading data</h1>
+      {props.children}
+    </div>
   )
 }
 

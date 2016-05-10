@@ -30,7 +30,9 @@ let AddComponent=React.createClass({
     let props=this.props
     if (!this.props.available_components){
       return (
-        <Loading/>
+        <Loading>
+          Getting available component list
+        </Loading>
       )
     }
 

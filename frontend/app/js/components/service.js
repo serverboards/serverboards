@@ -29,7 +29,9 @@ var SidebarSections = function(props){
 var Service = function(props){
   if (!props.service)
     return (
-      <Loading/>
+      <Loading>
+      Service information.
+      </Loading>
     )
 
   let section = props.params.section || 'default'
