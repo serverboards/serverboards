@@ -64,6 +64,8 @@ defmodule Serverboards.Service.Service do
         service, operations
       ) )
 
+      {:ok, service} = service_info upd
+
       MOM.Channel.send( :client_events, %MOM.Message{
         payload: %{ type: "service.updated",
           data: %{
@@ -159,7 +161,7 @@ defmodule Serverboards.Service.Service do
       end)
 
     EventSourcing.dispatch(:service, :update_service, [service.shortname, changes], me.email)
-    
+
     :ok
   end
   def service_update(service_id, operations, me) when is_number(service_id) do
