@@ -10,6 +10,7 @@ let Settings=React.createClass({
         let componentbase = this.props.available_components.find((cb) => cb.type == c.type )
         let fields = default_component_fields(componentbase.name)
         fields = $.extend(true, [], fields.concat( componentbase.fields )) // dup
+        c.config.name=c.name
         for (let f of fields){
           f.value=c.config[f.name]
         }
@@ -21,10 +22,8 @@ let Settings=React.createClass({
           name: c.name
         }
       })
-      console.log("Set components: %o", components)
       return components
     }
-    console.log("No components")
     return []
   },
   handleUpdate : function( service ){

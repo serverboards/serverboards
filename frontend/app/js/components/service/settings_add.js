@@ -5,8 +5,7 @@ import SetupComponentModal from './setupcomponent'
 import {to_map, map_drop} from '../../utils'
 
 function Component(props){
-  console.log(props)
-  let name = props.fields[0].value || props.name
+  let name = props.fields[0].value || props.name || 'Unknown'
   return (
     <div>
       <LogoIcon name={name}/>
@@ -33,6 +32,15 @@ function default_component_fields(name){
   ]
 }
 
+// Two components refer to the same, used for replacing and deleting
+function component_same(c1, c2){
+  return (
+    (c1.id && c1.id == c2.id)
+    ||
+    (c1.uuid == c2.uuid)
+  )
+}
+
 var Settings=React.createClass({
   getInitialState : function(){
     let service=this.props.service || {}
@@ -57,6 +65,7 @@ var Settings=React.createClass({
       let components = this.state.components.map( (c) => {
         let config =  to_map( c.fields.map( (f) => [f.name, f.value] ) )
         return {
+          uuid: c.uuid,
           name: config.name, description: config.description,
           tags: config.tags || [], type: c.type,
           config: map_drop(config, ["name", "description", "tags"])
@@ -97,10 +106,12 @@ var Settings=React.createClass({
     this.setModal(false)
   },
   handleUpdateComponent : function(component){
-    this.setState({
-      components: this.state.components.map(
-        (c) => c.id == component.id ? component : c)
-    })
+    let components = this.state.components.map(
+      (c) => component_same(c, component) ? component : c
+    )
+    console.log(this.state.components, components)
+
+    this.setState({ components })
     this.setModal(false)
   },
   handleOpenUpdateComponent : function(current_component, ev){
@@ -115,7 +126,7 @@ var Settings=React.createClass({
     if (component)
       this.setState({
         components: this.state.components.filter(
-          (c) => c.id != component.id
+          (c) => !component_same( c, component )
         )
       })
     this.setModal(false)
@@ -138,7 +149,7 @@ var Settings=React.createClass({
 
     function WrappedComponent(c){
       return (
-        <div key={c.id} className="column center aligned">
+        <div key={c.id || c.uuid} className="column center aligned">
           <a href="#" onClick={(ev) => self.handleOpenUpdateComponent(c, ev)}>
             {Component(c)}
           </a>

@@ -23,16 +23,19 @@ function service(state=default_state, action){
     case '@RPC_EVENT/service.added':
       return Object.assign({}, state, {services: state.services.concat(action.service) } )
     case '@RPC_EVENT/service.deleted':
-      console.log(action)
       return Object.assign({}, state, {services: state.services.filter( s => s.shortname != action.shortname ) } )
     case '@RPC_EVENT/service.updated':
-      console.log(action)
-      return Object.assign({}, state, {services: state.services.map( s => {
+      let services = state.services.map( s => {
         if (s.shortname == action.shortname){
           return action.service
         }
         return s
-      }) })
+      })
+      let current_components=state.current_components
+      if (state.current==action.shortname)
+        current_components=action.components
+
+      return Object.assign({}, state, {services, current_components})
   }
   return state
 }
