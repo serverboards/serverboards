@@ -18,6 +18,8 @@ function service(state=default_state, action){
       return Object.assign({}, state, {services: action.services} )
     case 'UPDATE_COMPONENTS':
       return Object.assign({}, state, {available_components: action.components} )
+    case 'UPDATE_ALL_COMPONENTS':
+      return Object.assign({}, state, {all_components: action.components} )
     case 'UPDATE_SERVICE_COMPONENTS':
       return Object.assign({}, state, {current_components: action.components} )
     case '@RPC_EVENT/service.added':

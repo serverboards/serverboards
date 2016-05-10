@@ -103,6 +103,14 @@ var Settings=React.createClass({
     this.setModal('setup_component')
     this.setState({ current_component })
   },
+  handleAttachComponent : function( component ){
+    this.setState({
+      components: this.state.components.concat(component),
+      current_component: undefined
+    })
+
+    this.setModal(false)
+  },
   closeModal : function(component_id){
     this.setModal(false)
   },
@@ -163,6 +171,7 @@ var Settings=React.createClass({
         popup=(
           <AddComponentModal
             onAdd={this.handleAddComponent}
+            onAttach={this.handleAttachComponent}
             onClose={this.closeModal}/>
         )
         break;

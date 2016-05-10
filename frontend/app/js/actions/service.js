@@ -12,6 +12,17 @@ function components_update_catalog(){
   }
 }
 
+function components_update_all(){
+  return function(dispatch){
+    rpc.call("component.list",[]).then(function(components){
+      dispatch({
+        type:"UPDATE_ALL_COMPONENTS",
+        components: components
+      })
+    })
+  }
+}
+
 function service_update_all(){
   return function(dispatch){
     rpc.call("service.list",[]).then(function(data){
@@ -65,5 +76,6 @@ export {
   service_update_all,
   service_delete,
   service_update,
-  service_reload_components
+  service_reload_components,
+  components_update_all
   }
