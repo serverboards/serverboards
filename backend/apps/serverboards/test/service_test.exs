@@ -183,4 +183,29 @@ defmodule ServiceTest do
     assert Enum.count(components) > 0
     assert Enum.count((hd components).fields) > 0
   end
+
+  test "Update service removing components" do
+    import Serverboards.Service.{Service, Component}
+    user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+
+    # delete all
+    service_add "SBDS-TST10", %{ "name" => "Test 1", "components" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user
+    {:ok, info} = service_info "SBDS-TST10", user
+    assert Enum.count(info.components) == 1
+    service_update "SBDS-TST10", %{ "components" => []}, user
+    {:ok, info} = service_info "SBDS-TST10", user
+    assert Enum.count(info.components) == 0
+
+    # add one
+    service_update "SBDS-TST10", %{ "components" => [%{ "type" => "email", "name" => "add again email", "config" => %{} }]}, user
+    {:ok, info} = service_info "SBDS-TST10", user
+    assert Enum.count(info.components) == 1
+
+    # replace
+    service_update "SBDS-TST10", %{ "components" => [%{ "type" => "email", "name" => "replace email", "config" => %{} }]}, user
+    {:ok, info} = service_info "SBDS-TST10", user
+    assert Enum.count(info.components) == 1
+
+    service_delete "SBDS-TST10", user
+  end
 end

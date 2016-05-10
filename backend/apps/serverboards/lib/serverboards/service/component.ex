@@ -61,13 +61,45 @@ defmodule Serverboards.Service.Component do
   end
 
   def component_update_service_real( service, attributes, me) do
+    import Ecto.Query
+
     case attributes do
       %{ components: components } ->
-        components
+        current_uuids = components
           |> component_update_list_real(me)
+
+        current_uuids
           |> Enum.map(fn uuid ->
             component_attach_real(service, uuid, me)
           end)
+
+        # now detach from non listed uuids
+        Logger.info(inspect current_uuids)
+        if (Enum.count current_uuids) == 0 do # remove all
+          Repo.delete_all(
+            from sc in Model.ServiceComponent,
+            join: s in Model.Service,
+              on: s.id == sc.service_id,
+           where: s.shortname == ^service
+           )
+        else
+          # remove only not updated
+          ids_to_remove = Repo.all(
+            from sc in Model.ServiceComponent,
+             join: c in Model.Component,
+               on: c.id == sc.component_id,
+             join: s in Model.Service,
+               on: s.id == sc.service_id,
+             where: s.shortname == ^service and
+                    not (c.uuid in ^current_uuids),
+            select: sc.id
+          )
+          Repo.delete_all(
+             from sc_ in Model.ServiceComponent,
+            where: sc_.id in ^ids_to_remove
+            )
+        end
+
       _ ->
         nil
     end
