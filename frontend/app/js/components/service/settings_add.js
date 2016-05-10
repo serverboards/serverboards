@@ -3,6 +3,7 @@ import LogoIcon from '../logoicon'
 import AddComponentModal from '../../containers/service/addcomponent'
 import SetupComponentModal from './setupcomponent'
 import {to_map, map_drop} from '../../utils'
+import HoldButton from '../holdbutton'
 
 function Component(props){
   let name = props.fields[0].value || props.name || 'Unknown'
@@ -192,7 +193,7 @@ var Settings=React.createClass({
             <button type="submit" className="ui button positive">Update service</button>
           </div>
           <div className="ui field right aligned">
-            <button type="button" className="ui button negative" onClick={props.onDelete}>Delete service</button>
+            <HoldButton type="button" className="ui button negative" onClick={props.onDelete}>Delete service</HoldButton>
           </div>
         </div>
       )

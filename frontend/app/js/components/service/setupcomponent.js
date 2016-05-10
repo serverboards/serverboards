@@ -1,6 +1,7 @@
 import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
+import HoldButton from '../holdbutton'
 
 let SetupComponent=React.createClass({
   getInitialState : function(){
@@ -39,7 +40,7 @@ let SetupComponent=React.createClass({
         </div>
         <div className="actions">
           <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>
-          <button className="ui red button" onClick={props.onDelete}>Delete</button>
+          <HoldButton className="ui red button" onClick={props.onDelete}>Delete</HoldButton>
           <button className="ui cancel button" onClick={props.onClose}>Cancel</button>
         </div>
       </Modal>
