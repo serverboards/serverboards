@@ -192,7 +192,7 @@ var Settings=React.createClass({
             <button type="submit" className="ui button positive">Update service</button>
           </div>
           <div className="ui field right aligned">
-            <button type="button" className="ui button negative" onClick={this.handleDelete}>Delete service</button>
+            <button type="button" className="ui button negative" onClick={props.onDelete}>Delete service</button>
           </div>
         </div>
       )
