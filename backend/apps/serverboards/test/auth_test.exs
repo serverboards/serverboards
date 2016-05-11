@@ -23,7 +23,7 @@ defmodule Serverboards.AuthTest do
 		Client.expect( client, method: "auth.required" )
 		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }) == {:ok, false}
 
-    user = Serverboards.Auth.User.get_user "dmoreno@serverboards.io"
+    user = Serverboards.Auth.User.user_info "dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" }
     token = Serverboards.Auth.User.Token.create(user)
 
 		{:ok, user} = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
