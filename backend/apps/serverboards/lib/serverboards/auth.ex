@@ -154,6 +154,7 @@ defmodule Serverboards.Auth do
     EventSourcing.subscribe es, :debug_full
 
 		Serverboards.Auth.User.setup_eventsourcing(es)
+		Serverboards.Auth.Group.setup_eventsourcing(es)
 
 		{:ok, %{
 			auths: %{}

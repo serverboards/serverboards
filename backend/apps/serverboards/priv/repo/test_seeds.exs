@@ -10,6 +10,8 @@ require Logger
 all_perms = [
     "auth.modify_self", "auth.modify_any",
     "auth.create_user", "auth.create_token",
+    "auth.info_any_user",
+    "auth.modify_groups", "auth.manage_groups",
     "plugin",
     "service.add", "service.update", "service.delete", "service.info",
     "service.component.add", "service.component.attach",
@@ -37,7 +39,8 @@ data = [
 
 defmodule Seeds do
   alias Serverboards.Repo
-  alias Serverboards.Auth.{User, Group}
+  alias Serverboards.Auth.Model
+  alias Serverboards.Auth
 
   def import_data([]) do
     :ok
@@ -56,29 +59,45 @@ defmodule Seeds do
     import_data(t)
   end
 
+  def system_user do
+    %{
+      email: "system",
+      id: -1,
+      perms: [
+        "auth.modify_self", "auth.modify_any",
+        "auth.create_user", "auth.create_token",
+        "auth.info_any_user",
+        "auth.modify_groups", "auth.manage_groups",
+        "plugin",
+        "service.add", "service.update", "service.delete", "service.info",
+        "service.component.add", "service.component.attach",
+        "service.component.update", "service.component.delete",
+        "debug"
+      ] }
+  end
+
 
   def import_user(user) do
-    u = Repo.get_or_create_and_update(User, [email: user.email], user)
+    #u = Repo.get_or_create_and_update(Model.User, [email: user.email], user)
 
     Enum.map user.groups, fn gn ->
-      g = Repo.get_or_create_and_update(Group, [name: gn], %{name: gn})
-      Group.add_user g, u
+      #Repo.get_or_create_and_update(Model.Group, [name: gn], %{name: gn})
+      :ok = Auth.Group.user_add gn, user.email, system_user
     end
   end
 
   def import_group(group) do
-    g = Repo.get_or_create_and_update(Group, [name: group.name], group)
     Enum.map group.perms, fn p ->
-      Group.add_perm g, p
+      :ok = Auth.Group.perm_add group.name, p, system_user
     end
   end
 
   def import_password({email, password}) do
-    user = User.get_user(email)
-    User.Password.set_password(user, password)
+    user = Auth.User.user_info(email, system_user)
+    :ok = Auth.User.Password.password_set(user, password, user)
   end
 end
 
-Serverboards.Repo.transaction fn ->
+#Serverboards.Repo.transaction fn ->
   Seeds.import_data(data)
-end
+#end

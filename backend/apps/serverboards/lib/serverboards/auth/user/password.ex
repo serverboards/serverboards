@@ -9,19 +9,13 @@ defmodule Serverboards.Auth.User.Password do
 	permissions.
 	"""
 	def auth(email, password) do
-	 user=case Repo.get_by(User, email: email, is_active: true) do
+	 user=case Repo.get_by(Serverboards.Auth.Model.User, email: email, is_active: true) do
 		 {:error, _} -> nil
 		 user -> user
 	 end
 	 if user do
 		 if password_check(user, password, user) do
-			 %{
-				 id: user.id,
-				 email: user.email,
-				 first_name: user.first_name,
-				 last_name: user.last_name,
-				 perms: User.get_perms(user)
-			 }
+			 Serverboards.Auth.User.user_info(user)
 		 else
 			 {:error, :invalid_user_or_password}
 		 end

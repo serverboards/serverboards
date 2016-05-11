@@ -13,6 +13,10 @@ auth.modify_self -- Modify my own user
 auth.modify_any  -- Modify any user
 auth.create_user -- Create user
 auth.create_token -- Creates an auth token
+auth.info_any_user -- Can get info on any user
+
+auth.modify_groups -- Creates/update/remove groups
+auth.manage_groups -- Adds/removes users from groups
 
 ## Plugins
 

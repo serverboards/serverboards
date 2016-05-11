@@ -23,4 +23,28 @@ defmodule Serverboards.Auth.User.Model do
   		ret
   	end
   end
+
+  defmodule Token do
+    use Ecto.Schema
+    schema "auth_user_token" do
+      field :token, :string
+      field :time_limit, Ecto.DateTime
+      belongs_to :user, User
+
+      timestamps
+  	end
+
+  	@required_fields ~w(user, token)
+  	@optional_fields ~w()
+
+    def changeset(token, params \\ :empty) do
+      import Ecto.Changeset
+  		time_limit = Timex.to_erlang_datetime( Timex.shift( Timex.DateTime.now, days: 1 ) )
+  		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
+
+      token
+        |> cast(params, [:token, :user_id], [])
+        |> put_change(:time_limit, time_limit )
+    end
+  end
 end
