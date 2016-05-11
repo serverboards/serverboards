@@ -13,7 +13,8 @@ var Top=connect(
   (dispatch) => {
     return {
       onLogout: () => dispatch(logout()),
-      toggleUserMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: 'user'})
+      toggleUserMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: 'user'}),
+      closeMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
     }
   }
 )(TopView)

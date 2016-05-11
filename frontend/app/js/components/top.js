@@ -1,5 +1,5 @@
 import React from 'react'
-import TopUser from './top/user.js'
+import UserMenu from '../containers/top/usermenu.js'
 import {Link} from '../router'
 
 var Top = function(props){
@@ -7,7 +7,9 @@ var Top = function(props){
   if (props.menu == 'user'){
     console.log("Show user menu")
     menu.user=(
-      <TopUser user={props.user} onLogout={props.onLogout}/>
+      <div onClick={props.toggleUserMenu} style={{position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "none"}}>
+        <UserMenu/>
+      </div>
     )
   }
   let logo=require("../../imgs/logo.svg")

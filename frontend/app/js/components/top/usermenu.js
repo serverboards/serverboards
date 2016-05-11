@@ -1,7 +1,7 @@
 import React from 'react'
 import {Link} from '../../router'
 
-function TopUser(props){
+function UserMenu(props){
   console.log("Link is %o", Link)
   return (
     <div className="ui dropdown vertical menu" style={{position: "fixed", right: 0, top: "40px"}}>
@@ -16,4 +16,4 @@ function TopUser(props){
   )
 }
 
-export default TopUser
+export default UserMenu
