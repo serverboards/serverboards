@@ -1,6 +1,7 @@
 import Ecto.Query
 
 alias Serverboards.Repo
+alias Serverboards.MOM
 alias Serverboards.Auth
 alias Serverboards.Auth.User
 alias Serverboards.Auth.Model
@@ -14,6 +15,7 @@ defmodule Serverboards.Auth.Group do
       Repo.insert(%Model.Group{
           name: name
         })
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.added", data: %{ group: name} } } )
     end
 
     EventSourcing.subscribe es, :add_user_to_group, fn %{group: group, user: user}, _me ->
@@ -24,6 +26,7 @@ defmodule Serverboards.Auth.Group do
           Repo.insert( %Model.UserGroup{ user_id: user.id, group_id: group.id } )
         ug -> ug
       end
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.user_added", data: %{ group: group, user: user} } } )
     end
 
     EventSourcing.subscribe es, :add_perm_to_group, fn %{ group: group, perm: code}, _me ->
@@ -41,6 +44,8 @@ defmodule Serverboards.Auth.Group do
           group = Repo.get_by!(Model.Group, name: group)
           perm = Auth.Permission.ensure_exists(code)
           Repo.insert( %Model.GroupPerms{ group_id: group.id, perm_id: perm.id } )
+
+          MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.perm_added", data: %{ group: group, perm: code} } } )
           :ok
         gp ->
            nil

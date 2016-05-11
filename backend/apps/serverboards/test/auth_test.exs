@@ -3,7 +3,7 @@ require Logger
 defmodule Serverboards.AuthTest do
   use ExUnit.Case
 	alias Test.Client
-	@moduletag :capture_log
+	#@moduletag :capture_log
 
   doctest Serverboards.Auth, import: true
 
@@ -32,5 +32,25 @@ defmodule Serverboards.AuthTest do
 
 		Logger.info("#{inspect user}")
 	end
+
+  test "Manage groups" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, groups} = Client.call( client, "group.list", [] )
+    assert (Enum.sort(groups)) == ["admin","user"]
+
+    {:ok, :ok} = Client.call(client, "group.add", ["test"])
+    Client.expect( client, method: "group.added" )
+
+    {:ok, groups} = Client.call( client, "group.list", [] )
+    assert (Enum.sort(groups)) == ["admin","test", "user"]
+
+    {:ok, :ok} = Client.call(client, "group.add_user", ["test", "dmoreno@serverboards.io"])
+    Client.expect( client, method: "group.user_added" )
+
+    {:ok, :ok} = Client.call(client, "group.add_perm", ["test", "auth.modify_self"])
+    Client.expect( client, method: "group.perm_added" )
+
+  end
 
 end

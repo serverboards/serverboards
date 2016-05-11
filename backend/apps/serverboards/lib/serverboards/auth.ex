@@ -59,7 +59,6 @@ defmodule Serverboards.Auth do
 			end
 		end
 
-		Serverboards.MOM.Channel.subscribe(:auth_authenticated, &authenticated(&1))
 		#Logger.debug("Auth server ready.")
 
 		{:ok, pid}
@@ -109,39 +108,6 @@ defmodule Serverboards.Auth do
 		:ok
 	end
 
-	@doc ~S"""
-	After being authenticated, set up the client as that user
-	"""
-	def authenticated(%Serverboards.MOM.Message{ payload: %{ client: client, user: user } }) do
-		RPC.Client.set client, :user, user
-		to_serverboards = RPC.Client.get client, :to_serverboards
-		RPC.add_method to_serverboards, "auth.user", fn [] ->
-			user
-		end
-
-		if Enum.member?(user.perms, "auth.modify_self") do
-			RPC.add_method to_serverboards, "auth.set_password", fn [password] ->
-				Logger.info("#{user.email} changes password.")
-				Serverboards.Auth.User.Password.set_password(user, password)
-			end
-		end
-
-		if Enum.member?(user.perms, "auth.create_token") do
-			RPC.add_method to_serverboards, "auth.create_token", fn [] ->
-				Logger.info("#{user.email} created new token.")
-				Serverboards.Auth.User.Token.create(user)
-			end
-		end
-
-		#if Application.fetch_env!(:serverboards, :debug) and Enum.member?(user.perms, "debug") do
-		#	RPC.add_method client.to_serverboards, "debug.observer", fn [] ->
-		#		:observer.start
-		#	end
-		#end
-
-		user
-	end
-
 	def add_auth(type, f) do
 		GenServer.call(Serverboards.Auth, {:add_auth, type, f})
 	end
@@ -149,8 +115,9 @@ defmodule Serverboards.Auth do
 	## server impl
 	def init(:ok) do
 		{:ok, es } = EventSourcing.start_link name: :auth
+		{:ok, rpc} = Serverboards.Auth.RPC.start_link
 
-		EventSourcing.Model.subscribe es, :service, Serverboards.Repo
+		EventSourcing.Model.subscribe es, :auth, Serverboards.Repo
     EventSourcing.subscribe es, :debug_full
 
 		Serverboards.Auth.User.setup_eventsourcing(es)

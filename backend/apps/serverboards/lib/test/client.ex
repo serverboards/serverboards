@@ -29,7 +29,7 @@ defmodule Test.Client do
 			Serverboards.Auth.authenticate(client)
 
 	    Client.expect( client, method: "auth.required" )
-	    user = Serverboards.Auth.User.get_user maybe_user
+	    user = Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] }
 	    token = Serverboards.Auth.User.Token.create(user)
 
 	    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
