@@ -64,9 +64,12 @@ def parse_command(line):
     >>> res == {"method":"test", "params":[]}
     True
 
+    >>> res = parse_command("test \\"\\" ''")
+    >>> res == {"method":"test", "params":["",""]}
+    True
     """
     def parse_arg(a):
-        assert a
+        assert a is not None
         if a=='nil' or a=='null':
             return None
         elif a.isdigit():
@@ -99,19 +102,24 @@ class Client:
     """
     Client Connection.
 
-    >>> client=Client(stdout=False)
-    >>> client.call('version')
+    >>> client=Client()
+    >>> client.call('version')['result']
     '0.0.1'
-    >>> client.call('method.unknown params')
-    Traceback (most recent call last):
-        ...
-    Exception: unknown_method
+    >>> client.call('method.unknown params')['error']
+    'unknown_method'
     >>> client.call('!version') # event call
 
     """
     def __init__(self):
         self.maxid=1
         self.connect()
+
+    @staticmethod
+    def printc(*a, **b):
+        """
+        Allow to monkey patch printc for testing. Just calls printc.
+        """
+        printc(*a, **b)
 
     def connect(self, server="localhost", port="4040"):
         import socket
@@ -125,7 +133,7 @@ class Client:
         else:
             cmd['method']=cmd['method'][1:]
 
-        #printc(json.dumps(cmd), color="grey")
+        #Client.printc(json.dumps(cmd), color="grey")
 
         self.socket.send( bytearray(json.dumps(cmd)+'\n','utf8') )
         return cmd
@@ -138,7 +146,7 @@ class Client:
             elif id and response.get('id')==id:
                 return response
             else:
-                printc(response, color="grey")
+                Client.printc(response, color="grey")
         return None
 
     def get_response(self):
@@ -147,7 +155,7 @@ class Client:
         except BlockingIOError:
             return None
         if len(nl)==0:
-            printc("Closed connection", color="grey")
+            Client.printc("Closed connection", color="grey")
             return None
         res = json.loads(nl)
         return res
@@ -179,7 +187,7 @@ class Completer:
     >>> completer.complete("", 1)
     'dir'
     >>> completer.complete("dir", 0)
-    'dir'
+    'dir '
     >>> completer.display_matches("", ["auth.auth", "dir"], 0) #doctest: +NORMALIZE_WHITESPACE
     auth.auth dir
     >
@@ -241,13 +249,13 @@ if __name__=='__main__':  # pragma: no cover
                         if not res:
                             pass
                         elif 'result' in res:
-                            printc(json.dumps(res['result'], indent=2), color="blue")
+                            Client.printc(json.dumps(res['result'], indent=2), color="blue")
                         elif 'error' in res:
-                            printc('*** '+str(res['error']), color="red")
+                            Client.printc('*** '+str(res['error']), color="red")
                         elif 'method' in res:
-                            printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
+                            Client.printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
                         else:
-                            printc("??? "+str(res), color="red")
+                            Client.printc("??? "+str(res), color="red")
                     else:
                         client.wait_for_response(timeout=0.1)
                 except EOFError:
@@ -255,11 +263,14 @@ if __name__=='__main__':  # pragma: no cover
                 except:
                     import traceback
                     traceback.print_exc()
-                    printc("Continuing", color="red", hl=True)
+                    Client.printc("Continuing", color="red", hl=True)
 
     if len(sys.argv)>1 and sys.argv[1]=='--test':
-            import doctest
-            res = doctest.testmod()
-            os.exit(res)
+        import doctest
+        import serverboards
+        Client.printc=lambda *a, **b: None
+
+        res = doctest.testmod()
+        os.exit(res)
 
     main()
