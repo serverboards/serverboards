@@ -148,6 +148,13 @@ defmodule Serverboards.Auth do
 
 	## server impl
 	def init(:ok) do
+		{:ok, es } = EventSourcing.start_link name: :auth
+
+		EventSourcing.Model.subscribe es, :service, Serverboards.Repo
+    EventSourcing.subscribe es, :debug_full
+
+		Serverboards.Auth.User.setup_eventsourcing(es)
+
 		{:ok, %{
 			auths: %{}
 		} }

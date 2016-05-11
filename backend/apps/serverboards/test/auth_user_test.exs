@@ -11,62 +11,46 @@ defmodule Serverboards.AuthUserTest do
   import Ecto.Query
 
   setup_all do
+    me = User.user_info("dmoreno@serverboards.io")
     #Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
-
-    {:ok, user} = Repo.insert(%User{
+    User.user_add(%{
       email: "dmoreno+a@serverboards.io",
       first_name: "David",
       last_name: "Moreno",
       is_active: true,
-      })
+      }, me)
+    user = User.user_info("dmoreno+a@serverboards.io")
 
-    {:ok, userb} = Repo.insert(%User{
+    User.user_add(%{
       email: "dmoreno+b@serverboards.io",
       first_name: "David",
       last_name: "Moreno B",
       is_active: true,
-      })
-
+      }, me)
+    userb = User.user_info("dmoreno+b@serverboards.io")
 
     #{:ok, group} = Repo.insert(%Group{ name: "admin" })
-    {:ok, group} = Repo.insert(%Group{ name: "admin+a" })
+    Group.group_add("admin+a", me)
 
     {:ok, %{ user: user, userb: userb }}
   end
 
-  # this was to learn how to use ecto... but staus as its a good test.
-  test "Get users" do
-    query = from u in User
+  test "Set password", %{ user: user, userb: userb } do
+    {:error, _} = User.Password.password_set(user, "", user)
+    {:error, _} = User.Password.password_set(user, "1234", user)
+    {:error, _} = User.Password.password_set(user, "1234567", user)
 
-    res = Repo.all(query)
-    assert (Enum.count res) >= 2
-    #Logger.debug("#{inspect res}")
-
-    user = Repo.get_by(User, email: "dmoreno+a@serverboards.io")
-    assert user.email == "dmoreno+a@serverboards.io"
-    assert user.first_name == "David"
-    assert user.last_name == "Moreno"
-    #Logger.debug("#{inspect user}")
-
-    user2 = Repo.get(User, user.id)
-    assert user2.email == "dmoreno+a@serverboards.io"
-    assert user2.first_name == "David"
-    assert user2.last_name == "Moreno"
-    #Logger.debug("#{inspect user2}")
-  end
-
-  test "Set password", %{ user: user } do
-    {:error, _} = User.Password.set_password(user, "")
-    {:error, _} = User.Password.set_password(user, "1234")
-    {:error, _} = User.Password.set_password(user, "1234567")
-
-    password = "abcdefgh"
-    :ok = User.Password.set_password(user, password)
+    password = "12345678"
+    :ok = User.Password.password_set(user, password, user)
 
     #Logger.debug("Check password t #{User.Password.check_password(user, password)}")
-    assert User.Password.check_password(user, password)
+    assert User.Password.password_check(user, password, user)
     #Logger.debug("Check password f #{User.Password.check_password(user, password <> "1")}")
-    assert User.Password.check_password(user, password <> "1") == false
+    assert User.Password.password_check(user, password <> "1", user) == false
+
+    # Cant change other users password
+    {:error, :not_allowed} = User.Password.password_set(user, password, userb)
+
   end
 
   test "Authenticate with password", %{ user: user } do

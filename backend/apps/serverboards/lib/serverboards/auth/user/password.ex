@@ -1,17 +1,8 @@
 require Logger
 
 defmodule Serverboards.Auth.User.Password do
-	use Ecto.Schema
-	alias Serverboards.Auth.User
-	alias User.Password
+	alias Serverboards.Auth.User.Model
 	alias Serverboards.Repo
-
-	schema "auth_user_password" do
-		field :password, :string
-		belongs_to :user, User
-
-		timestamps
-	end
 
 	@doc ~S"""
 	Authenticates a user by password, and returns the user with the list of
@@ -23,7 +14,7 @@ defmodule Serverboards.Auth.User.Password do
 		 user -> user
 	 end
 	 if user do
-		 if User.Password.check_password(user, password) do
+		 if password_check(user, password, user) do
 			 %{
 				 id: user.id,
 				 email: user.email,
@@ -41,32 +32,50 @@ defmodule Serverboards.Auth.User.Password do
 
 	@doc ~S"""
 	Sets the given password for that user struct.
+
+	# DOES NOT USE EVENTSOURCING.
+
+	this command does not use event sourcing as hat would mean storing the old
+	passwords in the store.
+
+	It could store a ":reset_password" command, but just now its stimated its not
+	necessary. The password change itself is done at  this very same function.
+
+	# Preconditions
+
+	* Only I can cahnge my password.
 	"""
-	def set_password(user, password) do
-		case Repo.get_by(User.Password, user_id: user.id) do
-			nil ->
-				cs = changeset(%User.Password{}, %{
-					user_id: user.id,
-					password: password
-					} )
-				case cs do
-					%{ errors: [] } ->
-						Repo.insert( cs )
-						:ok
-					_ ->
-						Logger.error("Invalid password set for #{user.email}, #{inspect cs.errors}")
-						{:error, cs.errors }
-				end
-			pw ->
-				cs = changeset(pw, %{ password: password })
-				case cs do
-					%{ errors: [] } ->
-						Repo.update( cs )
-						:ok
-					_ ->
-						Logger.error("Invalid password set for #{user.email}, #{inspect cs.errors}")
-						{:error, cs.errors }
-				end
+	def password_set(user, password, me) do
+		allow_change = (user.id == me.id)
+
+		if allow_change do
+			case Repo.get_by(Model.Password, user_id: user.id) do
+				nil ->
+					cs = Model.Password.changeset(%Model.Password{}, %{
+						user_id: user.id,
+						password: password
+						} )
+					case cs do
+						%{ errors: [] } ->
+							Repo.insert( cs )
+							:ok
+						_ ->
+							Logger.error("Invalid password set for #{user.email}, #{inspect cs.errors}")
+							{:error, cs.errors }
+					end
+				pw ->
+					cs = Model.Password.changeset(pw, %{ password: password })
+					case cs do
+						%{ errors: [] } ->
+							Repo.update( cs )
+							:ok
+						_ ->
+							Logger.error("Invalid password set for #{user.email}, #{inspect cs.errors}")
+							{:error, cs.errors }
+					end
+			end
+		else
+			{:error, :not_allowed}
 		end
 	end
 
@@ -79,14 +88,14 @@ defmodule Serverboards.Auth.User.Password do
 	In case of fail (no valid user, no valid hash), it performs a
 	dummy check, just to take some time and processing.
 	"""
-	def check_password(user, password) do
+	def password_check(user, password, _me) do
 		import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
-		case Repo.get_by(Password, user_id: user.id) do
+		case Repo.get_by(Model.Password, user_id: user.id) do
 			{:error, _} ->
 				dummy_checkpw
 			nil ->
 				dummy_checkpw
-			%Password{} = pw ->
+			%Model.Password{} = pw ->
 				case pw.password do
 					"$bcrypt$" <> hash ->
 							checkpw(password, hash)
@@ -96,6 +105,15 @@ defmodule Serverboards.Auth.User.Password do
 		end
 	end
 
+	@doc ~S"""
+	Prepares a hash for a given password.
+
+	This is a cryptographic hash, as for example bcrypt.
+	"""
+	def hash_password(password) do
+		bcrypt_password(password)
+	end
+
 	# modifier to ecrypt passwords properly.
 	defp bcrypt_password(password) do
 		import Comeonin.Bcrypt, only: [hashpwsalt: 1]
@@ -103,19 +121,5 @@ defmodule Serverboards.Auth.User.Password do
 		hash=hashpwsalt(password)
 
 		"$bcrypt$#{hash}"
-	end
-
-	@doc ~S"""
-	Prepares changeset ensuring required data is there, proper
-	password lenth, and hashes the password.
-	"""
-	def changeset(password, params \\ :empty) do
-		import Ecto.Changeset
-		#Logger.debug("orig #{inspect password}, new #{inspect params}")
-		ret = password
-			|> cast(params, [:password, :user_id], ~w())
-			|> validate_length(:password, min: 8)
-			|> put_change(:password, bcrypt_password(params[:password]))
-		ret
 	end
 end

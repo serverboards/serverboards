@@ -1,11 +1,6 @@
 defmodule Serverboards.Auth.Permission do
-	use Ecto.Schema
 	alias Serverboards.Repo
-
-	schema "auth_permission" do
-		field :code, :string
-	end
-
+	alias Serverboards.Auth.Model
 
 	@doc ~S"""
 	Ensures that the given permission exists,and returns it.
@@ -18,9 +13,9 @@ defmodule Serverboards.Auth.Permission do
 
 	"""
 	def ensure_exists(code) do
-		case Repo.get_by(Serverboards.Auth.Permission, code: code) do
+		case Repo.get_by(Model.Permission, code: code) do
 			nil ->
-				{:ok, perm} = Repo.insert( %Serverboards.Auth.Permission{code: code})
+				{:ok, perm} = Repo.insert( %Model.Permission{code: code})
 				perm
 			perm -> perm
 		end
