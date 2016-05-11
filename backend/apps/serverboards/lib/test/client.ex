@@ -25,17 +25,30 @@ defmodule Test.Client do
 		client=GenServer.call(pid, {:get_client})
 
 		maybe_user=Keyword.get(options, :as, false)
-		if maybe_user do
+		ok = if maybe_user do
 			Serverboards.Auth.authenticate(client)
 
 	    Client.expect( client, method: "auth.required" )
 	    user = Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] }
-	    token = Serverboards.Auth.User.Token.create(user)
-
-	    user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+			if user do
+	    	token = Serverboards.Auth.User.Token.create(user)
+				user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+				:ok
+			else
+				Logger.warn("Test client cant log as user #{inspect maybe_user}")
+				:cant_log_in
+			end
+		else
+			:ok
 		end
 
-		{:ok, client}
+		if ok == :ok do
+			{:ok, client}
+		else
+			GenServer.stop(pid, :normal)
+			GenServer.stop(client, :normal)
+			{:error, ok}
+		end
 	end
 
 	def stop(client) do

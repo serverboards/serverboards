@@ -34,16 +34,28 @@ Changes current user password
 Creates an access token for current user
 
 ## group.list
-## group.add
-## group.remove
+## group.add(name)
+## group.remove(name)
 
 ## group.list_perms
-## group.add_perm
-## group.remove_perm
+## group.add_perm(group, perm)
+## group.remove_perm(group, perm)
 
 ## group.list_users
-## group.add_user
-## group.remove_user
+## group.add_user(group, email)
+## group.remove_user(group, email)
+
+## user.add(user_struct)
+
+User struct is a dict with: {email, first_name, last_name, is_active}
+
+## user.update(email, operations)
+
+Updates user data, for example {"is_active": false, "first_name": "new name"}.
+
+Note that there is no user remove, there is only deactivation via
+is_active: false.
+
 
 # Plugins
 

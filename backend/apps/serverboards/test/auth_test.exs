@@ -72,4 +72,20 @@ defmodule Serverboards.AuthTest do
     assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
   end
 
+  test "Manage users" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Client.call(client, "user.add",
+      %{ "email" => "dmoreno+c@serverboards.io",
+        "first_name" => "test", "last_name" => "test2", "is_active" => true
+      })
+
+    {:ok, client2} = Client.start_link as: "dmoreno+c@serverboards.io"
+
+    {:ok, :ok} = Client.call(client, "user.update", ["dmoreno+c@serverboards.io", %{ "is_active" => false }])
+
+    {:error, :cant_log_in} = Client.start_link as: "dmoreno+c@serverboards.io"
+
+  end
+
 end

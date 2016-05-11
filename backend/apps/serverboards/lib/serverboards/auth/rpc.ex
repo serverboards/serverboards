@@ -31,6 +31,26 @@ defmodule Serverboards.Auth.RPC do
       user
     end, [context: true]
 
+    ## User management
+    add_method mc, "user.list", fn [], context ->
+      Auth.User.user_list nil
+    end, [context: true]
+    add_method mc, "user.add", fn attributes, context ->
+      me = RPC.Context.get(context, :user)
+      Auth.User.user_add %{
+        email: attributes["email"],
+        first_name: attributes["first_name"],
+        last_name: attributes["last_name"],
+        is_active: attributes["is_active"]
+        }, me
+    end, [context: true]
+    add_method mc, "user.update", fn [email, operations], context ->
+      me = RPC.Context.get(context, :user)
+      Auth.User.user_update email, operations, me
+    end, [context: true]
+
+
+
     ## Group management
     add_method mc, "group.list", fn [], context ->
       Auth.Group.group_list nil
