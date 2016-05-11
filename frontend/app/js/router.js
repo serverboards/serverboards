@@ -7,6 +7,7 @@ import store from './utils/store'
 
 import DashBoard from './components/dashboard.js'
 import Profile from './containers/profile.js'
+import Settings from './components/settings'
 import Service from './containers/service.js'
 import ServiceAdd from './containers/service/add.js'
 
@@ -23,6 +24,9 @@ var ServerboardsRouter = React.createClass({
             <Route path="add" component={ServiceAdd}/>
             <Route path=":service/" component={Service}/>
             <Route path=":service/:section" component={Service}/>
+          </Route>
+          <Route path="/settings/" component={Settings}>
+            <Route path=":section" component={Settings}/>
           </Route>
         </Router>
       )
