@@ -1,6 +1,6 @@
-import { login, logout } from '../actions/auth'
+import { login, logout } from '../../actions/auth'
 import { connect } from 'react-redux'
-import TopView from '../components/top'
+import TopView from '../../components/top'
 
 
 var Top=connect(

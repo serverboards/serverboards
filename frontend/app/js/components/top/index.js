@@ -1,6 +1,6 @@
 import React from 'react'
-import UserMenu from '../containers/top/usermenu.js'
-import {Link} from '../router'
+import UserMenu from '../../containers/top/usermenu'
+import {Link} from '../../router'
 
 var Top = function(props){
   var menu={}
@@ -12,7 +12,7 @@ var Top = function(props){
       </div>
     )
   }
-  let logo=require("../../imgs/logo.svg")
+  let logo=require("../../../imgs/logo.svg")
 
   return (
     <nav className="ui top fixed menu">
