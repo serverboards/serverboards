@@ -65,6 +65,11 @@ defmodule Serverboards.AuthTest do
 
     assert Client.call(client, "group.list_users", ["test"]) == {:ok, []}
 
+    assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
+    {:ok, groups} = Client.call( client, "group.list", [] )
+    assert (Enum.sort(groups)) == ["admin","user"]
+
+    assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
   end
 
 end

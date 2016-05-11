@@ -39,6 +39,10 @@ defmodule Serverboards.Auth.RPC do
       me = RPC.Context.get(context, :user)
       Auth.Group.group_add name, me
     end, [context: true]
+    add_method mc, "group.remove", fn [name], context ->
+      me = RPC.Context.get(context, :user)
+      Auth.Group.group_remove name, me
+    end, [context: true]
     add_method mc, "group.add_perm", fn [group, code], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_add group, code, me

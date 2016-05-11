@@ -25,6 +25,26 @@ If not success, returns false.
 
 Returns current user
 
+## auth.set_password(password)
+
+Changes current user password
+
+## auth.create_token
+
+Creates an access token for current user
+
+## group.list
+## group.add
+## group.remove
+
+## group.list_perms
+## group.add_perm
+## group.remove_perm
+
+## group.list_users
+## group.add_user
+## group.remove_user
+
 # Plugins
 
 Require `plugin` permission

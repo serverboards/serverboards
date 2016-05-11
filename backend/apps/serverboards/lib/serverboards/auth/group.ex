@@ -18,6 +18,18 @@ defmodule Serverboards.Auth.Group do
       MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.added", data: %{ group: name} } } )
     end
 
+    EventSourcing.subscribe es, :remove_group, fn %{name: name}, me ->
+      case Repo.get_by(Model.Group, name: name) do
+        nil ->
+          false
+        group ->
+          Repo.delete_all( from pg in Model.GroupPerms, where: pg.group_id == ^group.id)
+          Repo.delete_all( from ug in Model.UserGroup, where: ug.group_id == ^group.id)
+          Repo.delete( group )
+          MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.removed", data: %{ group: name} } } )
+      end
+    end
+
     EventSourcing.subscribe es, :add_user_to_group, fn %{group: group, user: user}, _me ->
       group = Repo.get_by!(Model.Group, name: group)
       user = Repo.get_by!(Model.User, email: user)
@@ -84,6 +96,15 @@ defmodule Serverboards.Auth.Group do
   def group_add(name, me) when is_binary(name) do
     if Enum.member? me.perms, "auth.modify_groups" do
       EventSourcing.dispatch(:auth, :add_group, %{name: name}, me.email)
+      :ok
+    else
+      {:error, :not_allowed}
+    end
+  end
+
+  def group_remove(name, me) when is_binary(name) do
+    if Enum.member? me.perms, "auth.modify_groups" do
+      EventSourcing.dispatch(:auth, :remove_group, %{name: name}, me.email)
       :ok
     else
       {:error, :not_allowed}
