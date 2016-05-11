@@ -33,7 +33,6 @@ defmodule Serverboards.Auth.RPC do
 
     ## Group management
     add_method mc, "group.list", fn [], context ->
-      #user = RPC.Context.get(context, :user)
       Auth.Group.group_list nil
     end, [context: true]
     add_method mc, "group.add", fn [name], context ->
@@ -44,9 +43,25 @@ defmodule Serverboards.Auth.RPC do
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_add group, code, me
     end, [context: true]
+    add_method mc, "group.remove_perm", fn [group, code], context ->
+      me = RPC.Context.get(context, :user)
+      Auth.Group.perm_remove group, code, me
+    end, [context: true]
+    add_method mc, "group.list_perms", fn [group], context ->
+      me = RPC.Context.get(context, :user)
+      Auth.Group.perm_list group, me
+    end, [context: true]
     add_method mc, "group.add_user", fn [group, new_user], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_add group, new_user, me
+    end, [context: true]
+    add_method mc, "group.remove_user", fn [group, user], context ->
+      me = RPC.Context.get(context, :user)
+      Auth.Group.user_remove group, user, me
+    end, [context: true]
+    add_method mc, "group.list_users", fn [group], context ->
+      me = RPC.Context.get(context, :user)
+      Auth.Group.user_list group, me
     end, [context: true]
 
 

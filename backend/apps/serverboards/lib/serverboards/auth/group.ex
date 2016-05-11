@@ -28,9 +28,22 @@ defmodule Serverboards.Auth.Group do
       end
       MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.user_added", data: %{ group: group, user: user} } } )
     end
+    EventSourcing.subscribe es, :remove_user_from_group, fn %{ group: group, user: user}, _me ->
+      to_delete = Repo.all(
+        from gu in Model.UserGroup,
+        join: g in Model.Group,
+          on: g.id == gu.group_id,
+        join: u in Model.User,
+          on: u.id == gu.user_id,
+        where: g.name == ^group and u.email == ^user,
+       select: gu.id
+      )
+      Repo.delete_all( from gu in Model.UserGroup, where: gu.id in ^to_delete )
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.user_removed", data: %{ group: group, user: user} } } )
+      :ok
+    end
 
     EventSourcing.subscribe es, :add_perm_to_group, fn %{ group: group, perm: code}, _me ->
-
       case Repo.one(
           from gp in Model.GroupPerms,
           join: g in Model.Group,
@@ -50,6 +63,20 @@ defmodule Serverboards.Auth.Group do
         gp ->
            nil
       end
+    end
+    EventSourcing.subscribe es, :remove_perm_from_group, fn %{ group: group, perm: code}, _me ->
+      to_delete = Repo.all(
+        from gp in Model.GroupPerms,
+        join: g in Model.Group,
+          on: g.id == gp.group_id,
+        join: p in Model.Permission,
+          on: p.id == gp.perm_id,
+       where: g.name == ^group and p.code == ^code,
+      select: gp.id
+      )
+      Repo.delete_all( from gp in Model.GroupPerms, where: gp.id in ^to_delete )
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.perm_removed", data: %{ group: group, perm: code} } } )
+      :ok
     end
 
   end
@@ -71,10 +98,27 @@ defmodule Serverboards.Auth.Group do
       {:error, :not_allowed}
     end
   end
+  def user_remove(group, user, me) when is_binary(group) and is_binary(user) do
+    if Enum.member? me.perms, "auth.manage_groups" do
+      EventSourcing.dispatch(:auth, :remove_user_from_group, %{group: group, user: user}, me.email)
+      :ok
+    else
+      {:error, :not_allowed}
+    end
+  end
 
   def perm_add(group, perm, me) when is_binary(group) and is_binary(perm) do
     if Enum.member? me.perms, "auth.manage_groups" do
       EventSourcing.dispatch(:auth, :add_perm_to_group, %{group: group, perm: perm}, me.email)
+      :ok
+    else
+      {:error, :not_allowed}
+    end
+  end
+
+  def perm_remove(group, perm, me) when is_binary(group) and is_binary(perm) do
+    if Enum.member? me.perms, "auth.manage_groups" do
+      EventSourcing.dispatch(:auth, :remove_perm_from_group, %{group: group, perm: perm}, me.email)
       :ok
     else
       {:error, :not_allowed}
@@ -103,5 +147,24 @@ defmodule Serverboards.Auth.Group do
      where: g.name == ^group,
      select: u.email
     )
+  end
+
+  @doc ~S"""
+  List permissions at that group
+  """
+  def perm_list(group, me) do
+    if Enum.member? me.perms, "auth.manage_groups" do
+      Repo.all(
+        from p in Model.Permission,
+        join: pg in Model.GroupPerms,
+          on: pg.perm_id == p.id,
+        join: g in Model.Group,
+          on: pg.group_id == g.id,
+       where: g.name == ^group,
+      select: p.code
+      )
+    else
+      {:error, :not_allowed}
+    end
   end
 end

@@ -50,6 +50,20 @@ defmodule Serverboards.AuthTest do
 
     {:ok, :ok} = Client.call(client, "group.add_perm", ["test", "auth.modify_self"])
     Client.expect( client, method: "group.perm_added" )
+    {:ok, perms} = Client.call(client, "group.list_perms", ["test"])
+    assert perms == ["auth.modify_self"]
+
+    {:ok, :ok} = Client.call(client, "group.remove_perm", ["test", "auth.modify_self"])
+    Client.expect( client, method: "group.perm_removed" )
+    {:ok, perms} = Client.call(client, "group.list_perms", ["test"])
+    assert perms == []
+
+    assert Client.call(client, "group.list_users", ["test"]) == {:ok, ["dmoreno@serverboards.io"]}
+
+    {:ok, :ok} = Client.call(client, "group.remove_user", ["test", "dmoreno@serverboards.io"])
+    Client.expect( client, method: "group.user_removed" )
+
+    assert Client.call(client, "group.list_users", ["test"]) == {:ok, []}
 
   end
 

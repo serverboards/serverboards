@@ -16,7 +16,7 @@ auth.create_token -- Creates an auth token
 auth.info_any_user -- Can get info on any user
 
 auth.modify_groups -- Creates/update/remove groups
-auth.manage_groups -- Adds/removes users from groups
+auth.manage_groups -- Adds/removes users/permissions from groups
 
 ## Plugins
 
