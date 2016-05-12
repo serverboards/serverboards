@@ -30,15 +30,15 @@ defmodule Serverboards.Auth.Group do
       end
     end
 
-    EventSourcing.subscribe es, :add_user_to_group, fn %{group: group, user: user}, _me ->
-      group = Repo.get_by!(Model.Group, name: group)
-      user = Repo.get_by!(Model.User, email: user)
+    EventSourcing.subscribe es, :add_user_to_group, fn %{group: groupname, user: username}, _me ->
+      group = Repo.get_by!(Model.Group, name: groupname)
+      user = Repo.get_by!(Model.User, email: username)
       case Repo.get_by(Model.UserGroup, user_id: user.id, group_id: group.id) do
         nil ->
           Repo.insert( %Model.UserGroup{ user_id: user.id, group_id: group.id } )
         ug -> ug
       end
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.user_added", data: %{ group: group, user: user} } } )
+      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.user_added", data: %{ group: groupname, user: username} } } )
     end
     EventSourcing.subscribe es, :remove_user_from_group, fn %{ group: group, user: user}, _me ->
       to_delete = Repo.all(
@@ -55,22 +55,22 @@ defmodule Serverboards.Auth.Group do
       :ok
     end
 
-    EventSourcing.subscribe es, :add_perm_to_group, fn %{ group: group, perm: code}, _me ->
+    EventSourcing.subscribe es, :add_perm_to_group, fn %{ group: groupname, perm: code}, _me ->
       case Repo.one(
           from gp in Model.GroupPerms,
           join: g in Model.Group,
             on: g.id == gp.group_id,
           join: p in Model.Permission,
             on: p.id == gp.perm_id,
-          where: g.name == ^group and p.code == ^code,
+          where: g.name == ^groupname and p.code == ^code,
           select: p.id
           ) do
         nil ->
-          group = Repo.get_by!(Model.Group, name: group)
+          group = Repo.get_by!(Model.Group, name: groupname)
           perm = Auth.Permission.ensure_exists(code)
           Repo.insert( %Model.GroupPerms{ group_id: group.id, perm_id: perm.id } )
 
-          MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.perm_added", data: %{ group: group, perm: code} } } )
+          MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "group.perm_added", data: %{ group: groupname, perm: code} } } )
           :ok
         gp ->
            nil
