@@ -1,3 +1,5 @@
+@import colors
+
 .serverboards.background.diagonal
   background: #22a397 /* Old browsers */
   background: -moz-linear-gradient(top right,  #22a397 0%, #eac442 100%) /* FF3.6+ */
@@ -82,7 +84,7 @@ body
 .ui.scroll
   overflow: auto
 
-.ui.button.floating.plus
+.ui.button.floating.massive.add, .ui.button.floating.massive._add
   position: fixed
   bottom: 30px
   right: 30px
@@ -95,6 +97,42 @@ body
   padding-top: 26px
   padding-left: 24px
   font-size: 30px
+  color: white !important
+
+  .corner.icon
+    font-size: 20px
+    margin-left: 20px
+    margin-top: -15px
+    text-shadow: 0 0 1px rgba(0, 0, 0, 1.0)
 
   &:hover
     background: lighten(#22a397, 1.1)
+
+  &.red
+    background: $red
+  &.orange
+    background: $orange
+  &.yellow
+    background: $yellow
+  &.olive
+    background: $olive
+    &:hover
+      background: lighten($olive, 1.1)
+  &.green
+    background: $green
+  &.teal
+    background: $teal
+  &.blue
+    background: $blue
+  &.violet
+    background: $violet
+    &:hover
+      background: lighten($violet, 1.1)
+  &.purple
+    background: $purple
+  &.pink
+    background: $pink
+  &.brown
+    background: $brown
+  &.grey
+    background: $grey

@@ -59,6 +59,7 @@ let Users=React.createClass({
           ))}
           </tbody>
         </table>
+        <a onClick={true}><i className="ui massive button add user icon floating olive"></i></a>
       </div>
     )
   }

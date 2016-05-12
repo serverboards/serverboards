@@ -32,7 +32,6 @@ function Settings(props){
       <div className="ui central white background">
         <Section service={props.service}/>
       </div>
-      <a onClick={props.onAdd}><i className="ui massive button plus icon floating"></i></a>
     </div>
   )
 }
