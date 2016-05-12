@@ -30,3 +30,31 @@ export function login(params){
       })
   }
 }
+
+export function user_list(){
+  return function(dispatch){
+    rpc.call("user.list", []).then((list) => {
+      dispatch({type:'AUTH_USER_LIST', users: list})
+    })
+  }
+}
+
+export function group_list(){
+  return function(dispatch){
+    rpc.call("group.list", []).then((list) => {
+      let groups=[]
+      Promise.all( list.map((g) => {
+        return Promise.all([
+          Promise.resolve(g),
+          rpc.call("group.list_users", [g]),
+          rpc.call("group.list_perms", [g])
+        ])
+      }) ).then(function(gs){
+        gs.map( (g) => {
+          groups.push( {name: g[0], users: g[1], perms: g[2]} )
+        })
+        dispatch({type:'AUTH_GROUP_LIST', groups: groups})
+      } )
+    })
+  }
+}

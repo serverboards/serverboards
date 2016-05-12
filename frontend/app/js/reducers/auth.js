@@ -1,7 +1,9 @@
 // Default status, put over current
 const default_state={
   logged_in: false,
-  user: undefined
+  user: undefined,
+  users: undefined,
+  groups: undefined
 }
 
 export const auth = (state = default_state , action) => {
@@ -14,6 +16,12 @@ export const auth = (state = default_state , action) => {
     case 'AUTH_LOGOUT':
       state.logged_in=false
       state.user=undefined
+      break;
+    case 'AUTH_USER_LIST':
+      state.users=action.users
+      break;
+    case 'AUTH_GROUP_LIST':
+      state.groups=action.groups
       break;
   }
   return state
