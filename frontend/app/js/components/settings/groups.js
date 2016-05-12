@@ -48,6 +48,34 @@ let Groups=React.createClass({
       state: { modal }
     } )
   },
+  getModal : function() {
+    let router_state=this.props.location.state
+    let modal_state = (router_state && router_state.modal && router_state.modal) || {}
+    switch(modal_state.what){
+      case 'edit_perms':
+        return (
+          <EditPerms
+            group={modal_state.data}
+            onClose={ () => this.setModal(false) }
+            onUpdatePermissions={(perms) =>
+              this.handleUpdatePermissions(modal_state.data, perms) }
+          />
+        )
+        break;
+      case 'edit_users':
+        return (
+          <EditUsers
+            group={modal_state.data}
+            onClose={ () => this.setModal(false) }
+            onSubmit={(users) =>
+              this.handleUpdateUsers(modal_state.data, users) }
+            allUsers={this.props.all_users}
+          />
+        )
+        break;
+    }
+    return []
+  },
   handleEditUsers : function(g){
     this.setModal('edit_users', g)
   },
@@ -69,34 +97,6 @@ let Groups=React.createClass({
     this.setModal(false)
   },
   render(){
-    let modal=[]
-    let router_state=this.props.location.state
-    let modal_state=(router_state && router_state.modal && router_state.modal) || {}
-    switch(modal_state.what){
-      case 'edit_perms':
-        modal=(
-          <EditPerms
-            group={modal_state.data}
-            onClose={ () => this.setModal(false) }
-            onUpdatePermissions={(perms) =>
-              this.handleUpdatePermissions(modal_state.data, perms) }
-          />
-        )
-        break;
-      case 'edit_users':
-        modal=(
-          <EditUsers
-            group={modal_state.data}
-            onClose={ () => this.setModal(false) }
-            onSubmit={(users) =>
-              this.handleUpdateUsers(modal_state.data, users) }
-            allUsers={this.props.all_users}
-          />
-        )
-        break;
-    }
-
-
     let props=this.props
     if (!props.groups){
       return (
@@ -106,6 +106,7 @@ let Groups=React.createClass({
       )
     }
 
+    let modal=this.getModal()
     let self=this
 
     function Group(g){

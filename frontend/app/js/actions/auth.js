@@ -40,6 +40,14 @@ export function user_list(){
   }
 }
 
+export function user_add(user){
+  return function(dispatch){
+    rpc.call("user.add", user).then(() => {
+      Flash.info("User added")
+    })
+  }
+}
+
 export function group_list(){
   return function(dispatch){
     rpc.call("group.list", []).then((list) => {

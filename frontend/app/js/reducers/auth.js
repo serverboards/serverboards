@@ -51,7 +51,6 @@ export const auth = (state = default_state , action) => {
       })
       break;
     case '@RPC_EVENT/group.perm_removed':
-      console.log(state.groups[1].perms)
       state.groups = state.groups.map( (g) => {
         if (g.name == action.group){
           console.log("Remove perm at group %o", g)
@@ -60,7 +59,11 @@ export const auth = (state = default_state , action) => {
         }
         return g
       })
-      console.log(state.groups[1].perms)
+      break;
+    case '@RPC_EVENT/user.added':
+      console.log(action)
+      state.users = state.users.concat( action.user )
+      console.log(state.users)
       break;
   }
   return state

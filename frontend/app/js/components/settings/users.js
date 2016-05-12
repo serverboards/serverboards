@@ -1,12 +1,48 @@
 import React from 'react'
 import Loading from '../loading'
+import AddUser from './user/add'
 
 let Users=React.createClass({
   componentDidMount : function(){
     if (!this.props.users)
       this.props.loadUserList()
-
   },
+  handleOpenAddUser : function(){
+    this.setModal('add_user')
+  },
+  handleAddUser : function(newuser){
+    this.props.onAddUser(newuser)
+
+    this.setModal(false)
+  },
+
+  contextTypes: {
+    router: React.PropTypes.object
+  },
+  setModal : function( what, data ){
+    let modal=what && { what, data }
+
+    this.context.router.push( {
+      pathname: this.props.location.pathname,
+      state: { modal }
+    } )
+  },
+  getModal : function() {
+    let router_state=this.props.location.state
+    let modal_state = (router_state && router_state.modal && router_state.modal) || {}
+    switch(modal_state.what){
+      case 'add_user':
+        return (
+          <AddUser
+            onClose={ () => this.setModal(false) }
+            onAddUser={this.handleAddUser}
+          />
+        )
+        break;
+    }
+    return []
+  },
+
   render: function(){
     if (!this.props.users)
       return (
@@ -14,6 +50,8 @@ let Users=React.createClass({
       )
 
     $(this.refs.el).find('.ui.dropdown.button').dropdown()
+
+    let modal = this.getModal()
 
     /*
     let menu=function(u){
@@ -59,7 +97,8 @@ let Users=React.createClass({
           ))}
           </tbody>
         </table>
-        <a onClick={true}><i className="ui massive button add user icon floating olive"></i></a>
+        <a onClick={this.handleOpenAddUser}><i className="ui massive button add user icon floating olive"></i></a>
+        {modal}
       </div>
     )
   }
