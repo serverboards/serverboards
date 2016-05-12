@@ -96,7 +96,7 @@ defmodule Serverboards.Service.Service do
 
   ## Example
 
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, "SBDS-TST1"} = service_add "SBDS-TST1", %{ "name" => "serverboards" }, user
     iex> {:ok, info} = service_info "SBDS-TST1", user
     iex> info.name
@@ -125,7 +125,7 @@ defmodule Serverboards.Service.Service do
 
   ## Example:
 
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, "SBDS-TST2"} = service_add "SBDS-TST2", %{ "name" => "serverboards" }, user
     iex> :ok = service_update "SBDS-TST2", %{ "name" => "Serverboards" }, user
     iex> {:ok, info} = service_info "SBDS-TST2", user
@@ -228,7 +228,7 @@ defmodule Serverboards.Service.Service do
   ## Example
 
     iex> require Logger
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, l} = service_list user.id
     iex> is_list(l) # may be empty or has something from before, but lists
     true

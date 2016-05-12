@@ -8,3 +8,5 @@ config :serverboards, Serverboards.HTTP.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [make: ["-C", "../frontend", "watch"]]
+
+config :serverboards, debug: true

@@ -15,7 +15,9 @@ defmodule ServiceTest do
         Map.put( status, msg.type, Map.get(status, msg.type, []) ++ [msg] )
       end
     end )
-    {:ok, %{ agent: agent} }
+    system=%{ email: "system", perms: ["auth.info_any_user"] }
+
+    {:ok, %{ agent: agent, system: system} }
   end
 
   def check_if_event_on_service(agent, event, shortname) do
@@ -33,10 +35,10 @@ defmodule ServiceTest do
   end
 
 
-  test "Service lifecycle", %{ agent: agent } do
+  test "Service lifecycle", %{ agent: agent, system: system } do
     import Serverboards.Service.Service
 
-    user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = service_add "SBDS-TST3", %{ "name" => "serverboards" }, user
     assert check_if_event_on_service(agent, "service.added", "SBDS-TST3")
 
@@ -52,10 +54,10 @@ defmodule ServiceTest do
     assert {:error, :not_found} == service_info "SBDS-TST3", user
   end
 
-  test "Update services tags" do
+  test "Update services tags", %{ system: system } do
     import Serverboards.Service.Service
 
-    user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:error, :not_found } = service_info "SBDS-TST5", user
 
     {:ok, "SBDS-TST5"} = service_add "SBDS-TST5", %{ "name" => "serverboards" }, user
@@ -159,10 +161,10 @@ defmodule ServiceTest do
   end
 
 
-  test "Tags into components" do
+  test "Tags into components", %{ system: system } do
     import Serverboards.Service.{Service, Component}
 
-    user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, component } = component_add %{ "name" => "Test component", "tags" => ~w(tag1 tag2 tag3), "type" => "email" }, user
     {:ok, info } = component_info component, user
     assert info.tags == ["tag1", "tag2", "tag3"]
@@ -184,9 +186,9 @@ defmodule ServiceTest do
     assert Enum.count((hd components).fields) > 0
   end
 
-  test "Update service removing components" do
+  test "Update service removing components", %{ system: system } do
     import Serverboards.Service.{Service, Component}
-    user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
 
     # delete all
     service_add "SBDS-TST10", %{ "name" => "Test 1", "components" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user

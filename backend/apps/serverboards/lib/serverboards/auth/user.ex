@@ -65,19 +65,14 @@ defmodule Serverboards.Auth.User do
         user -> user
       end
 
-      user = if Keyword.get(options, :require_active, true) and not user.is_active do
-        Logger.warn("Try to get non available user by email: #{email}")
-        nil
-      else
-        user
-      end
-
-      Logger.info("User info for #{inspect user}")
-
-      if user != nil do
-        user_info(user)
-      else
-        false
+      cond do
+        user == nil ->
+          false
+        Keyword.get(options, :require_active, true) and not user.is_active ->
+          Logger.warn("Try to get non available user by email: #{email}")
+          false
+        true ->
+          user_info(user)
       end
     else
       {:error, :not_allowed}

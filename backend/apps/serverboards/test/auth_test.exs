@@ -37,13 +37,13 @@ defmodule Serverboards.AuthTest do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, groups} = Client.call( client, "group.list", [] )
-    assert (Enum.sort(groups)) == ["admin","user"]
+    assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
 
     {:ok, :ok} = Client.call(client, "group.add", ["test"])
     Client.expect( client, method: "group.added" )
 
     {:ok, groups} = Client.call( client, "group.list", [] )
-    assert (Enum.sort(groups)) == ["admin","test", "user"]
+    assert MapSet.subset? MapSet.new(["admin","user","test"]), MapSet.new(groups)
 
     {:ok, :ok} = Client.call(client, "group.add_user", ["test", "dmoreno@serverboards.io"])
     Client.expect( client, method: "group.user_added" )
@@ -67,8 +67,9 @@ defmodule Serverboards.AuthTest do
 
     assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
     {:ok, groups} = Client.call( client, "group.list", [] )
-    assert (Enum.sort(groups)) == ["admin","user"]
-
+    assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
+    assert not Enum.member? groups, "test"
+    
     assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
   end
 

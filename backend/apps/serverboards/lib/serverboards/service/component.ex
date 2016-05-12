@@ -107,7 +107,7 @@ defmodule Serverboards.Service.Component do
   end
 
   defp component_add_real( uuid, attributes, me) do
-    user = Serverboards.Auth.User.get_user( me )
+    user = Serverboards.Auth.User.user_info( me, %{ email: me } )
     {:ok, component} = Repo.insert( %Model.Component{
       uuid: uuid,
       name: attributes.name,
@@ -124,8 +124,6 @@ defmodule Serverboards.Service.Component do
 
   defp component_delete_real( component, _me) do
     import Ecto.Query
-    #user = Serverboards.Auth.User.get_user( me )
-
     # remove it when used inside any service
     Repo.delete_all(
       from sc in Model.ServiceComponent,
@@ -152,7 +150,6 @@ defmodule Serverboards.Service.Component do
                  c.uuid == ^component,
           select: sc.id ) do
       nil ->
-        user = Serverboards.Auth.User.get_user( me )
         service_obj = Repo.get_by(Model.Service, shortname: service)
         component_obj = Repo.get_by(Model.Component, uuid: component)
         if Enum.all?([service_obj, component_obj]) do
@@ -227,7 +224,7 @@ defmodule Serverboards.Service.Component do
 
   ## Example:
 
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, component} = component_add %{ "name" => "Generic", "type" => "generic" }, user
     iex> {:ok, info} = component_info component, user
     iex> info.priority
@@ -261,7 +258,7 @@ defmodule Serverboards.Service.Component do
 
   ## Example
 
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, _component_a} = component_add %{ "name" => "Generic A", "type" => "generic" }, user
     iex> {:ok, _component_b} = component_add %{ "name" => "Generic B", "type" => "email" }, user
     iex> {:ok, _component_c} = component_add %{ "name" => "Generic C", "type" => "generic" }, user
@@ -325,7 +322,7 @@ defmodule Serverboards.Service.Component do
 
   ## Example
 
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, component} = component_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, _service} = Serverboards.Service.Service.service_add "SBDS-TST7", %{ "name" => "serverboards" }, user
     iex> :ok = component_attach "SBDS-TST7", component, user
@@ -347,7 +344,7 @@ defmodule Serverboards.Service.Component do
 
   ## Example
 
-    iex> user = Serverboards.Auth.User.get_user("dmoreno@serverboards.io")
+    iex> user = Serverboards.Test.User.system
     iex> {:ok, component} = component_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, _service} = Serverboards.Service.Service.service_add "SBDS-TST9", %{ "name" => "serverboards" }, user
     iex> :ok = component_attach "SBDS-TST9", component, user
