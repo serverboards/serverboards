@@ -37,11 +37,11 @@ Creates an access token for current user
 ## group.add(name)
 ## group.remove(name)
 
-## group.list_perms
+## group.list_perms(group)
 ## group.add_perm(group, perm)
 ## group.remove_perm(group, perm)
 
-## group.list_users
+## group.list_users(group)
 ## group.add_user(group, email)
 ## group.remove_user(group, email)
 
