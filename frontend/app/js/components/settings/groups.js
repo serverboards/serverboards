@@ -112,16 +112,22 @@ let Groups=React.createClass({
       return (
         <div key={g.name} style={{marginTop: 40}}>
           <h2 className="ui dividing header">{g.name}</h2>
-          <h3 className="ui header">
-            <span className="content">Users</span>
-            <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditUsers(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
-          </h3>
-          <Table data={g.users} headers={["Email"]}/>
-          <h3 className="ui header">
-            <span className="content">Permissions</span>
-            <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditPerms(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
-          </h3>
-          <Table data={g.perms} headers={["Permission"]}/>
+          <div className="ui grid two columns stackable">
+            <div className="column">
+              <h3 className="ui header">
+                <span className="content">Users</span>
+                <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditUsers(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
+              </h3>
+              <Table data={g.users} headers={["Email"]}/>
+            </div>
+            <div className="column">
+              <h3 className="ui header">
+                <span className="content">Permissions</span>
+                <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditPerms(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
+              </h3>
+              <Table data={g.perms} headers={["Permission"]}/>
+            </div>
+          </div>
         </div>
       )
     }
