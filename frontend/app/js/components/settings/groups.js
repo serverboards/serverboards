@@ -2,6 +2,7 @@ import React from 'react'
 import Loading from '../loading'
 import EditPerms from './group/edit_perms'
 import EditUsers from './group/edit_users'
+import AddGroup from './group/add'
 
 let Table=function(props){
   let max=3
@@ -41,8 +42,6 @@ let Groups=React.createClass({
   setModal : function( what, data ){
     let modal=what && { what, data }
 
-    console.log("Set router state modal %o", modal)
-
     this.context.router.push( {
       pathname: this.props.location.pathname,
       state: { modal }
@@ -51,6 +50,7 @@ let Groups=React.createClass({
   getModal : function() {
     let router_state=this.props.location.state
     let modal_state = (router_state && router_state.modal && router_state.modal) || {}
+
     switch(modal_state.what){
       case 'edit_perms':
         return (
@@ -70,6 +70,14 @@ let Groups=React.createClass({
             onSubmit={(users) =>
               this.handleUpdateUsers(modal_state.data, users) }
             allUsers={this.props.all_users}
+          />
+        )
+        break;
+      case 'add_group':
+        return (
+          <AddGroup
+            onClose={ () => this.setModal(false) }
+            onSubmit={this.handleAddGroup}
           />
         )
         break;
@@ -95,6 +103,9 @@ let Groups=React.createClass({
 
     this.props.onUpdateUsers(g.name, to_add, to_remove)
     this.setModal(false)
+  },
+  handleAddGroup : function(name){
+    this.props.onAddGroup(name)
   },
   render(){
     let props=this.props
@@ -140,6 +151,11 @@ let Groups=React.createClass({
         {props.groups.map(Group)}
 
         {modal}
+
+        <a onClick={() => this.setModal('add_group')} className="ui massive button _add icon floating orange">
+          <i className="group icon"></i>
+          <i className="corner add icon"></i>
+        </a>
       </div>
     )
   }

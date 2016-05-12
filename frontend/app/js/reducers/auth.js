@@ -59,12 +59,13 @@ export const auth = (state = default_state , action) => {
         }
         return g
       })
-      break;
+    break;
+    case '@RPC_EVENT/group.added':
+      state.groups = state.groups.concat( { name: action.group, users: [], perms: []} )
+    break;
     case '@RPC_EVENT/user.added':
-      console.log(action)
       state.users = state.users.concat( action.user )
-      console.log(state.users)
-      break;
+    break;
   }
   return state
 }

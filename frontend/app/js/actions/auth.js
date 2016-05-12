@@ -95,3 +95,11 @@ export function group_update_users(group, to_add, to_remove){
     })
   }
 }
+
+export function group_add(group){
+  return function(dispatch){
+    rpc.call("group.add", [group]).then(() => {
+      Flash.info("Group added")
+    })
+  }
+}
