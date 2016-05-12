@@ -45,7 +45,9 @@ Creates an access token for current user
 ## group.add_user(group, email)
 ## group.remove_user(group, email)
 
+## user.list
 ## user.add(user_struct)
+## user.update(email, operations)
 
 User struct is a dict with: {email, first_name, last_name, is_active}
 

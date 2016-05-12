@@ -95,6 +95,18 @@ defmodule Serverboards.Auth.User do
     }
   end
 
+  def user_list(me) do
+    Repo.all( from u in Model.User, select: [u.email, u.is_active, u.first_name, u.last_name] )
+      |> Enum.map( fn [email, is_active, first_name, last_name] ->
+        %{
+          email: email,
+          is_active: is_active,
+          first_name: first_name,
+          last_name: last_name
+        }
+      end)
+  end
+
    @doc ~S"""
    Gets all permissions for this user
    """

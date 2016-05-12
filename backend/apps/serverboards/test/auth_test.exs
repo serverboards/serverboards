@@ -86,6 +86,9 @@ defmodule Serverboards.AuthTest do
 
     {:error, :cant_log_in} = Client.start_link as: "dmoreno+c@serverboards.io"
 
+    {:ok, list} = Client.call(client, "user.list", [])
+    assert Enum.find list, &( &1.email == "dmoreno+c@serverboards.io" )
+    Logger.info(inspect list)
   end
 
 end
