@@ -23,6 +23,45 @@ export const auth = (state = default_state , action) => {
     case 'AUTH_GROUP_LIST':
       state.groups=action.groups
       break;
+    case '@RPC_EVENT/group.user_added':
+      state.groups = state.groups.map( (g) => {
+        if (g.name == action.group){
+          return Object.assign({}, g, {users: g.users.concat(action.user)})
+        }
+        return g
+      })
+      console.log(state)
+      break;
+    case '@RPC_EVENT/group.user_removed':
+      state.groups = state.groups.map( (g) => {
+        if (g.name == action.group){
+          return Object.assign({}, g,
+            { users: g.users.filter( (u) => u!=action.user ) } )
+        }
+        return g
+      })
+      console.log(state)
+      break;
+    case '@RPC_EVENT/group.perm_added':
+      state.groups = state.groups.map( (g) => {
+        if (g.name == action.group){
+          return Object.assign({}, g, {perms: g.perms.concat(action.perm)})
+        }
+        return g
+      })
+      break;
+    case '@RPC_EVENT/group.perm_removed':
+      console.log(state.groups[1].perms)
+      state.groups = state.groups.map( (g) => {
+        if (g.name == action.group){
+          console.log("Remove perm at group %o", g)
+          return Object.assign({}, g,
+            { perms: g.perms.filter( (u) => u!=action.perm ) } )
+        }
+        return g
+      })
+      console.log(state.groups[1].perms)
+      break;
   }
   return state
 }
