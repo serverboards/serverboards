@@ -34,6 +34,7 @@ export function login(params){
 export function user_list(){
   return function(dispatch){
     rpc.call("user.list", []).then((list) => {
+      list = list.sort(function(a,b){ a.email < b.email ? -1 : 1 })
       dispatch({type:'AUTH_USER_LIST', users: list})
     })
   }
