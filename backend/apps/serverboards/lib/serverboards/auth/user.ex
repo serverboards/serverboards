@@ -21,7 +21,7 @@ defmodule Serverboards.Auth.User do
     end
     EventSourcing.subscribe :auth, :update_user, fn %{ user: email, operations: operations }, _me ->
       user = Repo.get_by!(Model.User, email: email)
-      Repo.update(
+      {:ok, user} = Repo.update(
         Model.User.changeset(user, operations)
       )
       user = user_info user
