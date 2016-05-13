@@ -1,6 +1,7 @@
 import React from 'react'
 import Loading from '../loading'
 import AddUser from './user/add'
+import EditUser from './user/edit'
 
 let Users=React.createClass({
   componentDidMount : function(){
@@ -12,6 +13,14 @@ let Users=React.createClass({
   },
   handleAddUser : function(newuser){
     this.props.onAddUser(newuser)
+
+    this.setModal(false)
+  },
+  handleOpenEditUser : function(user){
+    this.setModal('edit_user', user)
+  },
+  handleEditUser : function(email, attributes){
+    this.props.onUpdateUser(email, attributes)
 
     this.setModal(false)
   },
@@ -35,10 +44,19 @@ let Users=React.createClass({
         return (
           <AddUser
             onClose={ () => this.setModal(false) }
-            onAddUser={this.handleAddUser}
+            onSubmit={this.handleAddUser}
           />
         )
-        break;
+      break;
+      case 'edit_user':
+        return (
+          <EditUser
+            onClose={ () => this.setModal(false) }
+            onSubmit={this.handleEditUser}
+            user={modal_state.data}
+          />
+        )
+      break;
     }
     return []
   },
@@ -87,12 +105,12 @@ let Users=React.createClass({
           </thead>
           <tbody>
           {this.props.users.map((u) => (
-            <tr key={u.email} className={u.is_active ? "" : "disabled"}>
-              <td>{u.first_name} {u.last_name}</td>
-              <td>{u.email}</td>
-              <td>{u.groups.join(' + ')}</td>
-              <td>{u.is_active ? "true" : "false"}
-              </td>
+            <tr key={u.email}>
+              <td className={u.is_active ? "" : "disabled"}>{u.first_name} {u.last_name}</td>
+              <td className={u.is_active ? "" : "disabled"}>{u.email}</td>
+              <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
+              <td className={u.is_active ? "" : "disabled"}>{u.is_active ? "true" : "false"}</td>
+              <td><a href="#" onClick={(ev) => { ev.preventDefault(); this.handleOpenEditUser(u)}} title="Edit user"><i className="ui icon edit"/></a></td>
             </tr>
           ))}
           </tbody>

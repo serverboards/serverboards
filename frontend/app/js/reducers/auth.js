@@ -6,6 +6,27 @@ const default_state={
   groups: undefined
 }
 
+// http://stackoverflow.com/questions/1179366/is-there-a-javascript-strcmp#1179377
+function strcmp(str1,str2){
+  return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
+}
+
+function sort_users(users){
+  return users.sort(function(a, b){
+    if (a.is_active && !b.is_active)
+      return -1;
+    if (b.is_active && !a.is_active)
+      return 1;
+    return strcmp(a.email, b.email)
+  })
+}
+
+function sort_groups(groups){
+  return groups.sort(function(a,b){
+    return strcmp(a.name, b.name)
+  })
+}
+
 export const auth = (state = default_state , action) => {
   var state=Object.assign({}, state) // copy state
   switch(action.type){
@@ -18,10 +39,10 @@ export const auth = (state = default_state , action) => {
       state.user=undefined
       break;
     case 'AUTH_USER_LIST':
-      state.users=action.users
+      state.users=sort_users( action.users )
       break;
     case 'AUTH_GROUP_LIST':
-      state.groups=action.groups
+      state.groups=sort_groups( action.groups )
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {
@@ -61,10 +82,20 @@ export const auth = (state = default_state , action) => {
       })
     break;
     case '@RPC_EVENT/group.added':
-      state.groups = state.groups.concat( { name: action.group, users: [], perms: []} )
+      state.groups = sort_groups(
+        state.groups.concat( { name: action.group, users: [], perms: []} )
+      )
     break;
     case '@RPC_EVENT/user.added':
-      state.users = state.users.concat( action.user )
+      state.users = sort_users( state.users.concat( action.user ) )
+    break;
+    case '@RPC_EVENT/user.updated':
+      state.users = state.users.map( (u) => {
+        if (u.email != action.user.email)
+          return u
+        return action.user
+      })
+      state.users = sort_users( state.users )
     break;
   }
   return state

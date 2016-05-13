@@ -48,6 +48,14 @@ export function user_add(user){
   }
 }
 
+export function user_update(user, attributes){
+  return function(dispatch){
+    rpc.call("user.update", [user, attributes]).then(() => {
+      Flash.info("User updated")
+    })
+  }
+}
+
 export function group_list(){
   return function(dispatch){
     rpc.call("group.list", []).then((list) => {

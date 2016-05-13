@@ -6,7 +6,7 @@ let AddUser = React.createClass({
     ev.preventDefault()
 
     let $form = $(this.refs.form)
-    this.props.onAddUser( {
+    this.props.onSubmit( {
       email: $form.find('[name=email]').val(),
       first_name: $form.find('[name=first_name]').val(),
       last_name: $form.find('[name=last_name]').val(),

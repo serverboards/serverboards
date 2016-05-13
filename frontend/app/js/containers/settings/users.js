@@ -1,6 +1,6 @@
 import UsersView from '../../components/settings/users'
 import { connect } from 'react-redux'
-import { user_list, user_add } from '../../actions/auth'
+import { user_list, user_add, user_update } from '../../actions/auth'
 
 var Users = connect(
   (state) => ({
@@ -10,6 +10,7 @@ var Users = connect(
   (dispatch) => ({
     loadUserList: () => dispatch( user_list() ),
     onAddUser:(user) => dispatch( user_add(user) ),
+    onUpdateUser:(email, attributes) => dispatch( user_update(email, attributes) ),
   })
 )(UsersView)
 
