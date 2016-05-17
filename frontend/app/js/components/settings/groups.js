@@ -3,31 +3,7 @@ import Loading from '../loading'
 import EditPerms from './group/edit_perms'
 import EditUsers from './group/edit_users'
 import AddGroup from './group/add'
-
-let Table=function(props){
-  let max=3
-  return (
-    <div>
-      <table className="ui table">
-        <thead>
-          <tr>
-          {props.headers.map( (h) =>(
-            <th key={h}>{h}</th>
-          ))}
-          </tr>
-        </thead>
-        <tbody>
-          {props.data.slice(0,max).map( (u) => (
-            <tr key={u}>
-              <td>{u}</td>
-            </tr>
-          ) ) }
-        </tbody>
-      </table>
-      {(props.data.length > max) ? `And ${props.data.length - max} more...`: ""}
-    </div>
-  )
-}
+import Table from '../maxtable'
 
 let Groups=React.createClass({
   componentDidMount: function(){
