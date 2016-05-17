@@ -7,36 +7,11 @@ defmodule Serverboards.Service.RPC do
 
   def start_link(options \\ []) do
     {:ok, mc} = RPC.MethodCaller.start_link options
-    import Serverboards.Service.Service
     import Serverboards.Service.Component
 
     # Adds that it needs permissions.
     Serverboards.Utils.Decorators.permission_method_caller mc
 
-
-    # Services
-    RPC.MethodCaller.add_method mc, "service.add", fn [servicename, options], context ->
-      service_add servicename, options, Context.get(context, :user)
-    end, [requires_perm: "service.add", context: true]
-
-    RPC.MethodCaller.add_method mc, "service.delete", fn [service_id], context ->
-      service_delete service_id, Context.get(context, :user)
-    end, [requires_perm: "service.add", context: true]
-
-    RPC.MethodCaller.add_method mc, "service.update", fn
-      [service_id, operations], context ->
-        service_update service_id, operations, Context.get(context, :user)
-      end, [requires_perm: "service.update", context: true]
-
-    RPC.MethodCaller.add_method mc, "service.info", fn [service_id], context ->
-      {:ok, service} = service_info service_id, Context.get(context, :user)
-      {:ok, Serverboards.Utils.clean_struct service}
-    end, [requires_perm: "service.info", context: true]
-
-    RPC.MethodCaller.add_method mc, "service.list", fn [], context ->
-      {:ok, services} = service_list Context.get(context, :user)
-      Enum.map services, &Serverboards.Utils.clean_struct(&1)
-    end, [requires_perm: "service.info", context: true]
 
     ## Components
 
@@ -65,12 +40,12 @@ defmodule Serverboards.Service.RPC do
       component_list_available filter, Context.get(context, :user)
     end, [requires_perm: "component.info", context: true]
 
-    RPC.MethodCaller.add_method mc, "component.attach", fn [service, component], context ->
-      component_attach service, component, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "component.attach", fn [serverboard, component], context ->
+      component_attach serverboard, component, Context.get(context, :user)
     end, [requires_perm: "component.attach", context: true]
 
-    RPC.MethodCaller.add_method mc, "component.detach", fn [service, component], context ->
-      component_detach service, component, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "component.detach", fn [serverboard, component], context ->
+      component_detach serverboard, component, Context.get(context, :user)
     end, [requires_perm: "component.attach", context: true]
 
     # Add this method caller once authenticated.

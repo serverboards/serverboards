@@ -25,9 +25,9 @@ defmodule Serverboards.Repo.Migrations.InitComponent do
     create index(:service_component_tag, [:component_id])
     create index(:service_component_tag, [:component_id, :name])
 
-    # Now services
+    # Now serverboards
 
-    create table :service_service do
+    create table :serverboard_serverboard do
       add :shortname, :string
       add :name, :string
       add :description, :string
@@ -36,21 +36,21 @@ defmodule Serverboards.Repo.Migrations.InitComponent do
       timestamps
     end
 
-    create table :service_service_tag do
-      add :service_id, :id
+    create table :serverboard_serverboard_tag do
+      add :serverboard_id, :id
       add :name, :string
     end
 
-    create table :service_service_component do
-      add :service_id, :id
+    create table :serverboard_serverboard_component do
+      add :serverboard_id, :id
       add :component_id, :id
       timestamps
     end
 
-    create unique_index(:service_service, [:shortname])
-    create index(:service_service, [:priority])
-    create index(:service_service_tag, [:service_id])
-    create index(:service_service_component, [:service_id])
-    create index(:service_service_component, [:component_id])
+    create unique_index(:serverboard_serverboard, [:shortname])
+    create index(:serverboard_serverboard, [:priority])
+    create index(:serverboard_serverboard_tag, [:serverboard_id])
+    create index(:serverboard_serverboard_component, [:serverboard_id])
+    create index(:serverboard_serverboard_component, [:component_id])
   end
 end
