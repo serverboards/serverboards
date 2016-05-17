@@ -79,28 +79,30 @@ Performs the call on that uuid or allias
 
 Stops the plugin.
 
-# Services and components
+# Serverboards
 
-## service.add(shortname, attributes)
+## serverboard.add(shortname, attributes)
 
-## service.update(shortname, attributes)
+## serverboard.update(shortname, attributes)
 
-## service.delete(shortname)
+## serverboard.delete(shortname)
 
-## service.list()
+## serverboard.list()
 
-## service.info(shortname)
+## serverboard.info(shortname)
 
-## component.add(attributes) -> UUID
+# Services
 
-## component.delete(uuid)
+## service.add(attributes) -> UUID
 
-## component.update(uuid, attributes)
+## service.delete(uuid)
 
-## component.list(filter \\ [])
+## service.update(uuid, attributes)
 
-## component.info(uuid)
+## service.list(filter \\ [])
 
-## component.attach(service_shortname, component_uuid)
+## service.info(uuid)
 
-## component.detach(service_shortname, component_uuid)
+## service.attach(serverboard_shortname, service_uuid)
+
+## service.detach(serverboard_shortname, service_uuid)

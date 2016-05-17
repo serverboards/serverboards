@@ -23,17 +23,19 @@ auth.manage_groups -- Adds/removes users/permissions from groups
 plugin -- Can start, stop and make calls into plugins
 
 
+## Serverboards
+
+serverboard.add -- Add/remove serverboards
+serverboard.update -- Modify serverboard
+serverboard.delete -- Deletes serverboard
+serverboard.info -- Gets all info from serverboard
+
 ## Services
 
 service.add -- Add/remove services
-service.update -- Modify service
-service.delete -- Deletes service
-service.info -- Gets all info from service
-
-service.component.add -- Add/remove components
-service.component.attach -- Attach/detach a component to an existing service
-service.component.update -- Modifies component configuration
-service.component.delete -- Deletes components
+service.attach -- Attach/detach a service to an existing serverboard
+service.update -- Modifies service configuration
+service.delete -- Deletes services
 
 ## Other
 
