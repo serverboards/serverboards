@@ -2,7 +2,7 @@ import React from 'react'
 
 function Profile(props){
   return (
-    <div className="ui main area white background">
+    <div className="ui central area white background">
       <div className="ui text container" style={{"padding-top": "30px"}}>
         <span className="ui header">
           {props.user.email}
