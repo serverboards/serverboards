@@ -4,14 +4,17 @@ div.ui.logoicon
   display: flex
   align-items: center
   justify-content: center
-  font-size: 35px
+  font-size: 27px
   color: black
   background: #22a397
-  width: 64px
-  height: 64px
+  width: 50px
+  height: 50px
   text-align: center
   border-radius: 15px
   color: white
+  margin: auto
+  margin-bottom: 5px
+
   &.red
     background: $red
   &.orange
@@ -36,6 +39,15 @@ div.ui.logoicon
     background: $brown
   &.grey
     background: $grey
+
+  &.slim
+    background: none !important
+    border: 1px solid white
+    border-radius: 5px
+    color: white
+.active div.ui.logoicon.slim
+  background: white !important
+  color: #22a397 !important
 
 
 .center.aligned

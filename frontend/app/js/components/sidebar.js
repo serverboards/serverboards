@@ -10,7 +10,7 @@ var Sidebar = function(props){
       klass+="active"
     return (
       <a key={service.shortname} className={klass} title={service.name} onClick={() => props.onServiceSelect(service.shortname)}>
-        <LogoIcon name={service.shortname}/>
+        <LogoIcon name={service.shortname} color="slim"/>
         {service.shortname}
       </a>
     )
