@@ -1,8 +1,8 @@
 require Logger
 defmodule Serverboards.Service.Model do
-	defmodule Component do
+	defmodule Service do
 		use Ecto.Schema
-		schema "service_component" do
+		schema "service_service" do
 				field :uuid, Ecto.UUID
 				field :name, :string
 				field :type, :string
@@ -10,35 +10,35 @@ defmodule Serverboards.Service.Model do
 				field :priority, :integer
 				field :config, :map
 
-				has_many :tags, Serverboards.Service.Model.ComponentTag
+				has_many :tags, Serverboards.Service.Model.ServiceTag
 				timestamps
 		 end
 
 		 @required_fields ~w(name type creator_id priority config)
 		 @optional_fields ~w()
-		 def changeset(component, changes \\ :empty) do
+		 def changeset(service, changes \\ :empty) do
 			import Ecto.Changeset
-			component
+			service
 				|> cast(changes, @required_fields, @optional_fields)
 		end
 	end
-	defmodule ComponentTag do
+	defmodule ServiceTag do
 		use Ecto.Schema
-		schema "service_component_tag" do
-			field :component_id, :id
+		schema "service_service_tag" do
+			field :service_id, :id
 			field :name, :string
 		end
-		@required_fields ~w(component_id name)
+		@required_fields ~w(service_id name)
 		@optional_fields ~w()
 	end
-	defmodule ComponentConfig do
+	defmodule ServiceConfig do
 		use Ecto.Schema
-		schema "service_component_config" do
-			field :component_id, :id
+		schema "service_service_config" do
+			field :service_id, :id
 			field :key, :string
 			field :value, :string
 		end
-		@required_fields ~w(component_id key value)
+		@required_fields ~w(service_id key value)
 		@optional_fields ~w()
 	end
 end

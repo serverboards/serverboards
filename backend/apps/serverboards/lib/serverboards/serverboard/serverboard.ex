@@ -9,7 +9,7 @@ defmodule Serverboards.Serverboard do
   alias Serverboards.MOM
   alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
   alias Serverboards.Serverboard.Model.ServerboardTag, as: ServerboardTagModel
-  alias Serverboards.Service.Model.Component, as: ComponentModel
+  alias Serverboards.Service.Model.Service, as: ServiceModel
 
   def start_link(options) do
     {:ok, es} = EventSourcing.start_link name: :serverboard
@@ -31,7 +31,7 @@ defmodule Serverboards.Serverboard do
         Repo.insert( %ServerboardTagModel{name: name, serverboard_id: serverboard.id} )
       end)
 
-      Serverboards.Service.Component.component_update_serverboard_real( serverboard.shortname, attributes, me )
+      Serverboards.Service.service_update_serverboard_real( serverboard.shortname, attributes, me )
 
       MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "serverboard.added", data: %{ serverboard: serverboard} } } )
 
@@ -114,7 +114,7 @@ defmodule Serverboards.Serverboard do
       description: Map.get(attributes, "description", ""),
       priority: Map.get(attributes, "priority", 50),
       tags: Map.get(attributes, "tags", []),
-      components: Map.get(attributes, "components", [])
+      services: Map.get(attributes, "services", [])
     }, me.email
     {:ok, shortname}
   end
@@ -149,7 +149,7 @@ defmodule Serverboards.Serverboard do
         "priority" -> :priority
         "tags" -> :tags
         "shortname" -> :shortname
-        "components" -> :components
+        "services" -> :services
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise Exception, "Unknown operation updating serverboard #{serverboard.shortname}: #{inspect e}. Failing."
@@ -190,7 +190,7 @@ defmodule Serverboards.Serverboard do
   Returns the information of a serverboard by id or name
   """
   def serverboard_info(%ServerboardModel{} = serverboard) do
-    alias Serverboards.Serverboard.Model.ServerboardComponent, as: ServerboardComponentModel
+    alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
 
     serverboard = Repo.preload(serverboard, :tags)
 
@@ -199,12 +199,12 @@ defmodule Serverboards.Serverboard do
       tags: Enum.map(serverboard.tags, fn t -> t.name end)
     }
 
-    components = Repo.all(from c in ComponentModel,
-        join: sc in ServerboardComponentModel,
-          on: sc.component_id==c.id,
+    services = Repo.all(from c in ServiceModel,
+        join: sc in ServerboardServiceModel,
+          on: sc.service_id==c.id,
        where: sc.serverboard_id == ^serverboard.id,
       select: c)
-    serverboard = Map.put(serverboard, :components, components)
+    serverboard = Map.put(serverboard, :services, services)
 
     #Logger.info("Got serverboard #{inspect serverboard}")
     {:ok, serverboard}

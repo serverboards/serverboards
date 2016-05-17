@@ -34,14 +34,14 @@ defmodule Serverboards.Serverboard.Model do
 		@optional_fields ~w()
 	end
 
-	defmodule ServerboardComponent do
+	defmodule ServerboardService do
 		use Ecto.Schema
-		schema "serverboard_serverboard_component" do
+		schema "serverboard_serverboard_service" do
 	    field :serverboard_id, :id
-			field :component_id, :id
+			field :service_id, :id
 	    timestamps
 		end
-		@required_fields ~w(serverboard_id component_id)
+		@required_fields ~w(serverboard_id service_id)
 		@optional_fields ~w()
 	end
 end

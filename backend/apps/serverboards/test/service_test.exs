@@ -5,7 +5,7 @@ defmodule ServerboardTest do
   @moduletag :capture_log
 
   doctest Serverboards.Serverboard, import: true
-  doctest Serverboards.Service.Component, import: true
+  doctest Serverboards.Service, import: true
 
   setup_all do
     {:ok, agent } = Agent.start_link fn -> %{} end
@@ -104,7 +104,7 @@ defmodule ServerboardTest do
       %{
         "name" => "Serverboards test",
         "tags" => ["tag1", "tag2"],
-        "components" => [
+        "services" => [
           %{ "type" => "test", "name" => "main web", "config" => %{ "url" => "http://serverboards.io" } },
           %{ "type" => "test", "name" => "blog", "config" => %{ "url" => "http://serverboards.io/blog" } },
         ]
@@ -119,8 +119,8 @@ defmodule ServerboardTest do
     Logger.info("Info from serverboard #{inspect cl}")
     {:ok, json} = JSON.encode(cl)
     assert not String.contains? json, "__"
-    assert (hd cl["components"])["name"] == "main web"
-    assert (hd (tl cl["components"]))["name"] == "blog"
+    assert (hd cl["services"])["name"] == "main web"
+    assert (hd (tl cl["services"]))["name"] == "blog"
 
     {:ok, cls} = Test.Client.call client, "serverboard.list", []
     Logger.info("Info from serverboard #{inspect cls}")
@@ -129,26 +129,26 @@ defmodule ServerboardTest do
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
-    {:ok, component} = Test.Client.call client, "component.add", %{ "tags" => ["email","test"], "type" => "email", "name" => "Email" }
-    Test.Client.call client, "component.attach", ["SBDS-TST8", component]
-    Test.Client.call client, "component.info", [component]
-    Test.Client.call client, "component.list", []
-    Test.Client.call client, "component.list", [["type","email"]]
+    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => "email", "name" => "Email" }
+    Test.Client.call client, "service.attach", ["SBDS-TST8", service]
+    Test.Client.call client, "service.info", [service]
+    Test.Client.call client, "service.list", []
+    Test.Client.call client, "service.list", [["type","email"]]
 
     Test.Client.call client, "serverboard.update", [
       "SBDS-TST8",
       %{
-        "components" => [
-          %{ "uuid" => component, "name" => "new name" }
+        "services" => [
+          %{ "uuid" => service, "name" => "new name" }
         ]
       }
     ]
-    {:ok, info} = Test.Client.call client, "component.info", [component]
+    {:ok, info} = Test.Client.call client, "service.info", [service]
     assert info.name == "new name"
 
-    Test.Client.call client, "component.delete", [component]
-    {:ok, components} = Test.Client.call client, "component.list", [["type","email"]]
-    assert not (Enum.any? components, &(&1["uuid"] == component))
+    Test.Client.call client, "service.delete", [service]
+    {:ok, services} = Test.Client.call client, "service.list", [["type","email"]]
+    assert not (Enum.any? services, &(&1["uuid"] == service))
 
 
     Test.Client.call client, "serverboard.delete", ["SBDS-TST8"]
@@ -161,54 +161,54 @@ defmodule ServerboardTest do
   end
 
 
-  test "Tags into components", %{ system: system } do
+  test "Tags into services", %{ system: system } do
     import Serverboards.Serverboard
-    import Serverboards.Service.Component
+    import Serverboards.Service
 
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    {:ok, component } = component_add %{ "name" => "Test component", "tags" => ~w(tag1 tag2 tag3), "type" => "email" }, user
-    {:ok, info } = component_info component, user
+    {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "email" }, user
+    {:ok, info } = service_info service, user
     assert info.tags == ["tag1", "tag2", "tag3"]
 
-    component_update component, %{ "tags" => ["a","b","c"] }, user
-    {:ok, info } = component_info component, user
+    service_update service, %{ "tags" => ["a","b","c"] }, user
+    {:ok, info } = service_info service, user
     assert info.tags == ["a", "b", "c"]
 
-    component_delete component, user
+    service_delete service, user
   end
 
-  test "List available components" do
-    import Serverboards.Service.Component
+  test "List available services" do
+    import Serverboards.Service
 
-    components = component_list_available [], "dmoreno@serverboards.io"
+    services = service_list_available [], "dmoreno@serverboards.io"
 
-    assert Enum.count(components) > 0
-    assert Enum.count((hd components).fields) > 0
+    assert Enum.count(services) > 0
+    assert Enum.count((hd services).fields) > 0
   end
 
-  test "Update serverboard removing components", %{ system: system } do
+  test "Update serverboard removing services", %{ system: system } do
     import Serverboards.Serverboard
-    import Serverboards.Service.Component
+    import Serverboards.Service
 
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
 
     # delete all
-    serverboard_add "SBDS-TST10", %{ "name" => "Test 1", "components" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user
+    serverboard_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
-    assert Enum.count(info.components) == 1
-    serverboard_update "SBDS-TST10", %{ "components" => []}, user
+    assert Enum.count(info.services) == 1
+    serverboard_update "SBDS-TST10", %{ "services" => []}, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
-    assert Enum.count(info.components) == 0
+    assert Enum.count(info.services) == 0
 
     # add one
-    serverboard_update "SBDS-TST10", %{ "components" => [%{ "type" => "email", "name" => "add again email", "config" => %{} }]}, user
+    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => "email", "name" => "add again email", "config" => %{} }]}, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
-    assert Enum.count(info.components) == 1
+    assert Enum.count(info.services) == 1
 
     # replace
-    serverboard_update "SBDS-TST10", %{ "components" => [%{ "type" => "email", "name" => "replace email", "config" => %{} }]}, user
+    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => "email", "name" => "replace email", "config" => %{} }]}, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
-    assert Enum.count(info.components) == 1
+    assert Enum.count(info.services) == 1
 
     serverboard_delete "SBDS-TST10", user
   end
