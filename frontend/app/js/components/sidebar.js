@@ -17,7 +17,7 @@ var Sidebar = function(props){
   }
 
   return (
-    <div className="ui left container vertical labeled icon menu services">
+    <div className="ui left container vertical labeled icon menu services sidebar">
       {props.services.map(service)}
     </div>
   )

@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react'
 
+require("../../sass/messages.sass")
+
 const level_to_class = {
   error: 'negative',
   success: 'success',

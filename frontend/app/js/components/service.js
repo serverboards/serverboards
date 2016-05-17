@@ -1,5 +1,6 @@
 import React from 'react'
 import Loading from './loading'
+import Sidebar from '../containers/sidebar'
 
 require("../../sass/service.sass")
 
@@ -47,6 +48,7 @@ var Service = function(props){
 
   return (
     <div className="ui central with menu">
+      <Sidebar/>
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
       <div className="ui central white background">
         <Section service={props.service}/>

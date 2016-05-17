@@ -1,6 +1,5 @@
 import React from 'react';
 
-import Sidebar from '../containers/sidebar'
 import Top from '../containers/top'
 import Login from '../containers/login.js'
 import Console from '../containers/console.js'
@@ -12,9 +11,8 @@ function Main(props){
   var contents=[]
   if (props.logged_in)
     contents=(
-      <div className="ui main">
+      <div>
         <Top onLogout={props.onLogout}/>
-        <Sidebar/>
         <div className="ui main area">
           <Router/>
         </div>

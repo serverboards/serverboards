@@ -1,11 +1,15 @@
 import React from 'react'
+import Sidebar from '../containers/sidebar'
 
 function DashBoard(props){
   return (
-    <a href="#/service/add" className="ui massive button _add icon floating violet">
-      <i className="server icon"></i>
-      <i className="corner add icon"></i>
-    </a>
+    <div>
+      <Sidebar/>
+      <a href="#/service/add" className="ui massive button _add icon floating violet">
+        <i className="server icon"></i>
+        <i className="corner add icon"></i>
+      </a>
+    </div>
   )
 }
 

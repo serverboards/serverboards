@@ -1,4 +1,5 @@
 @import colors
+@import gradients
 
 .serverboards.background.diagonal
   background: #22a397 /* Old browsers */
@@ -12,40 +13,26 @@
 
   color: white
 
-.ui.modal.active
-  top: 25%
-
-.ui.messages.top
-  top: 1em
-  z-index: 1010
-  margin: auto
-  position: absolute
-  width: 100%
-  text-align: center
-  .message
-    width: 800px
-    max-width: 80%
-    text-align: left
-
 .ui.background.white
   background: white
   color: black
 
 body
   height: auto !important
+  padding-top: 45px
 
-#react > div > div.ui.main
-  height: calc( 100vh - 45px )
-  margin: 45px 0 0 0
+div.ui.main
+  max-height: calc( 100vh - 46px )
+  overflow: hidden
+  margin: 46px 0 0 0
 
-.ui.main
   display: flex
   overflow: hidden
   align-items: stretch
   align-content: stretch
   width: 100%
 
-  > .ui.left
+  > .ui.menu
     flex-grow: 0
     width: 300px
     max-height: calc( 100vh - 45px )
@@ -64,36 +51,34 @@ body
       padding-top: 20px
       overflow: auto
 
-.ui.vertical.menu.services
-  height: calc( 100vh - 45px )
-  border-radius: 0
-  overflow: auto
-  margin: 0 !important
-  border: 0
+  .ui.vertical.menu.sidebar
+    height: calc( 100vh - 47px ) !important
+    border-radius: 0
+    overflow: auto
+    margin: 0 !important
+    border: 0
+    visibility: visible
+    position: relative
 
-  background: #22a397 /* Old browsers */
-  background: -moz-linear-gradient(top,  #22a397 0%, #eac442 100%) /* FF3.6+ */
-  background: -webkit-gradient(linear,  top,  bottom, color-stop(0%,#22a397), color-stop(100%,#eac442)) /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #22a397 0%,#eac442 100%) /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #22a397 0%,#eac442 100%) /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #22a397 0%,#eac442 100%) /* IE10+ */
-  background: linear-gradient(to bottom ,  #22a397 0%,#eac442 100%) /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#22a397', endColorstr='#eac442',GradientType=0 ) /* IE6-9 */
+    -webkit-transform: none
+    transform: none
 
-  .item
-    max-width: 100px
-    overflow: hidden
-    text-overflow: ellipsis
-    color: white
+    +serverboards-vertical-gradient
 
-    &.active
-      border-left: 4px solid white
-      padding-left: 12px
+    .item
+      max-width: 100px
+      overflow: hidden
+      text-overflow: ellipsis
+      color: white
+
+      &.active
+        border-left: 4px solid white !important
+        padding-left: 12px
+        &:hover
+          color: white
+
       &:hover
         color: white
-
-    &:hover
-      color: white
 
 
 .ui.vertical.menu.sections
