@@ -6,10 +6,18 @@ require("../../sass/service.sass")
 var SidebarSections = function(props){
   function MenuItem(menu_props){
     let klass="item"
-    if (menu_props.section==props.section)
+    let current=[]
+    if (menu_props.section==props.section){
       klass+=" active"
+      current=(
+        <i className="icon angle right floating right"/>
+      )
+    }
     return (
-      <a className={klass} onClick={() => props.onSectionChange(menu_props.section)}>{menu_props.children}</a>
+      <a className={klass} onClick={() => props.onSectionChange(menu_props.section)}>
+      {menu_props.children}
+      {current}
+      </a>
     )
   }
 
