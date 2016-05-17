@@ -2,6 +2,8 @@ import React from 'react'
 import UserMenu from '../../containers/top/usermenu'
 import {Link} from '../../router'
 
+require("../../../sass/top.sass")
+
 var Top = function(props){
   var menu={}
   if (props.menu == 'user'){
@@ -16,15 +18,42 @@ var Top = function(props){
 
   return (
     <nav className="ui top fixed menu">
-      <div className="item" style={{padding: 0}}>
+      <div className="item logo">
         <a href="#/">
-          <img src={logo} style={{height: 40}}/>
+          <img src={logo}/>
         </a>
       </div>
-      <a className="item right" onClick={props.toggleUserMenu}>
-        {props.user.email}
-        <i class="dropdown icon"></i>
-      </a>
+      <div className="item search">
+        <div className="ui search">
+          <div className="ui icon input">
+            <input className="prompt" type="text" placeholder="Search anything..."/>
+            <i className="search icon"></i>
+          </div>
+          <div className="results"></div>
+        </div>
+      </div>
+
+      <div className="right menu">
+        <a className="item disabled">
+          <i className="comments outline icon"></i>
+          Issues
+          <i className="dropdown icon"></i>
+        </a>
+        <a className="item disabled">
+          <i className="alarm outline icon"></i>
+          Notifications
+          <i className="dropdown icon"></i>
+        </a>
+        <a className="item disabled">
+          <i className="tasks icon"></i>
+          Processes
+          <i className="dropdown icon"></i>
+        </a>
+        <a className="item" onClick={props.toggleUserMenu}>
+          {props.user.email}
+          <i className="dropdown icon"></i>
+        </a>
+      </div>
       {menu.user}
     </nav>
   )
