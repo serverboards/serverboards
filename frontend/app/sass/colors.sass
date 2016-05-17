@@ -10,3 +10,59 @@ $purple: #a333c8
 $pink: #e03997
 $brown: #a5673f
 $grey: #767676
+
+$hover-lighten: 2.0
+
+=background-colors
+  &.red
+    background: $red
+  &.orange
+    background: $orange
+  &.yellow
+    background: $yellow
+  &.olive
+    background: $olive
+  &.green
+    background: $green
+  &.teal
+    background: $teal
+  &.blue
+    background: $blue
+  &.violet
+    background: $violet
+  &.purple
+    background: $purple
+  &.pink
+    background: $pink
+  &.brown
+    background: $brown
+  &.grey
+    background: $grey
+
+=background-colors-hover
+  +background-colors
+  &:hover
+    &.red
+      background: lighten($red, $hover-lighten)
+    &.orange
+      background: lighten($orange, $hover-lighten)
+    &.yellow
+      background: lighten($yellow, $hover-lighten)
+    &.olive
+      background: lighten($olive, $hover-lighten)
+    &.green
+      background: lighten($green, $hover-lighten)
+    &.teal
+      background: lighten($teal, $hover-lighten)
+    &.blue
+      background: lighten($blue, $hover-lighten)
+    &.violet
+      background: lighten($violet, $hover-lighten)
+    &.purple
+      background: lighten($purple, $hover-lighten)
+    &.pink
+      background: lighten($pink, $hover-lighten)
+    &.brown
+      background: lighten($brown, $hover-lighten)
+    &.grey
+      background: lighten($grey, $hover-lighten)
