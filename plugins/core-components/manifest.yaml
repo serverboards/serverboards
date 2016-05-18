@@ -1,18 +1,18 @@
-id: serverboards.core.components
-name: core components
+id: serverboards.core.services
+name: core services
 author: David Moreno <dmoreno@serverboards.io>
 version: 0.0.1
 description: >
-  Definition of core components and fields to store in them.
+  Definition of core services and fields to store in them.
 
-  This is just the list of available core components; other plugins
+  This is just the list of available core services; other plugins
   add the required functionalities.
 
 # name and tags fields are always assumed
 
 components:
   - name: Web Server
-    type: component
+    type: service
     traits: url
     id: web_server
     fields:
@@ -22,7 +22,7 @@ components:
         validation: empty
 
   - name: Email Account
-    type: component
+    type: service
     traits: email
     id: email
     fields:
@@ -38,7 +38,7 @@ components:
         type: password
 
   - name: SSH access
-    type: component
+    type: service
     traits: ssh
     id: ssh
     fields:
@@ -48,7 +48,7 @@ components:
         validation: empty
 
   - name: Server
-    type: component
+    type: service
     traits: ip
     id: server
     fields:
