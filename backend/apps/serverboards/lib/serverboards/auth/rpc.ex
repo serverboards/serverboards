@@ -43,11 +43,11 @@ defmodule Serverboards.Auth.RPC do
         last_name: attributes["last_name"],
         is_active: attributes["is_active"]
         }, me
-    end, [context: true]
+    end, [requires_perm: "auth.create_user", context: true]
     add_method mc, "user.update", fn [email, operations], context ->
       me = RPC.Context.get(context, :user)
       Auth.User.user_update email, operations, me
-    end, [context: true]
+    end, [requires_perm: "auth.modify_self", context: true]
 
 
 
@@ -58,31 +58,31 @@ defmodule Serverboards.Auth.RPC do
     add_method mc, "group.add", fn [name], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.group_add name, me
-    end, [context: true]
+    end, [requires_perm: "auth.modify_groups", context: true]
     add_method mc, "group.remove", fn [name], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.group_remove name, me
-    end, [context: true]
+    end, [requires_perm: "auth.modify_groups", context: true]
     add_method mc, "group.add_perm", fn [group, code], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_add group, code, me
-    end, [context: true]
+    end, [requires_perm: "auth.manage_groups", context: true]
     add_method mc, "group.remove_perm", fn [group, code], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_remove group, code, me
-    end, [context: true]
+    end, [requires_perm: "auth.manage_groups", context: true]
     add_method mc, "group.list_perms", fn [group], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_list group, me
-    end, [context: true]
+    end, [requires_perm: "auth.manage_groups", context: true]
     add_method mc, "group.add_user", fn [group, new_user], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_add group, new_user, me
-    end, [context: true]
+    end, [requires_perm: "auth.manage_groups", context: true]
     add_method mc, "group.remove_user", fn [group, user], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_remove group, user, me
-    end, [context: true]
+    end, [requires_perm: "auth.manage_groups", context: true]
     add_method mc, "group.list_users", fn [group], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_list group, me
