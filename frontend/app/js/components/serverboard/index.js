@@ -1,8 +1,6 @@
 import React from 'react'
-import Loading from './loading'
-import Sidebar from '../containers/sidebar'
-
-require("../../sass/service.sass")
+import Loading from '../loading'
+import Sidebar from '../../containers/sidebar'
 
 var SidebarSections = function(props){
   function MenuItem(menu_props){
@@ -24,9 +22,9 @@ var SidebarSections = function(props){
 
   return (
     <div className="ui vertical menu sections">
-      <h3 className="ui item header">{props.service.name}</h3>
+      <h3 className="ui item header">{props.serverboard.name}</h3>
       <MenuItem section="overview">Overview</MenuItem>
-      <MenuItem section="components">Components</MenuItem>
+      <MenuItem section="services">Services</MenuItem>
       <MenuItem section="permissions">Permissions</MenuItem>
       <MenuItem section="rules">Rules</MenuItem>
       <MenuItem section="logs">Logs</MenuItem>
@@ -36,7 +34,7 @@ var SidebarSections = function(props){
 }
 
 var Service = function(props){
-  if (!props.service)
+  if (!props.serverboard)
     return (
       <Loading>
       Service information.
@@ -44,14 +42,14 @@ var Service = function(props){
     )
 
   let section = props.params.section || 'default'
-  let Section = require(`../containers/service/${section}`).default
+  let Section = require(`../../containers/serverboard/${section}`).default
 
   return (
     <div className="ui central with menu">
       <Sidebar/>
-      <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
+      <SidebarSections section={props.params.section} serverboard={props.serverboard} onSectionChange={props.handleSectionChange}/>
       <div className="ui central white background">
-        <Section service={props.service}/>
+        <Section serverboard={props.serverboard}/>
       </div>
     </div>
   )

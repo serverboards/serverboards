@@ -13,9 +13,9 @@ function Overview(props){
   return (
     <div className="ui background white central">
     <div className="ui text container">
-      <h1>{props.service.name}</h1>
-      {props.service.tags.map( (t) => tag(t) )}
-      <div className="ui text segment">{props.service.description}</div>
+      <h1>{props.serverboard.name}</h1>
+      {props.serverboard.tags.map( (t) => tag(t) )}
+      <div className="ui text segment">{props.serverboard.description}</div>
       </div>
     </div>
   )

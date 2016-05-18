@@ -4,21 +4,21 @@ import LogoIcon from './logoicon'
 
 var Sidebar = function(props){
 
-  var service = function(service){
+  var serverboard = function(serverboard){
     let klass="item "
-    if (props.current == service.shortname)
+    if (props.current == serverboard.shortname)
       klass+="active"
     return (
-      <a key={service.shortname} className={klass} title={service.name} onClick={() => props.onServiceSelect(service.shortname)}>
-        <LogoIcon name={service.shortname} color="slim"/>
-        {service.shortname}
+      <a key={serverboard.shortname} className={klass} title={serverboard.name} onClick={() => props.onServiceSelect(serverboard.shortname)}>
+        <LogoIcon name={serverboard.shortname} color="slim"/>
+        {serverboard.shortname}
       </a>
     )
   }
 
   return (
-    <div className="ui left container vertical labeled icon menu services sidebar">
-      {props.services.map(service)}
+    <div className="ui left container vertical labeled icon menu serverboards sidebar">
+      {props.serverboards.map(serverboard)}
     </div>
   )
 }

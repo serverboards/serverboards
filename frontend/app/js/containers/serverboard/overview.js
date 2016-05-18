@@ -1,10 +1,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import OverviewView from '../../components/service/overview'
+import OverviewView from '../../components/serverboard/overview'
 
 var Overview=connect(
   (state) => ({
-    service: state.service.services.find( (s) => s.shortname == state.service.current )
+    serverboard: state.serverboard.serverboards.find( (s) => s.shortname == state.serverboard.current )
   }),
   (dispatch) => ({
   })

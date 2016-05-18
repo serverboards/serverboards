@@ -1,14 +1,14 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import AddView from '../../components/service/add'
-import { service_add } from '../../actions/service'
+import AddView from '../../components/serverboard/add'
+import { serverboard_add } from '../../actions/serverboard'
 
 var Add=connect(
   (state) => ({
   }),
   (dispatch) => ({
     onSubmit: (data) => {
-      dispatch( service_add(data) )
+      dispatch( serverboard_add(data) )
     }
   })
 )(AddView)

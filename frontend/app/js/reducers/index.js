@@ -3,7 +3,7 @@ import auth from './auth'
 import flash from './flash'
 import { routerReducer } from 'react-router-redux'
 
-var reducers = ['auth','flash','console','top','service']
+var reducers = ['auth','flash','console','top','serverboard']
 
 reducers = reducers.reduce(function(acc, r){ acc[r]=require('./'+r).default; return acc; }, {})
 reducers.routing = routerReducer

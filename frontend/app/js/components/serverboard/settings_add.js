@@ -1,7 +1,7 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
-import AddComponentModal from '../../containers/service/addcomponent'
-import SetupComponentModal from './setupcomponent'
+import AddComponentModal from '../../containers/serverboard/addservice'
+import SetupComponentModal from './setupservice'
 import {to_map, map_drop} from '../../utils'
 import HoldButton from '../holdbutton'
 
@@ -15,7 +15,7 @@ function Component(props){
   )
 }
 
-function default_component_fields(name){
+function default_service_fields(name){
   return [
     {
       label: 'Name',
@@ -28,13 +28,13 @@ function default_component_fields(name){
       label: 'Description',
       name: 'description',
       type: 'textarea',
-      description: 'Comments about this component'
+      description: 'Comments about this service'
     },
   ]
 }
 
-// Two components refer to the same, used for replacing and deleting
-function component_same(c1, c2){
+// Two services refer to the same, used for replacing and deleting
+function service_same(c1, c2){
   return (
     (c1.id && c1.id == c2.id)
     ||
@@ -44,12 +44,12 @@ function component_same(c1, c2){
 
 var Settings=React.createClass({
   getInitialState : function(){
-    let service=this.props.service || {}
+    let serverboard=this.props.serverboard || {}
     return {
       show_dialog: false,
-      components: this.props.initial_components || [],
+      services: this.props.initial_services || [],
       maxid: 1,
-      current_component: undefined,
+      current_service: undefined,
     }
   },
   change : function(what, ev){
@@ -63,7 +63,7 @@ var Settings=React.createClass({
     if ($form.form('validate form')){
       let fields=$form.form('get values')
 
-      let components = this.state.components.map( (c) => {
+      let services = this.state.services.map( (c) => {
         let config =  to_map( c.fields.map( (f) => [f.name, f.value] ) )
         return {
           uuid: c.uuid,
@@ -73,19 +73,19 @@ var Settings=React.createClass({
         }
       })
 
-      let service = {
+      let serverboard = {
         name: fields.name,
         shortname: fields.shortname,
         tags: fields.tags.split(' '),
         description: fields.description,
-        components: components
+        services: services
       }
-      this.props.onSubmit( service )
+      this.props.onSubmit( serverboard )
     }
   },
   openAddComponentModal : function(ev){
     ev.preventDefault()
-    this.setModal('add_component')
+    this.setModal('add_service')
   },
   setModal: function(modal){
     this.context.router.push( {
@@ -93,49 +93,49 @@ var Settings=React.createClass({
       state: {modal }
     } )
   },
-  handleAddComponent : function(current_component){
-    current_component.id=this.state.maxid+1
+  handleAddComponent : function(current_service){
+    current_service.id=this.state.maxid+1
     this.setState({
-      components: this.state.components.concat(current_component),
-      maxid: current_component.id
+      services: this.state.services.concat(current_service),
+      maxid: current_service.id
     })
 
-    this.setModal('setup_component')
-    this.setState({ current_component })
+    this.setModal('setup_service')
+    this.setState({ current_service })
   },
-  handleAttachComponent : function( component ){
+  handleAttachComponent : function( service ){
     this.setState({
-      components: this.state.components.concat(component),
-      current_component: undefined
+      services: this.state.services.concat(service),
+      current_service: undefined
     })
 
     this.setModal(false)
   },
-  closeModal : function(component_id){
+  closeModal : function(service_id){
     this.setModal(false)
   },
-  handleUpdateComponent : function(component){
-    let components = this.state.components.map(
-      (c) => component_same(c, component) ? component : c
+  handleUpdateComponent : function(service){
+    let services = this.state.services.map(
+      (c) => service_same(c, service) ? service : c
     )
-    console.log(this.state.components, components)
+    console.log(this.state.services, services)
 
-    this.setState({ components })
+    this.setState({ services })
     this.setModal(false)
   },
-  handleOpenUpdateComponent : function(current_component, ev){
+  handleOpenUpdateComponent : function(current_service, ev){
     ev && ev.preventDefault()
 
-    this.setModal('setup_component')
-    this.setState({ current_component })
+    this.setModal('setup_service')
+    this.setState({ current_service })
   },
   handleDeleteComponent : function(ev){
     ev && ev.preventDefault()
-    let component=this.state.current_component
-    if (component)
+    let service=this.state.current_service
+    if (service)
       this.setState({
-        components: this.state.components.filter(
-          (c) => !component_same( c, component )
+        services: this.state.services.filter(
+          (c) => !service_same( c, service )
         )
       })
     this.setModal(false)
@@ -167,7 +167,7 @@ var Settings=React.createClass({
     }
     let popup=[]
     switch(this.props.location.state && this.props.location.state.modal){
-      case 'add_component':
+      case 'add_service':
         popup=(
           <AddComponentModal
             onAdd={this.handleAddComponent}
@@ -175,14 +175,14 @@ var Settings=React.createClass({
             onClose={this.closeModal}/>
         )
         break;
-      case 'setup_component':
-        if (this.state.current_component)
+      case 'setup_service':
+        if (this.state.current_service)
           popup=(
             <SetupComponentModal
               onUpdate={this.handleUpdateComponent}
               onClose={this.closeModal}
               onDelete={this.handleDeleteComponent}
-              component={this.state.current_component}/>
+              service={this.state.current_service}/>
           )
         break;
     }
@@ -191,7 +191,7 @@ var Settings=React.createClass({
     if (!props.edit){
       accept_buttons=(
         <div className="field">
-          <button type="submit" className="ui button positive">Create service</button>
+          <button type="submit" className="ui button positive">Create serverboard</button>
         </div>
       )
     }
@@ -199,17 +199,17 @@ var Settings=React.createClass({
       accept_buttons=(
         <div className="two fields">
           <div className="field">
-            <button type="submit" className="ui button positive">Update service</button>
+            <button type="submit" className="ui button positive">Update serverboard</button>
           </div>
           <div className="ui field right aligned">
-            <HoldButton type="button" className="ui button negative" onClick={props.onDelete}>Delete service</HoldButton>
+            <HoldButton type="button" className="ui button negative" onClick={props.onDelete}>Delete serverboard</HoldButton>
           </div>
         </div>
       )
     }
 
     let state=this.state
-    let service=this.props.service || { tags: [], name: '', description: ''}
+    let serverboard=this.props.serverboard || { tags: [], name: '', description: ''}
 
     return (
       <div className="ui background white central">
@@ -219,25 +219,25 @@ var Settings=React.createClass({
             <div className="field">
               <label>Shortname</label>
               <input type="text" name="shortname"
-                defaultValue={service.shortname}
+                defaultValue={serverboard.shortname}
                 placeholder="Ex. CMPNY"/>
             </div>
             <div className="field">
               <label>Service Name</label>
               <input type="text" name="name"
-                defaultValue={service.name}
-                placeholder="Ex. My company name, web services, external services..."/>
+                defaultValue={serverboard.name}
+                placeholder="Ex. My company name, web serverboards, external serverboards..."/>
             </div>
             <div className="field">
               <label>Tags</label>
               <input type="text" name="tags"
-                defaultValue={service.tags.join(' ')}
+                defaultValue={serverboard.tags.join(' ')}
                 placeholder="Ex. web, mail, external..."/>
             </div>
             <div className="field">
               <label>Description</label>
               <textarea placeholder="Long description"  name="description"
-                defaultValue={service.description}
+                defaultValue={serverboard.description}
                 />
             </div>
 
@@ -246,7 +246,7 @@ var Settings=React.createClass({
               <div className="ui stackable grid" style={{ marginTop: 10 }}>
                 <div className="fourteen wide column">
                   <div className="ui five column grid">
-                    {state.components.map((c) => WrappedComponent(c) )}
+                    {state.services.map((c) => WrappedComponent(c) )}
                   </div>
                 </div>
                 <div className="one wide column">
@@ -267,4 +267,4 @@ var Settings=React.createClass({
 })
 
 export default Settings
-export {default_component_fields}
+export {default_service_fields}

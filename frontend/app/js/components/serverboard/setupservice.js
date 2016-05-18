@@ -6,7 +6,7 @@ import HoldButton from '../holdbutton'
 let SetupComponent=React.createClass({
   getInitialState : function(){
     let r={}
-    this.props.component.fields.map( (f) =>{
+    this.props.service.fields.map( (f) =>{
       r[f.name]=f.value || ''
     })
     return r
@@ -17,12 +17,12 @@ let SetupComponent=React.createClass({
     let form = this.refs.form.refs.form
     if ( $(form).form('validate form' ) ){
       console.log("Ok")
-      let component=Object.assign({}, this.props.component)
+      let service=Object.assign({}, this.props.service)
       let values = this.state
-      component.fields.map( (f) => {
+      service.fields.map( (f) => {
         f.value=values[f.name] || ''
       })
-      this.props.onUpdate( component )
+      this.props.onUpdate( service )
     }
   },
   handleUpdateForm : function(data){
@@ -33,10 +33,10 @@ let SetupComponent=React.createClass({
     return (
       <Modal onClose={props.onClose}>
         <div className="header">
-          Update settings for {props.component.name}
+          Update settings for {props.service.name}
         </div>
         <div className="content">
-          <GenericForm ref="form" fields={props.component.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+          <GenericForm ref="form" fields={props.service.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
           <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>

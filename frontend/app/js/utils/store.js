@@ -77,13 +77,13 @@ store.on=function(what, f){
 rpc.set_redux_store(store)
 
 /// Initial store status
-import {service_update_all} from '../actions/service'
+import {serverboard_update_all} from '../actions/serverboard'
 store.on('auth.logged_in', function(logged_in){
   if (logged_in){
     console.log("Logged in, gathering initial status.")
 
     /// Initial data gather from server
-    store.dispatch( service_update_all() )
+    store.dispatch( serverboard_update_all() )
   }
 })
 
