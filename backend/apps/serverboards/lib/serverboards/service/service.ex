@@ -1,157 +1,406 @@
 require Logger
+require EventSourcing
 
-defmodule Serverboards.Service.Service do
-  import Ecto.Changeset
-  import Ecto.Query
-
+defmodule Serverboards.Service do
+  alias Serverboards.Service.Model.Service, as: ServiceModel
+  alias Serverboards.Service.Model.ServiceTag, as: ServiceTagModel
+  alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
+  alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
   alias Serverboards.Repo
-  alias Serverboards.Service.Model
-  alias Serverboards.MOM
-  alias Serverboards.Service.{Component, Service}
 
   def start_link(options) do
     {:ok, es} = EventSourcing.start_link name: :service
     {:ok, rpc} = Serverboards.Service.RPC.start_link
 
     EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
-    EventSourcing.subscribe :service, :debug_full
 
-    Component.setup_eventsourcing(es)
-    Service.setup_eventsourcing(es)
+    setup_eventsourcing(es)
 
     {:ok, es}
   end
 
   def setup_eventsourcing(es) do
-    EventSourcing.subscribe :service, :add_service, fn attributes, me ->
-      {:ok, service} = Repo.insert( Model.Service.changeset(%Model.Service{}, attributes) )
+    import EventSourcing
 
-      Enum.map(Map.get(attributes, :tags, []), fn name ->
-        Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
-      end)
+    subscribe es, :add_service, fn attributes, me ->
+      service_add_real(attributes.uuid, attributes, me)
+    end
+    subscribe es, :delete_service, fn service, me ->
+      service_delete_real(service, me)
+    end
+    # This attach_service is idempotent
+    subscribe es, :attach_service, fn [serverboard, service], me ->
+      service_attach_real(serverboard, service, me)
+    end
+    subscribe es, :detach_service, fn [serverboard, service], me ->
+      service_detach_real(serverboard, service, me)
+    end
+    subscribe es, :update_service, fn [service, operations], me ->
+      service_update_real( service, operations, me)
+    end
 
-      Component.component_update_service_real( service.shortname, attributes, me )
+    # this is at a serverboard, not at a service, updates services into that serverboard
+    subscribe :serverboard, :update_serverboard, fn [serverboard, attributes], me ->
+      service_update_serverboard_real( serverboard, attributes, me)
+    end
+  end
 
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.added", data: %{ service: service} } } )
-
-      service.shortname
-    end, name: :service
-
-    EventSourcing.subscribe :service, :update_service, fn [shortname, operations], me ->
-      import Ecto.Query
-      # update tags
-      service = Repo.get_by!(Model.Service, shortname: shortname)
-
+  defp service_update_real( uuid, operations, _me) do
+    import Ecto.Query
+    service = Repo.get_by(ServiceModel, uuid: uuid)
+    if service do
       tags = MapSet.new Map.get(operations, :tags, [])
 
-      current_tags = Repo.all(from st in Model.ServiceTag, where: st.service_id == ^service.id, select: st.name )
+      current_tags = Repo.all(from ct in ServiceTagModel, where: ct.service_id == ^service.id, select: ct.name )
       current_tags = MapSet.new current_tags
 
       new_tags = MapSet.difference(tags, current_tags)
       expired_tags = MapSet.difference(current_tags, tags)
 
-      Logger.debug("Update service tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
-
       if (Enum.count expired_tags) > 0 do
         expired_tags = MapSet.to_list expired_tags
-        Repo.delete_all( from t in Model.ServiceTag, where: t.service_id == ^service.id and t.name in ^expired_tags )
+        Repo.delete_all( from t in ServiceTagModel, where: t.service_id == ^service.id and t.name in ^expired_tags )
       end
       Enum.map(new_tags, fn name ->
-        Repo.insert( %Model.ServiceTag{name: name, service_id: service.id} )
+        Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
       end)
 
-      {:ok, upd} = Repo.update( Model.Service.changeset(
-        service, operations
+      {:ok, upd} = Repo.update( ServiceModel.changeset(
+      service, operations
       ) )
-
-      {:ok, service} = service_info upd
-
-      MOM.Channel.send( :client_events, %MOM.Message{
-        payload: %{ type: "service.updated",
-          data: %{
-            shortname: shortname, service: service
-            }
-          } } )
-
       :ok
-    end, name: :service
+    else
+      {:error, :not_found}
+    end
 
-    EventSourcing.subscribe :service, :delete_service, fn shortname, _me ->
-      Repo.delete_all( from s in Model.Service, where: s.shortname == ^shortname )
+  end
 
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "service.deleted", data: %{ shortname: shortname } } } )
+  def service_update_serverboard_real( serverboard, attributes, me) do
+    import Ecto.Query
+
+    case attributes do
+      %{ services: services } ->
+        current_uuids = services
+          |> service_update_list_real(me)
+
+        current_uuids
+          |> Enum.map(fn uuid ->
+            service_attach_real(serverboard, uuid, me)
+          end)
+
+        # now detach from non listed uuids
+        Logger.info(inspect current_uuids)
+        if (Enum.count current_uuids) == 0 do # remove all
+          Repo.delete_all(
+            from sc in ServerboardServiceModel,
+            join: s in ServerboardModel,
+              on: s.id == sc.serverboard_id,
+           where: s.shortname == ^serverboard
+           )
+        else
+          # remove only not updated
+          ids_to_remove = Repo.all(
+            from sc in ServerboardServiceModel,
+             join: c in ServiceModel,
+               on: c.id == sc.service_id,
+             join: s in ServerboardModel,
+               on: s.id == sc.serverboard_id,
+             where: s.shortname == ^serverboard and
+                    not (c.uuid in ^current_uuids),
+            select: sc.id
+          )
+          Repo.delete_all(
+             from sc_ in ServerboardServiceModel,
+            where: sc_.id in ^ids_to_remove
+            )
+        end
+
+      _ ->
+        nil
+    end
+    :ok
+  end
+
+  defp service_add_real( uuid, attributes, me) do
+    user = Serverboards.Auth.User.user_info( me, %{ email: me } )
+    {:ok, service} = Repo.insert( %ServiceModel{
+      uuid: uuid,
+      name: attributes.name,
+      type: attributes.type,
+      creator_id: user.id,
+      priority: attributes.priority,
+      config: attributes.config
+    } )
+
+    Enum.map(attributes.tags, fn name ->
+      Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
+    end)
+  end
+
+  defp service_delete_real( service, _me) do
+    import Ecto.Query
+    # remove it when used inside any serverboard
+    Repo.delete_all(
+      from sc in ServerboardServiceModel,
+      join: c in ServiceModel, on: c.id == sc.service_id,
+      where: c.uuid == ^service
+      )
+
+      # 1 removed
+    case Repo.delete_all( from c in ServiceModel, where: c.uuid == ^service ) do
+      {1, _} -> :ok
+      {0, _} -> {:error, :not_found}
     end
   end
 
-  @doc ~S"""
-  Creates a new service given the shortname, attributes and creator_id
-
-  Attributes is a Map with the service attributes (strings, not atoms) All are optional.
-
-  Attributes:
-  * name -- Service name
-  * description -- Long description
-  * priority -- Used for sorting, increasing.
-  * tags -- List of tags to apply.
-
-  ## Example
-
-    iex> user = Serverboards.Test.User.system
-    iex> {:ok, "SBDS-TST1"} = service_add "SBDS-TST1", %{ "name" => "serverboards" }, user
-    iex> {:ok, info} = service_info "SBDS-TST1", user
-    iex> info.name
-    "serverboards"
-    iex> service_delete "SBDS-TST1", user
+  defp service_attach_real( serverboard, service, me ) do
+    import Ecto.Query
+    case Repo.one(
+        from sc in ServerboardServiceModel,
+          join: s in ServerboardModel,
+            on: s.id == sc.serverboard_id,
+          join: c in ServiceModel,
+            on: c.id == sc.service_id,
+          where: s.shortname == ^serverboard and
+                 c.uuid == ^service,
+          select: sc.id ) do
+      nil ->
+        serverboard_obj = Repo.get_by(ServerboardModel, shortname: serverboard)
+        service_obj = Repo.get_by(ServiceModel, uuid: service)
+        if Enum.all?([serverboard_obj, service_obj]) do
+          {:ok, _serverboard_service} = Repo.insert( %ServerboardServiceModel{
+            serverboard_id: serverboard_obj.id,
+            service_id: service_obj.id
+          } )
+        else
+          Logger.warn("Trying to attach invalid serverboard or service (#{serverboard} (#{inspect serverboard_obj}), #{service} (#{inspect service_obj}))")
+        end
+      _ ->  #  already in
+        nil
+    end
     :ok
-
-  """
-  def service_add(shortname, attributes, me) do
-    EventSourcing.dispatch :service, :add_service, %{
-      shortname: shortname,
-      creator_id: me.id,
-      name: Map.get(attributes,"name", shortname),
-      description: Map.get(attributes, "description", ""),
-      priority: Map.get(attributes, "priority", 50),
-      tags: Map.get(attributes, "tags", []),
-      components: Map.get(attributes, "components", [])
-    }, me.email
-    {:ok, shortname}
   end
 
+  defp service_detach_real(serverboard, service, _me ) do
+    import Ecto.Query
 
+    to_remove = Repo.all(
+      from sc in ServerboardServiceModel,
+      join: s in ServerboardModel, on: s.id == sc.serverboard_id,
+      join: c in ServiceModel, on: c.id == sc.service_id,
+      where: c.uuid == ^service and s.shortname == ^serverboard,
+      select: sc.id
+     )
+
+    Repo.delete_all(
+      from sc_ in ServerboardServiceModel,
+      where: sc_.id in ^to_remove )
+
+    :ok
+  end
+
+  # Updates all services in a give serverboard, or creates them. Returns list of uuids.
+  defp service_update_list_real( [], _me), do: []
+  defp service_update_list_real( [ attributes | rest ], me) do
+    uuid = case Map.get(attributes,"uuid",false) do
+      false ->
+        uuid=UUID.uuid4
+        attributes = %{
+          uuid: uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        service_add_real( uuid, attributes, me )
+        uuid
+      uuid ->
+        attributes = %{
+          uuid: uuid,
+          name: attributes["name"],
+          type: attributes["type"],
+          priority: Map.get(attributes,"priority", 50),
+          tags: Map.get(attributes,"tags", []),
+          config: Map.get(attributes,"config", %{}),
+        }
+
+        nattributes = Serverboards.Utils.drop_empty_values attributes
+
+        service_update_real( uuid, nattributes, me )
+        uuid
+      end
+    [uuid | service_update_list_real(rest, me)]
+  end
 
   @doc ~S"""
-  Updates a service by id or shortname
+  Adds a service to a serverboard_shortname. Gives initial attributes.
 
   ## Example:
 
     iex> user = Serverboards.Test.User.system
-    iex> {:ok, "SBDS-TST2"} = service_add "SBDS-TST2", %{ "name" => "serverboards" }, user
-    iex> :ok = service_update "SBDS-TST2", %{ "name" => "Serverboards" }, user
-    iex> {:ok, info} = service_info "SBDS-TST2", user
+    iex> {:ok, service} = service_add %{ "name" => "Generic", "type" => "generic" }, user
+    iex> {:ok, info} = service_info service, user
+    iex> info.priority
+    50
     iex> info.name
-    "Serverboards"
-    iex> service_delete "SBDS-TST2", user
+    "Generic"
+    iex> service_delete service, user
     :ok
+  """
+  def service_add(attributes, me) do
+    attributes = %{
+      uuid: UUID.uuid4,
+      name: attributes["name"],
+      type: attributes["type"],
+      priority: Map.get(attributes,"priority", 50),
+      tags: Map.get(attributes,"tags", []),
+      config: Map.get(attributes,"config", %{}),
+    }
+
+    EventSourcing.dispatch(:service, :add_service, attributes, me.email)
+    {:ok, attributes.uuid}
+  end
+
+  def service_delete(service, me) do
+    EventSourcing.dispatch(:service, :delete_service, service, me.email)
+    :ok
+  end
+
+  @doc ~S"""
+  Lists all services, optional filter
+
+  ## Example
+
+    iex> user = Serverboards.Test.User.system
+    iex> {:ok, _service_a} = service_add %{ "name" => "Generic A", "type" => "generic" }, user
+    iex> {:ok, _service_b} = service_add %{ "name" => "Generic B", "type" => "email" }, user
+    iex> {:ok, _service_c} = service_add %{ "name" => "Generic C", "type" => "generic" }, user
+    iex> services = service_list [], user
+    iex> service_names = Enum.map(services, fn c -> c.name end )
+    iex> Enum.member? service_names, "Generic A"
+    true
+    iex> Enum.member? service_names, "Generic B"
+    true
+    iex> Enum.member? service_names, "Generic C"
+    true
+    iex> services = service_list [type: "email"], user
+    iex> service_names = Enum.map(services, fn c -> c.name end )
+    iex> require Logger
+    iex> Logger.info(inspect service_names)
+    iex> not Enum.member? service_names, "Generic A"
+    true
+    iex> Enum.member? service_names, "Generic B"
+    true
+    iex> not Enum.member? service_names, "Generic C"
+    true
 
   """
-  def service_update(service, operations, me) when is_map(service) do
-    #Logger.debug("service_update #{inspect {service.shortname, operations, me}}, service id #{service.id}")
+  def service_list(filter, _me) do
+    import Ecto.Query
+    query = if filter do
+        Enum.reduce(filter, from(c in ServiceModel), fn kv, acc ->
+          {k,v} = case kv do # decompose both tuples and lists / from RPC and from code.
+            [k,v] -> {k,v}
+            {k,v} -> {k,v}
+          end
+          k = case k do
+            "name" -> :name
+            "type" -> :type
+            "serverboard" -> :serverboard
+            other -> other
+          end
+          case k do
+            :name ->
+              acc |>
+                where([c], c.name == ^v)
+            :type ->
+              acc |>
+                where([c], c.type == ^v)
+            :serverboard ->
+              acc
+                |> join(:inner,[c], sc in ServerboardServiceModel, sc.service_id == c.id)
+                |> join(:inner,[c,sc], s in ServerboardModel, s.id == sc.serverboard_id and s.shortname == ^v)
+                |> select([c,sc,s], c)
+          end
+        end)
+      else
+        ServiceModel
+      end
+    #Logger.info("#{inspect filter} #{inspect query}")
+    Repo.all(query)
+  end
 
-    # Calculate changes on service itself.
+  @doc ~S"""
+  Attaches existing services to a serverboard
+
+  ## Example
+
+    iex> user = Serverboards.Test.User.system
+    iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
+    iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST7", %{ "name" => "serverboards" }, user
+    iex> :ok = service_attach "SBDS-TST7", service, user
+    iex> services = service_list [serverboard: "SBDS-TST7"], user
+    iex> Enum.map(services, fn c -> c.name end )
+    ["Email server"]
+    iex> :ok = service_delete service, user
+    iex> services = service_list [serverboard: "SBDS-TST7"], user
+    iex> Enum.map(services, fn c -> c.name end )
+    []
+  """
+  def service_attach(serverboard, service, me) do
+    EventSourcing.dispatch(:service, :attach_service, [serverboard, service], me.email)
+    :ok
+  end
+
+  @doc ~S"""
+  Attaches existing services from a serverboard
+
+  ## Example
+
+    iex> user = Serverboards.Test.User.system
+    iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
+    iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST9", %{ "name" => "serverboards" }, user
+    iex> :ok = service_attach "SBDS-TST9", service, user
+    iex> services = service_list [serverboard: "SBDS-TST9"], user
+    iex> Enum.map(services, fn c -> c.name end )
+    ["Email server"]
+    iex> :ok = service_detach "SBDS-TST9", service, user
+    iex> services = service_list [serverboard: "SBDS-TST9"], user
+    iex> Enum.map(services, fn c -> c.name end )
+    []
+    iex> {:ok, info} = service_info service, user
+    iex> info.name
+    "Email server"
+
+  """
+  def service_detach(serverboard, service, me) do
+    EventSourcing.dispatch(:service, :detach_service, [serverboard, service], me.email)
+    :ok
+  end
+
+  def service_info(service, me) do
+    import Ecto.Query
+
+    case Repo.one( from c in ServiceModel, where: c.uuid == ^service, preload: :tags ) do
+      nil -> {:error, :not_found}
+      service ->
+        {:ok, %{ service | tags: Enum.map(service.tags, &(&1.name)) } }
+    end
+  end
+
+  def service_update(service, operations, me) do
     changes = Enum.reduce(operations, %{}, fn op, acc ->
       Logger.debug("#{inspect op}")
       {opname, newval} = op
       opatom = case opname do
         "name" -> :name
-        "description" -> :description
         "priority" -> :priority
         "tags" -> :tags
-        "shortname" -> :shortname
-        "components" -> :components
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
-          raise Exception, "Unknown operation updating service #{service.shortname}: #{inspect e}. Failing."
+          raise Exception, "Unknown operation updating service #{service}: #{inspect e}. Failing."
         end
         if opatom do
           Map.put acc, opatom, newval
@@ -160,92 +409,19 @@ defmodule Serverboards.Service.Service do
         end
       end)
 
-    EventSourcing.dispatch(:service, :update_service, [service.shortname, changes], me.email)
+    EventSourcing.dispatch(:service, :update_service, [service, changes], me.email)
 
-    :ok
-  end
-  def service_update(service_id, operations, me) when is_number(service_id) do
-    service_update(Repo.get_by(Model.Service, [id: service_id]), operations, me)
-  end
-  def service_update(servicename, operations, me) when is_binary(servicename) do
-    service_update(Repo.get_by(Model.Service, [shortname: servicename]), operations, me)
+    {:ok, service }
   end
 
-  @doc ~S"""
-  Deletes a service by id or name
-  """
-  def service_delete(%Model.Service{ shortname: shortname } = service, me) do
-    EventSourcing.dispatch(:service, :delete_service, shortname, me.email)
-    :ok
-  end
-  def service_delete(service_id, me) when is_number(service_id) do
-    service_delete( Repo.get_by(Model.Service, [id: service_id]), me )
-  end
-  def service_delete(service_shortname, me) when is_binary(service_shortname) do
-    service_delete( Repo.get_by(Model.Service, [shortname: service_shortname]), me )
-  end
-
-  @doc ~S"""
-  Returns the information of a service by id or name
-  """
-  def service_info(%Serverboards.Service.Model.Service{} = service) do
-    service = Repo.preload(service, :tags)
-
-    service = %{
-      service |
-      tags: Enum.map(service.tags, fn t -> t.name end)
-    }
-
-    components = Repo.all(from c in Model.Component,
-        join: sc in Model.ServiceComponent,
-          on: sc.component_id==c.id,
-       where: sc.service_id == ^service.id,
-      select: c)
-    service = Map.put(service, :components, components)
-
-    #Logger.info("Got service #{inspect service}")
-    {:ok, service}
-  end
-
-  def service_info(service_id, _me) when is_number(service_id) do
-    case Repo.one( from( s in Model.Service, where: s.id == ^service_id, preload: :tags ) ) do
-      nil -> {:error, :not_found}
-      service ->
-        service_info(service)
-    end
-  end
-  def service_info(service_shortname, _me) when is_binary(service_shortname) do
-    case Repo.one( from(s in Model.Service, where: s.shortname == ^service_shortname, preload: :tags ) ) do
-      nil -> {:error, :not_found}
-      service ->
-        service_info(service)
-    end
-  end
-
-  @doc ~S"""
-  Returns a list with all services and its information
-
-  ## Example
-
-    iex> require Logger
-    iex> user = Serverboards.Test.User.system
-    iex> {:ok, l} = service_list user.id
-    iex> is_list(l) # may be empty or has something from before, but lists
-    true
-    iex> {:ok, "SBDS-TST4"} = service_add "SBDS-TST4", %{ "name" => "serverboards" }, user
-    iex> {:ok, l} = service_list user
-    iex> Logger.debug(inspect l)
-    iex> Enum.any? l, &(&1.shortname=="SBDS-TST4") # exists in the list?
-    true
-    iex> service_delete "SBDS-TST4", user
-    :ok
-
-  """
-  def service_list(_me) do
-    services = Serverboards.Repo.all(from s in Serverboards.Service.Model.Service, preload: :tags )
-     |> Enum.map( fn service ->
-       %{ service | tags: Enum.map(service.tags, &(&1.name)) }
-     end)
-    {:ok, services }
+  def service_list_available(filter, me) do
+    Serverboards.Plugin.Registry.filter_component(type: "service")
+      |> Enum.map(fn service ->
+        c = %{
+          name: service.name,
+          type: service.plugin.id <> "/" <> service.id,
+          fields: service.extra["fields"]
+         }
+      end)
   end
 end

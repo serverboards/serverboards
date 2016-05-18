@@ -13,11 +13,10 @@ components:
     command: auth.py
 
   - name: generic component
-    type: component
+    type: service
     traits: generic
     id: server
     fields:
       - name: url
         label: URL
         placeholder: https://example.com
-        
