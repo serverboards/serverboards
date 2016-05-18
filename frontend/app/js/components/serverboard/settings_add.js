@@ -223,7 +223,7 @@ var Settings=React.createClass({
                 placeholder="Ex. CMPNY"/>
             </div>
             <div className="field">
-              <label>Service Name</label>
+              <label>Serverboard Name</label>
               <input type="text" name="name"
                 defaultValue={serverboard.name}
                 placeholder="Ex. My company name, web serverboards, external serverboards..."/>
