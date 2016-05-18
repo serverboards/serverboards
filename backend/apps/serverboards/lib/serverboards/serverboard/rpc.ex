@@ -15,26 +15,26 @@ defmodule Serverboards.Serverboard.RPC do
     # Serverboards
     RPC.MethodCaller.add_method mc, "serverboard.add", fn [serverboardname, options], context ->
       serverboard_add serverboardname, options, Context.get(context, :user)
-    end, [requires_perm: "serverboard.add", context: true]
+    end, [required_perm: "serverboard.add", context: true]
 
     RPC.MethodCaller.add_method mc, "serverboard.delete", fn [serverboard_id], context ->
       serverboard_delete serverboard_id, Context.get(context, :user)
-    end, [requires_perm: "serverboard.add", context: true]
+    end, [required_perm: "serverboard.add", context: true]
 
     RPC.MethodCaller.add_method mc, "serverboard.update", fn
       [serverboard_id, operations], context ->
         serverboard_update serverboard_id, operations, Context.get(context, :user)
-      end, [requires_perm: "serverboard.update", context: true]
+      end, [required_perm: "serverboard.update", context: true]
 
     RPC.MethodCaller.add_method mc, "serverboard.info", fn [serverboard_id], context ->
       {:ok, serverboard} = serverboard_info serverboard_id, Context.get(context, :user)
       {:ok, Serverboards.Utils.clean_struct serverboard}
-    end, [requires_perm: "serverboard.info", context: true]
+    end, [required_perm: "serverboard.info", context: true]
 
     RPC.MethodCaller.add_method mc, "serverboard.list", fn [], context ->
       {:ok, serverboards} = serverboard_list Context.get(context, :user)
       Enum.map serverboards, &Serverboards.Utils.clean_struct(&1)
-    end, [requires_perm: "serverboard.info", context: true]
+    end, [required_perm: "serverboard.info", context: true]
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->

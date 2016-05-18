@@ -3,7 +3,7 @@ require Logger
 defmodule Serverboards.AuthTest do
   use ExUnit.Case
 	alias Test.Client
-	#@moduletag :capture_log
+	@moduletag :capture_log
 
   doctest Serverboards.Auth, import: true
 
@@ -69,7 +69,7 @@ defmodule Serverboards.AuthTest do
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
     assert not Enum.member? groups, "test"
-    
+
     assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
   end
 
@@ -90,6 +90,30 @@ defmodule Serverboards.AuthTest do
     {:ok, list} = Client.call(client, "user.list", [])
     assert Enum.find list, &( &1.email == "dmoreno+c@serverboards.io" )
     Logger.info(inspect list)
+  end
+
+
+  test "Remove perms and test RPC" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Client.call(client, "group.remove_perm", ["admin", "auth.create_user"])
+
+    {:ok, client2} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, user2} = Client.call(client2, "auth.user", [])
+    assert not "auth.create_user" in user2.perms
+
+    {:error, :unknown_method} = Client.call(client2, "user.add", %{
+      "email" => "test+rmtr@serverboards.io",
+      "first_name" => "test",
+      "last_name" => "RPC",
+      "is_active" => "true"
+      })
+
+    {:ok, dir} = Client.call(client2, "dir", [])
+    assert not "user.add" in dir
+
+    {:ok, :ok} = Client.call(client, "group.add_perm", ["admin", "auth.create_user"])
   end
 
 end

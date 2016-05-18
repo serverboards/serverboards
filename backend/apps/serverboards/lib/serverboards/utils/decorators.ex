@@ -42,7 +42,7 @@ defmodule Serverboards.Utils.Decorators do
         required_perm ->
           user = RPC.Context.get context, :user, %{}
           perms = Map.get(user, :perms, [])
-          Logger.debug("Required perm #{inspect perms} #{required_perm}")
+          #Logger.debug("Required perm #{inspect perms} #{required_perm}")
           Enum.member? perms, required_perm
       end
     end

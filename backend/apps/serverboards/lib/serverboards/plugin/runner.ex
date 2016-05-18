@@ -97,14 +97,16 @@ defmodule Serverboards.Plugin.Runner do
 
   ## Example:
 
-    iex> {:ok, pl} = Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.start", ["serverboards.test.auth/fake"], nil
+    iex> alias Test.Client
+    iex> {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+    iex> {:ok, pl} = Client.call client, "plugin.start", ["serverboards.test.auth/fake"]
     iex> is_binary(pl)
     true
-    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping",[]], nil
+    iex> Client.call client, "plugin.call", [pl, "ping",[]]
     {:ok, "pong"}
-    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.call", [pl, "ping"], nil # default [] params
+    iex> Client.call client, "plugin.call", [pl, "ping"]
     {:ok, "pong"}
-    iex> Serverboards.MOM.RPC.MethodCaller.call method_caller, "plugin.stop", [pl], nil
+    iex> Client.call client, "plugin.stop", [pl]
     {:ok, true}
 
   """

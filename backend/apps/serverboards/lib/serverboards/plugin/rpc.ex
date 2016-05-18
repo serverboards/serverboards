@@ -15,18 +15,18 @@ defmodule Serverboards.Plugin.RPC do
         {:error, e} ->
           {:error, e}
       end
-    end, [require_perm: "plugin"]
+    end, [required_perm: "plugin"]
 
     RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
       Plugin.Runner.stop runner, plugin_component_id
-    end, [require_perm: "plugin"]
+    end, [required_perm: "plugin"]
 
     RPC.MethodCaller.add_method method_caller, "plugin.call", fn
       [id, method, params] ->
         Plugin.Runner.call runner, id, method, params
       [id, method] ->
         Plugin.Runner.call runner, id, method, []
-    end, [require_perm: "plugin"]
+    end, [required_perm: "plugin"]
 
     RPC.MethodCaller.add_method method_caller, "plugin.alias", fn
       [id, newalias], context ->
@@ -34,18 +34,18 @@ defmodule Serverboards.Plugin.RPC do
         RPC.Context.update context, :plugin_aliases, [{ newalias, cmd }]
 
         true
-    end, [require_perm: "plugin", context: true]
+    end, [required_perm: "plugin", context: true]
 
     RPC.MethodCaller.add_method method_caller, "plugin.list", fn [] ->
         Serverboards.Plugin.Registry.list
-    end, [require_perm: "plugin"]
+    end, [required_perm: "plugin"]
     # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
     RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1, runner),
-      [require_perm: "plugin", name: :call_with_uuid]
+      [required_perm: "plugin", name: :call_with_uuid]
 
     # Catches all [alias].method calls and do it. Alias are stores into the context
     RPC.MethodCaller.add_method_caller method_caller, &call_with_alias(&1, runner),
-      [require_perm: "plugin", name: :call_with_alias]
+      [required_perm: "plugin", name: :call_with_alias]
 
     {:ok, method_caller}
   end

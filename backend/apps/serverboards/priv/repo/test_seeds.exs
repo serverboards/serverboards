@@ -13,9 +13,11 @@ all_perms = [
     "auth.info_any_user",
     "auth.modify_groups", "auth.manage_groups",
     "plugin",
-    "service.add", "service.update", "service.delete", "service.info",
-    "service.component.add", "service.component.attach",
-    "service.component.update", "service.component.delete",
+    "serverboard.add", "serverboard.update",
+    "serverboard.delete", "serverboard.info",
+    "service.add", "service.update",
+    "service.delete", "service.info",
+    "service.attach",
     "debug"
   ]
 
@@ -69,9 +71,9 @@ defmodule Seeds do
         "auth.info_any_user",
         "auth.modify_groups", "auth.manage_groups",
         "plugin",
-        "service.add", "service.update", "service.delete", "service.info",
-        "service.component.add", "service.component.attach",
-        "service.component.update", "service.component.delete",
+        "serverboard.add", "serverboard.update", "serverboard.delete", "serverboard.info",
+        "service.add", "service.attach",
+        "service.update", "service.delete",
         "debug"
       ] }
   end
