@@ -14,6 +14,10 @@ defmodule Serverboards.MOM.Channel.Broadcast do
 
   The way to know if it was sucesfull is listen to the :invalid channel.
 
+  ## Options
+
+  * sync -- Default false. Wait untill all messages processed.
+
   ## Examples
 
   Depending on how succesful was the `send` it returns different values:
@@ -26,20 +30,20 @@ defmodule Serverboards.MOM.Channel.Broadcast do
     iex> Channel.send(ch, %Message{})
     :ok
     iex> Channel.subscribe(ch, fn _ -> raise "To return :nok" end)
-    iex> Channel.send(ch, %Message{})
+    iex> Channel.send(ch, %Message{}, sync: true)
     :ok
 
   """
   def send(channel, %Message{} = message, options) do
-    GenServer.cast(channel.pid, {:send, message, options})
+    if Keyword.get(options, :sync, false) do
+      GenServer.call(channel.pid, {:send, message, options})
+    else
+      GenServer.cast(channel.pid, {:send, message, options})
+    end
     :ok
   end
 
-  @doc ~S"""
-  Handles normal send of messages, including :deadletter and :invalid message
-  management.
-  """
-  def handle_cast({:send, msg, []}, state) do
+  defp dispatch(state, msg, _options) do
     if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
       Channel.send(:deadletter, %{msg | error: :deadletter})
       Logger.warn("Sending #{inspect msg} to :deadletter messages channel.")
@@ -55,6 +59,27 @@ defmodule Serverboards.MOM.Channel.Broadcast do
           end
         end
     end
+    state
+  end
+
+  @doc ~S"""
+  Handles normal send of messages, including :deadletter and :invalid message
+  management.
+  """
+  def handle_cast({:send, msg, options}, state) do
+    state = dispatch(state, msg, options)
     {:noreply, state}
+  end
+  @doc ~S"""
+  Handles sync send of messages, including :deadletter and :invalid message
+  management.
+
+  In some situations sowrk should not continue until the message has been
+  delivered to all points, for example at authentication, where following
+  work may require this message to have been processed.
+  """
+  def handle_call({:send, msg, options}, _from, state) do
+    state = dispatch(state, msg, options)
+    {:reply, :ok, state}
   end
 end

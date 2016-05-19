@@ -167,7 +167,7 @@ defmodule Serverboards.MOM.RPC do
 				context: rpc.context
 				}
 			} } )
-		Logger.debug("Result #{inspect ok}")
+		#Logger.debug("Result #{inspect ok}")
 		case ok do
 			:ok -> nil
 			ret -> ret
