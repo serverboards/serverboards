@@ -34,11 +34,57 @@ defprotocol Serverboards.MOM.Channel do
     iex> alias Serverboards.MOM.{Message, Channel}
     iex> Channel.Named.start_link
     iex> id = Channel.subscribe(:deadletter, fn m -> Logger.error("Deadletter #{inspect m}") end)
-    iex> Channel.send(:empty, %Message{})
-    :empty
+    iex> Channel.send(:empty, %Message{}) # always returns ok
     iex> Channel.unsubscribe(:deadletter, id)
     :ok
 
+  # Channel subscription
+
+  In a broadcast channel the return value of the called function
+  is discarded, but on other implementations may require `:ok`, `:nok` or `:empty`
+  for further processing, so its good practive to return these values in your
+  functions.
+
+  Options:
+
+  * `front:` (true|false) -- The subscriber is added at the front so it will be called first.
+    Useful for tapping, for example. Default false.
+
+  ## Examples
+
+  A subscription normally calls a function when a message arrives
+
+    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> require Logger
+    iex> {:ok, ch} = Channel.Broadcast.start_link
+    iex> Channel.subscribe(ch, fn _ ->
+    ...>   Logger.info("Called")
+    ...>   end)
+    iex> Channel.send(ch, %Serverboards.MOM.Message{ id: 0 })
+    :ok
+
+  Its possible to subscribe to named channels
+
+    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> Channel.subscribe(:named_channel, fn _ -> :ok end)
+    iex> Channel.send(:named_channel, %Message{})
+    :ok
+
+  Its possible to subscribe a channel to a channel. This is useful to create
+  tree like structures where some channels automatically write to another.
+
+  All messages in orig are send automatically to dest.
+
+    iex> require Logger
+    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> {:ok, a} = Channel.Broadcast.start_link
+    iex> {:ok, b} = Channel.Broadcast.start_link
+    iex> Channel.subscribe(a, b)
+    iex> Channel.subscribe(b, fn _ ->
+    ...>    Logger.info("B called")
+    ...>    end)
+    iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
+    :ok
   """
 
   def subscribe(channel, function, options \\ [])
@@ -98,51 +144,6 @@ defmodule Serverboards.MOM.Channel.Base do
 
       @doc ~S"""
       Subscribes to a channel.
-
-      In this basic channels implementation the return value of the called function
-      is discarded, but on other implementations may require `:ok`, `:nok` or `:empty`
-      for further  processing, so its good practive to return these values.
-
-      Options:
-
-      * `front:` (true|false) -- The subscriber is added at the front so it will be called first.
-        Useful for tapping, for example. Default false.
-
-      ## Examples
-
-      A subscription normally calls a function when a message arrives
-
-        iex> alias Serverboards.MOM.{Channel, Message}
-        iex> require Logger
-        iex> {:ok, ch} = Channel.Broadcast.start_link
-        iex> Channel.subscribe(ch, fn _ ->
-        ...>   Logger.info("Called")
-        ...>   end)
-        iex> Channel.send(ch, %Serverboards.MOM.Message{ id: 0 })
-        :ok
-
-      Its possible to subscribe to named channels
-
-        iex> alias Serverboards.MOM.{Channel, Message}
-        iex> Channel.subscribe(:named_channel, fn _ -> :ok end)
-        iex> Channel.send(:named_channel, %Message{})
-        :ok
-
-      Its possible to subscribe a channel to a channel. This is useful to create
-      tree like structures where some channels automatically write to another.
-
-      All messages in orig are send automatically to dest.
-
-        iex> require Logger
-        iex> alias Serverboards.MOM.{Channel, Message}
-        iex> {:ok, a} = Channel.Broadcast.start_link
-        iex> {:ok, b} = Channel.Broadcast.start_link
-        iex> Channel.subscribe(a, b)
-        iex> Channel.subscribe(b, fn _ ->
-        ...>    Logger.info("B called")
-        ...>    end)
-        iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
-        :ok
       """
       def subscribe(channel, subscriber, options) when is_function(subscriber) do
         #Logger.debug("Subscribe #{inspect channel} executes #{inspect subscriber}")

@@ -14,6 +14,7 @@ defmodule Serverboards.MOM do
 		iex> Agent.get(ag, &(&1))
 		nil
 		iex> Channel.send(ch, %Message{})
+		iex> :timer.sleep(100) # Bad, I know, but send is asynchronous.
 		iex> Agent.get(ag, &(&1))
 		:updated
 		iex> Agent.update(ag, fn _ -> nil end)
