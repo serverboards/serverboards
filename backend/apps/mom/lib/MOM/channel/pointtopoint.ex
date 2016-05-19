@@ -62,6 +62,37 @@ defmodule MOM.Channel.PointToPoint do
 	## Server impl
 
 	@doc ~S"""
+	Dispatchs a message to a list of subscribers.
+
+	Returns a list of subscribers that must be removed as they have exitted.
+	"""
+	def dispatch([], msg), do: {:nok, []}
+	def dispatch([ {opts, f} | rest ], msg) do
+		ok = try do
+			f.(msg)
+		catch
+			:exit, _ ->
+				Logger.warn("Message #{inspect msg} to p2p channel into a exitted process. Removing listener.")
+				:exit
+		rescue
+			e ->
+				Channel.send(:invalid, %Message{ msg | error: {e, System.stacktrace()}} )
+				Logger.error("Error sending #{inspect msg} to #{inspect f}. Sent to :invalid messages channel.\n#{inspect e}\n#{ Exception.format_stacktrace System.stacktrace }")
+				:nok
+		end
+
+		case ok do
+			:ok ->
+				{:ok, []}
+			:exit -> # remove me, and any that later was said to be for removal
+				{ok, toremove} = dispatch(rest, msg)
+				{ok, [{opts, f}] ++ toremove}
+			:nok ->
+				dispatch(rest, msg)
+		end
+	end
+
+	@doc ~S"""
 	Calls all subscribers in order until one returns :ok. If none returns :ok,
 	returns :nok.
 
@@ -70,29 +101,23 @@ defmodule MOM.Channel.PointToPoint do
 	If no subscribers returns :empty
 	"""
 	def handle_call({:send, msg, []}, _, state) do
-		ok = if Enum.count(state.subscribers) == 0 do
-			:empty
+		{ok, state} = if Enum.count(state.subscribers) == 0 do
+			{:empty, state}
 		else
-			any = Enum.any?(state.subscribers, fn {_, f} ->
-				ok = try do
-					f.(msg)
-				rescue
-					e ->
-						Channel.send(:invalid, %Message{ msg | error: {e, System.stacktrace()}} )
-						Logger.error("Error sending #{inspect msg} to #{inspect f}. Sent to :invalid messages channel.\n#{inspect e}\n#{ Exception.format_stacktrace System.stacktrace }")
-						:nok
-				end
-				ok == :ok
-			end)
-			#Logger.debug("Any got it? #{inspect msg}, #{inspect any}")
-			if any do
-				:ok
+			{ok, toremove} = dispatch(state.subscribers, msg)
+			subscribers = if toremove != [] do
+				Enum.filter(state.subscribers, &(not &1 in toremove))
 			else
-				#Logger.warn("Sending #{inspect msg} to :deadletter messages channel.")
-				Channel.send(:deadletter, %{ msg | error: :deadletter })
-				:nok
+				state.subscribers
 			end
+
+			if ok == :nok do
+				Channel.send(:deadletter, %{ msg | error: :deadletter })
+			end
+
+			{ok, %{ state | subscribers: subscribers}}
 		end
+
 		{:reply, ok, state}
 	end
 
@@ -100,7 +125,7 @@ defmodule MOM.Channel.PointToPoint do
     if Enum.member? options, :all do
       MOM.Channel.Broadcast.handle_call({:send, msg, []}, from, state)
     else
-      raise "Only allowed option is :all"
+      handle_call({:send, msg, []}, from, state)
     end
   end
 end

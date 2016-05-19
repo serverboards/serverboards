@@ -44,22 +44,30 @@ defmodule MOM.Channel.Broadcast do
   end
 
   defp dispatch(state, msg, _options) do
-    if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
+    subscribers = if Enum.count(state.subscribers) == 0 and msg.error != :deadletter do
       Channel.send(:deadletter, %{msg | error: :deadletter})
       Logger.warn("Sending #{inspect msg} to :deadletter messages channel.")
+      state.subscribers
     else
-      for {_,f} <- state.subscribers do
+      subscribers = for {options,f} <- state.subscribers do
         try do
           f.(msg)
+          {options, f}
+        catch
+          :exit, _ ->
+            Logger.warn("Sending #{inspect msg} to exitted process. Removing it.")
+            nil
         rescue
           e ->
             Channel.send(:invalid, %Message{ msg | error: {e, System.stacktrace()}} )
             Logger.error("Error sending #{inspect msg} to #{inspect f}. Sent to :invalid messages channel.")
             Logger.error("#{inspect e}\n#{Exception.format_stacktrace}")
-          end
+            {options, f}
         end
+      end
+      Enum.filter(subscribers, &(&1 != nil))
     end
-    state
+    %{ state | subscribers: subscribers }
   end
 
   @doc ~S"""
