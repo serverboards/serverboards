@@ -396,9 +396,6 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
                   cb.({:ok, v })
               end
             rescue
-              Serverboards.MOM.RPC.UnknownMethod ->
-                Logger.error("Unknown method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
-                cb.({:error, :unknown_method})
               CaseClauseError ->
                 Logger.error("Case clause error method #{method}\n#{Exception.format_stacktrace System.stacktrace}")
                 cb.({:error, :bad_arity})

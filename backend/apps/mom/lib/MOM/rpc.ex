@@ -56,14 +56,6 @@ defmodule Serverboards.MOM.RPC do
 	"""
 	alias Serverboards.MOM.{RPC, Tap}
 
-	defmodule UnknownMethod do
-		defexception [method: nil]
-
-		def message(exception) do
-			"Unknown method #{inspect(exception.method)}"
-		end
-	end
-
 	use GenServer
 	defstruct [
 		request: nil, # gets inside the MOM,
