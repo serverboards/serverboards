@@ -1,9 +1,9 @@
 require Logger
 
 defmodule Serverboards.AuthTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 	alias Test.Client
-	@moduletag :capture_log
+	#@moduletag :capture_log
 
   doctest Serverboards.Auth, import: true
 
@@ -96,21 +96,26 @@ defmodule Serverboards.AuthTest do
   test "Remove perms and test RPC" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
+    # I have it here
+    {:ok, user} = Client.call(client, "auth.user", [])
+    assert "auth.create_user" in user.perms
+
     {:ok, :ok} = Client.call(client, "group.remove_perm", ["admin", "auth.create_user"])
+    Client.expect(client, method: "group.perm_removed")
+    Client.expect(client, method: "user.updated")
 
-    {:ok, client2} = Client.start_link as: "dmoreno@serverboards.io"
+    # automatically removed at server
+    {:ok, user} = Client.call(client, "auth.user", [])
+    assert not "auth.create_user" in user.perms
 
-    {:ok, user2} = Client.call(client2, "auth.user", [])
-    assert not "auth.create_user" in user2.perms
-
-    {:error, :unknown_method} = Client.call(client2, "user.add", %{
+    {:error, :unknown_method} = Client.call(client, "user.add", %{
       "email" => "test+rmtr@serverboards.io",
       "first_name" => "test",
       "last_name" => "RPC",
       "is_active" => "true"
       })
 
-    {:ok, dir} = Client.call(client2, "dir", [])
+    {:ok, dir} = Client.call(client, "dir", [])
     assert not "user.add" in dir
 
     {:ok, :ok} = Client.call(client, "group.add_perm", ["admin", "auth.create_user"])

@@ -97,8 +97,34 @@ defmodule Serverboards.Auth.RPC do
 
       RPC.add_method_caller to_serverboards, mc
 
+      # subscribe this client to changes on this user
+      MOM.Channel.subscribe(:client_events, fn %{ payload: %{ type: type, data: data}} ->
+        Logger.info("Get user from #{inspect client}: #{inspect type}")
+        user = RPC.Client.get client, :user
+        cond do
+          type in ["group.perm_added", "group.perm_removed"] ->
+            %{ group: group } = data
+            if group in user.groups do
+              user = Auth.User.user_info user.email, user
+              RPC.Client.set client, :user, user
+
+              MOM.Channel.send(:client_events, %MOM.Message{ payload: %{ type: "user.updated", data: %{ user: user} } } )
+            end
+          type in ["group.user_added","group.user_removed"] ->
+            if data.user == user.email do
+              user = Auth.User.user_info user.email, user
+              RPC.Client.set client, :user, user
+
+              MOM.Channel.send(:client_events, %MOM.Message{ payload: %{ type: "user.updated", data: %{ user: user} } } )
+            end
+          true ->
+            nil
+        end
+      end)
+
       :ok
     end)
+
 
     {:ok, mc}
   end
