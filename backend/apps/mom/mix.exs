@@ -3,7 +3,7 @@ defmodule MOM.Mixfile do
 
   def project do
     [app: :mom,
-     version: "0.0.1",
+     version: "0.2.0",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
      deps_path: "../../deps",
@@ -24,19 +24,25 @@ defmodule MOM.Mixfile do
     ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # To depend on another app inside the umbrella:
-  #
-  #   {:myapp, in_umbrella: true}
-  #
-  # Type "mix help deps" for more examples and options
+  defp descripton do
+    """
+    Message Oriented Middleware for Elixir
+    """
+  end
+
+  defp package do
+    [
+      name: :mom,
+      files: ["lib","test","mix.exs","README.md"],
+      maintainers: ["David Moreno"],
+      licenses: ["Apache-2.0"],
+      links: %{
+        "GitHub" => "https://github/serverboards/elixir-mom",
+        "Serverboards" => "https://serverboards.io"
+      }
+    ]
+  end
+
   defp deps do
     [
       { :uuid, "~> 1.1.3" }
