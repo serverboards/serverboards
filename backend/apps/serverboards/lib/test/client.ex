@@ -73,8 +73,13 @@ defmodule Test.Client do
 		%{ method: "auth.auth" }
 
 	"""
-	def expect(client, what) do
-		GenServer.call(RPC.Client.get(client, :pid), {:expect, what})
+	def expect(client, what, timeout \\ 5000) do
+		try do
+			GenServer.call(RPC.Client.get(client, :pid), {:expect, what}, timeout)
+		rescue
+			e ->
+				false
+		end
 	end
 
 	@doc ~S"""
@@ -106,36 +111,40 @@ defmodule Test.Client do
 		} }
 	end
 
+	defp expect_rec(what, []) do
+		{false, []}
+	end
+	defp expect_rec(what, [msg | rest ]) do
+		if match?(what, msg) do
+			{true, rest}
+		else
+			{ok, rmsgs} = expect_rec(what, rest)
+			{ok, [msg | rmsgs ]}
+		end
+	end
+
 	def handle_call({:expect, what}, from, status) do
-		case Enum.drop_while(status.messages, &(!match(what, &1))) do
-			[ h | t ] ->
-				{:reply, h, %{status | messages: t, expecting: nil }}
-			[] ->
-				status=%{ status | expecting: %{ what: what, from: from } }
-				{:noreply, status}
+		{isin, messages} = expect_rec(what, status.messages)
+		if isin do
+			{:reply, true, %{status | messages: messages, expecting: nil }}
+		else
+			status=%{ status | expecting: %{ what: what, from: from } }
+			{:noreply, status, 200}
 		end
 	end
 
 	def handle_call({:call, msg}, _, status) do
-		if status.expecting do
-			if match(status.expecting.what, msg) do
-				#Logger.debug("Expecting, and got")
-				GenServer.reply(status.expecting.from, msg)
-				# consumed last, empty list, and no expecting anymore.
-				{:reply, :ok, %{
-					status | messages: [], expecting: nil
-					}}
+		messages = status.messages ++ [msg]
+		messages = if status.expecting do
+			{isin, messages} = expect_rec(status.expecting.what, messages)
+			if isin do
+				GenServer.reply(status.expecting.from, true)
+				{:reply, :ok, %{ status | messages: messages, expecting: nil }}
 			else
-				#Logger.debug("Expecting #{inspect status.expecting.what}, but not got (got #{inspect msg})")
-				{:reply, :ok, %{
-					status | messages: status.messages ++ [msg]
-					}}
+				{:reply, :ok, %{ status | messages: messages }}
 			end
 		else
-			#Logger.debug("Not expecting, but got")
-			{:reply, :ok, %{
-				status | messages: status.messages ++ [msg]
-				}}
+			{:reply, :ok, %{ status | messages: messages }}
 		end
 	end
 
@@ -154,9 +163,34 @@ defmodule Test.Client do
 		{:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
 	end
 
-	defp match(what, msg) do
-		Enum.all? what, fn {k, v} ->
-			Map.get(msg, to_string(k), nil) == v
+	defp match(w, nil) do
+		false
+	end
+	defp match([], _) do
+		true
+	end
+	defp match([w | rest], msg) do
+		#Logger.debug("Match? #{inspect w} #{inspect msg}")
+		cont = case w do
+			{:method, v} ->
+				Map.get(msg, "method", nil) == v
+			{[k], v} ->
+				Map.get(msg, to_string(k), nil) == v
+			{[k | kr], v} ->
+				match([{kr, v}], Map.get( msg, to_string(k)))
+			{k, v} ->
+				Map.get(msg, to_string(k), nil) == v
 		end
+
+		if cont do
+			match(rest, msg)
+		else
+			false
+		end
+	end
+
+	def handle_info(:timeout, state) do
+		GenServer.reply(state.expecting.from, false)
+		{:noreply, %{ state | expecting: nil }}
 	end
 end

@@ -92,7 +92,7 @@ defmodule Serverboards.Auth do
 				if user do
 					#remove_method(method_id)
 					#Logger.debug("Logged in!")
-					Serverboards.MOM.Channel.send(:auth_authenticated, %Serverboards.MOM.Message{ payload: %{ client: client, user: user } })
+					Serverboards.MOM.Channel.send(:auth_authenticated, %Serverboards.MOM.Message{ payload: %{ client: client, user: user } }, [sync: true])
 
 					if cont do
 						cont.(user)

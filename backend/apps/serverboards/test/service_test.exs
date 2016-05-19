@@ -20,6 +20,10 @@ defmodule ServerboardTest do
     {:ok, %{ agent: agent, system: system} }
   end
 
+  def check_if_event_on_client(client, event, shortname) do
+    Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}] )
+  end
+
   def check_if_event_on_serverboard(agent, event, shortname) do
     Agent.get agent, fn status ->
       deleted =Map.get(status,event,[])
@@ -40,15 +44,18 @@ defmodule ServerboardTest do
 
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = serverboard_add "SBDS-TST3", %{ "name" => "serverboards" }, user
+    :timer.sleep 100
     assert check_if_event_on_serverboard(agent, "serverboard.added", "SBDS-TST3")
 
     :ok = serverboard_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
+    :timer.sleep 100
     assert check_if_event_on_serverboard(agent, "serverboard.updated", "SBDS-TST3")
 
     {:ok, info} = serverboard_info "SBDS-TST3", user
     assert info.name == "Serverboards"
 
     :ok = serverboard_delete "SBDS-TST3", user
+    :timer.sleep 100
     assert check_if_event_on_serverboard(agent, "serverboard.deleted", "SBDS-TST3")
 
     assert {:error, :not_found} == serverboard_info "SBDS-TST3", user
@@ -110,8 +117,8 @@ defmodule ServerboardTest do
         ]
       }
     ]
-    assert check_if_event_on_serverboard(agent, "serverboard.added", "SBDS-TST8")
-    deleted=check_if_event_on_serverboard(agent, "serverboard.deleted", "SBDS-TST8")
+    assert check_if_event_on_client(client, "serverboard.added", "SBDS-TST8")
+    deleted=check_if_event_on_client(client, "serverboard.deleted", "SBDS-TST8")
     Logger.info("At serverboard deleted? #{deleted}")
     assert not deleted
 
@@ -153,8 +160,8 @@ defmodule ServerboardTest do
 
     Test.Client.call client, "serverboard.delete", ["SBDS-TST8"]
 
-    assert check_if_event_on_serverboard(agent, "serverboard.added", "SBDS-TST8")
-    assert check_if_event_on_serverboard(agent, "serverboard.deleted", "SBDS-TST8")
+    assert check_if_event_on_client(client, "serverboard.added", "SBDS-TST8")
+    assert check_if_event_on_client(client, "serverboard.deleted", "SBDS-TST8")
 
 
     Test.Client.stop(client)
