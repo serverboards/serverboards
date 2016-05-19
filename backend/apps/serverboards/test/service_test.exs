@@ -44,18 +44,18 @@ defmodule ServerboardTest do
 
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = serverboard_add "SBDS-TST3", %{ "name" => "serverboards" }, user
-    :timer.sleep 100
+    :timer.sleep 200
     assert check_if_event_on_serverboard(agent, "serverboard.added", "SBDS-TST3")
 
     :ok = serverboard_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
-    :timer.sleep 100
+    :timer.sleep 200
     assert check_if_event_on_serverboard(agent, "serverboard.updated", "SBDS-TST3")
 
     {:ok, info} = serverboard_info "SBDS-TST3", user
     assert info.name == "Serverboards"
 
     :ok = serverboard_delete "SBDS-TST3", user
-    :timer.sleep 100
+    :timer.sleep 200
     assert check_if_event_on_serverboard(agent, "serverboard.deleted", "SBDS-TST3")
 
     assert {:error, :not_found} == serverboard_info "SBDS-TST3", user
