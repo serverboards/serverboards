@@ -1,4 +1,4 @@
-defmodule Serverboards.MOM.RPC.Message do
+defmodule MOM.RPC.Message do
 	defstruct [
 		method: nil,
 		params: nil,

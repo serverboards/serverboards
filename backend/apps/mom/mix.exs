@@ -1,4 +1,4 @@
-defmodule Serverboards.MOM.Mixfile do
+defmodule MOM.Mixfile do
   use Mix.Project
 
   def project do
@@ -20,7 +20,7 @@ defmodule Serverboards.MOM.Mixfile do
   def application do
     [
       applications: [:logger],
-      mod: {Serverboards.MOM, []}
+      mod: {MOM, []}
     ]
   end
 

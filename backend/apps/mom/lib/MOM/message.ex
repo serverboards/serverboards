@@ -1,4 +1,4 @@
-defmodule Serverboards.MOM.Message do
+defmodule MOM.Message do
 	defstruct [
 		id: nil,
 		payload: nil,

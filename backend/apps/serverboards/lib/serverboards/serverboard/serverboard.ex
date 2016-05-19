@@ -6,7 +6,7 @@ defmodule Serverboards.Serverboard do
 
   alias Serverboards.Repo
   alias Serverboards.Serverboard.Model
-  alias Serverboards.MOM
+  alias MOM
   alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
   alias Serverboards.Serverboard.Model.ServerboardTag, as: ServerboardTagModel
   alias Serverboards.Service.Model.Service, as: ServiceModel

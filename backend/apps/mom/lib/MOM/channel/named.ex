@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.MOM.Channel.Named do
+defmodule MOM.Channel.Named do
 	@moduledoc ~S"""
 	Allows to have named channels
 
@@ -12,7 +12,7 @@ defmodule Serverboards.MOM.Channel.Named do
 
 	## Example
 
-		iex> alias Serverboards.MOM.Channel
+		iex> alias MOM.Channel
 		iex> require Logger
 		iex> mch = Channel.Named.ensure_exists("my-channel")
 		iex> och = Channel.Named.ensure_exists(:atom)
@@ -31,7 +31,7 @@ defmodule Serverboards.MOM.Channel.Named do
 		Agent.get_and_update(__MODULE__, fn channels ->
 			case Map.get(channels, name) do
 				nil ->
-					{:ok, nch} = Serverboards.MOM.Channel.Broadcast.start_link
+					{:ok, nch} = MOM.Channel.Broadcast.start_link
 					channels = Map.put(channels, name, nch)
 					{nch, channels}
 				ch ->
@@ -42,8 +42,8 @@ defmodule Serverboards.MOM.Channel.Named do
 
 end
 
-defimpl Serverboards.MOM.Channel, for: Atom do
-	alias Serverboards.MOM.Channel
+defimpl MOM.Channel, for: Atom do
+	alias MOM.Channel
 
 	@doc "Subscribe to a named channel by atom"
 	def subscribe(channel, subscriber, options) do
@@ -56,7 +56,7 @@ defimpl Serverboards.MOM.Channel, for: Atom do
 		Channel.unsubscribe(channel, subscriber)
 	end
 	@doc "Sends message to a named channel"
-	def send(channel, %Serverboards.MOM.Message{} = message, options) do
+	def send(channel, %MOM.Message{} = message, options) do
 		channel = Channel.Named.ensure_exists(channel)
 		Channel.send(channel, message, options)
 	end

@@ -17,8 +17,8 @@ defmodule Serverboards do
 		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]
 
 		# inspect for deadletters and invalid
-		Serverboards.MOM.Tap.tap(:deadletter, "deadletter")
-		Serverboards.MOM.Tap.tap(:invalid, "invalid")
+		MOM.Tap.tap(:deadletter, "deadletter")
+		MOM.Tap.tap(:invalid, "invalid")
 		Serverboards.Events.setup()
 
 		Supervisor.start_link(children, opts)

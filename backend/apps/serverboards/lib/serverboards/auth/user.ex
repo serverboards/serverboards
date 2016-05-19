@@ -4,7 +4,7 @@ defmodule Serverboards.Auth.User do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Serverboards.MOM
+  alias MOM
   alias Serverboards.Auth.Model
   alias Serverboards.Repo
 

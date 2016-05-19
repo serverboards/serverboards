@@ -81,7 +81,7 @@ defmodule Serverboards.IO.HTTP do
   defmodule WebSocketHandler do
     @behaviour :cowboy_websocket_handler
 
-    alias Serverboards.MOM.RPC
+    alias MOM.RPC
 
     def init({_tcp, _http}, _req, _opts) do
       {:upgrade, :protocol, :cowboy_websocket}

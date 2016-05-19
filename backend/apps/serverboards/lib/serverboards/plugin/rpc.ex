@@ -1,7 +1,7 @@
 require Logger
 
 defmodule Serverboards.Plugin.RPC do
-  alias Serverboards.MOM.RPC
+  alias MOM.RPC
   alias Serverboards.Plugin
 
   def start_link(runner) do
@@ -52,7 +52,7 @@ defmodule Serverboards.Plugin.RPC do
 
 
   # Method caller function UUID.method.
-  def call_with_uuid(%Serverboards.MOM.RPC.Message{ method: method, params: params, context: _context} = msg, runner) do
+  def call_with_uuid(%MOM.RPC.Message{ method: method, params: params, context: _context} = msg, runner) do
     Logger.debug("Try to call #{inspect msg}")
     if method == "dir" do
       {:ok, []} # Do not return it as it can lead to show of opaque pointers. Use alias.
@@ -67,7 +67,7 @@ defmodule Serverboards.Plugin.RPC do
     end
   end
 
-  def call_with_alias(%Serverboards.MOM.RPC.Message{ method: method, params: params, context: context}, _runner) do
+  def call_with_alias(%MOM.RPC.Message{ method: method, params: params, context: context}, _runner) do
     if method == "dir" do
       {:ok, alias_dir(context)}
     else

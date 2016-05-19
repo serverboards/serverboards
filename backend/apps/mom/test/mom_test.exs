@@ -1,12 +1,12 @@
-defmodule Serverboards.MOMTest do
+defmodule MOMTest do
   use ExUnit.Case
   #@moduletag :capture_log
 
 
-  doctest Serverboards.MOM
-  doctest Serverboards.MOM.Channel
-  doctest Serverboards.MOM.Channel.Broadcast
-  doctest Serverboards.MOM.Channel.Named
-  doctest Serverboards.MOM.Channel.PointToPoint
-  doctest Serverboards.MOM.Tap
+  doctest MOM
+  doctest MOM.Channel
+  doctest MOM.Channel.Broadcast
+  doctest MOM.Channel.Named
+  doctest MOM.Channel.PointToPoint
+  doctest MOM.Tap
 end

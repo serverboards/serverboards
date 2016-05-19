@@ -3,7 +3,7 @@ require Logger
 defmodule Serverboards.IO.Cmd do
   use GenServer
 
-  alias Serverboards.MOM.RPC
+  alias MOM.RPC
 
   @doc ~S"""
   Runs a command (to properly shlex), and returns the handler to be able to

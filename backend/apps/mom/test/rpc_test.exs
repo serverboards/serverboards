@@ -1,10 +1,10 @@
 defmodule Serverboards.RPCTest do
   use ExUnit.Case
   @moduletag :capture_log
-  doctest Serverboards.MOM.RPC
-  doctest Serverboards.MOM.RPC.Context, import: true
+  doctest MOM.RPC
+  doctest MOM.RPC.Context, import: true
 
-	alias Serverboards.MOM.RPC
+	alias MOM.RPC
 
 	test "Simple RPC use" do
 		{:ok, rpc} = RPC.start_link

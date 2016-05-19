@@ -8,7 +8,7 @@ defmodule Serverboards.Utils.Decorators do
   calling and `dir` has the proper permissions from context.user.
   """
 
-  alias Serverboards.MOM.RPC
+  alias MOM.RPC
 
   @doc ~S"""
   Decorates a method caller so that it can require_perms
@@ -18,7 +18,7 @@ defmodule Serverboards.Utils.Decorators do
 
   ## Example
 
-    iex> alias Serverboards.MOM.RPC
+    iex> alias MOM.RPC
     iex> {:ok, mc} = RPC.MethodCaller.start_link
     iex> permission_method_caller mc
     iex> RPC.MethodCaller.add_method mc, "echo", fn params -> params end, required_perm: "echo"

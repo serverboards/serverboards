@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.MOM.RPC.MethodCaller do
+defmodule MOM.RPC.MethodCaller do
   @moduledoc ~S"""
   This module stores methods to be called later.
 
@@ -11,7 +11,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   ## Example
 
-    iex> alias Serverboards.MOM.RPC.MethodCaller
+    iex> alias MOM.RPC.MethodCaller
     iex> {:ok, mc} = MethodCaller.start_link
     iex> MethodCaller.add_method mc, "ping", fn _ -> "pong" end, async: false
     iex> MethodCaller.call mc, "ping", [], nil
@@ -21,7 +21,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   """
 
-  alias Serverboards.MOM.RPC
+  alias MOM.RPC
 
   def start_link(options \\ []) do
     {:ok, pid} = Agent.start_link fn -> %{ methods: %{}, mc: [], guards: [] } end, options
@@ -59,14 +59,14 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     st = Agent.get pid, &(&1)
     local = st.methods
       |> Enum.flat_map(fn {name, {_, options}} ->
-          if check_guards(%Serverboards.MOM.RPC.Message{ method: name, context: context}, options, st.guards) do
+          if check_guards(%MOM.RPC.Message{ method: name, context: context}, options, st.guards) do
             [name]
           else
             []
           end
         end)
     other = Enum.flat_map( st.mc, fn {smc, options} ->
-      if check_guards(%Serverboards.MOM.RPC.Message{ method: "dir", context: context}, options, st.guards) do
+      if check_guards(%MOM.RPC.Message{ method: "dir", context: context}, options, st.guards) do
         __dir(smc, context)
       else
         []
@@ -102,11 +102,11 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   Options may be:
 
   * `async`, default true. Execute in another task, returns a promise.
-  * `context`, the called function will be called with the client context. It is a Serverboards.MOM.RPC.Context
+  * `context`, the called function will be called with the client context. It is a MOM.RPC.Context
 
   ## Example
 
-    iex> alias Serverboards.MOM.RPC.MethodCaller
+    iex> alias MOM.RPC.MethodCaller
     iex> {:ok, mc} = MethodCaller.start_link
     iex> MethodCaller.add_method mc, "test_ok", fn _ -> {:ok, :response_ok} end
     iex> MethodCaller.add_method mc, "test_error", fn _ -> {:error, :response_error} end
@@ -140,7 +140,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   I will create three method callers, so that a calls, and b too. Method can
   be shadowed at parent too.
 
-    iex> alias Serverboards.MOM.RPC.{MethodCaller, Context}
+    iex> alias MOM.RPC.{MethodCaller, Context}
     iex> {:ok, a} = MethodCaller.start_link
     iex> {:ok, b} = MethodCaller.start_link
     iex> {:ok, c} = MethodCaller.start_link
@@ -170,7 +170,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   Custom method caller that calls a function
 
-    iex> alias Serverboards.MOM.RPC.MethodCaller
+    iex> alias MOM.RPC.MethodCaller
     iex> {:ok, mc} = MethodCaller.start_link
     iex> MethodCaller.add_method_caller(mc, fn msg ->
     ...>   case msg.method do
@@ -262,8 +262,8 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
   end
 
   # Checks all the guards, return false if any fails.
-  defp check_guards(%Serverboards.MOM.RPC.Message{}, _, []), do: true
-  defp check_guards(%Serverboards.MOM.RPC.Message{} = msg, options, [{gname, gf} | rest]) do
+  defp check_guards(%MOM.RPC.Message{}, _, []), do: true
+  defp check_guards(%MOM.RPC.Message{} = msg, options, [{gname, gf} | rest]) do
     try do
       if gf.(msg, options) do
         #Logger.debug("Guard #{inspect msg} #{inspect gname} allowed pass")
@@ -330,7 +330,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
 
   ## Examples
 
-    iex> alias Serverboards.MOM.RPC.{Context, MethodCaller}
+    iex> alias MOM.RPC.{Context, MethodCaller}
     iex> {:ok, mc} = MethodCaller.start_link
     iex> MethodCaller.add_method mc, "echo", fn [what], context -> "#{what}#{Context.get(context, :test, :fail)}" end, context: true
     iex> {:ok, context} = Context.start_link
@@ -338,7 +338,7 @@ defmodule Serverboards.MOM.RPC.MethodCaller do
     iex> MethodCaller.call mc, "echo", ["test_"], context
     {:ok, "test_ok"}
 
-    iex> alias Serverboards.MOM.RPC.{Context, MethodCaller}
+    iex> alias MOM.RPC.{Context, MethodCaller}
     iex> MethodCaller.cast(fn _ -> {:ok, :ok} end, "any", [], nil, fn
     ...>   {:ok, _v} -> :ok
     ...>   {:error, e} -> {:error, e}

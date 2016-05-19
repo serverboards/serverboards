@@ -10,7 +10,7 @@ defmodule Test.Client do
 	"""
 	use GenServer
 
-	alias Serverboards.MOM.RPC
+	alias MOM.RPC
 	alias Test.Client
 
 	@doc ~S"""

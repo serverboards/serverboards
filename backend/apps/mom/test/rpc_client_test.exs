@@ -2,9 +2,9 @@ require Logger
 defmodule Serverboards.RPC.ClientTest do
   use ExUnit.Case
   @moduletag :capture_log
-  doctest Serverboards.MOM.RPC.Client, import: true
+  doctest MOM.RPC.Client, import: true
 
-  alias Serverboards.MOM.RPC.Client
+  alias MOM.RPC.Client
 
   test "Create and stop a client" do
     {:ok, client} = Client.start_link writef: :context
@@ -45,7 +45,7 @@ defmodule Serverboards.RPC.ClientTest do
 
     to_client = Client.get client, :to_client
 
-    Serverboards.MOM.RPC.cast to_client, "dir", [], 1, fn {:ok, []} ->
+    MOM.RPC.cast to_client, "dir", [], 1, fn {:ok, []} ->
       Client.set client, :called, true
     end
     :timer.sleep(20)

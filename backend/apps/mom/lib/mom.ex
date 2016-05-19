@@ -1,4 +1,4 @@
-defmodule Serverboards.MOM do
+defmodule MOM do
 	@moduledoc ~S"""
 	Message Oriented Middleware
 
@@ -6,7 +6,7 @@ defmodule Serverboards.MOM do
 	used mainly as Request-Reply (RPC).
 
 	Example of use:
-		iex> alias Serverboards.MOM.{Channel, Tap, Message}
+		iex> alias MOM.{Channel, Tap, Message}
 		iex> {:ok, ch} = Channel.Broadcast.start_link
 		iex> Tap.tap(ch,"tap test")
 		iex> {:ok, ag} = Agent.start_link(fn -> nil end ) # a singleton with value nil, will be updated
@@ -28,6 +28,6 @@ defmodule Serverboards.MOM do
 	use Application
 
 	def start(_type, _args) do
-		Serverboards.MOM.Supervisor.start_link
+		MOM.Supervisor.start_link
 	end
 end

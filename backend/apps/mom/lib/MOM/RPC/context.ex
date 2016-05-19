@@ -1,4 +1,4 @@
-defmodule Serverboards.MOM.RPC.Context do
+defmodule MOM.RPC.Context do
   @moduledoc ~S"""
   Stateful map.
 

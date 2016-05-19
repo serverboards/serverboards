@@ -1,8 +1,8 @@
 require Logger
 
 defmodule Serverboards.Auth.RPC do
-  alias Serverboards.MOM.RPC
-  alias Serverboards.MOM
+  alias MOM.RPC
+  alias MOM
   alias Serverboards.Auth
 
   def start_link do

@@ -9,7 +9,7 @@ defmodule ServerboardTest do
 
   setup_all do
     {:ok, agent } = Agent.start_link fn -> %{} end
-    Serverboards.MOM.Channel.subscribe( :client_events, fn %{ payload: msg } ->
+    MOM.Channel.subscribe( :client_events, fn %{ payload: msg } ->
       Agent.update agent, fn status ->
         Logger.info("New message to client #{inspect msg}. #{inspect agent} ")
         Map.put( status, msg.type, Map.get(status, msg.type, []) ++ [msg] )

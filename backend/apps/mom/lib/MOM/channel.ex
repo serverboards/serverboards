@@ -1,6 +1,6 @@
 require Logger
 
-defprotocol Serverboards.MOM.Channel do
+defprotocol MOM.Channel do
   @moduledoc ~S"""
   A channel of communication. Subscribers are functions that will be
   called when somebody sends a message.
@@ -17,7 +17,7 @@ defprotocol Serverboards.MOM.Channel do
   ## Examples
 
     iex> require Logger
-    iex> alias Serverboards.MOM.{Message, Channel}
+    iex> alias MOM.{Message, Channel}
     iex> {:ok, ch} = Channel.Broadcast.start_link
     iex> Channel.subscribe(ch, fn msg -> Logger.info("Message1 #{inspect msg}") end)
     0
@@ -31,7 +31,7 @@ defprotocol Serverboards.MOM.Channel do
   It is allowed to call the channels after an atom
 
     iex> require Logger
-    iex> alias Serverboards.MOM.{Message, Channel}
+    iex> alias MOM.{Message, Channel}
     iex> Channel.Named.start_link
     iex> id = Channel.subscribe(:deadletter, fn m -> Logger.error("Deadletter #{inspect m}") end)
     iex> Channel.send(:empty, %Message{}) # always returns ok
@@ -54,18 +54,18 @@ defprotocol Serverboards.MOM.Channel do
 
   A subscription normally calls a function when a message arrives
 
-    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> alias MOM.{Channel, Message}
     iex> require Logger
     iex> {:ok, ch} = Channel.Broadcast.start_link
     iex> Channel.subscribe(ch, fn _ ->
     ...>   Logger.info("Called")
     ...>   end)
-    iex> Channel.send(ch, %Serverboards.MOM.Message{ id: 0 })
+    iex> Channel.send(ch, %MOM.Message{ id: 0 })
     :ok
 
   Its possible to subscribe to named channels
 
-    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> alias MOM.{Channel, Message}
     iex> Channel.subscribe(:named_channel, fn _ -> :ok end)
     iex> Channel.send(:named_channel, %Message{})
     :ok
@@ -76,14 +76,14 @@ defprotocol Serverboards.MOM.Channel do
   All messages in orig are send automatically to dest.
 
     iex> require Logger
-    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> alias MOM.{Channel, Message}
     iex> {:ok, a} = Channel.Broadcast.start_link
     iex> {:ok, b} = Channel.Broadcast.start_link
     iex> Channel.subscribe(a, b)
     iex> Channel.subscribe(b, fn _ ->
     ...>    Logger.info("B called")
     ...>    end)
-    iex> Channel.send(a, %Serverboards.MOM.Message{ id: 0, payload: "test"})
+    iex> Channel.send(a, %MOM.Message{ id: 0, payload: "test"})
     :ok
   """
 
@@ -93,7 +93,7 @@ defprotocol Serverboards.MOM.Channel do
 end
 
 
-defimpl Serverboards.MOM.Channel, for: Any do
+defimpl MOM.Channel, for: Any do
   def subscribe(channel, function, options \\ []) do
     channel.__struct__.subscribe(channel, function, options)
   end
@@ -105,14 +105,14 @@ defimpl Serverboards.MOM.Channel, for: Any do
   end
 end
 
-defmodule Serverboards.MOM.Channel.Base do
+defmodule MOM.Channel.Base do
   @moduledoc ~S"""
   Default implementation of channel protocol as a GenServer.
 
   An implementation may be as simple as:
   ```
     defmodule MyChannel do
-      using Serverboards.MOM.Channel.Base
+      using MOM.Channel.Base
 
       def send(channel, msg) do
         # ...
@@ -129,7 +129,7 @@ defmodule Serverboards.MOM.Channel.Base do
   defmacro __using__(_opts) do
     quote do
       # manual derive Channel
-      @derive Serverboards.MOM.Channel
+      @derive MOM.Channel
 
       defstruct [:pid]
       use GenServer
@@ -151,7 +151,7 @@ defmodule Serverboards.MOM.Channel.Base do
       end
       def subscribe(orig, dest, options) do
         Logger.debug("Subscribe #{inspect orig} send to #{inspect dest}")
-        subscribe(orig, &Serverboards.MOM.Channel.send(dest, &1), options)
+        subscribe(orig, &MOM.Channel.send(dest, &1), options)
       end
 
 

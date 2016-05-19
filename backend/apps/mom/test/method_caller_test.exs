@@ -3,12 +3,12 @@ require Logger
 defmodule Serverboards.MethodCallerTest do
   use ExUnit.Case
   #@moduletag :capture_log
-  doctest Serverboards.MOM.RPC.MethodCaller, import: true
+  doctest MOM.RPC.MethodCaller, import: true
 
-	alias Serverboards.MOM.RPC
+	alias MOM.RPC
 
 	test "Simple method caller" do
-    import Serverboards.MOM.RPC.MethodCaller
+    import MOM.RPC.MethodCaller
 
     {:ok, mc} = RPC.MethodCaller.start_link name: :test
     {:ok, context} = RPC.Context.start_link
@@ -48,7 +48,7 @@ defmodule Serverboards.MethodCallerTest do
   end
 
   test "Methods with errors" do
-    import Serverboards.MOM.RPC.MethodCaller
+    import MOM.RPC.MethodCaller
     {:ok, mc} = RPC.MethodCaller.start_link name: :test
     {:ok, context} = RPC.Context.start_link
 
@@ -87,7 +87,7 @@ defmodule Serverboards.MethodCallerTest do
   end
 
   test "Complex method handlers, many calls" do
-    import Serverboards.MOM.RPC.MethodCaller
+    import MOM.RPC.MethodCaller
     {:ok, context} = RPC.Context.start_link
     {:ok, mc} = RPC.MethodCaller.start_link
     {:ok, mc1} = RPC.MethodCaller.start_link

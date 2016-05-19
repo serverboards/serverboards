@@ -1,11 +1,11 @@
 require Logger
 
-defmodule Serverboards.MOM.Channel.Broadcast do
+defmodule MOM.Channel.Broadcast do
   @moduledoc ~S"""
   Broadcast channel. All messages are sent to all clients.
   """
-  use Serverboards.MOM.Channel.Base
-  alias Serverboards.MOM.{Message, Channel}
+  use MOM.Channel.Base
+  alias MOM.{Message, Channel}
 
   @doc ~S"""
   Send a message to a channel.
@@ -22,7 +22,7 @@ defmodule Serverboards.MOM.Channel.Broadcast do
 
   Depending on how succesful was the `send` it returns different values:
 
-    iex> alias Serverboards.MOM.{Channel, Message}
+    iex> alias MOM.{Channel, Message}
     iex> {:ok, ch} = Channel.Broadcast.start_link
     iex> Channel.send(ch, %Message{})
     :ok

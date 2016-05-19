@@ -1,7 +1,7 @@
 require Logger
 
-defmodule Serverboards.MOM.Channel.PointToPoint do
-	use Serverboards.MOM.Channel.Base
+defmodule MOM.Channel.PointToPoint do
+	use MOM.Channel.Base
 
 	@moduledoc ~S"""
 	Special channel on which only one competing consumer consume messages.
@@ -19,7 +19,7 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 	PointToPoint.start_link.
 
 		iex> require Logger
-		iex> alias Serverboards.MOM.{Channel, Message, RPC}
+		iex> alias MOM.{Channel, Message, RPC}
 		iex> {:ok, ch} = Channel.PointToPoint.start_link
 		iex> Channel.subscribe(ch, fn msg ->
 		...>	case msg.payload do
@@ -47,7 +47,7 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 		:nok
 	"""
 
-	alias Serverboards.MOM.{Message, Channel}
+	alias MOM.{Message, Channel}
 
 	@doc ~S"""
 	Sends a message to the channel.
@@ -98,7 +98,7 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 
 	def handle_call({:send, msg, options}, from, state) do
     if Enum.member? options, :all do
-      Serverboards.MOM.Channel.Broadcast.handle_call({:send, msg, []}, from, state)
+      MOM.Channel.Broadcast.handle_call({:send, msg, []}, from, state)
     else
       raise "Only allowed option is :all"
     end

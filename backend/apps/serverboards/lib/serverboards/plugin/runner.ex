@@ -17,10 +17,10 @@ defmodule Serverboards.Plugin.Runner do
   def start_link (options \\ []) do
     {:ok, pid} = GenServer.start_link __MODULE__, :ok, options
 
-    Serverboards.MOM.Channel.subscribe(:auth_authenticated, fn msg ->
+    MOM.Channel.subscribe(:auth_authenticated, fn msg ->
       %{ user: user, client: client} = msg.payload
       if Enum.member?(user.perms, "plugin") do
-        alias Serverboards.MOM.RPC
+        alias MOM.RPC
         RPC.add_method_caller (RPC.Client.get client, :to_serverboards), Serverboards.Plugin.Runner.method_caller
       end
       :ok

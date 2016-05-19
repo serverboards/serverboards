@@ -1,9 +1,9 @@
 require Logger
 
 defmodule Serverboards.Serverboard.RPC do
-  alias Serverboards.MOM.RPC
-  alias Serverboards.MOM.RPC.Context
-  alias Serverboards.MOM
+  alias MOM.RPC
+  alias MOM.RPC.Context
+  alias MOM
 
   def start_link(options \\ []) do
     {:ok, mc} = RPC.MethodCaller.start_link options

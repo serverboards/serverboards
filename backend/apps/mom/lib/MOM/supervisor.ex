@@ -1,4 +1,4 @@
-defmodule Serverboards.MOM.Supervisor do
+defmodule MOM.Supervisor do
 	use Supervisor
 
 	def start_link do
@@ -7,7 +7,7 @@ defmodule Serverboards.MOM.Supervisor do
 
 	def init(:ok) do
 		children = [
-			worker(Serverboards.MOM.Channel.Named, [])
+			worker(MOM.Channel.Named, [])
 		]
 
 		supervise(children, strategy: :one_for_one)

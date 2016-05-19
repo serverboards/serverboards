@@ -1,7 +1,7 @@
 import Ecto.Query
 
 alias Serverboards.Repo
-alias Serverboards.MOM
+alias MOM
 alias Serverboards.Auth
 alias Serverboards.Auth.User
 alias Serverboards.Auth.Model

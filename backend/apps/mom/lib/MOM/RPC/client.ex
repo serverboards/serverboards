@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.MOM.RPC.Client do
+defmodule MOM.RPC.Client do
 	@moduledoc ~S"""
 	Each of the IO clients of serverboards.
 
@@ -17,8 +17,8 @@ defmodule Serverboards.MOM.RPC.Client do
 		writef: nil,
 		context: nil
 	]
-	alias Serverboards.MOM
-	alias Serverboards.MOM.RPC
+	alias MOM
+	alias MOM.RPC
 
 	defmodule BadProtocol do
 		defexception [line: nil]
@@ -145,8 +145,8 @@ defmodule Serverboards.MOM.RPC.Client do
 		:default
 
 		iex> {:ok, client} = start_link writef: :context
-		iex> %Serverboards.MOM.RPC{} = get client, :to_serverboards
-		iex> %Serverboards.MOM.RPC{} = get client, :to_client
+		iex> %MOM.RPC{} = get client, :to_serverboards
+		iex> %MOM.RPC{} = get client, :to_client
 		iex> true # make exdoc happy
 		true
 	"""
@@ -228,7 +228,7 @@ defmodule Serverboards.MOM.RPC.Client do
 		end
 
 
-		client = %Serverboards.MOM.RPC.Client{
+		client = %MOM.RPC.Client{
 			to_client: to_client,
 			to_serverboards: to_serverboards,
 			writef: writef,
@@ -275,8 +275,8 @@ defmodule Serverboards.MOM.RPC.Client do
 
 	def handle_call({:tap}, _from, client) do
 		name = Client.get client, :name
-		Serverboards.MOM.RPC.tap(client.to_serverboards, ">#{name}")
-		Serverboards.MOM.RPC.tap(client.to_client, "<#{name}")
+		MOM.RPC.tap(client.to_serverboards, ">#{name}")
+		MOM.RPC.tap(client.to_client, "<#{name}")
 		{:reply, :ok, client}
 	end
 	def handle_call({:call, method, params, id, callback}, _from, client) do

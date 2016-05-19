@@ -2,7 +2,7 @@ require Logger
 require JSON
 
 defmodule Serverboards.IO.TCP do
-	alias Serverboards.MOM.RPC
+	alias MOM.RPC
 
 	def accept(port) do
 		{:ok, socket} = :gen_tcp.listen(port,

@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.MOM.RPC do
+defmodule MOM.RPC do
 	@moduledoc ~S"""
 	Gateway adapter for RPC.
 
@@ -21,7 +21,7 @@ defmodule Serverboards.MOM.RPC do
 
 	It can be used in a blocking fasion
 
-		iex> alias Serverboards.MOM.{Message, Channel, RPC}
+		iex> alias MOM.{Message, Channel, RPC}
 		iex> {:ok, rpc} = RPC.start_link
 		iex> Channel.subscribe(rpc.request, fn msg ->
 		...>	Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id })
@@ -32,7 +32,7 @@ defmodule Serverboards.MOM.RPC do
 
 	Or non blocking
 
-		iex> alias Serverboards.MOM.{Message, Channel, RPC}
+		iex> alias MOM.{Message, Channel, RPC}
 		iex> require Logger
 		iex> {:ok, rpc} = RPC.start_link
 		iex> Channel.subscribe(rpc.request, fn msg -> Channel.send(msg.reply_to, %Message{ payload: msg.payload.params, id: msg.id }) end) # dirty echo rpc.
@@ -41,20 +41,20 @@ defmodule Serverboards.MOM.RPC do
 
 	Returns `{:error, :unkown_method}` when method does not exist
 
-		iex> alias Serverboards.MOM.RPC
+		iex> alias MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.call(rpc, "echo", "Hello world!", 1)
 		{:error, :unknown_method}
 
 	dir is a method caller functionality, so no method caller, no dir.
 
-		iex> alias Serverboards.MOM.RPC
+		iex> alias MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link method_caller: false
 		iex> RPC.call(rpc, "dir", [], 1)
 		{:error, :unknown_method}
 
 	"""
-	alias Serverboards.MOM.{RPC, Tap}
+	alias MOM.{RPC, Tap}
 
 	use GenServer
 	defstruct [
@@ -67,7 +67,7 @@ defmodule Serverboards.MOM.RPC do
 		context: nil
 	]
 
-	alias Serverboards.MOM.{Channel, Message, RPC}
+	alias MOM.{Channel, Message, RPC}
 
 	def start_link(options \\ []) do
 		{:ok, pid} = GenServer.start_link(__MODULE__, :ok, [])
@@ -183,7 +183,7 @@ defmodule Serverboards.MOM.RPC do
 
 	## Example
 
-		iex> alias Serverboards.MOM.RPC
+		iex> alias MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.add_method rpc, "test", fn [] -> :ok end
 		iex> RPC.cast(rpc, "test", [], 0, fn {:ok,:ok} -> :ok end)
@@ -191,7 +191,7 @@ defmodule Serverboards.MOM.RPC do
 
 	If cast to a non existent method, will call cast with {:error, :unknown_method}
 
-		iex> alias Serverboards.MOM.RPC
+		iex> alias MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.cast(rpc, "test", [], 0, fn {:error, :unknown_method} -> :ok end)
 		:ok
@@ -220,7 +220,7 @@ defmodule Serverboards.MOM.RPC do
 
 	## Example
 
-		iex> alias Serverboards.MOM.RPC
+		iex> alias MOM.RPC
 		iex> {:ok, rpc} = RPC.start_link
 		iex> RPC.event(rpc, "test", [])
 		:ok
@@ -247,7 +247,7 @@ defmodule Serverboards.MOM.RPC do
 
 	Async mode, creates a new task to make the call.
 
-		iex> import Serverboards.MOM.RPC
+		iex> import MOM.RPC
 		iex> {:ok, rpc} = start_link
 		iex> add_method rpc, "echo", &(&1)
 		iex> call(rpc, "echo", "Hello", 1)
@@ -255,7 +255,7 @@ defmodule Serverboards.MOM.RPC do
 
 	Sync mode
 
-		iex> import Serverboards.MOM.RPC
+		iex> import MOM.RPC
 		iex> {:ok, rpc} = start_link
 		iex> add_method rpc, "echo", &(&1), async: false
 		iex> call(rpc, "echo", "Hello", 2)
