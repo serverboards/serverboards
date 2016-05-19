@@ -1,6 +1,6 @@
 defmodule Serverboards.MOMTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  #@moduletag :capture_log
 
 
   doctest Serverboards.MOM

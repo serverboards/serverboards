@@ -4,7 +4,7 @@ defmodule Serverboards.MOM.Tap do
 	@moduledoc ~S"""
 	Sends to logger all messages on this channel.
 
-		iex> {:ok, ch} = Serverboards.MOM.Channel.start_link
+		iex> {:ok, ch} = Serverboards.MOM.Channel.Broadcast.start_link
 		iex> tap_id = Serverboards.MOM.Tap.tap(ch, "my tap")
 		iex> Serverboards.MOM.Channel.send(ch, %Serverboards.MOM.Message{payload: "test", id: 1})
 		:ok

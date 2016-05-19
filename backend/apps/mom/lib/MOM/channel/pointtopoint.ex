@@ -1,6 +1,8 @@
 require Logger
 
 defmodule Serverboards.MOM.Channel.PointToPoint do
+	use Serverboards.MOM.Channel.Base
+
 	@moduledoc ~S"""
 	Special channel on which only one competing consumer consume messages.
 
@@ -44,27 +46,30 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 		iex> Channel.send(ch, %Message{ id: 0, payload: %RPC.Message{ method: "other", params: ["Hello"]}} )
 		:nok
 	"""
-	use GenServer
 
 	alias Serverboards.MOM.{Message, Channel}
 
-	def start_link do
-		GenServer.start_link(__MODULE__, :ok, [])
-	end
+	@doc ~S"""
+	Sends a message to the channel.
+
+	Avaialble options are:
+	* :all -- Sends to all channels, behaving as a broadcast channel.
+	"""
+  def send(channel, %Message{} = message, options) do
+    GenServer.call(channel.pid, {:send, message, options})
+  end
 
 	## Server impl
-
-	def init(:ok) do
-		Channel.init(:ok)
-	end
 
 	@doc ~S"""
 	Calls all subscribers in order until one returns :ok. If none returns :ok,
 	returns :nok.
 
+	Returns :empty if there are no subscribers.
+
 	If no subscribers returns :empty
 	"""
-	def handle_call({:send, msg}, _, state) do
+	def handle_call({:send, msg, []}, _, state) do
 		ok = if Enum.count(state.subscribers) == 0 do
 			:empty
 		else
@@ -91,9 +96,11 @@ defmodule Serverboards.MOM.Channel.PointToPoint do
 		{:reply, ok, state}
 	end
 
-	# Uses by default the basic channel implementation for all calls except send.
-	def handle_call(any, from, state) do
-		Channel.handle_call(any, from, state)
-	end
-
+	def handle_call({:send, msg, options}, from, state) do
+    if Enum.member? options, :all do
+      Serverboards.MOM.Channel.Broadcast.handle_call({:send, msg, []}, from, state)
+    else
+      raise "Only allowed option is :all"
+    end
+  end
 end
