@@ -150,8 +150,10 @@ var RPC = function(options={}){
       //console.log("Got answer: %o %o", jmsg, pc)
       if (jmsg['result'] !== undefined )
          pc[0]( jmsg['result'] )
-      else if (jmsg['error'])
+      else if (jmsg['error']){
+        console.error("Got error %o from %o", jmsg['error'], pc[2])
         pc[1]( jmsg['error'] )
+      }
       else
         pc[1]( "Invalid message" )
       delete pending_calls[id]
@@ -165,7 +167,7 @@ var RPC = function(options={}){
   rpc.call = function(method, params){
     var id=rpc.maxid
     var promise = new Promise(function(resolve, reject){
-      pending_calls[id]=[resolve, reject]
+      pending_calls[id]=[resolve, reject, method]
     })
     var msg = JSON.stringify({
       method: method,
