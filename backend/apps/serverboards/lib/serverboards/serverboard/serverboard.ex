@@ -33,8 +33,7 @@ defmodule Serverboards.Serverboard do
 
       Serverboards.Service.service_update_serverboard_real( serverboard.shortname, attributes, me )
 
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "serverboard.added", data: %{ serverboard: serverboard} } } )
-
+      Serverboards.Event.emit("serverboard.added", %{ serverboard: serverboard}, ["serverboard.info"])
       serverboard.shortname
     end, name: :serverboard
 
@@ -67,12 +66,11 @@ defmodule Serverboards.Serverboard do
 
       {:ok, serverboard} = serverboard_info upd
 
-      MOM.Channel.send( :client_events, %MOM.Message{
-        payload: %{ type: "serverboard.updated",
-          data: %{
-            shortname: shortname, serverboard: serverboard
-            }
-          } } )
+      Serverboards.Event.emit(
+        "serverboard.updated",
+        %{ shortname: shortname, serverboard: serverboard},
+        ["serverboard.info"]
+        )
 
       :ok
     end
@@ -80,7 +78,7 @@ defmodule Serverboards.Serverboard do
     EventSourcing.subscribe es, :delete_serverboard, fn shortname, _me ->
       Repo.delete_all( from s in ServerboardModel, where: s.shortname == ^shortname )
 
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "serverboard.deleted", data: %{ shortname: shortname } } } )
+      Serverboards.Event.emit("serverboard.deleted", %{ shortname: shortname}, ["serverboard.info"])
     end
   end
 

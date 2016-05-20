@@ -167,8 +167,8 @@ defmodule ServerboardTest do
 
     Test.Client.call client, "serverboard.delete", ["SBDS-TST8"]
 
-    assert check_if_event_on_client(client, "serverboard.added", "SBDS-TST8")
-    assert check_if_event_on_client(client, "serverboard.deleted", "SBDS-TST8")
+    assert check_if_event_on_client(client, "serverboard.updated", "SBDS-TST8")
+    assert Test.Client.expect(client, [{:method, "serverboard.deleted"}, {[:params, :shortname], "SBDS-TST8"}])
 
 
     Test.Client.stop(client)

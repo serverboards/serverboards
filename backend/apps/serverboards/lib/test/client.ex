@@ -115,7 +115,8 @@ defmodule Test.Client do
 		{false, []}
 	end
 	defp expect_rec(what, [msg | rest ]) do
-		if match?(what, msg) do
+		if expect_match?(what, msg) do
+			#Logger.debug("True!")
 			{true, rest}
 		else
 			{ok, rmsgs} = expect_rec(what, rest)
@@ -124,8 +125,10 @@ defmodule Test.Client do
 	end
 
 	def handle_call({:expect, what}, from, status) do
+		#Logger.debug("Look for #{inspect what} at #{inspect status.messages}")
 		{isin, messages} = expect_rec(what, status.messages)
 		if isin do
+			#Logger.debug("Already here")
 			{:reply, true, %{status | messages: messages, expecting: nil }}
 		else
 			status=%{ status | expecting: %{ what: what, from: from } }
@@ -134,10 +137,13 @@ defmodule Test.Client do
 	end
 
 	def handle_call({:call, msg}, _, status) do
+		#Logger.debug("Add msg #{inspect msg} && #{inspect status.expecting}")
+
 		messages = status.messages ++ [msg]
 		messages = if status.expecting do
 			{isin, messages} = expect_rec(status.expecting.what, messages)
 			if isin do
+				#Logger.debug("Got #{inspect status.expecting.what} now")
 				GenServer.reply(status.expecting.from, true)
 				{:reply, :ok, %{ status | messages: messages, expecting: nil }}
 			else
@@ -163,13 +169,14 @@ defmodule Test.Client do
 		{:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
 	end
 
-	defp match(w, nil) do
+	defp expect_match?(w, nil) do
 		false
 	end
-	defp match([], _) do
+	defp expect_match?([], _) do
+		#Logger.debug("Match done!")
 		true
 	end
-	defp match([w | rest], msg) do
+	defp expect_match?([w | rest], msg) do
 		#Logger.debug("Match? #{inspect w} #{inspect msg}")
 		cont = case w do
 			{:method, v} ->
@@ -177,13 +184,13 @@ defmodule Test.Client do
 			{[k], v} ->
 				Map.get(msg, to_string(k), nil) == v
 			{[k | kr], v} ->
-				match([{kr, v}], Map.get( msg, to_string(k)))
+				expect_match?([{kr, v}], Map.get( msg, to_string(k)))
 			{k, v} ->
 				Map.get(msg, to_string(k), nil) == v
 		end
 
 		if cont do
-			match(rest, msg)
+			expect_match?(rest, msg)
 		else
 			false
 		end

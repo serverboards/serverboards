@@ -17,7 +17,7 @@ defmodule Serverboards.Auth.User do
         is_active: Map.get(attributes, :is_active, true)
 				})
       user = user_info user
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "user.added", data: %{ user: user} } } )
+      Serverboards.Event.emit("user.added", %{ user: user}, ["auth.create_user"])
     end
     EventSourcing.subscribe :auth, :update_user, fn %{ user: email, operations: operations }, _me ->
       user = Repo.get_by!(Model.User, email: email)
@@ -25,7 +25,8 @@ defmodule Serverboards.Auth.User do
         Model.User.changeset(user, operations)
       )
       user = user_info user
-      MOM.Channel.send( :client_events, %MOM.Message{ payload: %{ type: "user.updated", data: %{ user: user} } } )
+      Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
+      Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user.email} )
     end
   end
 

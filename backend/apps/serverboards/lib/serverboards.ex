@@ -19,7 +19,7 @@ defmodule Serverboards do
 		# inspect for deadletters and invalid
 		MOM.Tap.tap(:deadletter, "deadletter")
 		MOM.Tap.tap(:invalid, "invalid")
-		Serverboards.Events.setup()
+		Serverboards.Event.setup()
 
 		Supervisor.start_link(children, opts)
 	end

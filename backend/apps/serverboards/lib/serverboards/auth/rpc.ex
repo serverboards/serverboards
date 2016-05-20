@@ -108,14 +108,16 @@ defmodule Serverboards.Auth.RPC do
               user = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
-              MOM.Channel.send(:client_events, %MOM.Message{ payload: %{ type: "user.updated", data: %{ user: user} } } )
+              Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
+              Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user.email })
             end
           type in ["group.user_added","group.user_removed"] ->
             if data.user == user.email do
               user = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
-              MOM.Channel.send(:client_events, %MOM.Message{ payload: %{ type: "user.updated", data: %{ user: user} } } )
+              Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
+              Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user.email })
             end
           true ->
             nil
