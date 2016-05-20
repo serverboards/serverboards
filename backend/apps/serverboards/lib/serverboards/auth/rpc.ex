@@ -88,6 +88,10 @@ defmodule Serverboards.Auth.RPC do
       Auth.Group.user_list group, me
     end, [context: true]
 
+    # permission list
+    add_method mc, "perm.list", fn [] ->
+      {:ok, Auth.Permission.perm_list}
+    end, [required_perm: "auth.manage_groups"]
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->

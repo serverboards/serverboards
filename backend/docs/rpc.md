@@ -192,6 +192,9 @@ Updates user data, for example {"is_active": false, "first_name": "new name"}.
 Note that there is no user remove, there is only deactivation via
 is_active: false.
 
+## perm.list()
+
+Returns a list of all the permissions known by the system.
 
 # Plugins
 

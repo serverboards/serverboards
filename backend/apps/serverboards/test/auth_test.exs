@@ -121,4 +121,10 @@ defmodule Serverboards.AuthTest do
     {:ok, :ok} = Client.call(client, "group.add_perm", ["admin", "auth.create_user"])
   end
 
+  test "Perm list" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, list} = Client.call(client, "perm.list", [])
+    assert (Enum.count list) > 0
+  end
 end
