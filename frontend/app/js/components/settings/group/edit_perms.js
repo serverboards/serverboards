@@ -1,17 +1,6 @@
 import React from 'react'
 import Modal from '../../modal'
-
-const all_perms = [
-    "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
-    "auth.info_any_user",
-    "auth.modify_groups", "auth.manage_groups",
-    "plugin",
-    "service.add", "service.update", "service.delete", "service.info",
-    "service.component.add", "service.component.attach",
-    "service.component.update", "service.component.delete",
-    "debug"
-  ]
+import Loading from '../../loading'
 
 let EditPerms=React.createClass({
   handleUpdatePermissions: function(){
@@ -24,12 +13,24 @@ let EditPerms=React.createClass({
     let $form=$(this.refs.form)
     $form.form()
     $form.find('.ui.checkbox').checkbox()
+
+    if (!this.props.all_perms)
+      this.props.onLoadAllPerms()
+
   },
   render: function(){
     let props=this.props
+    if (!props.all_perms){
+      return (
+        <Loading>
+        Permission list
+        </Loading>
+      )
+    }
+
 
     let perms=[]
-    for (let p of all_perms){
+    for (let p of props.all_perms){
       let checked=props.group.perms.indexOf(p) >= 0
       perms.push(
         <div key={p} className="field">

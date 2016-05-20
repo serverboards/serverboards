@@ -3,7 +3,8 @@ const default_state={
   logged_in: false,
   user: undefined,
   users: undefined,
-  groups: undefined
+  groups: undefined,
+  all_perms: undefined,
 }
 
 // http://stackoverflow.com/questions/1179366/is-there-a-javascript-strcmp#1179377
@@ -43,6 +44,9 @@ export const auth = (state = default_state , action) => {
       break;
     case 'AUTH_GROUP_LIST':
       state.groups=sort_groups( action.groups )
+      break;
+    case 'AUTH_PERMS_LIST':
+      state.all_perms=action.perms
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {

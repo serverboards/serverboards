@@ -35,6 +35,8 @@ let Groups=React.createClass({
             onClose={ () => this.setModal(false) }
             onUpdatePermissions={(perms) =>
               this.handleUpdatePermissions(modal_state.data, perms) }
+            onLoadAllPerms={this.props.onLoadAllPerms}
+            all_perms={this.props.all_perms}
           />
         )
         break;

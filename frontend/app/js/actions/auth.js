@@ -111,3 +111,11 @@ export function group_add(group){
     })
   }
 }
+
+export function perm_list(){
+  return function(dispatch){
+    rpc.call("perm.list", []).then((l) =>{
+      dispatch({type: "AUTH_PERMS_LIST", perms: l})
+    })
+  }
+}
