@@ -75,10 +75,11 @@ defmodule Serverboards.Settings do
           fields = settings.extra["fields"]
           values = Map.get(all_values, id, %{})
           fields = Enum.map(fields, fn f ->
-            if String.ends_with? f["name"], "_pw" do
-              ""
+            name = Map.get(f, "name", "")
+            if String.ends_with? name, "_pw" do
+              Map.put(f, "value", "")
             else
-              Map.put(f, "value", Map.get( values, f["name"], nil ))
+              Map.put(f, "value", Map.get( values, name, nil ))
             end
           end)
           c = %{
