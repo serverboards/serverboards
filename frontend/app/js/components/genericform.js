@@ -13,31 +13,45 @@ let GenericField=React.createClass({
   render: function(){
     let props=this.props
     switch (props.type){
+      case undefined:
+      case '':
       case 'text':
-      return (
-        <div className="field">
-        <label>{props.label}</label>
-        <input type="text" name={props.name} placeholder={props.description} value={this.state.value} onChange={this.handleChange}/>
-        </div>
-      )
+        return (
+          <div className="field">
+          <label>{props.label}</label>
+          <input type="text"
+            name={props.name}
+            placeholder={props.placeholder || props.description}
+            value={this.state.value}
+            onChange={this.handleChange}/>
+          </div>
+        )
       case 'textarea':
-      return (
-        <div className="field">
-        <label>{props.label}</label>
-        <textarea name={props.name} placeholder={props.description} value={this.state.value} onChange={this.handleChange}/>
-        </div>
-      )
+        return (
+          <div className="field">
+          <label>{props.label}</label>
+          <textarea
+            name={props.name}
+            placeholder={props.placeholder || props.description}
+            value={this.state.value}
+            onChange={this.handleChange}/>
+          </div>
+        )
       case 'password':
-      return (
-        <div className="field">
-        <label>{props.label}</label>
-        <input type="password" name={props.name} placeholder={props.description} value={this.state.value} onChange={this.handleChange}/>
-        </div>
-      )
+        return (
+          <div className="field">
+          <label>{props.label}</label>
+          <input type="password"
+            name={props.name}
+            placeholder={props.placeholder || props.description}
+            value={this.state.value} 
+            onChange={this.handleChange}/>
+          </div>
+        )
       default:
-      return (
-        <div className="ui message error">Unknown field type {props.type}</div>
-      )
+        return (
+          <div className="ui message error" style={{display: "block"}}>Unknown field type "{props.type}"</div>
+        )
     }
   }
 })
