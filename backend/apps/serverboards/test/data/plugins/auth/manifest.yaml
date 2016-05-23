@@ -20,3 +20,17 @@ components:
       - name: url
         label: URL
         placeholder: https://example.com
+
+  - name: Component config
+    type: settings
+    id: settings
+    perms: settings
+    fields:
+      - name: base_url
+        label: Serverboards Base URL
+        type: url
+        placeholder: https://test.serverboards.io
+      - name: test_pw
+        label: Test if passwords can be recovered
+        type: password
+        placeholder: "********"

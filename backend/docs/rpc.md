@@ -254,11 +254,11 @@ permissions.
 Requires `event.subscribe` permission. Without this permission the
 client can not subscribe to any event type topic.
 
-# event.subscriptions()
+## event.subscriptions()
 
 Returns a list with all the subscriptions.
 
-# event.subscribe(event_type)
+## event.subscribe(event_type)
 
 Subscribes to a event_type. All events that this client is allowed to see on
 of that type will be emited.
@@ -267,7 +267,7 @@ of that type will be emited.
 event.subscribe("user.updated")
 ```
 
-# event.unsubscribe(event_type)
+## event.unsubscribe(event_type)
 
 Stop receiving updates on that event_type topic.
 
@@ -276,7 +276,7 @@ event.unsubscribe("user.updated")
 ```
 
 
-# event.emit(event_type, extra, guards)
+## event.emit(event_type, extra, guards)
 
   * `event_type` -- Type of the event, properly scoped (plugin.type)
   * `extra` -- Extra values required to properly update the status
@@ -301,3 +301,13 @@ event.emit("foo.bar", {"text":"hello world"}, {
 ```
 
 Requires `event.emit` permission.
+
+# Settings
+
+## settings.all()
+
+Returns all settings this user can see
+
+## settings.update(section, data)
+
+Updates one sections data.

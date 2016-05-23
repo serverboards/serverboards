@@ -41,6 +41,11 @@ service.delete -- Deletes services
 
 event.emit -- Allow to emit events
 
+## Settings
+
+settings.view -- View permissions. Specific sections may have more permissions.
+settings.update -- Update permissions.
+
 ## Other
 
 debug -- Debug when in debug mode
