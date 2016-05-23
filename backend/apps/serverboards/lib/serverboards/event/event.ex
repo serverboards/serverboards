@@ -9,32 +9,40 @@ defmodule Serverboards.Event do
   It also do all the required checking to user has access to such messages and
   so on.
   """
-  def setup do
+  def start_link(options) do
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user } } ->
       MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
-        guards = Map.get(payload, :guards, [])
-        user = Serverboards.Auth.User.user_info user.email, user
-        #Logger.debug("Perms: #{inspect user.perms} / #{inspect guards}")
-        if check_guards(guards, user) do
-          try do
-            MOM.RPC.Client.event_to_client(
-              client, payload.type,
-              Serverboards.Utils.clean_struct(payload.data)
-              )
-          rescue
-            e ->
-              Logger.error("Error sending event: #{inspect e}\n#{Exception.format_stacktrace}")
+        subscriptions = MOM.RPC.Client.get client, :subscriptions, []
+        event_type = payload.type
+
+        # only send if in subscriptions.
+        if subscriptions == [] or event_type in subscriptions do
+          guards = Map.get(payload, :guards, [])
+          user = Serverboards.Auth.User.user_info user.email, user
+          #Logger.debug("Perms: #{inspect user.perms} / #{inspect guards}")
+          if check_guards(guards, user) do
+            try do
+              MOM.RPC.Client.event_to_client(
+                client, event_type,
+                Serverboards.Utils.clean_struct(payload.data)
+                )
+            rescue
+              e ->
+                Logger.error("Error sending event: #{inspect e}\n#{Exception.format_stacktrace}")
+            end
+          else
+            Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
           end
-        else
-          Logger.debug("Guard prevented send event #{inspect payload.type} to client. #{inspect guards} #{inspect client}")
         end
+        :ok
       end)
     end)
 
     MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
       Logger.info("Sent #{payload.type} event: #{inspect payload}.")
     end)
-    :ok
+
+    Serverboards.Event.RPC.start_link(options)
   end
 
   @doc ~S"""

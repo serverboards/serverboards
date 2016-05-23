@@ -37,6 +37,10 @@ service.attach -- Attach/detach a service to an existing serverboard
 service.update -- Modifies service configuration
 service.delete -- Deletes services
 
+## Event
+
+event.emit -- Allow to emit events
+
 ## Other
 
 debug -- Debug when in debug mode

@@ -254,6 +254,10 @@ permissions.
 Requires `event.subscribe` permission. Without this permission the
 client can not subscribe to any event type topic.
 
+# event.subscriptions()
+
+Returns a list with all the subscriptions.
+
 # event.subscribe(event_type)
 
 Subscribes to a event_type. All events that this client is allowed to see on

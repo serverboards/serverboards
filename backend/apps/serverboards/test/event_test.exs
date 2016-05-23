@@ -56,4 +56,40 @@ defmodule Serverboards.EventTest do
 
     Test.Client.stop client
   end
+
+  test "Subscribe, list, unsubscribe" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["admin","plugin"])
+    {:ok, ["admin","plugin"]} = Test.Client.call(client, "event.subscriptions", [])
+    {:ok, :ok} = Test.Client.call(client, "event.unsubscribe", ["plugin"])
+    {:ok, ["admin"]} = Test.Client.call(client, "event.subscriptions", [])
+    {:ok, :ok} = Test.Client.call(client, "event.unsubscribe", ["admin"])
+
+    Test.Client.stop client
+  end
+
+
+  test "Receive only subscribed" do
+    alias Test.Client
+    alias Serverboards.Event
+
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Client.call(client, "event.subscribe", ["test"])
+
+    Event.emit("not-test", %{})
+    assert not Client.expect(client, method: "not-test")
+
+    Event.emit("test", %{})
+    assert Client.expect(client, method: "test")
+
+    # unsubscribe, do not receive
+    {:ok, :ok} = Test.Client.call(client, "event.unsubscribe", ["test"])
+    assert not Client.expect(client, method: "test" )
+
+
+    Test.Client.stop client
+  end
+
 end

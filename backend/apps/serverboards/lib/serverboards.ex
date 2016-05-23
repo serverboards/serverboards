@@ -12,6 +12,7 @@ defmodule Serverboards do
 			worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
 			worker(Serverboards.Serverboard, [ [name: Serverboards.Serverboard] ]),
 			worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
+			worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
 		]
 
 		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]
@@ -19,7 +20,6 @@ defmodule Serverboards do
 		# inspect for deadletters and invalid
 		MOM.Tap.tap(:deadletter, "deadletter")
 		MOM.Tap.tap(:invalid, "invalid")
-		Serverboards.Event.setup()
 
 		Supervisor.start_link(children, opts)
 	end
