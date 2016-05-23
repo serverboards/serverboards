@@ -103,34 +103,34 @@ defmodule Serverboards.Auth.RPC do
 
       # subscribe this client to changes on this user
       MOM.Channel.subscribe(:client_events, fn %{ payload: %{ type: type, data: data}} ->
-        Logger.info("Get user from #{inspect client}: #{inspect type}")
-        user = RPC.Client.get client, :user
         cond do
           type in ["group.perm_added", "group.perm_removed"] ->
+            user = RPC.Client.get client, :user
             %{ group: group } = data
             if group in user.groups do
               user = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
-              Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user.email })
+              Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user })
             end
           type in ["group.user_added","group.user_removed"] ->
-            if data.user == user.email do
+            user = RPC.Client.get client, :user
+            if data.email == user.email do
               user = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
-              Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user.email })
+              Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user })
             end
           true ->
             nil
         end
+        :ok
       end)
 
       :ok
     end)
-
 
     {:ok, mc}
   end

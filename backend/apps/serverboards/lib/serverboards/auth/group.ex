@@ -38,7 +38,7 @@ defmodule Serverboards.Auth.Group do
           Repo.insert( %Model.UserGroup{ user_id: user.id, group_id: group.id } )
         ug -> ug
       end
-      Serverboards.Event.emit("group.user_added", %{ group: groupname, name: username}, ["auth.manage_groups"])
+      Serverboards.Event.emit("group.user_added", %{ group: groupname, email: username}, ["auth.manage_groups"])
     end
     EventSourcing.subscribe es, :remove_user_from_group, fn %{ group: group, user: user}, _me ->
       to_delete = Repo.all(
@@ -51,7 +51,7 @@ defmodule Serverboards.Auth.Group do
        select: gu.id
       )
       Repo.delete_all( from gu in Model.UserGroup, where: gu.id in ^to_delete )
-      Serverboards.Event.emit("group.user_removed", %{ group: group, name: user}, ["auth.manage_groups"])
+      Serverboards.Event.emit("group.user_removed", %{ group: group, email: user}, ["auth.manage_groups"])
       :ok
     end
 

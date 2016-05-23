@@ -10,7 +10,7 @@ defmodule Serverboards.Event do
   so on.
   """
   def start_link(options) do
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user } } ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client } } ->
       MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
         subscriptions = MOM.RPC.Client.get client, :subscriptions, []
         event_type = payload.type
@@ -18,8 +18,9 @@ defmodule Serverboards.Event do
         # only send if in subscriptions.
         if event_type in subscriptions do
           guards = Map.get(payload, :guards, [])
-          user = Serverboards.Auth.User.user_info user.email, user
-          #Logger.debug("Perms: #{inspect user.perms} / #{inspect guards}")
+          user = MOM.RPC.Client.get client, :user
+          #user = Serverboards.Auth.User.user_info user.email, user
+          Logger.debug("Perms: #{inspect user} / #{inspect guards}")
           if check_guards(guards, user) do
             try do
               MOM.RPC.Client.event_to_client(
@@ -33,6 +34,8 @@ defmodule Serverboards.Event do
           else
             Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
           end
+        else
+          Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
         end
         :ok
       end)
