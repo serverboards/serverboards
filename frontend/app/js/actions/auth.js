@@ -1,5 +1,6 @@
 import rpc from '../rpc'
 import Flash from '../flash'
+import event from '../utils/event'
 
 export function logout(){
   return {
@@ -7,7 +8,6 @@ export function logout(){
   }
 }
 export function login(params){
-  console.log('params %o', params)
   return function(dispatch){
     dispatch({type:"AUTH_TRY_LOGIN"})
 
@@ -16,6 +16,9 @@ export function login(params){
       .then(function(user){
         if (user){
           Flash.log("Logged in as "+user.email)
+
+          event.subscribe(["user.updated"])
+
           dispatch({type:"AUTH_LOGIN", user: user})
         }
         else{

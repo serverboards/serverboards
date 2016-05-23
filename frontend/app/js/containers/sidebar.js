@@ -1,8 +1,9 @@
 import SidebarView from '../components/sidebar'
-import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
+import event from '../utils/event'
+import {serverboard_update_all} from '../actions/serverboard'
 
-var Sidebar=connect(
+var Sidebar=event.subscribe_connect(
   (state) => {
     //console.log(state)
     return {
@@ -12,7 +13,9 @@ var Sidebar=connect(
   },
   (dispatch) => ({
     onServiceSelect: (shortname) => dispatch( push( `/serverboard/${shortname}/`) )
-  })
+  }),
+  ["serverboard.added", "serverboard.deleted", "serverboard.updated"],
+  [serverboard_update_all]
 )(SidebarView)
 
 export default Sidebar

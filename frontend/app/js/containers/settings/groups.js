@@ -1,12 +1,12 @@
 import GroupsView from '../../components/settings/groups'
-import { connect } from 'react-redux'
+import event from '../../utils/event'
 import {
     group_list, user_list,
     group_update_perms, group_update_users,
     group_add, perm_list
   } from '../../actions/auth'
 
-var Groups = connect(
+var Groups = event.subscribe_connect(
   (state) => ({
     groups : state.auth.groups,
     location: state.routing.locationBeforeTransitions,
@@ -20,7 +20,9 @@ var Groups = connect(
     onUpdateUsers: (g, to_add, to_remove) => dispatch( group_update_users(g, to_add, to_remove) ),
     onAddGroup: (g) => dispatch( group_add(g) ),
     onLoadAllPerms: () => dispatch( perm_list() ),
-  })
+  }),
+  ["group.user_added", "group.user_removed", "group.perm_added", "group.perm_removed", "group.added", "user.updated", "user.added"],
+  [group_list, user_list]
 )(GroupsView)
 
 export default Groups

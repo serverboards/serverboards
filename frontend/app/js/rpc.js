@@ -1,4 +1,5 @@
 import Flash from './flash'
+import event from './utils/event'
 
 /**
  * @short Starts a new RPC connection, with the given options
@@ -68,6 +69,8 @@ var RPC = function(options={}){
           return
         }
         Flash.success("Reconnection succeded.")
+        event.subscribe(["user.updated"])
+
         rpc.store.dispatch({ type: 'AUTH_LOGIN', user })
       })
     }

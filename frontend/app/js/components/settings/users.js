@@ -4,10 +4,6 @@ import AddUser from './user/add'
 import EditUser from './user/edit'
 
 let Users=React.createClass({
-  componentDidMount : function(){
-    if (!this.props.users)
-      this.props.loadUserList()
-  },
   handleOpenAddUser : function(){
     this.setModal('add_user')
   },

@@ -51,7 +51,7 @@ export const auth = (state = default_state , action) => {
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {
         if (g.name == action.group){
-          return Object.assign({}, g, {users: g.users.concat(action.user)})
+          return Object.assign({}, g, {users: g.users.concat(action.email)})
         }
         return g
       })
@@ -61,7 +61,7 @@ export const auth = (state = default_state , action) => {
       state.groups = state.groups.map( (g) => {
         if (g.name == action.group){
           return Object.assign({}, g,
-            { users: g.users.filter( (u) => u!=action.user ) } )
+            { users: g.users.filter( (u) => u!=action.email ) } )
         }
         return g
       })
@@ -91,7 +91,7 @@ export const auth = (state = default_state , action) => {
       )
     break;
     case '@RPC_EVENT/user.added':
-      state.users = sort_users( state.users.concat( action.user ) )
+      state.users = sort_users( state.users.concat( action.email ) )
     break;
     case '@RPC_EVENT/user.updated':
       state.users = state.users.map( (u) => {

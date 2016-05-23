@@ -6,12 +6,6 @@ import AddGroup from './group/add'
 import Table from '../maxtable'
 
 let Groups=React.createClass({
-  componentDidMount: function(){
-    if (!this.props.groups)
-      this.props.loadGroups()
-    if (!this.props.users)
-      this.props.loadUsers()
-  },
   contextTypes: {
     router: React.PropTypes.object
   },
