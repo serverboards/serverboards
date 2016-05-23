@@ -109,6 +109,9 @@ defmodule ServerboardTest do
     #{:ok, json} = JSON.encode(Test.Client.debug client)
     #Logger.info("Debug information: #{json}")
 
+    Test.Client.call(client, "event.subscribe", [
+      "serverboard.added","serverboard.deleted","serverboard.updated"
+      ])
     {:ok, l} = Test.Client.call client, "serverboard.list", []
     Logger.info("Got serverboards: #{inspect l}")
     assert (Enum.count l) >= 0

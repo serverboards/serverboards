@@ -16,7 +16,7 @@ defmodule Serverboards.Event do
         event_type = payload.type
 
         # only send if in subscriptions.
-        if subscriptions == [] or event_type in subscriptions do
+        if event_type in subscriptions do
           guards = Map.get(payload, :guards, [])
           user = Serverboards.Auth.User.user_info user.email, user
           #Logger.debug("Perms: #{inspect user.perms} / #{inspect guards}")
