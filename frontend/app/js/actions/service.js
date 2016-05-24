@@ -46,3 +46,18 @@ export function service_detach(serverboard_shortname, service_uuid){
     })
   }
 }
+
+export function service_add(sbds, service){
+  return function(dispatch){
+    rpc.call("service.add", service).then(function(service_uuid){
+      if (sbds){
+        rpc.call("service.attach",[sbds, service_uuid]).then(function(){
+          Flash.info("Added service and attached to serverboard")
+        })
+      }
+      else{
+        Flash.warning("Added DETACHED service")
+      }
+    })
+  }
+}

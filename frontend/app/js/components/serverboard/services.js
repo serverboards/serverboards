@@ -4,21 +4,25 @@ import Loading from '../loading'
 import AddServiceModal from '../../containers/serverboard/addservice'
 
 let Services=React.createClass({
-  handleAttachService : function(service){
+  handleAttachService(service){
     this.props.onAttachService(this.props.serverboard.shortname, service.uuid)
     this.setModal(false)
   },
-  openAddServiceModal : function(ev){
+  handleAddService(service){
+    this.props.onAddService(this.props.serverboard.shortname, service)
+    this.setModal(false)
+  },
+  openAddServiceModal(ev){
     ev.preventDefault()
     this.setModal('add_service')
   },
-  setModal: function(modal){
+  setModal(modal){
     this.context.router.push( {
       pathname: this.props.location.pathname,
       state: { modal }
     } )
   },
-  closeModal : function(){
+  closeModal(){
     this.setModal(false)
   },
   contextTypes: {
