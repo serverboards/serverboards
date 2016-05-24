@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import CardView from '../../components/service/card'
+import { service_detach } from '../../actions/service'
 
 var Card = connect(
   (state) => {
@@ -9,6 +10,7 @@ var Card = connect(
     }
   },
   (dispatch) => ({
+    onDetach:(sbds, service) => dispatch( service_detach(sbds, service) )
   })
 )(CardView)
 

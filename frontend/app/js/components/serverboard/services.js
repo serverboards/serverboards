@@ -47,13 +47,15 @@ let Services=React.createClass({
         <h1>Services at {props.serverboard.name}</h1>
         <div className="ui cards">
           {props.services.map((p) => (
-            <Card key={p.id} service={p}/>
+            <Card key={p.id} service={p} serverboard={this.props.serverboard}/>
           ))}
         </div>
 
         <a href="#"
             onClick={this.openAddServiceModal}
-            className="ui massive button _add icon floating blue">
+            className="ui massive button _add icon floating blue"
+            title="Add a service"
+            >
           <i className="server icon"></i>
           <i className="corner add icon"></i>
         </a>

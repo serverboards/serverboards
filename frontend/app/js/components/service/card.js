@@ -1,6 +1,7 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
 import ServiceSettings from '../../containers/service/settings'
+import HoldButton from '../holdbutton'
 
 function Field(props){
   return (
@@ -22,8 +23,11 @@ let Card=React.createClass({
     router: React.PropTypes.object
   },
 
-  handleOpenSettings:function(){
+  handleOpenSettings(){
     this.setModal("settings")
+  },
+  handleDetach(){
+    this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
   },
   render(){
     let props=this.props.service
@@ -60,7 +64,7 @@ let Card=React.createClass({
         </div>
         <div className="extra content">
           <div className="ui two buttons">
-            <button className="ui button">Test</button>
+            <HoldButton className="ui red button" onClick={this.handleDetach}>Detach</HoldButton>
             <button className="ui button yellow" onClick={this.handleOpenSettings}>Settings</button>
           </div>
         </div>

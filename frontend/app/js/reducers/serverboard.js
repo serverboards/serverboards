@@ -42,13 +42,20 @@ function serverboard(state=default_state, action){
       }
     case '@RPC_EVENT/service.updated':
       {
-      let current_services = state.current_services.map( s => {
-        if (s.uuid == action.service.uuid){
-          return action.service
-        }
-        return s
-      })
-      return Object.assign({}, state, {current_services})
+        let changed = false
+        let current_services = state.current_services.map( s => {
+          if (s.uuid == action.service.uuid){
+            changed = true
+            if (action.service.serverboards.indexOf(state.current)>=0)
+              return action.service
+            else
+              return undefined
+          }
+          return s
+        }).filter( (s) => s != undefined )
+        if (!changed)
+          current_services.push(action.service)
+        return Object.assign({}, state, {current_services})
       }
   }
   return state

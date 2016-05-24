@@ -30,3 +30,19 @@ export function service_update(uuid, data){
     })
   }
 }
+
+export function service_attach(serverboard_shortname, service_uuid){
+  return function(dispatch){
+    rpc.call("service.attach",[serverboard_shortname, service_uuid]).then(function(){
+      Flash.info("Added service to serverboard")
+    })
+  }
+}
+
+export function service_detach(serverboard_shortname, service_uuid){
+  return function(dispatch){
+    rpc.call("service.detach",[serverboard_shortname, service_uuid]).then(function(){
+      Flash.info("Detached service from serverboard")
+    })
+  }
+}

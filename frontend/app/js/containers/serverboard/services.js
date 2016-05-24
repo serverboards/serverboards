@@ -8,9 +8,9 @@ var Services = event.subscribe_connect(
     location: state.routing.locationBeforeTransitions
   }),
   (dispatch) => ({
-    onAttachService: () => dispatch( serverboard_attach_service() )
+    onAttachService: (a,b) => dispatch( serverboard_attach_service(a,b) ),
   }),
-  ["service.updated"],
+  ["service.updated","serverboards.updated"],
   (props) => [() => (serverboard_reload_services(props.serverboard.shortname))]
 )(ServicesView)
 

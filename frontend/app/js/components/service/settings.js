@@ -1,7 +1,6 @@
 import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
-import HoldButton from '../holdbutton'
 import { setup_fields } from '../service'
 import Loading from '../loading'
 
@@ -33,7 +32,7 @@ let SetupComponent=React.createClass({
       let name = operations.name
       delete operations.name
       this.props.onUpdate( this.props.service.uuid, {
-        name: name, 
+        name: name,
         config: operations
       } )
       this.props.onClose()
@@ -69,7 +68,6 @@ let SetupComponent=React.createClass({
         </div>
         <div className="actions">
           <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>
-          <HoldButton className="ui red button" onClick={props.onDelete}>Delete</HoldButton>
           <button className="ui cancel button" onClick={props.onClose}>Cancel</button>
         </div>
       </Modal>
