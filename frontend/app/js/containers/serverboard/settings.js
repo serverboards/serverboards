@@ -1,7 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import SettingsView from '../../components/serverboard/settings'
-import { serverboard_delete, serverboard_update, serverboard_reload_services, services_update_catalog } from '../../actions/serverboard'
+import { serverboard_delete, serverboard_update, serverboard_reload_services } from '../../actions/serverboard'
+import { services_update_catalog, services_update_all } from '../../actions/service'
 
 var Settings=connect(
   (state) => {

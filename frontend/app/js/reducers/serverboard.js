@@ -27,6 +27,7 @@ function serverboard(state=default_state, action){
     case '@RPC_EVENT/serverboard.deleted':
       return Object.assign({}, state, {serverboards: state.serverboards.filter( s => s.shortname != action.shortname ) } )
     case '@RPC_EVENT/serverboard.updated':
+      {
       let serverboards = state.serverboards.map( s => {
         if (s.shortname == action.shortname){
           return action.serverboard
@@ -38,6 +39,17 @@ function serverboard(state=default_state, action){
         current_services=action.serverboard.services
 
       return Object.assign({}, state, {serverboards, current_services})
+      }
+    case '@RPC_EVENT/service.updated':
+      {
+      let current_services = state.current_services.map( s => {
+        if (s.uuid == action.service.uuid){
+          return action.service
+        }
+        return s
+      })
+      return Object.assign({}, state, {current_services})
+      }
   }
   return state
 }

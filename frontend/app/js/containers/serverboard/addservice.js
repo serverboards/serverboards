@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import AddServiceView from '../../components/serverboard/addservice'
-import { services_update_catalog, services_update_all } from '../../actions/serverboard'
+import { services_update_catalog, services_update_all } from '../../actions/service'
 
 var AddService=connect(
   (state) => {

@@ -16,7 +16,7 @@ export function subscribe(types){
     return rpc.call("event.subscribe", newsubs)
   }
   else{
-    return new Promise("ok") // Fullfilled!
+    return Promise.resolve("ok") // Fullfilled!
   }
 }
 
@@ -32,7 +32,7 @@ export function unsubscribe(types){
     return rpc.call("event.unsubscribe", newunsubs)
   }
   else{
-    return new Promise("ok") // Fullfilled!
+    return Promise.resolve("ok") // Fullfilled!
   }
 }
 
@@ -44,6 +44,13 @@ export function emit(type, args){
   return rpc.call("event.emit", [type, args])
 }
 
+/**
+ * @short Same as react-redux.connect, but also adds subscriptions and updates
+ *
+ * * Subscriptions is a list of subscriptions
+ * * Updates is a list or a function(props) -> list that sets functions
+ *   to call to update state, for example list of services in a serverboard.
+ */
 export function subscribe_connect(state, handlers, subscriptions, updates){
   return function(Component){
     let SubscribedConnect = React.createClass({
@@ -52,8 +59,15 @@ export function subscribe_connect(state, handlers, subscriptions, updates){
       },
       componentDidMount(){
         subscribe(subscriptions)
-        if (updates) // Call all updates
-          updates.map( (u) => this.context.store.dispatch(u()) )
+        if (updates){ // Call all updates
+          let updates_list
+          if (typeof updates == "function")
+            updates_list=updates(this.props)
+          else
+            updates_list=updates
+
+          updates_list.map( (u) => this.context.store.dispatch(u()) )
+        }
       },
       componentWillUnmount(){
         unsubscribe(subscriptions)

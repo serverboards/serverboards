@@ -6,7 +6,7 @@ function DashBoard(props){
     <div>
       <Sidebar/>
       <a href="#/serverboard/add" className="ui massive button _add icon floating violet">
-        <i className="server icon"></i>
+        <i className="signal icon"></i>
         <i className="corner add icon"></i>
       </a>
     </div>

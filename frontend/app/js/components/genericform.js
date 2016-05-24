@@ -44,7 +44,7 @@ let GenericField=React.createClass({
           <input type="password"
             name={props.name}
             placeholder={props.placeholder || props.description}
-            value={this.state.value} 
+            value={this.state.value}
             onChange={this.handleChange}/>
           </div>
         )
@@ -85,7 +85,7 @@ let GenericForm=React.createClass({
       )
     }
     return (
-      <form ref="form" className="ui form" onSubmit={self.props.onSubmit}>
+      <form ref="form" className="ui form" onSubmit={(ev) => { ev.preventDefault(); self.props.onSubmit(ev) }}>
         {this.props.fields.map((f) => generic_field(f)) }
         {this.props.children}
       </form>
