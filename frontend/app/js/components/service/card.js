@@ -55,6 +55,7 @@ let Card=React.createClass({
         <div className="content">
           <div className="right floated"><LogoIcon name={props.name}/></div>
           <div className="header">{props.name}</div>
+          <div className="meta">{(props.serverboards || []).join(' ')}</div>
           <div className="description">{props.description || "No description yet"}</div>
           <ul>
           {(Object.keys(props.config || {})).map((k) => (
