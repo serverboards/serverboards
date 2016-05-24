@@ -229,4 +229,23 @@ defmodule ServerboardTest do
 
     serverboard_delete "SBDS-TST10", user
   end
+
+  test "Service info has serverboards", %{ system: user } do
+    import Serverboards.Serverboard
+    import Serverboards.Service
+
+    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", user)
+
+    serverboard_add "SBDS-TST11", %{ "name" => "Test 1", "services" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user
+    {:ok, uuid} = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "email" }, user
+
+    {:ok, service} = service_info uuid, user
+    assert not "SBDS-TST11" in service.serverboards
+
+    service_attach "SBDS-TST11", uuid, user
+    {:ok, service} = service_info uuid, user
+    assert "SBDS-TST11" in service.serverboards
+
+    serverboard_delete "SBDS-TST11", user
+  end
 end

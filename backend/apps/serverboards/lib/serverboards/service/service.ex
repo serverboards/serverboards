@@ -45,7 +45,7 @@ defmodule Serverboards.Service do
     end
   end
 
-  defp service_update_real( uuid, operations, _me) do
+  defp service_update_real( uuid, operations, me) do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
@@ -68,6 +68,10 @@ defmodule Serverboards.Service do
       {:ok, upd} = Repo.update( ServiceModel.changeset(
       service, operations
       ) )
+
+      {:ok, service} = service_info upd.uuid, me
+      Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
+
       :ok
     else
       {:error, :not_found}
@@ -175,13 +179,16 @@ defmodule Serverboards.Service do
         else
           Logger.warn("Trying to attach invalid serverboard or service (#{serverboard} (#{inspect serverboard_obj}), #{service} (#{inspect service_obj}))")
         end
+
+        {:ok, service} = service_info service_obj.uuid, me
+        Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
       _ ->  #  already in
         nil
     end
     :ok
   end
 
-  defp service_detach_real(serverboard, service, _me ) do
+  defp service_detach_real(serverboard, service, me ) do
     import Ecto.Query
 
     to_remove = Repo.all(
@@ -196,6 +203,8 @@ defmodule Serverboards.Service do
       from sc_ in ServerboardServiceModel,
       where: sc_.id in ^to_remove )
 
+    {:ok, service} = service_info service, me
+    Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
     :ok
   end
 
@@ -355,7 +364,7 @@ defmodule Serverboards.Service do
   end
 
   @doc ~S"""
-  Attaches existing services from a serverboard
+  Detaches existing services from a serverboard
 
   ## Example
 
@@ -380,13 +389,28 @@ defmodule Serverboards.Service do
     :ok
   end
 
-  def service_info(service, me) do
+  @doc ~S"""
+  Returns info about a given service, including tags, name, config and serverboards
+  it is in.
+  """
+  def service_info(service, _me) do
     import Ecto.Query
 
     case Repo.one( from c in ServiceModel, where: c.uuid == ^service, preload: :tags ) do
       nil -> {:error, :not_found}
       service ->
-        {:ok, %{ service | tags: Enum.map(service.tags, &(&1.name)) } }
+        import Ecto.Query
+        service = service
+          |> Map.put(:tags, Enum.map(service.tags, &(&1.name)) )
+          |> Map.put(:serverboards, Repo.all(
+            from s in ServerboardModel,
+            join: ss in ServerboardServiceModel,
+              on: ss.serverboard_id == s.id,
+           where: ss.service_id == ^service.id,
+          select: s.shortname
+          ) )
+
+        {:ok, service }
     end
   end
 
@@ -398,6 +422,7 @@ defmodule Serverboards.Service do
         "name" -> :name
         "priority" -> :priority
         "tags" -> :tags
+        "config" -> :config
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise Exception, "Unknown operation updating service #{service}: #{inspect e}. Failing."
