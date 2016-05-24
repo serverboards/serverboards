@@ -338,7 +338,17 @@ defmodule Serverboards.Service do
         ServiceModel
       end
     #Logger.info("#{inspect filter} #{inspect query}")
-    Repo.all(query)
+    Repo.all(query) |> Enum.map(fn service ->
+      service
+        |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
+        |> Map.put(:serverboards, Repo.all(
+          from s in ServerboardModel,
+          join: ss in ServerboardServiceModel,
+            on: ss.serverboard_id == s.id,
+         where: ss.service_id == ^service.id,
+        select: s.shortname
+        ) )
+    end)
   end
 
   @doc ~S"""
