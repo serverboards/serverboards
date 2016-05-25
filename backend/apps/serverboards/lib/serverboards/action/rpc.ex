@@ -18,10 +18,18 @@ defmodule Serverboards.Action.RPC do
 
     add_method mc, "action.filter", fn q, context ->
       user = RPC.Context.get context, :user
-      q = Map.to_list(q)
-      list = Serverboards.Action.filter q, user
+      q = Map.to_list(q) |> Enum.map( fn
+        {"trait", v} -> {:trait, v}
+        {:trait, v} -> {:trait, v}
+      end)
+      list = Serverboards.Utils.clean_struct Serverboards.Action.filter q, user
       {:ok, list}
     end, [required_perm: "action.trigger", context: true]
+
+    add_method mc, "action.ps", fn [], context ->
+      user = RPC.Context.get context, :user
+      Serverboards.Utils.clean_struct Serverboards.Action.ps user
+    end, [required_perm: "action.watch", context: true]
 
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
       to_serverboards = (RPC.Client.get client, :to_serverboards)

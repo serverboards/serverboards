@@ -50,7 +50,7 @@ defmodule Serverboards.Action do
 
     task = Task.start_link(fn ->
       Agent.update(Serverboards.Action, fn actions ->
-        Map.put(actions, uuid, self)
+        Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
       end)
       Event.emit("action.started", %{uuid: uuid, name: action.name, id: action_id}, ["action.watch"] )
       command_id = "#{action.plugin.id}/#{action.extra["command"]}"
@@ -65,5 +65,35 @@ defmodule Serverboards.Action do
     end)
 
     {:ok, uuid}
+  end
+
+  @doc ~S"""
+  Returns a list of currently running actions
+
+    iex> user = Serverboards.Test.User.system
+    iex> list = ps(user)
+    iex> Enum.count list
+    0
+    iex> {:ok, _uuid} = trigger("serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 1 }, user)
+    iex> :timer.sleep 200
+    iex> list = ps(user)
+    iex> Enum.count list
+    1
+
+  """
+  def ps(_user) do
+    Agent.get(Serverboards.Action, &(&1))
+      |> Enum.map( fn {uuid, %{ action: action_id, params: params } } ->
+        component = Plugin.Registry.find(action_id)
+        %{
+          id: "#{component.plugin.id}/#{component.id}",
+          name: component.name,
+          plugin: component.plugin.id,
+          params: component.extra["call"]["params"] |> Enum.map( fn param ->
+            Map.put(param, :value, params[param["name"]])
+          end),
+          returns: component.extra["returns"]
+        }
+      end )
   end
 end
