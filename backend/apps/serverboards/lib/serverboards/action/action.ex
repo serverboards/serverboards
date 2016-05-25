@@ -21,24 +21,24 @@ defmodule Serverboards.Action do
 
   ## Example
 
-    iex> Enum.count filter(trait: "test")
+    iex> user = Serverboards.Test.User.system
+    iex> Enum.count filter([trait: "test"], user)
     1
-    iex> [%{id: action_id} | _rest ] = filter(trait: "test")
-    iex> require Logger
-    iex> Logger.info("test: #{inspect filter(trait: "test")}")
+    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
     iex> action_id
     "serverboards.test.auth/action"
 
   """
-  def filter(q) do
+  def filter(q, _user) do
     Plugin.Registry.filter_component([type: "action"] ++ q)
   end
 
   @doc ~S"""
   Excutes an action
 
-    iex> [%{id: action_id} | _rest ] = filter(trait: "test")
-    iex> {:ok, uuid} = trigger(action_id, %{ url: "https://serverboards.io" }, %{ email: "system" })
+    iex> user = Serverboards.Test.User.system
+    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
+    iex> {:ok, uuid} = trigger(action_id, %{ url: "https://serverboards.io" }, user)
     iex> String.length uuid
     36
 
