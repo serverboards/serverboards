@@ -71,7 +71,7 @@ defmodule Serverboards.Plugin.Registry do
             end)
           end)
           |> map(fn c ->
-            %Component{ c | plugin: p}
+            %Component{ c | plugin: p.id, id: "#{p.id}/#{c.id}"}
           end)
       end)
     #Logger.debug("Filter #{inspect q }: #{inspect components}")

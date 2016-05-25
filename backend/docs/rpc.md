@@ -311,3 +311,18 @@ Returns all settings this user can see
 ## settings.update(section, data)
 
 Updates one sections data.
+
+# Action
+
+## action.trigger(action_id, params)
+
+Manually executes an action.
+
+Returns an UUID that can be used for action watching.
+
+Example:
+
+```js
+action.trigger("core.actions/ping", { ip: "192.168.1.1" })
+// "8f3e8f70-acf4-4b2d-b929-ec8efed82c26"
+```

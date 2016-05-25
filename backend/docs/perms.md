@@ -41,6 +41,11 @@ service.delete -- Deletes services
 
 event.emit -- Allow to emit events
 
+## Action
+
+action.trigger -- Can start triggers. 
+action.watch   -- Can be notified when actions start/stop.
+
 ## Settings
 
 settings.view -- View permissions. Specific sections may have more permissions.

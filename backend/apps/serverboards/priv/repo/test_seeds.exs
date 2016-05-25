@@ -19,8 +19,8 @@ all_perms = [
     "service.delete", "service.info",
     "service.attach",
     "debug",
-    "settings.view",
-    "settings.update"
+    "settings.view", "settings.update",
+    "action.trigger", "action.watch"
   ]
 
 data = [

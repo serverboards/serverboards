@@ -34,3 +34,17 @@ components:
         label: Test if passwords can be recovered
         type: password
         placeholder: "********"
+
+  - name: Test action
+    type: action
+    id: action
+    command: fake
+    call:
+      method: http_get
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits: test

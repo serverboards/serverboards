@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-import serverboards, sys
+import serverboards, sys, time
 
 @serverboards.rpc_method
 def auth(type="fake", token=None):
@@ -21,6 +21,13 @@ def abort(*args):
 def bad_protocol(*args):
     sys.stdout.write("Invalid message\n")
     return True
+
+@serverboards.rpc_method
+def http_get(url=None):
+    sys.stderr.write("Faking Get\n")
+    time.sleep(0.100)
+    return { "body": "404 - not found", "response_code": 404, "time": 20 }
+
 
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop(debug=sys.stderr)

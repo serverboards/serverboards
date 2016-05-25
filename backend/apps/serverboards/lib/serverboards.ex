@@ -14,6 +14,7 @@ defmodule Serverboards do
 			worker(Serverboards.Serverboard, [ [name: Serverboards.Serverboard] ]),
 			worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
 			worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
+			worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
 		]
 
 		opts = [strategy: :one_for_one, name: Serverboards.Supervisor]
