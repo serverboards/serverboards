@@ -5,13 +5,14 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { hashHistory } from 'react-router'
 import { routerMiddleware } from 'react-router-redux'
 
-var redux_extra
+var redux_extra=f => f
 
 if (__DEV__){
   console.warn("Running in DEBUG mode")
 
   redux_extra=window.devToolsExtension ? window.devToolsExtension() : f => f
 }
+console.log(redux_extra)
 
 let store = createStore(
   redux_reducers, {},
@@ -20,6 +21,8 @@ let store = createStore(
     redux_extra
   )
 )
+
+console.log(store)
 
 function get_value(what){
   function get_value_r(whatl, state){

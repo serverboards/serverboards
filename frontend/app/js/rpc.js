@@ -162,7 +162,8 @@ var RPC = function(options={}){
       delete pending_calls[id]
     }
     else if (jmsg['method']){
-      rpc.store.dispatch( Object.assign({type: `@RPC_EVENT/${jmsg.method}`}, jmsg['params']) )
+      if (rpc.store)
+        rpc.store.dispatch( Object.assign({type: `@RPC_EVENT/${jmsg.method}`}, jmsg['params']) )
       console.log("Event: %o %o", jmsg.method, jmsg)
     }
   }
