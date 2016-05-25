@@ -314,6 +314,15 @@ Updates one sections data.
 
 # Action
 
+## action.filter(filter_q)
+
+Returns actions that fit that query
+
+```js
+action.filter({trait: ip})
+/// {}
+```
+
 ## action.trigger(action_id, params)
 
 Manually executes an action.
@@ -326,3 +335,7 @@ Example:
 action.trigger("core.actions/ping", { ip: "192.168.1.1" })
 // "8f3e8f70-acf4-4b2d-b929-ec8efed82c26"
 ```
+
+## action.ps()
+
+Lists all running processes with running info.

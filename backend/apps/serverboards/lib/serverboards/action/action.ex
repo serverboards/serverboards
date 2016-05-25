@@ -44,7 +44,7 @@ defmodule Serverboards.Action do
 
   """
   def trigger(action_id, params, user) do
-    Logger.info("Trigger action #{action_id} by #{inspect user}")
+    Logger.info("Trigger action #{action_id} by #{inspect user.email}")
     action = Plugin.Registry.find(action_id)
     uuid = UUID.uuid4
 
@@ -85,14 +85,16 @@ defmodule Serverboards.Action do
     Agent.get(Serverboards.Action, &(&1))
       |> Enum.map( fn {uuid, %{ action: action_id, params: params } } ->
         component = Plugin.Registry.find(action_id)
+        #Logger.debug("ps: #{inspect component}/#{inspect action_id}")
         %{
-          id: "#{component.plugin.id}/#{component.id}",
+          id: action_id,
           name: component.name,
           plugin: component.plugin.id,
           params: component.extra["call"]["params"] |> Enum.map( fn param ->
             Map.put(param, :value, params[param["name"]])
           end),
-          returns: component.extra["returns"]
+          returns: component.extra["call"]["returns"],
+          uuid: uuid
         }
       end )
   end
