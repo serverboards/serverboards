@@ -3,6 +3,8 @@ import LogoIcon from '../logoicon'
 import ServiceSettings from '../../containers/service/settings'
 import HoldButton from '../holdbutton'
 
+require("../../../sass/service/card.sass")
+
 function Field(props){
   return (
     <li>{props.name}: <b>{props.value}</b></li>
@@ -10,6 +12,14 @@ function Field(props){
 }
 
 let Card=React.createClass({
+  componentDidMount(){
+    $(this.refs.dropdown)
+      .dropdown({
+        // you can use any ui transition
+        transition: 'fade up'
+      })
+    ;
+  },
   setModal(modal){
     this.context.router.push( {
       pathname: this.props.location.pathname,
@@ -51,7 +61,7 @@ let Card=React.createClass({
     }
 
     return (
-      <div className="card">
+      <div className="service card">
         <div className="content">
           <div className="right floated"><LogoIcon name={props.name}/></div>
           <div className="header">{props.name}</div>
@@ -64,9 +74,15 @@ let Card=React.createClass({
           </ul>
         </div>
         <div className="extra content">
-          <div className="ui two buttons">
-            <HoldButton className="ui red button" onClick={this.handleDetach}>Detach</HoldButton>
-            <button className="ui button yellow" onClick={this.handleOpenSettings}>Settings</button>
+          <div className="ui text menu">
+            <div ref="dropdown" className="ui dropdown right item button">
+              Options
+              <i className="ui dropdown icon"/>
+              <div className="menu">
+                <HoldButton className="ui item" onClick={this.handleDetach}>Hold to Detach</HoldButton>
+                <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
+              </div>
+            </div>
           </div>
         </div>
         {popup}
