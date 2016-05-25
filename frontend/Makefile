@@ -3,7 +3,7 @@ all: setup compile
 compile: dist/
 
 dist/: app/* app/*/* *.js
-	NODE_ENV=production node_modules/.bin/webpack --progress --colors --display-error-detailsnode_modules/.bin/webpack --progress --colors --display-error-details
+	NODE_ENV=production node_modules/.bin/webpack -p --progress
 
 app/css/semantic.min.css: semantic/dist/semantic.min.css
 	mkdir -p dist/css

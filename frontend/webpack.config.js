@@ -10,18 +10,25 @@ var HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
 });
 
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var __DEV__ = process.env.NODE_ENV !== 'production'
+console.log("Building for %s", __DEV__ ? "development" : "production")
+
+var entry=[]
+if (__DEV__)
+  entry=[
+    'webpack/hot/only-dev-server',
+    'webpack-dev-server/client?http://localhost:3000'
+  ]
 
 module.exports = {
     entry: [
-      'webpack/hot/only-dev-server',
-      'webpack-dev-server/client?http://localhost:3000',
       "./app/js/app.js"
-    ],
+    ].concat(entry),
     output: {
         path: __dirname + '/dist/',
         filename: "js/serverboards-[hash].js"
     },
-    devtool: "source-map",
+    devtool: __DEV__ ? "source-map" : "cheap-module-source-map",
     module: {
         loaders: [
             //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
@@ -45,7 +52,12 @@ module.exports = {
         {from:'app/js/semantic.min.js', to:'js'},
       ]),
       new webpack.DefinePlugin({
-        __DEV__: JSON.stringify(process.env.NODE_ENV !== 'production')
+        __DEV__: JSON.stringify(__DEV__)
+      }),
+      new webpack.DefinePlugin({
+        'process.env': {
+          'NODE_ENV': JSON.stringify("production")
+        }
       })
     ],
     sassLoader: {
