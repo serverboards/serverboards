@@ -1,0 +1,40 @@
+id: serverboards.core.actions
+name: Core actions
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Various core actions.
+
+components:
+  - name: Ping server
+    id: ping
+    type: action
+    command: serverboards.core.actions/cmd
+    call:
+      method: ping
+      params:
+        - name: ip
+          label: Remote IP address or DNS name
+          type: text
+      returns: ms
+    traits: ip url
+
+  - name: Webhook call
+    id: webhook.call
+    type: action
+    command: serverboards.core.actions/cmd
+    call:
+      method: http_get
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits: url
+
+  - name: Core actions.
+    type: cmd
+    id: cmd
+    timeout: 1000
+    command: core.py
