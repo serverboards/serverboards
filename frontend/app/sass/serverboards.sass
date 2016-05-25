@@ -56,6 +56,7 @@ div.ui.main
       flex-grow: 1
       padding-top: 20px
       overflow: auto
+      padding-bottom: 80px
 
   .ui.vertical.menu.sidebar
     height: calc( 100vh - 47px ) !important
@@ -111,6 +112,7 @@ div.ui.main
   padding-left: 24px
   font-size: 30px
   color: white !important
+  z-index: 20
 
   .corner.icon
     font-size: 20px
@@ -128,3 +130,20 @@ div.ui.main
   .description
     color: #888
     margin: 1em 0
+
+.ui.fixed.bottom
+  position: fixed
+  bottom: 0
+  padding: 20px
+  background: white
+  z-index: 10
+  border-top: 1px solid rgba(0,0,0,.05)!important
+
+.ui.text.container .ui.fixed.bottom
+  width: 700px
+  margin-left: -2px
+
+.ui.header.link
+  color: #4093C6
+  &:hover
+    color: lighten(#4093C6, 20.1)

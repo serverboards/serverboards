@@ -1,60 +1,8 @@
 import React from 'react'
-import LogoIcon from '../logoicon'
-import AddComponentModal from '../../containers/serverboard/addservice'
-import SetupComponentModal from './setupservice'
-import {to_map, map_drop} from '../../utils'
 import HoldButton from '../holdbutton'
-
-function Component(props){
-  let name = props.fields[0].value || props.name || 'Unknown'
-  return (
-    <div>
-      <LogoIcon name={name}/>
-      {name}
-    </div>
-  )
-}
-
-function default_service_fields(name){
-  return [
-    {
-      label: 'Name',
-      name: 'name',
-      type: 'text',
-      description: 'Component name as shown in UI',
-      value: name,
-      validation: 'empty'
-    }, {
-      label: 'Description',
-      name: 'description',
-      type: 'textarea',
-      description: 'Comments about this service'
-    },
-  ]
-}
-
-// Two services refer to the same, used for replacing and deleting
-function service_same(c1, c2){
-  return (
-    (c1.id && c1.id == c2.id)
-    ||
-    (c1.uuid == c2.uuid)
-  )
-}
+import Link from '../../router'
 
 var Settings=React.createClass({
-  getInitialState : function(){
-    let serverboard=this.props.serverboard || {}
-    return {
-      show_dialog: false,
-      services: this.props.initial_services || [],
-      maxid: 1,
-      current_service: undefined,
-    }
-  },
-  change : function(what, ev){
-    this.setState({ [what]: ev.target.value })
-  },
   handleSubmit : function(ev){
     ev.preventDefault()
 
@@ -63,85 +11,14 @@ var Settings=React.createClass({
     if ($form.form('validate form')){
       let fields=$form.form('get values')
 
-      let services = this.state.services.map( (c) => {
-        let config =  to_map( c.fields.map( (f) => [f.name, f.value] ) )
-        return {
-          uuid: c.uuid,
-          name: config.name, description: config.description,
-          tags: config.tags || [], type: c.type,
-          config: map_drop(config, ["name", "description", "tags"])
-        }
-      })
-
       let serverboard = {
         name: fields.name,
         shortname: fields.shortname,
         tags: fields.tags.split(' '),
         description: fields.description,
-        services: services
       }
       this.props.onSubmit( serverboard )
     }
-  },
-  openAddComponentModal : function(ev){
-    ev.preventDefault()
-    this.setModal('add_service')
-  },
-  setModal: function(modal){
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: {modal }
-    } )
-  },
-  handleAddComponent : function(current_service){
-    current_service.id=this.state.maxid+1
-    this.setState({
-      services: this.state.services.concat(current_service),
-      maxid: current_service.id
-    })
-
-    this.setModal('setup_service')
-    this.setState({ current_service })
-  },
-  handleAttachComponent : function( service ){
-    this.setState({
-      services: this.state.services.concat(service),
-      current_service: undefined
-    })
-
-    this.setModal(false)
-  },
-  closeModal : function(service_id){
-    this.setModal(false)
-  },
-  handleUpdateComponent : function(service){
-    let services = this.state.services.map(
-      (c) => service_same(c, service) ? service : c
-    )
-    console.log(this.state.services, services)
-
-    this.setState({ services })
-    this.setModal(false)
-  },
-  handleOpenUpdateComponent : function(current_service, ev){
-    ev && ev.preventDefault()
-
-    this.setModal('setup_service')
-    this.setState({ current_service })
-  },
-  handleDeleteComponent : function(ev){
-    ev && ev.preventDefault()
-    let service=this.state.current_service
-    if (service)
-      this.setState({
-        services: this.state.services.filter(
-          (c) => !service_same( c, service )
-        )
-      })
-    this.setModal(false)
-  },
-  contextTypes: {
-    router: React.PropTypes.object
   },
   componentDidMount : function(){
     $(this.refs.form).form({
@@ -154,38 +31,6 @@ var Settings=React.createClass({
   },
   render : function(){
     let props=this.props
-    let self=this
-
-    function WrappedComponent(c){
-      return (
-        <div key={c.id || c.uuid} className="column center aligned">
-          <a href="#" onClick={(ev) => self.handleOpenUpdateComponent(c, ev)}>
-            {Component(c)}
-          </a>
-        </div>
-      )
-    }
-    let popup=[]
-    switch(this.props.location.state && this.props.location.state.modal){
-      case 'add_service':
-        popup=(
-          <AddComponentModal
-            onAdd={this.handleAddComponent}
-            onAttach={this.handleAttachComponent}
-            onClose={this.closeModal}/>
-        )
-        break;
-      case 'setup_service':
-        if (this.state.current_service)
-          popup=(
-            <SetupComponentModal
-              onUpdate={this.handleUpdateComponent}
-              onClose={this.closeModal}
-              onDelete={this.handleDeleteComponent}
-              service={this.state.current_service}/>
-          )
-        break;
-    }
 
     let accept_buttons=[]
     if (!props.edit){
@@ -241,30 +86,20 @@ var Settings=React.createClass({
                 />
             </div>
 
-            <div className="field">
-              <label>Components</label>
-              <div className="ui stackable grid" style={{ marginTop: 10 }}>
-                <div className="fourteen wide column">
-                  <div className="ui five column grid">
-                    {state.services.map((c) => WrappedComponent(c) )}
-                  </div>
-                </div>
-                <div className="one wide column">
-                  <a href="#" onClick={this.openAddComponentModal}>
-                    <LogoIcon name="+" color="grey"/>
-                  </a>
-                </div>
-              </div>
-            </div>
-
             {accept_buttons}
           </form>
+
+          <div className="ui fixed bottom">
+            <a href={`#/serverboard/${props.serverboard.shortname}/services`}
+            className="ui header medium link">
+            Configure services for this serverboard &gt;
+            </a>
+          </div>
         </div>
-        {popup}
+
       </div>
     )
   }
 })
 
 export default Settings
-export {default_service_fields}
