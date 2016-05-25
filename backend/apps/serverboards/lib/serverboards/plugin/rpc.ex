@@ -36,7 +36,10 @@ defmodule Serverboards.Plugin.RPC do
         true
     end, [required_perm: "plugin", context: true]
 
-    RPC.MethodCaller.add_method method_caller, "plugin.list", fn [] ->
+    RPC.MethodCaller.add_method method_caller, "plugin.list", fn
+      [] ->
+        Serverboards.Plugin.Registry.list
+      %{} ->
         Serverboards.Plugin.Registry.list
     end, [required_perm: "plugin"]
     # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
