@@ -71,7 +71,7 @@ defmodule Serverboards.Settings do
       # Foe each component and field, gets stored values and put them at "value"
       Serverboards.Plugin.Registry.filter_component(type: "settings")
         |> Enum.map(fn settings ->
-          id = settings.plugin.id <> "/" <> settings.id
+          id = settings.id
           fields = settings.extra["fields"]
           values = Map.get(all_values, id, %{})
           fields = Enum.map(fields, fn f ->

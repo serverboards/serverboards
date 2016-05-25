@@ -35,7 +35,13 @@ defmodule Serverboards.Plugin.Component do
     if cmd == "" or cmd == nil do
       {:error, :invalid_component}
     else
-      fullcmd = "#{component.plugin.path}/#{cmd}"
+      plugin = case component.plugin do
+        %Serverboards.Plugin{} = plugin ->
+          plugin
+        plugin_id when is_binary(plugin_id) ->
+          Serverboards.Plugin.Registry.find(component.plugin)
+      end
+      fullcmd = "#{plugin.path}/#{cmd}"
       Logger.info("Running command #{fullcmd}")
       Cmd.start_link fullcmd
     end

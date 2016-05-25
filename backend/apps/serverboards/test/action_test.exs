@@ -3,7 +3,7 @@ require Logger
 defmodule Serverboards.ActionTest do
   use ExUnit.Case
 	alias Test.Client
-	#@moduletag :capture_log
+	@moduletag :capture_log
 
   doctest Serverboards.Action, import: true
 

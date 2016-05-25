@@ -454,7 +454,7 @@ defmodule Serverboards.Service do
       |> Enum.map(fn service ->
         c = %{
           name: service.name,
-          type: service.plugin.id <> "/" <> service.id,
+          type: service.id,
           fields: service.extra["fields"]
          }
       end)

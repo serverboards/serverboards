@@ -33,13 +33,13 @@ defmodule Serverboards.Plugin.Registry do
 
     iex> [auth] = filter_component id: "fake"
     iex> auth.id
-    "fake"
+    "serverboards.test.auth/fake"
     iex> [auth] = filter_component trait: "auth"
     iex> auth.id
-    "fake"
+    "serverboards.test.auth/fake"
     iex> [auth] = filter_component trait: "auth", id: "fake"
     iex> auth.id
-    "fake"
+    "serverboards.test.auth/fake"
     iex> filter_component trait: "XXX"
     []
 
@@ -57,7 +57,7 @@ defmodule Serverboards.Plugin.Registry do
       flat_map(fn p -> # maps plugins to list of components that fit, or []
         p.components
           |> filter(fn c ->
-            #Logger.debug("Check component #{inspect q }: #{inspect c} // #{inspect Map.take(c, fields)}")
+            #Logger.debug("Check component #{inspect q }: #{inspect c}")
 
             all? (for {k,v} <- q do
               case k do
@@ -71,7 +71,7 @@ defmodule Serverboards.Plugin.Registry do
             end)
           end)
           |> map(fn c ->
-            %Component{ c | plugin: p.id, id: "#{p.id}/#{c.id}"}
+            %Component{ c | plugin: p.id, id: "#{p.id}/#{c.id}" }
           end)
       end)
     #Logger.debug("Filter #{inspect q }: #{inspect components}")
@@ -84,7 +84,7 @@ defmodule Serverboards.Plugin.Registry do
   end
 
   @doc ~S"""
-  Looks for a specific component.
+  Looks for a specific component or plugin.
 
   ## Example
 
@@ -106,6 +106,12 @@ defmodule Serverboards.Plugin.Registry do
     iex> find("serverboards.test.authx/fake")
     nil
 
+  Look for plugin
+
+    iex> plugin = find("serverboards.test.auth")
+    iex> (Enum.count plugin.components) > 0
+    true
+
   """
   def find(registry, id) do
     alias Serverboards.Plugin
@@ -113,7 +119,13 @@ defmodule Serverboards.Plugin.Registry do
     # on the form .*/.*
     case Regex.run(~r"^([^/]+)/([^/]+)$", id ) do
       nil ->
-        nil
+        case Regex.run(~r"^[^/]+$", id ) do
+          nil ->
+            nil
+          [plugin_id] ->
+            plugins = Agent.get registry, &(&1)
+            Enum.find(plugins, &(&1.id == plugin_id) )
+        end
       [_, plugin_id, component_id] ->
         plugins = Agent.get registry, &(&1)
 
