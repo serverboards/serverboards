@@ -63,6 +63,14 @@ let Card=React.createClass({
     return true;
   },
 
+  triggerAction(action_id){
+    console.log(action_id)
+    Flash.info(`Starting action ${action_id}`)
+    rpc.call("action.trigger",
+      [action_id, this.props.service.config]).then(function(){
+      })
+  },
+
   handleOpenSettings(){
     this.setModal("settings")
   },
