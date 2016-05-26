@@ -110,9 +110,9 @@ class Client:
     >>> client.call('!version') # event call
 
     """
-    def __init__(self):
+    def __init__(self, iostream):
         self.maxid=1
-        self.connect()
+        self.iostream=iostream
 
     @staticmethod
     def printc(*a, **b):
@@ -120,11 +120,6 @@ class Client:
         Allow to monkey patch printc for testing. Just calls printc.
         """
         printc(*a, **b)
-
-    def connect(self, server="localhost", port="4040"):
-        import socket
-        self.socket = socket.create_connection((server, port))
-        self.socket.setblocking(False)
 
     def send_command(self, cmd):
         if cmd['method'][0]!='!': # ! marks event
@@ -135,11 +130,11 @@ class Client:
 
         #Client.printc(json.dumps(cmd), color="grey")
 
-        self.socket.send( bytearray(json.dumps(cmd)+'\n','utf8') )
+        self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
         return cmd
 
     def wait_for_response(self, id=None, timeout=1.0):
-        while select.select([self.socket],[],[], timeout):
+        while select.select([self.iostream],[],[], timeout)[0]:
             response = self.get_response()
             if not response:
                 return None
@@ -151,7 +146,7 @@ class Client:
 
     def get_response(self):
         try:
-            nl = self.socket.recv(1024*1024).decode('utf8')
+            nl = self.iostream.recv(1024*1024).decode('utf8')
         except BlockingIOError:
             return None
         if len(nl)==0:
@@ -171,11 +166,13 @@ class Client:
         return res
 
     def parse_file(self, filename):
+        ret=[]
         for l in open(filename):
             try:
-                self.call(l)
+                ret.append( self.call(l) )
             except Exception:
                 pass
+        return ret
 
 class Completer:
     """
@@ -231,39 +228,99 @@ class Completer:
         print(line_buffer, end="")
         sys.stdout.flush()
 
+def cli_loop(client):
+    while True:
+        try:
+            line = input('> ')
+            if line:
+                res = client.call( line )
+                if not res:
+                    pass
+                elif 'result' in res:
+                    Client.printc(json.dumps(res['result'], indent=2), color="blue")
+                elif 'error' in res:
+                    Client.printc('*** '+str(res['error']), color="red")
+                elif 'method' in res:
+                    Client.printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
+                else:
+                    Client.printc("??? "+str(res), color="red")
+            else:
+                client.wait_for_response(timeout=0.1)
+        except EOFError:
+            return
+        except:
+            import traceback
+            traceback.print_exc()
+            Client.printc("Continuing", color="red", hl=True)
+
+class CmdStream:
+    def __init__(self, command):
+        import subprocess, fcntl
+        self.process=subprocess.Popen(
+            command,
+            bufsize=1, # line buffered
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            )
+        fd = self.process.stdout.fileno()
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+
+    def recv(self, buffersize):
+        return self.process.stdout.readline()
+
+    def send(self, msg):
+        ret=self.process.stdin.write(msg)
+        self.process.stdin.flush()
+        return ret
+
+    def fileno(self):
+        """
+        File no to `select` on read.
+        """
+        return self.process.stdout.fileno()
+
+
 if __name__=='__main__':  # pragma: no cover
     def main():
-        client = Client()
+        import argparse
+        parser = argparse.ArgumentParser(description='Connect to Serverboards CORE or a command line plugin.')
+        parser.add_argument('infiles', metavar='FILENAMES', type=str, nargs='*',
+            help='file to be parsed')
+        parser.add_argument('--command', type=str,
+            help='Executes this command as a JSON-PC endpoint. To ease plugin debugging.')
+
+        args = parser.parse_args()
+
+        client=None
+        if args.command:
+            print("Run external command %s"%args.command)
+            cmdstream=CmdStream(args.command)
+            client = Client(iostream=cmdstream)
+        else:
+            import socket
+            s = socket.create_connection(("localhost", "4040"))
+            s.setblocking(False)
+            client = Client(iostream=s)
+
         client.wait_for_response()
 
-        if len(sys.argv)>1:
-            for in_file in sys.argv[1:]:
-                client.parse_file(in_file)
-        else:
+        interactive=True
+        if args.infiles:
+            interactive=False
+            for f in args.infiles:
+                if f == '-':
+                    interactive=True
+                else:
+                    printc("Running %s"%(f), "grey")
+                    res = client.parse_file(f)
+                    printc(json.dumps( res, indent=2), "blue")
+
+
+        if interactive:
             completer=Completer(client)
-            while True:
-                try:
-                    line = input('> ')
-                    if line:
-                        res = client.call( line )
-                        if not res:
-                            pass
-                        elif 'result' in res:
-                            Client.printc(json.dumps(res['result'], indent=2), color="blue")
-                        elif 'error' in res:
-                            Client.printc('*** '+str(res['error']), color="red")
-                        elif 'method' in res:
-                            Client.printc('<<< {0}({1})'.format(res['method'],res['params']), color="grey", hl=True)
-                        else:
-                            Client.printc("??? "+str(res), color="red")
-                    else:
-                        client.wait_for_response(timeout=0.1)
-                except EOFError:
-                    return
-                except:
-                    import traceback
-                    traceback.print_exc()
-                    Client.printc("Continuing", color="red", hl=True)
+            cli_loop(client)
+        sys.exit(0)
 
     if len(sys.argv)>1 and sys.argv[1]=='--test':
         import doctest
