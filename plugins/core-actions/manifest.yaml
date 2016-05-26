@@ -17,7 +17,7 @@ components:
           label: Remote IP address or DNS name
           type: text
       returns: ms
-    traits: ip url
+    traits: ip url # this means any of `ip` or `url`
 
   - name: Webhook call
     id: webhook.call
@@ -30,11 +30,28 @@ components:
           label: Remote URL
           placeholder: eg. http://example.com, https://example.com/path
           type: text
-      returns: text
+      returns:
+        code: int
+        ms: ms
+        text: text
     traits: url
+
+  - name: Execute SSH command
+    id: ssh.command
+    type: action
+    command: serverboards.code.actions/cmd
+    call:
+      method: ssh_command
+      params:
+        - name: command
+          label: Command to execute
+          placeholder: eg. uname -a
+          tye: text
+      returns: text
+    traits: ssh
 
   - name: Core actions.
     type: cmd
     id: cmd
     timeout: 1000
-    command: core.py
+    command: serverboards-core.py

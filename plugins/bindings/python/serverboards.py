@@ -1,4 +1,4 @@
-import json, os
+import json, os, sys
 
 try:
     input=raw_input
@@ -54,7 +54,7 @@ def loop(debug=None):
         rpc = json.loads(l)
         res=call_local(rpc)
         __debug(json.dumps(res))
-        print(json.dumps(res)+'\n')
+        print(json.dumps(res))
         sys.stdout.flush()
 
 
