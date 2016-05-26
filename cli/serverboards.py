@@ -74,11 +74,11 @@ def parse_command(line):
             return None
         elif a.isdigit():
             return int(a)
-        elif ':' in a:
-            k,v = a.split(':')
-            return {k.strip():v.strip()}
         elif '=' in a:
             k,v = a.split('=')
+            return {k.strip():v.strip()}
+        elif ':' in a:
+            k,v = a.split(':')
             return {k.strip():v.strip()}
         # literal
         return a
