@@ -306,7 +306,7 @@ defmodule Serverboards.Service do
     true
 
   """
-  def service_list(filter, _me) do
+  def service_list(filter, me) do
     import Ecto.Query
     query = if filter do
         Enum.reduce(filter, from(c in ServiceModel), fn kv, acc ->
@@ -338,17 +338,40 @@ defmodule Serverboards.Service do
         ServiceModel
       end
     #Logger.info("#{inspect filter} #{inspect query}")
-    Repo.all(query) |> Enum.map(fn service ->
-      service
-        |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
-        |> Map.put(:serverboards, Repo.all(
-          from s in ServerboardModel,
-          join: ss in ServerboardServiceModel,
-            on: ss.serverboard_id == s.id,
-         where: ss.service_id == ^service.id,
-        select: s.shortname
-        ) )
-    end)
+    Repo.all(query) |> Enum.map( &service_decorate(&1, me) )
+  end
+
+  @doc ~S"""
+  Returns a service from databas eproperly decorated for external use, with
+  fields and traits, and no internal data.
+  """
+  def service_decorate(service, me) do
+    import Ecto.Query
+    Logger.info("Get definition of #{inspect service}")
+    service = service
+          |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
+          |> Map.put(:serverboards, Repo.all(
+            from s in ServerboardModel,
+            join: ss in ServerboardServiceModel,
+              on: ss.serverboard_id == s.id,
+           where: ss.service_id == ^service.id,
+          select: s.shortname
+            ))
+    service = case service_list_available([type: service.type], me) do
+      [] ->
+        service
+          |> Map.put(:fields, [])
+          |> Map.put(:traits, [])
+      [service_definition] ->
+        fields = service_definition.fields |> Enum.map(fn f ->
+          Map.put(f, :value, Map.get(service.config, f["name"], ""))
+        end)
+        service
+          |> Map.put(:fields, fields)
+          |> Map.put(:traits, service_definition.traits)
+    end
+
+    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits)a)
   end
 
   @doc ~S"""
@@ -403,23 +426,13 @@ defmodule Serverboards.Service do
   Returns info about a given service, including tags, name, config and serverboards
   it is in.
   """
-  def service_info(service, _me) do
+  def service_info(service, me) do
     import Ecto.Query
 
     case Repo.one( from c in ServiceModel, where: c.uuid == ^service, preload: :tags ) do
       nil -> {:error, :not_found}
       service ->
-        import Ecto.Query
-        service = service
-          |> Map.put(:tags, Enum.map(service.tags, &(&1.name)) )
-          |> Map.put(:serverboards, Repo.all(
-            from s in ServerboardModel,
-            join: ss in ServerboardServiceModel,
-              on: ss.serverboard_id == s.id,
-           where: ss.service_id == ^service.id,
-          select: s.shortname
-          ) )
-
+        service = service_decorate(service, me)
         {:ok, service }
     end
   end
@@ -449,13 +462,68 @@ defmodule Serverboards.Service do
     {:ok, service }
   end
 
+  defp match_service_filter(service, {"traits", traits}), do: match_service_filter(service, {:traits, traits})
+  defp match_service_filter(service, {:traits, []}), do: false
+  defp match_service_filter(service, {:traits, [trait | rest]}) do
+    Logger.debug("trait #{trait} in #{inspect service}")
+    cond do
+      service.traits == nil ->
+        Logger.debug("No traits")
+        false
+      trait in service.traits ->
+        Logger.debug("ok")
+        true
+      true ->
+        Logger.debug("keep looking")
+        match_service_filter(service, {:traits, rest})
+    end
+  end
+  defp match_service_filter(service, {"type", type}), do: match_service_filter(service, {:type, type})
+  defp match_service_filter(service, {:type, type}) do
+    type == service.id
+  end
+
+  @doc ~S"""
+  Returns the list of available services (catalog) that fullfills a condition
+  as type or traits
+
+  Current allowed filters:
+  * type -- Should return a list with one element, or empty. Matches the plugin/component id
+  * traits -- MAtches any of the given traits. Empty matches none.
+
+  ## Example
+
+    iex> me = Serverboards.Test.User.system
+    iex> service_def_list = service_list_available([], me)
+    iex> Enum.count(service_def_list) >= 1
+    true
+
+    iex> me = Serverboards.Test.User.system
+    iex> [specific_service_type] = service_list_available([type: "serverboards.test.auth/server" ], me)
+    iex> specific_service_type.type
+    "serverboards.test.auth/server"
+    iex> specific_service_type.traits
+    ["generic"]
+
+    iex> me = Serverboards.Test.User.system
+    iex> [] = service_list_available([traits: ["wrong", "traits"]], me)
+    iex> service_def_list = service_list_available([traits: ["wrong", "traits", "next_matches", "generic"]], me)
+    iex> Enum.count(service_def_list) >= 1
+    true
+
+  """
   def service_list_available(filter, me) do
     Serverboards.Plugin.Registry.filter_component(type: "service")
+      |> Enum.filter(fn service ->
+        Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")
+        Enum.all?(filter, &match_service_filter(service, &1))
+      end)
       |> Enum.map(fn service ->
         c = %{
           name: service.name,
           type: service.id,
-          fields: service.extra["fields"]
+          fields: service.extra["fields"],
+          traits: service.traits,
          }
       end)
   end

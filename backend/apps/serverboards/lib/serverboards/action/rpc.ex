@@ -19,8 +19,8 @@ defmodule Serverboards.Action.RPC do
     add_method mc, "action.filter", fn q, context ->
       user = RPC.Context.get context, :user
       q = Map.to_list(q) |> Enum.map( fn
-        {"trait", v} -> {:trait, v}
-        {:trait, v} -> {:trait, v}
+        {"traits", v} -> {:traits, v}
+        {:traits, v} -> {:traits, v}
       end)
       list = Serverboards.Utils.clean_struct Serverboards.Action.filter q, user
       {:ok, list}

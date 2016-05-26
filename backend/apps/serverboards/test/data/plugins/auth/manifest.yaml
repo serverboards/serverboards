@@ -21,6 +21,15 @@ components:
         label: URL
         placeholder: https://example.com
 
+  - name: email component
+    type: service
+    traits: email
+    id: email
+    fields:
+      - name: email
+        label: Email address
+        placeholder: test@serverboards.io
+
   - name: Component config
     type: settings
     id: settings

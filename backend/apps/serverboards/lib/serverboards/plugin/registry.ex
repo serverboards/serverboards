@@ -37,6 +37,9 @@ defmodule Serverboards.Plugin.Registry do
     iex> [auth] = filter_component trait: "auth"
     iex> auth.id
     "serverboards.test.auth/fake"
+    iex> [auth] = filter_component traits: ["anything", "auth"]
+    iex> auth.id
+    "serverboards.test.auth/fake"
     iex> [auth] = filter_component trait: "auth", id: "fake"
     iex> auth.id
     "serverboards.test.auth/fake"
@@ -65,6 +68,8 @@ defmodule Serverboards.Plugin.Registry do
                   Map.get(c, :id) == v
                 :trait ->
                   member? Map.get(c, :traits), v
+                :traits -> # any of the traits fit
+                  any? v, &(&1 in Map.get(c, :traits))
                 :type ->
                   Map.get(c, :type) == v
               end

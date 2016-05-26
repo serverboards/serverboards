@@ -7,6 +7,8 @@ defmodule ServerboardTest do
   doctest Serverboards.Serverboard, import: true
   doctest Serverboards.Service, import: true
 
+  def email_type, do: "serverboards.test.auth/email"
+
   setup_all do
     {:ok, agent } = Agent.start_link fn -> %{} end
     MOM.Channel.subscribe( :client_events, fn %{ payload: msg } ->
@@ -146,7 +148,7 @@ defmodule ServerboardTest do
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
-    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => "email", "name" => "Email" }
+    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => email_type, "name" => "Email" }
     Test.Client.call client, "service.attach", ["SBDS-TST8", service]
     Test.Client.call client, "service.info", [service]
     Test.Client.call client, "service.list", []
@@ -183,7 +185,7 @@ defmodule ServerboardTest do
     import Serverboards.Service
 
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "email" }, user
+    {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => email_type }, user
     {:ok, info } = service_info service, user
     assert info.tags == ["tag1", "tag2", "tag3"]
 
@@ -210,7 +212,7 @@ defmodule ServerboardTest do
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
 
     # delete all
-    serverboard_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user
+    serverboard_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => email_type, "name" => "email", "config" => %{} }] }, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
     assert Enum.count(info.services) == 1
     serverboard_update "SBDS-TST10", %{ "services" => []}, user
@@ -218,12 +220,12 @@ defmodule ServerboardTest do
     assert Enum.count(info.services) == 0
 
     # add one
-    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => "email", "name" => "add again email", "config" => %{} }]}, user
+    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => email_type, "name" => "add again email", "config" => %{} }]}, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
     assert Enum.count(info.services) == 1
 
     # replace
-    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => "email", "name" => "replace email", "config" => %{} }]}, user
+    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => email_type, "name" => "replace email", "config" => %{} }]}, user
     {:ok, info} = serverboard_info "SBDS-TST10", user
     assert Enum.count(info.services) == 1
 
@@ -236,8 +238,8 @@ defmodule ServerboardTest do
 
     user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", user)
 
-    serverboard_add "SBDS-TST11", %{ "name" => "Test 1", "services" => [%{ "type" => "email", "name" => "email", "config" => %{} }] }, user
-    {:ok, uuid} = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "email" }, user
+    serverboard_add "SBDS-TST11", %{ "name" => "Test 1", "services" => [%{ "type" => email_type, "name" => "email", "config" => %{} }] }, user
+    {:ok, uuid} = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => email_type }, user
 
     {:ok, service} = service_info uuid, user
     assert not "SBDS-TST11" in service.serverboards
