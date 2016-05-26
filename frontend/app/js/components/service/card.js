@@ -2,6 +2,8 @@ import React from 'react'
 import LogoIcon from '../logoicon'
 import ServiceSettings from '../../containers/service/settings'
 import HoldButton from '../holdbutton'
+import rpc from '../../rpc'
+import Flash from '../../flash'
 
 require("../../../sass/service/card.sass")
 
@@ -12,11 +14,19 @@ function Field(props){
 }
 
 let Card=React.createClass({
+  getInitialState(){
+    return {
+      actions: undefined,
+      loading: false
+    }
+  },
+
   componentDidMount(){
     $(this.refs.dropdown)
       .dropdown({
         // you can use any ui transition
-        transition: 'fade up'
+        transition: 'fade up',
+        onShow: this.loadAvailableActions,
       })
     ;
   },
@@ -31,6 +41,26 @@ let Card=React.createClass({
   },
   contextTypes: {
     router: React.PropTypes.object
+  },
+
+  loadAvailableActions(){
+    if (!this.state.actions){
+      this.setState({loading: true})
+      console.log(this.props.service)
+      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+        this.setState({
+          actions: actions,
+          loading: false
+        })
+      }).catch(() => {
+        Flash.error("Could not load actions for this service")
+        this.setState({
+          actions: undefined,
+          loading: false
+        })
+      })
+    }
+    return true;
   },
 
   handleOpenSettings(){
@@ -75,12 +105,21 @@ let Card=React.createClass({
         </div>
         <div className="extra content">
           <div className="ui text menu">
-            <div ref="dropdown" className="ui dropdown right item button">
-              Options
-              <i className="ui dropdown icon"/>
-              <div className="menu">
-                <HoldButton className="ui item" onClick={this.handleDetach}>Hold to Detach</HoldButton>
-                <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
+            <div className="ui right item" style={{marginRight: 10}}>
+              <div ref="dropdown" className={`ui dropdown`}>
+                Options
+                <i className="ui dropdown icon"/>
+                <div className="menu">
+                  <HoldButton className="ui item" onClick={this.handleDetach}>Hold to Detach</HoldButton>
+                  <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
+                  {this.state.actions ? this.state.actions.map( (ac) => (
+                    <div className="ui item" onClick={() => this.triggerAction(ac.id)}>{ac.name}</div>
+                  )) : (
+                    <div className="ui item disabled">
+                      Loading
+                    </div>
+                  ) }
+                </div>
               </div>
             </div>
           </div>

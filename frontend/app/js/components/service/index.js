@@ -28,8 +28,12 @@ export function default_service_fields(name){
   ]
 }
 
+export function service_definition(service_type, service_catalog){
+  return service_catalog.find( (c) => c.type == service_type )
+}
+
 export function setup_fields(service, service_catalog){
-  let definition=service_catalog.find( (c) => c.type == service.type )
+  let definition=service_definition(service.type, service_catalog)
 
   let fields = definition.fields.map( (f) => Object.assign({}, f,
       { value: service.config[f.name] }
