@@ -30,4 +30,4 @@ def http_get(url=None, sleep=0.100):
 
 
 #print(serverboards.__dir(), file=sys.stderr)
-serverboards.loop(debug=sys.stderr)
+serverboards.loop() #debug=sys.stderr)

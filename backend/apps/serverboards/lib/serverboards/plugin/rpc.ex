@@ -56,7 +56,7 @@ defmodule Serverboards.Plugin.RPC do
 
   # Method caller function UUID.method.
   def call_with_uuid(%MOM.RPC.Message{ method: method, params: params, context: _context} = msg, runner) do
-    Logger.debug("Try to call #{inspect msg}")
+    #Logger.debug("Try to call #{inspect msg}")
     if method == "dir" do
       {:ok, []} # Do not return it as it can lead to show of opaque pointers. Use alias.
     else
@@ -78,10 +78,10 @@ defmodule Serverboards.Plugin.RPC do
         [_, alias_, method] ->
           aliases = RPC.Context.get context, :plugin_aliases, %{}
           cmd = Map.get aliases, alias_
-          Logger.debug("Call with alias #{inspect alias_}")
+          #Logger.debug("Call with alias #{inspect alias_}")
           cond do
             cmd == nil ->
-              Logger.debug("Not alias")
+              #Logger.debug("Not alias")
               :nok
             Process.alive? cmd ->
               ret=Serverboards.IO.Cmd.call cmd, method, params

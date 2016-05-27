@@ -13,10 +13,20 @@ defmodule Serverboards.ActionTest do
 
     {:ok, uuid} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
-
-    Logger.info(uuid)
     assert Test.Client.expect(client, method: "action.started")
-    assert Test.Client.expect(client, method: "action.stopped")
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params result)a, "ok"}])
+
+    Test.Client.stop client
+  end
+
+  test "Execute action, has full command path" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped"])
+
+    {:ok, uuid} = Test.Client.call(client, "action.trigger",
+      ["serverboards.test.auth/action.full-command-path", %{ url: "https://serverboards.io" }])
+    assert Test.Client.expect(client, method: "action.started")
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params result)a, "ok"}])
 
     Test.Client.stop client
   end
@@ -25,7 +35,16 @@ defmodule Serverboards.ActionTest do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, [_c]} = Test.Client.call(client, "action.filter",
-      %{ trait: "test"} )
+      %{ "traits" => ["test"] } )
+
+    Test.Client.stop client
+  end
+
+  test "Invalid action" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    assert Test.Client.call(client, "action.trigger",
+      ["invalid.action", %{}] ) == {:error, :unknown_action}
 
     Test.Client.stop client
   end

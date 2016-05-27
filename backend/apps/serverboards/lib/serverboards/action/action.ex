@@ -46,25 +46,41 @@ defmodule Serverboards.Action do
   def trigger(action_id, params, user) do
     Logger.info("Trigger action #{action_id} by #{inspect user.email}")
     action = Plugin.Registry.find(action_id)
-    uuid = UUID.uuid4
 
-    task = Task.start_link(fn ->
-      Agent.update(Serverboards.Action, fn actions ->
-        Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
+    if action do
+      uuid = UUID.uuid4
+
+      task = Task.start_link(fn ->
+        Agent.update(Serverboards.Action, fn actions ->
+          Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
+        end)
+        Event.emit("action.started", %{uuid: uuid, name: action.name, id: action_id}, ["action.watch"] )
+        command_id = if String.contains?(action.extra["command"], "/") do
+          action.extra["command"]
+        else
+          "#{action.plugin.id}/#{action.extra["command"]}"
+        end
+
+        {ok, ret} =
+          with {:ok, plugin} <- Plugin.Runner.start( command_id ),
+            do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
+
+        if ok == :error do
+          Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
+          Event.emit("action.stopped", %{uuid: uuid, name: action.name, id: action_id, result: :error, reason: ret}, ["action.watch"] )
+        else
+          Event.emit("action.stopped", %{uuid: uuid, name: action.name, id: action_id, result: ok}, ["action.watch"] )
+        end
+
+        Agent.update(Serverboards.Action, fn actions ->
+          Map.drop(actions, [uuid])
+        end)
       end)
-      Event.emit("action.started", %{uuid: uuid, name: action.name, id: action_id}, ["action.watch"] )
-      command_id = "#{action.plugin.id}/#{action.extra["command"]}"
 
-      {:ok, plugin} = Plugin.Runner.start( command_id )
-      {ok, ret} = Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
-
-      Event.emit("action.stopped", %{uuid: uuid, name: action.name, id: action_id, result: ok}, ["action.watch"] )
-      Agent.update(Serverboards.Action, fn actions ->
-        Map.drop(actions, [uuid])
-      end)
-    end)
-
-    {:ok, uuid}
+      {:ok, uuid}
+    else
+      {:error, :unknown_action}
+    end
   end
 
   @doc ~S"""
@@ -72,13 +88,13 @@ defmodule Serverboards.Action do
 
     iex> user = Serverboards.Test.User.system
     iex> list = ps(user)
-    iex> Enum.count list
-    0
+    iex> b = Enum.count list
     iex> {:ok, _uuid} = trigger("serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 1 }, user)
     iex> :timer.sleep 200
     iex> list = ps(user)
-    iex> Enum.count list
-    1
+    iex> a = Enum.count list
+    iex> b < a
+    true
 
   """
   def ps(_user) do

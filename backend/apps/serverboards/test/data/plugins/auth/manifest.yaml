@@ -57,3 +57,31 @@ components:
           type: text
       returns: text
     traits: test
+
+  - name: Test action
+    type: action
+    id: action.full-command-path
+    command: serverboards.test.auth/fake
+    call:
+      method: http_get
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits:
+
+  - name: Bad action
+    type: action
+    id: action
+    command: fake
+    call:
+      method: http_get-wrong
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits: 

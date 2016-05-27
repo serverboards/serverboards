@@ -177,7 +177,7 @@ defmodule Test.Client do
 		true
 	end
 	defp expect_match?([w | rest], msg) do
-		#Logger.debug("Match? #{inspect w} #{inspect msg}")
+		Logger.debug("Match? #{inspect w} #{inspect msg}")
 		cont = case w do
 			{:method, v} ->
 				Map.get(msg, "method", nil) == v

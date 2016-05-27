@@ -72,7 +72,9 @@ defmodule Serverboards.Plugin.Runner do
   def start(runner, plugin_component_id)
   when (is_pid(runner) or is_atom(runner)) and is_binary(plugin_component_id) do
       case Serverboards.Plugin.Registry.find(plugin_component_id) do
-        nil -> {:error, :not_found}
+        nil ->
+          Logger.error("Plugin component #{plugin_component_id} not found")
+          {:error, :not_found}
         c ->
           start(runner, c)
       end

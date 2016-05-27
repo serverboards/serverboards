@@ -19,11 +19,18 @@ defmodule Serverboards.Plugin.Parser do
 
   """
   def parse_component(%{} = dict) do
+    traits = case Map.get(dict, "traits") do
+      nil ->
+        []
+      str when is_binary(str) ->
+        String.split(str," ", trim: true)
+    end
+
     %Serverboards.Plugin.Component{
       id: Map.get(dict, "id"),
       name: Map.get(dict, "name"),
       type: Map.get(dict, "type"),
-      traits: String.split(Map.get(dict, "traits","")," ", trim: true),
+      traits: traits,
       extra: Map.drop(dict, ~w(id name type traits))
     }
   end
