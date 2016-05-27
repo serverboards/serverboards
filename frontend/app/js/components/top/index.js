@@ -7,7 +7,6 @@ require("../../../sass/top.sass")
 var Top = function(props){
   var menu={}
   if (props.menu == 'user'){
-    console.log("Show user menu")
     menu.user=(
       <div onClick={props.toggleUserMenu} style={{position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "none"}}>
         <UserMenu/>
@@ -44,9 +43,10 @@ var Top = function(props){
           Notifications
           <i className="dropdown icon"></i>
         </a>
-        <a className="item disabled">
+        <a className="item">
           <i className="tasks icon"></i>
           Processes
+          <span className={`ui label ${props.actions.length==0 ? "" : "teal"}`}>{props.actions.length}</span>
           <i className="dropdown icon"></i>
         </a>
         <a className="item" onClick={props.toggleUserMenu}>
