@@ -49,4 +49,22 @@ defmodule Serverboards.ActionTest do
     Test.Client.stop client
   end
 
+  test "Get previous actions" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped"])
+    # to ensure at least one of this
+    {:ok, uuid} = Test.Client.call(client, "action.trigger",
+      ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
+
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid}])
+
+
+    {:ok, history} = Test.Client.call(client, "action.history", [])
+    Logger.info("History: #{inspect history}")
+    assert "serverboards.test.auth/action" in Enum.map(history, &(&1["type"]))
+
+    Test.Client.stop client
+  end
+
 end

@@ -9,11 +9,43 @@ defmodule Serverboards.Action do
   Actions are method calls inside plugins, so it must first run the plugin,
   then execute the command, and shutdown the plugin.
   """
-  alias Serverboards.{Plugin, Event}
+  alias Serverboards.{Plugin, Event, Repo}
+  alias Serverboards.Action.Model
 
   def start_link(options) do
+    MOM.Channel.subscribe(:client_events, fn
+      %{ payload: %{ type: "action.started", data: action }  } ->
+        import Ecto.Query
+        action=Map.merge( action, %{
+          type: action.id,
+          status: "running",
+          user_id: Repo.one(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id )
+        })
+
+        {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
+        Logger.info("Saved #{inspect _res}")
+        :ok
+      _ ->
+         :ok
+    end)
+    MOM.Channel.subscribe(:client_events, fn
+      %{ payload: %{ type: "action.stopped", data: action }  } ->
+        import Ecto.Query
+        prev = Repo.get_by( Model.History, uuid: action.uuid )
+        Repo.insert( Model.History.changeset(prev, action) )
+        :ok
+      _ -> :ok
+    end)
+
+    {:ok, es} = EventSourcing.start_link name: :action
+
+    EventSourcing.subscribe es, :trigger, fn
+      %{ action: action, params: params, uuid: uuid}, me ->
+        trigger_real(uuid, action, params, me)
+    end
+
     {:ok, _} = Serverboards.Action.RPC.start_link
-    Agent.start_link fn -> %{} end, [name: Serverboards.Action] ++ options
+    Agent.start_link &Map.new/0, [name: Serverboards.Action] ++ options
   end
 
   @doc ~S"""
@@ -43,57 +75,64 @@ defmodule Serverboards.Action do
     36
 
   """
-  def trigger(action_id, params, user) do
-    Logger.info("Trigger action #{action_id} by #{inspect user.email}")
+  def trigger(action_id, params, me) do
     action = Plugin.Registry.find(action_id)
-
     if action do
       uuid = UUID.uuid4
-
-      task = Task.start_link(fn ->
-        Agent.update(Serverboards.Action, fn actions ->
-          Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
-        end)
-        Event.emit("action.started", %{uuid: uuid, name: action.name, id: action_id}, ["action.watch"] )
-        command_id = if String.contains?(action.extra["command"], "/") do
-          action.extra["command"]
-        else
-          "#{action.plugin.id}/#{action.extra["command"]}"
-        end
-
-        {ok, ret} =
-          with {:ok, plugin} <- Plugin.Runner.start( command_id ),
-            do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
-
-        if ok == :error do
-          Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
-          Event.emit("action.stopped", %{uuid: uuid, name: action.name, id: action_id, result: :error, reason: ret}, ["action.watch"] )
-        else
-          Event.emit("action.stopped", %{uuid: uuid, name: action.name, id: action_id, result: ok}, ["action.watch"] )
-        end
-
-        Agent.update(Serverboards.Action, fn actions ->
-          Map.drop(actions, [uuid])
-        end)
-      end)
-
+      EventSourcing.dispatch :action, :trigger,
+        %{ uuid: uuid, action: action_id, params: params }, me.email
       {:ok, uuid}
     else
       {:error, :unknown_action}
     end
   end
 
+  def trigger_real(uuid, action_id, params, user) do
+    Logger.info("Trigger action #{action_id} by #{inspect user}")
+    action = Plugin.Registry.find(action_id)
+
+    task = Task.start_link(fn ->
+      Agent.update(Serverboards.Action, fn actions ->
+        Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
+      end)
+      Event.emit("action.started", %{uuid: uuid, name: action.name, id: action_id, user: user}, ["action.watch"] )
+      command_id = if String.contains?(action.extra["command"], "/") do
+        action.extra["command"]
+      else
+        "#{action.plugin.id}/#{action.extra["command"]}"
+      end
+
+      timer_start = Timex.Time.now
+      {ok, ret} =
+        with {:ok, plugin} <- Plugin.Runner.start( command_id ),
+          do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
+      elapsed = Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
+
+      if ok == :error do
+        Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
+      end
+
+      Event.emit("action.stopped",
+        %{uuid: uuid, name: action.name, id: action_id,
+          status: ok, result: ret, elapsed: elapsed
+          }, ["action.watch"] )
+
+      Agent.update(Serverboards.Action, fn actions ->
+        Map.drop(actions, [uuid])
+      end)
+    end)
+    :ok
+  end
+
   @doc ~S"""
   Returns a list of currently running actions
 
     iex> user = Serverboards.Test.User.system
+    iex> {:ok, uuid} = trigger("serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 1 }, user)
+    iex> :timer.sleep 300
     iex> list = ps(user)
-    iex> b = Enum.count list
-    iex> {:ok, _uuid} = trigger("serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 1 }, user)
-    iex> :timer.sleep 200
-    iex> list = ps(user)
-    iex> a = Enum.count list
-    iex> b < a
+    iex> uuid_list = list |> Enum.map(&(&1.uuid))
+    iex> uuid in uuid_list
     true
 
   """
@@ -113,5 +152,13 @@ defmodule Serverboards.Action do
           uuid: uuid
         }
       end )
+  end
+
+  @doc ~S"""
+  Returns the action history with some filtering
+  """
+  def history(_filter, _user) do
+    import Ecto.Query
+    Repo.all(from h in Model.History)
   end
 end

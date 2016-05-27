@@ -31,6 +31,11 @@ defmodule Serverboards.Action.RPC do
       Serverboards.Utils.clean_struct Serverboards.Action.ps user
     end, [required_perm: "action.watch", context: true]
 
+    add_method mc, "action.history", fn options, context ->
+      user = RPC.Context.get context, :user
+      Serverboards.Utils.clean_struct Serverboards.Action.history options, user
+    end, [required_perm: "action.watch", context: true]
+
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
       to_serverboards = (RPC.Client.get client, :to_serverboards)
 
