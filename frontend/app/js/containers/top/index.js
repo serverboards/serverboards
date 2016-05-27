@@ -6,20 +6,16 @@ import rpc from '../../rpc'
 import Flash from '../../flash'
 
 var Top=Event.subscribe_connect(
-  (state) => {
-    return {
+  (state) => ({
       user: state.auth.user,
       menu: state.top.menu,
       actions: state.action.actions
-    }
-  },
-  (dispatch) => {
-    return {
-      onLogout: () => dispatch(logout()),
-      toggleUserMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: 'user'}),
-      closeMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
-    }
-  },
+  }),
+  (dispatch) => ({
+    onLogout: () => dispatch(logout()),
+    toggleMenu: (menu) => dispatch({type: "TOP_TOGGLE_MENU", menu: menu}),
+    closeMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
+  }),
   ["action.started","action.stopped"],
   [action_ps]
 )(TopView)

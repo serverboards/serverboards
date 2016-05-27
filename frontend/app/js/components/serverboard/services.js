@@ -67,7 +67,7 @@ let Services=React.createClass({
         <div className="ui fixed bottom">
           <a href={`#/serverboard/${props.serverboard.shortname}/services`}
           className="ui header medium link">
-          View all services &gt;
+          View all services <i className="ui icon angle right"/>
           </a>
         </div>
       </div>

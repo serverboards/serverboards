@@ -1,18 +1,30 @@
 import React from 'react'
 import UserMenu from '../../containers/top/usermenu'
+import ProcessesMenu from '../../containers/top/processesmenu'
 import {Link} from '../../router'
 
 require("../../../sass/top.sass")
 
 var Top = function(props){
-  var menu={}
-  if (props.menu == 'user'){
-    menu.user=(
-      <div onClick={props.toggleUserMenu} style={{position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "none"}}>
+  let menu=undefined
+  switch (props.menu){
+    case 'user':
+      menu=(
         <UserMenu/>
+      )
+      break;
+    case 'processes':
+      menu=(
+        <ProcessesMenu/>
+      )
+      break;
+  }
+  if (menu)
+    menu=(
+      <div onClick={props.closeMenu} style={{position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "none"}}>
+        {menu}
       </div>
     )
-  }
   let logo=require("../../../imgs/logo.svg")
 
   return (
@@ -43,18 +55,18 @@ var Top = function(props){
           Notifications
           <i className="dropdown icon"></i>
         </a>
-        <a className="item">
+        <a className="item" onClick={() => props.toggleMenu('processes')}>
           <i className="tasks icon"></i>
           Processes
           <span className={`ui label ${props.actions.length==0 ? "" : "teal"}`}>{props.actions.length}</span>
           <i className="dropdown icon"></i>
         </a>
-        <a className="item" onClick={props.toggleUserMenu}>
+        <a className="item" onClick={() => props.toggleMenu('user')}>
           {props.user.email}
           <i className="dropdown icon"></i>
         </a>
       </div>
-      {menu.user}
+      {menu}
     </nav>
   )
 }

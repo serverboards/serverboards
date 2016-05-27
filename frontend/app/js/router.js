@@ -9,7 +9,9 @@ import DashBoard from './components/dashboard.js'
 import Profile from './containers/profile.js'
 import Settings from './components/settings'
 import Serverboard from './containers/serverboard'
-import ServerboardAdd from './containers/serverboard/add.js'
+import ServerboardAdd from './containers/serverboard/add'
+import ProcessesHistory from './components/processes'
+import ProcessView from './components/processes/process'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -27,6 +29,11 @@ var ServerboardsRouter = React.createClass({
           </Route>
           <Route path="/settings/" component={Settings}>
             <Route path=":section" component={Settings}/>
+          </Route>
+          <Route path="/process/">
+            <Route path="history" component={ProcessesHistory}/>
+            <Route path=":uuid" component={ProcessView}/>
+            <Route path="" component={ProcessesHistory}/>
           </Route>
         </Router>
       )
