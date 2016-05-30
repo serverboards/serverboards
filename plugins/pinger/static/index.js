@@ -29,13 +29,19 @@ function update(){
   })
 }
 
-function main(){
-  console.log("Called JS! %o", Serverboards)
-  var nip = $('input#ip').val()
-  if (nip)
-    ip=nip
-  else if (ip)
+function main(config){
+  console.log("Called JS! %o", config)
+  if (config && config.service){
+    ip=config.service.config.ip
     $('input#ip').val(ip)
+  }
+  else {
+    var nip = $('input#ip').val()
+    if (nip)
+      ip=nip
+    else if (ip)
+      $('input#ip').val(ip)
+  }
 
   rpc.call("plugin.start",["serverboards.core.actions/cmd"]).then(function(uuid){
     plugin_uuid=uuid
@@ -52,4 +58,4 @@ function main(){
   })
 }
 
-main()
+Serverboards.add_screen("serverboards.core.pinger/pinger", main)
