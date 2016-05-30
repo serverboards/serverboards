@@ -15,13 +15,11 @@ defmodule Serverboards.Action do
   def start_link(options) do
     import Ecto.Query
 
-    ~s"""
     from( h in Model.History, where: h.status == "running" )
       |> Repo.update_all( set: [
         status: "aborted",
         result: %{ reason: "Serverboards restart"}
       ] )
-    """
 
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.started", data: action }  } ->
@@ -105,46 +103,50 @@ defmodule Serverboards.Action do
     Logger.info("Trigger action #{action_id} by #{inspect user}")
     action = Plugin.Registry.find(action_id)
 
-    task = Task.start_link(fn ->
-      Agent.update(Serverboards.Action, fn actions ->
-        Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
-      end)
-      Event.emit("action.started", %{
-        uuid: uuid, name: action.name, id: action_id, user: user, params: params
-        }, ["action.watch"] )
-      command_id = if String.contains?(action.extra["command"], "/") do
-        action.extra["command"]
-      else
-        "#{action.plugin.id}/#{action.extra["command"]}"
-      end
-
-      timer_start = Timex.Time.now
-      {ok, ret} =
-        with {:ok, plugin} <- Plugin.Runner.start( command_id ),
-          do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
-      elapsed = round(
-        Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
-        )
-
-      if ok == :error do
-        Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
-      end
-
-      ret = case ret do
-        %{} -> ret
-        s -> %{ data: ret }
-      end
-
-      Event.emit("action.stopped",
-        %{uuid: uuid, name: action.name, id: action_id,
-          status: ok, result: ret, elapsed: elapsed
+    if (!(action==nil)) and (!(action.extra["command"]==nil)) do
+      task = Task.start_link(fn ->
+        Agent.update(Serverboards.Action, fn actions ->
+          Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
+        end)
+        Event.emit("action.started", %{
+          uuid: uuid, name: action.name, id: action_id, user: user, params: params
           }, ["action.watch"] )
+        command_id = if String.contains?(action.extra["command"], "/") do
+          action.extra["command"]
+        else
+          "#{action.plugin.id}/#{action.extra["command"]}"
+        end
 
-      Agent.update(Serverboards.Action, fn actions ->
-        Map.drop(actions, [uuid])
+        timer_start = Timex.Time.now
+        {ok, ret} =
+          with {:ok, plugin} <- Plugin.Runner.start( command_id ),
+            do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
+        elapsed = round(
+          Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
+          )
+
+        if ok == :error do
+          Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
+        end
+
+        ret = case ret do
+          %{} -> ret
+          s -> %{ data: ret }
+        end
+
+        Event.emit("action.stopped",
+          %{uuid: uuid, name: action.name, id: action_id,
+            status: ok, result: ret, elapsed: elapsed
+            }, ["action.watch"] )
+
+        Agent.update(Serverboards.Action, fn actions ->
+          Map.drop(actions, [uuid])
+        end)
       end)
-    end)
-    :ok
+      :ok
+    else
+      {:error, :invalid_action}
+    end
   end
 
   @doc ~S"""
