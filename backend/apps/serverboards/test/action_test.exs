@@ -66,6 +66,8 @@ defmodule Serverboards.ActionTest do
 
     {:ok, details} = Test.Client.call(client, "action.history", [ (hd history).uuid ])
     assert details[:uuid] == (hd history).uuid
+    assert details[:status] == "ok"
+    assert details[:elapsed] != nil
 
 
     Test.Client.stop client
