@@ -24,13 +24,20 @@ def call_local(rpc):
     f=rpc_registry.get(rpc['method'])
     if f:
         params=rpc['params']
-        if type(params)==dict:
-            res=f(**params)
-        else:
-            res=f(*params)
-        return {
-            'result' : res,
-            'id' : rpc['id']
+        try:
+            if type(params)==dict:
+                res=f(**params)
+            else:
+                res=f(*params)
+            return {
+                'result' : res,
+                'id' : rpc['id']
+                }
+        except Exception as e:
+            import traceback; traceback.print_exc()
+            return {
+                'error': str(e),
+                'id' : rpc['id']
             }
 
 @rpc_method("dir")
@@ -53,9 +60,16 @@ def loop(debug=None):
         __debug(l)
         rpc = json.loads(l)
         res=call_local(rpc)
-        __debug(json.dumps(res))
-        print(json.dumps(res))
-        sys.stdout.flush()
+        try:
+            __debug(json.dumps(res))
+            print(json.dumps(res))
+            sys.stdout.flush()
+        except:
+            import traceback; traceback.print_exc()
+            sys.stderr.write(repr(res)+'\n')
+            print(json.dumps({"error": "serializing json response", "id": res["id"]}))
+            sys.stdout.flush()
+
 
 
 class Config:
