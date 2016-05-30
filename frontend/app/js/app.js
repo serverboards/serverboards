@@ -4,6 +4,7 @@ var ReactDOM = require('react-dom');
 import { Provider } from 'react-redux'
 import rpc from './rpc'
 import store from './utils/store'
+import plugin from './utils/plugin'
 
 require("../sass/serverboards.sass")
 
@@ -20,6 +21,14 @@ Flash.log=function(message, options={}){
   }
   setTimeout(close, options.timeout)
   return {close}
+}
+
+window.Serverboards = {
+  rpc,
+  store,
+  Flash,
+  React,
+  add_screen: plugin.add_screen,
 }
 
 ReactDOM.render(

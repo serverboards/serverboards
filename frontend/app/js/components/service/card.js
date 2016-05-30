@@ -48,6 +48,7 @@ let Card=React.createClass({
       this.setState({loading: true})
       console.log(this.props.service)
       rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+        console.log("All actions %o",actions)
         this.setState({
           actions: actions,
           loading: false
@@ -65,10 +66,24 @@ let Card=React.createClass({
 
   triggerAction(action_id){
     console.log(action_id)
-    Flash.info(`Starting action ${action_id}`)
-    rpc.call("action.trigger",
-      [action_id, this.props.service.config]).then(function(){
+    let action=this.state.actions.filter( (a) => a.id == action_id )[0]
+    console.log("Trigger action %o", action)
+    // Discriminate depending on action type (by shape)
+    if (action.extra.call){
+      Flash.info(`Starting action ${action_id}`)
+      rpc.call("action.trigger",
+        [action_id, this.props.service.config]).then(function(){
+        })
+    }
+    else if (action.extra.screen){
+      this.context.router.push({
+        pathname: `/s/${action.id}`,
+        state: { service: this.props.service }
       })
+    }
+    else {
+      Flash.error("Dont know how to trigger this action")
+    }
   },
 
   handleOpenSettings(){
