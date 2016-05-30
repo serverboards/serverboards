@@ -13,9 +13,16 @@ defmodule Serverboards.Action do
   alias Serverboards.Action.Model
 
   def start_link(options) do
+    import Ecto.Query
+
+    from( h in Model.History, where: h.status == "running" )
+      |> Repo.update_all( set: [
+        status: "aborted",
+        result: %{ reason: "Serverboards restart"}
+      ] )
+
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.started", data: action }  } ->
-        import Ecto.Query
         action=Map.merge( action, %{
           type: action.id,
           status: "running",
@@ -30,9 +37,9 @@ defmodule Serverboards.Action do
     end)
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.stopped", data: action }  } ->
-        import Ecto.Query
+        Logger.info("Action #{inspect action} stopped")
         prev = Repo.get_by( Model.History, uuid: action.uuid )
-        Repo.insert( Model.History.changeset(prev, action) )
+        { :ok, _h } = Repo.update( Model.History.changeset(prev, action) )
         :ok
       _ -> :ok
     end)
@@ -106,7 +113,9 @@ defmodule Serverboards.Action do
       {ok, ret} =
         with {:ok, plugin} <- Plugin.Runner.start( command_id ),
           do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
-      elapsed = Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
+      elapsed = round(
+        Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
+        )
 
       if ok == :error do
         Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
@@ -159,6 +168,54 @@ defmodule Serverboards.Action do
   """
   def history(_filter, _user) do
     import Ecto.Query
-    Repo.all(from h in Model.History)
+    Repo.all(from h in Model.History, order_by: [desc: h.inserted_at] )
+      |> Enum.map(fn h ->
+        [user_email] = Repo.all(from u in Serverboards.Auth.Model.User, where: u.id == ^h.user_id, select: u.email )
+        action = Plugin.Registry.find(h.type)
+        %{
+          uuid: h.uuid,
+          date: Ecto.DateTime.to_iso8601(h.inserted_at),
+          elapsed: h.elapsed,
+          action: action.name,
+          user: user_email,
+          status: h.status,
+          type: h.type
+        }
+      end)
+  end
+
+  @doc ~S"""
+  Get detailed information about a specific action
+  """
+  def details(uuid, _user) do
+    import Ecto.Query
+    try do
+      case Repo.one(from h in Model.History, where: h.uuid == ^uuid) do
+        nil ->
+          {:error, :not_found}
+        h ->
+          [user_email] = Repo.all(
+              from u in Serverboards.Auth.Model.User,
+             where: u.id == ^h.user_id,
+            select: u.email
+            )
+          action = Plugin.Registry.find(h.type)
+
+          %{
+            uuid: h.uuid,
+            date: Ecto.DateTime.to_iso8601(h.inserted_at),
+            elapsed: h.elapsed,
+            action: action.name,
+            user: user_email,
+            status: h.status,
+            type: h.type,
+            result: h.result,
+          }
+      end
+    rescue
+      Elixir.Ecto.CastError ->
+        Logger.debug("Invalid UUID #{inspect uuid}")
+        {:error, :invalid_uuid}
+    end
   end
 end

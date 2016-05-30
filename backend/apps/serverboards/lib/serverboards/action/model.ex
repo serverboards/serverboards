@@ -15,6 +15,8 @@ defmodule Serverboards.Action.Model do
     @optional_fields ~w(result elapsed)
     def changeset(action, changes \\ :empty) do
       import Ecto.Changeset
+      changes = %{ changes | status: to_string(changes[:status]) }
+
       action
       |> cast(changes, @required_fields, @optional_fields)
     end

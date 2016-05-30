@@ -14,7 +14,7 @@ defmodule Serverboards.ActionTest do
     {:ok, uuid} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
     assert Test.Client.expect(client, method: "action.started")
-    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params result)a, "ok"}])
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params status)a, "ok"}])
 
     Test.Client.stop client
   end
@@ -26,7 +26,7 @@ defmodule Serverboards.ActionTest do
     {:ok, uuid} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action.full-command-path", %{ url: "https://serverboards.io" }])
     assert Test.Client.expect(client, method: "action.started")
-    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params result)a, "ok"}])
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params status)a, "ok"}])
 
     Test.Client.stop client
   end
@@ -62,7 +62,11 @@ defmodule Serverboards.ActionTest do
 
     {:ok, history} = Test.Client.call(client, "action.history", [])
     Logger.info("History: #{inspect history}")
-    assert "serverboards.test.auth/action" in Enum.map(history, &(&1["type"]))
+    assert "serverboards.test.auth/action" in Enum.map(history, &(&1[:type]))
+
+    {:ok, details} = Test.Client.call(client, "action.history", [ (hd history).uuid ])
+    assert details[:uuid] == (hd history).uuid
+
 
     Test.Client.stop client
   end
