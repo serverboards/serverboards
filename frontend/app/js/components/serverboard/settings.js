@@ -1,7 +1,6 @@
 import React from 'react'
 import SettingsAdd from '../../containers/serverboard/settings_add'
 import Loading from '../loading'
-import {default_service_fields} from './settings_add'
 
 let Settings=React.createClass({
   handleUpdate : function( serverboard ){

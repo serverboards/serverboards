@@ -2,10 +2,9 @@ import React from 'react'
 import LogoIcon from '../logoicon'
 import Loading from '../loading'
 import Modal from '../modal'
-import {default_service_fields} from './settings_add'
+import { default_service_fields } from '../service'
 
 require("../../../sass/modal.sass")
-
 
 let AddService=React.createClass({
   componentDidMount : function(){
