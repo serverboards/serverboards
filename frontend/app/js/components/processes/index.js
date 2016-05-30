@@ -1,57 +1,70 @@
 import React from 'react'
+import Loading from '../loading'
+import rpc from '../../rpc'
 
-const class_for_result={
+const class_for_status={
   "": "",
   "error": "negative",
+  "aborted": "negative",
   "running": "positive"
 }
 
-function ProcessesHistory(props){
-  console.log("Processes history %o", props)
-  let all_processes=[
-    {uuid: "123", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "running", user: "dmoreno@coralbits.com"},
-    {uuid: "1234", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "1235", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "1236", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "1237", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "1238", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "1239", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "12311", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "error", user: "dmoreno@coralbits.com"},
-    {uuid: "12312", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "12313", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-    {uuid: "12314", date: "2016-05-27 18:33:33", elapsed: 2.0, action: "serverboards.core/ping", result: "ok", user: "dmoreno@coralbits.com"},
-  ]
-  return (
-    <div className="ui central white background">
-      <div className="ui text container">
-        <h1 className="ui header">Process history</h1>
+let ProcessesHistory=React.createClass({
+  getInitialState(){
+    return {
+      processes: undefined,
+      loading: true
+    }
+  },
+  componentDidMount(){
+    rpc.call("action.history", []).then((processes) => {
+      this.setState({
+        processes: processes,
+        loading: false
+      })
+    })
+  },
+  render(){
+    if (this.state.loading)
+      return (
+        <Loading>Process history</Loading>
+      )
 
-        <table className="ui very basic selectable table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Elapsed</th>
-              <th>Action</th>
-              <th>User</th>
-              <th>Result</th>
-            </tr>
-          </thead>
-          <tbody>
-            {all_processes.map( (p) => (
-              <tr key={p.uuid} className={class_for_result[p.result]}>
-                <td>{p.date}</td>
-                <td>{p.elapsed} s</td>
-                <td>{p.action}</td>
-                <td>{p.user}</td>
-                <td>{p.result}</td>
-                <td><a href={`#/process/${p.uuid}`}><i className="ui icon angle right"/></a></td>
+    let props=this.props
+    console.log("Processes history %o", props)
+    let processes=this.state.processes
+    return (
+      <div className="ui central white background">
+        <div className="ui text container">
+          <h1 className="ui header">Process history</h1>
+
+          <table className="ui very basic selectable table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Elapsed</th>
+                <th>Action</th>
+                <th>User</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {processes.map( (p) => (
+                <tr key={p.uuid} className={class_for_status[p.status]}>
+                  <td>{p.date.replace('T',' ')}</td>
+                  <td>{p.elapsed || '--'} ms</td>
+                  <td>{p.action}</td>
+                  <td>{p.user}</td>
+                  <td>{p.status}</td>
+                  <td><a href={`#/process/${p.uuid}`}><i className="ui icon angle right"/></a></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  )
+    )
 }
+})
 
 export default ProcessesHistory
