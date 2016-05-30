@@ -5,13 +5,14 @@ defmodule Serverboards.Action.Model do
       field :uuid, Ecto.UUID
       field :type, :string
       field :status, :string
+      field :params, :map
       field :result, :map
       field :user_id, :id
       field :elapsed, :integer # in ms.
       timestamps
     end
 
-    @required_fields ~w(uuid type status user_id)
+    @required_fields ~w(uuid type status params user_id)
     @optional_fields ~w(result elapsed)
     def changeset(action, changes \\ :empty) do
       import Ecto.Changeset

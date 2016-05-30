@@ -15,11 +15,13 @@ defmodule Serverboards.Action do
   def start_link(options) do
     import Ecto.Query
 
+    ~s"""
     from( h in Model.History, where: h.status == "running" )
       |> Repo.update_all( set: [
         status: "aborted",
         result: %{ reason: "Serverboards restart"}
       ] )
+    """
 
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.started", data: action }  } ->
@@ -39,7 +41,12 @@ defmodule Serverboards.Action do
       %{ payload: %{ type: "action.stopped", data: action }  } ->
         Logger.info("Action #{inspect action} stopped")
         prev = Repo.get_by( Model.History, uuid: action.uuid )
-        { :ok, _h } = Repo.update( Model.History.changeset(prev, action) )
+        case Repo.update( Model.History.changeset(prev, action) ) do
+          {:ok, _hist} -> {:ok, _hist}
+          {:error, %{ errors: errors } } ->
+            Logger.error("Error storing action result: #{ inspect errors }. Storing as error finished.")
+            Repo.update( Model.History.changeset(prev, %{ status: "error", result: %{ database_error: Map.new(errors) } } ) )
+        end
         :ok
       _ -> :ok
     end)
@@ -102,7 +109,9 @@ defmodule Serverboards.Action do
       Agent.update(Serverboards.Action, fn actions ->
         Map.put(actions, uuid, %{action: action_id, pid: self, params: params})
       end)
-      Event.emit("action.started", %{uuid: uuid, name: action.name, id: action_id, user: user}, ["action.watch"] )
+      Event.emit("action.started", %{
+        uuid: uuid, name: action.name, id: action_id, user: user, params: params
+        }, ["action.watch"] )
       command_id = if String.contains?(action.extra["command"], "/") do
         action.extra["command"]
       else
@@ -119,6 +128,11 @@ defmodule Serverboards.Action do
 
       if ok == :error do
         Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
+      end
+
+      ret = case ret do
+        %{} -> ret
+        s -> %{ data: ret }
       end
 
       Event.emit("action.stopped",
@@ -204,6 +218,7 @@ defmodule Serverboards.Action do
           %{
             uuid: h.uuid,
             date: Ecto.DateTime.to_iso8601(h.inserted_at),
+            params: h.params,
             elapsed: h.elapsed,
             action: action.name,
             user: user_email,

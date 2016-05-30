@@ -6,6 +6,7 @@ defmodule Serverboards.Repo.Migrations.Action do
       add :uuid, :uuid
       add :type, :string
       add :status, :string
+      add :params, :map
       add :result, :map
       add :user_id, :id
       add :elapsed, :integer # in ms.
