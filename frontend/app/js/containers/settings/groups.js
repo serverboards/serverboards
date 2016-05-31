@@ -3,7 +3,8 @@ import event from '../../utils/event'
 import {
     group_list, user_list,
     group_update_perms, group_update_users,
-    group_add, perm_list
+    group_add, perm_list,
+    group_remove_user, group_add_user
   } from '../../actions/auth'
 
 var Groups = event.subscribe_connect(
@@ -16,6 +17,8 @@ var Groups = event.subscribe_connect(
   (dispatch) => ({
     loadGroups: () => dispatch( group_list() ),
     loadUsers: () => dispatch( user_list() ),
+    onRemoveUser: (g, user) => dispatch( group_remove_user(g, user) ),
+    onAddUser: (g, user) => dispatch( group_add_user(g, user) ),
     onUpdatePerms: (g, to_add, to_remove) => dispatch( group_update_perms(g, to_add, to_remove) ),
     onUpdateUsers: (g, to_add, to_remove) => dispatch( group_update_users(g, to_add, to_remove) ),
     onAddGroup: (g) => dispatch( group_add(g) ),

@@ -60,6 +60,14 @@ let HoldButton = React.createClass({
           <ProgressBar fill={this.state.count}/>
         </div>
       )
+    if (this.props.className.includes("icon"))
+    return (
+      <a ref="button" className="hold icon">
+        <i className={this.props.className}  {...this.props}/>
+        {this.props.children}
+        <ProgressBar fill={this.state.count}/>
+      </a>
+    )
 
     return (
       <div className="hold button">

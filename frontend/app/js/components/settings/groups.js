@@ -102,7 +102,7 @@ let Groups=React.createClass({
                 <span className="content">Users</span>
                 <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditUsers(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
               </h3>
-              <Table data={g.users} headers={["Email"]}/>
+              <Table data={g.users} headers={["Email"]} onDelete={(u) => self.props.onRemoveUser(g.name, u)}/>
             </div>
             <div className="column">
               <h3 className="ui header">

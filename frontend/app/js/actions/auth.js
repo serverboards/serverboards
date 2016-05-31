@@ -107,6 +107,18 @@ export function group_update_users(group, to_add, to_remove){
   }
 }
 
+export function group_remove_user(group, user){
+  return function(dispatch){
+    rpc.call("group.remove_user", [group, user])
+  }
+}
+
+export function group_add_user(group, user){
+  return function(dispatch){
+    rpc.call("group.add_user", [group, user])
+  }
+}
+
 export function group_add(group){
   return function(dispatch){
     rpc.call("group.add", [group]).then(() => {

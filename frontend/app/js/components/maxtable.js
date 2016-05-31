@@ -1,4 +1,5 @@
 import React from 'react'
+import HoldButton from './holdbutton'
 
 let MaxTable=React.createClass({
   getInitialState(){
@@ -12,23 +13,41 @@ let MaxTable=React.createClass({
   handleShowLess : function(){
     this.setState({max: 3})
   },
+  componentDidMount(){
+    $(this.refs.el).find('.trash.icon').popup({
+      position: "bottom left",
+      on: 'click'
+
+    })
+  },
   render(){
     let props=this.props
     let max=this.state.max
     return (
-      <div>
+      <div ref="el">
         <table className="ui table" style={{marginBottom: 0}}>
           <thead>
             <tr>
             {props.headers.map( (h) =>(
               <th key={h}>{h}</th>
             ))}
+            {this.props.onDelete ? (
+              <th/>
+            ) : []}
             </tr>
           </thead>
           <tbody>
             {props.data.slice(0,max).map( (u) => (
               <tr key={u}>
-                <td>{u}</td>
+                <td>
+                  {u}
+                </td>
+                {this.props.onDelete ? (
+                  <td className="right aligned">
+                    <HoldButton className="ui trash icon" data-content="Hold to remove"
+                     onClick={() => this.props.onDelete(u)}/>
+                    </td>
+                  ) : []}
               </tr>
             ) ) }
           </tbody>
