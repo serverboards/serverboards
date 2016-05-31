@@ -40,7 +40,7 @@ let SetupComponent=React.createClass({
         </div>
         <div className="actions">
           <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>
-          <HoldButton className="ui red button" onClick={props.onDelete}>Delete</HoldButton>
+          <HoldButton className="ui red button" onHoldClick={props.onDelete}>Delete</HoldButton>
           <button className="ui cancel button" onClick={props.onClose}>Cancel</button>
         </div>
       </Modal>

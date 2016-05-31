@@ -13,13 +13,6 @@ let MaxTable=React.createClass({
   handleShowLess : function(){
     this.setState({max: 3})
   },
-  componentDidMount(){
-    $(this.refs.el).find('.trash.icon').popup({
-      position: "bottom left",
-      on: 'click'
-
-    })
-  },
   render(){
     let props=this.props
     let max=this.state.max
@@ -45,7 +38,7 @@ let MaxTable=React.createClass({
                 {this.props.onDelete ? (
                   <td className="right aligned">
                     <HoldButton className="ui trash icon" data-content="Hold to remove"
-                     onClick={() => this.props.onDelete(u)}/>
+                     onHoldClick={() => this.props.onDelete(u)}/>
                     </td>
                   ) : []}
               </tr>

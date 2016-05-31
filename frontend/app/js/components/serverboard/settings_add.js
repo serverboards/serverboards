@@ -47,7 +47,7 @@ var Settings=React.createClass({
             <button type="submit" className="ui button positive">Update serverboard</button>
           </div>
           <div className="ui field right aligned">
-            <HoldButton type="button" className="ui button negative" onClick={props.onDelete}>Delete serverboard</HoldButton>
+            <HoldButton type="button" className="ui button negative" onHoldClick={props.onDelete}>Delete serverboard</HoldButton>
           </div>
         </div>
       )

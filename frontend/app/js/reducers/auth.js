@@ -90,6 +90,11 @@ export const auth = (state = default_state , action) => {
         state.groups.concat( { name: action.group, users: [], perms: []} )
       )
     break;
+    case '@RPC_EVENT/group.removed':
+      state.groups = sort_groups(
+        state.groups.filter( (g) => g.name != action.group )
+      )
+    break;
     case '@RPC_EVENT/user.added':
       state.users = sort_users( state.users.concat( action.email ) )
     break;

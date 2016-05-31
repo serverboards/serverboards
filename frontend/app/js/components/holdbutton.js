@@ -22,7 +22,7 @@ let HoldButton = React.createClass({
     }
   },
   handleClick : function(){
-    this.props.onClick && this.props.onClick()
+    this.props.onHoldClick && this.props.onHoldClick()
   },
   componentDidMount : function(){
     let $button=$(this.refs.button)
@@ -30,6 +30,12 @@ let HoldButton = React.createClass({
       .on('mousedown', this.startHold)
       .on('mouseup', this.stopHold)
       .on('mouseleave', this.stopHold)
+
+    $button.find('.trash.icon').popup({
+      position: "bottom left",
+      on: 'click'
+    })
+
   },
   startHold : function(ev){
     if (this.timer)

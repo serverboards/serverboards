@@ -133,7 +133,7 @@ let Card=React.createClass({
                 Options
                 <i className="ui dropdown icon"/>
                 <div className="menu">
-                  <HoldButton className="ui item" onClick={this.handleDetach}>Hold to Detach</HoldButton>
+                  <HoldButton className="ui item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
                   <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
                   {this.state.actions ? this.state.actions.map( (ac) => (
                     <div className="ui item" onClick={() => this.triggerAction(ac.id)}>{ac.name}</div>

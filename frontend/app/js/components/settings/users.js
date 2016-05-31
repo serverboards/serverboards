@@ -29,12 +29,12 @@ const UserRow = React.createClass({
                   <i className="ui icon edit" style={{float:"right"}}/>
                 </a>
                 {u.is_active ? (
-                  <HoldButton className="item" onClick={this.props.onDisableUser}>
+                  <HoldButton className="item" onHoldClick={this.props.onDisableUser}>
                   Hold to disable
                   <i className="ui icon trash user" style={{paddingLeft: 10}}/>
                   </HoldButton>
                 ) : (
-                  <HoldButton className="item" onClick={this.props.onEnableUser}>
+                  <HoldButton className="item" onHoldClick={this.props.onEnableUser}>
                   Hold to enable
                   <i className="ui icon enable user" style={{paddingLeft: 10}}/>
                   </HoldButton>

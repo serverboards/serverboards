@@ -4,6 +4,7 @@ import EditPerms from './group/edit_perms'
 import EditUsers from './group/edit_users'
 import AddGroup from './group/add'
 import Table from '../maxtable'
+import HoldButton from '../holdbutton'
 
 let Groups=React.createClass({
   contextTypes: {
@@ -78,6 +79,7 @@ let Groups=React.createClass({
   },
   handleAddGroup : function(name){
     this.props.onAddGroup(name)
+    this.setModal(false)
   },
   render(){
     let props=this.props
@@ -94,8 +96,18 @@ let Groups=React.createClass({
 
     function Group(g){
       return (
-        <div key={g.name} style={{marginTop: 40}}>
-          <h2 className="ui dividing header">{g.name}</h2>
+        <div key={g.name} style={{marginTop: 40, position: "relative"}}>
+            <h2 className="ui dividing header">
+              {g.name}
+            </h2>
+            {g.users.length == 0 ? (
+              <span style={{position: "absolute", top: 5, right: 0}}>
+              <HoldButton className="ui trash icon"
+              data-content="Hold to remove"
+              onHoldClick={() => {self.props.onRemoveGroup(g.name)}}
+              />
+              </span>
+            ) : undefined}
           <div className="ui grid two columns stackable">
             <div className="column">
               <h3 className="ui header">

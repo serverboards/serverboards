@@ -126,6 +126,13 @@ export function group_add(group){
     })
   }
 }
+export function group_remove(group){
+  return function(dispatch){
+    rpc.call("group.remove", [group]).then(() => {
+      Flash.info("Group removed")
+    })
+  }
+}
 
 export function perm_list(){
   return function(dispatch){
