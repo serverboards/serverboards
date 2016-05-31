@@ -8,8 +8,8 @@ var reducers = ['auth','action','flash','console','top','serverboard','settings'
 reducers = reducers.reduce(function(acc, r){ acc[r]=require('./'+r).default; return acc; }, {})
 reducers.routing = routerReducer
 
-console.log(reducers)
 /*
+console.log(reducers)
 reducers.debug=(state={}, action) => {
     console.log("REDUX %s: %o",action.type, action)
     return state

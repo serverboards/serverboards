@@ -12,7 +12,7 @@ if (__DEV__){
 
   redux_extra=window.devToolsExtension ? window.devToolsExtension() : f => f
 }
-console.log(redux_extra)
+//console.log(redux_extra)
 
 let store = createStore(
   redux_reducers, {},
@@ -22,7 +22,7 @@ let store = createStore(
   )
 )
 
-console.log(store)
+//console.log(store)
 
 function get_value(what){
   function get_value_r(whatl, state){
@@ -83,7 +83,7 @@ rpc.set_redux_store(store)
 import {serverboard_update_all} from '../actions/serverboard'
 store.on('auth.logged_in', function(logged_in){
   if (logged_in){
-    console.log("Logged in, gathering initial status.")
+    //console.log("Logged in, gathering initial status.")
 
     /// Initial data gather from server
     store.dispatch( serverboard_update_all() )

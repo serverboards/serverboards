@@ -4,7 +4,6 @@ const default_state={
 }
 
 export function action(state=default_state, action){
-  console.log("action action %o", state, action)
   switch(action.type){
     case "ACTION_PS":
       return { actions: action.actions }
