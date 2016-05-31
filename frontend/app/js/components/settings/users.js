@@ -2,8 +2,54 @@ import React from 'react'
 import Loading from '../loading'
 import AddUser from './user/add'
 import EditUser from './user/edit'
+import HoldButton from '../holdbutton'
 
-let Users=React.createClass({
+
+const UserRow = React.createClass({
+  componentDidMount(){
+    $(this.refs.dropdown).dropdown()
+  },
+  render(){
+    const u = this.props.user
+    return (
+      <tr key={u.email}>
+        <td className={u.is_active ? "" : "disabled"}>{u.first_name} {u.last_name}</td>
+        <td className={u.is_active ? "" : "disabled"}>{u.email}</td>
+        <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
+        <td className={u.is_active ? "" : "disabled"}>{u.is_active ? "true" : "false"}</td>
+        <td className="ui">
+          <div className="ui item">
+            <div ref="dropdown" className="ui dropdown">
+              More
+              <i className="dropdown icon"></i>
+              <div className="menu" style={{marginLeft: "-6em"}}>
+                <a href="#" className="item"
+                  onClick={(ev) => { ev.preventDefault(); this.props.onOpenEditUser()}}>
+                  Edit user
+                  <i className="ui icon edit" style={{float:"right"}}/>
+                </a>
+                {u.is_active ? (
+                  <HoldButton className="item" onClick={this.props.onDisableUser}>
+                  Hold to disable
+                  <i className="ui icon trash user" style={{paddingLeft: 10}}/>
+                  </HoldButton>
+                ) : (
+                  <HoldButton className="item" onClick={this.props.onEnableUser}>
+                  Hold to enable
+                  <i className="ui icon enable user" style={{paddingLeft: 10}}/>
+                  </HoldButton>
+                )}
+              </div>
+            </div>
+          </div>
+
+        </td>
+      </tr>
+    )
+  }
+})
+
+const Users=React.createClass({
   handleOpenAddUser : function(){
     this.setModal('add_user')
   },
@@ -19,6 +65,12 @@ let Users=React.createClass({
     this.props.onUpdateUser(email, attributes)
 
     this.setModal(false)
+  },
+  handleDisableUser(user){
+    this.props.onUpdateUser(user.email, {is_active: false})
+  },
+  handleEnableUser(user){
+    this.props.onUpdateUser(user.email, {is_active: true})
   },
 
   contextTypes: {
@@ -54,39 +106,17 @@ let Users=React.createClass({
         )
       break;
     }
-    return []
   },
-
   render: function(){
     if (!this.props.users)
       return (
         <Loading>User list</Loading>
       )
 
-    $(this.refs.el).find('.ui.dropdown.button').dropdown()
-
-    let modal = this.getModal()
-
-    /*
-    let menu=function(u){
-      return (
-        <div className="ui buttons">
-          <div className="ui floating dropdown icon button">
-            <i className="dropdown icon"></i>
-            <div className="menu">
-              <div className="item"><i className="info icon"
-                ></i> More info</div>
-              <div className="item"><i className="toggle on icon"
-                ></i> Disable</div>
-            </div>
-          </div>
-        </div>
-      )
-    }
-    */
+    const modal = this.getModal()
 
     return (
-      <div className="ui text container" ref="el">
+      <div className="ui container" ref="el">
         <h1>Users</h1>
 
         <table className="ui table">
@@ -96,18 +126,17 @@ let Users=React.createClass({
               <th>Email</th>
               <th>Groups</th>
               <th>Is active?</th>
-              <th></th>
+              <th style={{width: "8em"}}></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody ref="tbody">
           {this.props.users.map((u) => (
-            <tr key={u.email}>
-              <td className={u.is_active ? "" : "disabled"}>{u.first_name} {u.last_name}</td>
-              <td className={u.is_active ? "" : "disabled"}>{u.email}</td>
-              <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
-              <td className={u.is_active ? "" : "disabled"}>{u.is_active ? "true" : "false"}</td>
-              <td><a href="#" onClick={(ev) => { ev.preventDefault(); this.handleOpenEditUser(u)}} title="Edit user"><i className="ui icon edit"/></a></td>
-            </tr>
+            <UserRow user={u}
+              key={u.email}
+              onOpenEditUser={() => this.handleOpenEditUser(u)}
+              onDisableUser={() => this.handleDisableUser(u)}
+              onEnableUser={() => this.handleEnableUser(u)}
+              />
           ))}
           </tbody>
         </table>

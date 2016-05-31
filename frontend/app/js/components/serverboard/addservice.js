@@ -4,8 +4,6 @@ import Loading from '../loading'
 import Modal from '../modal'
 import { default_service_fields } from '../service'
 
-require("../../../sass/modal.sass")
-
 let AddService=React.createClass({
   componentDidMount : function(){
     if (!this.props.available_services){

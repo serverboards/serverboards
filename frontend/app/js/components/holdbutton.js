@@ -22,7 +22,7 @@ let HoldButton = React.createClass({
     }
   },
   handleClick : function(){
-    this.props.onClick()
+    this.props.onClick && this.props.onClick()
   },
   componentDidMount : function(){
     let $button=$(this.refs.button)
