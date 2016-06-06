@@ -93,6 +93,16 @@ defmodule Serverboards.Auth.RPC do
       {:ok, Auth.Permission.perm_list}
     end, [required_perm: "auth.manage_groups"]
 
+    # reauth test
+    add_method mc, "auth.test_reauth", fn [], context->
+      if Serverboards.Auth.reauthenticate(MOM.RPC.Context.get(context, :client)) do
+        {:ok, :ok}
+      else
+        {:error, :not_allowed}
+      end
+    end, [context: true, required_perm: "debug"]
+
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
       RPC.Client.set client, :user, user
