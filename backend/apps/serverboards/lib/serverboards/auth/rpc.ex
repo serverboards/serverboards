@@ -97,9 +97,7 @@ defmodule Serverboards.Auth.RPC do
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
       RPC.Client.set client, :user, user
 
-      to_serverboards = (RPC.Client.get client, :to_serverboards)
-
-      RPC.add_method_caller to_serverboards, mc
+      MOM.RPC.Client.add_method_caller client, mc
 
       # subscribe this client to changes on this user
       MOM.Channel.subscribe(:client_events, fn %{ payload: %{ type: type, data: data}} ->

@@ -36,14 +36,11 @@ defmodule Serverboards.IO.Cmd do
   @doc ~S"""
   Performs a call into the command.
 
-  By default uses id 1 as normally its used in synchronous fashion.
-
-  This function is used mainly in testing.
+  This function is used mainly in testing as it has a timeout of 5s.
   """
   def call(cmd, method, params \\ []) do
     case GenServer.call(cmd, {:call, method, params}) do
       {:ok, res} -> {:ok, res}
-      {:error, "unknown_method"} -> {:error, :unknown_method}
       {:error, err} -> {:error, err}
     end
   end
@@ -61,14 +58,10 @@ defmodule Serverboards.IO.Cmd do
       ]
     RPC.Client.set( client, :user, %{ email: "system@serverboards.io", perms: []} )
 
-    to_client = RPC.Client.get client, :to_client
-
     state=%{
       cmd: cmd,
       port: port,
       client: client,
-      maxid: 1,
-      to_client: to_client
     }
     {:ok, state}
   end
@@ -76,12 +69,11 @@ defmodule Serverboards.IO.Cmd do
 
   def handle_call({:call, method, params}, from, state) do
     #Logger.debug("Call #{method}")
-    id = state.maxid
-    RPC.cast( state.to_client, method, params, id, fn res ->
+    RPC.Client.cast( state.client, method, params, fn res ->
       #Logger.debug("Response for #{method}: #{inspect res}")
       GenServer.reply(from, res)
     end)
-    {:noreply, %{ state | maxid: state.maxid+1 } }
+    {:noreply, state }
   end
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do

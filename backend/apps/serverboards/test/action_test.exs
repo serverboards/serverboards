@@ -44,7 +44,7 @@ defmodule Serverboards.ActionTest do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
     assert Test.Client.call(client, "action.trigger",
-      ["invalid.action", %{}] ) == {:error, :unknown_action}
+      ["invalid.action", %{}] ) == {:error, "unknown_action"}
 
     Test.Client.stop client
   end
@@ -62,12 +62,12 @@ defmodule Serverboards.ActionTest do
 
     {:ok, history} = Test.Client.call(client, "action.history", [])
     Logger.info("History: #{inspect history}")
-    assert "serverboards.test.auth/action" in Enum.map(history, &(&1[:type]))
+    assert "serverboards.test.auth/action" in Enum.map(history, &(&1["type"]))
 
-    {:ok, details} = Test.Client.call(client, "action.history", [ (hd history).uuid ])
-    assert details[:uuid] == (hd history).uuid
-    assert details[:status] == "ok"
-    assert details[:elapsed] != nil
+    {:ok, details} = Test.Client.call(client, "action.history", [ (hd history)["uuid"] ])
+    assert details["uuid"] == (hd history)["uuid"]
+    assert details["status"] == "ok"
+    assert details["elapsed"] != nil
 
 
     Test.Client.stop client

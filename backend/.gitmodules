@@ -1,0 +1,3 @@
+[submodule "apps/mom"]
+	path = apps/mom
+	url = git://github.com/serverboards/elixir-mom

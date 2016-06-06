@@ -52,7 +52,7 @@ defmodule EventTest do
     Client.expect(client, method: "user.updated")
     :timer.sleep(200)
     {:ok, user} = (Client.call client, "auth.user", [])
-    assert not "plugin" in user.perms
+    assert not "plugin" in user["perms"]
 
     Logger.info (inspect (Client.call client, "auth.user", []))
     # check now cant

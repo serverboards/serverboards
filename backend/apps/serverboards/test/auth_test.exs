@@ -28,7 +28,7 @@ defmodule Serverboards.AuthTest do
 
 		{:ok, user} = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
 		assert user != false
-		assert user.email == "dmoreno@serverboards.io"
+		assert user["email"] == "dmoreno@serverboards.io"
 
 		Logger.info("#{inspect user}")
 	end
@@ -88,7 +88,7 @@ defmodule Serverboards.AuthTest do
     {:error, :cant_log_in} = Client.start_link as: "dmoreno+c@serverboards.io"
 
     {:ok, list} = Client.call(client, "user.list", [])
-    assert Enum.find list, &( &1.email == "dmoreno+c@serverboards.io" )
+    assert Enum.find list, &( &1["email"] == "dmoreno+c@serverboards.io" )
     Logger.info(inspect list)
   end
 
@@ -98,7 +98,7 @@ defmodule Serverboards.AuthTest do
 
     # I have it here
     {:ok, user} = Client.call(client, "auth.user", [])
-    assert "auth.create_user" in user.perms
+    assert "auth.create_user" in user["perms"]
 
     {:ok, :ok} = Client.call(client, "group.remove_perm", ["admin", "auth.create_user"])
     Client.expect(client, method: "group.perm_removed")
@@ -106,7 +106,7 @@ defmodule Serverboards.AuthTest do
 
     # automatically removed at server
     {:ok, user} = Client.call(client, "auth.user", [])
-    assert not "auth.create_user" in user.perms
+    assert not "auth.create_user" in user["perms"]
 
     {:error, :unknown_method} = Client.call(client, "user.add", %{
       "email" => "test+rmtr@serverboards.io",

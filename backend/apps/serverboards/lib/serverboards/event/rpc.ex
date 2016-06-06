@@ -35,8 +35,7 @@ defmodule Serverboards.Event.RPC do
 
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       Logger.info("Event RPC ready.")
-      to_serverboards = (MOM.RPC.Client.get client, :to_serverboards)
-      MOM.RPC.add_method_caller to_serverboards, mc
+      MOM.RPC.Client.add_method_caller client, mc
     end)
 
 

@@ -86,7 +86,7 @@ defmodule Serverboards.Auth do
 	def authenticate(client, cont \\ nil) do
 		#Logger.debug("Asking for authentication #{inspect client}")
 
-		RPC.add_method((RPC.Client.get client, :to_serverboards), "auth.auth", fn
+		RPC.Client.add_method(client, "auth.auth", fn
 			%{ "type" => _ } = params ->
 				user = auth(params)
 				if user do
@@ -104,7 +104,7 @@ defmodule Serverboards.Auth do
 				end
 		end)
 
-		RPC.Client.event_to_client( client, "auth.required", ["basic"] )
+		RPC.Client.event( client, "auth.required", ["basic"] )
 		:ok
 	end
 

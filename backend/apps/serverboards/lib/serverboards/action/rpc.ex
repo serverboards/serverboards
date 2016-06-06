@@ -41,9 +41,7 @@ defmodule Serverboards.Action.RPC do
     end, [required_perm: "action.watch", context: true]
 
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
-      to_serverboards = (RPC.Client.get client, :to_serverboards)
-
-      RPC.add_method_caller to_serverboards, mc
+      MOM.RPC.Client.add_method_caller client, mc
     end)
     {:ok, mc}
   end

@@ -50,7 +50,7 @@ defmodule Serverboards.Service.RPC do
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
-      RPC.add_method_caller (RPC.Client.get client, :to_serverboards), mc
+      MOM.RPC.Client.add_method_caller client, mc
       :ok
     end)
 

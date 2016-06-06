@@ -23,7 +23,7 @@ defmodule Serverboards.Event do
           Logger.debug("Perms: #{inspect user} / #{inspect guards}")
           if check_guards(guards, user) do
             try do
-              MOM.RPC.Client.event_to_client(
+              MOM.RPC.Client.event(
                 client, event_type,
                 Serverboards.Utils.clean_struct(payload.data)
                 )
@@ -35,7 +35,7 @@ defmodule Serverboards.Event do
             Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
           end
         else
-          Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
+          #Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
         end
         :ok
       end)

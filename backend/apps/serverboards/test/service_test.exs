@@ -163,7 +163,7 @@ defmodule ServerboardTest do
       }
     ]
     {:ok, info} = Test.Client.call client, "service.info", [service]
-    assert info.name == "new name"
+    assert info["name"] == "new name"
 
     Test.Client.call client, "service.delete", [service]
     {:ok, services} = Test.Client.call client, "service.list", [["type","email"]]

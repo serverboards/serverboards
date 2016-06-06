@@ -21,7 +21,7 @@ defmodule Serverboards.Plugin.Runner do
       %{ user: user, client: client} = msg.payload
       if Enum.member?(user.perms, "plugin") do
         alias MOM.RPC
-        RPC.add_method_caller (RPC.Client.get client, :to_serverboards), Serverboards.Plugin.Runner.method_caller
+        MOM.RPC.Client.add_method_caller client, Serverboards.Plugin.Runner.method_caller
       end
       :ok
     end)
