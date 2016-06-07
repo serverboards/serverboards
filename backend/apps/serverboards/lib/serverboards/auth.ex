@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Auth do
 	@moduledoc ~S"""
@@ -198,13 +199,20 @@ defmodule Serverboards.Auth do
 	end
 
 	def handle_call({:list_auth}, _, state) do
-		{:reply, Map.keys(state.auths), state}
+		{:reply, list_auth_(state), state}
+	end
+
+	# This is a server side call, to avoid deadlock
+	defp list_auth_(state) do
+		Map.keys(state.auths)
 	end
 
 	def handle_call({:reauth, client}, from, state) do
-		res = RPC.Client.call_to_remote( client, "auth.reauth", list_auth )
-		Logger.info("Auth required answer: #{inspect res}")
-		true
+		RPC.Client.event( client, "auth.auth", list_auth_(state))
+		RPC.Client.cast( client, "auth.reauth", list_auth_(state), fn res ->
+			Logger.info("Auth required answer: #{inspect res}")
+			GenServer.reply(from, res)
+		end )
 
 		{:noreply, state}
 	end

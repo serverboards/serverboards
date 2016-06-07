@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Test.Client do
   @moduledoc ~S"""
@@ -82,10 +83,37 @@ defmodule Test.Client do
   end
 
   @doc ~S"""
-  Calls into the client
+  Client calls to server, as if JSON written
   """
   def call(client, method, params) do
     GenServer.call(RPC.Client.get(client, :pid), {:call_from_json, method, params})
+  end
+
+  @doc ~S"""
+  Client casts to server, as if JSON written
+
+  Actually creates a new process
+  """
+  def cast(client, method, params, cb) do
+    Task.async(fn ->
+      ret = call(client, method, params)
+      cb.(ret)
+    end)
+  end
+
+  @doc ~S"""
+  Sends response to client from the JSON side
+  """
+  def parse_line(client, line) do
+    RPC.Client.parse_line( RPC.Client.get(client, :client), line )
+  end
+
+  def set(client, k, v) do
+    RPC.Client.set(client, k, v)
+  end
+
+  def get(client, k, v) do
+    RPC.Client.get(client, k, v)
   end
 
   ## server impl
@@ -97,10 +125,12 @@ defmodule Test.Client do
         {:ok, rpc_call} = JSON.decode( line )
         GenServer.cast(pid, {:call, rpc_call } )
         end,
-      name: "TestClient"
+      name: "TestClient",
+      tap: true
       ]
 
     RPC.Client.set client, :pid, pid
+    RPC.Client.set client, :client, client
 
     {:ok, %{
         client: client,

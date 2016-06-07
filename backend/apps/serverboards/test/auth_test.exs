@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.AuthTest do
   use ExUnit.Case, async: false
@@ -126,5 +127,29 @@ defmodule Serverboards.AuthTest do
 
     {:ok, list} = Client.call(client, "perm.list", [])
     assert (Enum.count list) > 0
+  end
+
+  test "Reauth" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    Client.set(client, :test_reauth, :none)
+
+    Client.cast(client, "auth.test_reauth", [], fn ret ->
+      Logger.info("Reauth result: #{inspect ret}")
+      Client.set(client, :test_reauth, ret)
+    end)
+    Logger.debug("Async")
+    #assert Client.expect(client, method: "auth.reauth")
+
+    # sleep bad, but easier option.
+    :timer.sleep(200)
+
+    {:ok,re}=JSON.encode(%{id: 1, result: %{ type: "basic", username: "dmoreno@serverboards.io", password: "asdfasdf"}})
+    Client.parse_line(client, re)
+
+    :timer.sleep(200)
+    assert Client.get(client, :test_reauth, nil) == {:ok, :ok}
+
+    Client.stop(client)
   end
 end
