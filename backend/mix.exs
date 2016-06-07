@@ -6,7 +6,7 @@ defmodule Backend.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps,
-     version: "0.0.1",
+     version: "0.3.0",
      name: "Serverboards",
      homepage_url: "https://serverboards.io",
      docs: [
@@ -30,8 +30,8 @@ defmodule Backend.Mixfile do
   # and cannot be accessed from applications inside the apps folder
   defp deps do
     [
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev}
+      {:ex_doc, "~> 0.11", only: :dev},
+      {:cmark, ">= 0.5.0", only: :dev},
     ]
   end
 end

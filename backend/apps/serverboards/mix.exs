@@ -3,7 +3,7 @@ defmodule Serverboards.Mixfile do
 
   def project do
     [app: :serverboards,
-     version: "0.0.1",
+     version: "0.3.0",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
      deps_path: "../../deps",
@@ -11,7 +11,14 @@ defmodule Serverboards.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     name: "Serverboards",
+     homepage_url: "https://serverboards.io",
+     docs: [
+       logo: "docs/serverboards.png",
+       extras: ["README.md"]
+     ]
+  ]
   end
 
   # Configuration for the OTP application
