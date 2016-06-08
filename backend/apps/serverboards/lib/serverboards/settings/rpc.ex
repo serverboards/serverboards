@@ -19,12 +19,11 @@ defmodule Serverboards.Settings.RPC do
     end, [required_perm: "settings.view", context: true]
 
     RPC.MethodCaller.add_method mc, "settings.update", fn [section, changes], context ->
-      Logger.debug("Context #{inspect context}")
-      if Serverboards.Auth.reauthenticate(Context.get(context, :client)) do
-        update section, changes, Context.get(context, :user)
-      else
-        {:error, :not_allowed}
-      end
+      {:error,
+        Serverboards.Auth.Auth.request_reauth(Context.get(context, :reauth), fn ->
+          update section, changes, Context.get(context, :user)
+        end)
+      }
     end, [required_perm: "settings.update", context: true]
 
     # Add this method caller once authenticated.

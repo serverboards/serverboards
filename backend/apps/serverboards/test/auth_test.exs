@@ -7,6 +7,7 @@ defmodule Serverboards.AuthTest do
 	@moduletag :capture_log
 
   doctest Serverboards.Auth, import: true
+  doctest Serverboards.Auth.Reauth, import: true
 
   test "User auth" do
     {:ok, client} = Client.start_link
@@ -134,22 +135,59 @@ defmodule Serverboards.AuthTest do
 
     Client.set(client, :test_reauth, :none)
 
-    Client.cast(client, "auth.test_reauth", [], fn ret ->
-      Logger.info("Reauth result: #{inspect ret}")
-      Client.set(client, :test_reauth, ret)
-    end)
-    #assert Client.expect(client, method: "auth.reauth")
+    ret = Client.call(client, "auth.test_reauth", [])
+    {:error, %{
+      "type" => "needs_reauth",
+      "uuid" => uuid,
+      "available" => available
+      }
+    } = ret
 
-    # sleep bad, but easier option.
-    Logger.debug("Async. Wait 6s to force timeouts.. or not.")
-    :timer.sleep(6000) # to make sure timeout is neutral
+    Logger.debug("UUID #{uuid}")
+    assert "freepass" in available
 
-    {:ok,re}=JSON.encode(%{id: 1, result: %{ type: "basic", username: "dmoreno@serverboards.io", password: "asdfasdf"}})
-    Client.parse_line(client, re)
-
-    :timer.sleep(200)
-    assert Client.get(client, :test_reauth, nil) == {:ok, :ok}
+    ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: "freepass" }})
+    assert ret == {:ok, "reauth_success"}
 
     Client.stop(client)
+  end
+
+  test "Reauth fail" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io", reauth: false
+
+    Client.set(client, :test_reauth, :none)
+
+    ret = Client.call(client, "auth.test_reauth", [])
+    {:error, %{
+      "type" => "needs_reauth",
+      "uuid" => uuid,
+      "available" => available
+      }
+    } = ret
+
+    Logger.debug("UUID #{uuid}")
+    assert "freepass" in available
+
+    ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: "nopass" }})
+    {:error, %{
+      "type" => "needs_reauth",
+      "uuid" => ^uuid,
+      "available" => available
+      }
+    } = ret
+
+
+    Client.stop(client)
+  end
+
+  test "Reauth basic" do
+    import Serverboards.Auth.Reauth
+
+    {:ok, r} = start_link
+    msg = request_reauth r, fn -> :reauth_success end
+    assert msg.type == :needs_reauth
+    assert "token" in msg.available
+    res = reauth r, msg.uuid, %{ "type" => "freepass", "data" => %{} }
+    assert res == :reauth_success
   end
 end

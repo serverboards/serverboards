@@ -94,15 +94,21 @@ defmodule Serverboards.Auth.RPC do
       {:ok, Auth.Permission.perm_list}
     end, [required_perm: "auth.manage_groups"]
 
+    add_method mc, "auth.reauth", fn %{ "uuid" => uuid, "data" => data }, context ->
+      Serverboards.Auth.Reauth.reauth(
+        RPC.Context.get(context, :reauth),
+        uuid, data
+      )
+    end, [context: true]
+
     # reauth test
     add_method mc, "auth.test_reauth", fn [], context->
-      client = MOM.RPC.Context.get(context, :client)
-      Logger.debug("Client #{inspect MOM.RPC.Context.debug(context)}")
-      if Serverboards.Auth.reauthenticate(client) do
-        {:ok, :ok}
-      else
-        {:error, :not_allowed}
-      end
+      reauth_map = Serverboards.Auth.Reauth.request_reauth(
+        RPC.Context.get(context, :reauth),
+        fn ->
+          {:ok, :reauth_success}
+      end)
+      {:error, reauth_map}
     end, [context: true, required_perm: "debug"]
 
 
@@ -139,6 +145,9 @@ defmodule Serverboards.Auth.RPC do
         end
         :ok
       end)
+
+      {:ok, reauth_pid} = Serverboards.Auth.Reauth.start_link
+      RPC.Client.set client, :reauth, reauth_pid
 
       :ok
     end)
