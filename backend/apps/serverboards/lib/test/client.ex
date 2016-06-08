@@ -22,7 +22,8 @@ defmodule Test.Client do
   * as: email -- Starts as that email user
   """
   def start_link(options \\ []) do
-    {:ok, pid} = GenServer.start_link __MODULE__, :ok, []
+    options = options ++ [reauth: true]
+    {:ok, pid} = GenServer.start_link __MODULE__, options, []
     client=GenServer.call(pid, {:get_client})
 
     maybe_user=Keyword.get(options, :as, false)
@@ -95,8 +96,12 @@ defmodule Test.Client do
   Actually creates a new process
   """
   def cast(client, method, params, cb) do
-    Task.async(fn ->
-      ret = call(client, method, params)
+    Task.start_link(fn ->
+      ret = GenServer.call(
+        RPC.Client.get(client, :pid),
+        {:call_from_json, method, params},
+        100_000 # much larger timeout
+      )
       cb.(ret)
     end)
   end
@@ -104,8 +109,13 @@ defmodule Test.Client do
   @doc ~S"""
   Sends response to client from the JSON side
   """
-  def parse_line(client, line) do
+  def parse_line(client, line) when is_binary(line) do
     RPC.Client.parse_line( RPC.Client.get(client, :client), line )
+  end
+
+  def parse_map(client, map) do
+    {:ok, json} = JSON.encode(map)
+    parse_line(client, json)
   end
 
   def set(client, k, v) do
@@ -117,14 +127,14 @@ defmodule Test.Client do
   end
 
   ## server impl
-  def init(:ok) do
+  def init(options) do
     pid = self()
     {:ok, client} = RPC.Client.start_link [
       writef: fn line ->
-        Logger.debug("Write to test client: #{line}")
+        Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
         {:ok, rpc_call} = JSON.decode( line )
         GenServer.cast(pid, {:call, rpc_call } )
-        end,
+      end,
       name: "TestClient",
       tap: true
       ]
@@ -137,7 +147,8 @@ defmodule Test.Client do
         messages: [],
         expecting: nil,
         waiting: %{},
-        maxid: 1
+        maxid: 1,
+        options: options
     } }
   end
 
@@ -167,44 +178,60 @@ defmodule Test.Client do
   end
 
   def handle_cast({:call, msg}, status) do
-    Logger.debug("Add msg #{inspect msg} && #{inspect status.expecting}")
+    if (msg["method"]=="auth.reauth") && status.options[:reauth] do
+      handle_cast({:reauth, msg}, status )
+    else
+      #Logger.debug("Add msg #{inspect msg} && #{inspect status.expecting}")
 
-    waiting_from = status.waiting[msg["id"]]
-    Logger.debug("Waiting for #{inspect status.waiting}, #{inspect msg["id"]}, #{inspect waiting_from}")
-    if waiting_from do
-      if msg["error"] == nil do
-        res = case msg["result"] do
-          "ok" -> :ok
-          other -> other
+      waiting_from = status.waiting[msg["id"]]
+      Logger.debug("Waiting for #{inspect status.waiting}, got id #{inspect msg["id"]}, waiting from #{inspect waiting_from}")
+      if waiting_from do
+        if msg["error"] == nil do
+          res = case msg["result"] do
+            "ok" -> :ok
+            other -> other
+          end
+          GenServer.reply(waiting_from, {:ok, res})
+        else
+          err = case msg["error"] do
+            "unknown_method" -> :unknown_method
+            other -> other
+          end
+          GenServer.reply(waiting_from, {:error, err})
         end
-        GenServer.reply(waiting_from, {:ok, res})
-      else
-        err = case msg["error"] do
-          "unknown_method" -> :unknown_method
-          other -> other
-        end
-        GenServer.reply(waiting_from, {:error, err})
       end
-    end
 
-    messages = status.messages ++ [msg]
-    messages = if status.expecting do
-      {isin, messages} = expect_rec(status.expecting.what, messages)
-      if isin do
-        #Logger.debug("Got #{inspect status.expecting.what} now")
-        GenServer.reply(status.expecting.from, true)
-        {:noreply, %{ status | messages: messages, expecting: nil }}
+      messages = status.messages ++ [msg]
+
+      if status.expecting do
+        {isin, messages} = expect_rec(status.expecting.what, messages)
+        if isin do
+          #Logger.debug("Got #{inspect status.expecting.what} now")
+          GenServer.reply(status.expecting.from, true)
+          {:noreply, %{ status | messages: messages, expecting: nil }}
+        else
+          {:noreply, %{ status | messages: messages }}
+        end
       else
         {:noreply, %{ status | messages: messages }}
       end
-    else
-      {:noreply, %{ status | messages: messages }}
     end
   end
 
+  def handle_cast({:reauth, rpc_call}, status) do
+    Logger.debug("Required reauth.")
+    Test.Client.parse_map(status.client,
+      %{ id: rpc_call["id"], result:
+        %{ type: "basic", username: "dmoreno@serverboards.io", password: "asdfasdf"}
+      } )
+    {:noreply, status}
+  end
+
   def handle_call({:call_from_json, method, params}, from, status) do
-    {:ok, json} = JSON.encode( %{ method: method, params: params, id: status.maxid })
+    {:ok, json} = JSON.encode( %{ method: method, params: params, id: status.maxid } )
+    #Logger.debug("Calling #{method}")
     RPC.Client.parse_line(status.client, json)
+    #Logger.debug("Calling #{method} done")
     {:noreply, %{ status |
       waiting: Map.put(status.waiting, status.maxid, from),
       maxid: status.maxid + 1,

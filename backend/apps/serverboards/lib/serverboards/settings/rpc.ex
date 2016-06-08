@@ -1,4 +1,6 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
+
 
 defmodule Serverboards.Settings.RPC do
   alias MOM.RPC
@@ -17,6 +19,7 @@ defmodule Serverboards.Settings.RPC do
     end, [required_perm: "settings.view", context: true]
 
     RPC.MethodCaller.add_method mc, "settings.update", fn [section, changes], context ->
+      Logger.debug("Context #{inspect context}")
       if Serverboards.Auth.reauthenticate(Context.get(context, :client)) do
         update section, changes, Context.get(context, :user)
       else

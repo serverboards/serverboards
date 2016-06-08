@@ -130,7 +130,7 @@ defmodule Serverboards.AuthTest do
   end
 
   test "Reauth" do
-    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io", reauth: false
 
     Client.set(client, :test_reauth, :none)
 
@@ -138,11 +138,11 @@ defmodule Serverboards.AuthTest do
       Logger.info("Reauth result: #{inspect ret}")
       Client.set(client, :test_reauth, ret)
     end)
-    Logger.debug("Async")
     #assert Client.expect(client, method: "auth.reauth")
 
     # sleep bad, but easier option.
-    :timer.sleep(200)
+    Logger.debug("Async. Wait 6s to force timeouts.. or not.")
+    :timer.sleep(6000) # to make sure timeout is neutral
 
     {:ok,re}=JSON.encode(%{id: 1, result: %{ type: "basic", username: "dmoreno@serverboards.io", password: "asdfasdf"}})
     Client.parse_line(client, re)

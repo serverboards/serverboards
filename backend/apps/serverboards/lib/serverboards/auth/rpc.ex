@@ -96,7 +96,9 @@ defmodule Serverboards.Auth.RPC do
 
     # reauth test
     add_method mc, "auth.test_reauth", fn [], context->
-      if Serverboards.Auth.reauthenticate(MOM.RPC.Context.get(context, :client)) do
+      client = MOM.RPC.Context.get(context, :client)
+      Logger.debug("Client #{inspect MOM.RPC.Context.debug(context)}")
+      if Serverboards.Auth.reauthenticate(client) do
         {:ok, :ok}
       else
         {:error, :not_allowed}

@@ -208,7 +208,7 @@ defmodule Serverboards.Auth do
 	end
 
 	def handle_call({:reauth, client}, from, state) do
-		RPC.Client.event( client, "auth.auth", list_auth_(state))
+		Logger.debug("client #{inspect client}")
 		RPC.Client.cast( client, "auth.reauth", list_auth_(state), fn res ->
 			Logger.info("Auth required answer: #{inspect res}")
 			GenServer.reply(from, res)
