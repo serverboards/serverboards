@@ -42,7 +42,10 @@ defmodule Serverboards.Serverboard do
       # update tags
       serverboard = Repo.get_by!(ServerboardModel, shortname: shortname)
 
-      tags = MapSet.new Map.get(operations, :tags, [])
+      tags = MapSet.new(
+        Map.get(operations, :tags, [])
+        |> Enum.filter(&(&1 != ""))
+        )
 
       current_tags = Repo.all(from st in ServerboardTagModel, where: st.serverboard_id == ^serverboard.id, select: st.name )
       current_tags = MapSet.new current_tags
