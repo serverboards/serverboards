@@ -1,5 +1,5 @@
-import Flash from './flash'
-import event from './utils/event'
+import Flash from 'app/flash'
+import event from 'app/utils/event'
 
 /**
  * @short Starts a new RPC connection, with the given options

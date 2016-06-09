@@ -1,4 +1,4 @@
-import ServerboardView from '../../components/serverboard'
+import ServerboardView from 'app/components/serverboard'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 

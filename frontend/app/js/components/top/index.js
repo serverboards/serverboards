@@ -1,9 +1,9 @@
 import React from 'react'
-import UserMenu from '../../containers/top/usermenu'
-import ProcessesMenu from '../../containers/top/processesmenu'
-import {Link} from '../../router'
+import UserMenu from 'app/containers/top/usermenu'
+import ProcessesMenu from 'app/containers/top/processesmenu'
+import {Link} from 'app/router'
 
-require("../../../sass/top.sass")
+require("sass/top.sass")
 
 var Top = function(props){
   let menu=undefined

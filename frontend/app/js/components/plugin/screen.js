@@ -1,5 +1,5 @@
 import React from 'react'
-import plugin from '../../utils/plugin'
+import plugin from 'app/utils/plugin'
 import Loading from '../loading'
 
 const ExternalScreen = React.createClass({

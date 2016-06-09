@@ -2,16 +2,16 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 import { Provider } from 'react-redux'
-import rpc from './rpc'
-import store from './utils/store'
-import plugin from './utils/plugin'
+import rpc from 'app/rpc'
+import store from 'app/utils/store'
+import plugin from 'app/utils/plugin'
 
-require("../sass/serverboards.sass")
+require("sass/serverboards.sass")
 
-import Main from './containers/main.js'
+import Main from 'app/containers/main.js'
 
-import Flash from './flash'
-import FlashActions from './actions/flash'
+import Flash from 'app/flash'
+import FlashActions from 'app/actions/flash'
 
 Flash.log=function(message, options={}){
   options=Object.assign({}, {timeout: message.length*100}, options)

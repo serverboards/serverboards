@@ -1,11 +1,11 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
-import ServiceSettings from '../../containers/service/settings'
+import ServiceSettings from 'app/containers/service/settings'
 import HoldButton from '../holdbutton'
-import rpc from '../../rpc'
-import Flash from '../../flash'
+import rpc from 'app/rpc'
+import Flash from 'app/flash'
 
-require("../../../sass/service/card.sass")
+require("sass/service/card.sass")
 
 function Field(props){
   return (

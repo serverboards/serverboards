@@ -1,5 +1,5 @@
 import React from 'react'
-import rpc from '../rpc'
+import rpc from 'app/rpc'
 import { connect } from 'react-redux'
 
 let subscriptions={}

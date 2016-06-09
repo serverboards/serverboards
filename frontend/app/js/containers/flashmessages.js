@@ -1,8 +1,8 @@
 import React from 'react'
-import Flash from '../flash'
-import FlashMessageListView from '../components/flashmessages'
+import Flash from 'app/flash'
+import FlashMessageListView from 'app/components/flashmessages'
 import { connect } from 'react-redux'
-import flash from '../actions/flash'
+import flash from 'app/actions/flash'
 
 let FlashMessageList = connect(
   (state) => {

@@ -1,6 +1,6 @@
 import React from 'react';
-import ProcessesMenuView from '../../components/top/processesmenu'
-import { logout } from '../../actions/auth'
+import ProcessesMenuView from 'app/components/top/processesmenu'
+import { logout } from 'app/actions/auth'
 import { connect } from 'react-redux'
 
 var ProcessesMenu = connect(

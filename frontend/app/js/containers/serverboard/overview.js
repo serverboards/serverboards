@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import OverviewView from '../../components/serverboard/overview'
+import OverviewView from 'app/components/serverboard/overview'
 
 var Overview=connect(
   (state) => ({

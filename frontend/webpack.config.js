@@ -25,8 +25,14 @@ module.exports = {
       "./app/js/app.js"
     ].concat(entry),
     output: {
-        path: __dirname + '/dist/',
+        path: path.resolve('/dist/'),
         filename: "js/serverboards-[hash].js"
+    },
+    resolve: {
+      alias:{
+        app : path.resolve("./app/js"),
+        sass : path.resolve("./app/sass")
+      }
     },
     devtool: __DEV__ ? "source-map" : "cheap-module-source-map",
     module: {
@@ -61,7 +67,7 @@ module.exports = {
       })
     ],
     sassLoader: {
-      includePaths: [path.resolve(__dirname, "./sass")]
+      includePaths: [path.resolve("./sass")]
     },
     imageWebpackLoader: {
       pngquant:{

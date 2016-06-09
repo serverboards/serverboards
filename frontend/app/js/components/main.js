@@ -1,10 +1,10 @@
 import React from 'react';
 
-import Top from '../containers/top'
-import Login from '../containers/login.js'
-import Console from '../containers/console.js'
-import FlashMessageList from '../containers/flashmessages.js'
-import Router from '../router'
+import Top from 'app/containers/top'
+import Login from 'app/containers/login.js'
+import Console from 'app/containers/console.js'
+import FlashMessageList from 'app/containers/flashmessages.js'
+import Router from 'app/router'
 
 function Main(props){
   //console.log("Main component props %o", props.onLogin)

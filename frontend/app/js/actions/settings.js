@@ -1,5 +1,5 @@
-import rpc from '../rpc'
-import Flash from '../flash'
+import rpc from 'app/rpc'
+import Flash from 'app/flash'
 
 export function settings_all(){
   return (dispatch) => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import SettingsAdd from '../../containers/serverboard/settings_add'
+import SettingsAdd from 'app/containers/serverboard/settings_add'
 import Loading from '../loading'
 
 let Settings=React.createClass({

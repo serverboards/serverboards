@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import CardView from '../../components/service/card'
-import { service_detach } from '../../actions/service'
+import CardView from 'app/components/service/card'
+import { service_detach } from 'app/actions/service'
 
 var Card = connect(
   (state) => {

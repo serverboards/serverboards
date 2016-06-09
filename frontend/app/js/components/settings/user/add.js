@@ -1,5 +1,5 @@
 import React from 'react'
-import Modal from '../../modal'
+import Modal from 'app/components/modal'
 
 let AddUser = React.createClass({
   handleAddUser : function(ev){

@@ -1,7 +1,7 @@
 import React from 'react'
-import SettingsView from '../../components/service/settings'
-import event from '../../utils/event'
-import { services_update_catalog, service_update } from '../../actions/service'
+import SettingsView from 'app/components/service/settings'
+import event from 'app/utils/event'
+import { services_update_catalog, service_update } from 'app/actions/service'
 
 var Settings = event.subscribe_connect(
   (state) => {

@@ -1,5 +1,5 @@
-import GroupsView from '../../components/settings/groups'
-import event from '../../utils/event'
+import GroupsView from 'app/components/settings/groups'
+import event from 'app/utils/event'
 import {
     group_list, user_list,
     group_update_perms, group_update_users,

@@ -1,6 +1,6 @@
 import React from 'react'
 import HoldButton from '../holdbutton'
-import Link from '../../router'
+import Link from 'app/router'
 
 var Settings=React.createClass({
   handleSubmit(ev){

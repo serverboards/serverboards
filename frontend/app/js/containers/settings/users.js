@@ -1,6 +1,6 @@
-import UsersView from '../../components/settings/users'
-import event from '../../utils/event'
-import { user_list, user_add, user_update } from '../../actions/auth'
+import UsersView from 'app/components/settings/users'
+import event from 'app/utils/event'
+import { user_list, user_add, user_update } from 'app/actions/auth'
 
 var Users = event.subscribe_connect(
   (state) => ({

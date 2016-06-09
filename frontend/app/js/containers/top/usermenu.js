@@ -1,6 +1,6 @@
 import React from 'react';
-import UserMenuView from '../../components/top/usermenu'
-import { logout } from '../../actions/auth'
+import UserMenuView from 'app/components/top/usermenu'
+import { logout } from 'app/actions/auth'
 import { connect } from 'react-redux'
 
 var UserMenu = connect(

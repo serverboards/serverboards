@@ -1,7 +1,7 @@
 import React from 'react'
-import Card from '../../containers/service/card'
+import Card from 'app/containers/service/card'
 import Loading from '../loading'
-import AddServiceModal from '../../containers/serverboard/addservice'
+import AddServiceModal from 'app/containers/serverboard/addservice'
 
 let Services=React.createClass({
   handleAttachService(service){

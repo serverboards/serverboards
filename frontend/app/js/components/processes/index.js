@@ -1,6 +1,6 @@
 import React from 'react'
 import Loading from '../loading'
-import rpc from '../../rpc'
+import rpc from 'app/rpc'
 
 const class_for_status={
   "": "",

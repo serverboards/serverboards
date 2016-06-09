@@ -1,6 +1,6 @@
 import React from 'react'
-import Modal from '../../modal'
-import Loading from '../../loading'
+import Modal from 'app/components/modal'
+import Loading from 'app/components/loading'
 
 let EditPerms=React.createClass({
   handleUpdatePermissions(){

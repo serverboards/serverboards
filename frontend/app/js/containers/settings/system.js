@@ -1,6 +1,6 @@
-import SystemView from '../../components/settings/system'
-import event from '../../utils/event'
-import { settings_all } from '../../actions/settings'
+import SystemView from 'app/components/settings/system'
+import event from 'app/utils/event'
+import { settings_all } from 'app/actions/settings'
 
 var System = event.subscribe_connect(
   (state) => ({

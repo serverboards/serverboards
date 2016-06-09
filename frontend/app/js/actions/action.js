@@ -1,4 +1,4 @@
-import rpc from '../rpc'
+import rpc from 'app/rpc'
 
 export function action_ps(){
   return function(dispatch){

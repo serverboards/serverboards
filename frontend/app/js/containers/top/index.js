@@ -1,9 +1,9 @@
-import { login, logout } from '../../actions/auth'
-import TopView from '../../components/top'
-import Event from '../../utils/event'
-import { action_ps } from '../../actions/action'
-import rpc from '../../rpc'
-import Flash from '../../flash'
+import { login, logout } from 'app/actions/auth'
+import TopView from 'app/components/top'
+import Event from 'app/utils/event'
+import { action_ps } from 'app/actions/action'
+import rpc from 'app/rpc'
+import Flash from 'app/flash'
 
 var Top=Event.subscribe_connect(
   (state) => ({

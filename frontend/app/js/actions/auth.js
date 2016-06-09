@@ -1,6 +1,6 @@
-import rpc from '../rpc'
-import Flash from '../flash'
-import event from '../utils/event'
+import rpc from 'app/rpc'
+import Flash from 'app/flash'
+import event from 'app/utils/event'
 
 export function logout(){
   return {

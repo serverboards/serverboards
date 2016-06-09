@@ -1,7 +1,7 @@
-import ServicesView from '../../components/serverboard/services'
-import event from '../../utils/event'
-import { serverboard_reload_services, serverboard_attach_service } from '../../actions/serverboard'
-import { service_add } from '../../actions/service'
+import ServicesView from 'app/components/serverboard/services'
+import event from 'app/utils/event'
+import { serverboard_reload_services, serverboard_attach_service } from 'app/actions/serverboard'
+import { service_add } from 'app/actions/service'
 
 var Services = event.subscribe_connect(
   (state) => ({

@@ -1,7 +1,7 @@
-import SidebarView from '../components/sidebar'
+import SidebarView from 'app/components/sidebar'
 import { push } from 'react-router-redux'
-import event from '../utils/event'
-import {serverboard_update_all} from '../actions/serverboard'
+import event from 'app/utils/event'
+import {serverboard_update_all} from 'app/actions/serverboard'
 
 var Sidebar=event.subscribe_connect(
   (state) => {

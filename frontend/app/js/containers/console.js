@@ -1,7 +1,7 @@
 import React from 'react'
-import ConsoleView from '../components/console'
+import ConsoleView from 'app/components/console'
 import { connect } from 'react-redux'
-import rpc from '../rpc'
+import rpc from 'app/rpc'
 import {parse} from 'shell-quote'
 
 

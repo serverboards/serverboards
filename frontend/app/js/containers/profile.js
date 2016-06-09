@@ -1,4 +1,4 @@
-import ProfileView from '../components/profile'
+import ProfileView from 'app/components/profile'
 import { connect } from 'react-redux'
 
 var Profile=connect(

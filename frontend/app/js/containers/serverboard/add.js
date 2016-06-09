@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import AddView from '../../components/serverboard/add'
-import { serverboard_add } from '../../actions/serverboard'
+import AddView from 'app/components/serverboard/add'
+import { serverboard_add } from 'app/actions/serverboard'
 
 var Add=connect(
   (state) => ({

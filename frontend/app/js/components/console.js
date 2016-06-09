@@ -1,6 +1,6 @@
 import React from 'react'
 
-require("../../sass/console.sass")
+require("sass/console.sass")
 
 function ConsoleLine(props){
   return (

@@ -3,16 +3,16 @@ import React from 'react';
 import { Router, Route, Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
-import store from './utils/store'
+import store from 'app/utils/store'
 
-import DashBoard from './components/dashboard.js'
-import Profile from './containers/profile.js'
-import Settings from './components/settings'
-import Serverboard from './containers/serverboard'
-import ServerboardAdd from './containers/serverboard/add'
-import ProcessesHistory from './components/processes'
-import ProcessView from './components/processes/process'
-import PluginScreen from './components/plugin/screen'
+import DashBoard from 'app/components/dashboard.js'
+import Profile from 'app/containers/profile.js'
+import Settings from 'app/components/settings'
+import Serverboard from 'app/containers/serverboard'
+import ServerboardAdd from 'app/containers/serverboard/add'
+import ProcessesHistory from 'app/components/processes'
+import ProcessView from 'app/components/processes/process'
+import PluginScreen from 'app/components/plugin/screen'
 
 const history = syncHistoryWithStore(hashHistory, store)
 

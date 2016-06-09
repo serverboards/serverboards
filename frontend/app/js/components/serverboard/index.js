@@ -1,6 +1,6 @@
 import React from 'react'
 import Loading from '../loading'
-import Sidebar from '../../containers/sidebar'
+import Sidebar from 'app/containers/sidebar'
 
 var SidebarSections = function(props){
   function MenuItem(menu_props){

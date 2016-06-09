@@ -1,8 +1,8 @@
-import MainView from '../components/main'
-import flash from '../actions/flash'
+import MainView from 'app/components/main'
+import flash from 'app/actions/flash'
 import { connect } from 'react-redux'
-import { login, logout } from '../actions/auth'
-import rpc from '../rpc'
+import { login, logout } from 'app/actions/auth'
+import rpc from 'app/rpc'
 
 var Main=connect(
   (state) => {

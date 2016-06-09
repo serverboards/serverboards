@@ -1,5 +1,5 @@
 import React from 'react'
-import Sidebar from '../containers/sidebar'
+import Sidebar from 'app/containers/sidebar'
 
 function DashBoard(props){
   return (

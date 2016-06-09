@@ -1,5 +1,5 @@
 import React from 'react'
-import {random_color} from '../../utils'
+import {random_color} from 'app/utils'
 
 function Overview(props){
   function tag(tagname){

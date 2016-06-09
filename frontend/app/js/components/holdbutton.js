@@ -1,6 +1,6 @@
 import React from 'react'
 
-require('../../sass/holdbutton.sass')
+require('sass/holdbutton.sass')
 
 // Tweaks for speed, first milliseconds per tick
 let hold_speed=100

@@ -1,7 +1,7 @@
 import React from 'react';
 import {random_color} from '../utils'
 
-require("../../sass/logoicon.sass")
+require("sass/logoicon.sass")
 
 function logo(name){
   let ns=name.split(' ')

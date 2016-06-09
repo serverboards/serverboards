@@ -1,8 +1,8 @@
 import React from 'react'
 import GenericForm from '../genericform'
 import Loading from '../loading'
-import Flash from '../../flash'
-import rpc from '../../rpc'
+import Flash from 'app/flash'
+import rpc from 'app/rpc'
 
 function Section(props){
   console.log(props.fields)
