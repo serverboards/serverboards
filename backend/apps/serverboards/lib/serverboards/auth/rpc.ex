@@ -32,9 +32,9 @@ defmodule Serverboards.Auth.RPC do
     end, [context: true]
 
     ## User management
-    add_method mc, "user.list", fn [], context ->
+    add_method mc, "user.list", fn [] ->
       Auth.User.user_list nil
-    end, [context: true]
+    end
     add_method mc, "user.add", fn attributes, context ->
       me = RPC.Context.get(context, :user)
       Auth.User.user_add %{
@@ -52,9 +52,9 @@ defmodule Serverboards.Auth.RPC do
 
 
     ## Group management
-    add_method mc, "group.list", fn [], context ->
+    add_method mc, "group.list", fn [] ->
       Auth.Group.group_list nil
-    end, [context: true]
+    end
     add_method mc, "group.add", fn [name], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.group_add name, me

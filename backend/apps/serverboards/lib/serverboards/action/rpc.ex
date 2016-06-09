@@ -40,7 +40,7 @@ defmodule Serverboards.Action.RPC do
         Serverboards.Action.history options, user
     end, [required_perm: "action.watch", context: true]
 
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: _user}} ->
       MOM.RPC.Client.add_method_caller client, mc
     end)
     {:ok, mc}

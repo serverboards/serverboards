@@ -49,7 +49,7 @@ defmodule Serverboards.Service.RPC do
     end, [required_perm: "service.attach", context: true]
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc
       :ok
     end)

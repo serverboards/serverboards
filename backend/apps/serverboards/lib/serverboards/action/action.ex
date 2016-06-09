@@ -30,7 +30,7 @@ defmodule Serverboards.Action do
         })
 
         {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
-        Logger.info("Saved #{inspect _res}")
+        #Logger.info("Saved #{inspect _res}")
         :ok
       _ ->
          :ok
@@ -40,7 +40,7 @@ defmodule Serverboards.Action do
         Logger.info("Action #{inspect action} stopped")
         prev = Repo.get_by( Model.History, uuid: action.uuid )
         case Repo.update( Model.History.changeset(prev, action) ) do
-          {:ok, _hist} -> {:ok, _hist}
+          {:ok, hist} -> {:ok, hist}
           {:error, %{ errors: errors } } ->
             Logger.error("Error storing action result: #{ inspect errors }. Storing as error finished.")
             Repo.update( Model.History.changeset(prev, %{ status: "error", result: %{ database_error: Map.new(errors) } } ) )
@@ -131,7 +131,7 @@ defmodule Serverboards.Action do
 
         ret = case ret do
           %{} -> ret
-          s -> %{ data: ret }
+          _s -> %{ data: ret }
         end
 
         Event.emit("action.stopped",

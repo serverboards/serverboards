@@ -1,8 +1,6 @@
 require Logger
 
 defmodule Serverboards.Event do
-  import MOM
-
   @doc ~S"""
   Setups the system so that new users are subscribed to :client_events channel
 

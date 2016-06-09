@@ -8,9 +8,9 @@ defmodule Serverboards.Service do
   alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
   alias Serverboards.Repo
 
-  def start_link(options) do
+  def start_link(_options) do
     {:ok, es} = EventSourcing.start_link name: :service
-    {:ok, rpc} = Serverboards.Service.RPC.start_link
+    {:ok, _rpc} = Serverboards.Service.RPC.start_link
 
     EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
 
@@ -463,7 +463,7 @@ defmodule Serverboards.Service do
   end
 
   defp match_service_filter(service, {"traits", traits}), do: match_service_filter(service, {:traits, traits})
-  defp match_service_filter(service, {:traits, []}), do: false
+  defp match_service_filter(_service, {:traits, []}), do: false
   defp match_service_filter(service, {:traits, [trait | rest]}) do
     Logger.debug("trait #{trait} in #{inspect service}")
     cond do
@@ -512,14 +512,14 @@ defmodule Serverboards.Service do
     true
 
   """
-  def service_catalog(filter, me) do
+  def service_catalog(filter, _me) do
     Serverboards.Plugin.Registry.filter_component(type: "service")
       |> Enum.filter(fn service ->
         Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")
         Enum.all?(filter, &match_service_filter(service, &1))
       end)
       |> Enum.map(fn service ->
-        c = %{
+        _c = %{
           name: service.name,
           type: service.id,
           fields: service.extra["fields"],

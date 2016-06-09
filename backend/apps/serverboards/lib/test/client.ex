@@ -76,7 +76,7 @@ defmodule Test.Client do
     try do
       GenServer.call(RPC.Client.get(client, :pid), {:expect, what}, timeout)
     rescue
-      e ->
+      _e ->
         false
     end
   end
@@ -111,7 +111,7 @@ defmodule Test.Client do
     } }
   end
 
-  defp expect_rec(what, []) do
+  defp expect_rec(_what, []) do
     {false, []}
   end
   defp expect_rec(what, [msg | rest ]) do
@@ -134,6 +134,23 @@ defmodule Test.Client do
       status=%{ status | expecting: %{ what: what, from: from } }
       {:noreply, status, 200}
     end
+  end
+
+  def handle_call({:call_from_json, method, params}, from, status) do
+    {:ok, json} = JSON.encode( %{ method: method, params: params, id: status.maxid })
+    RPC.Client.parse_line(status.client, json)
+    {:noreply, %{ status |
+      waiting: Map.put(status.waiting, status.maxid, from),
+      maxid: status.maxid + 1,
+    } }
+  end
+
+  def handle_call({:get_client}, _from, status) do
+    {:reply, status.client, status}
+  end
+
+  def handle_call({:debug}, _from, status) do
+    {:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
   end
 
   def handle_cast({:call, msg}, status) do
@@ -170,26 +187,10 @@ defmodule Test.Client do
     else
       {:noreply, %{ status | messages: messages }}
     end
+    messages
   end
 
-  def handle_call({:call_from_json, method, params}, from, status) do
-    {:ok, json} = JSON.encode( %{ method: method, params: params, id: status.maxid })
-    RPC.Client.parse_line(status.client, json)
-    {:noreply, %{ status |
-      waiting: Map.put(status.waiting, status.maxid, from),
-      maxid: status.maxid + 1,
-    } }
-  end
-
-  def handle_call({:get_client}, _from, status) do
-    {:reply, status.client, status}
-  end
-
-  def handle_call({:debug}, _from, status) do
-    {:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
-  end
-
-  defp expect_match?(w, nil) do
+  defp expect_match?(_w, nil) do
     false
   end
   defp expect_match?([], _) do

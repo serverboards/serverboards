@@ -55,7 +55,7 @@ defmodule Serverboards.Plugin.RPC do
 
 
   # Method caller function UUID.method.
-  def call_with_uuid(%MOM.RPC.Message{ method: method, params: params, context: _context} = msg, runner) do
+  def call_with_uuid(%MOM.RPC.Message{ method: method, params: params, context: _context}, runner) do
     #Logger.debug("Try to call #{inspect msg}")
     if method == "dir" do
       {:ok, []} # Do not return it as it can lead to show of opaque pointers. Use alias.

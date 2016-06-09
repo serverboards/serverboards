@@ -1,8 +1,5 @@
 defmodule Serverboards do
   def start(_type, _args) do
-    import Supervisor.Spec
-
-
     # inspect for deadletters and invalid
     MOM.Tap.tap(:deadletter, "deadletter")
     MOM.Tap.tap(:invalid, "invalid")

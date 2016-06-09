@@ -1,7 +1,6 @@
 require Logger
 
 defmodule Serverboards.Auth.User do
-  import Ecto.Changeset
   import Ecto.Query
 
   alias MOM
@@ -9,7 +8,7 @@ defmodule Serverboards.Auth.User do
   alias Serverboards.Repo
 
   def setup_eventsourcing(es) do
-    EventSourcing.subscribe :auth, :add_user, fn attributes, me ->
+    EventSourcing.subscribe es, :add_user, fn attributes, _me ->
 			{:ok, user} = Repo.insert(%Model.User{
 				email: attributes.email,
         first_name: attributes.first_name,
@@ -19,7 +18,7 @@ defmodule Serverboards.Auth.User do
       user = user_info user
       Serverboards.Event.emit("user.added", %{ user: user}, ["auth.create_user"])
     end
-    EventSourcing.subscribe :auth, :update_user, fn %{ user: email, operations: operations }, _me ->
+    EventSourcing.subscribe es, :update_user, fn %{ user: email, operations: operations }, _me ->
       user = Repo.get_by!(Model.User, email: email)
       {:ok, user} = Repo.update(
         Model.User.changeset(user, operations)
@@ -97,7 +96,7 @@ defmodule Serverboards.Auth.User do
     }
   end
 
-  def user_list(me) do
+  def user_list(_me) do
     Repo.all( from u in Model.User, select: [u.id, u.email, u.is_active, u.first_name, u.last_name] )
       |> Enum.map( fn [id, email, is_active, first_name, last_name] ->
         groups = Repo.all(
@@ -118,9 +117,9 @@ defmodule Serverboards.Auth.User do
       end)
   end
 
-   @doc ~S"""
-   Gets all permissions for this user
-   """
+  ~S"""
+  Gets all permissions for this user
+  """
   defp get_perms(user) do
     alias Serverboards.Auth.Model
     alias Serverboards.Repo

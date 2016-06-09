@@ -3,7 +3,6 @@ import Ecto.Query
 alias Serverboards.Repo
 alias MOM
 alias Serverboards.Auth
-alias Serverboards.Auth.User
 alias Serverboards.Auth.Model
 
 defmodule Serverboards.Auth.Group do
@@ -11,14 +10,14 @@ defmodule Serverboards.Auth.Group do
   def setup_eventsourcing(es) do
     alias Serverboards.Repo
 
-    EventSourcing.subscribe es, :add_group, fn %{name: name}, me ->
+    EventSourcing.subscribe es, :add_group, fn %{name: name}, _me ->
       Repo.insert(%Model.Group{
           name: name
         })
       Serverboards.Event.emit("group.added", %{ group: name}, ["auth.modify_groups"])
     end
 
-    EventSourcing.subscribe es, :remove_group, fn %{name: name}, me ->
+    EventSourcing.subscribe es, :remove_group, fn %{name: name}, _me ->
       case Repo.get_by(Model.Group, name: name) do
         nil ->
           false
@@ -72,7 +71,7 @@ defmodule Serverboards.Auth.Group do
 
           Serverboards.Event.emit("group.perm_added", %{ group: groupname, perm: code}, ["auth.manage_groups"])
           :ok
-        gp ->
+        _gp ->
            nil
       end
     end

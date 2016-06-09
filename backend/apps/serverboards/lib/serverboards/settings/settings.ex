@@ -9,13 +9,13 @@ defmodule Serverboards.Settings do
 
   Each subsection may have specific permissions required.
   """
-  import Serverboards.{Repo, Plugin}
+  import Serverboards.Plugin
   alias Serverboards.Repo
   alias Serverboards.Settings.Model
 
   def start_link(options) do
     {:ok, es} = EventSourcing.start_link [name: :settings] ++ options
-    {:ok, rpc} = Serverboards.Settings.RPC.start_link
+    {:ok, _rpc} = Serverboards.Settings.RPC.start_link
 
     setup_eventsourcing(es)
 
@@ -25,7 +25,7 @@ defmodule Serverboards.Settings do
   def setup_eventsourcing(es) do
     import EventSourcing
 
-    subscribe es, :update_settings, fn [section, data], me ->
+    subscribe es, :update_settings, fn [section, data], _me ->
       Logger.info("Update settings, #{section}: #{inspect data}")
 
       case Repo.get_by(Model.Settings, section: section) do
@@ -63,7 +63,6 @@ defmodule Serverboards.Settings do
   """
   def all_settings(me) do
     if "settings.view" in me.perms do
-      import Ecto.Query
       all_values = Repo.all(Model.Settings) |> Enum.map(fn s -> {s.section,s.data} end)
       all_values = Map.new( all_values )
       Logger.info("all_values #{inspect all_values}")
@@ -82,7 +81,7 @@ defmodule Serverboards.Settings do
               Map.put(f, "value", Map.get( values, name, nil ))
             end
           end)
-          c = %{
+          %{
             name: settings.name,
             id: id,
             fields: fields,

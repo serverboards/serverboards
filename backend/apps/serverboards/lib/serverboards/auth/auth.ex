@@ -115,7 +115,7 @@ defmodule Serverboards.Auth do
 	## server impl
 	def init(:ok) do
 		{:ok, es } = EventSourcing.start_link name: :auth
-		{:ok, rpc} = Serverboards.Auth.RPC.start_link
+		{:ok, _rpc} = Serverboards.Auth.RPC.start_link
 
 		EventSourcing.Model.subscribe es, :auth, Serverboards.Repo
     EventSourcing.subscribe es, :debug_full

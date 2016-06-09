@@ -1,19 +1,16 @@
 require Logger
 
 defmodule Serverboards.Serverboard do
-  import Ecto.Changeset
   import Ecto.Query
 
   alias Serverboards.Repo
-  alias Serverboards.Serverboard.Model
-  alias MOM
   alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
   alias Serverboards.Serverboard.Model.ServerboardTag, as: ServerboardTagModel
   alias Serverboards.Service.Model.Service, as: ServiceModel
 
-  def start_link(options) do
+  def start_link(_options) do
     {:ok, es} = EventSourcing.start_link name: :serverboard
-    {:ok, rpc} = Serverboards.Serverboard.RPC.start_link
+    {:ok, _rpc} = Serverboards.Serverboard.RPC.start_link
 
     EventSourcing.Model.subscribe :serverboard, :serverboard, Serverboards.Repo
     #EventSourcing.subscribe :serverboard, :debug_full
@@ -37,7 +34,7 @@ defmodule Serverboards.Serverboard do
       serverboard.shortname
     end, name: :serverboard
 
-    EventSourcing.subscribe es, :update_serverboard, fn [shortname, operations], me ->
+    EventSourcing.subscribe es, :update_serverboard, fn [shortname, operations], _me ->
       import Ecto.Query
       # update tags
       serverboard = Repo.get_by!(ServerboardModel, shortname: shortname)
@@ -176,7 +173,7 @@ defmodule Serverboards.Serverboard do
   @doc ~S"""
   Deletes a serverboard by id or name
   """
-  def serverboard_delete(%ServerboardModel{ shortname: shortname } = serverboard, me) do
+  def serverboard_delete(%ServerboardModel{ shortname: shortname }, me) do
     EventSourcing.dispatch(:serverboard, :delete_serverboard, shortname, me.email)
     :ok
   end

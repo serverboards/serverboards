@@ -20,7 +20,6 @@ defmodule Serverboards.Plugin.Runner do
     MOM.Channel.subscribe(:auth_authenticated, fn msg ->
       %{ user: user, client: client} = msg.payload
       if Enum.member?(user.perms, "plugin") do
-        alias MOM.RPC
         MOM.RPC.Client.add_method_caller client, Serverboards.Plugin.Runner.method_caller
       end
       :ok

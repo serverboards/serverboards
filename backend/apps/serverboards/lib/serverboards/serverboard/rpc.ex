@@ -4,10 +4,10 @@ defmodule Serverboards.Serverboard.RPC do
   alias MOM.RPC
   alias MOM.RPC.Context
   alias MOM
+  import Serverboards.Serverboard
 
   def start_link(options \\ []) do
     {:ok, mc} = RPC.MethodCaller.start_link options
-    import Serverboards.Serverboard
 
     # Adds that it needs permissions.
     Serverboards.Utils.Decorators.permission_method_caller mc
@@ -37,7 +37,7 @@ defmodule Serverboards.Serverboard.RPC do
     end, [required_perm: "serverboard.info", context: true]
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc
       :ok
     end)
