@@ -36,8 +36,8 @@ defmodule Serverboards.Service.RPC do
       Enum.map services, &Serverboards.Utils.clean_struct(&1)
     end, [required_perm: "service.info", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.available", fn filter, context ->
-      service_list_available filter, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "service.catalog", fn filter, context ->
+      service_catalog filter, Context.get(context, :user)
     end, [required_perm: "service.info", context: true]
 
     RPC.MethodCaller.add_method mc, "service.attach", fn [serverboard, service], context ->

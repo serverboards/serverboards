@@ -357,7 +357,7 @@ defmodule Serverboards.Service do
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
-    service = case service_list_available([type: service.type], me) do
+    service = case service_catalog([type: service.type], me) do
       [] ->
         service
           |> Map.put(:fields, [])
@@ -494,25 +494,25 @@ defmodule Serverboards.Service do
   ## Example
 
     iex> me = Test.User.system
-    iex> service_def_list = service_list_available([], me)
+    iex> service_def_list = service_catalog([], me)
     iex> Enum.count(service_def_list) >= 1
     true
 
     iex> me = Test.User.system
-    iex> [specific_service_type] = service_list_available([type: "serverboards.test.auth/server" ], me)
+    iex> [specific_service_type] = service_catalog([type: "serverboards.test.auth/server" ], me)
     iex> specific_service_type.type
     "serverboards.test.auth/server"
     iex> specific_service_type.traits
     ["generic"]
 
     iex> me = Test.User.system
-    iex> [] = service_list_available([traits: ["wrong", "traits"]], me)
-    iex> service_def_list = service_list_available([traits: ["wrong", "traits", "next_matches", "generic"]], me)
+    iex> [] = service_catalog([traits: ["wrong", "traits"]], me)
+    iex> service_def_list = service_catalog([traits: ["wrong", "traits", "next_matches", "generic"]], me)
     iex> Enum.count(service_def_list) >= 1
     true
 
   """
-  def service_list_available(filter, me) do
+  def service_catalog(filter, me) do
     Serverboards.Plugin.Registry.filter_component(type: "service")
       |> Enum.filter(fn service ->
         Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")

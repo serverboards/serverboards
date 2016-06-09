@@ -196,10 +196,10 @@ defmodule ServerboardTest do
     service_delete service, user
   end
 
-  test "List available services" do
+  test "List service catalog" do
     import Serverboards.Service
 
-    services = service_list_available [], "dmoreno@serverboards.io"
+    services = service_catalog [], "dmoreno@serverboards.io"
 
     assert Enum.count(services) > 0
     assert Enum.count((hd services).fields) > 0
