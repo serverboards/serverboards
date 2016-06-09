@@ -7,10 +7,10 @@ let MaxTable=React.createClass({
       max: 3
     }
   },
-  handleShowAll : function(){
+  handleShowAll(){
     this.setState({max: this.props.data.length})
   },
-  handleShowLess : function(){
+  handleShowLess(){
     this.setState({max: 3})
   },
   render(){

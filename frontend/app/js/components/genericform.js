@@ -1,7 +1,7 @@
 import React from 'react'
 
 let GenericField=React.createClass({
-  getInitialState : function(){
+  getInitialState(){
     return {
       value: this.props.value || ''
     }
@@ -10,7 +10,7 @@ let GenericField=React.createClass({
     this.setState({value: ev.target.value})
     this.props.setValue(ev)
   },
-  render: function(){
+  render(){
     let props=this.props
     switch (props.type){
       case undefined:
@@ -57,7 +57,7 @@ let GenericField=React.createClass({
 })
 
 let GenericForm=React.createClass({
-  getInitialState : function(){
+  getInitialState(){
     let state={}
     this.props.fields.map((f) => state[f.name]=f.value || '')
     return state
@@ -69,7 +69,7 @@ let GenericForm=React.createClass({
     //console.log(nstate, this.props)
     this.props.updateForm && this.props.updateForm(nstate)
   },
-  componentDidMount: function(){
+  componentDidMount(){
     let fields = {}
     this.props.fields.map((f) => {
       if (f.validation)
@@ -77,7 +77,7 @@ let GenericForm=React.createClass({
     })
     $(this.refs.form).form({ on: 'blur', fields })
   },
-  render : function(){
+  render(){
     let self=this
     function generic_field(f){
       return (

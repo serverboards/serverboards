@@ -50,7 +50,7 @@ const UserRow = React.createClass({
 })
 
 const Users=React.createClass({
-  handleOpenAddUser : function(){
+  handleOpenAddUser(){
     this.setModal('add_user')
   },
   handleAddUser : function(newuser){
@@ -84,7 +84,7 @@ const Users=React.createClass({
       state: { modal }
     } )
   },
-  getModal : function() {
+  getModal() {
     let router_state=this.props.location.state
     let modal_state = (router_state && router_state.modal && router_state.modal) || {}
     switch(modal_state.what){
@@ -107,7 +107,7 @@ const Users=React.createClass({
       break;
     }
   },
-  render: function(){
+  render(){
     if (!this.props.users)
       return (
         <Loading>User list</Loading>

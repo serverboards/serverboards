@@ -8,13 +8,13 @@ let EditPerms=React.createClass({
 
     return { users, candidates_to_add }
   },
-  componentDidMount : function(){
+  componentDidMount(){
     let $form=$(this.refs.form)
     $form.form()
     $form.find('.ui.checkbox').checkbox()
     $form.find('.ui.dropdown').dropdown()
   },
-  handleAddUser : function(){
+  handleAddUser(){
     let username=$(this.refs.form).find('select[name=to_add]').val()
     if (!username)
       return
@@ -24,14 +24,14 @@ let EditPerms=React.createClass({
     this.setState({ users, candidates_to_add })
 
   },
-  handleSubmit : function(){
+  handleSubmit(){
     let current = $.makeArray(
         $(this.refs.form).find('input[type=checkbox]:checked')
       ).map( (f) => f.name )
 
     this.props.onSubmit( current )
   },
-  render: function(){
+  render(){
     let props=this.props
 
     return (

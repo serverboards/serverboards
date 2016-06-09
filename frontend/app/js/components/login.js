@@ -25,7 +25,7 @@ var LoginView = React.createClass({
 
     $(self.refs.el).find('[type=email]').focus()
   },
-  render: function(){
+  render(){
     return (
       <form ref="el" className="ui form" method="POST">
         <div className="ui small modal active" id="login">

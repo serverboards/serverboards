@@ -34,15 +34,15 @@ var Console=React.createClass({
       }
     }
   },
-  componentDidMount: function(){
+  componentDidMount(){
     $(window).on('keypress', this.onToggle)
 
     return {}
   },
-  componentWillUnmount: function(){
+  componentWillUnmount(){
     $(window).off('keypress', this.onToggle)
   },
-  componentWillUpdate: function(){
+  componentWillUpdate(){
     if (this.state.stick_to_bottom){
       let history=$('.top.console .history')
       if (history.length){
@@ -53,7 +53,7 @@ var Console=React.createClass({
       }
     }
   },
-  render: function(){
+  render(){
     var props=this.props
     //console.log(props)
     if (!this.props.show)

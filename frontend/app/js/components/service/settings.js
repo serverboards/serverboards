@@ -5,7 +5,7 @@ import { setup_fields } from '../service'
 import Loading from '../loading'
 
 let SetupComponent=React.createClass({
-  getInitialState : function(){
+  getInitialState(){
     let fields=undefined
     if (this.props.service_catalog){
       fields = this.get_fields()
@@ -46,7 +46,7 @@ let SetupComponent=React.createClass({
       return this.state.fields
     return setup_fields(this.props.service, this.props.service_catalog)
   },
-  render: function(){
+  render(){
     let props=this.props
     let state=this.state
     if (!props.service_catalog)

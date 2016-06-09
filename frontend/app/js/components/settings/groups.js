@@ -18,7 +18,7 @@ let Groups=React.createClass({
       state: { modal }
     } )
   },
-  getModal : function() {
+  getModal() {
     let router_state=this.props.location.state
     let modal_state = (router_state && router_state.modal && router_state.modal) || {}
 

@@ -9,7 +9,7 @@ const level_to_class = {
 }
 
 var FlashMessage=React.createClass({
-  render: function(){
+  render(){
     let color=level_to_class[this.props.level] || ''
 
     return (

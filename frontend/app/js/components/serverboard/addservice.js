@@ -5,7 +5,7 @@ import Modal from '../modal'
 import { default_service_fields } from '../service'
 
 let AddService=React.createClass({
-  componentDidMount : function(){
+  componentDidMount(){
     if (!this.props.catalog){
       this.props.updateServiceCatalog()
     }
@@ -13,7 +13,7 @@ let AddService=React.createClass({
       this.props.updateAllServiceCatalog()
     }
   },
-  handleAdd : function(ev, service){
+  handleAdd(ev, service){
     ev.preventDefault(ev)
 
     if (service.uuid){

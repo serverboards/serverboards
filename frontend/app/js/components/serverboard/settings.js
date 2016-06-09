@@ -3,13 +3,13 @@ import SettingsAdd from '../../containers/serverboard/settings_add'
 import Loading from '../loading'
 
 let Settings=React.createClass({
-  handleUpdate : function( serverboard ){
+  handleUpdate( serverboard ){
     this.props.onUpdate( this.props.serverboard.shortname, serverboard )
   },
-  handleDelete : function(){
+  handleDelete(){
     this.props.onDelete( this.props.serverboard.shortname )
   },
-  render: function(){
+  render(){
     return (
       <SettingsAdd
         title={`Edit ${this.props.serverboard.name}`}

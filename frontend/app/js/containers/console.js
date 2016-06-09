@@ -51,10 +51,10 @@ let Console = connect(
         dispatch({type: "CONSOLE_ERROR", error: error })
       })
     },
-    onShow: function(){
+    onShow(){
       dispatch({type: "CONSOLE_SHOW"})
     },
-    onHide: function(){
+    onHide(){
       dispatch({type: "CONSOLE_HIDE"})
     }
   })

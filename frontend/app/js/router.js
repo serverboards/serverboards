@@ -17,7 +17,7 @@ import PluginScreen from './components/plugin/screen'
 const history = syncHistoryWithStore(hashHistory, store)
 
 var ServerboardsRouter = React.createClass({
-  render: function(){
+  render(){
     //console.log("Router Props: %o", this.props)
     return (
         <Router history={history}>

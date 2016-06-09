@@ -3,13 +3,13 @@ import Modal from '../../modal'
 import Loading from '../../loading'
 
 let EditPerms=React.createClass({
-  handleUpdatePermissions: function(){
+  handleUpdatePermissions(){
     let current = $.makeArray($(this.refs.form)
       .find('input[type=checkbox]:checked'))
       .map( (f) => f.name )
     this.props.onUpdatePermissions(current)
   },
-  componentDidMount : function(){
+  componentDidMount(){
     let $form=$(this.refs.form)
     $form.form()
     $form.find('.ui.checkbox').checkbox()
@@ -18,7 +18,7 @@ let EditPerms=React.createClass({
       this.props.onLoadAllPerms()
 
   },
-  render: function(){
+  render(){
     let props=this.props
     if (!props.all_perms){
       return (

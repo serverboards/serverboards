@@ -16,15 +16,15 @@ let ProgressBar=function(props){
 }
 
 let HoldButton = React.createClass({
-  getInitialState : function(){
+  getInitialState(){
     return {
       count: 0
     }
   },
-  handleClick : function(){
+  handleClick(){
     this.props.onHoldClick && this.props.onHoldClick()
   },
-  componentDidMount : function(){
+  componentDidMount(){
     let $button=$(this.refs.button)
     $button
       .on('mousedown', this.startHold)
@@ -43,7 +43,7 @@ let HoldButton = React.createClass({
     if (ev.which==1)
       this.timer=setTimeout(this.countHold, hold_speed)
   },
-  countHold : function(){
+  countHold(){
     if (this.state.count>=100){
       this.stopHold()
       this.handleClick()
@@ -53,12 +53,12 @@ let HoldButton = React.createClass({
       this.timer=setTimeout(this.countHold, hold_speed)
     }
   },
-  stopHold : function(){
+  stopHold(){
     this.setState({count: 0})
     clearTimeout(this.timer)
     this.timer=undefined
   },
-  render: function(){
+  render(){
     if (this.props.className.includes("item"))
       return (
         <div ref="button" className={`hold ${this.props.className}`}>

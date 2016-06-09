@@ -4,14 +4,14 @@ import GenericForm from '../genericform'
 import HoldButton from '../holdbutton'
 
 let SetupComponent=React.createClass({
-  getInitialState : function(){
+  getInitialState(){
     let r={}
     this.props.service.fields.map( (f) =>{
       r[f.name]=f.value || ''
     })
     return r
   },
-  handleAccept : function(ev){
+  handleAccept(ev){
     ev && ev.preventDefault()
 
     let form = this.refs.form.refs.form
@@ -25,10 +25,10 @@ let SetupComponent=React.createClass({
       this.props.onUpdate( service )
     }
   },
-  handleUpdateForm : function(data){
+  handleUpdateForm(data){
     this.setState(data)
   },
-  render: function(){
+  render(){
     let props=this.props
     return (
       <Modal onClose={props.onClose}>

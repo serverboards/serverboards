@@ -3,7 +3,7 @@ import HoldButton from '../holdbutton'
 import Link from '../../router'
 
 var Settings=React.createClass({
-  handleSubmit : function(ev){
+  handleSubmit(ev){
     ev.preventDefault()
 
     let $form=$(this.refs.form)
@@ -20,7 +20,7 @@ var Settings=React.createClass({
       this.props.onSubmit( serverboard )
     }
   },
-  componentDidMount : function(){
+  componentDidMount(){
     $(this.refs.form).form({
       on: 'blur',
       fields: {
@@ -29,7 +29,7 @@ var Settings=React.createClass({
       }
     }).on('submit', this.handleSubmit)
   },
-  render : function(){
+  render(){
     let props=this.props
 
     let accept_buttons=[]
