@@ -6,7 +6,7 @@ import { services_update_catalog, service_update } from '../../actions/service'
 var Settings = event.subscribe_connect(
   (state) => {
     return {
-      service_catalog: state.serverboard.available_services
+      service_catalog: state.serverboard.catalog
     }
   },
   (dispatch) => ({

@@ -2,7 +2,7 @@ var default_state={
   serverboards: [],
   current: undefined,
   current_services: undefined,
-  available_services: undefined
+  catalog: undefined
 }
 
 function serverboard(state=default_state, action){
@@ -16,8 +16,8 @@ function serverboard(state=default_state, action){
       return Object.assign({}, state, {current, current_services} )
     case 'UPDATE_ALL_SERVERBOARDS':
       return Object.assign({}, state, {serverboards: action.serverboards} )
-    case 'UPDATE_SERVICES':
-      return Object.assign({}, state, {available_services: action.services} )
+    case 'UPDATE_SERVICE_CATALOG':
+      return Object.assign({}, state, {catalog: action.services} )
     case 'UPDATE_ALL_SERVICES':
       return Object.assign({}, state, {all_services: action.services} )
     case 'UPDATE_SERVERBOARD_SERVICES':

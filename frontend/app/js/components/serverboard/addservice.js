@@ -6,7 +6,7 @@ import { default_service_fields } from '../service'
 
 let AddService=React.createClass({
   componentDidMount : function(){
-    if (!this.props.available_services){
+    if (!this.props.catalog){
       this.props.updateServiceCatalog()
     }
     if (!this.props.all_services){
@@ -18,7 +18,7 @@ let AddService=React.createClass({
 
     if (service.uuid){
       // Service is a plain services, need to have the fields field
-      let current_service=Object.assign({}, this.props.available_services.find((c) => c.type == service.type))
+      let current_service=Object.assign({}, this.props.catalog.find((c) => c.type == service.type))
       current_service.fields=$.extend(true, [], default_service_fields(current_service.name).concat( current_service.fields ) )
       // set fields values
       current_service.uuid=service.uuid
@@ -32,7 +32,7 @@ let AddService=React.createClass({
       this.props.onAttach( current_service )
     }
     else{
-      let current_service=Object.assign({}, this.props.available_services.find((c) => c.type == service.type))
+      let current_service=Object.assign({}, this.props.catalog.find((c) => c.type == service.type))
 
       current_service.fields=$.extend(true, [], default_service_fields(current_service.name).concat( current_service.fields ) )
       current_service.id=undefined
@@ -42,7 +42,7 @@ let AddService=React.createClass({
   },
   render(){
     let props=this.props
-    if (!this.props.available_services || !this.props.all_services){
+    if (!this.props.catalog || !this.props.all_services){
       return (
         <Loading>
           Getting available service list
@@ -74,7 +74,7 @@ let AddService=React.createClass({
           </div>
           <label>New services</label>
           <div className="ui five column grid stackable">
-            {props.available_services.map((c) => WrappedService(c))}
+            {props.catalog.map((c) => WrappedService(c))}
           </div>
         </div>
         <div className="actions">

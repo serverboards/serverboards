@@ -6,7 +6,7 @@ import { services_update_catalog, services_update_all } from '../../actions/serv
 var AddService=connect(
   (state) => {
     return {
-      available_services: state.serverboard.available_services,
+      catalog: state.serverboard.catalog,
       all_services: state.serverboard.all_services,
       location: state.routing.locationBeforeTransitions
     }

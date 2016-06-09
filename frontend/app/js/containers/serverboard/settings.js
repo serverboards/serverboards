@@ -7,7 +7,7 @@ import { services_update_catalog, services_update_all } from '../../actions/serv
 var Settings=connect(
   (state) => {
     return {
-      available_services: state.serverboard.available_services,
+      //catalog: state.serverboard.catalog,
       current_services: state.serverboard.current_services
     }
   },

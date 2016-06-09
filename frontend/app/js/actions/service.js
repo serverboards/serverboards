@@ -3,9 +3,9 @@ import Flash from '../flash'
 
 export function services_update_catalog(){
   return function(dispatch){
-    rpc.call("service.available",[]).then(function(services){
+    rpc.call("service.catalog",[]).then(function(services){
       dispatch({
-        type:"UPDATE_SERVICES",
+        type:"UPDATE_SERVICE_CATALOG",
         services: services
       })
     })
