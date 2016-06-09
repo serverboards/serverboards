@@ -25,8 +25,8 @@ module.exports = {
       "./app/js/app.js"
     ].concat(entry),
     output: {
-        path: path.resolve('/dist/'),
-        filename: "js/serverboards-[hash].js"
+        path: path.resolve('dist/'),
+        filename: "js/bundle.js"
     },
     resolve: {
       alias:{
