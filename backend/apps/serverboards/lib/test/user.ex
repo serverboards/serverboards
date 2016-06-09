@@ -1,4 +1,4 @@
-defmodule Serverboards.Test.User do
+defmodule Test.User do
   def system do
     if Application.get_env(:serverboards, :debug, false) do
       import Ecto.Query

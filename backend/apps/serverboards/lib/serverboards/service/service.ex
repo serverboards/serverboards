@@ -248,7 +248,7 @@ defmodule Serverboards.Service do
 
   ## Example:
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Generic", "type" => "generic" }, user
     iex> {:ok, info} = service_info service, user
     iex> info.priority
@@ -282,7 +282,7 @@ defmodule Serverboards.Service do
 
   ## Example
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, _service_a} = service_add %{ "name" => "Generic A", "type" => "generic" }, user
     iex> {:ok, _service_b} = service_add %{ "name" => "Generic B", "type" => "email" }, user
     iex> {:ok, _service_c} = service_add %{ "name" => "Generic C", "type" => "generic" }, user
@@ -379,7 +379,7 @@ defmodule Serverboards.Service do
 
   ## Example
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST7", %{ "name" => "serverboards" }, user
     iex> :ok = service_attach "SBDS-TST7", service, user
@@ -401,7 +401,7 @@ defmodule Serverboards.Service do
 
   ## Example
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST9", %{ "name" => "serverboards" }, user
     iex> :ok = service_attach "SBDS-TST9", service, user
@@ -493,19 +493,19 @@ defmodule Serverboards.Service do
 
   ## Example
 
-    iex> me = Serverboards.Test.User.system
+    iex> me = Test.User.system
     iex> service_def_list = service_list_available([], me)
     iex> Enum.count(service_def_list) >= 1
     true
 
-    iex> me = Serverboards.Test.User.system
+    iex> me = Test.User.system
     iex> [specific_service_type] = service_list_available([type: "serverboards.test.auth/server" ], me)
     iex> specific_service_type.type
     "serverboards.test.auth/server"
     iex> specific_service_type.traits
     ["generic"]
 
-    iex> me = Serverboards.Test.User.system
+    iex> me = Test.User.system
     iex> [] = service_list_available([traits: ["wrong", "traits"]], me)
     iex> service_def_list = service_list_available([traits: ["wrong", "traits", "next_matches", "generic"]], me)
     iex> Enum.count(service_def_list) >= 1

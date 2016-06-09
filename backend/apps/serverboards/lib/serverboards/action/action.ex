@@ -65,7 +65,7 @@ defmodule Serverboards.Action do
 
   ## Example
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> Enum.count filter([trait: "test"], user)
     1
     iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
@@ -80,7 +80,7 @@ defmodule Serverboards.Action do
   @doc ~S"""
   Excutes an action
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
     iex> {:ok, uuid} = trigger(action_id, %{ url: "https://serverboards.io" }, user)
     iex> String.length uuid
@@ -152,7 +152,7 @@ defmodule Serverboards.Action do
   @doc ~S"""
   Returns a list of currently running actions
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, uuid} = trigger("serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 1 }, user)
     iex> :timer.sleep 300
     iex> list = ps(user)

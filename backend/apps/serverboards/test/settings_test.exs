@@ -7,7 +7,7 @@ defmodule Serverboards.SettingsTest do
   doctest Serverboards.Settings, import: true
 
   test "Get base fields" do
-    user = Serverboards.Test.User.system
+    user = Test.User.system
 
     settings = Serverboards.Settings.all_settings(user)
     Logger.info("#{inspect settings}")
@@ -21,7 +21,7 @@ defmodule Serverboards.SettingsTest do
   end
 
   test "Cant recover password" do
-    user = Serverboards.Test.User.system
+    user = Test.User.system
 
     settings = Serverboards.Settings.all_settings(user)
     :ok = Serverboards.Settings.update(

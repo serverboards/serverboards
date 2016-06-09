@@ -57,7 +57,7 @@ defmodule Serverboards.Settings do
 
     ## Example:
 
-      iex> settings = all_settings(Serverboards.Test.User.system)
+      iex> settings = all_settings(Test.User.system)
       iex> (Enum.count settings) > 0
       true
   """

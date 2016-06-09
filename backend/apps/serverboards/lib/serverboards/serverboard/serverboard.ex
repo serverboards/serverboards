@@ -98,7 +98,7 @@ defmodule Serverboards.Serverboard do
 
   ## Example
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, "SBDS-TST1"} = serverboard_add "SBDS-TST1", %{ "name" => "serverboards" }, user
     iex> {:ok, info} = serverboard_info "SBDS-TST1", user
     iex> info.name
@@ -127,7 +127,7 @@ defmodule Serverboards.Serverboard do
 
   ## Example:
 
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, "SBDS-TST2"} = serverboard_add "SBDS-TST2", %{ "name" => "serverboards" }, user
     iex> :ok = serverboard_update "SBDS-TST2", %{ "name" => "Serverboards" }, user
     iex> {:ok, info} = serverboard_info "SBDS-TST2", user
@@ -232,7 +232,7 @@ defmodule Serverboards.Serverboard do
   ## Example
 
     iex> require Logger
-    iex> user = Serverboards.Test.User.system
+    iex> user = Test.User.system
     iex> {:ok, l} = serverboard_list user.id
     iex> is_list(l) # may be empty or has something from before, but lists
     true
