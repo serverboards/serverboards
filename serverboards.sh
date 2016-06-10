@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd $( dirname $0 )
+
 case "$1" in
   start)
     cd backend
