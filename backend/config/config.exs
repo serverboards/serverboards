@@ -28,22 +28,23 @@ config :serverboards, Serverboards.HTTP.Endpoint,
   #pubsub: [name: Backend.PubSub,
   #         adapter: Phoenix.PubSub.PG2]
 
+dburl=case System.get_env("SERVERBOARDS_DB") do
+  nil -> "ecto://serverboards:serverboards@localhost/serverboards"
+  url -> url
+end
+
 config :serverboards, Serverboards.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "serverboards",
-  username: "serverboards",
-  password: "serverboards",
-  hostname: "localhost",
-  port: 5432
+  [
+    adapter: Ecto.Adapters.Postgres,
+    url: dburl
+  ]
 
 config :eventsourcing, Eventsourcing.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "serverboards",
-  username: "serverboards",
-  password: "serverboards",
-  hostname: "localhost",
-  port: 5432,
-  pool: Ecto.Adapters.SQL.Sandbox
+  [
+    adapter: Ecto.Adapters.Postgres,
+    pool: Ecto.Adapters.SQL.Sandbox,
+    url: dburl
+  ]
 
 config :serverboards,
   plugin_paths: [
