@@ -1,7 +1,7 @@
 use Mix.Config
 
 require Logger
-Logger.info("Debug!")
+#Logger.info("Debug!")
 
 config :serverboards, Serverboards.HTTP.Endpoint,
   debug_errors: true,

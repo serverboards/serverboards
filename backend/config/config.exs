@@ -31,18 +31,18 @@ config :serverboards, Serverboards.HTTP.Endpoint,
 config :serverboards, Serverboards.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "serverboards",
-  username: "postgres",
-  password: "postgres",
+  username: "serverboards",
+  password: "serverboards",
   hostname: "localhost",
-  port: 5433
+  port: 5432
 
 config :eventsourcing, Eventsourcing.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "serverboards",
-  username: "postgres",
-  password: "postgres",
+  username: "serverboards",
+  password: "serverboards",
   hostname: "localhost",
-  port: 5433,
+  port: 5432,
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :serverboards,
