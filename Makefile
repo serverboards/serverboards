@@ -33,5 +33,5 @@ clean:
 	cd backend; mix clean
 	cd frontend; make clean
 
-docker: clean
+docker: compile-frontend
 	docker build -t serverboards .
