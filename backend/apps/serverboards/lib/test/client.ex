@@ -233,7 +233,6 @@ defmodule Test.Client do
         {:noreply, %{ status | messages: messages }}
       end
     end
-    messages
   end
 
   def handle_cast({:reauth, rpc_call}, status) do

@@ -63,6 +63,7 @@ defmodule Serverboards.ActionTest do
     {:ok, history} = Test.Client.call(client, "action.history", [])
     Logger.info("History: #{inspect history}")
     assert "serverboards.test.auth/action" in Enum.map(history, &(&1["type"]))
+    :timer.sleep(500)
 
     {:ok, details} = Test.Client.call(client, "action.history", [ (hd history)["uuid"] ])
     assert details["uuid"] == (hd history)["uuid"]

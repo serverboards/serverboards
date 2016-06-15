@@ -28,7 +28,6 @@ all_perms = [
 
 user_perms = [
   "auth.modify_self", "auth.create_token",
-  "plugin",
   "action.trigger", "action.watch",
   "serverboard.info",  "service.info",
   "settings.user.view", "settings.user.update",
@@ -36,6 +35,10 @@ user_perms = [
 ]
 
 data = [
+  groups: [
+    %{ name: "user", perms: user_perms},
+    %{ name: "admin", perms: all_perms}
+    ],
   users: [
       %{
         email: "dmoreno@serverboards.io",
@@ -45,10 +48,6 @@ data = [
         groups: ["user", "admin"]
       }
     ],
-  groups: [
-    %{ name: "user", perms: user_perms},
-    %{ name: "admin", perms: all_perms}
-  ],
   password: [ {"dmoreno@serverboards.io", "asdfasdf"} ]
 ]
 
@@ -94,16 +93,17 @@ defmodule Seeds do
 
 
   def import_user(user) do
-    #u = Repo.get_or_create_and_update(Model.User, [email: user.email], user)
+    u = Repo.get_or_create_and_update(Model.User, [email: user.email], user)
 
     Enum.map user.groups, fn gn ->
-      #Repo.get_or_create_and_update(Model.Group, [name: gn], %{name: gn})
+      Repo.get_or_create_and_update(Model.Group, [name: gn], %{name: gn})
       :ok = Auth.Group.user_add gn, user.email, system_user
     end
   end
 
   def import_group(group) do
     Enum.map group.perms, fn p ->
+      Repo.get_or_create_and_update(Model.Group, [name: group.name], %{name: group.name})
       :ok = Auth.Group.perm_add group.name, p, system_user
     end
   end
