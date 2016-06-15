@@ -13,7 +13,8 @@ defmodule Serverboards.NotificationTest do
     assert :call in catk
     assert :command in catk
     assert :name in catk
-    assert :id in catk
+    assert :channel in catk
+    assert not :id in catk
     assert not :type in catk
     assert not :extra in catk
   end
@@ -38,14 +39,14 @@ defmodule Serverboards.NotificationTest do
     user = Test.User.system
     config = %{ "email" => "test+notifications@serverboards.io" }
 
-    # no config yet
-    nil = Serverboards.Notifications.config_get(user.email, chan.id)
+    # no config
+    nil = Serverboards.Notifications.config_get(user.email, chan.channel <> "--bis")
 
     # insert
-    :ok = Serverboards.Notifications.config_update(user.email, chan.id, config, true, user)
+    :ok = Serverboards.Notifications.config_update(user.email, chan.channel, config, true, user)
 
     # get one
-    conf = Serverboards.Notifications.config_get(user.email, chan.id)
+    conf = Serverboards.Notifications.config_get(user.email, chan.channel)
     assert conf.config == config
 
     # get all
@@ -53,10 +54,10 @@ defmodule Serverboards.NotificationTest do
 
     config = %{ "email" => nil }
     # update
-    :ok = Serverboards.Notifications.config_update(user.email, chan.id, config, true, user)
+    :ok = Serverboards.Notifications.config_update(user.email, chan.channel, config, true, user)
 
     # updated ok
-    conf = Serverboards.Notifications.config_get(user.email, chan.id)
+    conf = Serverboards.Notifications.config_get(user.email, chan.channel)
     assert conf.config == config
   end
 
@@ -65,7 +66,7 @@ defmodule Serverboards.NotificationTest do
     user = Test.User.system
     config = %{ "email" => "test+notifications2@serverboards.io" }
 
-    :ok = Serverboards.Notifications.config_update(user.email, chan.id, config, true, user)
+    :ok = Serverboards.Notifications.config_update(user.email, chan.channel, config, true, user)
     :ok = Serverboards.Notifications.notify(user.email, "Notify test", "To all configured channels", [], user)
     :timer.sleep(300)
 
@@ -79,4 +80,22 @@ defmodule Serverboards.NotificationTest do
     assert data["config"]["email"] == config["email"]
   end
 
+  test "RPC notifications" do
+    alias Test.Client
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, [ch]} = Client.call client, "notifications.catalog", []
+
+    {:ok, :ok} = Client.call client, "notifications.config_update",
+      %{ email: "dmoreno@serverboards.io", channel: ch["channel"],
+        config: %{ email: "test@serverboards.io"}, is_active: true}
+
+    {:ok, :ok} = Client.call client, "notifications.notify",
+      %{ email: "dmoreno@serverboards.io", subject: "Subject", body: "Body", extra: [] }
+
+    {:ok, [config]} = Client.call client, "notifications.config", ["dmoreno@serverboards.io"]
+
+    Logger.info(inspect config)
+
+  end
 end

@@ -339,3 +339,22 @@ action.trigger("core.actions/ping", { ip: "192.168.1.1" })
 ## action.ps()
 
 Lists all running processes with running info.
+
+# Notifications
+
+Notifications send messgaes via the user configured channels
+
+## notifications.catalog()
+
+Returns the catalog of available notification channels
+
+## notifications.config(email)
+
+Returns the notification channels configured by this user
+
+## notifications.config_update(email, channel, config, is_active)
+
+## notifications.notify(email, subject, body, extra)
+
+extra is some extra information that may be used by the channels to adapt
+to the message, for example, alert level.

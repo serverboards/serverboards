@@ -20,8 +20,20 @@ all_perms = [
     "service.attach",
     "debug",
     "settings.view", "settings.update",
-    "action.trigger", "action.watch"
+    "action.trigger", "action.watch",
+    "settings.user.view", "settings.user.update",
+    "settings.user.view_all", "settings.user.update_all",
+    "notifications.notify", "notifications.notify_all"
   ]
+
+user_perms = [
+  "auth.modify_self", "auth.create_token",
+  "plugin",
+  "action.trigger", "action.watch",
+  "serverboard.info",  "service.info",
+  "settings.user.view", "settings.user.update",
+  "notifications.notify"
+]
 
 data = [
   users: [
@@ -34,7 +46,7 @@ data = [
       }
     ],
   groups: [
-    %{ name: "user", perms: []},
+    %{ name: "user", perms: user_perms},
     %{ name: "admin", perms: all_perms}
   ],
   password: [ {"dmoreno@serverboards.io", "asdfasdf"} ]

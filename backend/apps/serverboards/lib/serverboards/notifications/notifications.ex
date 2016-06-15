@@ -26,6 +26,9 @@ defmodule Serverboards.Notifications do
       %{ email: email, subject: subject, body: body, extra: extra}, _me ->
         notify_real(email, subject, body, extra)
     end
+
+    Serverboards.Notifications.RPC.start_link []
+
     {:ok, es}
   end
 
@@ -36,7 +39,7 @@ defmodule Serverboards.Notifications do
     Plugin.Registry.filter_component(type: "notification")
     |> Enum.map(fn c ->
       %{
-        id: c.id,
+        channel: c.id,
         name: c.name,
         fields: c.extra["fields"],
         command: c.extra["command"],
@@ -82,7 +85,7 @@ defmodule Serverboards.Notifications do
 
     user = Auth.User.user_info(email, %{ email: email})
     for c <- catalog do
-      notify_real(user, c, cm[c.id], subject, body, extra)
+      notify_real(user, c, cm[c.channel], subject, body, extra)
     end
   end
 
