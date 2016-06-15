@@ -31,4 +31,31 @@ defmodule Serverboards.NotificationTest do
     assert data["user"]["email"] == user.email
   end
 
+  test "Configure for user" do
+    chan = hd Serverboards.Notifications.catalog
+    user = Test.User.system
+    config = %{ "email" => "test+notifications@serverboards.io" }
+
+    # no config yet
+    nil = Serverboards.Notifications.config_get(user.email, chan.id)
+
+    # insert
+    :ok = Serverboards.Notifications.config_update(user.email, chan.id, config, true, user)
+
+    # get one
+    conf = Serverboards.Notifications.config_get(user.email, chan.id)
+    assert conf.config == config
+
+    # get all
+    [conf] = Serverboards.Notifications.config_get(user.email)
+
+    config = %{ "email" => nil }
+    # update
+    :ok = Serverboards.Notifications.config_update(user.email, chan.id, config, true, user)
+
+    # updated ok
+    conf = Serverboards.Notifications.config_get(user.email, chan.id)
+    assert conf.config == config
+  end
+
 end

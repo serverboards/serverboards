@@ -12,7 +12,19 @@ defmodule Serverboards.Notifications do
   configuration of the channel and subect body and options of the message.
   """
 
-  alias Serverboards.Plugin
+  alias Serverboards.{Repo, Plugin, Auth}
+  alias Serverboards.Notifications.Model.ChannelConfig
+
+  def start_link(_options \\ []) do
+    {:ok, es} = EventSourcing.start_link name: :notifications
+    EventSourcing.Model.subscribe es, :notifications, Serverboards.Repo
+    EventSourcing.subscribe es, :config_update, fn
+      %{ email: email, channel: channel, is_active: is_active, config: config}, _me ->
+        config_update_real(email, channel, config, is_active)
+    end
+    {:ok, es}
+  end
+
   @doc ~S"""
   Returns all available channels.
   """
@@ -47,8 +59,57 @@ defmodule Serverboards.Notifications do
 
   config has the channel configuration plus the user data (as map email, perms, groups).
   """
-  def notify(email, subject, body, extra \\ []) do
+  def notify(_email, _subject, _body, _extra \\ []) do
 
+  end
+
+  @doc ~S"""
+  Updates the configuration of a user
+  """
+  def config_update(email, channel, config, is_active, me) do
+    EventSourcing.dispatch(
+      :notifications, :config_update,
+      %{ email: email, channel: channel, config: config, is_active: is_active },
+      me.email)
+    :ok
+  end
+
+  defp config_update_real(email, channel, config, is_active) do
+    user = Auth.User.user_info(email, %{ email: email})
+    changes = %{ user_id: user.id, config: config, is_active: is_active, channel: channel }
+    import Ecto.Query
+
+    case Repo.all(from c in ChannelConfig,
+              where: c.user_id == ^user.id and c.channel == ^channel )
+      do
+        [] ->
+          Repo.insert(ChannelConfig.changeset( %ChannelConfig{}, changes ))
+        [prev] ->
+          Repo.update(ChannelConfig.changeset( prev, changes ))
+    end
+    Logger.info("Saved config")
+  end
+
+  @doc ~S"""
+  Gets all configs for that user email
+  """
+  def config_get(email) do
+    import Ecto.Query
+    Repo.all(from c in ChannelConfig,
+            join: u in Auth.Model.User,
+              on: u.id == c.user_id,
+            where: u.email == ^email)
+  end
+
+  @doc ~S"""
+  Gets a specific configuration, of a given channel
+  """
+  def config_get(email, channel_id) do
+    import Ecto.Query
+    Repo.one(from c in ChannelConfig,
+            join: u in Auth.Model.User,
+              on: u.id == c.user_id,
+            where: u.email == ^email and c.channel == ^channel_id)
   end
 
   @doc ~S"""
