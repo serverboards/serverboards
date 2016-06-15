@@ -84,4 +84,14 @@ components:
           placeholder: eg. http://example.com, https://example.com/path
           type: text
       returns: text
-    traits: 
+    traits:
+  - name: Notifications email address
+    id: channel.json.tmp.file
+    type: notification
+    fields:
+      - label: Email address
+        placeholder: Leave empty to use main email address
+        name: email
+        validation: email
+    command: serverboards.test.auth/fake
+    call: notification_json

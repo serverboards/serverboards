@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-import serverboards, sys, time
+import serverboards, sys, time, json
 
 @serverboards.rpc_method
 def auth(type="fake", token=None):
@@ -28,6 +28,11 @@ def http_get(url=None, sleep=0.100):
     time.sleep(sleep)
     return { "body": "404 - not found", "response_code": 404, "time": 20 }
 
+@serverboards.rpc_method
+def notification_json(**kwargs):
+    with open("/tmp/lastmail.json", "w") as fd:
+        fd.write(json.dumps(kwargs, indent=2))
+    return True
 
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() #debug=sys.stderr)

@@ -43,13 +43,23 @@ event.emit -- Allow to emit events
 
 ## Action
 
-action.trigger -- Can start triggers. 
+action.trigger -- Can start triggers.
 action.watch   -- Can be notified when actions start/stop.
 
 ## Settings
 
 settings.view -- View permissions. Specific sections may have more permissions.
 settings.update -- Update permissions.
+
+settings.user.view -- View current user settings
+settings.user.update -- Update current user settings
+settings.user.view_all -- View settings of all users (admin)
+settings.user.update_all -- Update settings of all users (admin)
+
+## Notifications
+
+notifications.notify -- Can notify current user. Needed for `notifications.notify_all`
+notifications.notify_all -- Can notify any user. Needs `notifications.notify` permission.
 
 ## Other
 

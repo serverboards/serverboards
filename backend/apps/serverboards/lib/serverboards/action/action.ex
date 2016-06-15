@@ -50,6 +50,7 @@ defmodule Serverboards.Action do
     end)
 
     {:ok, es} = EventSourcing.start_link name: :action
+    EventSourcing.Model.subscribe es, :action, Serverboards.Repo
 
     EventSourcing.subscribe es, :trigger, fn
       %{ action: action, params: params, uuid: uuid}, me ->
