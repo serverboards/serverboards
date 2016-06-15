@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Auth.RPC do
   alias MOM.RPC
@@ -93,6 +94,24 @@ defmodule Serverboards.Auth.RPC do
       {:ok, Auth.Permission.perm_list}
     end, [required_perm: "auth.manage_groups"]
 
+    add_method mc, "auth.reauth", fn %{ "uuid" => uuid, "data" => data }, context ->
+      Serverboards.Auth.Reauth.reauth(
+        RPC.Context.get(context, :reauth),
+        uuid, data
+      )
+    end, [context: true]
+
+    # reauth test
+    add_method mc, "auth.test_reauth", fn [], context->
+      reauth_map = Serverboards.Auth.Reauth.request_reauth(
+        RPC.Context.get(context, :reauth),
+        fn ->
+          {:ok, :reauth_success}
+      end)
+      {:error, reauth_map}
+    end, [context: true, required_perm: "debug"]
+
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
       RPC.Client.set client, :user, user
@@ -126,6 +145,9 @@ defmodule Serverboards.Auth.RPC do
         end
         :ok
       end)
+
+      {:ok, reauth_pid} = Serverboards.Auth.Reauth.start_link
+      RPC.Client.set client, :reauth, reauth_pid
 
       :ok
     end)

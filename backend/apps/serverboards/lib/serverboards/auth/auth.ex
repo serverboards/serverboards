@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Auth do
 	@moduledoc ~S"""
@@ -104,12 +105,29 @@ defmodule Serverboards.Auth do
 				end
 		end)
 
-		RPC.Client.event( client, "auth.required", ["basic"] )
+		RPC.Client.event( client, "auth.required", list_auth )
 		:ok
+	end
+
+	def reauthenticate(client) do
+		GenServer.call(Serverboards.Auth, {:reauth, client})
 	end
 
 	def add_auth(type, f) do
 		GenServer.call(Serverboards.Auth, {:add_auth, type, f})
+	end
+
+	@doc ~S"""
+	Returns the list of known authentications
+
+		iex> l = list_auth
+		iex> (Enum.count l) >= 1
+		true
+		iex> "basic" in l
+		true
+	"""
+	def list_auth do
+		GenServer.call(Serverboards.Auth, {:list_auth})
 	end
 
 	## server impl
@@ -178,5 +196,24 @@ defmodule Serverboards.Auth do
 		{:reply, :ok,
 			%{ state | auths: Map.put(state.auths, name, f) }
 		}
+	end
+
+	def handle_call({:list_auth}, _, state) do
+		{:reply, list_auth_(state), state}
+	end
+
+	# This is a server side call, to avoid deadlock
+	defp list_auth_(state) do
+		Map.keys(state.auths)
+	end
+
+	def handle_call({:reauth, client}, from, state) do
+		Logger.debug("client #{inspect client}")
+		RPC.Client.cast( client, "auth.reauth", list_auth_(state), fn res ->
+			Logger.info("Auth required answer: #{inspect res}")
+			GenServer.reply(from, res)
+		end )
+
+		{:noreply, state}
 	end
 end

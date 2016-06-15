@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Plugin.RPC do
   alias MOM.RPC
@@ -121,7 +122,7 @@ defmodule Serverboards.Plugin.RPC do
             []
         end
       end)
-    Logger.debug("Alias methods are: #{inspect ret}")
+    #Logger.debug("Alias methods are: #{inspect ret}")
     ret
   end
 

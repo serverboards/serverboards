@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.AuthTest do
   use ExUnit.Case, async: false
@@ -6,6 +7,7 @@ defmodule Serverboards.AuthTest do
 	@moduletag :capture_log
 
   doctest Serverboards.Auth, import: true
+  doctest Serverboards.Auth.Reauth, import: true
 
   test "User auth" do
     {:ok, client} = Client.start_link
@@ -126,5 +128,66 @@ defmodule Serverboards.AuthTest do
 
     {:ok, list} = Client.call(client, "perm.list", [])
     assert (Enum.count list) > 0
+  end
+
+  test "Reauth" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io", reauth: false
+
+    Client.set(client, :test_reauth, :none)
+
+    ret = Client.call(client, "auth.test_reauth", [])
+    {:error, %{
+      "type" => "needs_reauth",
+      "uuid" => uuid,
+      "available" => available
+      }
+    } = ret
+
+    Logger.debug("UUID #{uuid}")
+    assert "freepass" in available
+
+    ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: "freepass" }})
+    assert ret == {:ok, "reauth_success"}
+
+    Client.stop(client)
+  end
+
+  test "Reauth fail" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io", reauth: false
+
+    Client.set(client, :test_reauth, :none)
+
+    ret = Client.call(client, "auth.test_reauth", [])
+    {:error, %{
+      "type" => "needs_reauth",
+      "uuid" => uuid,
+      "available" => available
+      }
+    } = ret
+
+    Logger.debug("UUID #{uuid}")
+    assert "freepass" in available
+
+    ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: "nopass" }})
+    {:error, %{
+      "type" => "needs_reauth",
+      "uuid" => ^uuid,
+      "available" => available
+      }
+    } = ret
+
+
+    Client.stop(client)
+  end
+
+  test "Reauth basic" do
+    import Serverboards.Auth.Reauth
+
+    {:ok, r} = start_link
+    msg = request_reauth r, fn -> :reauth_success end
+    assert msg.type == :needs_reauth
+    assert "token" in msg.available
+    res = reauth r, msg.uuid, %{ "type" => "freepass", "data" => %{} }
+    assert res == :reauth_success
   end
 end
