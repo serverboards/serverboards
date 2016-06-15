@@ -11,17 +11,25 @@ defmodule Serverboards.Notifications.RPC do
     # Adds that it needs permissions and user
     Serverboards.Utils.Decorators.permission_method_caller mc
 
-    add_method mc, "notifications.catalog", fn [] ->
+    add_method mc, "notifications.catalog", fn _ ->
       {:ok, Notifications.catalog}
     end
 
-    add_method mc, "notifications.config", fn [email], context ->
-      me = RPC.Context.get(context, :user)
-      if (me.email == email) or ("settings.user.view_all" in me.perms) do
-        Notifications.config_get email
-      else
-        {:error, :not_allowed}
-      end
+    add_method mc, "notifications.config", fn
+      [email], context ->
+        me = RPC.Context.get(context, :user)
+        if (me.email == email) or ("settings.user.view_all" in me.perms) do
+          Notifications.config_get email
+        else
+          {:error, :not_allowed}
+        end
+      [email, channel], context ->
+        me = RPC.Context.get(context, :user)
+        if (me.email == email) or ("settings.user.view_all" in me.perms) do
+          Notifications.config_get email, channel
+        else
+          {:error, :not_allowed}
+        end
     end, context: true, required_perm: "settings.user.view"
 
     add_method mc, "notifications.config_update",

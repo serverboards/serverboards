@@ -77,8 +77,9 @@ defmodule Serverboards.Notifications do
   def notify_real(email, subject, body, extra) do
     cm = Map.new(
       config_get(email)
-      |> Enum.filter( &(&1.is_active) )
-      |> Enum.map( &({&1.channel, &1.config}) )
+      |> Map.to_list
+      |> Enum.filter( &(elem(&1,1).is_active) )
+      |> Enum.map( &({elem(&1,0), elem(&1,1).config}) )
     )
 
     Logger.debug("Config map #{inspect cm}")
@@ -124,7 +125,9 @@ defmodule Serverboards.Notifications do
     Repo.all(from c in ChannelConfig,
             join: u in Auth.Model.User,
               on: u.id == c.user_id,
-            where: u.email == ^email)
+            where: u.email == ^email,
+            select: {c.channel, %{ is_active: c.is_active, config: c.config }} )
+      |> Map.new
   end
 
   @doc ~S"""
@@ -135,7 +138,8 @@ defmodule Serverboards.Notifications do
     Repo.one(from c in ChannelConfig,
             join: u in Auth.Model.User,
               on: u.id == c.user_id,
-            where: u.email == ^email and c.channel == ^channel_id)
+            where: u.email == ^email and c.channel == ^channel_id,
+            select: %{ is_active: c.is_active, config: c.config } )
   end
 
   @doc ~S"""

@@ -22,6 +22,10 @@ defmodule Serverboards.Settings.RPC do
       update section, changes, Context.get(context, :user)
     end, [required_perm: "settings.update", context: true]
 
+    RPC.MethodCaller.add_method mc, "settings.get", fn [section], context ->
+      Serverboards.Settings.get section
+    end, [required_perm: "settings.view", context: true]
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc

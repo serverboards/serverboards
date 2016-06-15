@@ -92,4 +92,18 @@ defmodule Serverboards.Settings do
       {:error, :permission_denied}
     end
   end
+
+  @doc ~S"""
+  Returns the full config of a given setting. There is no hidding of
+  _pw fields. May require special perms.
+  """
+  def get(id) do
+    import Ecto.Query
+    case Repo.all(from s in Model.Settings, where: s.section == ^id) do
+      [] ->
+        {:error, :not_found}
+      [other] ->
+        {:ok, other.data}
+    end
+  end
 end

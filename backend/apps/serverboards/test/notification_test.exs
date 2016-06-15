@@ -50,7 +50,7 @@ defmodule Serverboards.NotificationTest do
     assert conf.config == config
 
     # get all
-    [conf] = Serverboards.Notifications.config_get(user.email)
+    %{ "serverboards.test.auth/channel.json.tmp.file" => conf } = Serverboards.Notifications.config_get(user.email)
 
     config = %{ "email" => nil }
     # update
@@ -93,9 +93,16 @@ defmodule Serverboards.NotificationTest do
     {:ok, :ok} = Client.call client, "notifications.notify",
       %{ email: "dmoreno@serverboards.io", subject: "Subject", body: "Body", extra: [] }
 
-    {:ok, [config]} = Client.call client, "notifications.config", ["dmoreno@serverboards.io"]
+    {:ok, config} = Client.call client, "notifications.config", ["dmoreno@serverboards.io"]
+    config = config["serverboards.test.auth/channel.json.tmp.file"]
 
     Logger.info(inspect config)
+    assert config["__struct__"] == nil
+    assert config["__meta__"] == nil
+    assert config["config"]
+    assert config["is_active"]
 
+
+    {:ok, ^config} = Client.call client, "notifications.config", ["dmoreno@serverboards.io", "serverboards.test.auth/channel.json.tmp.file"]
   end
 end
