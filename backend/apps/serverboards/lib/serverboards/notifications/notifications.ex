@@ -22,6 +22,10 @@ defmodule Serverboards.Notifications do
       %{ email: email, channel: channel, is_active: is_active, config: config}, _me ->
         config_update_real(email, channel, config, is_active)
     end
+    EventSourcing.subscribe es, :notify, fn
+      %{ email: email, subject: subject, body: body, extra: extra}, _me ->
+        notify_real(email, subject, body, extra)
+    end
     {:ok, es}
   end
 
@@ -59,8 +63,27 @@ defmodule Serverboards.Notifications do
 
   config has the channel configuration plus the user data (as map email, perms, groups).
   """
-  def notify(_email, _subject, _body, _extra \\ []) do
+  def notify(email, subject, body, extra, me) do
+    EventSourcing.dispatch(
+      :notifications, :notify,
+      %{ email: email, subject: subject, body: body, extra: extra },
+      me.email)
+    :ok
+  end
 
+  def notify_real(email, subject, body, extra) do
+    cm = Map.new(
+      config_get(email)
+      |> Enum.filter( &(&1.is_active) )
+      |> Enum.map( &({&1.channel, &1.config}) )
+    )
+
+    Logger.debug("Config map #{inspect cm}")
+
+    user = Auth.User.user_info(email, %{ email: email})
+    for c <- catalog do
+      notify_real(user, c, cm[c.id], subject, body, extra)
+    end
   end
 
   @doc ~S"""

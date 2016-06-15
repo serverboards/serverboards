@@ -23,10 +23,12 @@ defmodule Serverboards.NotificationTest do
     user = Test.User.system
     config = %{}
     {:ok, true} = Serverboards.Notifications.notify_real(user, chan, config, "Test message", "This is the body", [])
+
     {:ok, fd} = File.open("/tmp/lastmail.json")
     data = IO.read(fd, :all)
-    {:ok, data} = JSON.decode(data)
     File.close(fd)
+
+    {:ok, data} = JSON.decode(data)
 
     assert data["user"]["email"] == user.email
   end
@@ -56,6 +58,25 @@ defmodule Serverboards.NotificationTest do
     # updated ok
     conf = Serverboards.Notifications.config_get(user.email, chan.id)
     assert conf.config == config
+  end
+
+  test "Send notification" do
+    chan = hd Serverboards.Notifications.catalog
+    user = Test.User.system
+    config = %{ "email" => "test+notifications2@serverboards.io" }
+
+    :ok = Serverboards.Notifications.config_update(user.email, chan.id, config, true, user)
+    :ok = Serverboards.Notifications.notify(user.email, "Notify test", "To all configured channels", [], user)
+    :timer.sleep(300)
+
+    {:ok, fd} = File.open("/tmp/lastmail.json")
+    data = IO.read(fd, :all)
+    File.close(fd)
+
+    {:ok, data} = JSON.decode(data)
+
+    Logger.debug("Got #{inspect data}")
+    assert data["config"]["email"] == config["email"]
   end
 
 end
