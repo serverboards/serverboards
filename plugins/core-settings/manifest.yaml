@@ -19,10 +19,6 @@ components:
         placeholder: eg. https://test.serverboards.io
         name: base_url
         validation: url
-      - label: Email reply to
-        placeholder: eg. noreply@test.serverboards.io
-        validation: email
-        name: base_email
 
   - name: Database settings
     description: >

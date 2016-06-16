@@ -1,0 +1,52 @@
+id: serverboards.core.notifications
+name: core services
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Definition of core notification subsystem. Includes global config,
+  user notification channel config, and delivery subsystem.
+
+components:
+  - id: settings
+    type: settings
+    perms: settings
+    name: Email settings
+    description: SMTP Server setting used by the system to communicate with users via email.
+    fields:
+      - label: SMTP Server
+        name: servername
+        description: IP address or DNS name of the SMTP Server
+        type: text
+        validation: empty
+      - label: Port
+        name: port
+        type: text
+        description: Port of communication
+        placeholder: Leave empty to use defaults
+      - label: Email from
+        name: from
+        placeholder: eg. noreply@test.serverboards.io
+        validation: email
+      - label: Username
+        name: username
+        description: Username if required of the SMTP Server
+        type: text
+      - label: Password
+        name: password_pw
+        description: Password if required to use the SMTP Server
+        type: password
+  - id: user.settings
+    type: notification
+    name: Email notifications
+    fields:
+      - name: email
+        label: Email address
+        placeholder: Leave empty to use normal user email address
+        validation: email
+    command: daemon
+    call: send_email
+
+  - id: daemon
+    type: cmd
+    traits: email
+    command: serverbords-email.py
