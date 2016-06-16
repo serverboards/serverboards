@@ -16,6 +16,7 @@ var RPC = function(options={}){
     reconnect_token: undefined,
     store: options.store,
     url: options.url,
+    debug: false,
     reconnect_max: 10 // max count of reconnects, if more reload page.
   }
 
@@ -146,6 +147,8 @@ var RPC = function(options={}){
   var pending_calls={}
 
   rpc.onmessage = function(msg){
+    if (this.debug)
+      console.debug("Got: %o", msg)
     var jmsg = JSON.parse(msg.data)
     var id = jmsg['id']
     if (id){
@@ -196,6 +199,8 @@ var RPC = function(options={}){
     } )
     //console.log(msg)
     try{
+      if (this.debug)
+        console.debug("Send: %o", msg)
       rpc.rpc.send( msg )
     }
     catch(e){
