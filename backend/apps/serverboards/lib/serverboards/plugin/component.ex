@@ -42,8 +42,13 @@ defmodule Serverboards.Plugin.Component do
           Serverboards.Plugin.Registry.find(component.plugin)
       end
       fullcmd = "#{plugin.path}/#{cmd}"
-      Logger.info("Running command #{fullcmd}")
-      Cmd.start_link fullcmd
+      perms = case component.extra["perms"] do
+        perms when is_list(perms) -> perms
+        perms when is_binary(perms) -> String.split(perms)
+        nil -> []
+      end
+      Logger.info("Running command #{fullcmd} // #{inspect perms}")
+      Cmd.start_link fullcmd, [], [], [perms: perms]
     end
   end
 

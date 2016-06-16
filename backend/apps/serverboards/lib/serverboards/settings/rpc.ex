@@ -23,12 +23,22 @@ defmodule Serverboards.Settings.RPC do
     end, [required_perm: "settings.update", context: true]
 
     RPC.MethodCaller.add_method mc, "settings.get", fn [section], context ->
-      Serverboards.Settings.get section
-    end, [required_perm: "settings.view", context: true]
+      perms = (RPC.Context.get context, :user).perms
+      can_view = (
+        ("settings.view" in perms) or
+        ("settings.view[#{section}]" in perms)
+        )
+      if can_view do
+        Serverboards.Settings.get section
+      else
+        {:error, :not_allowed}
+      end
+    end, [context: true]
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
-      MOM.RPC.Client.add_method_caller client, mc
+      Logger.debug("New client, has perms: #{inspect (RPC.Client.get client, :user)}")
+      RPC.Client.add_method_caller client, mc
       :ok
     end)
 

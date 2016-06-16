@@ -79,6 +79,12 @@ defmodule Serverboards.Auth do
 		GenServer.call(Serverboards.Auth, {:auth, params})
 	end
 
+	def client_set_user(client, user) do
+		Logger.debug("Setting user: #{inspect user}")
+		RPC.Client.set client, :user, user
+		MOM.Channel.send(:auth_authenticated, %MOM.Message{ payload: %{ client: client, user: user } }, [sync: true])
+	end
+
 	@doc ~S"""
 	Sets up the client for authentication.
 
@@ -93,7 +99,7 @@ defmodule Serverboards.Auth do
 				if user do
 					#remove_method(method_id)
 					#Logger.debug("Logged in!")
-					MOM.Channel.send(:auth_authenticated, %MOM.Message{ payload: %{ client: client, user: user } }, [sync: true])
+					client_set_user(client, user)
 
 					if cont do
 						cont.(user)

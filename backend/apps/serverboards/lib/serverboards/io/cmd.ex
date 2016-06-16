@@ -26,7 +26,7 @@ defmodule Serverboards.IO.Cmd do
 
   """
   def start_link(cmd, args \\ [], cmdopts \\ [], opts \\ []) do
-    GenServer.start_link(__MODULE__, {cmd, args, cmdopts}, opts)
+    GenServer.start_link(__MODULE__, {cmd, args, cmdopts, opts[:perms]}, opts)
   end
 
   def stop(cmd) do
@@ -46,7 +46,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   ## server implementation
-  def init({cmd, args, cmdopts}) do
+  def init({cmd, args, cmdopts, perms}) do
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Logger.debug("Starting command #{cmd} at port #{inspect port}")
@@ -56,7 +56,16 @@ defmodule Serverboards.IO.Cmd do
         writef: &Port.command(port, &1),
         name: "CMD-#{cmd}"
       ]
-    RPC.Client.set( client, :user, %{ email: "system@serverboards.io", perms: []} )
+    Serverboards.Auth.client_set_user(
+      client,
+      %{
+        email: :plugin,
+        first_name: "Plugin",
+        last_name: cmd,
+        perms: (if perms, do: perms, else: []),
+        groups: []
+      }
+    )
 
     state=%{
       cmd: cmd,
