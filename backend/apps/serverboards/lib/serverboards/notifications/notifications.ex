@@ -86,7 +86,12 @@ defmodule Serverboards.Notifications do
 
     user = Auth.User.user_info(email, %{ email: email})
     for c <- catalog do
-      notify_real(user, c, cm[c.channel], subject, body, extra)
+      config = cm[c.channel]
+      if config do
+        notify_real(user, c, config, subject, body, extra)
+      else
+        :not_enabled
+      end
     end
   end
 
@@ -114,7 +119,6 @@ defmodule Serverboards.Notifications do
         [prev] ->
           Repo.update(ChannelConfig.changeset( prev, changes ))
     end
-    Logger.info("Saved config")
   end
 
   @doc ~S"""
