@@ -43,10 +43,10 @@ components:
         label: Email address
         placeholder: Leave empty to use normal user email address
         validation: email
-    command: daemon
+    command: serverboards.core.notifications/daemon
     call: send_email
 
   - id: daemon
     type: cmd
     traits: email
-    command: serverbords-email.py
+    command: serverboards-email.py
