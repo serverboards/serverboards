@@ -49,4 +49,5 @@ components:
   - id: daemon
     type: cmd
     traits: email
+    perms: settings.view[serverboards.core.notifications/settings]
     command: serverboards-email.py

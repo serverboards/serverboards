@@ -8,19 +8,14 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.MIMEBase import MIMEBase
 
-settings={
-    "servername" : "mail.serverboards.io",
-    "port" : "",
-    "from" : "test@serverboards.io",
-    "username" : "",
-    "password_pw" : ""
-}
+settings=None
 
 def render_message(_to, user, message):
     return message["body"]
 
 @serverboards.rpc_method
 def send_email(user=None, config=None, message=None):
+    assert settings
     _to = config and config.get("email") or user["email"]
     msg = MIMEMultipart('alternative')
 
@@ -44,6 +39,13 @@ def send_email(user=None, config=None, message=None):
 
 
 if len(sys.argv)==2 and sys.argv[1]=="test":
+    settings={
+        "servername" : "mail.serverboards.io",
+        "port" : "",
+        "from" : "test@serverboards.io",
+        "username" : "",
+        "password_pw" : ""
+    }
     print send_email(
         user={ "email": "dmoreno@serverboards.io" },
         config={},
@@ -53,4 +55,8 @@ if len(sys.argv)==2 and sys.argv[1]=="test":
             "extra":[]
         })
 else:
+    serverboards.rpc.set_debug(open("/tmp/email.log","w"))
+    serverboards.rpc.debug( serverboards.rpc.call("dir") )
+    settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings")
+
     serverboards.loop()
