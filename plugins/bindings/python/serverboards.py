@@ -5,72 +5,170 @@ try:
 except:
     pass
 
-rpc_registry={}
+class RPC:
+    """
+    Manages all the RPC status and calls.
+    """
+    def __init__(self, stdin, stdout):
+        self.rpc_registry={}
+        self.stdin=stdin
+        self.stdout=stdout
+        self.stderr=None
+        self.loop_status='OUT'
+        self.requestq=[]
+        self.send_id=1
+        self.pid=os.getpid()
+
+    def set_debug(self, debug):
+        self.stderr=debug
+        self.debug("--- BEGIN ---")
+
+    def debug(self, x):
+        if not self.stderr:
+            return
+        if type(x) not in (str, unicode):
+            x=repr(x)
+        self.stderr.write("%d: %s\n"%(self.pid, x))
+
+    def add_method(self, name, f):
+        self.rpc_registry[name]=f
+
+    def call_local(self, rpc):
+        f=self.rpc_registry.get(rpc['method'])
+        if f:
+            params=rpc['params']
+            try:
+                if type(params)==dict:
+                    res=f(**params)
+                else:
+                    res=f(*params)
+                return {
+                    'result' : res,
+                    'id' : rpc['id']
+                    }
+            except Exception as e:
+                import traceback; traceback.print_exc()
+                return {
+                    'error': str(e),
+                    'id' : rpc['id']
+                }
+    def loop(self):
+        prev_status=self.loop_status
+        self.loop_status='IN'
+
+        # pending requests
+        while self.requestq:
+            rpc = self.requestq[0]
+            self.requestq=self.requestq[1:]
+            self.__process_request(rpc)
+
+        # incoming
+        while self.loop_status=='IN':
+            l=self.stdin.readline()
+            if not l:
+                self.loop_stop()
+                continue
+            self.debug(l)
+            rpc = json.loads(l)
+            self.__process_request(rpc)
+        self.loop_status=prev_status
+
+    def loop_stop(self):
+        self.debug("--- EOF ---")
+        self.loop_status='EXIT'
+
+    def __process_request(self, rpc):
+        res=self.call_local(rpc)
+        try:
+            self.println(json.dumps(res))
+        except:
+            import traceback; traceback.print_exc()
+            sys.stderr.write(repr(res)+'\n')
+            sys.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+
+
+    def println(self, line):
+        self.debug(line)
+        self.stdout.write(line + '\n')
+        self.stdout.flush()
+
+    def call(self, method, *params, **kparams):
+        """
+        Calls a method on the other side and waits until answer.
+
+        If receives a call while waiting for answer there are two behaviours:
+
+        1. If at self.loop, processes the request inmediatly
+        2. If not, queues it to be processed wehn loop is called
+
+        This allows to setup the environment.
+        """
+        id=self.send_id
+        self.send_id+=1
+        rpc = json.dumps(dict(method=method, params=params or kparams, id=id))
+        self.println(rpc)
+
+        while True: # mini loop, may request calls while here
+            res = sys.stdin.readline()
+            if not res:
+                raise Exception("Closed connection")
+            rpc = json.loads(res)
+            if 'id' in rpc and ('result' in rpc or 'error' in rpc):
+                assert rpc['id']==id
+                if 'error' in rpc:
+                    raise Exception(rpc['error'])
+                else:
+                    return rpc['result']
+            else:
+                if self.loop_status=="IN":
+                    self.debug("Waiting for reply; Execute now for later: %s"% res)
+                    self.__process_request(rpc)
+                else:
+                    self.debug("Waiting for reply; Queue for later: %s"% res)
+                    self.requestq.append(rpc)
+
+rpc=RPC(sys.stdin, sys.stdout)
+sys.stdout=sys.stderr # allow debugging by print
 
 def rpc_method(f):
+    """
+    Decorator to add this method to the known RPC methods.
+
+    Use as simple decorator:
+
+    ```
+    @decorator
+    def func(param1, param2):
+        ....
+    ```
+
+    or with a specific name
+
+    ```
+    @decorator("rpc-name")
+    def func(param1=None):
+        ...
+    """
     if type(f)==str:
         method_name=f
         def regf(f):
             #print("Registry %s: %s"%(method_name, repr(f)))
-            rpc_registry[method_name]=f
+            rpc.add_method(method_name, f)
             return f
         return regf
     else:
         #print("Registry %s"%(f.__name__))
-        rpc_registry[f.__name__]=f
+        rpc.add_method(f.__name__,f)
     return f
-
-def call_local(rpc):
-    f=rpc_registry.get(rpc['method'])
-    if f:
-        params=rpc['params']
-        try:
-            if type(params)==dict:
-                res=f(**params)
-            else:
-                res=f(*params)
-            return {
-                'result' : res,
-                'id' : rpc['id']
-                }
-        except Exception as e:
-            import traceback; traceback.print_exc()
-            return {
-                'error': str(e),
-                'id' : rpc['id']
-            }
 
 @rpc_method("dir")
 def __dir():
-    return rpc_registry.keys()
+    return rpc.rpc_registry.keys()
 
 def loop(debug=None):
     if debug:
-        import os
-        pid="%d: "%os.getpid()
-        __debug=lambda x: debug.write(pid+x.strip()+'\n')
-    else:
-        __debug=lambda x: None
-    __debug("--- BEGIN ---")
-    while True:
-        l=sys.stdin.readline()
-        if not l:
-            __debug("--- EOF ---")
-            return
-        __debug(l)
-        rpc = json.loads(l)
-        res=call_local(rpc)
-        try:
-            __debug(json.dumps(res))
-            print(json.dumps(res))
-            sys.stdout.flush()
-        except:
-            import traceback; traceback.print_exc()
-            sys.stderr.write(repr(res)+'\n')
-            print(json.dumps({"error": "serializing json response", "id": res["id"]}))
-            sys.stdout.flush()
-
-
+        rpc.set_debug(debug)
+    rpc.loop()
 
 class Config:
     def __init__(self):
