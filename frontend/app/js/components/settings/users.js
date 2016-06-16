@@ -3,7 +3,7 @@ import Loading from '../loading'
 import AddUser from './user/add'
 import EditUser from './user/edit'
 import HoldButton from '../holdbutton'
-
+import SendNotification from '../notifications/send'
 
 const UserRow = React.createClass({
   componentDidMount(){
@@ -27,6 +27,11 @@ const UserRow = React.createClass({
                   onClick={(ev) => { ev.preventDefault(); this.props.onOpenEditUser()}}>
                   Edit user
                   <i className="ui icon edit" style={{float:"right"}}/>
+                </a>
+                <a href="#" className="item"
+                  onClick={(ev) => { ev.preventDefault(); this.props.onOpenSendNotification()}}>
+                  Send notification
+                  <i className="ui icon mail" style={{float:"right"}}/>
                 </a>
                 {u.is_active ? (
                   <HoldButton className="item" onHoldClick={this.props.onDisableUser}>
@@ -72,6 +77,9 @@ const Users=React.createClass({
   handleEnableUser(user){
     this.props.onUpdateUser(user.email, {is_active: true})
   },
+  handleOpenSendNotification : function(user){
+    this.setModal('send_notification', user)
+  },
 
   contextTypes: {
     router: React.PropTypes.object
@@ -101,6 +109,14 @@ const Users=React.createClass({
           <EditUser
             onClose={ () => this.setModal(false) }
             onSubmit={this.handleEditUser}
+            user={modal_state.data}
+          />
+        )
+      break;
+      case 'send_notification':
+        return (
+          <SendNotification
+            onClose={ () => this.setModal(false) }
             user={modal_state.data}
           />
         )
@@ -136,6 +152,7 @@ const Users=React.createClass({
               onOpenEditUser={() => this.handleOpenEditUser(u)}
               onDisableUser={() => this.handleDisableUser(u)}
               onEnableUser={() => this.handleEnableUser(u)}
+              onOpenSendNotification={() => this.handleOpenSendNotification(u)}
               />
           ))}
           </tbody>
