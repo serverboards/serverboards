@@ -85,7 +85,10 @@ let GenericForm=React.createClass({
       )
     }
     return (
-      <form ref="form" className="ui form" onSubmit={(ev) => { ev.preventDefault(); self.props.onSubmit(ev) }}>
+      <form
+        ref="form"
+        className={`ui form ${this.props.className}`} 
+        onSubmit={(ev) => { ev.preventDefault(); self.props.onSubmit(ev) }}>
         {this.props.fields.map((f) => generic_field(f)) }
         {this.props.children}
       </form>

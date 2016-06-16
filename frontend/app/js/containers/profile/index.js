@@ -7,8 +7,7 @@ import rpc from 'app/rpc'
 var Profile=event.subscribe_connect(
   (state) => ({
     user: state.auth.user,
-    channels: state.notifications.catalog,
-    config: state.notifications.config
+    channels: state.notifications.catalog_with_config
   }),
   (dispatch) => ({
     handleUpdate: (data) => dispatch( notifications_update(data) )
