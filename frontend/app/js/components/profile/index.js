@@ -7,13 +7,11 @@ let Profile = React.createClass({
     return {
     }
   },
-  handleUpdate(){
-    this.props.handleUpdate(this.state)
+  handleSubmit(){
+    this.props.onSubmit(this.state)
   },
-  updateForm(section, subsection, data){
-    let sc = this.state[section] || {}
-    sc[subsection]=data
-    this.setState({ [section]: sc })
+  handleUpdate(section, data){
+    this.setState({ [section]: data })
   },
   render(){
     let props = this.props
@@ -33,10 +31,10 @@ let Profile = React.createClass({
           </dl>
 
           <Notifications user={props.user.email} channels={props.channels}
-            updateForm={(subsection, data) => this.updateForm("notifications", subsection, data)}/>
+            onUpdate={(data) => this.handleUpdate("notifications", data)}/>
 
           <br/>
-          <button className="ui button green" onClick={this.handleUpdate}>Update profile</button>
+          <button className="ui button green" onClick={this.handleSubmit}>Update profile</button>
         </div>
       </div>
     )

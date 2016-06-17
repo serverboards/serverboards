@@ -10,7 +10,7 @@ var Profile=event.subscribe_connect(
     channels: state.notifications.catalog_with_config
   }),
   (dispatch) => ({
-    handleUpdate: (data) => dispatch( notifications_update(data) )
+    onSubmit: (data) => dispatch( notifications_update(data) )
   }),
   [],
   [notifications_update_catalog, notifications_config]

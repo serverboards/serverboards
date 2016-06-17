@@ -37,19 +37,18 @@ export function notifications_update(data){
   return function(dispatch){
     Flash.info("Updating notification channels")
     let promises=[]
-    //console.log("not %o", data.notifications)
+    console.log("not %o", data.notifications)
 
     for(let k in data.notifications){
       let v = data.notifications[k]
-      //console.log("k %o v %o", k, v)
-      if (k.endsWith("/active"))
-        continue
+      console.log(v)
       promises.push(
         rpc.call("notifications.config_update", {
           email: email,
           channel: k,
-          config: v,
-          is_active: data.notifications[k+'/active'].is_active})
+          config: v.config,
+          is_active: v.is_active,
+        })
       )
     }
 
