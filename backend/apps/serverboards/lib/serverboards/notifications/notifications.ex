@@ -38,12 +38,17 @@ defmodule Serverboards.Notifications do
   def catalog do
     Plugin.Registry.filter_component(type: "notification")
     |> Enum.map(fn c ->
+      fields = case c.extra["fields"] do
+        nil -> []
+        other -> other
+      end
       %{
         channel: c.id,
         name: c.name,
-        fields: c.extra["fields"],
+        fields: fields,
         command: c.extra["command"],
-        call: c.extra["call"]
+        call: c.extra["call"],
+        description: c.extra["description"]
       }
     end)
   end
