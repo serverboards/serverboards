@@ -51,7 +51,7 @@ export function emit(type, args){
  * * Updates is a list or a function(props) -> list that sets functions
  *   to call to update state, for example list of services in a serverboard.
  */
-export function subscribe_connect(state, handlers, subscriptions, updates){
+export function subscribe_connect(state, handlers, subscriptions=[], updates=[]){
   return function(Component){
     let SubscribedConnect = React.createClass({
       contextTypes: {

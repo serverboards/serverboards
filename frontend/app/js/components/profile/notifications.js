@@ -1,25 +1,35 @@
 import React from 'react'
 import GenericForm from '../genericform'
 import Loading from '../loading'
+import { to_map } from 'app/utils'
 
 let Channel=React.createClass({
   getInitialState(){
-    return {
-      active: this.props.channel.is_active
-    }
+    let config = this.props.config || {}
+    return { config: config.config, is_active: config.is_active }
+  },
+  componentWillReceiveProps(props){
+    const config=props.config || {}
+    this.setState({
+      config: config.config,
+      is_active: config.is_active
+    })
   },
   componentDidMount(){
     $(this.refs.enable).checkbox({
       onChecked: () =>{
-        this.setState({ active: true })
-        this.props.onEnableChange(true)
+        this.setState({ is_active: true })
+        this.props.onUpdate(this.state.config, true)
       },
       onUnchecked: () =>{
-        this.setState({ active: false })
-        this.props.onEnableChange(false)
+        this.setState({ is_active: false })
+        this.props.onUpdate(this.state.config, false)
       }
     })
-    this.props.onEnableChange(this.props.channel.is_active)
+  },
+  handleUpdate(config){
+    this.setState( { config  } )
+    this.props.onUpdate(config, this.state.is_active)
   },
   render(){
     const props=this.props
@@ -27,56 +37,45 @@ let Channel=React.createClass({
       <div style={{paddingTop: 15}}>
         <h3 className="ui header">{props.channel.name}
         <div ref="enable" className="ui toggle checkbox" style={{float:"right"}}>
-          <input type="checkbox" name="active" defaultChecked={this.state.active}/>
-          <label>{this.state.active ? "Active" : "Disabled"}</label>
+          <input type="checkbox" name="active" defaultChecked={this.state.is_active}/>
+          <label>{this.state.is_active ? "Active" : "Disabled"}</label>
         </div>
         </h3>
         <div className="ui meta">{props.channel.description}</div>
         <GenericForm
           fields={props.channel.fields}
-          updateForm={(data) => props.onUpdate(data)}
+          updateForm={(data) => this.handleUpdate(data)}
           />
       </div>
     )
   }
 })
 
-function to_map(l){
-  let ret={}
-  for (let kv of l){
-    ret[kv[0]]=kv[1]
-  }
-  return ret
-}
-
 const Notifications=React.createClass({
   getInitialState(){
-    return this.getStatus(this.props)
+    return this.props.config || { config: {}, is_active: false }
   },
   componentWillReceiveProps(props){
-    this.setState( this.getStatus(props) )
-  },
-  getStatus(props){
-    let ret={}
-    for (let k in props.channels){
-      let c=props.channels[k]
-      ret[c.channel]={
-        is_active: c.is_active,
-        config: to_map( c.fields.map((f) => [f.name, f.value]) )
-      }
+    if (props.config != this.props.config){
+      this.setState( props.config )
     }
-    return ret
   },
-  handleConfigUpdate(chan, data){
-    this.setState( { [chan]: { config: data, is_active: this.state[chan].is_active } } )
-    this.props.onUpdate(this.state)
-  },
-  handleEnableUpdate(chan, state){
-    this.setState( { [chan]: { config: this.state[chan].config, is_active:state } } )
-    this.props.onUpdate(this.state)
+  handleConfigUpdate(chan, config, is_active){
+    let state=Object.assign({}, this.state)
+    state[chan] = { config, is_active }
+
+    let valid_config={} // there may be invalid configs.
+    this.props.channels.map((c) =>{
+      valid_config[c.channel]=state[c.channel]
+    })
+
+    this.setState( valid_config )
+
+    this.props.onUpdate( valid_config )
   },
   render(){
-    let props=this.props
+    const props=this.props
+    const state=this.state
     if (!props.channels)
       return (
         <Loading>Notification channels</Loading>
@@ -86,9 +85,8 @@ const Notifications=React.createClass({
         <h2 className="ui header">Communication Channels</h2>
         {props.channels.map( (c) => (
           <Channel
-            key={c.channel} channel={c}
-            onUpdate={(data) => this.handleConfigUpdate(c.channel, data)}
-            onEnableChange={(state) => this.handleEnableUpdate(c.channel, state)}
+            key={c.channel} channel={c} config={state[c.channel]}
+            onUpdate={(data, is_active) => this.handleConfigUpdate(c.channel, data, is_active)}
             />
         ))}
       </div>

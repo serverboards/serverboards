@@ -37,11 +37,11 @@ export function notifications_update(data){
   return function(dispatch){
     Flash.info("Updating notification channels")
     let promises=[]
-    console.log("not %o", data.notifications)
+    //console.log("not %o", data.notifications)
 
     for(let k in data.notifications){
       let v = data.notifications[k]
-      console.log(v)
+      //console.log(v)
       promises.push(
         rpc.call("notifications.config_update", {
           email: email,

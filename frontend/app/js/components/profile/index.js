@@ -1,6 +1,5 @@
 import React from 'react'
-import Notifications from './notifications'
-
+import Notifications from 'app/containers/profile/notifications'
 
 let Profile = React.createClass({
   getInitialState(){
@@ -8,6 +7,7 @@ let Profile = React.createClass({
     }
   },
   handleSubmit(){
+    console.log("Submit %o",this.state)
     this.props.onSubmit(this.state)
   },
   handleUpdate(section, data){
@@ -30,7 +30,7 @@ let Profile = React.createClass({
             <dd>{props.user.last_name}</dd>
           </dl>
 
-          <Notifications user={props.user.email} channels={props.channels}
+          <Notifications user={props.user.email}
             onUpdate={(data) => this.handleUpdate("notifications", data)}/>
 
           <br/>
