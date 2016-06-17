@@ -28,7 +28,7 @@ let Channel=React.createClass({
     console.log(this.props)
     console.log(this.state)
     return (
-      <div>
+      <div style={{paddingTop: 15}}>
         <h3 className="ui header">{props.channel.name}
         <div ref="enable" className="ui toggle checkbox" style={{float:"right"}}>
           <input type="checkbox" name="active" defaultChecked={this.state.active}/>
