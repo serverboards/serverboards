@@ -75,7 +75,9 @@ let GenericForm=React.createClass({
       if (f.validation)
         fields[f.name]=f.validation
     })
-    $(this.refs.form).form({ on: 'blur', fields })
+    $(this.refs.form).form({ on: 'blur', fields }).on('submit', function(ev){
+      ev.preventDefault()
+    })
     this.props.updateForm && this.props.updateForm(this.state)
   },
   render(){
@@ -89,7 +91,7 @@ let GenericForm=React.createClass({
       <form
         ref="form"
         className={`ui form ${this.props.className}`}
-        onSubmit={(ev) => { ev.preventDefault(); self.props.onSubmit(ev) }}>
+        onSubmit={(ev) => { ev.preventDefault(); self.props.onSubmit && self.props.onSubmit(ev) }}>
         {this.props.fields.map((f) => generic_field(f)) }
         {this.props.children}
       </form>
