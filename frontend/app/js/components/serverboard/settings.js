@@ -17,7 +17,14 @@ let Settings=React.createClass({
         edit={true}
         onSubmit={this.handleUpdate}
         onDelete={this.handleDelete}
-        />
+        >
+        <div className="ui fixed bottom">
+          <a href={`#/serverboard/${this.props.serverboard.shortname}/services`}
+          className="ui header medium link">
+          Configure services for this serverboard <i className="ui icon angle right"/>
+          </a>
+        </div>
+      </SettingsAdd>
     )
   }
 })
