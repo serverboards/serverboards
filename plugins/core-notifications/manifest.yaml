@@ -1,13 +1,13 @@
 id: serverboards.core.notifications
 name: core services
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 0.1.0
 description: >
   Definition of core notification subsystem. Includes global config,
   user notification channel config, and delivery subsystem.
 
 components:
-  - id: settings
+  - id: settings.email
     type: settings
     perms: settings
     name: Email settings
@@ -35,7 +35,7 @@ components:
         name: password_pw
         description: Password if required to use the SMTP Server
         type: password
-  - id: user.settings
+  - id: settings.email.user
     type: notification
     name: Email notifications
     fields:
@@ -43,11 +43,35 @@ components:
         label: Email address
         placeholder: Leave empty to use normal user email address
         validation: email
-    command: serverboards.core.notifications/daemon
+    command: serverboards.core.notifications/daemon.email
     call: send_email
 
-  - id: daemon
+  - id: daemon.email
     type: cmd
     traits: email
-    perms: settings.view[serverboards.core.notifications/settings]
+    perms: settings.view[serverboards.core.notifications/settings.email]
     command: serverboards-email.py
+
+
+  - id: settings.telegram
+    type: settings
+    perms: settings
+    name: Telegram settings
+    description: Telegram settings requried to send telegrams to users. You can get a new API token using the [BotFather](https://web.telegram.org/#/im?p=@BotFather) telegram bot.
+    fields:
+      - name: token
+        label: API Key
+        description:: API token as given by the BotFather
+
+  - id: settings.telegram.user
+    type: notification
+    name: Telegram notifications
+    description: A code will be sent to pair. Please connect to the serverboards_test_bot in telegram.
+    command: serverboards.core.notifications/daemon.telegram
+    call: send_telegram
+
+  - id: daemon.telegram
+    type: cmd
+    traits: telegram
+    perms: settings.view[serverboards.core.notifications/settings.telegram]
+    command: serverboards-telegram.py

@@ -55,8 +55,6 @@ if len(sys.argv)==2 and sys.argv[1]=="test":
             "extra":[]
         })
 else:
-    serverboards.rpc.set_debug(open("/tmp/email.log","w"))
-    serverboards.rpc.debug( serverboards.rpc.call("dir") )
-    settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings")
+    settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
 
     serverboards.loop()
