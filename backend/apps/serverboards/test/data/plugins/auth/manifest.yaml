@@ -10,6 +10,7 @@ components:
     type: cmd
     traits: auth
     id: fake
+    perms: plugin.data[serverboards.test.auth]
     command: auth.py
 
   - name: generic component

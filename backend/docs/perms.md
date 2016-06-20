@@ -21,7 +21,7 @@ auth.manage_groups -- Adds/removes users/permissions from groups
 ## Plugins
 
 plugin -- Can start, stop and make calls into plugins
-
+plugin.data -- Can access and modify plugin data. May have a [context]
 
 ## Serverboards
 
@@ -51,7 +51,7 @@ action.watch   -- Can be notified when actions start/stop.
 settings.view -- View settings. Specific sections may have more permissions. It may have a [context] for specific settings to see.
 settings.update -- Update settings.
 
-settings.user.view -- View current user settings. May have [context]. 
+settings.user.view -- View current user settings. May have [context].
 settings.user.update -- Update current user settings
 settings.user.view_all -- View settings of all users (admin)
 settings.user.update_all -- Update settings of all users (admin)

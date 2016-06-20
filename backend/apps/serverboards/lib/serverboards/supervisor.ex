@@ -19,6 +19,7 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Auth, [:start_link, []]),
       worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
       worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
+      worker(Serverboards.Plugin.Data, [ [name: Serverboards.Plugin.Data] ]),
       worker(Serverboards.Serverboard, [ [name: Serverboards.Serverboard] ]),
       worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
       worker(Serverboards.Event, [ [name: Serverboards.Event] ]),

@@ -40,7 +40,7 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, "test.ping", []) == {:ok, "pong"}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
     assert Client.call(client, "#{test_cmd}.ping", []) == {:error, :unknown_method}
-    Client.call(client, "test.ping", []) == {:error, :unknown_method}
+    assert Client.call(client, "test.ping", []) == {:error, :unknown_method}
   end
 
 
@@ -90,5 +90,37 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, pl<>".ping", []) == {:ok, "pong"}
 
     Client.stop(client)
+  end
+
+  test "Plugin data" do
+    :ok = Serverboards.Plugin.Data.data_set "test.plugin.data", "key", %{ data: "data"}, Test.User.system
+
+    data = Serverboards.Plugin.Data.data_get "test.plugin.data", "key"
+
+    assert data["data"] == "data"
+  end
+
+  test "Plugin data from plugin" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    assert Client.call(client, "plugin.call",
+      [
+        test_cmd,
+        "data_set",
+        ["k", %{test: true} ]
+       ]) == {:ok, true}
+    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+
+    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    assert Client.call(client, "plugin.call",
+      [
+        test_cmd,
+        "data_get",
+        ["k"]
+      ]
+    ) == {:ok, %{ "test" => true }}
+    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+
   end
 end

@@ -2,6 +2,8 @@
 from __future__ import print_function
 import serverboards, sys, time, json
 
+PLUGIN_ID="serverboards.test.auth"
+
 @serverboards.rpc_method
 def auth(type="fake", token=None):
     if token=="XXX":
@@ -33,6 +35,15 @@ def notification_json(**kwargs):
     with open("/tmp/lastmail.json", "w") as fd:
         fd.write(json.dumps(kwargs, indent=2))
     return True
+
+@serverboards.rpc_method
+def data_set(k, v):
+    serverboards.rpc.call("plugin.data_set", plugin=PLUGIN_ID, key=k, value=v)
+    return True
+
+@serverboards.rpc_method
+def data_get(k):
+    return serverboards.rpc.call("plugin.data_get", plugin=PLUGIN_ID, key=k)
 
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() #debug=sys.stderr)

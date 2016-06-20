@@ -216,6 +216,40 @@ Performs the call on that uuid or allias
 
 Stops the plugin.
 
+
+## plugins.data_set(id, key, value)
+
+Sets some data for some plugin id in a given key. Value must be a map.
+
+Needs plugins.data or plugins.data[pluginid] permission.
+
+```js
+plugins.data_set("serverboards.core.notifications/telegram", "user_to_map",{
+  "dmoreno@serverboards.io": 12312312312
+})
+```
+
+NOTE: It does not currently check the plugin name is vlid and can be used thus
+to store data unrelated to plugins or shared between plugins, but anyway the
+name should be scoped to avoid collissions, and explanatory. *It is highly
+encouraged to use the plugin or plugin/component id.*
+
+## plugins.data_get(id, key)
+
+Returns the data of the given section
+
+Needs plugins.data or plugins.data[pluginid] permission.
+
+```js
+plugins.data_get("serverboards.core.notifications/telegram", "user_to_map")
+```
+
+```js
+{
+  "dmoreno@serverboards.io": 12312312312
+}
+```
+
 # Serverboards
 
 ## serverboard.add(shortname, attributes)
