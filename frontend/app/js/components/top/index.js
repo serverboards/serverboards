@@ -46,7 +46,7 @@ var Top = function(props){
 
       <div className="right menu">
         <a className="item disabled">
-          <i className="comments outline icon"></i>
+          <i className="lightning icon"></i>
           Issues
           <i className="dropdown icon"></i>
         </a>
@@ -56,7 +56,7 @@ var Top = function(props){
           <i className="dropdown icon"></i>
         </a>
         <a className="item" onClick={() => props.toggleMenu('processes')}>
-          <i className="tasks icon"></i>
+          <i className="spinner icon"></i>
           Processes
           <span className={`ui label ${props.actions.length==0 ? "" : "teal"}`}>{props.actions.length}</span>
           <i className="dropdown icon"></i>
