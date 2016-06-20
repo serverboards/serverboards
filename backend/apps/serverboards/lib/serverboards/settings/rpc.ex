@@ -31,6 +31,7 @@ defmodule Serverboards.Settings.RPC do
       if can_view do
         Serverboards.Settings.get section
       else
+        Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
         {:error, :not_allowed}
       end
     end, [context: true]
