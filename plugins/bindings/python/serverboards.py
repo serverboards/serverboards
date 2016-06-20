@@ -28,7 +28,8 @@ class RPC:
             return
         if type(x) not in (str, unicode):
             x=repr(x)
-        self.stderr.write("%d: %s\n"%(self.pid, x))
+        self.stderr.write("%d: %s\r\n"%(self.pid, x))
+        self.stderr.flush()
 
     def add_method(self, name, f):
         self.rpc_registry[name]=f
