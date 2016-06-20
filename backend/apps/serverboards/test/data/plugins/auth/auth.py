@@ -38,12 +38,12 @@ def notification_json(**kwargs):
 
 @serverboards.rpc_method
 def data_set(k, v):
-    serverboards.rpc.call("plugin.data_set", plugin=PLUGIN_ID, key=k, value=v)
+    serverboards.rpc.call("plugin.data_set", PLUGIN_ID, k, v)
     return True
 
 @serverboards.rpc_method
 def data_get(k):
-    return serverboards.rpc.call("plugin.data_get", plugin=PLUGIN_ID, key=k)
+    return serverboards.rpc.call("plugin.data_get", PLUGIN_ID, k)
 
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() #debug=sys.stderr)

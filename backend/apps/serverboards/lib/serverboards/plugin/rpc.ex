@@ -46,7 +46,7 @@ defmodule Serverboards.Plugin.RPC do
 
 
     RPC.MethodCaller.add_method method_caller, "plugin.data_set",
-        fn %{ "plugin" => plugin, "key" => key, "value" => value }, context ->
+        fn [ plugin, key, value ], context ->
       user = RPC.Context.get context, :user
       perms = user.perms
       can_data = (
@@ -62,7 +62,7 @@ defmodule Serverboards.Plugin.RPC do
     end, context: true
 
     RPC.MethodCaller.add_method method_caller, "plugin.data_get",
-        fn %{ "plugin" => plugin, "key" => key }, context ->
+        fn [ plugin, key ], context ->
       perms = (RPC.Context.get context, :user).perms
       can_data = (
         ("plugin.data" in perms) or
