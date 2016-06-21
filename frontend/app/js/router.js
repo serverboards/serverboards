@@ -27,6 +27,7 @@ var ServerboardsRouter = React.createClass({
             <Route path="add" component={ServerboardAdd}/>
             <Route path=":serverboard/" component={Serverboard}/>
             <Route path=":serverboard/:section" component={Serverboard}/>
+            <Route path=":serverboard/:section/:subsection" component={Serverboard}/>
           </Route>
           <Route path="/settings/" component={Settings}>
             <Route path=":section" component={Settings}/>
