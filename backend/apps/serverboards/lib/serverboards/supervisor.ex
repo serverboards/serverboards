@@ -25,6 +25,7 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
+      worker(Serverboards.Rules.Trigger, [ [name: Serverboards.Rules.Trigger] ]),
     ]
 
     opts = [strategy: :one_for_one]

@@ -96,3 +96,14 @@ components:
         validation: email
     command: serverboards.test.auth/fake
     call: notification_json
+
+  - name: Periodic timer
+    type: trigger
+    states: tick stop
+    id: periodic.timer
+    command: fake
+    call:
+      method: periodic_timer
+      params:
+        - name: period
+          default: 0.1

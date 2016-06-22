@@ -45,5 +45,13 @@ def data_set(k, v):
 def data_get(k):
     return serverboards.rpc.call("plugin.data_get", PLUGIN_ID, k)
 
+@serverboards.rpc_method
+def periodic_timer(period=10):
+    period=float(period)
+    serverboards.rpc.reply("ok")
+    while True:
+        time.sleep(period)
+        serverboards.rpc.event("trigger", state="tick")
+
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() #debug=sys.stderr)

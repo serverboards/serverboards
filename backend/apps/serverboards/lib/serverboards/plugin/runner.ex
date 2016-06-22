@@ -117,6 +117,19 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   @doc ~S"""
+  Rerurns the RPC client of a given uuid
+  """
+  def client(uuid) when is_binary(uuid) do
+    cmd = GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
+    if cmd == :not_found do
+      {:error, :not_found}
+    else
+      client = Serverboards.IO.Cmd.client cmd
+      {:ok, client}
+    end
+  end
+
+  @doc ~S"""
   Calls a runner started command method.
 
   id is an opaque id that can be passed around to give access to this command.

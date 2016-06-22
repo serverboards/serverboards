@@ -45,6 +45,13 @@ defmodule Serverboards.IO.Cmd do
     end
   end
 
+  @doc ~S"""
+  Returns the associated client
+  """
+  def client(cmd) do
+    GenServer.call(cmd, {:client})
+  end
+
   ## server implementation
   def init({cmd, args, cmdopts, perms}) do
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
@@ -83,6 +90,9 @@ defmodule Serverboards.IO.Cmd do
       GenServer.reply(from, res)
     end)
     {:noreply, state }
+  end
+  def handle_call({:client}, _from, state) do
+    {:reply, state.client, state}
   end
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do

@@ -18,6 +18,7 @@ class RPC:
         self.requestq=[]
         self.send_id=1
         self.pid=os.getpid()
+        self.manual_replies=set()
 
     def set_debug(self, debug):
         self.stderr=debug
@@ -28,7 +29,8 @@ class RPC:
             return
         if type(x) not in (str, unicode):
             x=repr(x)
-        self.stderr.write("%d: %s\n"%(self.pid, x))
+        self.stderr.write("%d: %s\r\n"%(self.pid, x))
+        self.stderr.flush()
 
     def add_method(self, name, f):
         self.rpc_registry[name]=f
@@ -78,19 +80,46 @@ class RPC:
         self.loop_status='EXIT'
 
     def __process_request(self, rpc):
+        self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
-        try:
-            self.println(json.dumps(res))
-        except:
-            import traceback; traceback.print_exc()
-            sys.stderr.write(repr(res)+'\n')
-            sys.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
-
+        if res.get("id") not in self.manual_replies:
+            try:
+                self.println(json.dumps(res))
+            except:
+                import traceback; traceback.print_exc()
+                sys.stderr.write(repr(res)+'\n')
+                sys.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+        else:
+            self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
         self.debug(line)
         self.stdout.write(line + '\n')
         self.stdout.flush()
+
+    def log(self, message=None, type="LOG"):
+        assert message
+        self.event("log", type=type, message=message)
+
+    def event(self, method, *params, **kparams):
+        """
+        Sends an event to the other side
+        """
+        rpc = json.dumps(dict(method=method, params=params or kparams))
+        self.println(rpc)
+
+    def reply(self, result):
+        """
+        Shortcuts request processing returning an inmediate answer. The final
+        answer will be ignored.
+
+        This allows to start long running processes that may send events in a
+        loop.
+
+        If more calls are expected, it is recomended to spawn new threads.
+        """
+        self.manual_replies.add(self.last_rpc_id)
+        self.println(json.dumps({"id": self.last_rpc_id, "result": result}))
 
     def call(self, method, *params, **kparams):
         """

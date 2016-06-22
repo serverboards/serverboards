@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Plugin.Registry do
 
@@ -65,7 +66,8 @@ defmodule Serverboards.Plugin.Registry do
             all? (for {k,v} <- q do
               case k do
                 :id ->
-                  Map.get(c, :id) == v
+                  cid = Map.get(c, :id)
+                  (cid == v) or (v == ("#{p.id}/#{cid}"))
                 :trait ->
                   member? Map.get(c, :traits), v
                 :traits -> # any of the traits fit
