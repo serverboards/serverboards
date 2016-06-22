@@ -53,5 +53,12 @@ def periodic_timer(period=10):
         time.sleep(period)
         serverboards.rpc.event("trigger", state="tick")
 
+@serverboards.rpc_method
+def touchfile(filename="/tmp/auth-py-touched"):
+    import datetime
+    with open(filename, "w") as fd:
+        fd.write(str(datetime.datetime.now()))
+    return True
+
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() #debug=sys.stderr)

@@ -107,3 +107,13 @@ components:
       params:
         - name: period
           default: 0.1
+
+  - name: Touch a file
+    type: action
+    id: touchfile
+    command: fake
+    call:
+      method: touchfile
+      params:
+        - name: filename
+          label: File to create and set the date inside

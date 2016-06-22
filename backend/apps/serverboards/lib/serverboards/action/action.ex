@@ -23,10 +23,15 @@ defmodule Serverboards.Action do
 
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.started", data: action }  } ->
+        user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
+          [] -> nil
+          [id] -> id
+        end
+
         action=Map.merge( action, %{
           type: action.id,
           status: "running",
-          user_id: Repo.one(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id )
+          user_id: user_id
         })
 
         {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
@@ -89,6 +94,7 @@ defmodule Serverboards.Action do
 
   """
   def trigger(action_id, params, me) do
+    Logger.info("Pre Trigger action #{action_id} by #{inspect me}")
     action = Plugin.Registry.find(action_id)
     if action do
       uuid = UUID.uuid4

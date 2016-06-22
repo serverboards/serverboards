@@ -43,9 +43,13 @@ defmodule Serverboards.Rules.Trigger do
   @doc ~S"""
   Executes the command for a trigger
   """
-  def start(trigger, params, cont) do
+  def start(trigger, params, cont) when is_map(trigger) do
     uuid = GenServer.call(Serverboards.Rules.Trigger, {:start, trigger, params, cont})
     {:ok, uuid}
+  end
+  def start(triggerid, params, cont) when is_binary(triggerid) do
+    [trigger] = find id: triggerid
+    start(trigger, params, cont)
   end
 
   def stop(uuid) do
@@ -63,7 +67,7 @@ defmodule Serverboards.Rules.Trigger do
     Plugin.Runner.call( uuid, trigger.call["method"], params )
 
     {:ok, client} = Plugin.Runner.client uuid
-    Logger.debug("Method caller of this trigger #{inspect client}")
+    #Logger.debug("Method caller of this trigger #{inspect client}")
     MOM.RPC.Client.add_method client, "trigger", fn params ->
       Logger.debug("Trigger #{inspect trigger.id}, #{inspect params}")
       params = Map.merge(params, %{ uuid: uuid, trigger: trigger.id })

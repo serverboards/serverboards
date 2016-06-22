@@ -88,14 +88,18 @@ class RPC:
             except:
                 import traceback; traceback.print_exc()
                 sys.stderr.write(repr(res)+'\n')
-                sys.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
         else:
             self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
         self.debug(line)
-        self.stdout.write(line + '\n')
-        self.stdout.flush()
+        try:
+            self.stdout.write(line + '\n')
+            self.stdout.flush()
+        except IOError:
+            self.debug("Error on PIPE error.")
+            sys.exit(1)
 
     def log(self, message=None, type="LOG"):
         assert message

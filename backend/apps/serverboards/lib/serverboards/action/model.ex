@@ -12,8 +12,8 @@ defmodule Serverboards.Action.Model do
       timestamps
     end
 
-    @required_fields ~w(uuid type status params user_id)
-    @optional_fields ~w(result elapsed)
+    @required_fields ~w(uuid type status params)
+    @optional_fields ~w(result elapsed user_id)
     def changeset(action, changes \\ :empty) do
       import Ecto.Changeset
       changes = %{ changes | status: to_string(changes[:status]) }
