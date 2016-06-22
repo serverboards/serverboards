@@ -1,0 +1,70 @@
+id: serverboards.core.triggers
+name: Core Triggers
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Various core triggers.
+
+components:
+  - name: Server is running / Ping
+    id: ping
+    type: trigger
+    states: down up
+    command: daemon
+    call:
+      method: ping
+      params:
+        - name: ip
+          label: Remote IP address or DNS name
+          type: text
+        - name: frequency
+          label: Check frequency
+          description: Time between checks in seconds
+          default: 60
+        - name: grace
+          label: Grace period
+          description: Seconds that connectivity can be lost without triggering
+          default: 60
+    traits: ip
+
+  - name: HTTP Response time limit
+    id: http
+    type: trigger
+    command: daemon
+    states: down up
+    call:
+      method: http
+      params:
+        - name: url
+          label: Remote URL
+          type: text
+        - name: maxs
+          label: Maximum response time (s)
+          description: Trigger if response time is greater than the given value in seconds for longer that grace period.
+          default: 5
+        - name: frequency
+          label: Check frequency (s)
+          description: Time between checks in seconds
+          default: 60
+        - name: grace
+          label: Grace period (s)
+          description: Seconds that connectivity can be lost without triggering
+          default: 60
+    traits: url
+
+  - name: Periodic trigger
+    id: periodic
+    type: trigger
+    states: tick
+    command: daemon
+    call:
+      method: periodic
+      params:
+        - name: timeout
+          label: Trigger every
+          description: Write human time description: 1d, 12h, 30m, 10s
+
+  - name: Core triggers daemon
+    type: cmd
+    command: serverboards-triggers.py
+    shared: none
