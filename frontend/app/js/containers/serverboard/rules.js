@@ -2,15 +2,46 @@ import RulesView from 'app/components/rules'
 import event from 'app/utils/event'
 import { push } from 'react-router-redux'
 
+function fake_rule(id, options={}){
+  return Object.assign({
+    id,
+    is_active: true,
+    name: "Check server down",
+    description: "Service description",
+    trigger: {
+      service: "eb4c790b-bb4d-4282-a520-e95f7d0fb0ee",
+      trigger: "core.server.down",
+      params: {
+        grace: 60
+      }
+    },
+    actions: [
+      {
+        action: "core.notifications/notify",
+        state: "down",
+        params: {
+          message: "Server down"
+        }
+      },
+      {
+        action: "core.notifications/notify",
+        state: "up",
+        params: {
+          message: "Server back online"
+        }
+      }
+    ]
+  }, options)
+}
+
 var Rules = event.subscribe_connect(
   (state) => ({
     rules: [
-        { id: "1", service: "Web server", name: "Rule test", trigger: "core.server.down", action: { action: "core.notifications/notify", params: { message: "Server down" } } },
-        { id: "2", service: "Email", name: "Rule test", trigger: "core.server.down", action: { action: "core.notifications/notify", params: { message: "Server down" } } },
-        { id: "3", service: "Mandrill", name: "Rule test", trigger: "core.server.down", action: { action: "core.notifications/notify", params: { message: "Server down" } } },
-        { id: "4", service: "Web beta", name: "Rule test", trigger: "core.server.down", action: { action: "core.notifications/notify", params: { message: "Server down" } } },
-        { id: "5", service: "Git", name: "Rule test", trigger: "core.server.down", action: { action: "core.notifications/notify", params: { message: "Server down" } } },
-        { id: "6", service: "Mega", name: "Rule test", trigger: "core.server.down", action: { action: "core.notifications/notify", params: { message: "Server down" } } },
+      fake_rule("1", {is_active: false, name: "Server down"}),
+      fake_rule("2", {name: "Every 10s", trigger: { trigger: "periodic"}, actions: [{state: "tick", action: "backup", params: { ssh_access: "[UUID]" } }], is_active: true}),
+      fake_rule("3"),
+      fake_rule("4"),
+      fake_rule("5"),
     ]
   }),
   (dispatch, props) => ({
@@ -19,4 +50,3 @@ var Rules = event.subscribe_connect(
 )(RulesView)
 
 export default Rules
-
