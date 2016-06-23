@@ -35,8 +35,8 @@ defmodule Serverboards.TriggersTest do
   test "Manual rule" do
     rule_description = %{
       uuid: UUID.uuid4,
+      service: nil,
       trigger: %{
-        service: nil,
         id: "serverboards.test.auth/periodic.timer",
         params: %{ period: 0.5 }
       },
@@ -59,5 +59,44 @@ defmodule Serverboards.TriggersTest do
 
     Rules.stop rule
     File.rm("/tmp/sbds-rule-test")
+  end
+
+  test "Rules DB" do
+    l = Rules.list
+    assert Enum.count(l) >= 0
+
+    uuid = UUID.uuid4
+    rule = %Rules.Rule{
+      serverboard: nil,
+      service: nil,
+      name: "Test rule",
+      description: "Long data",
+      trigger: %{
+        trigger: "serverboards.test.auth/periodic.timer",
+        params: %{
+          period: "500ms"
+        },
+      },
+      actions: %{
+        "tick" => %{
+          action: "serverboards.test.auth/touchfile",
+          params: %{
+            filename: "/tmp/sbds-rule-test"
+          }
+        }
+      }
+    }
+
+    Rules.upsert( uuid, rule )
+    Rules.upsert( uuid, rule )
+
+    Rules.upsert( nil, rule )
+
+    l = Rules.list
+    l |> Enum.map(fn r ->
+      Logger.debug("Rule: #{inspect rule}")
+    end)
+    assert Enum.count(l) >= 2
+
   end
 end
