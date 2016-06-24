@@ -51,17 +51,19 @@ defmodule Serverboards.TriggersTest do
     }
 
     File.rm("/tmp/sbds-rule-test")
-    {:ok, rule} = Rules.start_link rule_description
+    {:ok, rule} = Rules.Rule.start_link rule_description
 
     :timer.sleep 2000
 
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
-    Rules.stop rule
+    Rules.Rule.stop rule
     File.rm("/tmp/sbds-rule-test")
   end
 
   test "Rules DB" do
+    alias Serverboards.Rules.Rule
+
     l = Rules.list
     assert Enum.count(l) >= 0
 
@@ -87,10 +89,10 @@ defmodule Serverboards.TriggersTest do
       }
     }
 
-    Rules.upsert( uuid, rule )
-    Rules.upsert( uuid, rule )
+    Rule.upsert( uuid, rule )
+    Rule.upsert( uuid, rule )
 
-    Rules.upsert( nil, rule )
+    Rule.upsert( nil, rule )
 
     l = Rules.list
     l |> Enum.map(fn r ->
