@@ -72,6 +72,7 @@ defmodule Serverboards.TriggersTest do
       serverboard: nil,
       service: nil,
       name: "Test rule",
+      serverboard: "TEST",
       description: "Long data",
       trigger: %{
         trigger: "serverboards.test.auth/periodic.timer",
@@ -95,6 +96,12 @@ defmodule Serverboards.TriggersTest do
     Rule.upsert( uuid, rule, me )
 
     Rule.upsert( nil, rule, me )
+
+    Serverboards.Serverboard.serverboard_add "TEST-RULES-1", %{}, me
+    {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
+
+    Rule.upsert( nil, Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
+    Rule.upsert( nil, Map.merge(rule, %{ service: service_uuid }), me )
 
     l = Rules.list
     l |> Enum.map(fn r ->

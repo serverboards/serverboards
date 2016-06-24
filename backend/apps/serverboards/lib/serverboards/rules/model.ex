@@ -3,6 +3,7 @@ defmodule Serverboards.Rules.Model do
     use Ecto.Schema
     schema "rules_rule" do
       field :uuid, Ecto.UUID
+      field :is_active, :boolean
       field :name, :string
       field :description, :string
       field :serverboard_id, :id

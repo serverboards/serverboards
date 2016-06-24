@@ -4,6 +4,7 @@ defmodule Serverboards.Repo.Migrations.Rules do
   def change do
     create table :rules_rule do
       add :uuid, :uuid
+      add :is_active, :boolean
       add :name, :string
       add :description, :string
       add :serverboard_id, :id
@@ -14,6 +15,8 @@ defmodule Serverboards.Repo.Migrations.Rules do
 
       timestamps
     end
+    create unique_index(:rules_rule, [:uuid])
+    create index(:rules_rule, [:is_active])
     create index(:rules_rule, [:serverboard_id])
 
 

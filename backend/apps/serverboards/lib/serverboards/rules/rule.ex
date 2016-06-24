@@ -6,6 +6,7 @@ defmodule Serverboards.Rules.Rule do
   alias Serverboards.Repo
 
   defstruct [
+    is_active: false,
     serverboard: nil,
     service: nil,
     name: nil,
@@ -49,10 +50,25 @@ defmodule Serverboards.Rules.Rule do
 
     uuid = if uuid do uuid else UUID.uuid4 end
     actions = data.actions
+
+    service_id = case data.service do
+      nil -> nil
+      uuid ->
+        Repo.one( from c in Serverboards.Service.Model.Service, where: c.uuid == ^uuid, select: c.id )
+    end
+    serverboard_id = case data.serverboard do
+      nil -> nil
+      shortname ->
+        Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.shortname == ^shortname, select: c.id )
+    end
+
+    Logger.debug("Service id: #{inspect service_id}, serverboards id #{inspect serverboard_id}")
+
     data = %{
       uuid: uuid,
-      service_id: nil, #FIXME
-      serverboards_id: nil, #FIXME
+      is_active: data.is_active,
+      service_id: service_id,
+      serverboards_id: serverboard_id,
       name: data.name,
       description: data.description,
       trigger: data.trigger.trigger,
