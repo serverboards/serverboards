@@ -3,12 +3,14 @@ alias Serverboards.Logger
 
 defmodule Serverboards.Rules do
   alias Serverboards.Rules.Model
+  alias Serverboards.Rules
   alias Serverboards.Repo
+  use GenServer
 
   def start_link options do
     {:ok, es} = EventSourcing.start_link( [name: :rules] ++ options )
     Serverboards.Rules.Rule.setup_eventsourcing(es)
-    {:ok, es}
+    GenServer.start_link(__MODULE__, :ok, name: Serverboards.Rules)
   end
 
   defp get_actions(rule_id) do
@@ -44,6 +46,7 @@ defmodule Serverboards.Rules do
       end)
     q = q |> select( [rule, service, serverboard], %{
       id: rule.id,
+      is_active: rule.is_active,
       uuid: rule.uuid,
       name: rule.name,
       description: rule.description,
@@ -66,4 +69,43 @@ defmodule Serverboards.Rules do
         end)
   end
 
+  def ps do
+    GenServer.call(Serverboards.Rules, {:ps})
+  end
+
+  def ensure_rule_active(rule) do
+    GenServer.call(Serverboards.Rules, {:ensure_rule_active, rule})
+
+  end
+  def ensure_rule_not_active(rule) do
+    GenServer.call(Serverboards.Rules, {:ensure_rule_not_active, rule})
+
+  end
+
+  # server impl
+  def init(:ok) do
+    {:ok, %{}}
+  end
+
+  def handle_call({:ps}, _from, status) do
+    {:reply, Map.keys(status), status}
+  end
+  def handle_call({:ensure_rule_active, rule}, _from, status) do
+    status = if not rule in status do
+      {:ok, trigger} = Rules.Rule.start_link(rule)
+      Map.put(status, rule.uuid, trigger)
+    end
+    {:reply, :ok, status}
+  end
+  def handle_call({:ensure_rule_not_active, rule}, _from, status) do
+
+    status = if not rule in status do
+      trigger = status[rule]
+      Rules.Rule.stop(trigger)
+      Map.drop(status, [rule.uuid])
+    end
+
+
+    {:reply, :ok, status}
+  end
 end

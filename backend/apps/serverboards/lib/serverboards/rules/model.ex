@@ -16,7 +16,7 @@ defmodule Serverboards.Rules.Model do
       timestamps
     end
 
-    @required_fields ~w(uuid)
+    @required_fields ~w(uuid is_active)
     @optional_fields ~w(name description serverboard_id service_id trigger params)
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset

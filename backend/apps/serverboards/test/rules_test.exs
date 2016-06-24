@@ -37,12 +37,12 @@ defmodule Serverboards.TriggersTest do
       uuid: UUID.uuid4,
       service: nil,
       trigger: %{
-        id: "serverboards.test.auth/periodic.timer",
+        trigger: "serverboards.test.auth/periodic.timer",
         params: %{ period: 0.5 }
       },
       actions: %{
         "tick" => %{
-          id: "serverboards.test.auth/touchfile",
+          action: "serverboards.test.auth/touchfile",
           params: %{
             filename: "/tmp/sbds-rule-test"
           }
@@ -70,6 +70,7 @@ defmodule Serverboards.TriggersTest do
     uuid = UUID.uuid4
     rule = %Rules.Rule{
       serverboard: nil,
+      is_active: false,
       service: nil,
       name: "Test rule",
       serverboard: "TEST",
@@ -77,7 +78,7 @@ defmodule Serverboards.TriggersTest do
       trigger: %{
         trigger: "serverboards.test.auth/periodic.timer",
         params: %{
-          period: "500ms"
+          period: "0.5"
         },
       },
       actions: %{
@@ -92,22 +93,34 @@ defmodule Serverboards.TriggersTest do
 
     me = Test.User.system
 
+    # Some upserts
     Rule.upsert( uuid, rule, me )
     Rule.upsert( uuid, rule, me )
 
     Rule.upsert( nil, rule, me )
 
+    # More complex with serverboard and related service
     Serverboards.Serverboard.serverboard_add "TEST-RULES-1", %{}, me
     {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
 
     Rule.upsert( nil, Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
     Rule.upsert( nil, Map.merge(rule, %{ service: service_uuid }), me )
 
+    # The full list
     l = Rules.list
     l |> Enum.map(fn r ->
       Logger.debug("Rule: #{inspect rule}")
     end)
     assert Enum.count(l) >= 2
+
+    # none should be running
+    assert Rules.ps == []
+
+    # update should start them
+    Rule.upsert( uuid, Map.merge(rule, %{is_active: true}), me )
+    assert Rules.ps == [uuid]
+    Rule.upsert( uuid, Map.merge(rule, %{is_active: false}), me )
+    assert Rules.ps == []
 
   end
 end

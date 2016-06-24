@@ -6,6 +6,7 @@ defmodule Serverboards.Rules.Rule do
   alias Serverboards.Repo
 
   defstruct [
+    uuid: nil,
     is_active: false,
     serverboard: nil,
     service: nil,
@@ -18,14 +19,14 @@ defmodule Serverboards.Rules.Rule do
     trigger = rule.trigger
     actions = rule.actions
 
-    Serverboards.Rules.Trigger.start trigger.id, trigger.params, fn params ->
+    Serverboards.Rules.Trigger.start trigger.trigger, trigger.params, fn params ->
       Logger.debug("Trigger params: #{inspect params}")
       state = params["state"]
       Logger.debug("Trigger state: #{inspect actions} / #{inspect state}")
       action = actions[state]
 
       Logger.debug("Triggered action #{inspect action}")
-      Serverboards.Action.trigger(action.id, action.params, %{ email: "rule/#{rule.uuid}", perms: []})
+      Serverboards.Action.trigger(action.action, action.params, %{ email: "rule/#{rule.uuid}", perms: []})
     end
   end
 
@@ -39,6 +40,45 @@ defmodule Serverboards.Rules.Rule do
     EventSourcing.subscribe es, :upsert, fn %{ uuid: uuid, data: data }, _me ->
       upsert_real(uuid, data)
     end
+  end
+
+  @doc ~S"""
+  Gets a rule as from the database and returns a proper rule struct
+  """
+  def decorate(model) do
+    import Ecto.Query
+
+    service = case model.service_id do
+      nil -> nil
+      id ->
+        Repo.one( from c in Serverboards.Service.Model.Service, where: c.id == ^id, select: c.uuid )
+    end
+    serverboard = case model.serverboard_id do
+      nil -> nil
+      id ->
+        Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.id == ^id, select: c.shortname )
+    end
+    actions = Repo.all(from ac in Model.ActionAtState) |> Enum.map(fn ac ->
+      { ac.state, %{
+        action: ac.action,
+        params: ac.params,
+        } }
+    end) |> Map.new
+
+
+    %Serverboards.Rules.Rule{
+      uuid: model.uuid,
+      is_active: model.is_active,
+      serverboard: serverboard,
+      service: service,
+      name: model.name,
+      description: model.description,
+      trigger: %{
+        trigger: model.trigger,
+        params: model.params
+      },
+      actions: actions
+    }
   end
 
   def upsert(uuid, %Serverboards.Rules.Rule{} = data, me) do
@@ -82,7 +122,17 @@ defmodule Serverboards.Rules.Rule do
         update_rule( rule, data, actions )
     end
 
-    Logger.debug("Upserted #{inspect rule}")
+    rule = decorate(rule)
+
+    #Logger.debug("Decorated rule: #{inspect rule.uuid} / #{inspect rule.is_active}")
+
+    if rule.is_active do
+      Serverboards.Rules.ensure_rule_active rule
+    else
+      Serverboards.Rules.ensure_rule_not_active rule
+    end
+
+    #Logger.debug("Upserted #{inspect rule}")
   end
   defp insert_rule( data, actions ) do
     {:ok, rule} = Repo.insert(
