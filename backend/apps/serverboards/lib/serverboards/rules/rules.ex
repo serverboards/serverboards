@@ -5,6 +5,12 @@ defmodule Serverboards.Rules do
   alias Serverboards.Rules.Model
   alias Serverboards.Repo
 
+  def start_link options do
+    {:ok, es} = EventSourcing.start_link( [name: :rules] ++ options )
+    Serverboards.Rules.Rule.setup_eventsourcing(es)
+    {:ok, es}
+  end
+
   defp get_actions(rule_id) do
     alias Serverboards.Action
     import Ecto.Query

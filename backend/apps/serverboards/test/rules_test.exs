@@ -89,10 +89,12 @@ defmodule Serverboards.TriggersTest do
       }
     }
 
-    Rule.upsert( uuid, rule )
-    Rule.upsert( uuid, rule )
+    me = Test.User.system
 
-    Rule.upsert( nil, rule )
+    Rule.upsert( uuid, rule, me )
+    Rule.upsert( uuid, rule, me )
+
+    Rule.upsert( nil, rule, me )
 
     l = Rules.list
     l |> Enum.map(fn r ->
