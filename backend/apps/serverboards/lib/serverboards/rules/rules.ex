@@ -10,6 +10,7 @@ defmodule Serverboards.Rules do
   def start_link options do
     {:ok, es} = EventSourcing.start_link( [name: :rules] ++ options )
     Serverboards.Rules.Rule.setup_eventsourcing(es)
+    Serverboards.Rules.RPC.start_link
     GenServer.start_link(__MODULE__, :ok, name: Serverboards.Rules)
   end
 
@@ -27,6 +28,9 @@ defmodule Serverboards.Rules do
     ) |> Map.new
   end
 
+  def list(map) when is_map(map) do
+    list(Map.to_list(map))
+  end
   def list(filter \\ []) do
     import Ecto.Query
     alias Serverboards.Serverboard.Model.Serverboard
@@ -41,8 +45,14 @@ defmodule Serverboards.Rules do
               on: serverboard.id == rule.serverboard_id
 
     q = Enum.reduce(filter, q, fn
+      {"serverboard", v}, q ->
+        q |> where([_rule, _service, serverboard], serverboard.shortname == ^v )
       {:serverboard, v}, q ->
         q |> where([_rule, _service, serverboard], serverboard.shortname == ^v )
+      {"uuid", v}, q ->
+        q |> where([rule, _service, _serverboard], rule.uuid == ^v )
+      {:uuid, v}, q ->
+        q |> where([rule, _service, _serverboard], rule.uuid == ^v )
       end)
     q = q |> select( [rule, service, serverboard], %{
       id: rule.id,

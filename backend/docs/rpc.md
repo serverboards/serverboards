@@ -392,3 +392,39 @@ Returns the notification channels configured by this user
 
 extra is some extra information that may be used by the channels to adapt
 to the message, for example, alert level.
+
+# Rules
+
+## rules.update(rule)
+
+If uuid is NULL creates the rule. The rule format is:
+
+```js
+rules.update( {
+  uuid: null,
+  service: nil,
+  trigger: {
+    trigger: "serverboards.test.auth/periodic.timer",
+    params: { period: 0.5 }
+  },
+  actions: {
+    tick: {
+      action: "serverboards.test.auth/touchfile",
+      params: {
+        filename: "/tmp/sbds-rule-test"
+      }
+    }
+  }
+} )
+```
+
+## rules.list(filter)
+
+Returns a list of rules, in the rule format. Applies the given filter:
+
+* id
+* traits -- any of the given traits
+
+## rules.trigger_list(filter)
+
+Return the list of triggers that comply with thegiven filter

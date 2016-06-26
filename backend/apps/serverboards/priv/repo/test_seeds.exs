@@ -23,7 +23,8 @@ all_perms = [
     "action.trigger", "action.watch",
     "settings.user.view", "settings.user.update",
     "settings.user.view_all", "settings.user.update_all",
-    "notifications.notify", "notifications.notify_all"
+    "notifications.notify", "notifications.notify_all",
+    "rules.update", "rules.view"
   ]
 
 user_perms = [

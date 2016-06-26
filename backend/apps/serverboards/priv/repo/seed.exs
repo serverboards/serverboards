@@ -46,7 +46,8 @@ defmodule Seeds do
     "service.attach",
     "debug",
     "settings.view", "settings.update",
-    "action.trigger", "action.watch"
+    "action.trigger", "action.watch",
+    "rules.update", "rules.view"
     ]
   end
 

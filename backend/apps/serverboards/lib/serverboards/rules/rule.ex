@@ -37,8 +37,8 @@ defmodule Serverboards.Rules.Rule do
   def setup_eventsourcing(es) do
     EventSourcing.Model.subscribe es, :rules, Serverboards.Repo
 
-    EventSourcing.subscribe es, :upsert, fn %{ uuid: uuid, data: data }, _me ->
-      upsert_real(uuid, data)
+    EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
+      upsert_real(data)
     end
   end
 
@@ -81,11 +81,11 @@ defmodule Serverboards.Rules.Rule do
     }
   end
 
-  def upsert(uuid, %Serverboards.Rules.Rule{} = data, me) do
-    EventSourcing.dispatch(:rules, :upsert, %{ uuid: uuid, data: data}, me.email)
+  def upsert(%Serverboards.Rules.Rule{} = data, me) do
+    EventSourcing.dispatch(:rules, :upsert, %{ data: data }, me.email)
   end
 
-  defp upsert_real(uuid, %Serverboards.Rules.Rule{} = data) do
+  defp upsert_real(%Serverboards.Rules.Rule{ uuid: uuid } = data) do
     import Ecto.Query
 
     uuid = if uuid do uuid else UUID.uuid4 end

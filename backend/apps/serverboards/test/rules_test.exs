@@ -8,6 +8,33 @@ defmodule Serverboards.TriggersTest do
   alias Serverboards.Rules.Trigger
   alias Serverboards.Rules
 
+  def rule(tomerge \\ %{}) do
+    Map.merge(
+      %Rules.Rule{
+        serverboard: nil,
+        is_active: false,
+        service: nil,
+        name: "Test rule",
+        serverboard: "TEST",
+        description: "Long data",
+        trigger: %{
+          trigger: "serverboards.test.auth/periodic.timer",
+          params: %{
+            period: "0.5"
+          },
+        },
+        actions: %{
+          "tick" => %{
+            action: "serverboards.test.auth/touchfile",
+            params: %{
+              filename: "/tmp/sbds-rule-test"
+            }
+          }
+        }
+      }, tomerge
+      )
+  end
+
   test "Trigger catalog" do
     triggers = Trigger.find
     assert Enum.count(triggers) >= 1
@@ -68,43 +95,21 @@ defmodule Serverboards.TriggersTest do
     assert Enum.count(l) >= 0
 
     uuid = UUID.uuid4
-    rule = %Rules.Rule{
-      serverboard: nil,
-      is_active: false,
-      service: nil,
-      name: "Test rule",
-      serverboard: "TEST",
-      description: "Long data",
-      trigger: %{
-        trigger: "serverboards.test.auth/periodic.timer",
-        params: %{
-          period: "0.5"
-        },
-      },
-      actions: %{
-        "tick" => %{
-          action: "serverboards.test.auth/touchfile",
-          params: %{
-            filename: "/tmp/sbds-rule-test"
-          }
-        }
-      }
-    }
 
     me = Test.User.system
 
     # Some upserts
-    Rule.upsert( uuid, rule, me )
-    Rule.upsert( uuid, rule, me )
+    Rule.upsert( Map.put(rule, :uuid, uuid), me )
+    Rule.upsert( Map.put(rule, :uuid, uuid), me )
 
-    Rule.upsert( nil, rule, me )
+    Rule.upsert( rule, me )
 
     # More complex with serverboard and related service
     Serverboards.Serverboard.serverboard_add "TEST-RULES-1", %{}, me
     {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
 
-    Rule.upsert( nil, Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
-    Rule.upsert( nil, Map.merge(rule, %{ service: service_uuid }), me )
+    Rule.upsert( Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
+    Rule.upsert( Map.merge(rule, %{ service: service_uuid }), me )
 
     # The full list
     l = Rules.list
@@ -117,10 +122,23 @@ defmodule Serverboards.TriggersTest do
     assert Rules.ps == []
 
     # update should start them
-    Rule.upsert( uuid, Map.merge(rule, %{is_active: true}), me )
+    Rule.upsert( Map.merge(rule, %{uuid: uuid, is_active: true}), me )
     assert Rules.ps == [uuid]
-    Rule.upsert( uuid, Map.merge(rule, %{is_active: false}), me )
+    Rule.upsert( Map.merge(rule, %{uuid: uuid, is_active: false}), me )
     assert Rules.ps == []
 
   end
+
+  test "Basic RPC" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, l} = Test.Client.call(client, "rules.list", [])
+    {:ok, []} = Test.Client.call(client, "rules.list", [uuid: UUID.uuid4 ])
+
+    {:ok, :ok} = Test.Client.call(client, "rules.update", rule)
+
+    :timer.sleep(500)
+    {:ok, l} = Test.Client.call(client, "rules.list", [])
+    Logger.info(inspect l)
+    end
 end
