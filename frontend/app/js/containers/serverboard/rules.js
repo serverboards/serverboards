@@ -8,7 +8,7 @@ var Rules = event.subscribe_connect(
     rules: state.rules.rules,
   }),
   (dispatch, props) => ({
-    onOpenDetails: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.id}`)),
+    onOpenDetails: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.uuid}`)),
     onUpdateRules: () => dispatch( rules_list(props.serverboard.shortname) ),
     cleanRules: () => dispatch( rules_list_clean() )
   }),

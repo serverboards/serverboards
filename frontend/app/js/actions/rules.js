@@ -20,3 +20,11 @@ export function rules_list(serverboard){
 export function rules_list_clean(){
   return {type: "CLEAN_RULES_LIST"}
 }
+
+export function rules_save(rule){
+  return function(dispatch){
+    rpc.call("rules.update", rule).then(() => {
+      Flash.success("Updated rule "+rule.name)
+    })
+  }
+}

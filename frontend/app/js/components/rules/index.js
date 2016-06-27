@@ -4,15 +4,19 @@ import Loading from 'app/components/loading'
 
 function Rule(props){
   const rule = props.rule
+  console.log(rule)
 
   return (
     <tr onClick={props.onOpenDetails} title={rule.description} style={{cursor: "pointer"}} className={rule.is_active ? "positive" : ""} >
       <td>{rule.name}</td>
       <td>{rule.trigger.service}</td>
       <td>{rule.trigger.trigger}</td>
-      <td>{rule.actions.map((ac) => (
-        <div><b>{ac.state}:</b><br/><span style={{paddingLeft: 10}}>{ac.action}</span></div>
-      ))}</td>
+      <td>{Object.keys(rule.actions).map((state) => {
+        const ac=rule.actions[state]
+        return (
+          <div><b>{state}:</b><br/><span style={{paddingLeft: 10}}>{ac.action}</span></div>
+        )
+      })}</td>
       <td><i className="ui angle right icon"/></td>
     </tr>
   )

@@ -1,6 +1,6 @@
 import DetailsView from 'app/components/rules/details'
 import event from 'app/utils/event'
-import { update_trigger_catalog } from 'app/actions/rules'
+import { update_trigger_catalog, rules_save } from 'app/actions/rules'
 import { action_catalog } from 'app/actions/action'
 import { serverboard_reload_services } from 'app/actions/serverboard'
 
@@ -11,6 +11,7 @@ var Details = event.subscribe_connect(
     action_catalog: state.action.catalog
   }),
   (dispatch, props) => ({
+    onSave: (rule) => dispatch( rules_save(rule) )
   }),
   undefined,
   (props) => [

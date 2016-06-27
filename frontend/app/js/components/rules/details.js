@@ -3,15 +3,22 @@ import GenericForm from '../genericform'
 
 const ActionDetails=React.createClass({
   getInitialState(){
-    return {action: undefined}
+    return {
+      action: undefined
+    }
   },
   componentDidMount(){
     let self=this
     $(this.refs.action).dropdown({
       onChange(v){
-        self.setState({action: v})
+        self.props.onUpdateAction(self.props.action.state, v, {})
+        self.setState({action: v, params: {}})
       }
     })
+  },
+
+  handleParamsChange(params){
+    this.props.onUpdateAction(this.props.action.state, this.state.action, params)
   },
   render(){
     const action=this.props.action
@@ -35,7 +42,7 @@ const ActionDetails=React.createClass({
             </div>
           </div>
         </div>
-        <GenericForm fields={params}/>
+        <GenericForm fields={params} updateForm={this.handleParamsChange}/>
 
       </div>
     )
@@ -45,14 +52,15 @@ const ActionDetails=React.createClass({
 const Details=React.createClass({
   getInitialState(){
     return {
+      trigger_id: undefined,
       trigger_params: [],
+      trigger_config: {},
       actions: []
     }
   },
   componentDidMount(){
     let self=this
-    $(this.refs.service).dropdown({
-    })
+    $(this.refs.service).dropdown()
     $(this.refs.trigger).dropdown({
       onChange(value, text, $el){
         self.handleChangeTrigger(value)
@@ -74,8 +82,49 @@ const Details=React.createClass({
         params: []
       }))
 
-      this.setState({  trigger_params, actions  })
+      this.setState({  trigger_id: v, trigger_params, actions  })
     }
+  },
+  handleUpdateTriggerConfig(trigger_config){
+    console.log("Update trigger %o", trigger_config)
+    this.setState({trigger_config})
+  },
+  handleActionConfig(state, action_id, params){
+    const actions = this.state.actions.map( (ac) => {
+      if (ac.state == state)
+        return { state: state, action: action_id, params: params }
+      return ac
+    })
+    this.setState({ actions })
+  },
+  handleSave(){
+    let actions={}
+    const state=this.state
+    const props=this.props
+
+    state.actions.map( (ac) => {
+      actions[ac.state]={
+        action: ac.action,
+        params: ac.params
+      }
+    })
+
+    let $el=$(this.refs.el)
+    let rule={
+      uuid: null,
+      is_active: true,
+      name: $el.find("input[name=name]").val(),
+      description: $el.find("textarea[name=description]").val(),
+      service: $el.find("input[name=service]").val(),
+      serverboard: props.serverboard,
+      trigger: {
+        trigger: state.trigger_id,
+        params: state.trigger_config
+      },
+      actions: actions
+    }
+    console.log(rule)
+    this.props.onSave(rule)
   },
   render(){
     const props=this.props
@@ -83,7 +132,6 @@ const Details=React.createClass({
     const actions = this.state.actions
     const trigger_params=this.state.trigger_params
     const services=props.services
-    console.log(services)
     return (
       <div ref="el">
         <h1 className="ui header">Rule {props.rule.name}</h1>
@@ -95,7 +143,7 @@ const Details=React.createClass({
           </div>
           <div className="field">
             <label>Description:</label>
-            <textarea type="text" defaultValue={props.rule.description} name="trigger"/>
+            <textarea type="text" defaultValue={props.rule.description} name="description"/>
           </div>
           <div className="field">
             <label>Service:</label>
@@ -108,7 +156,7 @@ const Details=React.createClass({
                 {services.map( (sv) => (
                   <div key={sv.uuid} className="item" data-value={sv.uuid}>
                     {sv.name}
-                    <span style={{float: "right", fontStyle: "italic", color: "#aaa"}}>
+                    <span style={{float: "right", paddingLeft: 10, fontStyle: "italic", color: "#aaa"}}>
                       {Object.keys(sv.config).map((k) => sv.config[k]).join(', ')}
                     </span>
                   </div>
@@ -132,14 +180,14 @@ const Details=React.createClass({
               </div>
             </div>
           </div>
-          <GenericForm fields={trigger_params}/>
+          <GenericForm fields={trigger_params} updateForm={this.handleUpdateTriggerConfig}/>
 
           <h2 className="ui dividing header">Actions:</h2>
           {actions.map( (action) =>
-            <ActionDetails action={action} catalog={props.action_catalog}/>
+            <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig}/>
           )}
 
-          <button className="ui button green" onClick={props.handleOnClick}>Save changes</button>
+          <button className="ui button green" onClick={this.handleSave}>Save changes</button>
         </div>
 
       </div>
