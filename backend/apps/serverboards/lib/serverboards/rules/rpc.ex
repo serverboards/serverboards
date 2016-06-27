@@ -41,9 +41,10 @@ defmodule Serverboards.Rules.RPC do
       filter -> Serverboards.Rules.list filter
     end, required_perm: "rules.view"
 
-    add_method mc, "rules.trigger_list", fn
+    add_method mc, "rules.catalog", fn
       [filter] -> Serverboards.Rules.Trigger.find filter
       [] -> Serverboards.Rules.Trigger.find
+      %{} -> Serverboards.Rules.Trigger.find
     end, required_perm: "rules.view"
 
     # Add this method caller once authenticated.

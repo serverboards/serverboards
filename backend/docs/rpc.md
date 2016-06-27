@@ -425,6 +425,6 @@ Returns a list of rules, in the rule format. Applies the given filter:
 * id
 * traits -- any of the given traits
 
-## rules.trigger_list(filter)
+## rules.catalog(filter)
 
 Return the list of triggers that comply with thegiven filter
