@@ -62,9 +62,9 @@ components:
       params:
         - name: timeout
           label: Trigger every
-          description: Write human time description: 1d, 12h, 30m, 10s
-
+          description: "Write human time description: 1d, 12h, 30m, 10s"
   - name: Core triggers daemon
+    id: daemon
     type: cmd
     command: serverboards-triggers.py
     shared: none
