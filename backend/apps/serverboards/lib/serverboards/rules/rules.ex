@@ -70,10 +70,14 @@ defmodule Serverboards.Rules do
 
     Repo.all(q)
       |> Enum.map( fn rule ->
+        name = case Serverboards.Rules.Trigger.find(id: rule.trigger.trigger ) do
+          [tr] -> tr.name
+          [] -> ""
+        end
         Map.merge(%Serverboards.Rules.Rule{},
           Map.merge(rule, %{
             actions: get_actions( rule.id ),
-            trigger: Map.merge(rule.trigger, %{ name: (hd Serverboards.Rules.Trigger.find(id: rule.trigger.trigger )).name })
+            trigger: Map.merge(rule.trigger, %{ name: name })
             }) |> Map.drop([:id])
           )
         end)
