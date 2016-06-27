@@ -1,5 +1,6 @@
 import React from 'react'
 import RuleDetails from './details'
+import Loading from 'app/components/loading'
 
 function Rule(props){
   const rule = props.rule
@@ -17,36 +18,55 @@ function Rule(props){
   )
 }
 
-export default function Rules(props){
-  console.log(props)
-  if (props.subsection){
-    const rule = props.rules.find( (r) => r.id == props.subsection )
+const Rules=React.createClass({
+  componentDidMount(){
+    console.log("update rules")
+    this.props.onUpdateRules()
+    console.log("update rules done")
+  },
+  componentWillUnmount(){
+    this.props.cleanRules()
+  },
+  render(){
+    const props=this.props
+    console.log(props.rules)
+    if (props.rules == undefined){
+      console.log("No rules")
+      return (
+        <Loading>Rules</Loading>
+      )
+    }
+    if (props.subsection){
+      const rule = props.rules.find( (r) => r.id == props.subsection )
+      return (
+        <div className="ui text container">
+          <RuleDetails rule={rule}/>
+        </div>
+      )
+    }
     return (
       <div className="ui text container">
-        <RuleDetails rule={rule}/>
+        <h1 className="ui header">Rules for {props.serverboard.name}</h1>
+
+        <table className="ui very basic selectable table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Service</th>
+              <th>Trigger</th>
+              <th>Action</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          {props.rules.map((r) =>
+            <Rule rule={r} onOpenDetails={() => props.onOpenDetails(r)}/>
+          )}
+          </tbody>
+        </table>
       </div>
     )
   }
-  return (
-    <div className="ui text container">
-      <h1 className="ui header">Rules for {props.serverboard.name}</h1>
+})
 
-      <table className="ui very basic selectable table">
-        <thead>
-          <tr>
-            <th>Rule</th>
-            <th>Service</th>
-            <th>Trigger</th>
-            <th>Action</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-        {props.rules.map((r) =>
-          <Rule rule={r} onOpenDetails={() => props.onOpenDetails(r)}/>
-        )}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+export default Rules
