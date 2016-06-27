@@ -47,7 +47,7 @@ const Rules=React.createClass({
       if (props.subsection == "add")
         return (
           <div className="ui text container">
-            <RuleDetails rule={empty_rule}/>
+            <RuleDetails rule={empty_rule} serverboard={props.serverboard.shortname}/>
           </div>
         )
       const rule = props.rules.find( (r) => r.id == props.subsection )

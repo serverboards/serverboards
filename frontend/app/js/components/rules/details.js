@@ -80,9 +80,10 @@ const Details=React.createClass({
   render(){
     const props=this.props
     const triggers = props.triggers || []
-    console.log("Details %o", props)
     const actions = this.state.actions
     const trigger_params=this.state.trigger_params
+    const services=props.services
+    console.log(services)
     return (
       <div ref="el">
         <h1 className="ui header">Rule {props.rule.name}</h1>
@@ -104,7 +105,14 @@ const Details=React.createClass({
               <div className="default text">Select service.</div>
               <div className="menu">
                 <div className="item" data-value="">No service</div>
-                <div className="item" data-value="asdf">Web server</div>
+                {services.map( (sv) => (
+                  <div key={sv.uuid} className="item" data-value={sv.uuid}>
+                    {sv.name}
+                    <span style={{float: "right", fontStyle: "italic", color: "#aaa"}}>
+                      {Object.keys(sv.config).map((k) => sv.config[k]).join(', ')}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
