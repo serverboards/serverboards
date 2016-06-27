@@ -6,7 +6,6 @@ const default_state={
 export default function rules(state=default_state, action){
   switch(action.type){
     case "UPDATE_RULES_LIST":
-      console.log("Got rules list %o", action.rules)
       return $.extend({}, state, {rules: action.rules})
     case "UPDATE_TRIGGER_CATALOG":
       return $.extend({}, state, {trigger_catalog: action.catalog})

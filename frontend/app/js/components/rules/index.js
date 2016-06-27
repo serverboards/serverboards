@@ -1,5 +1,5 @@
 import React from 'react'
-import RuleDetails from './details'
+import RuleDetails from 'app/containers/rules/details'
 import Loading from 'app/components/loading'
 
 function Rule(props){
@@ -18,25 +18,38 @@ function Rule(props){
   )
 }
 
+const empty_rule={
+  uuid: undefined,
+  id: undefined,
+  service: undefined,
+  trigger: {
+    trigger: undefined,
+    params: {}
+  },
+  actions: {}
+}
+
 const Rules=React.createClass({
   componentDidMount(){
-    console.log("update rules")
     this.props.onUpdateRules()
-    console.log("update rules done")
   },
   componentWillUnmount(){
     this.props.cleanRules()
   },
   render(){
     const props=this.props
-    console.log(props.rules)
     if (props.rules == undefined){
-      console.log("No rules")
       return (
         <Loading>Rules</Loading>
       )
     }
     if (props.subsection){
+      if (props.subsection == "add")
+        return (
+          <div className="ui text container">
+            <RuleDetails rule={empty_rule}/>
+          </div>
+        )
       const rule = props.rules.find( (r) => r.id == props.subsection )
       return (
         <div className="ui text container">
@@ -64,6 +77,9 @@ const Rules=React.createClass({
           )}
           </tbody>
         </table>
+        <a href={`#/serverboard/${props.serverboard.shortname}/rules/add`} className="ui massive button add icon floating yellow">
+          <i className="add icon"></i>
+        </a>
       </div>
     )
   }

@@ -16,7 +16,7 @@ var RPC = function(options={}){
     reconnect_token: undefined,
     store: options.store,
     url: options.url,
-    debug: true,
+    debug: false,
     reconnect_max: 10 // max count of reconnects, if more reload page.
   }
 

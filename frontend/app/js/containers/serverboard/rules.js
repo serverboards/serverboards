@@ -1,12 +1,11 @@
 import RulesView from 'app/components/rules'
 import event from 'app/utils/event'
 import { push } from 'react-router-redux'
-import { update_trigger_catalog, rules_list, rules_list_clean } from 'app/actions/rules'
+import { rules_list, rules_list_clean } from 'app/actions/rules'
 
 var Rules = event.subscribe_connect(
   (state) => ({
     rules: state.rules.rules,
-    trigger_catalog: state.rules.trigger_catalog,
   }),
   (dispatch, props) => ({
     onOpenDetails: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.id}`)),
@@ -14,7 +13,7 @@ var Rules = event.subscribe_connect(
     cleanRules: () => dispatch( rules_list_clean() )
   }),
   undefined,
-  [update_trigger_catalog]
+  undefined
 )(RulesView)
 
 export default Rules
