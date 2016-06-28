@@ -4,7 +4,8 @@ import GenericForm from '../genericform'
 const ActionDetails=React.createClass({
   getInitialState(){
     return {
-      action: undefined
+      action: undefined,
+      params: {}
     }
   },
   componentDidMount(){
@@ -16,16 +17,22 @@ const ActionDetails=React.createClass({
       }
     })
   },
-
+  componentDidUpdate(newprops){
+    if (this.props.catalog && !this.state.action && newprops.action.action){
+      const action=newprops.action
+      console.log("Set action %o // %o", action, this.props.catalog)
+      $(this.refs.action).dropdown('set selected', action.action)
+      this.props.onUpdateAction(action.state, action.action, action.params)
+      this.setState({action: action.action, params: action.params})
+    }
+  },
   handleParamsChange(params){
     this.props.onUpdateAction(this.props.action.state, this.state.action, params)
   },
   render(){
     const action=this.props.action
-    const action_type=this.props.catalog.find( (ac) => ac.id == this.state.action )
-    console.log("Action type %o", action_type)
+    const action_type=(this.props.catalog || []).find( (ac) => ac.id == this.state.action )
     const params = action_type ? action_type.extra.call.params : []
-
     return (
       <div>
         <h3 className="ui header">Action at {action.state}:</h3>
@@ -36,13 +43,13 @@ const ActionDetails=React.createClass({
             <i className="dropdown icon"></i>
             <div className="default text">Select action.</div>
             <div className="menu">
-            {this.props.catalog.map( (ac) => (
+            {(this.props.catalog || []).map( (ac) => (
               <div key={ac.id} className="item" data-value={ac.id}>{ac.name}</div>
             ))}
             </div>
           </div>
         </div>
-        <GenericForm fields={params} updateForm={this.handleParamsChange}/>
+        <GenericForm fields={params} data={action.params} updateForm={this.handleParamsChange}/>
 
       </div>
     )
@@ -52,9 +59,10 @@ const ActionDetails=React.createClass({
 const Details=React.createClass({
   getInitialState(){
     return {
-      trigger_id: undefined,
-      trigger_params: [],
-      trigger_config: {},
+      trigger: {
+        trigger: undefined,
+        params: {}
+      },
       actions: []
     }
   },
@@ -64,30 +72,48 @@ const Details=React.createClass({
     $(this.refs.trigger).dropdown({
       onChange(value, text, $el){
         self.handleChangeTrigger(value)
-      }
-    })
+      },
+    }).dropdown("set selected", this.props.rule.trigger.trigger)
   },
-  componentDidUpdate(){
-    $(this.refs.el).find('.dropdown').dropdown('refresh');
-  },
+  componentDidUpdate(newprops){
+    if (newprops.triggers != this.props.triggers){
+      $(this.refs.el).find('.dropdown').dropdown('refresh');
 
-  handleChangeTrigger(v){
-    console.log(v)
-    const trigger=this.props.triggers.find((el) => el.id == v)
-    if (trigger){
-      const trigger_params=trigger.call.params
-      const actions=trigger.states.map( (st) => ({
-        state: st,
-        action: undefined,
-        params: []
-      }))
-
-      this.setState({  trigger_id: v, trigger_params, actions  })
+      $(this.refs.trigger).dropdown("set selected", this.props.rule.trigger.trigger)
+      this.handleChangeTrigger(this.props.rule.trigger.trigger, newprops.triggers)
     }
   },
-  handleUpdateTriggerConfig(trigger_config){
-    console.log("Update trigger %o", trigger_config)
-    this.setState({trigger_config})
+
+  handleChangeTrigger(v, triggers){
+    //console.log(v)
+    triggers = triggers || this.props.triggers
+    if (!triggers)
+      return
+    const trigger=triggers.find((el) => el.id == v)
+    if (trigger){
+      let trigger_params
+      let actions
+      if (v == this.props.rule.trigger.trigger){
+        trigger_params=this.props.rule.trigger.params
+        actions=trigger.states.map( (st) => ({
+          state: st,
+          action: this.props.rule.actions[st].action,
+          params: this.props.rule.actions[st].params
+        }))
+      } else {
+        trigger_params={}
+        actions=trigger.states.map( (st) => ({
+          state: st,
+          action: undefined,
+          params: {}
+        }))
+
+      }
+      this.setState({  trigger: { trigger: v, params: trigger_params}, actions  })
+    }
+  },
+  handleUpdateTriggerConfig(params){
+    this.setState({trigger: {trigger: this.state.trigger.trigger, params }})
   },
   handleActionConfig(state, action_id, params){
     const actions = this.state.actions.map( (ac) => {
@@ -111,15 +137,15 @@ const Details=React.createClass({
 
     let $el=$(this.refs.el)
     let rule={
-      uuid: null,
+      uuid: props.rule.uuid,
       is_active: true,
       name: $el.find("input[name=name]").val(),
       description: $el.find("textarea[name=description]").val(),
       service: $el.find("input[name=service]").val(),
       serverboard: props.serverboard,
       trigger: {
-        trigger: state.trigger_id,
-        params: state.trigger_config
+        trigger: state.trigger.trigger,
+        params: state.trigger.params
       },
       actions: actions
     }
@@ -129,9 +155,11 @@ const Details=React.createClass({
   render(){
     const props=this.props
     const triggers = props.triggers || []
-    const actions = this.state.actions
-    const trigger_params=this.state.trigger_params
     const services=props.services
+    const state=this.state
+    const actions = state.actions
+    let trigger_fields=triggers.find( (tr) => tr.id == state.trigger.trigger )
+    trigger_fields=trigger_fields ? trigger_fields.call.params : []
     return (
       <div ref="el">
         <h1 className="ui header">Rule {props.rule.name}</h1>
@@ -180,9 +208,10 @@ const Details=React.createClass({
               </div>
             </div>
           </div>
-          <GenericForm fields={trigger_params} updateForm={this.handleUpdateTriggerConfig}/>
+          <GenericForm fields={trigger_fields} data={state.trigger.params} updateForm={this.handleUpdateTriggerConfig}/>
 
           <h2 className="ui dividing header">Actions:</h2>
+
           {actions.map( (action) =>
             <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig}/>
           )}

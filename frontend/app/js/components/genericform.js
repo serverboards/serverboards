@@ -22,7 +22,7 @@ let GenericField=React.createClass({
           <input type="text"
             name={props.name}
             placeholder={props.placeholder || props.description}
-            value={this.state.value}
+            defaultValue={props.value}
             onChange={this.handleChange}/>
           </div>
         )
@@ -33,7 +33,7 @@ let GenericField=React.createClass({
           <textarea
             name={props.name}
             placeholder={props.placeholder || props.description}
-            value={this.state.value}
+            defaultValue={props.value}
             onChange={this.handleChange}/>
           </div>
         )
@@ -44,7 +44,7 @@ let GenericField=React.createClass({
           <input type="password"
             name={props.name}
             placeholder={props.placeholder || props.description}
-            value={this.state.value}
+            defaultValue={props.value}
             onChange={this.handleChange}/>
           </div>
         )
@@ -57,9 +57,13 @@ let GenericField=React.createClass({
 })
 
 let GenericForm=React.createClass({
-  getInitialState(){
-    let state={}
-    this.props.fields.map((f) => state[f.name]=f.value || '')
+  getInitialState(props){
+    props = props || this.props
+    let state={};
+    (props.fields || []).map((f) => state[f.name]=f.value || '')
+    if (props.data){
+      Object.keys(props.data).map( (k) => { state[k]=props.data[k] })
+    }
     return state
   },
   setValue : function(ev, field){
@@ -69,9 +73,14 @@ let GenericForm=React.createClass({
     //console.log(nstate, this.props)
     this.props.updateForm && this.props.updateForm(nstate)
   },
+  componentWillReceiveProps(newprops){
+    if (newprops.fields != this.props.fields || newprops.data != this.props.data){
+      this.setState( this.getInitialState(newprops) )
+    }
+  },
   componentDidMount(){
-    let fields = {}
-    this.props.fields.map((f) => {
+    let fields = {};
+    (this.props.fields || []).map((f) => {
       if (f.validation)
         fields[f.name]=f.validation
     })
@@ -81,19 +90,16 @@ let GenericForm=React.createClass({
     this.props.updateForm && this.props.updateForm(this.state)
   },
   render(){
-    let self=this
-    function generic_field(f){
-      return (
-        <GenericField key={f.name} setValue={(ev) => self.setValue(ev, f.name)} {...f}/>
-      )
-    }
+    const props=this.props
     return (
       <form
         ref="form"
-        className={`ui form ${this.props.className}`}
-        onSubmit={(ev) => { ev.preventDefault(); self.props.onSubmit && self.props.onSubmit(ev) }}>
-        {this.props.fields.map((f) => generic_field(f)) }
-        {this.props.children}
+        className={`ui form ${props.className}`}
+        onSubmit={(ev) => { ev.preventDefault(); props.onSubmit && props.onSubmit(ev) }}>
+        {(props.fields || []).map((f) => (
+            <GenericField key={f.name} setValue={(ev) => this.setValue(ev, f.name)} value={this.state[f.name]} {...f}/>
+        ))}
+        {props.children}
       </form>
     )
   }

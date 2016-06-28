@@ -54,7 +54,7 @@ const Rules=React.createClass({
             <RuleDetails rule={empty_rule} serverboard={props.serverboard.shortname}/>
           </div>
         )
-      const rule = props.rules.find( (r) => r.id == props.subsection )
+      const rule = props.rules.find( (r) => r.uuid == props.subsection )
       return (
         <div className="ui text container">
           <RuleDetails rule={rule}/>
