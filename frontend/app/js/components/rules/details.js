@@ -176,7 +176,7 @@ const Details=React.createClass({
           <div className="field">
             <label>Service:</label>
             <div ref="service" className="ui fluid search normal selection dropdown">
-              <input type="hidden" defaultValue={props.rule.service} name="trigger"/>
+              <input type="hidden" defaultValue={props.rule.service} name="service"/>
               <i className="dropdown icon"></i>
               <div className="default text">Select service.</div>
               <div className="menu">

@@ -4,11 +4,19 @@ import Loading from 'app/components/loading'
 
 function find_by_id(id, catalog){
   if (!catalog)
-    return {name: id}
+    return undefined
   for(let tr of catalog)
     if (tr.id==id)
       return tr
-  return {}
+  return undefined
+}
+function find_by_uuid(uuid, catalog){
+  if (!catalog)
+    return undefined
+  for(let tr of catalog)
+    if (tr.uuid==uuid)
+      return tr
+  return undefined
 }
 
 function Rule(props){
@@ -17,12 +25,15 @@ function Rule(props){
   return (
     <tr onClick={props.onOpenDetails} title={rule.description} style={{cursor: "pointer"}} className={rule.is_active ? "positive" : ""} >
       <td>{rule.name}</td>
-      <td>{rule.trigger.service}</td>
-      <td>{find_by_id(rule.trigger.trigger, props.trigger_catalog).name}</td>
+      <td>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</td>
+      <td>{(find_by_id(rule.trigger.trigger, props.trigger_catalog) || {nmme: rule.trigger.trigger }).name}</td>
       <td>{Object.keys(rule.actions).map((state) => {
         const ac=rule.actions[state]
         return (
-          <div><b>{state}:</b><br/><span style={{paddingLeft: 10}}>{find_by_id(ac.action, props.action_catalog).name}</span></div>
+          <div><b>{state}:</b>
+            <br/><span style={{paddingLeft: 10}}>
+            {(find_by_id(ac.action, props.action_catalog) || {name: ac.action}).name}
+          </span></div>
         )
       })}</td>
       <td><i className="ui angle right icon"/></td>
@@ -87,6 +98,7 @@ const Rules=React.createClass({
           {props.rules.map((r) =>
             <Rule rule={r} onOpenDetails={() => props.onOpenDetails(r)}
               trigger_catalog={props.trigger_catalog}
+              service_catalog={props.service_catalog}
               action_catalog={props.action_catalog}/>
           )}
           </tbody>
