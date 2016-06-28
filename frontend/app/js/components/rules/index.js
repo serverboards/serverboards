@@ -2,19 +2,27 @@ import React from 'react'
 import RuleDetails from 'app/containers/rules/details'
 import Loading from 'app/components/loading'
 
+function find_by_id(id, catalog){
+  if (!catalog)
+    return {name: id}
+  for(let tr of catalog)
+    if (tr.id==id)
+      return tr
+  return {}
+}
+
 function Rule(props){
   const rule = props.rule
-  console.log(rule)
 
   return (
     <tr onClick={props.onOpenDetails} title={rule.description} style={{cursor: "pointer"}} className={rule.is_active ? "positive" : ""} >
       <td>{rule.name}</td>
       <td>{rule.trigger.service}</td>
-      <td>{rule.trigger.trigger}</td>
+      <td>{find_by_id(rule.trigger.trigger, props.trigger_catalog).name}</td>
       <td>{Object.keys(rule.actions).map((state) => {
         const ac=rule.actions[state]
         return (
-          <div><b>{state}:</b><br/><span style={{paddingLeft: 10}}>{ac.action}</span></div>
+          <div><b>{state}:</b><br/><span style={{paddingLeft: 10}}>{find_by_id(ac.action, props.action_catalog).name}</span></div>
         )
       })}</td>
       <td><i className="ui angle right icon"/></td>
@@ -77,7 +85,9 @@ const Rules=React.createClass({
           </thead>
           <tbody>
           {props.rules.map((r) =>
-            <Rule rule={r} onOpenDetails={() => props.onOpenDetails(r)}/>
+            <Rule rule={r} onOpenDetails={() => props.onOpenDetails(r)}
+              trigger_catalog={props.trigger_catalog}
+              action_catalog={props.action_catalog}/>
           )}
           </tbody>
         </table>
