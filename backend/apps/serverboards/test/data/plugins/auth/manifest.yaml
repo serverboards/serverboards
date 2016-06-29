@@ -1,0 +1,119 @@
+name: Auth test
+description: >
+  Simple auth plugin, that logins using a simple token.
+author: David Moreno <dmoreno@serverboards.io>
+id: serverboards.test.auth
+version: 0.0.1
+
+components:
+  - name: fake auth
+    type: cmd
+    traits: auth
+    id: fake
+    perms: plugin.data[serverboards.test.auth]
+    command: auth.py
+
+  - name: generic component
+    type: service
+    traits: generic
+    id: server
+    fields:
+      - name: url
+        label: URL
+        placeholder: https://example.com
+
+  - name: email component
+    type: service
+    traits: email
+    id: email
+    fields:
+      - name: email
+        label: Email address
+        placeholder: test@serverboards.io
+
+  - name: Component config
+    type: settings
+    id: settings
+    perms: settings
+    fields:
+      - name: base_url
+        label: Serverboards Base URL
+        type: url
+        placeholder: https://test.serverboards.io
+      - name: test_pw
+        label: Test if passwords can be recovered
+        type: password
+        placeholder: "********"
+
+  - name: Test action
+    type: action
+    id: action
+    command: fake
+    call:
+      method: http_get
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits: test
+
+  - name: Test action
+    type: action
+    id: action.full-command-path
+    command: serverboards.test.auth/fake
+    call:
+      method: http_get
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits:
+
+  - name: Bad action
+    type: action
+    id: action
+    command: fake
+    call:
+      method: http_get-wrong
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns: text
+    traits:
+  - name: Notifications email address
+    id: channel.json.tmp.file
+    type: notification
+    fields:
+      - label: Email address
+        placeholder: Leave empty to use main email address
+        name: email
+        validation: email
+    command: serverboards.test.auth/fake
+    call: notification_json
+
+  - name: Periodic timer
+    type: trigger
+    states: tick stop
+    id: periodic.timer
+    command: fake
+    call:
+      method: periodic_timer
+      params:
+        - name: period
+          default: 0.1
+
+  - name: Touch a file
+    type: action
+    id: touchfile
+    command: fake
+    call:
+      method: touchfile
+      params:
+        - name: filename
+          label: File to create and set the date inside

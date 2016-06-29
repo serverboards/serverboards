@@ -1,0 +1,70 @@
+defmodule Serverboards.Mixfile do
+  use Mix.Project
+
+  def project do
+    [app: :serverboards,
+     version: "0.3.0",
+     build_path: "../../_build",
+     config_path: "../../config/config.exs",
+     deps_path: "../../deps",
+     lockfile: "../../mix.lock",
+     elixir: "~> 1.2",
+     build_embedded: Mix.env == :prod,
+     start_permanent: Mix.env == :prod,
+     deps: deps,
+     name: "Serverboards",
+     homepage_url: "https://serverboards.io",
+     docs: [
+       logo: "docs/serverboards.png",
+       extras: ["README.md"]
+     ]
+  ]
+  end
+
+  # Configuration for the OTP application
+  #
+  # Type "mix help compile.app" for more information
+  def application do
+    [
+      applications:       [
+            :logger,
+            :ecto,
+            :postgrex,
+            :comeonin,
+            :mom,
+            :timex,
+            :yaml_elixir,
+            :cowboy, :ranch
+            ],
+      mod: {Serverboards, []},
+    ]
+  end
+
+  # Dependencies can be Hex packages:
+  #
+  #   {:mydep, "~> 0.3.0"}
+  #
+  # Or git/path repositories:
+  #
+  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
+  #
+  # To depend on another app inside the umbrella:
+  #
+  #   {:myapp, in_umbrella: true}
+  #
+  # Type "mix help deps" for more examples and options
+  defp deps do
+    [
+      {:mom,  in_umbrella: true},
+      {:eventsourcing, in_umbrella: true},
+      {:ecto, "~> 1.0"},
+      {:postgrex, ">= 0.0.0"},
+      {:comeonin, "~> 2.1"},
+      {:timex, "~> 2.1.4"},
+      {:json,  "~> 0.3.0"},
+      {:yaml_elixir, "~> 1.0.0" },
+      {:yamerl, github: "yakaz/yamerl" },
+      {:cowboy, "~> 1.0"}
+    ]
+  end
+end
