@@ -6,6 +6,7 @@ help:
 	@echo "  compile -- Compiles all. Requires already setup system"
 	@echo "  setup   -- Prepares to be compiled. May require root if installs system packages."
 	@echo "  clean   -- Cleans all development data."
+	@echo "  test    -- Runs all tests."
 	@echo "  docker  -- Creates a docker image. Compiles all beforehand."
 	@echo
 
@@ -35,3 +36,12 @@ clean:
 
 docker: compile-frontend
 	docker build -t serverboards .
+
+.PHONY: test test-backend test-frontend
+test: test-backend test-frontend
+
+test-backend:
+	cd backend; make test
+
+test-frontend:
+	cd frontend; make test

@@ -10,6 +10,10 @@ case "$1" in
   stop)
     echo "Not yet"
   ;;
+  test)
+    make -j2 -m test
+  ;;
   *)
     echo "start|stop"
+  ;;
 esac

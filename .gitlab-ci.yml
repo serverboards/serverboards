@@ -1,0 +1,7 @@
+backend:
+  script:
+    - cd backend; make test
+
+frontend:
+  script:
+    - cd frontend; make test

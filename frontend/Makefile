@@ -32,5 +32,9 @@ node_modules/react:
 mrproper: clean
 	rm -rf node_modules
 
+.PHONY: test
+test: clean all
+
+
 clean:
 	rm -rf dist
