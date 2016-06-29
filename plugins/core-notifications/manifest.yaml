@@ -1,0 +1,84 @@
+id: serverboards.core.notifications
+name: core services
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.1.0
+description: >
+  Definition of core notification subsystem. Includes global config,
+  user notification channel config, and delivery subsystem.
+
+components:
+  - id: settings.email
+    type: settings
+    perms: settings
+    name: Email settings
+    description: SMTP Server setting used by the system to communicate with users via email.
+    fields:
+      - label: SMTP Server
+        name: servername
+        description: IP address or DNS name of the SMTP Server
+        type: text
+        validation: empty
+      - label: Port
+        name: port
+        type: text
+        description: Port of communication
+        placeholder: Leave empty to use defaults
+      - label: Email from
+        name: from
+        placeholder: eg. noreply@test.serverboards.io
+        validation: email
+      - label: Username
+        name: username
+        description: Username if required of the SMTP Server
+        type: text
+      - label: Password
+        name: password_pw
+        description: Password if required to use the SMTP Server
+        type: password
+  - id: settings.email.user
+    type: notification
+    name: Email notifications
+    fields:
+      - name: email
+        label: Email address
+        placeholder: Leave empty to use normal user email address
+        validation: email
+    command: serverboards.core.notifications/daemon.email
+    call: send_email
+
+  - id: daemon.email
+    type: cmd
+    traits: email
+    perms: settings.view[serverboards.core.notifications/settings.email]
+    command: serverboards_email.py
+
+
+  - id: settings.telegram
+    type: settings
+    perms: settings
+    name: Telegram settings
+    description: Telegram settings requried to send telegrams to users. You can get a new API token using the [BotFather](https://web.telegram.org/#/im?p=@BotFather) telegram bot.
+    fields:
+      - name: token
+        label: API Key
+        description:: API token as given by the BotFather
+
+  - id: settings.telegram.user
+    type: notification
+    name: Telegram notifications
+    description: A code will be sent to pair. Please connect to the [https://web.telegram.org/#/im?p=@serverboards_test_bot](@serverboards_test_bot) in telegram.
+    command: serverboards.core.notifications/daemon.telegram
+    fields:
+      - name: code
+        label: User code
+        type: text
+        description: Code as sent by the serverboards_test_bot. Needed to pair user and chats.
+    call: send_telegram
+
+  - id: daemon.telegram
+    type: cmd
+    traits: telegram
+    perms:
+      - settings.view[serverboards.core.notifications/settings.telegram]
+      - plugin.data[serverboards.core.notifications/telegram]
+    command: serverboards_telegram.py

@@ -1,0 +1,43 @@
+id: serverboards.core.settings
+name: core settings
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Definition of core settings and fields to store in them.
+
+  Core settings define minimal settings required for Serverboards to
+  work.
+# name and tags fields are always assumed
+
+components:
+  - name: Base settings
+    id: base
+    perms: settings
+    type: settings
+    fields:
+      - label: Base URL
+        placeholder: eg. https://test.serverboards.io
+        name: base_url
+        validation: url
+
+  - name: Database settings
+    description: >
+      Connection data to database. Any error here may render the
+      application unusable. Make sure you know what you are doing.
+    perms: settings.database
+    type: settings
+    id: database
+    fields:
+      - label: Database Address
+        placeholder: "eg: localhost, 192.186.1.200, /var/run/postgresql/, ..."
+        validation: empty
+        name: address
+      - label: Username
+        placeholder: serverboards
+        validation: empty
+        name: username
+      - label: Password
+        placeholder: "*********"
+        type: password
+        validation: empty
+        name: password_pw

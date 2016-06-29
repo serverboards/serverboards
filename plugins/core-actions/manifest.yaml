@@ -1,0 +1,57 @@
+id: serverboards.core.actions
+name: Core actions
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Various core actions.
+
+components:
+  - name: Ping server
+    id: ping
+    type: action
+    command: serverboards.core.actions/cmd
+    call:
+      method: ping
+      params:
+        - name: ip
+          label: Remote IP address or DNS name
+          type: text
+      returns: ms
+    traits: ip url # this means any of `ip` or `url`
+
+  - name: Webhook call
+    id: webhook.call
+    type: action
+    command: serverboards.core.actions/cmd
+    call:
+      method: http_get
+      params:
+        - name: url
+          label: Remote URL
+          placeholder: eg. http://example.com, https://example.com/path
+          type: text
+      returns:
+        code: int
+        ms: ms
+        text: text
+    traits: url
+
+  - name: Execute SSH command
+    id: ssh.command
+    type: action
+    command: serverboards.code.actions/cmd
+    call:
+      method: ssh_command
+      params:
+        - name: command
+          label: Command to execute
+          placeholder: eg. uname -a
+          tye: text
+      returns: text
+    traits: ssh
+
+  - name: Core actions.
+    type: cmd
+    id: cmd
+    timeout: 1000
+    command: serverboards-core.py
