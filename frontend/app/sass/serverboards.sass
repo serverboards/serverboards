@@ -1,0 +1,156 @@
+@import colors
+@import gradients
+
+.serverboards.background.diagonal
+  background: #22a397 /* Old browsers */
+  background: -moz-linear-gradient(top right,  #22a397 0%, #eac442 100%) /* FF3.6+ */
+  background: -webkit-gradient(linear, right top, left bottom, color-stop(0%,#22a397), color-stop(100%,#eac442)) /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #22a397 0%,#eac442 100%) /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #22a397 0%,#eac442 100%) /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #22a397 0%,#eac442 100%) /* IE10+ */
+  background: linear-gradient(to bottom left,  #22a397 0%,#eac442 100%) /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#22a397', endColorstr='#eac442',GradientType=0 ) /* IE6-9 */
+
+  color: white
+
+.ui.background.white
+  background: white
+  color: black
+
+h1, h1.ui.header
+  color: #068478
+
+h2.ui.header, h3.ui.header, h3.ui.item.header
+  color: #00B5AD
+
+body
+  height: auto !important
+  padding-top: 45px
+
+div.ui.main
+  max-height: calc( 100vh - 46px )
+  overflow: hidden
+  margin: 46px 0 0 0
+
+  display: flex
+  overflow: hidden
+  align-items: stretch
+  align-content: stretch
+  width: 100%
+
+  > .ui.menu
+    flex-grow: 0
+    width: 300px
+    max-height: calc( 100vh - 45px )
+
+  > .ui.central
+    flex-grow: 1
+    margin: 0
+    height: calc( 100vh - 45px )
+    overflow: auto
+    padding-top: 20px
+
+    > .ui.container
+      padding: 0 2em
+  > .ui.central.with.menu
+    display: flex
+    padding-top: 0
+    > .ui.central
+      flex-grow: 1
+      padding-top: 20px
+      overflow: auto
+      padding-bottom: 80px
+      > .ui.container
+        padding: 0 2em
+
+  .ui.vertical.menu.sidebar
+    max-width: 100px !important
+    height: calc( 100vh - 47px ) !important
+    border-radius: 0
+    overflow: auto
+    margin: 0 !important
+    border: 0
+    visibility: visible
+    position: relative
+    padding: 0
+
+    -webkit-transform: none
+    transform: none
+
+    +serverboards-vertical-gradient
+
+    .item
+      max-width: 100px
+      overflow: hidden
+      text-overflow: ellipsis
+      color: white
+
+      &.active
+        border-left: 4px solid white !important
+        padding-left: 12px
+        &:hover
+          color: white
+
+      &:hover
+        color: white
+
+
+.ui.vertical.menu.sections
+  margin: 0
+  border-radius: 0
+  border-top: 0
+  .item:before
+    height: 0
+
+.ui.scroll
+  overflow: auto
+
+.ui.button.floating.massive.add, .ui.button.floating.massive._add
+  position: fixed
+  bottom: 30px
+  right: 30px
+  background: #22a397
+  box-shadow: 0 3px 3px rgba(0,0,0,0.5)
+  border-radius: 300px
+  width: 80px
+  height: 80px
+
+  padding-top: 26px
+  padding-left: 24px
+  font-size: 30px
+  color: white !important
+  z-index: 20
+
+  .corner.icon
+    font-size: 20px
+    margin-left: 20px
+    margin-top: -15px
+    text-shadow: 0 0 1px rgba(0, 0, 0, 1.0)
+
+  &:hover
+    background: lighten(#22a397, 1.1)
+
+  +background-colors-hover
+
+.ui.settings section
+  margin: 2em 0
+  .description
+    color: #888
+    margin: 1em 0
+
+.ui.fixed.bottom
+  position: fixed
+  bottom: 0
+  padding: 20px
+  background: white
+  z-index: 10
+  border-top: 1px solid rgba(0,0,0,.05)!important
+
+.ui.text.container .ui.fixed.bottom
+  width: 700px
+  margin-left: -2px
+
+.ui.header.link
+  color: #4093C6
+  &:hover
+    color: lighten(#4093C6, 20.1)

@@ -1,0 +1,34 @@
+.hold.button
+  display: inline-block
+  vertical-align: bottom
+  margin-left: 10px
+
+.hold.button .ui.attached.progress
+ background: #DB2828 !important
+ margin-top: -3px
+ margin-right: 4px
+ .bar
+  min-width: 0
+  background: red
+
+.ui.menu .ui.dropdown .menu>.item.hold
+  padding-bottom: 0 !important
+  height: 36px
+  .ui.attached.progress
+    min-width: calc( 100% + 30px )
+    margin: 10px -15px
+    border-radius: 0
+    .bar
+      background: red !important
+      min-width: 0px
+
+.hold.icon
+  cursor: pointer
+  .ui.attached.progress
+    margin-left: auto
+    width: 1.75em
+    background: white
+    border-radius: 0
+    .bar
+      min-width: 0
+      background: red
