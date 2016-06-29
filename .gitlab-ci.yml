@@ -1,7 +1,13 @@
 backend:
+  cache:
+    paths:
+      - backend/deps
   script:
     - cd backend; make test
 
 frontend:
+  cache:
+    paths:
+      - frontend/node_modules
   script:
     - cd frontend; make test
