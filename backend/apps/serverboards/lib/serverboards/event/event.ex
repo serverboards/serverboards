@@ -20,6 +20,8 @@ defmodule Serverboards.Event do
           #user = Serverboards.Auth.User.user_info user.email, user
           Logger.debug("Perms: #{inspect user} / #{inspect guards}")
           if check_guards(guards, user) do
+            # If it was an event with context, remove it. Was used only for guards.
+            event_type = hd String.split(event_type,"[")
             try do
               MOM.RPC.Client.event(
                 client, event_type,
@@ -127,6 +129,12 @@ defmodule Serverboards.Event do
   Simple emit an event
 
   Its just a MOM.Channel.send, but helps the separation of concerns.
+
+  The type can have a context selector as in event_type[context], which
+  will be used against guards and subscriptions, but the sent event will be
+  without the context selector.
+
+  This allows to have narrower subscriptions, but wide management.
 
   ## Example
 

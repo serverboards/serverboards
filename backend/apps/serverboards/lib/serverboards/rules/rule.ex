@@ -39,6 +39,11 @@ defmodule Serverboards.Rules.Rule do
 
     EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
       upsert_real(data)
+      Serverboards.Event.emit("rules.update", %{ rule: data }, ["rules.view"])
+      Logger.debug("Serverboard: #{inspect data.serverboard}")
+      if (data.serverboard != nil) do
+        Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: data }, ["rules.view"])
+      end
     end
   end
 
