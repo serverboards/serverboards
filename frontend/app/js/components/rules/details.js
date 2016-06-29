@@ -74,6 +74,7 @@ const Details=React.createClass({
         self.handleChangeTrigger(value)
       },
     }).dropdown("set selected", this.props.rule.trigger.trigger)
+    $(this.refs.el).find('.toggle').checkbox();
   },
   componentDidUpdate(newprops){
     if (newprops.triggers != this.props.triggers){
@@ -138,7 +139,7 @@ const Details=React.createClass({
     let $el=$(this.refs.el)
     let rule={
       uuid: props.rule.uuid,
-      is_active: true,
+      is_active: $el.find("input[name=is_active]").is(":checked"),
       name: $el.find("input[name=name]").val(),
       description: $el.find("textarea[name=description]").val(),
       service: $el.find("input[name=service]").val(),
@@ -165,6 +166,12 @@ const Details=React.createClass({
         <h1 className="ui header">Rule {props.rule.name}</h1>
 
         <div className="ui form">
+          <div className="field">
+            <div className="ui checkbox toggle">
+              <label>Active</label>
+              <input type="checkbox" defaultChecked={props.rule.is_active} name="is_active"/>
+            </div>
+          </div>
           <div className="field">
             <label>Name:</label>
             <input type="text" defaultValue={props.rule.name} name="name"/>
