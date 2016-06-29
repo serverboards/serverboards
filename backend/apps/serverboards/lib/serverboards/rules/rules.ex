@@ -31,7 +31,8 @@ defmodule Serverboards.Rules do
   def list(map) when is_map(map) do
     list(Map.to_list(map))
   end
-  def list(filter \\ []) do
+  def list(), do: list([])
+  def list(filter) do
     import Ecto.Query
     alias Serverboards.Serverboard.Model.Serverboard
     alias Serverboards.Service.Model.Service

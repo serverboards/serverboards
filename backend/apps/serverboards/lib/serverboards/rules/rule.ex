@@ -93,11 +93,13 @@ defmodule Serverboards.Rules.Rule do
   defp upsert_real(%Serverboards.Rules.Rule{ uuid: uuid } = data) do
     import Ecto.Query
 
-    uuid = if uuid do uuid else UUID.uuid4 end
+    uuid = if uuid=="" or uuid==nil do UUID.uuid4 else uuid end
+    Logger.debug("UUID is #{inspect uuid}")
     actions = data.actions
 
     service_id = case data.service do
       nil -> nil
+      "" -> nil
       uuid ->
         Repo.one( from c in Serverboards.Service.Model.Service, where: c.uuid == ^uuid, select: c.id )
     end
@@ -113,7 +115,7 @@ defmodule Serverboards.Rules.Rule do
       uuid: uuid,
       is_active: data.is_active,
       service_id: service_id,
-      serverboards_id: serverboard_id,
+      serverboard_id: serverboard_id,
       name: data.name,
       description: data.description,
       trigger: data.trigger.trigger,
@@ -129,9 +131,9 @@ defmodule Serverboards.Rules.Rule do
 
     rule = decorate(rule)
 
-    #Logger.debug("Decorated rule: #{inspect rule.uuid} / #{inspect rule.is_active}")
+    Logger.debug("Decorated rule: #{inspect rule.trigger} / #{inspect rule.is_active}")
 
-    if rule.is_active do
+    if (rule.is_active and rule.trigger.trigger != nil and rule.trigger.trigger != "") do
       Serverboards.Rules.ensure_rule_active rule
     else
       Serverboards.Rules.ensure_rule_not_active rule
