@@ -6,8 +6,7 @@
   "dependencies": {
     "react-redux": "^4.4.4",
     "react-router": "^2.2.1",
-    "redux-thunk": "^2.0.1",
-    "semantic-ui": "^2.1.8"
+    "redux-thunk": "^2.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.7.5",
@@ -31,7 +30,6 @@
     "react-router-redux": "^4.0.4",
     "redux": "^3.4.0",
     "sass-loader": "^3.2.0",
-    "semantic-ui": "^2.1.8",
     "shell-quote": "^1.5.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.12.15",
