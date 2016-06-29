@@ -149,6 +149,7 @@ const Details=React.createClass({
       },
       actions: actions
     }
+    console.log(rule)
     this.props.onSave(rule)
   },
   render(){
