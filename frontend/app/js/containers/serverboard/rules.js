@@ -17,7 +17,9 @@ var Rules = event.subscribe_connect(
     onUpdateRules: () => dispatch( rules_list(props.serverboard.shortname) ),
     cleanRules: () => dispatch( rules_list_clean() )
   }),
-  undefined,
+  (props) => [
+    `rules.update[${props.serverboard.shortname}]`
+  ],
   (props) => [
     () => (serverboard_reload_services(props.serverboard.shortname)),
     update_trigger_catalog, action_catalog

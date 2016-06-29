@@ -11,6 +11,15 @@ export default function rules(state=default_state, action){
       return $.extend({}, state, {trigger_catalog: action.catalog})
     case "CLEAN_RULES_LIST":
       return default_state;
+    case "@RPC_EVENT/rules.update":
+      console.log("Event!")
+      const rule=action.rule
+      let rules=state.rules.map( (rl) => {
+        if (rl.uuid==rule.uuid)
+          return rule
+        return rl
+      })
+      return $.extend({}, state, {rules})
   }
   return state
 }

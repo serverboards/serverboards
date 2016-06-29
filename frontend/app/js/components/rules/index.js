@@ -76,7 +76,7 @@ const Rules=React.createClass({
       const rule = props.rules.find( (r) => r.uuid == props.subsection )
       return (
         <div className="ui text container">
-          <RuleDetails rule={rule}/>
+          <RuleDetails rule={rule} serverboard={props.serverboard.shortname}/>
         </div>
       )
     }

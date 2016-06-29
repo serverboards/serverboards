@@ -58,7 +58,15 @@ export function subscribe_connect(state, handlers, subscriptions=[], updates=[])
         store: React.PropTypes.object
       },
       componentDidMount(){
-        subscribe(subscriptions)
+        if (subscriptions){
+          let subscription_list
+          if (typeof subscriptions == "function")
+            subscription_list=subscriptions(this.props)
+          else
+            subscription_list=subscriptions
+          subscribe(subscription_list)
+        }
+
         if (updates){ // Call all updates
           let updates_list
           if (typeof updates == "function")
@@ -70,7 +78,14 @@ export function subscribe_connect(state, handlers, subscriptions=[], updates=[])
         }
       },
       componentWillUnmount(){
-        unsubscribe(subscriptions)
+        if (subscriptions){
+          let subscription_list
+          if (typeof subscriptions == "function")
+            subscription_list=subscriptions(this.props)
+          else
+            subscription_list=subscriptions
+          unsubscribe(subscription_list)
+        }
       },
       render(){
         return (
