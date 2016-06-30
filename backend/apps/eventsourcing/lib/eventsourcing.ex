@@ -147,8 +147,10 @@ defmodule EventSourcing do
 
   ## server impl
   def init(:ok) do
+    {:ok, supervisor} = Task.Supervisor.start_link
     {:ok, %{
-      reducers: []
+      reducers: [],
+      supervisor: supervisor
     } }
   end
 
@@ -179,7 +181,7 @@ defmodule EventSourcing do
     end
   end
 
-  defp dispatchp(reducers, type, data, author, event_options) do
+  defp dispatchp(reducers, type, data, author, event_options, supervisor) do
     #Logger.debug("Dispatch #{type}")
     Enum.reduce reducers, %{}, fn {reducer, options}, acc ->
       # Will skip if any of the except elements is at options as true
@@ -192,7 +194,17 @@ defmodule EventSourcing do
         acc
       else
         # Do the reducer and keep result.
-        res = dispatch_one(type, data, author, reducer, options)
+        task = Task.Supervisor.async_nolink(supervisor, fn ->
+          dispatch_one(type, data, author, reducer, options)
+        end)
+
+        res = try do
+          Task.await task
+        catch
+          :exit, {code, _} ->
+            Logger.error("EventSourcing: Error dispatching #{inspect type} from #{inspect author}")
+            {:exit, code}
+        end
         # Set it into the return map, or not.
         case {res, Keyword.get(options, :name)} do
           {nil, _ }   -> acc
@@ -206,9 +218,9 @@ defmodule EventSourcing do
   def handle_call({:dispatch, type, data, author, options}, from, status) do
     # Do it in a new task, allow reentry and leaves this channel ready for more.
     # Should not do race conditions as individually each call has to be
-    # answered before flow continues on caller    
+    # answered before flow continues on caller
     Task.start_link fn ->
-      res=dispatchp(status.reducers, type, data, author, options)
+      res=dispatchp(status.reducers, type, data, author, options, status.supervisor)
       GenServer.reply(from, res)
     end
     {:noreply, status}
@@ -221,7 +233,7 @@ defmodule EventSourcing do
   end
 
   def handle_call({:replay, list_of_events}, from, status) do
-    ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author, []) end)
+    ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author, [], status.supervisor) end)
     {:reply, ret, status}
   end
 end
