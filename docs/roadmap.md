@@ -23,7 +23,7 @@ and have some communication.
 * Service and components management
 * Basic edition
 
-## 2016-05-17 - Actions, polishing
+## 2016-05-17 - ~~Actions, polishing~~
 
 * First polish round, internal clean up do missing points: permissions, some edition
 * Rename service/components to serverboard/services.
@@ -31,15 +31,20 @@ and have some communication.
 * Actions on services
 * Plugins must be able to show some custom UI using React.
 
-## 2016-06-03 SSH into remote machines
+## 2016-06-30 - ~~Rules~~
+
+* Triggers
+* Rules
+
+## 2016-07-14 SSH into remote machines
 
 Can perform operations using SSH on remote machines.
 
-## 2016-06-18 - Manage virtual machines
+## 2016-07-30 - Manage virtual machines
 
-## 2016-06-30 - Remote plugin installation.
+## 2016-09 - BETA RELEASE
 
-## 2016-07-13 - Manage virtual machines, see logs, remote SSH. Plugin installation.
-
-First version, allow to manage virtual machines, see the remote logs, use
-SSH terminal from Serverboards.
+* First version,
+* allow to manage virtual machines,
+* see the remote logs,
+* use SSH terminal from Serverboards.
