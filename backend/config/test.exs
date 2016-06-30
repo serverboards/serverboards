@@ -20,5 +20,4 @@ config :serverboards, Serverboards.Repo,
 config :eventsourcing, Eventsourcing.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: dburl,
-  port: 5433,
   pool: Ecto.Adapters.SQL.Sandbox

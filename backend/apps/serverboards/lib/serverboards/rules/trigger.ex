@@ -71,7 +71,12 @@ defmodule Serverboards.Rules.Trigger do
     MOM.RPC.Client.add_method client, "trigger", fn params ->
       Logger.debug("Trigger #{inspect trigger.id}, #{inspect params}")
       params = Map.merge(params, %{ uuid: uuid, trigger: trigger.id })
-      cont.(params)
+      try do # FIXME Use proper supervission tree for rules.
+        cont.(params)
+      catch
+        :exit, _ ->
+          Plugin.Runner.stop trigger.command
+      end
     end
 
     {:reply, uuid,

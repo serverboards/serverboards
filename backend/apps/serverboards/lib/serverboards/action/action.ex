@@ -191,9 +191,12 @@ defmodule Serverboards.Action do
   """
   def history(_filter, _user) do
     import Ecto.Query
-    Repo.all(from h in Model.History, order_by: [desc: h.inserted_at] )
-      |> Enum.map(fn h ->
-        [user_email] = Repo.all(from u in Serverboards.Auth.Model.User, where: u.id == ^h.user_id, select: u.email )
+    Repo.all(from h in Model.History,
+    left_join: u in Serverboards.Auth.Model.User,
+           on: u.id == h.user_id,
+      order_by: [desc: h.inserted_at],
+      select: {h, u.email} )
+      |> Enum.map(fn {h, user_email} ->
         action = Plugin.Registry.find(h.type)
         %{
           uuid: h.uuid,
@@ -213,15 +216,16 @@ defmodule Serverboards.Action do
   def details(uuid, _user) do
     import Ecto.Query
     try do
-      case Repo.one(from h in Model.History, where: h.uuid == ^uuid) do
+      case Repo.one(
+              from h in Model.History,
+              where: h.uuid == ^uuid,
+              left_join: u in Serverboards.Auth.Model.User,
+                     on: u.id == h.user_id,
+                select: { h, u.email }
+              ) do
         nil ->
           {:error, :not_found}
-        h ->
-          [user_email] = Repo.all(
-              from u in Serverboards.Auth.Model.User,
-             where: u.id == ^h.user_id,
-            select: u.email
-            )
+        {h, user_email} ->
           action = Plugin.Registry.find(h.type)
 
           %{
@@ -237,8 +241,8 @@ defmodule Serverboards.Action do
           }
       end
     rescue
-      Elixir.Ecto.CastError ->
-        Logger.debug("Invalid UUID #{inspect uuid}")
+      e in Elixir.Ecto.CastError ->
+        Logger.debug("Invalid UUID #{inspect uuid}: #{inspect e}")
         {:error, :invalid_uuid}
     end
   end

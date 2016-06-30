@@ -59,7 +59,7 @@ defmodule Serverboards.Mixfile do
       {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
-      {:comeonin, "~> 2.1"},
+      {:comeonin, "~> 2.5"},
       {:timex, "~> 2.1.4"},
       {:json,  "~> 0.3.0"},
       {:yaml_elixir, "~> 1.0.0" },

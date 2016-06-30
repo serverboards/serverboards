@@ -54,6 +54,10 @@ class RPC:
                     'error': str(e),
                     'id' : rpc['id']
                 }
+        return {
+            'error': "unknown_method",
+            'id' : rpc['id']
+        }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -82,15 +86,16 @@ class RPC:
     def __process_request(self, rpc):
         self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
-        if res.get("id") not in self.manual_replies:
+        res_id=res and res.get("id")
+        if res_id not in self.manual_replies:
             try:
                 self.println(json.dumps(res))
             except:
                 import traceback; traceback.print_exc()
                 sys.stderr.write(repr(res)+'\n')
-                self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                self.println(json.dumps({"error": "serializing json response", "id": res_id}))
         else:
-            self.manual_replies.discard(res.get("id"))
+            self.manual_replies.discard(res_id)
 
     def println(self, line):
         self.debug(line)

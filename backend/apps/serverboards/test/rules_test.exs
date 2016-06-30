@@ -3,7 +3,7 @@ alias Serverboards.Logger
 
 defmodule Serverboards.TriggersTest do
   use ExUnit.Case
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   alias Serverboards.Rules.Trigger
   alias Serverboards.Rules
@@ -80,7 +80,7 @@ defmodule Serverboards.TriggersTest do
     File.rm("/tmp/sbds-rule-test")
     {:ok, rule} = Rules.Rule.start_link rule_description
 
-    :timer.sleep 2000
+    :timer.sleep 4000
 
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
