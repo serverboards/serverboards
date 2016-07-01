@@ -38,7 +38,7 @@ const ActionDetails=React.createClass({
     const params = action_type ? action_type.extra.call.params : []
     return (
       <div>
-        <h3 className="ui header uppercase">Action for {action.state}</h3>
+        <h3 className="ui header uppercase">{action.state}</h3>
         <div className="field">
           <label>Action:</label>
           <div ref="action" className="ui fluid search normal selection dropdown">
@@ -232,15 +232,21 @@ const Details=React.createClass({
           </div>
           <GenericForm fields={trigger_fields} data={state.trigger.params} updateForm={this.handleUpdateTriggerConfig}/>
 
-          <h2 className="ui header uppercase">Do</h2>
+          {actions.length != 0 ? (
+            <h2 className="ui header uppercase">on</h2>
+          ) : (
+            <span/>
+          )}
 
           {actions.map( (action) =>
             <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig}/>
           )}
 
-          <button className="ui button green" onClick={this.handleSave}>Save changes</button>
         </div>
 
+      </div>
+      <div className="actions">
+        <button className="ui button green" onClick={this.handleSave}>Save changes</button>
       </div>
       </Modal>
     )

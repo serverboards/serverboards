@@ -65,3 +65,30 @@
         top: 45px
         margin-left: -150px
         width: 150px
+
+    @media screen and (max-width: 1150px)
+      > .content
+        .side
+          position: relative
+          top: auto
+          margin-left: 0
+          width: auto
+          text-align: left
+          img
+            max-height: 50px
+            max-width: 50px
+            margin-right: 1em !important
+          br
+            display: none
+  @media screen and (max-width: 900px)
+    > .content
+      width: 100vw !important
+      left: 0
+      > .content
+        padding-top: 15px
+      .top.menu
+        position: absolute
+        top: 0
+        left: 0
+        width: 100vw
+        margin: 0 !important
