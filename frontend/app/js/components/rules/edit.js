@@ -2,6 +2,8 @@ import React from 'react'
 import GenericForm from '../genericform'
 import Modal from 'app/components/modal'
 
+const favicon = require("../../../imgs/square-favicon.svg")
+
 const ActionDetails=React.createClass({
   getInitialState(){
     return {
@@ -36,7 +38,7 @@ const ActionDetails=React.createClass({
     const params = action_type ? action_type.extra.call.params : []
     return (
       <div>
-        <h3 className="ui header">Action at {action.state}:</h3>
+        <h3 className="ui header uppercase">Action for {action.state}</h3>
         <div className="field">
           <label>Action:</label>
           <div ref="action" className="ui fluid search normal selection dropdown">
@@ -165,15 +167,26 @@ const Details=React.createClass({
     return (
       <Modal>
       <div ref="el">
-        <h1 className="ui header">Rule {props.rule.name}</h1>
-
-        <div className="ui form">
-          <div className="field">
-            <div className="ui checkbox toggle">
-              <label>Active</label>
-              <input type="checkbox" defaultChecked={props.rule.is_active} name="is_active"/>
+        <div className="ui top secondary menu">
+        <a className="item">
+          <i className="ui icon trash"/> Delete
+        </a>
+          <div className="right menu">
+            <div className="item">
+              <div className="ui checkbox toggle">
+                <label>Active</label>
+                <input type="checkbox" defaultChecked={props.rule.is_active} name="is_active"/>
+              </div>
             </div>
           </div>
+        </div>
+        <h1 className="ui medium header side centered">
+        <img src={favicon} className="ui tiny image" style={{margin:"auto"}}/>
+        <br/>
+        {props.rule.name}
+        </h1>
+
+        <div className="ui form">
           <div className="field">
             <label>Name:</label>
             <input type="text" defaultValue={props.rule.name} name="name"/>
@@ -202,7 +215,7 @@ const Details=React.createClass({
             </div>
           </div>
 
-          <h2 className="ui dividing header">Trigger:</h2>
+          <h2 className="ui uppercase header">When</h2>
           <div className="field">
             <label>Trigger:</label>
             <div ref="trigger" className="ui fluid search normal selection dropdown">
@@ -219,7 +232,7 @@ const Details=React.createClass({
           </div>
           <GenericForm fields={trigger_fields} data={state.trigger.params} updateForm={this.handleUpdateTriggerConfig}/>
 
-          <h2 className="ui dividing header">Actions:</h2>
+          <h2 className="ui header uppercase">Do</h2>
 
           {actions.map( (action) =>
             <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig}/>

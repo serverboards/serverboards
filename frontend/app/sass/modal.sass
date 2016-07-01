@@ -40,13 +40,28 @@
     top: 45px
     width: calc( 100vw - 300px ) !important
     border-top: 1px solid #ddd
+    overflow-x: hidden
     > .content
       max-width: 600px
       margin: auto
 
       .header
         color: black
+        &.uppercase
+          text-transform: uppercase
+      h3.header
+        margin-top: 20px
       > .actions
         padding-top: 30px
         > .button
           margin-left: 0
+      .top.menu
+        margin: -20px calc( ( 100vw - 300px - 600px ) / -2 ) 10px calc( ( 100vw - 300px - 600px  ) / -2 )
+
+        border: 0
+        border-bottom: 1px solid #ddd
+      .side
+        position: absolute
+        top: 45px
+        margin-left: -150px
+        width: 150px
