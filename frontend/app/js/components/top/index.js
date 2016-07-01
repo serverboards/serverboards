@@ -46,11 +46,6 @@ var Top = function(props){
 
       <div className="right menu">
         <a className="item disabled">
-          <i className="lightning icon"></i>
-          Issues
-          <i className="dropdown icon"></i>
-        </a>
-        <a className="item disabled">
           <i className="alarm outline icon"></i>
           Notifications
           <i className="dropdown icon"></i>
