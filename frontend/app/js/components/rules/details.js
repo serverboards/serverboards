@@ -1,5 +1,6 @@
 import React from 'react'
 import GenericForm from '../genericform'
+import Modal from 'app/components/modal'
 
 const ActionDetails=React.createClass({
   getInitialState(){
@@ -162,6 +163,7 @@ const Details=React.createClass({
     let trigger_fields=triggers.find( (tr) => tr.id == state.trigger.trigger )
     trigger_fields=trigger_fields ? trigger_fields.call.params : []
     return (
+      <Modal>
       <div ref="el">
         <h1 className="ui header">Rule {props.rule.name}</h1>
 
@@ -227,6 +229,7 @@ const Details=React.createClass({
         </div>
 
       </div>
+      </Modal>
     )
   }
 })
