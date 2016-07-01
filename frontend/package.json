@@ -21,6 +21,7 @@
     "image-webpack-loader": "^1.8.0",
     "jquery": "^2.2.3",
     "md5": "^2.1.0",
+    "minify": "^2.0.9",
     "node-sass": "^3.4.2",
     "react": "^15.0.0",
     "react-dom": "^15.0.0",
