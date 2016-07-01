@@ -21,21 +21,18 @@ let AddGroup = React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <div className="header">
+        <h2 className="ui header">
           Add a new group
-        </div>
-        <div className="content">
-          <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
-            <div className="field">
-              <label>Group name</label>
-              <input type="text" name="name" placeholder="This will be used as the group identifier"/>
-            </div>
-          </form>
-        </div>
-        <div className="actions">
-          <div className="ui accept green button" onClick={this.handleAddGroup}>Add group</div>
-          <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
-        </div>
+        </h2>
+        <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
+          <div className="field">
+            <label>Group name</label>
+            <input type="text" name="name" placeholder="This will be used as the group identifier"/>
+          </div>
+          <div className="field">
+            <div className="ui accept green button" onClick={this.handleAddGroup}>Add group</div>
+          </div>
+        </form>
       </Modal>
     )
   }

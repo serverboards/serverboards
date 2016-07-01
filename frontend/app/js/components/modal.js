@@ -13,8 +13,10 @@ function Modal(props){
 
         <a className="right aligned" onClick={props.onClose} title="Close popup"><i className="big close icon "/></a>
       </div>
-      <div className="content" >
-        {props.children}
+      <div className="content">
+        <div className="content">
+          {props.children}
+        </div>
       </div>
     </div>
   )

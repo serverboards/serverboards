@@ -44,19 +44,18 @@ let EditPerms=React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <div className="header">
+        <h2 className="ui header">
           Update perms at {props.group.name}
-        </div>
-        <div className="content">
-          <label>Permissions</label>
-          <form ref="form" className="ui form">
-              {perms}
-          </form>
-        </div>
-        <div className="actions">
-          <div className="ui accept green button" onClick={this.handleUpdatePermissions}>Accept changes</div>
-          <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
-        </div>
+        </h2>
+        <form ref="form" className="ui form">
+          <div className="field">
+            <label>Permissions</label>
+                {perms}
+          </div>
+          <div className="field">
+            <div className="ui accept green button" onClick={this.handleUpdatePermissions}>Accept changes</div>
+          </div>
+        </form>
       </Modal>
     )
   }

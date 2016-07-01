@@ -64,21 +64,22 @@ let AddService=React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <div className="header">
+        <h2 className="ui header">
           Select a service to add
-        </div>
-        <div className="content">
-          <label>Existing services</label>
-          <div className="ui five column grid stackable">
-            {props.all_services.map((c) => WrappedService(c))}
+        </h2>
+        <div className="content ui form">
+          <div className="ui field">
+            <label className="ui header">Existing services</label>
+            <div className="ui five column grid stackable">
+              {props.all_services.map((c) => WrappedService(c))}
+            </div>
           </div>
-          <label>New services</label>
-          <div className="ui five column grid stackable">
-            {props.catalog.map((c) => WrappedService(c))}
+          <div className="ui field">
+            <label className="ui header">New services</label>
+            <div className="ui five column grid stackable">
+              {props.catalog.map((c) => WrappedService(c))}
+            </div>
           </div>
-        </div>
-        <div className="actions">
-          <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
         </div>
       </Modal>
     )

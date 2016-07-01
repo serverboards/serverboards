@@ -60,15 +60,14 @@ let SetupComponent=React.createClass({
       fields=this.get_fields()
     return (
       <Modal onClose={props.onClose}>
-        <div className="header">
+        <h2 className="ui header">
           Update settings for {props.service.name}
-        </div>
+        </h2>
         <div className="content">
           <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
           <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>
-          <button className="ui cancel button" onClick={props.onClose}>Cancel</button>
         </div>
       </Modal>
     )

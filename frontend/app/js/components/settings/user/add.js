@@ -26,9 +26,9 @@ let AddUser = React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <div className="header">
+        <h2 className="ui header">
           Add a new user
-        </div>
+        </h2>
         <div className="content">
           <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
             <div className="field">
@@ -43,11 +43,10 @@ let AddUser = React.createClass({
               <label>Last Name</label>
               <input type="text" name="last_name"/>
             </div>
+            <div className="field">
+              <div className="ui accept green button" onClick={this.handleAddUser}>Add user</div>
+            </div>
           </form>
-        </div>
-        <div className="actions">
-          <div className="ui accept green button" onClick={this.handleAddUser}>Add user</div>
-          <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
         </div>
       </Modal>
     )

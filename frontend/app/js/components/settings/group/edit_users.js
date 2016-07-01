@@ -36,9 +36,9 @@ let EditPerms=React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <div className="header">
+        <h2 className="ui header">
           Update users at {props.group.name}
-        </div>
+        </h2>
         <div className="content">
           <form ref="form" className="ui form" onSubmit={(ev) => { ev.preventDefault(); this.handleSubmit() }}>
             <label className="ui header">Add new users</label>
@@ -63,11 +63,10 @@ let EditPerms=React.createClass({
                 </div>
               </div>
             ))}
+            <div className="field">
+              <button type="button" className="ui accept green button" onClick={this.handleSubmit}>Accept changes</button>
+            </div>
           </form>
-        </div>
-        <div className="actions">
-          <button type="button" className="ui accept green button" onClick={this.handleSubmit}>Accept changes</button>
-          <button type="button" className="ui cancel button" onClick={props.onClose}>Cancel</button>
         </div>
       </Modal>
     )
