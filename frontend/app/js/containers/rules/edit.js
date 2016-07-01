@@ -1,11 +1,11 @@
-import DetailsView from 'app/components/rules/details'
+import EditView from 'app/components/rules/edit'
 import event from 'app/utils/event'
 import { update_trigger_catalog, rules_save } from 'app/actions/rules'
 import { action_catalog } from 'app/actions/action'
 import { serverboard_reload_services } from 'app/actions/serverboard'
 import { push } from 'react-router-redux'
 
-var Details = event.subscribe_connect(
+var Edit = event.subscribe_connect(
   (state) => ({
     triggers: state.rules.trigger_catalog,
     services: state.serverboard.current_services || [],
@@ -20,6 +20,6 @@ var Details = event.subscribe_connect(
     update_trigger_catalog, action_catalog
   ]
 
-)(DetailsView)
+)(EditView)
 
-export default Details
+export default Edit

@@ -13,7 +13,7 @@ var Rules = event.subscribe_connect(
     trigger_catalog: state.rules.trigger_catalog,
   }),
   (dispatch, props) => ({
-    onOpenDetails: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.uuid}`)),
+    onOpenEdit: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.uuid}`)),
     onUpdateRules: () => dispatch( rules_list(props.serverboard.shortname) ),
     cleanRules: () => dispatch( rules_list_clean() )
   }),

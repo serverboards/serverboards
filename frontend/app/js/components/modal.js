@@ -1,8 +1,14 @@
 import React from 'react'
+import { goBack } from 'react-router-redux'
+import store from 'app/utils/store'
 
 require('sass/modal.sass')
 
 function Modal(props){
+  const onClose = props.onClose || (() => {
+    store.dispatch( goBack() )
+  })
+
   const logo=require("../../imgs/logo.svg")
   return (
     <div className="ui modal background">
@@ -11,7 +17,7 @@ function Modal(props){
           <img className="logo" src={logo}/>
         </a>
 
-        <a className="right aligned" onClick={props.onClose} title="Close popup"><i className="big close icon "/></a>
+        <a className="right aligned" onClick={onClose} title="Close popup"><i className="big close icon "/></a>
       </div>
       <div className="content">
         <div className="content">

@@ -1,5 +1,5 @@
 import React from 'react'
-import RuleDetails from 'app/containers/rules/details'
+import RuleEdit from 'app/containers/rules/edit'
 import Loading from 'app/components/loading'
 
 function find_by_id(id, catalog){
@@ -23,7 +23,7 @@ function Rule(props){
   const rule = props.rule
 
   return (
-    <tr onClick={props.onOpenDetails} title={rule.description} style={{cursor: "pointer"}} className={rule.is_active ? "positive" : ""} >
+    <tr onClick={props.onOpenEdit} title={rule.description} style={{cursor: "pointer"}} className={rule.is_active ? "positive" : ""} >
       <td>{rule.name}</td>
       <td>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</td>
       <td>{(find_by_id(rule.trigger.trigger, props.trigger_catalog) || {nmme: rule.trigger.trigger }).name}</td>
@@ -70,13 +70,13 @@ const Rules=React.createClass({
       if (props.subsection == "add")
         return (
           <div className="ui text container">
-            <RuleDetails rule={empty_rule} serverboard={props.serverboard.shortname}/>
+            <RuleEdit rule={empty_rule} serverboard={props.serverboard.shortname}/>
           </div>
         )
       const rule = props.rules.find( (r) => r.uuid == props.subsection )
       return (
         <div className="ui text container">
-          <RuleDetails rule={rule} serverboard={props.serverboard.shortname}/>
+          <RuleEdit rule={rule} serverboard={props.serverboard.shortname}/>
         </div>
       )
     }
@@ -96,7 +96,7 @@ const Rules=React.createClass({
           </thead>
           <tbody>
           {props.rules.map((r) =>
-            <Rule rule={r} onOpenDetails={() => props.onOpenDetails(r)}
+            <Rule rule={r} onOpenEdit={() => props.onOpenEdit(r)}
               trigger_catalog={props.trigger_catalog}
               service_catalog={props.service_catalog}
               action_catalog={props.action_catalog}/>
