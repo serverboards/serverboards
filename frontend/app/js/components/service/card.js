@@ -127,7 +127,7 @@ let Card=React.createClass({
           </ul>
         </div>
         <div className="extra content">
-          <div className="ui text menu">
+          <div className="ui inverted yellow menu bottom attached">
             <div className="ui right item" style={{marginRight: 10}}>
               <div ref="dropdown" className={`ui dropdown`}>
                 Options
