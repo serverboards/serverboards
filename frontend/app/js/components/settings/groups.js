@@ -137,8 +137,7 @@ let Groups=React.createClass({
         {modal}
 
         <a onClick={() => this.setModal('add_group')} className="ui massive button _add icon floating orange">
-          <i className="group icon"></i>
-          <i className="corner add icon"></i>
+          <i className="add icon"></i>
         </a>
       </div>
     )

@@ -60,8 +60,7 @@ let Services=React.createClass({
             className="ui massive button _add icon floating blue"
             title="Add a service"
             >
-          <i className="server icon"></i>
-          <i className="corner add icon"></i>
+          <i className="add icon"></i>
         </a>
         {popup}
         <div className="ui fixed bottom">

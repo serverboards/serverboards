@@ -157,7 +157,7 @@ const Users=React.createClass({
           ))}
           </tbody>
         </table>
-        <a onClick={this.handleOpenAddUser}><i className="ui massive button add user icon floating olive"></i></a>
+        <a onClick={this.handleOpenAddUser}><i className="ui massive button add icon floating olive"></i></a>
         {modal}
       </div>
     )
