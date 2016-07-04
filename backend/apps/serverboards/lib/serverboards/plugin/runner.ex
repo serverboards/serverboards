@@ -170,6 +170,17 @@ defmodule Serverboards.Plugin.Runner do
     call(Serverboards.Plugin.Runner, id, method, params)
   end
 
+  def cast(id, method, params, cont) do
+    runner = Serverboards.Plugin.Runner
+    case GenServer.call(runner, {:get, id}) do
+      :not_found ->
+        Logger.error("Could not find plugin id #{inspect id}: :not_found")
+        {:error, :unknown_method}
+      cmd when is_pid(cmd) ->
+        Serverboards.IO.Cmd.cast cmd, method, params, cont
+    end
+  end
+
 
   ## server impl
   def init :ok do

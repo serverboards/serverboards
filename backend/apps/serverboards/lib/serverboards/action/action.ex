@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Action do
   @moduledoc ~S"""
@@ -59,7 +60,9 @@ defmodule Serverboards.Action do
 
     EventSourcing.subscribe es, :trigger, fn
       %{ action: action, params: params, uuid: uuid}, me ->
-        trigger_real(uuid, action, params, me)
+        Task.start fn ->
+          trigger_real(uuid, action, params, me)
+        end
     end
 
     {:ok, _} = Serverboards.Action.RPC.start_link
@@ -125,31 +128,32 @@ defmodule Serverboards.Action do
         end
 
         timer_start = Timex.Time.now
-        {ok, ret} =
-          with {:ok, plugin} <- Plugin.Runner.start( command_id ),
-            do: Plugin.Runner.call(plugin, action.extra["call"]["method"], params)
-        elapsed = round(
-          Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
-          )
+        with {:ok, plugin} <- Plugin.Runner.start( command_id ),
+          do: Plugin.Runner.cast(plugin, action.extra["call"]["method"], params,
+          fn {ok, ret} ->
+            elapsed = round(
+              Timex.Time.to_milliseconds(Timex.Time.elapsed(timer_start))
+              )
 
-        if ok == :error do
-          Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
-        end
+            if ok == :error do
+              Logger.error("Error running #{action_id} #{inspect params}: #{inspect ret}")
+            end
 
-        ret = case ret do
-          %{} -> ret
-          _s -> %{ data: ret }
-        end
+            ret = case ret do
+              %{} -> ret
+              _s -> %{ data: ret }
+            end
 
-        Event.emit("action.stopped",
-          %{uuid: uuid, name: action.name, id: action_id,
-            status: ok, result: ret, elapsed: elapsed
-            }, ["action.watch"] )
+            Event.emit("action.stopped",
+              %{uuid: uuid, name: action.name, id: action_id,
+                status: ok, result: ret, elapsed: elapsed
+                }, ["action.watch"] )
 
-        Agent.update(Serverboards.Action, fn actions ->
-          Map.drop(actions, [uuid])
+            Agent.update(Serverboards.Action, fn actions ->
+              Map.drop(actions, [uuid])
+            end)
+          end)
         end)
-      end)
       :ok
     else
       {:error, :invalid_action}

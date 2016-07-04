@@ -88,7 +88,7 @@ class RPC:
             except:
                 import traceback; traceback.print_exc()
                 sys.stderr.write(repr(res)+'\n')
-                sys.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
         else:
             self.manual_replies.discard(res.get("id"))
 

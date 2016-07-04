@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.IO.Cmd do
   use GenServer
@@ -39,10 +40,15 @@ defmodule Serverboards.IO.Cmd do
   This function is used mainly in testing as it has a timeout of 5s.
   """
   def call(cmd, method, params \\ []) do
+    Logger.debug("Better use cast as this can easily timeout!")
     case GenServer.call(cmd, {:call, method, params}) do
       {:ok, res} -> {:ok, res}
       {:error, err} -> {:error, err}
     end
+  end
+
+  def cast(cmd, method, params, cont) do
+    GenServer.cast(cmd, {:cast, method, params, cont})
   end
 
   @doc ~S"""
@@ -93,6 +99,13 @@ defmodule Serverboards.IO.Cmd do
   end
   def handle_call({:client}, _from, state) do
     {:reply, state.client, state}
+  end
+
+  def handle_cast({:cast, method, params, cont}, state) do
+    RPC.Client.cast( state.client, method, params, fn res ->
+      cont.(res)
+    end)
+    {:noreply, state}
   end
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do
