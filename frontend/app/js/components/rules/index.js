@@ -1,8 +1,10 @@
 import React from 'react'
 import RuleEdit from 'app/containers/rules/edit'
 import Loading from 'app/components/loading'
+import ImageIcon from 'app/components/imageicon'
 
-const favicon = require("../../../imgs/square-favicon.svg")
+const icon = require("../../../imgs/rules.svg")
+
 require('sass/rules.sass')
 
 function find_by_id(id, catalog){
@@ -28,7 +30,7 @@ function Rule(props){
   return (
     <div className="rule card">
       <div className="header content">
-        <img src={favicon} className="right floated mini image"/>
+        <ImageIcon src={icon} className="right floated"  name={rule.name}/>
         <h2 clasName="ui header">{rule.name}</h2>
         <div className="meta">{rule.description}</div>
         <div>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</div>

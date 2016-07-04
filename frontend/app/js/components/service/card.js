@@ -1,11 +1,12 @@
 import React from 'react'
-import LogoIcon from '../logoicon'
+import ImageIcon from '../imageicon'
 import ServiceSettings from 'app/containers/service/settings'
 import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 
 require("sass/service/card.sass")
+const icon = require("../../../imgs/services.svg")
 
 function Field(props){
   return (
@@ -116,7 +117,9 @@ let Card=React.createClass({
     return (
       <div className="service card">
         <div className="content">
-          <div className="right floated"><LogoIcon name={props.name}/></div>
+          <div className="right floated">
+            <ImageIcon src={icon}  name={props.name}/>
+          </div>
           <div className="header">{props.name}</div>
           <div className="meta">{(props.serverboards || []).join(' ')}</div>
           <div className="description">{props.description || "No description yet"}</div>

@@ -1,8 +1,9 @@
 import React from 'react'
 import GenericForm from '../genericform'
 import Modal from 'app/components/modal'
+import ImageIcon from 'app/components/imageicon'
 
-const favicon = require("../../../imgs/square-favicon.svg")
+const icon = require("../../../imgs/rules.svg")
 
 const ActionDetails=React.createClass({
   getInitialState(){
@@ -181,7 +182,7 @@ const Details=React.createClass({
           </div>
         </div>
         <h1 className="ui medium header side centered">
-        <img src={favicon} className="ui tiny image" style={{margin:"auto"}}/>
+        <ImageIcon src={icon}  name={props.rule.name}/>
         <br/>
         {props.rule.name}
         </h1>
