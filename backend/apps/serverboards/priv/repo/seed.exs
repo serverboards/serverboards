@@ -44,6 +44,8 @@ defmodule Seeds do
     "service.add", "service.update",
     "service.delete", "service.info",
     "service.attach",
+    "settings.user.view", "settings.user.view_all",
+    "settings.user.update", "settings.user.update_all",
     "debug",
     "settings.view", "settings.update",
     "action.trigger", "action.watch",
