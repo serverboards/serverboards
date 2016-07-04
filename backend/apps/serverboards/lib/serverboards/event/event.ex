@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Event do
   @doc ~S"""
@@ -18,7 +19,7 @@ defmodule Serverboards.Event do
           guards = Map.get(payload, :guards, [])
           user = MOM.RPC.Client.get client, :user
           #user = Serverboards.Auth.User.user_info user.email, user
-          Logger.debug("Perms: #{inspect user} / #{inspect guards}")
+          #Logger.debug("Perms: #{inspect user} / #{inspect guards}")
           if check_guards(guards, user) do
             # If it was an event with context, remove it. Was used only for guards.
             event_type = hd String.split(event_type,"[")
