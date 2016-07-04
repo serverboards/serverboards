@@ -4,6 +4,7 @@ import ServiceSettings from 'app/containers/service/settings'
 import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import ActionModal from './actionmodal'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -31,10 +32,10 @@ let Card=React.createClass({
       })
     ;
   },
-  setModal(modal){
+  setModal(modal, data){
     this.context.router.push( {
       pathname: this.props.location.pathname,
-      state: { modal, service: this.props.service }
+      state: { modal, service: this.props.service, data }
     } )
   },
   closeModal(){
@@ -68,13 +69,20 @@ let Card=React.createClass({
   triggerAction(action_id){
     console.log(action_id)
     let action=this.state.actions.filter( (a) => a.id == action_id )[0]
-    console.log("Trigger action %o", action)
     // Discriminate depending on action type (by shape)
     if (action.extra.call){
-      Flash.info(`Starting action ${action_id}`)
-      rpc.call("action.trigger",
-        [action_id, this.props.service.config]).then(function(){
-        })
+      console.log(action)
+      const params = this.props.service.config
+
+      let missing_params = action.extra.call.params.filter((p) => !(p.name in params))
+      if (missing_params.length==0){
+        rpc.call("action.trigger",
+          [action_id, params]).then(function(){
+          })
+      }
+      else{
+        this.setModal("action",{ action, params, missing_params })
+      }
     }
     else if (action.extra.screen){
       this.context.router.push({
@@ -111,6 +119,12 @@ let Card=React.createClass({
             service={props}
             />
         )
+        break;
+      case 'action':
+        popup=(
+          <ActionModal {...this.props.location.state.data}/>
+        )
+
         break;
     }
 
