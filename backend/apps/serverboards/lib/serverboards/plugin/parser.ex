@@ -1,4 +1,5 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
 
 defmodule Serverboards.Plugin.Parser do
 

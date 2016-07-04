@@ -1,4 +1,6 @@
-require Logger
+require Serverboards.Logger
+alias Serverboards.Logger
+
 require EventSourcing
 
 defmodule Serverboards.Service do
@@ -515,7 +517,7 @@ defmodule Serverboards.Service do
   def service_catalog(filter, _me) do
     Serverboards.Plugin.Registry.filter_component(type: "service")
       |> Enum.filter(fn service ->
-        Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")
+        #Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")
         Enum.all?(filter, &match_service_filter(service, &1))
       end)
       |> Enum.map(fn service ->

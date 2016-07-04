@@ -1,4 +1,3 @@
-require Logger
 defmodule Serverboards.Plugin.Model do
 	defmodule Data do
 		use Ecto.Schema
@@ -8,7 +7,7 @@ defmodule Serverboards.Plugin.Model do
 	    field :value, :map
       timestamps
     end
-    
+
     @required_fields ~w(plugin key value)
     @optional_fields ~w()
     def changeset(data, changes \\ :empty) do
