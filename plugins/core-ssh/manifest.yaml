@@ -1,0 +1,40 @@
+id: serverboards.core.ssh
+name: Core SSH support
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Performs core operations needed for SSH connectivity to hosts.
+
+  This may be used by other plugins to achieve their own goals.
+
+components:
+  - name: SSH Management
+    id: management
+    description: Screen on which to view known peers
+    type: settings/section
+    screen:
+      html: static/index.html
+      js: static/index.js
+
+  - name: Exec SSH Command
+    id: exec
+    type: action
+    command: daemon
+    description: Executes a remote command. It is recommended that the key exchange is configured prior, so no ssh passwords are stored on the database.
+    traits: ssh
+    call:
+      method: ssh_exec
+      params:
+        - name: url
+          type: url
+          label: Connection url
+          placeholder: eg. ssh://username:password@hostname:port/
+        - name: command
+          type: text
+          label: Command to execute
+          description: Non blocking command to execute
+  - name: SSH daemon
+    id: daemon
+    type: cmd
+    timeout: 10000
+    command: serverboards-ssh.py
