@@ -33,9 +33,16 @@ let Card=React.createClass({
     ;
   },
   setModal(modal, data){
+    let state
+    if (data){
+      state={ modal, service: this.props.service, data }
+    }
+    else{
+      state={ modal, service: this.props.service }
+    }
     this.context.router.push( {
       pathname: this.props.location.pathname,
-      state: { modal, service: this.props.service, data }
+      state: state
     } )
   },
   closeModal(){
