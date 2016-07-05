@@ -3,13 +3,14 @@ import GenericForm from '../genericform'
 import Loading from '../loading'
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
+import {MarkdownPreview} from 'react-marked-markdown';
 
 function Section(props){
   console.log(props.fields)
   return (
     <section key={props.id}>
       <h2 className="ui header">{props.name}</h2>
-      <div className="ui description">{props.description}</div>
+      <div className="ui description"><MarkdownPreview value={props.description}/></div>
       <GenericForm fields={props.fields} onSubmit={(ev) => ev.preventDefault() }/>
     </section>
   )
