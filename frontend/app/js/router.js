@@ -10,7 +10,7 @@ import Profile from 'app/containers/profile'
 import Settings from 'app/components/settings'
 import Serverboard from 'app/containers/serverboard'
 import ServerboardAdd from 'app/containers/serverboard/add'
-import ProcessesHistory from 'app/components/processes'
+import ProcessesHistory from 'app/containers/processes'
 import ProcessView from 'app/components/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
 

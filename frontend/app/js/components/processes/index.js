@@ -1,6 +1,8 @@
 import React from 'react'
 import Loading from '../loading'
 import rpc from 'app/rpc'
+import store from 'app/utils/store'
+import {push} from 'react-router-redux'
 
 const class_for_status={
   "": "",
@@ -10,29 +12,14 @@ const class_for_status={
 }
 
 let ProcessesHistory=React.createClass({
-  getInitialState(){
-    return {
-      processes: undefined,
-      loading: true
-    }
-  },
-  componentDidMount(){
-    rpc.call("action.history", []).then((processes) => {
-      this.setState({
-        processes: processes,
-        loading: false
-      })
-    })
-  },
   render(){
-    if (this.state.loading)
+    let processes=this.props.processes
+
+    if (processes == undefined)
       return (
         <Loading>Process history</Loading>
       )
 
-    let props=this.props
-    console.log("Processes history %o", props)
-    let processes=this.state.processes
     return (
       <div className="ui central white background">
         <div className="ui text container">
@@ -50,7 +37,9 @@ let ProcessesHistory=React.createClass({
             </thead>
             <tbody>
               {processes.map( (p) => (
-                <tr key={p.uuid} className={class_for_status[p.status]}>
+                <tr key={p.uuid} className={class_for_status[p.status]}
+                    onClick={() =>{ store.dispatch( push(`/process/${p.uuid}`) ) }}
+                    style={{cursor:"pointer"}}>
                   <td>{p.date.replace('T',' ')}</td>
                   <td>{p.elapsed || '--'} ms</td>
                   <td>{p.action}</td>
