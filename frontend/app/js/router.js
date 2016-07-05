@@ -11,7 +11,7 @@ import Settings from 'app/components/settings'
 import Serverboard from 'app/containers/serverboard'
 import ServerboardAdd from 'app/containers/serverboard/add'
 import ProcessesHistory from 'app/containers/processes'
-import ProcessView from 'app/components/processes/process'
+import ProcessView from 'app/containers/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
 
 const history = syncHistoryWithStore(hashHistory, store)

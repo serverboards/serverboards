@@ -3,30 +3,12 @@ import Loading from '../loading'
 import rpc from 'app/rpc'
 
 let ProcessView=React.createClass({
-  getInitialState(){
-    return {
-      loading: true,
-      process: undefined
-    }
-  },
-  componentDidMount(){
-    console.log(this)
-    rpc.call("action.history", [this.props.params.uuid] ).then( (process) => {
-      this.setState({
-        loading: false,
-        process: process
-      })
-    })
-  },
   render(){
-    if (this.state.loading)
+    let process = this.props.process
+    if (!process)
       return (
         <Loading>Process history</Loading>
       )
-
-    let process = this.state.process
-
-    console.log("Render %o", process)
 
     return (
       <div className="ui central white background">

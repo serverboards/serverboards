@@ -6,6 +6,10 @@ export default function(state=default_state, action){
     case "PROCESS_LIST":
       return { processes: action.list}
       break;
+    case "PROCESS_CURRENT":
+      console.log(action)
+      return { processes: [action.process] }
+      break;
     case "@RPC_EVENT/action.started":
       {
         let clean_action={
@@ -29,7 +33,7 @@ export default function(state=default_state, action){
           if (p.uuid==action.uuid){
             let clean_action = $.extend( {},
               p,
-              {status: action.status, elapsed: action.elapsed}
+              {status: action.status, elapsed: action.elapsed, result: action.result}
             )
             return clean_action
           }
