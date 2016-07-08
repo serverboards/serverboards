@@ -8,6 +8,7 @@
 #
 require Logger
 
+{:ok, password} = File.read '/etc/hostname'
 
 data = [
   groups: [
@@ -23,7 +24,7 @@ data = [
         groups: ["user", "admin"]
       }
     ],
-  password: [ {"admin@serverboards.io", "serverboards"} ],
+  password: [ {"admin@serverboards.io", String.trim(password)} ],
 ]
 
 

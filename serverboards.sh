@@ -15,6 +15,11 @@ setup(){
   echo "export SERVERBOARDS_DB=${SERVERBOARDS_DB}" > ${SERVERBOARDS_PATH}/setup-env.sh
 
   (cd backend; mix ecto.migrate -r Serverboards.Repo; mix run apps/serverboards/priv/repo/seed.exs)
+
+  echo
+  echo "Serverboards is setup at ${SERVERBOARDS_PATH}"
+  echo "Remember your username / password is admin@serverboards.io / $(hostname)"
+  echo
 }
 
 main(){
@@ -23,6 +28,9 @@ main(){
   fi
 
   . ${SERVERBOARDS_PATH}/setup-env.sh
+
+  # do database update
+  (cd backend; mix ecto.migrate -r Serverboards.Repo)
 
   cd $( dirname $0 )
 
