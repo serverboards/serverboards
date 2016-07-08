@@ -57,7 +57,7 @@ defmodule Serverboards.Mixfile do
     [
       {:mom, git: "git://github.com/serverboards/elixir-mom"},
       {:eventsourcing, in_umbrella: true},
-      {:ecto, "~> 1.0"},
+      {:ecto, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},
       {:comeonin, "~> 2.5"},
       {:timex, "~> 2.1.4"},
