@@ -6,6 +6,13 @@ defmodule Serverboards.NotificationTest do
 
   doctest Serverboards.Notifications
 
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
   test "List notifications" do
     cat = Serverboards.Notifications.catalog
     assert is_list(cat)

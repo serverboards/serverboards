@@ -11,6 +11,11 @@ defmodule Serverboards.AuthUserTest do
   import Ecto.Query
 
   setup_all do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+
     me = User.user_info("dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" })
     #Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
     :ok = User.user_add(%{

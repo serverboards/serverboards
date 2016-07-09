@@ -10,6 +10,13 @@ defmodule EventTest do
 
   doctest Event, import: true
 
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
   test "Simple deliver event to client" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
