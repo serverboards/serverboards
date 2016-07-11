@@ -1,5 +1,4 @@
-require Serverboards.Logger
-alias Serverboards.Logger
+require Logger
 
 defmodule Serverboards.Rules.RPC do
   def start_link(options \\ []) do

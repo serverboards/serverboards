@@ -1,5 +1,4 @@
-require Serverboards.Logger
-alias Serverboards.Logger
+require Logger
 
 defmodule Serverboards.Rules.Rule do
   alias Serverboards.Rules.Model
