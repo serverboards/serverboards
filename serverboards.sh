@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd $( dirname $0 )
+
 export MIX_ENV=prod
 # PAth where serverboards is installed. If not env set, use $HOME/serverboards
 export SERVERBOARDS_PATH=${SERVERBOARDS_PATH:-${HOME}/.serverboards/}
@@ -23,7 +25,7 @@ setup(){
 }
 
 main(){
-  if [ ! -e ${SERVERBOARDS_PATH} ]; then
+  if [ ! -e ${SERVERBOARDS_PATH}/setup-env.sh ]; then
     setup
   fi
 
@@ -31,8 +33,6 @@ main(){
 
   # do database update
   (cd backend; mix ecto.migrate -r Serverboards.Repo)
-
-  cd $( dirname $0 )
 
   case "$1" in
     start)

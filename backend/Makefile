@@ -1,11 +1,11 @@
 all:
 
-.PHONY: test test-setup test-do setup
+.PHONY: test test-setup test-do setup compile
 test: test-setup test-do
 
 setup:
-	yes | mix local.hex --force
-	yes | mix local.rebar --force
+	mix local.hex --force
+	mix local.rebar --force
 	mix deps.get
 
 test-setup: setup
@@ -16,3 +16,6 @@ test-setup: setup
 
 test-do:
 	MIX_ENV=test mix test
+
+compile: setup
+	MIX_ENV=prod mix compile

@@ -13,7 +13,7 @@ help:
 compile: compile-backend compile-frontend
 
 compile-backend:
-	(cd backend; mix compile)
+	(cd backend; make compile)
 
 compile-frontend:
 	(cd frontend; make compile)
