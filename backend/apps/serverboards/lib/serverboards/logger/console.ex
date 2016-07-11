@@ -1,4 +1,4 @@
-defmodule Serverboards.Logs.Console do
+defmodule Serverboards.Logger.Console do
   use GenEvent
 
   def colors do
@@ -12,6 +12,10 @@ defmodule Serverboards.Logs.Console do
 
   def ignore_applications do
     [ :ecto ]
+  end
+
+  def ignore_levels do
+    [  ]
   end
 
   def format(msg, metadata, colors) do
@@ -37,14 +41,14 @@ defmodule Serverboards.Logs.Console do
   end
 
   def init(_opts) do
-    {:ok, %{ colors: colors, ignore_applications: ignore_applications}}
+    {:ok, %{ colors: colors, ignore_applications: ignore_applications, ignore_levels: ignore_levels }}
   end
 
   def handle_event(:flush, state) do
     {:ok, state}
   end
   def handle_event({level, group_leader, {Logger, message, timestamp, metadata}}, state) do
-    if (not metadata[:application] in state.ignore_applications) or (level != :debug) do
+    if (not metadata[:application] in state.ignore_applications) or (level in state.ignore_levels) do
       metadata = metadata ++ [level: level, timestamp: timestamp]
       #IO.puts(inspect metadata)
       IO.puts(
@@ -55,6 +59,6 @@ defmodule Serverboards.Logs.Console do
     {:ok, state}
   end
   def handle_event({:configure, opts}, state) do
-    IO.puts("Logs.Console configure: #{inspect opts}")
+    IO.puts("Serverboards.Logger.Console configure: #{inspect opts}")
   end
 end

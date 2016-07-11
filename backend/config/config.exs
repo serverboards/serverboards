@@ -12,8 +12,8 @@ import_config "../apps/*/config/config.exs"
 # Configures Elixir's Logger
 config :logger, :backends,
   [
-    #{Serverboards.Logs, :serverboards_logs},
-    {Serverboards.Logs.Console, :serverboards_logs_console},
+    {Serverboards.Logger, :serverboards_logs},
+    {Serverboards.Logger.Console, :serverboards_logs_console},
     #:console,
   ]
 
@@ -29,6 +29,8 @@ config :serverboards, Serverboards.HTTP.Endpoint,
   render_errors: [accepts: ~w(html json)]
   #pubsub: [name: Backend.PubSub,
   #         adapter: Phoenix.PubSub.PG2]
+
+config :serverboards, ecto_repos: [Serverboards.Repo]
 
 dburl=case System.get_env("SERVERBOARDS_DB") do
   nil -> "ecto://serverboards:serverboards@localhost/serverboards"
