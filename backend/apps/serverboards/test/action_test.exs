@@ -66,7 +66,7 @@ defmodule Serverboards.ActionTest do
       ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
 
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid}])
-
+    :timer.sleep(1000)
 
     {:ok, history} = Test.Client.call(client, "action.history", [])
     Logger.info("History: #{inspect history}")

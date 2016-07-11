@@ -374,6 +374,10 @@ action.trigger("core.actions/ping", { ip: "192.168.1.1" })
 
 Lists all running processes with running info.
 
+## action.history()
+
+Returns all the action history: past and current
+
 # Notifications
 
 Notifications send messgaes via the user configured channels
