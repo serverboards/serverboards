@@ -27,12 +27,10 @@ ENV SERVERBOARDS_DB=ecto://serverboards:serverboards@localhost:5432/serverboards
 RUN service postgresql start && \
   cd /opt/serverboards && make setup-backend && \
   cd /opt/serverboards && make compile-backend && \
-  cd /opt/serverboards/backend && mix ecto.migrate -r Serverboards.Repo && \
   cd /opt/serverboards/backend && mix deps.get && \
   cd /opt/serverboards/backend && mix compile && \
   cd /opt/serverboards/backend/apps/mom && mix deps.get && \
-  cd /opt/serverboards/backend/apps/mom && mix compile && \
-  cd /opt/serverboards/backend && mix run apps/serverboards/priv/repo/seed.exs
+  cd /opt/serverboards/backend/apps/mom && mix compile
 
 # go !
 EXPOSE 8080

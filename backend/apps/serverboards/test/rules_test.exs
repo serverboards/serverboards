@@ -8,6 +8,13 @@ defmodule Serverboards.TriggersTest do
   alias Serverboards.Rules.Trigger
   alias Serverboards.Rules
 
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
   def rule(tomerge \\ %{}) do
     Map.merge(
       %Rules.Rule{

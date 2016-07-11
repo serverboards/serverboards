@@ -24,8 +24,7 @@ git-submodules:
 	git submodule update --recursive
 
 setup-backend:
-	(cd backend; mix local.hex --force)
-	(cd backend; mix deps.get --force)
+	(cd backend; make setup)
 
 setup-frontend:
 	(cd frontend; make setup)

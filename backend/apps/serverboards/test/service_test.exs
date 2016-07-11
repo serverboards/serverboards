@@ -22,6 +22,13 @@ defmodule ServerboardTest do
     {:ok, %{ agent: agent, system: system} }
   end
 
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
   def check_if_event_on_client(client, event, shortname) do
     Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}] )
   end

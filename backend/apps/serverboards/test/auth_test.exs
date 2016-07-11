@@ -9,6 +9,13 @@ defmodule Serverboards.AuthTest do
   doctest Serverboards.Auth, import: true
   doctest Serverboards.Auth.Reauth, import: true
 
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
   test "User auth" do
     {:ok, client} = Client.start_link
 		Task.async( fn -> Serverboards.Auth.authenticate(client) end)

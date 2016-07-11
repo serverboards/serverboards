@@ -7,6 +7,14 @@ defmodule Serverboards.ActionTest do
 
   doctest Serverboards.Action, import: true
 
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
+
   test "Execute basic trigger from client" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
     {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped"])

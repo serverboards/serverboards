@@ -1,12 +1,14 @@
 all:
 
-.PHONY: test test-setup test-do
+.PHONY: test test-setup test-do setup
 test: test-setup test-do
 
-test-setup:
-	mix local.hex --force
-	mix local.rebar --force
+setup:
+	yes | mix local.hex --force
+	yes | mix local.rebar --force
 	mix deps.get
+
+test-setup: setup
 	mix deps.compile
 	MIX_ENV=test mix compile
 	MIX_ENV=test mix ecto.migrate -r Serverboards.Repo
@@ -14,4 +16,3 @@ test-setup:
 
 test-do:
 	MIX_ENV=test mix test
-	
