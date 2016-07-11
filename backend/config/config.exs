@@ -10,10 +10,12 @@ use Mix.Config
 import_config "../apps/*/config/config.exs"
 
 # Configures Elixir's Logger
-config :logger, :console,
-  format: "$date $time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
+config :logger, :backends,
+  [
+    #{Serverboards.Logs, :serverboards_logs},
+    {Serverboards.Logs.Console, :serverboards_logs_console},
+    #:console,
+  ]
 
 config :serverboards,
   plugin_path: "../plugins/"
