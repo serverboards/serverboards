@@ -2,6 +2,7 @@ import React from 'react'
 import GenericForm from '../genericform'
 import Loading from '../loading'
 import { to_map } from 'app/utils'
+import {MarkdownPreview} from 'react-marked-markdown';
 
 let Channel=React.createClass({
   getInitialState(){
@@ -41,7 +42,7 @@ let Channel=React.createClass({
           <label>{this.state.is_active ? "Active" : "Disabled"}</label>
         </div>
         </h3>
-        <div className="ui meta">{props.channel.description}</div>
+        <div className="ui meta"><MarkdownPreview value={props.channel.description}/></div>
         <GenericForm
           fields={props.channel.fields}
           updateForm={(data) => this.handleUpdate(data)}

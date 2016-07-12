@@ -66,7 +66,7 @@ components:
   - id: settings.telegram.user
     type: notification
     name: Telegram notifications
-    description: A code will be sent to pair. Please connect to the [https://web.telegram.org/#/im?p=@serverboards_test_bot](@serverboards_test_bot) in telegram.
+    description: A code will be sent to pair. Please connect to the [@serverboards_test_bot](https://web.telegram.org/#/im?p=@serverboards_test_bot) in telegram.
     command: serverboards.core.notifications/daemon.telegram
     fields:
       - name: code
