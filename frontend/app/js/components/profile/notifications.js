@@ -83,7 +83,7 @@ const Notifications=React.createClass({
       )
     return (
       <div>
-        <h2 className="ui header">Communication Channels</h2>
+        <h2 className="ui header" style={{marginTop: 30}}>Communication Channels</h2>
         {props.channels.map( (c) => (
           <Channel
             key={c.channel} channel={c} config={state[c.channel]}
