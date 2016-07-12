@@ -69,3 +69,4 @@ rules.view -- View rules
 ## Other
 
 debug -- Debug when in debug mode
+logs.view -- View system logs. May contain sensitive information.

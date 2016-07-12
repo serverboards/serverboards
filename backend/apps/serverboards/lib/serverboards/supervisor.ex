@@ -27,6 +27,7 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
       worker(Serverboards.Rules.Trigger, [ [name: Serverboards.Rules.Trigger] ]),
       worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
+      worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
     ]
 
     opts = [strategy: :one_for_one]

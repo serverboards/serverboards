@@ -432,3 +432,29 @@ Returns a list of rules, in the rule format. Applies the given filter:
 ## rules.catalog(filter)
 
 Return the list of triggers that comply with thegiven filter
+
+# Logs
+
+## logs.history(filter)
+
+Returns the history of logs, first the latest, according to filter
+
+Filter options:
+ * start -- Max id to return, if not present last id
+ * count -- How many to return, 50 by default
+
+Each entry has:
+ * id
+ * message
+ * timestamp
+ * level
+ * meta
+
+id is always incrementing, and can be used for paginating: For first page do
+not set any filter, for following return the minimal id returned on last page,
+which should be the last id.
+
+It returns a dict with:
+
+  * total -- Total number of lines
+  * lines -- The returned lines in this batch

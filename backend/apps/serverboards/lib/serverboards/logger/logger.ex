@@ -1,8 +1,50 @@
 defmodule Serverboards.Logger do
+  @moduledoc ~S"""
+  Stores log messages into the database.
+
+  It has some care not to store database messages, as they can generate new
+  log events.
+
+  TODO:
+    * Use a queue in state and flush it at :flush. This should increase throughput
+    * First message always fails because database is not ready yet.
+  """
   use GenEvent
 
   alias Serverboards.Logger.Model
   alias Serverboards.Repo
+
+  @doc ~S"""
+  Returns a list of mesages, it can receive a filter
+
+  * start -- maximum id to show (not included). Used for paging
+  * count -- how many messages to show
+  """
+  def history(options \\ %{}) do
+    import Ecto.Query
+
+    # count total lines
+    q = from l in Model.Line,
+      select: count(l.id)
+    count = Repo.one( q )
+
+
+    # Get the lines from start to start+count
+    q =    from l in Model.Line,
+       order_by: [desc: l.id],
+          limit: ^Map.get(options, :count, 50),
+         select: %{ message: l.message, timestamp: l.timestamp, level: l.level, meta: l.meta, id: l.id}
+     q = case options[:start] do
+       nil -> q
+       id -> where(q, [l], l.id < ^id )
+     end
+    lines = Repo.all(q)
+
+    {:ok, %{ lines: lines, count: count }}
+  end
+
+
+  # implementation of Logger.log
 
   def ignore_applications do
     [ :ecto ]
@@ -13,7 +55,7 @@ defmodule Serverboards.Logger do
   end
 
   def handle_event(:flush, state) do
-    IO.puts("Logs Flush")
+    #IO.puts("Logs Flush")
 
     {:ok, state}
   end
@@ -25,10 +67,16 @@ defmodule Serverboards.Logger do
         timestamp: timestamp,
         meta: Map.new(metadata, fn {k,v} -> {k, inspect v} end)
         })
-      case Repo.insert( changelog ) do
-        {:ok, _} -> :ok
-        {:error, changeset} ->
-          IO.puts("Error storing log line: #{inspect changeset}")
+      try do
+        case Repo.insert( changelog ) do
+          {:ok, _} -> :ok
+          {:error, changeset} ->
+            IO.puts("Error storing log line: #{inspect changeset}")
+            :error
+        end
+      catch
+        :exit, reason ->
+          IO.puts("Error storing log line: #{inspect reason} (maybe not ready yet)")
           :error
       end
     end

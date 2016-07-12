@@ -50,7 +50,8 @@ defmodule Seeds do
     "debug",
     "settings.view", "settings.update",
     "action.trigger", "action.watch",
-    "rules.update", "rules.view"
+    "rules.update", "rules.view",
+    "logs.view"
     ]
   end
 

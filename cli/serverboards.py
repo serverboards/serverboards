@@ -80,6 +80,8 @@ def parse_command(line):
         elif ':' in a:
             k,v = a.split(':')
             return {k.strip():v.strip()}
+        elif a == '{}':
+            return {}
         # literal
         return a
     def list_or_dict(ld):
