@@ -15,7 +15,17 @@ defmodule Serverboards.Logger.RPC do
         {"start", v} -> {:start, v}
         {"count", v} -> {:count, v}
       end))
-      Logger.history(opts)
+      {:ok, history} = Logger.history(opts)
+
+      history = %{
+        count: history.count,
+        lines: Enum.map(history.lines, fn l -> %{
+            l |
+            timestamp: Ecto.DateTime.to_iso8601(l.timestamp)
+          } end)
+      }
+
+      {:ok, history}
     end, [required_perm: "logs.view"]
 
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->

@@ -13,6 +13,7 @@ import ServerboardAdd from 'app/containers/serverboard/add'
 import ProcessesHistory from 'app/containers/processes'
 import ProcessView from 'app/containers/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
+import Logs from 'app/containers/logs'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -37,9 +38,11 @@ var ServerboardsRouter = React.createClass({
             <Route path=":uuid" component={ProcessView}/>
             <Route path="" component={ProcessesHistory}/>
           </Route>
+          <Route path="/logs/" component={Logs}/>
           <Route path="/s/">
             <Route path=":plugin/:component" component={PluginScreen}/>
           </Route>
+
         </Router>
       )
     }

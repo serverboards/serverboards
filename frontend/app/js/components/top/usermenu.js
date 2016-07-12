@@ -12,6 +12,10 @@ function UserMenu(props){
           Settings
         <i className="ui icon right settings"></i>
       </a>
+      <a className="item" href="#/logs/">
+          Logs
+        <i className="ui icon right book"></i>
+      </a>
       <a href="#!" className="item" onClick={props.onLogout}>
         Logout
       </a>
