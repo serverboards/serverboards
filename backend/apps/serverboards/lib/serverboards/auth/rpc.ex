@@ -13,10 +13,16 @@ defmodule Serverboards.Auth.RPC do
     import RPC.MethodCaller
 
     ## My own user management
-    add_method mc, "auth.set_password", fn [password], context ->
+    add_method mc, "auth.set_password", fn [current, password], context ->
       user = RPC.Context.get(context, :user)
-      Logger.info("#{user.email} changes password.")
-      Serverboards.Auth.User.Password.set_password(user, password)
+      if (Serverboards.Auth.auth(%{"type" => "basic", "email" => user.email, "password" => current})) do
+        Logger.info("#{user.email} changes password.", user: user.email)
+
+        Serverboards.Auth.User.Password.password_set(user, password, user)
+      else
+        Logger.error("#{user.email} try to change password, no match previous.", user: user.email)
+        {:error, :invalid_password}
+      end
     end, [required_perm: "auth.modify_self", context: true]
 
     add_method mc, "auth.create_token", fn [], context ->

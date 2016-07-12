@@ -1,5 +1,4 @@
-require Serverboards.Logger
-alias Serverboards.Logger
+require Logger
 
 defmodule Serverboards.AuthTest do
   use ExUnit.Case, async: false
@@ -196,5 +195,23 @@ defmodule Serverboards.AuthTest do
     assert "token" in msg.available
     res = reauth r, msg.uuid, %{ "type" => "freepass", "data" => %{} }
     assert res == :reauth_success
+  end
+
+  test "Change user password using RPC" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    user = Client.get(client, :user, nil)
+    assert false == Serverboards.Auth.User.Password.password_check(user, "fdsafdsa", user)
+    assert true == Serverboards.Auth.User.Password.password_check(user, "asdfasdf", user)
+
+    assert {:ok, :ok} == Client.call(client, "auth.set_password", ["asdfasdf", "fdsafdsa"])
+    assert false == Serverboards.Auth.User.Password.password_check(user, "asdfasdf", user)
+    assert true == Serverboards.Auth.User.Password.password_check(user, "fdsafdsa", user)
+
+    assert {:ok, :ok} == Client.call(client, "auth.set_password", ["fdsafdsa", "asdfasdf"])
+    assert false == Serverboards.Auth.User.Password.password_check(user, "fdsafdsa", user)
+    assert true == Serverboards.Auth.User.Password.password_check(user, "asdfasdf", user)
+
+    assert {:error, "invalid_password"} == Client.call(client, "auth.set_password", ["fdsafdsa", "asdfasdf"])
   end
 end
