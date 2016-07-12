@@ -43,6 +43,11 @@ function LogLine(props){
 
 function Details(props){
   const line = props.line
+
+  const filename=line.meta.file
+  const shortpath=filename.slice(filename.indexOf('serverboards/backend')+13,-1)
+  const related=`https://github.com/serverboards/serverboards/tree/master/${shortpath}#L${line.meta.line}`
+
   return (
     <Modal>
       <h2 className="ui header">Log line details</h2>
@@ -52,14 +57,25 @@ function Details(props){
 
 
       <h3 className="ui header uppercase">Full Message</h3>
-      <pre>
+      <pre className="ui code">
         {reformatMessage(line.message)}
       </pre>
 
       <h3 className="ui header uppercase">Metadata</h3>
-      <pre>
-        {JSON.stringify(line.meta,undefined, 2)}
-      </pre>
+      <div>
+        {Object.keys(line.meta).map( (k) => (
+          <div key={k}>
+            <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>{k}</h4>
+            <div style={{paddingLeft:10}}>{line.meta[k]}</div>
+          </div>
+        ))}
+
+      </div>
+      <h3 className="ui header uppercase">Related</h3>
+      <div>
+        <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
+        <a href={related} target="_blank">{related}</a>
+      </div>
     </Modal>
   )
 }
