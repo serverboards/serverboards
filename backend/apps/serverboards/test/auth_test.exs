@@ -1,5 +1,4 @@
-require Serverboards.Logger
-alias Serverboards.Logger
+require Logger
 
 defmodule Serverboards.AuthTest do
   use ExUnit.Case, async: false

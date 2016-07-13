@@ -1,4 +1,4 @@
-import Logger
+require Logger
 
 defmodule Serverboards.PluginTest do
   use ExUnit.Case
