@@ -149,7 +149,7 @@ defmodule Serverboards.AuthUserTest do
     assert "auth.modify_self" in perms
   end
 
-  test "Password reset" do
+  test "Password reset", %{ user: user } do
     alias Test.Client
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
@@ -162,5 +162,10 @@ defmodule Serverboards.AuthUserTest do
     {:ok, :ok} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", token, "qwertyqwerty"])
     # token not valid anymore
     {:error, _} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", token, "qwertyqwerty"])
+
+    assert Serverboads.Auth.User.Password.password_check(user, "asdfasdf") == false
+    assert Serverboads.Auth.User.Password.password_check(user, "qwertyqwerty") == true
+
+    assert Serverboards.Auth.User.Password.password_set(user, "asdfasdf", user) == :ok
   end
 end

@@ -135,7 +135,7 @@ defmodule Serverboards.Auth do
 					user ->
 						if "auth.reset_password" in user.perms and user.email==email do
 							:ok = Serverboards.Auth.User.Password.password_set(user, new_password, user)
-							:ok = Serverboards.Auth.User.Token.invaldate(token)
+							:ok = Serverboards.Auth.User.Token.invalidate(token)
 							{:ok, :ok}
 						else
 							{:error, :not_allowed}
