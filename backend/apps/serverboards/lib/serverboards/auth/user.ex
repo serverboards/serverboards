@@ -32,9 +32,11 @@ defmodule Serverboards.Auth.User do
   @doc ~S"""
   Creates a new user with the given parameters
   """
-  def user_add(user, me) do
-    if Enum.member? me.perms, "auth.create_user" do
-      EventSourcing.dispatch :auth, :add_user, user, me.email
+  def user_add(user, %{ perms: perms, email: email } = me ) do
+    Logger.debug("Add user by #{inspect me}")
+
+    if Enum.member? perms, "auth.create_user" do
+      EventSourcing.dispatch :auth, :add_user, user, email
       :ok
     else
       {:error, :not_allowed}
@@ -61,7 +63,7 @@ defmodule Serverboards.Auth.User do
   def user_info(email, me) when is_binary(email) do
     user_info(email, [], me)
   end
-  def user_info(email, options, me) when is_binary(email) do
+  def user_info(email, options, me) when is_binary(email) and is_map(me) do
     if (me.email == email) or (Enum.member? me.perms, "auth.info_any_user") do
       user=case Repo.get_by(Model.User, email: email) do
         {:error, _} ->
@@ -72,6 +74,7 @@ defmodule Serverboards.Auth.User do
 
       cond do
         user == nil ->
+          Logger.debug("No such user #{email}")
           false
         Keyword.get(options, :require_active, true) and not user.is_active ->
           Logger.warn("Try to get non available user by email: #{email}")
@@ -80,6 +83,7 @@ defmodule Serverboards.Auth.User do
           user_info(user)
       end
     else
+      Logger.error("User #{me.email} can not get info about user #{email}")
       {:error, :not_allowed}
     end
   end

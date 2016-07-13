@@ -87,7 +87,13 @@ defmodule Serverboards.Notifications do
       |> Enum.map( &({elem(&1,0), elem(&1,1).config}) )
     )
 
-    Logger.debug("Config map #{inspect cm}")
+    cm = if cm == %{} do
+      Logger.debug("Sending email as no notification channels configured")
+      %{ "serverboards.core.notifications/email" => %{} }
+    else
+      cm
+    end
+    Logger.debug("Notifications config map #{inspect cm}")
 
     user = Auth.User.user_info(email, %{ email: email})
     for c <- catalog do
@@ -155,6 +161,7 @@ defmodule Serverboards.Notifications do
   Do the real notification on a channel given some configuration.
   """
   def notify_real(user, channel, config, subject, body, extra) do
+    Logger.info("Sending notification to #{user.email} via #{channel.channel}")
     command_id = channel.command
     params = %{
       user: user,

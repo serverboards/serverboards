@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.AuthUserTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  #@moduletag :capture_log
 
   doctest Serverboards.Auth.Permission
 
@@ -147,5 +147,20 @@ defmodule Serverboards.AuthUserTest do
 
     perms = (User.user_info (user)).perms
     assert "auth.modify_self" in perms
+  end
+
+  test "Password reset" do
+    alias Test.Client
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io"])
+    # must have sent email, get manually last token
+    token = Repo.one( from t in Serverboards.Auth.User.Model.Token, where: t.perms == ^["auth.reset_password"] )
+    # random token, invalid
+    {:error, _} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", "decb4e90-7632-428d-a594-6274ecfeae1f", "qwertyqwerty"])
+    # change password
+    {:ok, :ok} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", token, "qwertyqwerty"])
+    # token not valid anymore
+    {:error, _} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", token, "qwertyqwerty"])
   end
 end

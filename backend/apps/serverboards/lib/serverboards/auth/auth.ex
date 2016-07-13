@@ -109,6 +109,40 @@ defmodule Serverboards.Auth do
 					false
 				end
 		end)
+		RPC.Client.add_method(client, "auth.reset_password", fn
+			[email] -> # Request token
+				Logger.debug("Reset password for #{email}")
+				# Check user exists, and is active
+				case Serverboards.Auth.User.user_info(email, [require_active: true], %{email: email}) do
+					false ->
+						Logger.error("Denied password reset link requested for #{email}")
+						{:error, :not_allowed}
+					me ->
+						Logger.info("Password reset link requested for #{email}")
+						token = Serverboards.Auth.User.Token.create(me, ["auth.reset_password"])
+						link="http://localhost:3000/##{token}"
+						Serverboards.Notifications.notify(
+							email,
+							"Password reset link",
+							"Please click on the following link to reset your password.\n\n#{link}",
+							[], me
+							)
+						{:ok, :ok}
+				end
+			[email, token, new_password] -> # Reset password
+				case Serverboards.Auth.User.Token.auth(token) do
+					false -> {:error, :not_allowed}
+					user ->
+						if "auth.reset_password" in user.perms and user.email==email do
+							:ok = Serverboards.Auth.User.Password.password_set(user, new_password, user)
+							:ok = Serverboards.Auth.User.Token.invaldate(token)
+							{:ok, :ok}
+						else
+							{:error, :not_allowed}
+						end
+				end
+				{:ok, :ok}
+		end)
 
 		RPC.Client.event( client, "auth.required", list_auth )
 		:ok

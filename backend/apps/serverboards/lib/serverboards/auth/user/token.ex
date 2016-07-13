@@ -23,6 +23,10 @@ defmodule Serverboards.Auth.User.Token do
     token
   end
 
+	def invalidate(token) do
+		Repo.update_all( from t in token, where: t.token == ^token, update: [set: [time_limit: ^Timex.to_erlang_datetime(Timex.DateTime.now)]])
+	end
+
 	def auth(token) do
 		token = Repo.one(
 			from u in User,

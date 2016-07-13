@@ -18,6 +18,10 @@ auth.info_any_user -- Can get info on any user
 auth.modify_groups -- Creates/update/remove groups
 auth.manage_groups -- Adds/removes users/permissions from groups
 
+Temporary permissions:
+
+auth.reset_password -- Given at the reset password action via email.
+
 ## Plugins
 
 plugin -- Can start, stop and make calls into plugins
