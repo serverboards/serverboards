@@ -1,6 +1,10 @@
 import React, {PropTypes} from 'react';
+import ResetPassword from './reset_password'
 
 var LoginView = React.createClass({
+  getInitialState(){
+    return { modal: undefined }
+  },
   handleSubmit(ev){
     let $form = $(this.refs.el)
 
@@ -25,7 +29,15 @@ var LoginView = React.createClass({
 
     $(self.refs.el).find('[type=email]').focus()
   },
+  resetPassword(){
+    this.setState({modal: 'reset_password'})
+  },
   render(){
+    if (this.state.modal=='reset_password')
+      return(
+        <ResetPassword closeReset={() => this.setState({modal:undefined})}/>
+      )
+
     return (
       <form ref="el" className="ui form" method="POST">
         <div className="ui small modal active" id="login">
@@ -50,11 +62,12 @@ var LoginView = React.createClass({
 
           <div className="actions">
             <span className="ui checkbox action left" style={{float: "left"}}>
-                <input type="checkbox" name="keep_logged_in"/>
+                <input type="checkbox" name="keep_logged_in" disabled/>
                 <label>
                 Keep logged login
               </label>
             </span>
+            <a href="#" onClick={this.resetPassword}>Reset password</a>
             <button type="submit" className="ui positive right labeled icon button">
               Login
               <i className="caret right icon"></i>
