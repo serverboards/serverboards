@@ -21,3 +21,8 @@ config :eventsourcing, Eventsourcing.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: dburl,
   pool: Ecto.Adapters.SQL.Sandbox
+
+  config :logger, :backends,
+    [
+      :console,
+    ]
