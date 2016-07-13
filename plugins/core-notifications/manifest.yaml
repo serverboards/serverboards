@@ -35,7 +35,7 @@ components:
         name: password_pw
         description: Password if required to use the SMTP Server
         type: password
-  - id: settings.email.user
+  - id: email
     type: notification
     name: Email notifications
     fields:
@@ -63,7 +63,7 @@ components:
         label: API Key
         description:: API token as given by the BotFather
 
-  - id: settings.telegram.user
+  - id: telegram
     type: notification
     name: Telegram notifications
     description: A code will be sent to pair. Please connect to the [@serverboards_test_bot](https://web.telegram.org/#/im?p=@serverboards_test_bot) in telegram.
