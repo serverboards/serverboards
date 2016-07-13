@@ -5,9 +5,10 @@ defmodule Serverboards.Repo.Migrations.UserToken do
     import Serverboards.Auth
 
     create table(:auth_user_token) do
-      add :token, :string
-      add :time_limit, Ecto.DateTime.type
       add :user_id, :id
+      add :token, :string
+      add :perms, {:array, :string}
+      add :time_limit, Ecto.DateTime.type
 
       timestamps
     end

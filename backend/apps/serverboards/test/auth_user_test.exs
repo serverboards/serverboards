@@ -107,7 +107,18 @@ defmodule Serverboards.AuthUserTest do
     assert User.Token.auth(token) == false
 
   end
-
+  test "Authenticate with token, custom perms", %{ user: user } do
+    token = case User.Token.create(user, ["custom_perm"]) do
+      {:error, _} -> flunk "Error creating token!"
+      t           -> t
+    end
+    userb = User.Token.auth(token)
+    Logger.debug("Got user is #{inspect userb}")
+    assert userb != false
+    assert userb.first_name != ""
+    assert userb.last_name != ""
+    assert userb.perms == ["custom_perm"]
+  end
 
   test "Groups and permissions", %{ user: user, userb: userb, admin: admin } do
     groups = Group.group_list user
