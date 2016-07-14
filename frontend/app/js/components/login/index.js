@@ -1,11 +1,13 @@
 import React, {PropTypes} from 'react';
 import ResetPassword from './reset_password'
+import SetPassword from './set_password'
 
 var LoginView = React.createClass({
   getInitialState(){
-    return { modal: undefined }
+    return { modal: undefined, email: undefined }
   },
   handleSubmit(ev){
+    ev && ev.preventDefault()
     let $form = $(this.refs.el)
 
     if ($form.form('validate form')){
@@ -14,7 +16,6 @@ var LoginView = React.createClass({
         Object.assign({type: 'basic'}, fields)
       )
     }
-    ev.preventDefault()
   },
   componentDidMount( ){
     self=this
@@ -29,13 +30,21 @@ var LoginView = React.createClass({
 
     $(self.refs.el).find('[type=email]').focus()
   },
-  resetPassword(){
-    this.setState({modal: 'reset_password'})
+  resetPassword(email){
+    this.setState({modal: 'reset_password', email})
+  },
+  setPassword(email){
+    console.log("Set password %o", email)
+    this.setState({modal: 'set_password', email})
   },
   render(){
     if (this.state.modal=='reset_password')
       return(
-        <ResetPassword closeReset={() => this.setState({modal:undefined})}/>
+        <ResetPassword closeReset={() => this.setState({modal:undefined})} setPassword={this.setPassword} email={this.state.email}/>
+      )
+    if (this.state.modal=='set_password')
+      return(
+        <SetPassword closeReset={() => this.setState({modal:undefined})}  email={this.state.email}/>
       )
 
     return (
@@ -49,6 +58,7 @@ var LoginView = React.createClass({
             <div className="field">
               <label>Email</label>
               <input type="email" name="email" placeholder="user@company.com"
+                onChange={(ev) => {console.log(ev.target); this.setState({email: ev.target.value})}}
                 />
             </div>
 
@@ -67,8 +77,8 @@ var LoginView = React.createClass({
                 Keep logged login
               </label>
             </span>
-            <a href="#" onClick={this.resetPassword}>Reset password</a>
-            <button type="submit" className="ui positive right labeled icon button">
+            <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>Reset password</a>
+            <button type="button" className="ui positive right labeled icon button" onClick={this.handleSubmit}>
               Login
               <i className="caret right icon"></i>
             </button>

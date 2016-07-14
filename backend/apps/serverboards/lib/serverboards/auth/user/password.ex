@@ -42,7 +42,7 @@ defmodule Serverboards.Auth.User.Password do
 	def password_set(user, password, me) do
 		allow_change = (user.id == me.id)
 
-		if allow_change do
+		ret = if allow_change do
 			case Repo.get_by(Model.Password, user_id: user.id) do
 				nil ->
 					cs = Model.Password.changeset(%Model.Password{}, %{
@@ -70,6 +70,20 @@ defmodule Serverboards.Auth.User.Password do
 			end
 		else
 			{:error, :not_allowed}
+		end
+
+		case ret do
+			{:error, _} -> ret
+			:ok ->
+				Serverboards.Notifications.notify(user.email,
+					"Password changed",
+					~S"""
+					 You password at Serverboards has been changed.
+
+					 If you did not request this change contact your adminitrator
+					 inmediatly as your account has beed compromised.
+					 """, [], me)
+					 :ok
 		end
 	end
 
