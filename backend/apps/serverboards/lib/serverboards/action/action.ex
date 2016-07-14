@@ -205,7 +205,7 @@ defmodule Serverboards.Action do
           uuid: h.uuid,
           date: Ecto.DateTime.to_iso8601(h.inserted_at),
           elapsed: h.elapsed,
-          action: action.name,
+          action: if action do action.name else "Unknown Action" end,
           user: user_email,
           status: h.status,
           type: h.type
