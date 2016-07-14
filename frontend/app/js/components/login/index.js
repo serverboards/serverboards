@@ -17,6 +17,9 @@ var LoginView = React.createClass({
       )
     }
   },
+  contextTypes: {
+    router: React.PropTypes.object
+  },
   componentDidMount( ){
     self=this
 
@@ -29,6 +32,12 @@ var LoginView = React.createClass({
     }).on('submit', self.handleSubmit)
 
     $(self.refs.el).find('[type=email]').focus()
+
+    const token_match=window.location.hash.match(/pr=([-0-9a-fA-F]*)/)
+    if (token_match){
+      window.location.hash=''
+      this.setState({modal: 'set_password', token: token_match[1]})
+    }
   },
   resetPassword(email){
     this.setState({modal: 'reset_password', email})
@@ -44,7 +53,7 @@ var LoginView = React.createClass({
       )
     if (this.state.modal=='set_password')
       return(
-        <SetPassword closeReset={() => this.setState({modal:undefined})}  email={this.state.email}/>
+        <SetPassword closeReset={() => this.setState({modal:undefined})}  email={this.state.email} token={this.state.token}/>
       )
 
     return (

@@ -120,11 +120,11 @@ defmodule Serverboards.Auth do
 					me ->
 						Logger.info("Password reset link requested for #{email}")
 						token = Serverboards.Auth.User.Token.create(me, ["auth.reset_password"])
-						link="http://localhost:3000/##{token}"
+						link="http://localhost:3000/#?pr=#{token}"
 						Serverboards.Notifications.notify(
 							email,
 							"Password reset link",
-							"Please click on the following link to reset your password.\n\n#{link}",
+							"Please click on the following link to reset your password.\n\n#{link}\n\nThis link is valid for 24 hours.",
 							[], me
 							)
 						{:ok, :ok}

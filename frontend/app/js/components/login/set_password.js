@@ -40,7 +40,7 @@ const SetPassword=React.createClass({
           <div className="content">
             <div className="field">
               <label>Reset token</label>
-              <input type="text" name="token" placeholder="As received on the email"
+              <input type="text" name="token" defaultValue={props.token} placeholder="As received on the email"
                 />
             </div>
             <div className="field">
