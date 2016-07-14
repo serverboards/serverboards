@@ -1,27 +1,41 @@
 require Logger
 
 defmodule Serverboards.Plugin.Registry do
-
   def start_link(options \\ []) do
-    {:ok, pid} = Agent.start_link(fn ->
-      paths=Application.fetch_env! :serverboards, :plugin_paths
-      plugins = Enum.flat_map paths, fn path ->
-        path = Path.expand path
-        case Serverboards.Plugin.Parser.read_dir(path) do
-          {:ok, plugins} -> plugins
-          {:error, err} ->
-            Logger.error("Error loading plugin directory #{path}: #{inspect err}")
-            []
-        end
-      end
-      #Logger.debug("Got plugins #{inspect plugins}")
-      plugins
-    end, options)
+    {:ok, pid} = Agent.start_link(&load_plugins/0, options)
 
+    Serverboards.Plugin.Monitor.start
     plugins = Agent.get pid, &(&1)
     Logger.info("Starting plugin registry #{inspect pid}, got #{Enum.count plugins}")
 
     {:ok, pid}
+  end
+
+  @doc ~S"""
+  Load all plugin description from manifests.
+  """
+  def load_plugins() do
+    paths=Application.fetch_env! :serverboards, :plugin_paths
+    plugins = Enum.flat_map paths, fn path ->
+      path = Path.expand path
+      case Serverboards.Plugin.Parser.read_dir(path) do
+        {:ok, plugins} -> plugins
+        {:error, err} ->
+          Logger.error("Error loading plugin directory #{path}: #{inspect err}")
+          []
+      end
+    end
+    #Logger.debug("Got plugins #{inspect plugins}")
+    plugins
+  end
+
+  @doc ~S"""
+  Reload all plugin data. Normally called from the inotify watcher
+  """
+  def reload_plugins(pid) do
+    Agent.update(pid, fn _ -> load_plugins end)
+    plugins = Agent.get pid, &(&1)
+    Logger.info("Reloaded plugin registry #{inspect pid}, got #{Enum.count plugins}")
   end
 
   @doc ~S"""
