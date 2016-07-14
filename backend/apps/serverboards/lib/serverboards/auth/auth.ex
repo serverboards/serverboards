@@ -135,13 +135,13 @@ defmodule Serverboards.Auth do
 					user ->
 						if "auth.reset_password" in user.perms and user.email==email do
 							:ok = Serverboards.Auth.User.Password.password_set(user, new_password, user)
-							:ok = Serverboards.Auth.User.Token.invalidate(token)
+							{1, _} = Serverboards.Auth.User.Token.invalidate(token)
+							Logger.info("Password reset for #{user.email}")
 							{:ok, :ok}
 						else
 							{:error, :not_allowed}
 						end
 				end
-				{:ok, :ok}
 		end)
 
 		RPC.Client.event( client, "auth.required", list_auth )

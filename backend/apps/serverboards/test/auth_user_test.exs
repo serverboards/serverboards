@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.AuthUserTest do
   use ExUnit.Case
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   doctest Serverboards.Auth.Permission
 
@@ -149,22 +149,48 @@ defmodule Serverboards.AuthUserTest do
     assert "auth.modify_self" in perms
   end
 
-  test "Password reset", %{ user: user } do
+  test "Password reset", %{ userb: user } do
     alias Test.Client
-    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+    import Ecto.Query
+    alias Serverboards.Auth.User.Model
 
-    {:ok, :ok} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io"])
+    {:ok, client} = Client.start_link as: "dmoreno+b@serverboards.io"
+
+    assert Serverboards.Auth.User.Password.password_set(user, "asdfasdf", user) == :ok
+    assert Serverboards.Auth.User.Password.password_check(user, "asdfasdf", user) == true
+    Logger.info("User id is #{user.id}")
+    Logger.info Serverboards.Utils.table_layout(Repo.all(from p in Model.Password))
+    Logger.info Serverboards.Utils.table_layout(Repo.all(from p in Serverboards.Auth.Model.User))
+
+    {:ok, :ok} = Client.call(client,"auth.reset_password", ["dmoreno+b@serverboards.io"])
     # must have sent email, get manually last token
-    token = Repo.one( from t in Serverboards.Auth.User.Model.Token, where: t.perms == ^["auth.reset_password"] )
+    token = Repo.one(
+      from t in Serverboards.Auth.User.Model.Token,
+      where: t.perms == ^["auth.reset_password"]
+      )
+    Logger.info("Token: #{inspect token}")
+    token=token.token
     # random token, invalid
-    {:error, _} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", "decb4e90-7632-428d-a594-6274ecfeae1f", "qwertyqwerty"])
+    assert {:error, "not_allowed"} == Client.call(
+      client,"auth.reset_password", ["dmoreno+b@serverboards.io",
+      "decb4e90-7632-428d-a594-6274ecfeae1f", "qwertyqwerty"]
+      )
     # change password
-    {:ok, :ok} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", token, "qwertyqwerty"])
-    # token not valid anymore
-    {:error, _} = Client.call(client,"auth.reset_password", ["dmoreno@serverboards.io", token, "qwertyqwerty"])
 
-    assert Serverboads.Auth.User.Password.password_check(user, "asdfasdf") == false
-    assert Serverboads.Auth.User.Password.password_check(user, "qwertyqwerty") == true
+    Logger.info Serverboards.Utils.table_layout(Repo.all(from p in Model.Password))
+
+    assert {:ok, :ok} == Client.call(
+      client,"auth.reset_password", ["dmoreno+b@serverboards.io",
+      token, "qwertyqwerty"])
+    # token not valid anymore
+    Logger.info Serverboards.Utils.table_layout(Repo.all(from p in Model.Password))
+
+    assert {:error, "not_allowed"} == Client.call(client,"auth.reset_password",
+      ["dmoreno+b@serverboards.io", token, "qwertyqwerty"])
+
+    assert Serverboards.Auth.User.Password.password_check(user, "af", user) == false
+    assert Serverboards.Auth.User.Password.password_check(user, "asdfasdf", user) == false
+    assert Serverboards.Auth.User.Password.password_check(user, "qwertyqwerty", user) == true
 
     assert Serverboards.Auth.User.Password.password_set(user, "asdfasdf", user) == :ok
   end

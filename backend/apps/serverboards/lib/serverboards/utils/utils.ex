@@ -54,4 +54,46 @@ defmodule Serverboards.Utils do
       end)
       |> Map.new
   end
+
+  @doc ~S"""
+  Returns a string with table of the list of dicts (SQL style)
+  """
+  def table_layout([]) do
+    ""
+  end
+  def table_layout(data) do
+    import String
+    import Map
+    import Enum
+    headers = (hd data)
+      |> keys
+      |> filter(&(not starts_with?(inspect(&1), ":__")))
+    sheaders = headers
+      |> map(&inspect/1)
+    length=div(120, Enum.count(sheaders))
+    lengths = map(headers, fn _ -> length end)
+
+    header = table_layout_row(sheaders, lengths)
+
+    rows = for row <- data do
+      headers
+        |> map(&(Map.get(row,&1)))
+        |> map(&inspect/1)
+        |> table_layout_row(lengths)
+    end
+    "\n" <> header <> "\n" <> join(rows, "\n")
+  end
+
+  defp table_layout_row(data, lengths) do
+    import Enum
+    import String
+    join(map(zip(lengths,data), fn {l, d} ->
+      if String.length(d) < l do
+        pad_trailing(d, l)
+      else
+        String.slice(d, 0, l)
+      end
+    end), " | ")
+  end
+
 end
