@@ -16,7 +16,7 @@ components:
       html: static/index.html
       js: static/index.js
 
-  - name: Exec SSH Command
+  - name: Execute SSH Command
     id: exec
     type: action
     command: daemon

@@ -36,20 +36,6 @@ components:
         text: text
     traits: url
 
-  - name: Execute SSH command
-    id: ssh.command
-    type: action
-    command: serverboards.code.actions/cmd
-    call:
-      method: ssh_command
-      params:
-        - name: command
-          label: Command to execute
-          placeholder: eg. uname -a
-          tye: text
-      returns: text
-    traits: ssh
-
   - name: Core actions.
     type: cmd
     id: cmd
