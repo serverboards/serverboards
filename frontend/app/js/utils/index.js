@@ -1,14 +1,22 @@
 /// Convert a list of key,value into an object
-function to_map(l){
+export function to_map(l){
   let d={}
   for(let kv of l)
     d[kv[0]]=kv[1]
   return d
 }
+/// Convert an object to a list of [k,v]
+export function to_list(d){
+  let l=[]
+  for (let k in d){
+    l.push([k, d[k]])
+  }
+  return l
+}
 
 /// Drops some keys from a map, and returns a copy without these keys
 /// Its optimized for a small ammount of keys O(N²)
-function map_drop(map, keys){
+export function map_drop(map, keys){
   if (keys.length==0)
     return map
 
@@ -30,7 +38,7 @@ function map_drop(map, keys){
 
 const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
 /// Returns a random nice color for the logo icon
-function random_color(str){
+export function random_color(str){
   // From http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
   // http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
   function hash(str) {
@@ -46,5 +54,3 @@ function random_color(str){
 
   return color_set[hash(str)%color_set.length]
 }
-
-export {to_map, map_drop, random_color}

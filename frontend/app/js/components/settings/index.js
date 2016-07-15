@@ -52,7 +52,7 @@ function Settings(props){
     <div className="ui central with menu">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
       <div className="ui central white background">
-        <Section service={props.service}/>
+        <Section service={props.service} location={props.location}/>
       </div>
     </div>
   )

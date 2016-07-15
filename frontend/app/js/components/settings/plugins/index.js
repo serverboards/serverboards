@@ -3,8 +3,9 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {MarkdownPreview} from 'react-marked-markdown';
 import ImageIcon from 'app/components/imageicon'
+import PluginDetails from './details'
 
-const icon = require("../../../../imgs/rules.svg")
+const icon = require("../../../../imgs/services.svg")
 require('sass/cards.sass')
 
 function PluginCard(props){
@@ -34,7 +35,9 @@ function PluginCard(props){
       </div>
       <div className="extra content" style={{padding:0}}>
         <div className="ui inverted yellow menu bottom attached">
-          <a className="ui right item">View details <i className="ui angle right icon"/></a>
+          <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenDetails()}}>
+            View details <i className="ui angle right icon"/>
+          </a>
         </div>
       </div>
     </div>
@@ -57,8 +60,42 @@ const Plugins=React.createClass({
       Flash.error(`Could not load plugin list.\n ${e}`)
     })
   },
+  setModal(modal, data){
+    let state
+    if (data){
+      state={ modal, service: this.props.service, data }
+    }
+    else{
+      state={ modal, service: this.props.service }
+    }
+    this.context.router.push( {
+      pathname: this.props.location.pathname,
+      state: state
+    } )
+  },
+  closeModal(){
+    this.setModal(false)
+  },
+  contextTypes: {
+    router: React.PropTypes.object
+  },
+
   render(){
+    console.log(this)
+    console.log(this.props)
     const plugins=this.state.plugins
+    let popup=[]
+    let modal = (
+      this.props.location.state &&
+      this.props.location.state.modal
+    )
+    switch(modal){
+      case "details":
+      popup=(
+        <PluginDetails {...this.props.location.state.data}/>
+      )
+      break;
+    }
 
     return (
       <div className="ui container">
@@ -66,9 +103,10 @@ const Plugins=React.createClass({
 
         <div className="ui cards">
           {plugins.map((p) => (
-            <PluginCard plugin={p}/>
+            <PluginCard plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
           ))}
         </div>
+        {popup}
       </div>
     )
   }
