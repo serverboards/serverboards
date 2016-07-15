@@ -7,7 +7,8 @@ defmodule Serverboards.Plugin.Component do
     type: nil,
     traits: [],
     extra: %{},
-    plugin: nil # only filled when out of plugin struct.
+    plugin: nil, # only filled when out of plugin struct.
+    description: nil
   ]
   import Serverboards.Plugin
   alias Serverboards.IO.Cmd
