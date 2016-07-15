@@ -53,8 +53,13 @@ defmodule Serverboards.IO.HTTP do
   def log_request(req, headers, status) do
     {method, _} = :cowboy_req.method req
     {path, _} = :cowboy_req.path req
+    #{headers, _} = :cowboy_req.headers req
     content_length = fetch_header headers, "content-length", "-"
-    Logger.info("#{method} #{path} #{inspect status} #{content_length}")
+    if status in [200,101,302] do
+      Logger.info("#{method} #{path} #{inspect status} #{content_length}", method: method, path: path, status: status, content_length: content_length)
+    else
+      Logger.error("#{method} #{path} #{inspect status} #{content_length}", method: method, path: path, status: status, content_length: content_length)
+    end
   end
 
   defp fetch_header([], _, d), do: d

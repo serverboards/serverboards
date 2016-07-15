@@ -41,6 +41,17 @@ function LogLine(props){
   )
 }
 
+function pretty_print(el){
+  if (typeof(el) == "object"){
+    return (
+      <pre className="ui code">
+        {JSON.stringify(el, undefined, 2)}
+      </pre>
+    )
+  }
+  return el
+}
+
 function Details(props){
   const line = props.line
 
@@ -66,7 +77,7 @@ function Details(props){
         {Object.keys(line.meta).map( (k) => (
           <div key={k}>
             <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>{k}</h4>
-            <div style={{paddingLeft:10}}>{line.meta[k]}</div>
+            <div style={{paddingLeft:10}}>{pretty_print(line.meta[k])}</div>
           </div>
         ))}
 

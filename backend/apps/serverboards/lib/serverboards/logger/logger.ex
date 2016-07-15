@@ -54,6 +54,17 @@ defmodule Serverboards.Logger do
     {:ok, %{ ignore_applications: ignore_applications }}
   end
 
+  def to_json_type(v) do
+    case v do
+      s when is_binary(s) -> s
+      n when is_number(n) -> n
+      m when is_map(m) -> Map.new(for {k,v} <- m, do: {k, to_json_type(v)})
+      l when is_list(l) -> for el <- l, do: to_json_type(el)
+      t when is_tuple(t) -> to_json_type(Tuple.to_list t)
+      o -> inspect(o)
+    end
+  end
+
   def handle_event(:flush, state) do
     #IO.puts("Logs Flush")
 
@@ -65,7 +76,7 @@ defmodule Serverboards.Logger do
         message: to_string(message),
         level: to_string(level),
         timestamp: timestamp,
-        meta: Map.new(metadata, fn {k,v} -> {k, inspect v} end)
+        meta: Map.new(metadata, fn {k,v} -> {k, to_json_type v} end)
         })
       try do
         case Repo.insert( changelog ) do
