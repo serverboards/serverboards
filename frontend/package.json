@@ -18,6 +18,7 @@
     "copy-webpack-plugin": "^1.1.1",
     "css-loader": "^0.23.1",
     "file-loader": "^0.8.5",
+    "gravatar": "^1.5.2",
     "gulp": "^3.9.1",
     "html-webpack-plugin": "^2.15.0",
     "image-webpack-loader": "^1.8.0",
