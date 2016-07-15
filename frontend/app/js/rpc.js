@@ -21,10 +21,11 @@ var RPC = function(options={}){
   }
 
   if (!rpc.url){
-    if (window.location.protocol=='http:')
-      rpc.url="ws://"+window.location.host+"/ws"
+    const servername=localStorage.servername || window.location.origin
+    if (servername.slice(0,5)=='http:')
+      rpc.url="ws://"+servername.slice(7)+"/ws"
     else
-      rpc.url="wss://"+window.location.host+"/ws"
+      rpc.url="wss://"+servername.slice(8)+"/ws"
   }
   if (localStorage.ws_url) // Hack to connect to another server at dev.
     rpc.url=localStorage.ws_url
