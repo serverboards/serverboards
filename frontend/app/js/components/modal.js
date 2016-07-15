@@ -11,7 +11,7 @@ function Modal(props){
 
   const logo=require("../../imgs/logo.svg")
   return (
-    <div className="ui modal background">
+    <div className={`ui modal background ${props.className}`}>
       <div className="ui top menu">
         <a href="#/">
           <img className="logo" src={logo}/>

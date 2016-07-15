@@ -5,6 +5,7 @@ defmodule Serverboards.Plugin do
     author: nil,
     id: nil,
     version: nil,
+    url: nil,
 
     components: [],
     extra: %{},

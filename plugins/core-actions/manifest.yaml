@@ -4,6 +4,7 @@ author: David Moreno <dmoreno@serverboards.io>
 version: 0.0.1
 description: >
   Various core actions.
+url: https://serverboards.io
 
 components:
   - name: Ping server

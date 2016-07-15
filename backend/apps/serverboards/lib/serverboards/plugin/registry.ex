@@ -173,7 +173,8 @@ defmodule Serverboards.Plugin.Registry do
           id: component.id,
           name: component.name,
           type: component.type,
-          traits: component.traits
+          traits: component.traits,
+          description: component.description
           })
       end)
       Map.put(acc, plugin.id, %{
@@ -182,6 +183,7 @@ defmodule Serverboards.Plugin.Registry do
         id: plugin.id,
         author: plugin.author,
         description: plugin.description,
+        url: plugin.url,
         components: components
         })
     end)

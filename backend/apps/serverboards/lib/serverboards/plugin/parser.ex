@@ -31,7 +31,8 @@ defmodule Serverboards.Plugin.Parser do
       name: Map.get(dict, "name"),
       type: Map.get(dict, "type"),
       traits: traits,
-      extra: Map.drop(dict, ~w(id name type traits))
+      description: Map.get(dict, "description"),
+      extra: Map.drop(dict, ~w(id name type traits description))
     }
   end
 
@@ -69,6 +70,7 @@ defmodule Serverboards.Plugin.Parser do
       description: Map.get(dict, "description"),
       author: Map.get(dict, "author"),
       version: Map.get(dict, "version"),
+      url: Map.get(dict, "url"),
 
       components: components,
 
