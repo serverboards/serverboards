@@ -172,9 +172,6 @@ defmodule Serverboards.IO.HTTP do
     end
 
     def handle(request, state) do
-      {method, _} = :cowboy_req.method request
-      {path, _} = :cowboy_req.path request
-
       {plugin, _} = :cowboy_req.binding(:plugin,request)
       {rest, _} = :cowboy_req.path_info(request)
       filepath = Enum.join(rest,"/")
@@ -187,18 +184,29 @@ defmodule Serverboards.IO.HTTP do
       requested_filename="#{plugin.path}/static/#{filepath}"
 
       #Logger.debug("Request static handler: #{requested_filename}")
+      {:ok, reply} = case File.read(requested_filename) do
+        {:ok, content}  ->
+          {mime1, mime2, _} = :cow_mimetypes.web(filepath)
+          mimetype="#{mime1}/#{mime2}"
 
-      {:ok, content} = File.read(requested_filename)
-      {:ok, reply} = :cowboy_req.reply(
-        200,
-        [
-          {"content-type", "text/html"},
-          {"content-length", to_string(String.length(content))},
-          {"access-control-allow-origin", "*"}
-        ],
-        content,
-        request
-      )
+          :cowboy_req.reply(
+            200,
+            [
+              {"content-type", mimetype},
+              {"content-length", to_string(String.length(content))},
+              {"access-control-allow-origin", "*"}
+            ],
+            content,
+            request
+          )
+        {:error, _} ->
+          :cowboy_req.reply(
+            404,
+            [],
+            "",
+            request
+          )
+      end
 
       {:ok, reply, state}
     end
