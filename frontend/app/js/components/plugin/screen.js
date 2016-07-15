@@ -7,16 +7,14 @@ const ExternalScreen = React.createClass({
     router: React.PropTypes.object
   },
   componentDidMount(){
-    console.log("Loaded! %o",
-      this.props.location.state
-      )
+    const servername=localStorage.servername || window.location.origin
 
     let props=this.props
     console.log(plugin)
-    $.get(`/static/${props.params.plugin}/${props.params.component}/index.html`, (html) => {
+    $.get(`${servername}/static/${props.params.plugin}/index.html`, (html) => {
       $(this.refs.loading).html(html)
 
-      plugin.load(`/static/${props.params.plugin}/${props.params.component}/index.js`).done(() => {
+      plugin.load(`${servername}/static/${props.params.plugin}/index.js`).done(() => {
         plugin.do_screen(
           `${props.params.plugin}/${props.params.component}`,
           this.props.location.state

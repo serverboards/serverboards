@@ -58,7 +58,7 @@ defmodule Serverboards.Logger do
     case v do
       s when is_binary(s) -> s
       n when is_number(n) -> n
-      m when is_map(m) -> Map.new(for {k,v} <- m, do: {k, to_json_type(v)})
+      m when is_map(m) -> Map.new(for {k,v} <- Map.to_list(m), do: {k, to_json_type(v)})
       l when is_list(l) -> for el <- l, do: to_json_type(el)
       t when is_tuple(t) -> to_json_type(Tuple.to_list t)
       o -> inspect(o)
