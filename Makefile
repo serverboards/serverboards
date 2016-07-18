@@ -33,7 +33,7 @@ clean:
 	cd backend; mix clean
 	cd frontend; make clean
 
-docker: compile-frontend
+docker: compile
 	docker build -t serverboards .
 
 .PHONY: test test-backend test-frontend
@@ -44,3 +44,11 @@ test-backend:
 
 test-frontend:
 	cd frontend; make test
+
+docker-run:
+	[ "${SERVERBOARDS_PATH}" ] # need SERVERBOARDS_PATH envvar
+	mkdir -p ${SERVERBOARDS_PATH}/
+	docker run -P \
+		-v ${SERVERBOARDS_PATH}/data/:/home/serverboards/ \
+		-v ${SERVERBOARDS_PATH}/postgres/:/var/lib/postgresql/9.5/main/ \
+		serverboards

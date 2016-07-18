@@ -6,31 +6,28 @@ RUN apt-get -y update && apt-get install -y \
   git make gcc wget  \
   postgresql \
   nodejs npm  \
-  sass
-
+  sass \
+  supervisor inotify-tools
 # prepare elixir
 RUN wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && dpkg -i erlang-solutions_1.0_all.deb
 RUN rm erlang-solutions_1.0_all.deb
-RUN apt-get -y update && apt-get install -y esl-erlang elixir rebar
+
+RUN apt-get -y update && apt-get install -y \
+  esl-erlang elixir rebar
 
 RUN useradd serverboards -m -U
 
-# setup postgres
-RUN service postgresql start &&\
-su postgres -c "psql --command \"CREATE USER serverboards WITH SUPERUSER PASSWORD 'serverboards';\"" &&\
-su postgres -c "createdb -O serverboards serverboards"
-
 # setup and compile
 ADD . /opt/serverboards/
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chown :serverboards /opt/serverboards/
 
 ENV MIX_ENV=prod SERVERBOARDS_PATH=/home/serverboards
-ENV SERVERBOARDS_DB=ecto://serverboards:serverboards@localhost:5432/serverboards
-
-RUN service postgresql start && \
-  cd /opt/serverboards && make compile-backend
+ENV SERVERBOARDS_DB=postgres://serverboards:serverboards@localhost:5432/serverboards
 
 # go !
 EXPOSE 8080
+VOLUME /var/lib/postgresql/9.5/main/ /home/serverboards/ /etc/postgresql/
 # USER serverboards
-CMD service postgresql start && /opt/serverboards/serverboards.sh start
+#CMD sleep 10000
+CMD /usr/bin/supervisord
