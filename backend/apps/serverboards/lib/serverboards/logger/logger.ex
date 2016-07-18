@@ -70,7 +70,7 @@ defmodule Serverboards.Logger do
 
     {:ok, state}
   end
-  def handle_event({level, group_leader, {Logger, message, timestamp, metadata}}, state) do
+  def handle_event({level, _group_leader, {Logger, message, timestamp, metadata}}, state) do
     if (not metadata[:application] in state.ignore_applications) or (level != :debug) do
       changelog = Model.Line.changelog(%Model.Line{}, %{
         message: to_string(message),
@@ -96,7 +96,7 @@ defmodule Serverboards.Logger do
 
     {:ok, state}
   end
-  def handle_event({:configure, opts}, state) do
+  def handle_event({:configure, opts}, _state) do
     IO.puts("Logs configure: #{inspect opts}")
   end
 end

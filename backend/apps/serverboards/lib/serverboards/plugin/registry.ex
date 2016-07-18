@@ -33,7 +33,7 @@ defmodule Serverboards.Plugin.Registry do
   Reload all plugin data. Normally called from the inotify watcher
   """
   def reload_plugins(pid) do
-    Agent.update(pid, fn _ -> load_plugins end)
+    Agent.update(pid, fn _ -> load_plugins() end)
     plugins = Agent.get pid, &(&1)
     Logger.info("Reloaded plugin registry #{inspect pid}, got #{Enum.count plugins}")
   end

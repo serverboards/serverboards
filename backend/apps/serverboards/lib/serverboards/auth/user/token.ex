@@ -39,7 +39,7 @@ defmodule Serverboards.Auth.User.Token do
 			select: %{ user: u, perms: t.perms }
 		)
 		Logger.debug("Got token #{inspect token}")
-		user = case token do
+		case token do
 			nil -> false
 			_ ->
 				user = Serverboards.Auth.User.user_info token.user

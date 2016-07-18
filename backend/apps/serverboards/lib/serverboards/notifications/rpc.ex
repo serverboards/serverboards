@@ -6,7 +6,7 @@ defmodule Serverboards.Notifications.RPC do
     import RPC.MethodCaller
     alias Serverboards.Notifications
 
-    {:ok, mc} = RPC.MethodCaller.start_link
+    {:ok, mc} = RPC.MethodCaller.start_link options
 
     # Adds that it needs permissions and user
     Serverboards.Utils.Decorators.permission_method_caller mc
@@ -54,7 +54,7 @@ defmodule Serverboards.Notifications.RPC do
     end, context: true, required_perm: "notifications.notify"
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: _user}} ->
       MOM.RPC.Client.add_method_caller client, mc
     end)
 

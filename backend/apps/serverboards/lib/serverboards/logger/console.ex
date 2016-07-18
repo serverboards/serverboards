@@ -47,7 +47,7 @@ defmodule Serverboards.Logger.Console do
   def handle_event(:flush, state) do
     {:ok, state}
   end
-  def handle_event({level, group_leader, {Logger, message, timestamp, metadata}}, state) do
+  def handle_event({level, _group_leader, {Logger, message, timestamp, metadata}}, state) do
     if (not metadata[:application] in state.ignore_applications) or (level in state.ignore_levels) do
       metadata = metadata ++ [level: level, timestamp: timestamp]
       #IO.puts(inspect metadata)
@@ -58,7 +58,7 @@ defmodule Serverboards.Logger.Console do
 
     {:ok, state}
   end
-  def handle_event({:configure, opts}, state) do
+  def handle_event({:configure, opts}, _state) do
     IO.puts("Serverboards.Logger.Console configure: #{inspect opts}")
   end
 end

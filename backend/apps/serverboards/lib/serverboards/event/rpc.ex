@@ -1,6 +1,8 @@
 require Logger
 
 defmodule Serverboards.Event.RPC do
+  alias Serverboards.Event
+
   def start_link(options) do
     import MOM.RPC.MethodCaller
     {:ok, mc} = MOM.RPC.MethodCaller.start_link(options)

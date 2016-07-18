@@ -28,7 +28,7 @@ defmodule Serverboards.Logger.RPC do
       {:ok, history}
     end, [required_perm: "logs.view"]
 
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: _user}} ->
       MOM.RPC.Client.add_method_caller client, mc
     end)
 

@@ -71,7 +71,7 @@ defmodule Serverboards.Auth.Reauth do
       cont ->
         case Auth.auth(data) do
           false -> {:error, needs_reauth_map(uuid)}
-          email -> cont
+          _email -> cont
         end
     end
     {:reply, ret, status}

@@ -449,7 +449,7 @@ defmodule Serverboards.Service do
         "config" -> :config
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
-          raise Exception, "Unknown operation updating service #{service}: #{inspect e}. Failing."
+          raise RuntimeError, "Unknown operation updating service #{service}: #{inspect e}. Failing."
         end
         if opatom do
           Map.put acc, opatom, newval

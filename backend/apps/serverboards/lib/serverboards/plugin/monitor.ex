@@ -7,7 +7,7 @@ defmodule Serverboards.Plugin.Monitor do
     :ok
   end
 
-  def callback(file_path, events) do
+  def callback(file_path, _events) do
     Logger.info("Detected plugin change at #{file_path}. Reloading plugin data.")
     Serverboards.Plugin.Registry.reload_plugins(Serverboards.Plugin.Registry)
   end

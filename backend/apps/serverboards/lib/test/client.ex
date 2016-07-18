@@ -190,7 +190,7 @@ defmodule Test.Client do
   end
 
   def handle_call({:debug}, _from, status) do
-    {:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
+    {:reply, %{ "debug test client" => inspect(status.client) }, status}
   end
 
   def handle_cast({:call, msg}, status) do
@@ -243,26 +243,7 @@ defmodule Test.Client do
     {:noreply, status}
   end
 
-  def handle_call({:call_from_json, method, params}, from, status) do
-    {:ok, json} = JSON.encode( %{ method: method, params: params, id: status.maxid } )
-    #Logger.debug("Calling #{method}")
-    RPC.Client.parse_line(status.client, json)
-    #Logger.debug("Calling #{method} done")
-    {:noreply, %{ status |
-      waiting: Map.put(status.waiting, status.maxid, from),
-      maxid: status.maxid + 1,
-    } }
-  end
-
-  def handle_call({:get_client}, _from, status) do
-    {:reply, status.client, status}
-  end
-
-  def handle_call({:debug}, _from, status) do
-    {:reply, %{ "debug test client" => RPC.Client.debug(status.client) }, status}
-  end
-
-  defp expect_match?(w, nil) do
+  defp expect_match?(_w, nil) do
     false
   end
   defp expect_match?([], _) do

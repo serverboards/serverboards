@@ -18,7 +18,7 @@ defmodule Serverboards.Plugin.Runner do
     {:ok, pid} = GenServer.start_link __MODULE__, :ok, options
 
     MOM.Channel.subscribe(:auth_authenticated, fn msg ->
-      %{ user: user, client: client} = msg.payload
+      %{ user: _user, client: client} = msg.payload
       MOM.RPC.Client.add_method_caller client, Serverboards.Plugin.Runner.method_caller
       :ok
     end)
@@ -183,9 +183,9 @@ defmodule Serverboards.Plugin.Runner do
 
   ## server impl
   def init :ok do
-    Logger.info("Plugin runner ready #{inspect self}")
+    Logger.info("Plugin runner ready #{inspect self()}")
 
-    {:ok, method_caller} = Serverboards.Plugin.RPC.start_link(self)
+    {:ok, method_caller} = Serverboards.Plugin.RPC.start_link(self())
 
     {:ok, %{
       method_caller: method_caller,

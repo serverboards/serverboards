@@ -241,11 +241,6 @@ defmodule Serverboards.Auth do
 		{:reply, list_auth_(state), state}
 	end
 
-	# This is a server side call, to avoid deadlock
-	defp list_auth_(state) do
-		Map.keys(state.auths)
-	end
-
 	def handle_call({:reauth, client}, from, state) do
 		Logger.debug("client #{inspect client}")
 		RPC.Client.cast( client, "auth.reauth", list_auth_(state), fn res ->
@@ -254,5 +249,10 @@ defmodule Serverboards.Auth do
 		end )
 
 		{:noreply, state}
+	end
+	
+	# This is a server side call, to avoid deadlock
+	defp list_auth_(state) do
+		Map.keys(state.auths)
 	end
 end

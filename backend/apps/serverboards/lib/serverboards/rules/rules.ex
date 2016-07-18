@@ -14,7 +14,6 @@ defmodule Serverboards.Rules do
   end
 
   defp get_actions(rule_id) do
-    alias Serverboards.Action
     import Ecto.Query
     Repo.all( from action in Model.ActionAtState,
        where: action.rule_id == ^rule_id,
@@ -27,10 +26,10 @@ defmodule Serverboards.Rules do
     ) |> Map.new
   end
 
+  def list(), do: list([])
   def list(map) when is_map(map) do
     list(Map.to_list(map))
   end
-  def list(), do: list([])
   def list(filter) do
     import Ecto.Query
     alias Serverboards.Serverboard.Model.Serverboard

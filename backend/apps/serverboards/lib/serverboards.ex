@@ -6,9 +6,4 @@ defmodule Serverboards do
 
     Serverboards.Supervisor.start_link name: Serverboards.Supervisor
   end
-
-  def config_change(changed, _new, removed) do
-    Serverboards.HTTP.Endpoint.config_change(changed, removed)
-    :ok
-  end
 end

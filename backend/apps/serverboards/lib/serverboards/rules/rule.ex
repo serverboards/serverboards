@@ -14,7 +14,7 @@ defmodule Serverboards.Rules.Rule do
     trigger: %{},
     actions: []
   ]
-  def start_link(rule, options \\ []) do
+  def start_link(rule, _options \\ []) do
     trigger = rule.trigger
     actions = rule.actions
 
