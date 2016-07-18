@@ -156,7 +156,7 @@ defmodule EventSourcing do
 
   # Dispatch to one reducer, checking if has any type, and errors.
   defp dispatch_one(type, data, author, reducer, options) do
-    res = try do
+    try do
       case Keyword.get(options, :type, :any) do
         :any ->
           #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
@@ -209,7 +209,6 @@ defmodule EventSourcing do
         case {res, Keyword.get(options, :name)} do
           {nil, _ }   -> acc
           {res, name} -> Map.put(acc, name, res)
-          _           -> acc
         end
       end
     end
@@ -226,13 +225,13 @@ defmodule EventSourcing do
     {:noreply, status}
   end
 
-  def handle_call({:subscribe, reducer, options}, from, status) do
+  def handle_call({:subscribe, reducer, options}, _from, status) do
     {:reply, :ok, %{ status |
       reducers: status.reducers ++ [{reducer, options}]
     } }
   end
 
-  def handle_call({:replay, list_of_events}, from, status) do
+  def handle_call({:replay, list_of_events}, _from, status) do
     ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author, [], status.supervisor) end)
     {:reply, ret, status}
   end

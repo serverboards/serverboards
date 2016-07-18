@@ -33,7 +33,7 @@ defmodule EventSourcing.Model do
       data = case data do
         %{} = data ->
           data
-        other -> %{ __data: data }
+        _other -> %{ __data: data }
       end
 
       {:ok, res} = repo.insert( EventSourcing.Model.EventStream.changeset(
