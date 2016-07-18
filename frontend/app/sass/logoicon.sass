@@ -23,12 +23,26 @@ div.ui.logoicon
     border-radius: 5px
     color: white
 
-ui.imageicon.tiny
+.ui.imageicon.tiny
   max-height: 80px !important
   max-width: 80px !important
   height: 80px !important
   width: 80px !important
   overflow: hidden
+
+a.svg
+ position: relative
+ display: inline-block
+ object
+   width: 100%
+
+a.svg:after
+  content: ""
+  position: absolute
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
 
 .active div.ui.logoicon.slim
   background: white !important

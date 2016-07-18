@@ -1,8 +1,10 @@
 import React from 'react'
-import LogoIcon from '../logoicon'
+import ImageIcon from '../imageicon'
 import Loading from '../loading'
 import Modal from '../modal'
 import { default_service_fields } from '../service'
+
+const icon = require("../../../imgs/services.svg")
 
 let AddService=React.createClass({
   componentDidMount(){
@@ -55,9 +57,9 @@ let AddService=React.createClass({
 
     function WrappedService(props){
       return (
-        <a key={props.uuid || props.type} className="column center aligned" onClick={(ev) => self.handleAdd(ev, props)} href="#">
-          <LogoIcon name={props.name} style={{margin: 'auto'}}/>
-          {props.name}
+        <a key={props.uuid || props.type} className="column center aligned svg" onClick={(ev) => self.handleAdd(ev, props)} href="#">
+          <ImageIcon src={icon} name={props.name}/>
+          <span className="ui header small">{props.name}</span>
         </a>
       )
     }
@@ -67,19 +69,13 @@ let AddService=React.createClass({
         <h2 className="ui header">
           Select a service to add
         </h2>
-        <div className="content ui form">
-          <div className="ui field">
-            <label className="ui header">Existing services</label>
-            <div className="ui five column grid stackable">
-              {props.all_services.map((c) => WrappedService(c))}
-            </div>
-          </div>
-          <div className="ui field">
-            <label className="ui header">New services</label>
-            <div className="ui five column grid stackable">
-              {props.catalog.map((c) => WrappedService(c))}
-            </div>
-          </div>
+        <h3 className="ui header" style={{paddingTop:30}}>Already configured in your system</h3>
+        <div className="ui five column grid stackable">
+          {props.all_services.map((c) => WrappedService(c))}
+        </div>
+        <h3 className="ui header" style={{paddingTop:30}}>New services</h3>
+        <div className="ui five column grid stackable">
+          {props.catalog.map((c) => WrappedService(c))}
         </div>
       </Modal>
     )

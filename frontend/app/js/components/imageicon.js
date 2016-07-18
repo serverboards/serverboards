@@ -26,7 +26,7 @@ const ImageIcon = React.createClass({
     const props=this.props
 
     return (
-      <div ref="img" className={`ui imageicon image tiny ${props.className || "tiny"}`}>
+      <div ref="img" className={`ui imageicon image ${props.className || "tiny"}`}>
         <object data={props.src} type="image/svg+xml"/>
       </div>
     )
