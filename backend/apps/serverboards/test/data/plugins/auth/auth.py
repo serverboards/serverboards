@@ -16,8 +16,10 @@ def ping(*args):
 
 @serverboards.rpc_method
 def abort(*args):
+    sys.stderr.write("Pretend to work\n")
+    time.sleep(0.500)
     sys.stderr.write("Aborting\n")
-    os.exit(1)
+    sys.exit(1)
 
 @serverboards.rpc_method
 def bad_protocol(*args):

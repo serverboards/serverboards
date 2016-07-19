@@ -165,20 +165,20 @@ defmodule Serverboards.Plugin.Runner do
     end
   end
   def call(id, method, params \\ []) do
-    Logger.info("Calling #{id}.#{method}(#{inspect params})")
+    #Logger.info("Calling #{id}.#{method}(#{inspect params})")
     call(Serverboards.Plugin.Runner, id, method, params)
   end
 
-  def cast(id, method, params, cont) do
-    runner = Serverboards.Plugin.Runner
-    case GenServer.call(runner, {:get, id}) do
-      :not_found ->
-        Logger.error("Could not find plugin id #{inspect id}: :not_found")
-        {:error, :unknown_method}
-      cmd when is_pid(cmd) ->
-        Serverboards.IO.Cmd.cast cmd, method, params, cont
-    end
-  end
+  #def cast(id, method, params, cont) do
+  #  runner = Serverboards.Plugin.Runner
+  #  case GenServer.call(runner, {:get, id}) do
+  #    :not_found ->
+  #      Logger.error("Could not find plugin id #{inspect id}: :not_found")
+  #      cont.({:error, :unknown_method})
+  #    cmd when is_pid(cmd) ->
+  #      Serverboards.IO.Cmd.cast cmd, method, params, cont
+  #  end
+  #end
 
 
   ## server impl
@@ -194,7 +194,6 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   def handle_call({:start, id, cmd}, _from, state) do
-    Logger.debug("Adding runner :start")
     {:reply, :ok,
       %{ state | running: Map.put(state.running, id, cmd) }
     }
