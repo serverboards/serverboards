@@ -227,7 +227,9 @@ defmodule Serverboards.Action do
       method = action_component.extra["call"]["method"]
 
       action = %{
-       uuid: uuid, name: action_component.name, id: action_component.id, user: user, params: params,
+       uuid: uuid, name: action_component.name,
+       id: "#{action_component.plugin.id}/#{action_component.id}",
+       user: user, params: params,
        timer_start: Timex.Time.now
        }
       Event.emit("action.started", action, ["action.watch"] )
@@ -273,7 +275,7 @@ defmodule Serverboards.Action do
 
   def handle_call({:ps}, _from, status) do
     ret = status
-      |> Enum.map( fn {uuid, %{ action: action_id, params: params } } ->
+      |> Enum.map( fn {uuid, %{ id: action_id, params: params } } ->
         component = Plugin.Registry.find(action_id)
         #Logger.debug("ps: #{inspect component}/#{inspect action_id}")
         %{
