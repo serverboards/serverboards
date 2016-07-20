@@ -8,6 +8,24 @@ description: >
   This may be used by other plugins to achieve their own goals.
 
 components:
+  - name: SSH access
+    type: service
+    traits: ssh
+    id: ssh
+    description: Access via SSH to any server
+    fields:
+      - label: SSH Address
+        name: url
+        type: text
+        validation: empty
+      - label: Comments
+        type: description
+        description: To connect via SSH please ensure that the following SSH public key is added to your servers `~/.ssh/authorized_hosts`:\n\n**SSH Plublic Key:**\n```\n{ssh_key}```\n
+        vars:
+          - id: ssh_key
+            command: serverboards.core.ssh/daemon
+            call: ssh_public_key
+
   - name: SSH Management
     id: management
     description: Screen on which to view known peers

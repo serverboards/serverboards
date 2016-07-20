@@ -39,6 +39,11 @@ def ssh_exec(url, command="uname -a"):
     sp.wait()
     return {"stdout": data, "exit": sp.exitstatus}
 
+@serverboards.rpc_method
+def ssh_public_key():
+    with open(os.path.expanduser("~/.ssh/id_rsa.pub"),'r') as fd:
+        return fd.read()
+
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
         print ssh_exec("localhost","ls -l | tr -cs '[:alpha:]' '\\\\n' | sort | uniq -c | sort -n")

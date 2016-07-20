@@ -37,16 +37,6 @@ components:
         name: smtp_pw
         type: password
 
-  - name: SSH access
-    type: service
-    traits: ssh
-    id: ssh
-    fields:
-      - label: SSH Address
-        name: url
-        type: text
-        validation: empty
-
   - name: Server
     type: service
     traits: ip

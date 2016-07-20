@@ -171,16 +171,23 @@ div.ui.main
   &:hover td
     background: #E0E0E0
 
-.ui.code, code
+.ui.code, code, pre
   background: #EEE
   border: 1px solid #ddd
   padding: 5px 10px
   border-radius: 2px
   font-size: 10pt
   font-family: monospace
+  code
+    border: 0
+    padding: 0
 
 code
   padding: 0
+
+.field pre code
+  white-space: pre-wrap
+  word-wrap: break-word
 
 .ui.meta
   color: #999
