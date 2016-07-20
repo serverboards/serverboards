@@ -89,17 +89,14 @@ defmodule Serverboards.ActionTest do
     # ok action
     {:ok, uuid_ok_a} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
-    :timer.sleep(1000)
 
     # fail action
     {:ok, uuid_nok_b} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/abort", %{}])
-    :timer.sleep(1000)
 
     # ok action
     {:ok, uuid_ok_c} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
-    :timer.sleep(1000)
 
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid_ok_a}, {~w(params status)a, "ok"}])
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid_nok_b}, {~w(params status)a, "error"}])

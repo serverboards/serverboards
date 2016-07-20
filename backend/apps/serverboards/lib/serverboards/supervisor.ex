@@ -13,6 +13,7 @@ defmodule Serverboards.Supervisor do
     children = [
       supervisor(Serverboards.Repo, []),
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
+      supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
       worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
       worker(Serverboards.IO.HTTP, [:start_link, [8080]]),
