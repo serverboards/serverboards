@@ -3,6 +3,15 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, urlparse, re
 
+ID_RSA=os.path.expanduser("~/.ssh/id_rsa")
+ID_RSA=os.path.expanduser("/tmp/id_rsa")
+ID_RSA_PUB=ID_RSA+'.pub'
+
+def ensure_ID_RSA():
+    if not os.path.exists(ID_RSA):
+        os.system('ssh-keygen -f "%s" -N ""'%(ID_RSA,))
+
+
 def url_to_opts(url):
     """
     Url must be an `ssh://username:password@hostname:port/` with all optional
@@ -41,7 +50,8 @@ def ssh_exec(url, command="uname -a"):
 
 @serverboards.rpc_method
 def ssh_public_key():
-    with open(os.path.expanduser("~/.ssh/id_rsa.pub"),'r') as fd:
+    ensure_ID_RSA()
+    with open(ID_RSA_PUB,'r') as fd:
         return fd.read()
 
 if __name__=='__main__':
