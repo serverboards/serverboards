@@ -36,7 +36,7 @@ and have some communication.
 * Triggers
 * Rules
 
-## 2016-07-14 SSH into remote machines
+## 2016-07-14 ~SSH into remote machines~
 
 Can perform operations using SSH on remote machines.
 
@@ -44,7 +44,26 @@ Can perform operations using SSH on remote machines.
 
 ## 2016-09 - BETA RELEASE
 
-* First version,
-* allow to manage virtual machines,
-* see the remote logs,
-* use SSH terminal from Serverboards.
+* First version
+* Core MUST have:
+  - Plugin comunication via RPC
+  - Plugin sections on UI
+  - Plugin settings
+  - Communications: inapp, email, telegram
+  - User management: permissions & groups
+  - Easy deploy with docker
+  - Recover from errors
+  - Simple Rules
+  - Serverboard Simple Widgets
+* Plugins for:
+  - Simple virtual machine management: start, stop, list.
+  - see the remote logs,
+  - use SSH terminal from Serverboards.
+* Overall MUST be posible to
+  - Monitor server (Ping/HTTP/port conn) uptime, notify down/up
+
+Extras:
+* Monitor webpage changes
+
+No goals:
+* Plugin store // Uninstalled plugins
