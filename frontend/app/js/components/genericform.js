@@ -1,6 +1,7 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import {MarkdownPreview} from 'react-marked-markdown'
+import Flash from 'app/flash'
 
 const RichDescription=React.createClass({
   process_description(vars){
@@ -25,6 +26,7 @@ const RichDescription=React.createClass({
           rpc.call(`${uuid}.${v.call}`, [])
           .then((content) => resolve([v.id, content]))
           .then(() => rpc.call("plugin.stop", [uuid]))
+          .catch((e) => reject(e))
         })
         .catch((e) => reject(e))
       })
@@ -33,7 +35,8 @@ const RichDescription=React.createClass({
       this.setState({content: this.process_description(vars), extraClass: ""})
     }).catch((e) => {
       console.error(e)
-      this.setState({content: "Error loading data.", extraClass: "error"})
+      this.setState({content: "Error loading dynamic data. Contact plugin author. [Error #100]", extraClass: "error"})
+      Flash.error("Error loading dynamic data. Contact plugin author.",{error: 100})
     })
   },
   render(){
