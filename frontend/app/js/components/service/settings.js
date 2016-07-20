@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
-import { setup_fields } from '../service'
+import { setup_fields, service_definition } from '../service'
 import Loading from '../loading'
 
 let SetupComponent=React.createClass({
@@ -58,11 +58,15 @@ let SetupComponent=React.createClass({
     let fields = state.fields
     if (!fields)
       fields=this.get_fields()
+    let servicedef=service_definition(this.props.service.type, this.props.service_catalog)
     return (
       <Modal onClose={props.onClose}>
         <h2 className="ui header">
           Update settings for {props.service.name}
         </h2>
+        <div className="ui meta" style={{paddingBottom: 20}}>
+          {servicedef.description || "No description at service definition"}
+        </div>
         <div className="content">
           <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>

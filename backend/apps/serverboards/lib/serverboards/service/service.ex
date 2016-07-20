@@ -371,6 +371,7 @@ defmodule Serverboards.Service do
         service
           |> Map.put(:fields, fields)
           |> Map.put(:traits, service_definition.traits)
+          |> Map.put(:description, service_definition.description)
     end
 
     service |> Map.take(~w(tags serverboards config uuid priority name type fields traits)a)
@@ -526,6 +527,7 @@ defmodule Serverboards.Service do
           type: service.id,
           fields: service.extra["fields"],
           traits: service.traits,
+          description: service.description,
          }
       end)
   end
