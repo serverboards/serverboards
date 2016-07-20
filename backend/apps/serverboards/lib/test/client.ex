@@ -200,7 +200,7 @@ defmodule Test.Client do
       #Logger.debug("Add msg #{inspect msg} && #{inspect status.expecting}")
 
       waiting_from = status.waiting[msg["id"]]
-      Logger.debug("Waiting for #{inspect status.waiting}, got id #{inspect msg["id"]}, waiting from #{inspect waiting_from}")
+      #Logger.debug("Waiting for #{inspect status.waiting}, got id #{inspect msg["id"]}, waiting from #{inspect waiting_from}")
       if waiting_from do
         if msg["error"] == nil do
           res = case msg["result"] do
@@ -251,7 +251,7 @@ defmodule Test.Client do
     true
   end
   defp expect_match?([w | rest], msg) do
-    Logger.debug("Match? #{inspect w} #{inspect msg}")
+    #Logger.debug("Match? #{inspect w} #{inspect msg}")
     cont = case w do
       {:method, v} ->
         Map.get(msg, "method", nil) == v

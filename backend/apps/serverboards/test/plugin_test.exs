@@ -25,6 +25,7 @@ defmodule Serverboards.PluginTest do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    :timer.sleep 300
     assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:ok, "pong"}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
 

@@ -49,7 +49,7 @@ defmodule Serverboards.Plugin.Component do
         nil -> []
       end
       Logger.info("Running command #{fullcmd} // #{inspect perms}")
-      Cmd.start_link fullcmd, [], [], [perms: perms]
+      Cmd.Supervisor.start_command fullcmd, [], [], [perms: perms]
     end
   end
 

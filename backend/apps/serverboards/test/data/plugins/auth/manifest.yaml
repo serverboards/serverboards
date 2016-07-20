@@ -86,6 +86,13 @@ components:
           type: text
       returns: text
     traits:
+  - name: Abort
+    type: action
+    id: abort
+    command: fake
+    call:
+      method: abort
+      returns: text
   - name: Notifications email address
     id: channel.json.tmp.file
     type: notification

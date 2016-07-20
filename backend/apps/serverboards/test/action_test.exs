@@ -2,7 +2,6 @@ require Logger
 
 defmodule Serverboards.ActionTest do
   use ExUnit.Case
-	alias Test.Client
 	@moduletag :capture_log
 
   doctest Serverboards.Action, import: true
@@ -19,7 +18,7 @@ defmodule Serverboards.ActionTest do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
     {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped"])
 
-    {:ok, uuid} = Test.Client.call(client, "action.trigger",
+    {:ok, _uuid} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
     assert Test.Client.expect(client, method: "action.started")
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params status)a, "ok"}])
@@ -31,7 +30,7 @@ defmodule Serverboards.ActionTest do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
     {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped"])
 
-    {:ok, uuid} = Test.Client.call(client, "action.trigger",
+    {:ok, _uuid} = Test.Client.call(client, "action.trigger",
       ["serverboards.test.auth/action.full-command-path", %{ url: "https://serverboards.io" }])
     assert Test.Client.expect(client, method: "action.started")
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params status)a, "ok"}])
@@ -80,6 +79,28 @@ defmodule Serverboards.ActionTest do
 
 
     Test.Client.stop client
+  end
+
+  test "Run wrong action, log it properly" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped"])
+
+    # ok action
+    {:ok, uuid_ok_a} = Test.Client.call(client, "action.trigger",
+      ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
+
+    # fail action
+    {:ok, uuid_nok_b} = Test.Client.call(client, "action.trigger",
+      ["serverboards.test.auth/abort", %{}])
+
+    # ok action
+    {:ok, uuid_ok_c} = Test.Client.call(client, "action.trigger",
+      ["serverboards.test.auth/action", %{ url: "https://serverboards.io" }])
+
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid_ok_a}, {~w(params status)a, "ok"}])
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid_nok_b}, {~w(params status)a, "error"}])
+    assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid_ok_c}, {~w(params status)a, "ok"}])
   end
 
 end

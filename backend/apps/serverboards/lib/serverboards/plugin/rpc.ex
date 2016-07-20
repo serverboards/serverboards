@@ -9,12 +9,7 @@ defmodule Serverboards.Plugin.RPC do
     Serverboards.Utils.Decorators.permission_method_caller method_caller
 
     RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id] ->
-      case Plugin.Runner.start runner, plugin_component_id do
-        {:ok, id} ->
-          id
-        {:error, e} ->
-          {:error, e}
-      end
+      Plugin.Runner.start runner, plugin_component_id
     end, [required_perm: "plugin"]
 
     RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
