@@ -48,7 +48,7 @@ defmodule Serverboards.Auth do
 		end
 
 		add_auth "token", fn params ->
-			Logger.debug("Try to log in #{inspect params}")
+			#Logger.debug("Try to log in via #{inspect params}")
 			%{ "type" => "token", "token" => token} = params
 
 			case Serverboards.Auth.User.Token.auth(token) do
@@ -79,7 +79,7 @@ defmodule Serverboards.Auth do
 	end
 
 	def client_set_user(client, user) do
-		Logger.debug("Setting user: #{inspect user}")
+		#Logger.debug("Setting user: #{inspect user}")
 		RPC.Client.set client, :user, user
 		MOM.Channel.send(:auth_authenticated, %MOM.Message{ payload: %{ client: client, user: user } }, [sync: true])
 	end
@@ -223,7 +223,7 @@ defmodule Serverboards.Auth do
 
 
 		if user do
-			Logger.info("Logged in #{inspect user}")
+			Logger.info("Logged in #{inspect user.email} via #{type}", user: user, type: type)
 			{:reply, user, state}
 		else
 			{:reply, false, state}
@@ -250,7 +250,7 @@ defmodule Serverboards.Auth do
 
 		{:noreply, state}
 	end
-	
+
 	# This is a server side call, to avoid deadlock
 	defp list_auth_(state) do
 		Map.keys(state.auths)

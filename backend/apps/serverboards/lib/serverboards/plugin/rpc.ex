@@ -93,7 +93,7 @@ defmodule Serverboards.Plugin.RPC do
       case Regex.run(~r/(^[-0-9a-f]{36})\.(.*)$/, method) do
         [_, id, method] ->
           res = Plugin.Runner.call runner, id, method, params
-          Logger.debug("UUID result #{inspect res}")
+          #Logger.debug("UUID result #{inspect res}")
           res
         _ -> :nok
       end

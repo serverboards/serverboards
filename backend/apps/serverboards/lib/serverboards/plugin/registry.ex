@@ -67,7 +67,7 @@ defmodule Serverboards.Plugin.Registry do
 
     plugins = Agent.get registry, &(&1)
     #Logger.debug("Known plugins: #{inspect plugins}")
-    Logger.debug("filter Q #{inspect q}")
+    #Logger.debug("filter Q #{inspect q}")
     #fields = q |> map(fn {k,_} -> k end)
 
     components = plugins |>

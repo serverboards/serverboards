@@ -309,6 +309,8 @@ defmodule Serverboards.Service do
   """
   def service_list(filter, me) do
     import Ecto.Query
+    Logger.info("Get service list for #{inspect filter}", filter: filter, user: me)
+
     query = if filter do
         Enum.reduce(filter, from(c in ServiceModel), fn kv, acc ->
           {k,v} = case kv do # decompose both tuples and lists / from RPC and from code.
@@ -343,12 +345,11 @@ defmodule Serverboards.Service do
   end
 
   @doc ~S"""
-  Returns a service from databas eproperly decorated for external use, with
+  Returns a service from database properly decorated for external use, with
   fields and traits, and no internal data.
   """
   def service_decorate(service, me) do
     import Ecto.Query
-    Logger.info("Get definition of #{inspect service}")
     service = service
           |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
           |> Map.put(:serverboards, Repo.all(

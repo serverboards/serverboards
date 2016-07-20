@@ -30,19 +30,20 @@ defmodule Serverboards.Auth.User.Token do
 				)
 	end
 
-	def auth(token) do
+	def auth(token_uuid) do
 		token = Repo.one(
 			from u in User,
 			join: t in Model.Token,
 			  on: t.user_id == u.id,
-			where: t.token == ^token and t.time_limit > fragment("NOW()"),
+			where: t.token == ^token_uuid and t.time_limit > fragment("NOW()"),
 			select: %{ user: u, perms: t.perms }
 		)
-		Logger.debug("Got token #{inspect token}")
 		case token do
 			nil -> false
+				Logger.error("Try to use invalid token #{token_uuid}")
 			_ ->
 				user = Serverboards.Auth.User.user_info token.user
+				Logger.debug("Got token #{token_uuid} for user #{inspect token.user.email}", token: token, user: user)
 				case token.perms do
 					nil ->
 						user

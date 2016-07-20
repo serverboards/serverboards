@@ -20,7 +20,7 @@ defmodule Serverboards.Rules.Trigger do
          str when is_binary(str) -> String.split(str)
        end
        command = tr.extra["command"]
-       Logger.debug("Command is #{inspect command}")
+       #Logger.debug("Command is #{inspect command}")
        command = if String.contains?(command, "/") do
          command
        else

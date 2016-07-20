@@ -183,7 +183,7 @@ defmodule Serverboards.Plugin.Runner do
 
   ## server impl
   def init :ok do
-    Logger.info("Plugin runner ready #{inspect self()}")
+    #Logger.info("Plugin runner ready #{inspect self()}")
 
     {:ok, method_caller} = Serverboards.Plugin.RPC.start_link(self())
 
