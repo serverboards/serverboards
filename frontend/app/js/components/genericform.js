@@ -5,11 +5,10 @@ import {MarkdownPreview} from 'react-marked-markdown'
 const RichDescription=React.createClass({
   process_description(vars){
     vars = vars || []
-    let text = this.props.value.replace(/\\n/g,'\n')
+    let text = this.props.value
     vars.map( (kv) => {
       text=text.replace(`{${kv[0]}}`, kv[1])
     })
-    console.log(text)
     return text
   },
   getInitialState(){

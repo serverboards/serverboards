@@ -20,7 +20,15 @@ components:
         validation: empty
       - label: Comments
         type: description
-        description: To connect via SSH please ensure that the following SSH public key is added to your servers `~/.ssh/authorized_hosts`:\n\n**SSH Plublic Key:**\n```\n{ssh_key}```\n
+        description: |
+          To connect via SSH please ensure that the following SSH public key is
+          added to your servers `~/.ssh/authorized_hosts`:
+
+          **SSH Public Key:**
+
+          ```
+          {ssh_key}
+          ```
         vars:
           - id: ssh_key
             command: serverboards.core.ssh/daemon
