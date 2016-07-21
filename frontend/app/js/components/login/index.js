@@ -2,6 +2,8 @@ import React, {PropTypes} from 'react';
 import ResetPassword from './reset_password'
 import SetPassword from './set_password'
 
+const white_logo=require('../../../imgs/white-horizontal-logo.svg')
+
 var LoginView = React.createClass({
   getInitialState(){
     return { modal: undefined, email: undefined }
@@ -58,6 +60,8 @@ var LoginView = React.createClass({
 
     return (
       <form ref="el" className="ui form" method="POST">
+        <img src={white_logo} className="ui serverboards logo"/>
+
         <div className="ui small modal active" id="login">
           <div className="header">
             Login
