@@ -28,6 +28,7 @@ var Settings=React.createClass({
         name: 'minLength[4]'
       }
     }).on('submit', this.handleSubmit)
+    $(this.refs.form).find('input[name=shortname]').attr('maxlength',5)
   },
   render(){
     let props=this.props
@@ -63,6 +64,7 @@ var Settings=React.createClass({
             <h1 className="ui header">{this.props.title}</h1>
             <div className="field">
               <label>Shortname</label>
+              <div className="ui meta">This name is used as a Serverboard identifier and has a maximum lenght of 5 characters.</div>
               <input type="text" name="shortname"
                 defaultValue={serverboard.shortname}
                 placeholder="Ex. CMPNY"/>
