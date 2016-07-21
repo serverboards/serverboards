@@ -33,32 +33,22 @@ var Settings=React.createClass({
   render(){
     let props=this.props
 
-    let accept_buttons=[]
-    if (!props.edit){
-      accept_buttons=(
-        <div className="field">
-          <button type="submit" className="ui button positive">Create serverboard</button>
-        </div>
+    let extra_buttons=[]
+    if (props.edit)
+      extra_buttons=(
+        <HoldButton className="ui item" onHoldClick={props.onDelete}>Delete serverboard <i className="ui icon trash"/></HoldButton>
       )
-    }
-    else {
-      accept_buttons=(
-        <div className="two fields">
-          <div className="field">
-            <button type="submit" className="ui button positive">Update serverboard</button>
-          </div>
-          <div className="ui field right aligned">
-            <HoldButton type="button" className="ui button negative" onHoldClick={props.onDelete}>Delete serverboard</HoldButton>
-          </div>
-        </div>
-      )
-    }
 
     let state=this.state
     let serverboard=this.props.serverboard || { tags: [], name: '', description: ''}
 
     return (
       <div className="ui background white central">
+        <div className="ui top secondary menu">
+          <div className="right menu">
+            {extra_buttons}
+          </div>
+        </div>
         <div className="ui text container">
           <form className="ui form" ref="form">
             <h1 className="ui header">{this.props.title}</h1>
@@ -88,7 +78,9 @@ var Settings=React.createClass({
                 />
             </div>
 
-            {accept_buttons}
+            <div className="field">
+              <button type="submit" className="ui button positive">{props.edit ? "Update serverboard" : "Create serverboard" }</button>
+            </div>
           </form>
           {props.children}
         </div>
