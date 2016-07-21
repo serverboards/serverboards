@@ -145,7 +145,7 @@ div.ui.main
     text-shadow: 0 0 1px rgba(0, 0, 0, 1.0)
 
   &:hover
-    background: lighten(#22a397, 1.1)
+    background: darken(#22a397, 1.1)
 
   +background-colors-hover
 
@@ -170,7 +170,7 @@ div.ui.main
 .ui.header.link
   color: #4093C6
   &:hover
-    color: lighten(#4093C6, 20.1)
+    color: darken(#4093C6, 20.1)
 
 .ui.table tbody tr.debug
   td
@@ -218,3 +218,7 @@ code
 
 .serverboards .ui.button.positive
   background: $yellow
+  &:hover
+    background-color: darken($yellow, $hover-darken)
+  &:focus
+    background-color: darken($yellow, $hover-darken)
