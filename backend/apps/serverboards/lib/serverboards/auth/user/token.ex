@@ -41,6 +41,7 @@ defmodule Serverboards.Auth.User.Token do
 		case token do
 			nil -> false
 				Logger.error("Try to use invalid token #{token_uuid}")
+				nil
 			_ ->
 				user = Serverboards.Auth.User.user_info token.user
 				Logger.debug("Got token #{token_uuid} for user #{inspect token.user.email}", token: token, user: user)
