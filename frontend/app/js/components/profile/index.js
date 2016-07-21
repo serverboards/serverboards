@@ -51,7 +51,7 @@ let Profile = React.createClass({
             onUpdate={(data) => this.handleUpdate("notifications", data)}/>
 
           <br/>
-          <button className="ui button green" onClick={this.handleSubmit}>Update profile</button>
+          <button className="ui yellow button" onClick={this.handleSubmit}>Update profile</button>
         </div>
         {popup}
       </div>

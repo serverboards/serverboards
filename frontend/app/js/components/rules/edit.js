@@ -247,7 +247,7 @@ const Details=React.createClass({
 
       </div>
       <div className="actions">
-        <button className="ui button green" onClick={this.handleSave}>Save changes</button>
+        <button className="ui yellow button" onClick={this.handleSave}>Save changes</button>
       </div>
       </Modal>
     )

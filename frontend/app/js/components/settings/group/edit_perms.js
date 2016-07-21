@@ -53,7 +53,7 @@ let EditPerms=React.createClass({
                 {perms}
           </div>
           <div className="field">
-            <div className="ui accept green button" onClick={this.handleUpdatePermissions}>Accept changes</div>
+            <div className="ui accept yellow button" onClick={this.handleUpdatePermissions}>Accept changes</div>
           </div>
         </form>
       </Modal>

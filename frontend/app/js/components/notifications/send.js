@@ -40,7 +40,7 @@ let SendNotification=React.createClass({
           </form>
         </div>
         <div className="actions">
-          <div className="ui accept green button" onClick={this.handleSend}>Send notification</div>
+          <div className="ui accept yellow button" onClick={this.handleSend}>Send notification</div>
           <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
         </div>
       </Modal>

@@ -44,7 +44,7 @@ let AddUser = React.createClass({
               <input type="text" name="last_name"/>
             </div>
             <div className="field">
-              <div className="ui accept green button" onClick={this.handleAddUser}>Add user</div>
+              <div className="ui accept yellow button" onClick={this.handleAddUser}>Add user</div>
             </div>
           </form>
         </div>

@@ -30,7 +30,7 @@ let AddGroup = React.createClass({
             <input type="text" name="name" placeholder="This will be used as the group identifier"/>
           </div>
           <div className="field">
-            <div className="ui accept green button" onClick={this.handleAddGroup}>Add group</div>
+            <div className="ui accept yellow button" onClick={this.handleAddGroup}>Add group</div>
           </div>
         </form>
       </Modal>

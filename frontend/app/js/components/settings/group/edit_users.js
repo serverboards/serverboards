@@ -64,7 +64,7 @@ let EditPerms=React.createClass({
               </div>
             ))}
             <div className="field">
-              <button type="button" className="ui accept green button" onClick={this.handleSubmit}>Accept changes</button>
+              <button type="button" className="ui accept yellow button" onClick={this.handleSubmit}>Accept changes</button>
             </div>
           </form>
         </div>

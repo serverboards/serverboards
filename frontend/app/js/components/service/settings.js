@@ -71,7 +71,7 @@ let SetupComponent=React.createClass({
           <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
-          <button className="ui ok green button" onClick={this.handleAccept}>Accept</button>
+          <button className="ui ok yellow button" onClick={this.handleAccept}>Accept</button>
         </div>
       </Modal>
     )

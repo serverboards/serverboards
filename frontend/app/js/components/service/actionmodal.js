@@ -35,7 +35,7 @@ const ActionModal = React.createClass({
         <div className="ui meta">{props.action.description}</div>
         <GenericForm fields={props.missing_params} updateForm={this.setMissingParams}/>
         <div className="actions">
-          <button className="ui green button" onClick={this.triggerAction}>Trigger action</button>
+          <button className="ui yellow button" onClick={this.triggerAction}>Trigger action</button>
         </div>
       </Modal>
     )
