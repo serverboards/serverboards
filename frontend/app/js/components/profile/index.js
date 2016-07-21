@@ -39,7 +39,7 @@ let Profile = React.createClass({
           </div>
         </div>
         <div className="ui text container">
-          <img src={gravatar_url} className="ui image medium" style={{float:"left", margin: "0px 30px 30px 0", borderRadius: 3}}/>
+          <img src={gravatar_url} className="ui bordered image medium" style={{float:"left", margin: "0px 30px 30px 0", borderRadius: 3}}/>
           <h1 className="ui header">{props.user.first_name} {props.user.last_name}</h1>
           <h2 className="ui header">Basic user data</h2>
             <div className="ui inline field">
