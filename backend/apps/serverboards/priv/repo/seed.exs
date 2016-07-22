@@ -46,8 +46,10 @@ defmodule Seeds do
     "service.attach",
     "settings.user.view", "settings.user.view_all",
     "settings.user.update", "settings.user.update_all",
-    "debug",
     "settings.view", "settings.update",
+    "debug",
+    "notifications.notify", "notifications.notify_all",
+    "notifications.list",
     "action.trigger", "action.watch",
     "rules.update", "rules.view",
     "logs.view"

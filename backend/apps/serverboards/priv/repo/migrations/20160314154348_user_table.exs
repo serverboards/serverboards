@@ -2,8 +2,6 @@ defmodule Serverboards.Repo.Migrations.UserTable do
   use Ecto.Migration
 
   def change do
-    import Serverboards.Auth
-
     create table(:auth_user) do
       add :email, :string, unique: true, null: false
       add :first_name, :string

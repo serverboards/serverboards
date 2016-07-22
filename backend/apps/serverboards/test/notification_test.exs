@@ -57,7 +57,7 @@ defmodule Serverboards.NotificationTest do
     assert conf.config == config
 
     # get all
-    %{ "serverboards.test.auth/channel.json.tmp.file" => conf } = Serverboards.Notifications.config_get(user.email)
+    %{ "serverboards.test.auth/channel.json.tmp.file" => _conf } = Serverboards.Notifications.config_get(user.email)
 
     config = %{ "email" => nil }
     # update
@@ -111,5 +111,24 @@ defmodule Serverboards.NotificationTest do
 
 
     {:ok, ^config} = Client.call client, "notifications.config", ["dmoreno@serverboards.io", "serverboards.test.auth/channel.json.tmp.file"]
+  end
+
+  test "In app communications" do
+    alias Test.Client
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+    user = Test.User.system
+
+    :ok = Serverboards.Notifications.notify("dmoreno@serverboards.io", "Notification for list", "This is a test that should be stored in app", [medatadata: "test"], user)
+
+    {:ok, coms} = Client.call client, "notifications.list", %{}
+    mymsg = Enum.find(coms, nil, &(&1["subject"]=="Notification for list"))
+    assert mymsg != nil
+    assert "new" in mymsg["tags"]
+
+    {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
+    mymsg = Enum.find(coms, nil, &(&1["subject"]=="Notification for list"))
+    assert mymsg != nil
+    assert not "new" in mymsg["tags"]
+
   end
 end

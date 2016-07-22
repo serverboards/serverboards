@@ -19,11 +19,12 @@ all_perms = [
     "service.delete", "service.info",
     "service.attach",
     "debug",
-    "settings.view", "settings.update",
     "action.trigger", "action.watch",
+    "settings.view", "settings.update",
     "settings.user.view", "settings.user.update",
     "settings.user.view_all", "settings.user.update_all",
     "notifications.notify", "notifications.notify_all",
+    "notifications.list",
     "rules.update", "rules.view"
   ]
 

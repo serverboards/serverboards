@@ -397,6 +397,15 @@ Returns the notification channels configured by this user
 extra is some extra information that may be used by the channels to adapt
 to the message, for example, alert level.
 
+## notifications(filter)
+
+Returns the notifications acording to this filter, which may contain:
+
+* tags -- List of tags that must match
+* count -- How many to return. By default 50.
+* start -- Start at id X, in decreasing order. This is because the first
+  listing return the most recents notifications.
+
 # Rules
 
 ## rules.update(rule)
