@@ -130,5 +130,7 @@ defmodule Serverboards.NotificationTest do
     assert mymsg != nil
     assert not "new" in mymsg["tags"]
 
+    {:ok, fullmsg} = Client.call client, "notifications.details", [mymsg["id"]]
+    assert fullmsg["id"] == mymsg["id"]
   end
 end

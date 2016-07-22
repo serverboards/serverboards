@@ -28,7 +28,7 @@ defmodule Serverboards.Notifications.InApp do
     q=   from m in Model.Notification,
         where: m.user_id == ^user.id,
      order_by: [desc: m.id],
-       select: %{ subject: m.subject, body: m.body, tags: m.tags, meta: m.meta, inserted_at: m.inserted_at, id: m.id }
+       select: %{ subject: m.subject, tags: m.tags, inserted_at: m.inserted_at, id: m.id }
 
     # default values
     filter = Map.merge(%{"count" => 50}, filter)
@@ -65,6 +65,15 @@ defmodule Serverboards.Notifications.InApp do
       ), [])
 
     {:ok, ret}
+  end
+
+  def details(id, user) do
+    import Ecto.Query
+    Repo.one(
+      from m in Model.Notification,
+      where: (m.user_id == ^user.id) and (m.id == ^id),
+      select: %{ subject: m.subject, body: m.body, tags: m.tags, meta: m.meta, inserted_at: m.inserted_at, id: m.id }
+    )
   end
 
 end

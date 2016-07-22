@@ -58,6 +58,11 @@ defmodule Serverboards.Notifications.RPC do
       Notifications.InApp.list(filter, me)
     end, context: true, required_perm: "notifications.list"
 
+    add_method mc, "notifications.details", fn [id], context ->
+      me = RPC.Context.get(context, :user)
+      Notifications.InApp.details(id, me)
+    end, context: true, required_perm: "notifications.list"
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: _user}} ->
       MOM.RPC.Client.add_method_caller client, mc
