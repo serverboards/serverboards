@@ -3,14 +3,13 @@ defmodule Serverboards.Auth.Model do
     use Ecto.Schema
     schema "auth_user" do
         field :email, :string
-        field :first_name, :string
-        field :last_name, :string
+        field :name, :string
         field :is_active, :boolean
         timestamps
      end
 
-     @required_fields ~w(email first_name)
-     @optional_fields ~w()
+     @required_fields ~w(email)
+     @optional_fields ~w(name is_active)
 
      @doc ~S"""
      Prepares changeset ensuring required data is there, proper
@@ -19,7 +18,7 @@ defmodule Serverboards.Auth.Model do
      def changeset(user, params \\ :empty) do
        import Ecto.Changeset
        user
-         |> cast(params, [:email], [:is_active, :first_name, :last_name])
+         |> cast(params, [:email], [:is_active, :name])
          |> unique_constraint(:email)
      end
   end

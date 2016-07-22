@@ -11,8 +11,7 @@ defmodule Serverboards.Auth.User do
     EventSourcing.subscribe es, :add_user, fn attributes, _me ->
 			{:ok, user} = Repo.insert(%Model.User{
 				email: attributes.email,
-        first_name: attributes.first_name,
-        last_name: attributes.last_name,
+        name: attributes.name,
         is_active: Map.get(attributes, :is_active, true)
 				})
       user = user_info user
@@ -92,8 +91,7 @@ defmodule Serverboards.Auth.User do
     %{
       id: user.id,
       email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      name: user.name,
       is_active: user.is_active,
       perms: get_perms(user),
       groups: get_groups(user)
@@ -101,8 +99,8 @@ defmodule Serverboards.Auth.User do
   end
 
   def user_list(_me) do
-    Repo.all( from u in Model.User, select: [u.id, u.email, u.is_active, u.first_name, u.last_name] )
-      |> Enum.map( fn [id, email, is_active, first_name, last_name] ->
+    Repo.all( from u in Model.User, select: [u.id, u.email, u.is_active, u.name] )
+      |> Enum.map( fn [id, email, is_active, name] ->
         groups = Repo.all(
             from g in Model.Group,
            join: ug in Model.UserGroup,
@@ -114,8 +112,7 @@ defmodule Serverboards.Auth.User do
         %{
           email: email,
           is_active: is_active,
-          first_name: first_name,
-          last_name: last_name,
+          name: name,
           groups: groups
         }
       end)

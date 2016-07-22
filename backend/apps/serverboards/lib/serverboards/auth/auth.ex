@@ -43,7 +43,7 @@ defmodule Serverboards.Auth do
 				{:error, _} -> false
 				false -> false
 				user -> user
-					#%{ email: user.email, permissions: user.perms, first_name: user.first_name, last_name: user.last_name }
+					#%{ email: user.email, permissions: user.perms, name: user.name }
 			end
 		end
 
@@ -55,7 +55,7 @@ defmodule Serverboards.Auth do
 				{:error, _} -> false
 				false -> false
 				user -> user
-					#%{ email: user.email, permissions: user.perms, first_name: user.first_name, last_name: user.last_name }
+					#%{ email: user.email, permissions: user.perms, name: user.name }
 			end
 		end
 
@@ -221,9 +221,15 @@ defmodule Serverboards.Auth do
 		end
 		#Logger.debug("Auth result #{inspect auth}")
 
+		# some normalization for bad behaved plugins, be a bit permisive
+		user = case user do
+			nil -> false
+			user -> user
+		end
+		Logger.info("#{inspect user}")
 
 		if user do
-			Logger.info("Logged in #{inspect user.email} via #{type}", user: user, type: type)
+			Logger.info("Logged in #{inspect user} via #{type}", user: user, type: type)
 			{:reply, user, state}
 		else
 			{:reply, false, state}

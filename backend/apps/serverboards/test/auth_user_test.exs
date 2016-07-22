@@ -20,16 +20,14 @@ defmodule Serverboards.AuthUserTest do
     #Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
     :ok = User.user_add(%{
       email: "dmoreno+a@serverboards.io",
-      first_name: "David",
-      last_name: "Moreno",
+      name: "David Moreno",
       is_active: true,
       }, me)
     user = User.user_info("dmoreno+a@serverboards.io", me)
 
     :ok = User.user_add(%{
       email: "dmoreno+b@serverboards.io",
-      first_name: "David",
-      last_name: "Moreno B",
+      name: "David Moreno",
       is_active: true,
       }, me)
     userb = User.user_info("dmoreno+b@serverboards.io", me)
@@ -115,8 +113,7 @@ defmodule Serverboards.AuthUserTest do
     userb = User.Token.auth(token)
     Logger.debug("Got user is #{inspect userb}")
     assert userb != false
-    assert userb.first_name != ""
-    assert userb.last_name != ""
+    assert userb.name != ""
     assert userb.perms == ["custom_perm"]
   end
 

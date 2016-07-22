@@ -86,7 +86,7 @@ defmodule Serverboards.AuthTest do
 
     {:ok, :ok} = Client.call(client, "user.add",
       %{ "email" => "dmoreno+c@serverboards.io",
-        "first_name" => "test", "last_name" => "test2", "is_active" => true
+        "name" => "test", "is_active" => true
       })
 
     {:ok, client2} = Client.start_link as: "dmoreno+c@serverboards.io"
@@ -118,8 +118,7 @@ defmodule Serverboards.AuthTest do
 
     {:error, :unknown_method} = Client.call(client, "user.add", %{
       "email" => "test+rmtr@serverboards.io",
-      "first_name" => "test",
-      "last_name" => "RPC",
+      "name" => "test",
       "is_active" => "true"
       })
 

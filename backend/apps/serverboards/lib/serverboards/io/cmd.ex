@@ -78,8 +78,7 @@ defmodule Serverboards.IO.Cmd do
       client,
       %{
         email: :plugin,
-        first_name: "Plugin",
-        last_name: cmd,
+        name: cmd,
         perms: (if perms, do: perms, else: []),
         groups: []
       }

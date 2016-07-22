@@ -43,8 +43,7 @@ data = [
   users: [
       %{
         email: "dmoreno@serverboards.io",
-        first_name: "David",
-        last_name: "Moreno",
+        name: "David Moreno",
         is_active: true,
         groups: ["user", "admin"]
       }

@@ -44,8 +44,7 @@ defmodule Serverboards.Auth.RPC do
       me = RPC.Context.get(context, :user)
       Auth.User.user_add %{
         email: attributes["email"],
-        first_name: attributes["first_name"],
-        last_name: attributes["last_name"],
+        name: attributes["name"],
         is_active: attributes["is_active"]
         }, me
     end, [required_perm: "auth.create_user", context: true]

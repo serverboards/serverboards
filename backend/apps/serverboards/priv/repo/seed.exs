@@ -18,8 +18,7 @@ data = [
   users: [
       %{
         email: "admin@serverboards.io",
-        first_name: "Admin",
-        last_name: "",
+        name: "Admin",
         is_active: true,
         groups: ["user", "admin"]
       }
