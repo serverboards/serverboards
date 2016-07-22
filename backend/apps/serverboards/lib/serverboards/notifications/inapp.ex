@@ -38,13 +38,17 @@ defmodule Serverboards.Notifications.InApp do
       {"tags", tags}, q -> where(q, [m], fragment("tags @> ?", ^tags))
       {"count", count}, q -> limit(q, ^count)
       {"start", start}, q -> where(q, [m], m.start < ^start )
-      
+
       {:tags, tags}, q -> where(q, [m], fragment("tags @> ?", ^tags))
       {:count, count}, q -> limit(q, ^count)
       {:start, start}, q -> where(q, [m], m.start < ^start )
     end)
 
     ret = Repo.all( q )
+      |> Enum.map( fn n -> # post processing
+        %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}
+      end)
+
 
     # For those with new tags, remove it. Doing it manually, should be a single
     # query. Its a complex one, as it has to have the limit of messages,
