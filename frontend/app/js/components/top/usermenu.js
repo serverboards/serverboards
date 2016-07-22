@@ -5,7 +5,7 @@ function UserMenu(props){
   return (
     <div className="ui dropdown vertical menu" style={{position: "fixed", right: 0, top: "40px"}}>
       <a className="item" href="#/user/profile">
-          {props.user.first_name} {props.user.last_name}
+          {props.user.name}
         <i className="ui icon right user"></i>
       </a>
       <a className="item" href="#/settings/">

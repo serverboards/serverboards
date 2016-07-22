@@ -25,7 +25,7 @@ let SendNotification=React.createClass({
     return (
       <Modal onClose={props.onClose}>
         <div className="header">
-          Send notification to {props.user.first_name} {props.user.last_name}
+          Send notification to {props.user.name}
         </div>
         <div className="content">
           <form ref="form" className="ui form" onSubmit={this.handleSend}>

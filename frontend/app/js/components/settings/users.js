@@ -13,7 +13,7 @@ const UserRow = React.createClass({
     const u = this.props.user
     return (
       <tr key={u.email}>
-        <td className={u.is_active ? "" : "disabled"}>{u.first_name} {u.last_name}</td>
+        <td className={u.is_active ? "" : "disabled"}>{u.name}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.email}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.is_active ? "true" : "false"}</td>

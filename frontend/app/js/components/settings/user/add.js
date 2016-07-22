@@ -8,8 +8,7 @@ let AddUser = React.createClass({
     let $form = $(this.refs.form)
     this.props.onSubmit( {
       email: $form.find('[name=email]').val(),
-      first_name: $form.find('[name=first_name]').val(),
-      last_name: $form.find('[name=last_name]').val(),
+      name: $form.find('[name=name]').val(),
       is_active: true,
     } )
   },
@@ -37,11 +36,7 @@ let AddUser = React.createClass({
             </div>
             <div className="field">
               <label>First Name</label>
-              <input type="text" name="first_name"/>
-            </div>
-            <div className="field">
-              <label>Last Name</label>
-              <input type="text" name="last_name"/>
+              <input type="text" name="name"/>
             </div>
             <div className="field">
               <div className="ui accept yellow button" onClick={this.handleAddUser}>Add user</div>

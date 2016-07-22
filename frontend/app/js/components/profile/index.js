@@ -43,7 +43,7 @@ let Profile = React.createClass({
             <img src={gravatar_url} className="ui bordered image medium"/>
             <div className="ui meta">Image from <a href="https://gravatar.com" target="_blank" rel="noreferrer">Gravatar</a>.</div>
           </div>
-          <h1 className="ui header">{props.user.first_name} {props.user.last_name}</h1>
+          <h1 className="ui header">{props.user.name}</h1>
           <h2 className="ui header">Basic user data</h2>
             <div className="ui inline field">
               <label>Email:</label> <span className="value">{props.user.email}</span>

@@ -7,8 +7,7 @@ let EditUser = React.createClass({
 
     let $form = $(this.refs.form)
     this.props.onSubmit( this.props.user.email, {
-      first_name: $form.find('[name=first_name]').val(),
-      last_name: $form.find('[name=last_name]').val(),
+      name: $form.find('[name=name]').val(),
       is_active: $(this.refs.is_active).find('input').is(':checked')  ? true : false,
     } )
   },
@@ -48,11 +47,7 @@ let EditUser = React.createClass({
             </div>
             <div className="field">
               <label>First Name</label>
-              <input type="text" name="first_name" defaultValue={props.user.first_name}/>
-            </div>
-            <div className="field">
-              <label>Last Name</label>
-              <input type="text" name="last_name" defaultValue={props.user.last_name}/>
+              <input type="text" name="name" defaultValue={props.user.name}/>
             </div>
           </form>
         </div>
