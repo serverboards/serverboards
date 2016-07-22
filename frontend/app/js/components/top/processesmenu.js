@@ -9,6 +9,7 @@ function ProcessesMenu(props){
           {p.name}
         </a>
       )}
+      <div className="ui divider"/>
       <a href="#/process/history" className="item">
         View process history
       </a>

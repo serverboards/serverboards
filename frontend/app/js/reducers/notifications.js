@@ -2,7 +2,12 @@
 const default_state={
   catalog: undefined,
   config: undefined,
-  catalog_with_config: undefined
+  catalog_with_config: undefined,
+  unread: []
+}
+
+function merge(a,b){
+  return $.extend({}, a, b)
 }
 
 function fill_catalog(catalog, config){
@@ -23,11 +28,13 @@ function fill_catalog(catalog, config){
 export function notifications(state=default_state, action){
   switch(action.type){
     case "UPDATE_NOTIFICATIONS_CATALOG":
-      return { catalog_with_config: fill_catalog(action.catalog, state.config), catalog: action.catalog, config: state.config }
+      return { catalog_with_config: fill_catalog(action.catalog, state.config), catalog: action.catalog, config: state.config, unread: action.unread }
       break;
     case "UPDATE_NOTIFICATIONS_CONFIG":
-      return { catalog_with_config: fill_catalog(state.catalog, action.config), catalog: status.catalog, config: action.config }
+      return { catalog_with_config: fill_catalog(state.catalog, action.config), catalog: status.catalog, config: action.config, unread: action.unread }
       break;
+    case "UPDATE_NOTIFICATIONS_UNREAD":
+      return merge( state, {unread: action.unread})
   }
   return state
 }

@@ -2,13 +2,15 @@ import React from 'react'
 import rpc from 'app/rpc'
 import Modal from '../modal'
 
+require('sass/table.sass')
+
 function levelToClass(level){
   if (level=="error")
     return "error"
   if (level=="warn")
     return "warning"
   if (level=="debug")
-    return "debug"
+    return "blue"
   return ""
 }
 function levelToLabelClass(level){

@@ -69,11 +69,21 @@ defmodule Serverboards.Notifications.InApp do
 
   def details(id, user) do
     import Ecto.Query
-    Repo.one(
+    n = Repo.one(
       from m in Model.Notification,
       where: (m.user_id == ^user.id) and (m.id == ^id),
       select: %{ subject: m.subject, body: m.body, tags: m.tags, meta: m.meta, inserted_at: m.inserted_at, id: m.id }
     )
+    # Mark as read
+    Repo.update_all(
+      (
+        from n in Model.Notification,
+        where: n.id == ^id,
+        update: [set: [tags: fragment("array_remove(tags, 'unread')")]]
+      ), [])
+
+    # post process
+    %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}
   end
 
 end

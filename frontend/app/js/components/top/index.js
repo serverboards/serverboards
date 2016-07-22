@@ -1,9 +1,20 @@
 import React from 'react'
 import UserMenu from 'app/containers/top/usermenu'
 import ProcessesMenu from 'app/containers/top/processesmenu'
+import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 
 require("sass/top.sass")
+
+function notifications_color(notifications){
+  if (notifications.length==0)
+    return ""
+  for(let n of notifications){
+    if (n.tags.indexOf("new")>=0)
+      return "green"
+  }
+  return "yellow"
+}
 
 var Top = function(props){
   let menu=undefined
@@ -16,6 +27,11 @@ var Top = function(props){
     case 'processes':
       menu=(
         <ProcessesMenu/>
+      )
+      break;
+    case 'notifications':
+      menu=(
+        <NotificationsMenu/>
       )
       break;
   }
@@ -45,9 +61,10 @@ var Top = function(props){
       </div>
 
       <div className="right menu">
-        <a className="item disabled">
+        <a className="item" onClick={() => props.toggleMenu('notifications')}>
           <i className="alarm outline icon"></i>
           Notifications
+          <span className={`ui label ${notifications_color(props.notifications)}`}>{props.notifications.length}</span>
           <i className="dropdown icon"></i>
         </a>
         <a className="item" onClick={() => props.toggleMenu('processes')}>
