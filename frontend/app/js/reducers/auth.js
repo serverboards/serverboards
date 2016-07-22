@@ -99,6 +99,10 @@ export const auth = (state = default_state , action) => {
       state.users = sort_users( state.users.concat( action.email ) )
     break;
     case '@RPC_EVENT/user.updated':
+      if (state.user.id == action.user.id)
+        state.user=action.user
+      if (!state.users)
+        return state
       state.users = state.users.map( (u) => {
         if (u.email != action.user.email)
           return u

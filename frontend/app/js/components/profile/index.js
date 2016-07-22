@@ -2,6 +2,7 @@ import React from 'react'
 import Notifications from 'app/containers/profile/notifications'
 import PasswordChange from './password_change'
 import gravatar from 'gravatar'
+import EditUser from 'app/components/settings/user/edit'
 
 let Profile = React.createClass({
   getInitialState(){
@@ -20,6 +21,10 @@ let Profile = React.createClass({
     ev.preventDefault()
     this.setState({ modal: "change_password" })
   },
+  openPersonalData(ev){
+    ev.preventDefault()
+    this.setState({ modal: "personal_data" })
+  },
   render(){
     let popup=[]
     switch(this.state.modal){
@@ -27,6 +32,16 @@ let Profile = React.createClass({
         popup=(
           <PasswordChange onClose={() => this.setState({ modal: undefined })}/>
         )
+      break;
+      case "personal_data":
+        popup=(
+          <EditUser
+            user={this.props.user}
+            onClose={() => this.setState({ modal: undefined })}
+            onSubmit={this.props.onUpdateUser}
+            />
+        )
+      break;
     }
     let props = this.props
     const gravatar_url=gravatar.url(props.user.email, {s: 300})
@@ -35,12 +50,13 @@ let Profile = React.createClass({
       <div className="ui central area white background">
         <div className="ui top secondary menu">
          <div className="right menu">
+            <a className="item" href="#" onClick={this.openPersonalData}><i className="ui icon user"/>Personal data</a>
             <a className="item" href="#" onClick={this.openPasswordChange}><i className="ui icon lock"/>Change password</a>
           </div>
         </div>
         <div className="ui text container">
-          <div style={{float:"left", margin: "0px 30px 30px 0", borderRadius: 3}}>
-            <img src={gravatar_url} className="ui bordered image medium"/>
+          <div style={{float:"left", margin: "0px 30px 30px 0"}}>
+            <img src={gravatar_url} className="ui bordered image medium" style={{width: 300, height: 300}}/>
             <div className="ui meta">Image from <a href="https://gravatar.com" target="_blank" rel="noreferrer">Gravatar</a>.</div>
           </div>
           <h1 className="ui header">{props.user.name}</h1>
