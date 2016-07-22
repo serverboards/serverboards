@@ -80,8 +80,8 @@ defmodule Serverboards.Auth.User.Password do
 					~S"""
 					 You password at Serverboards has been changed.
 
-					 If you did not request this change contact your adminitrator
-					 inmediatly as your account has beed compromised.
+					 If you did not request this change contact your administrator
+					 inmediately as your account has beed compromised.
 					 """, [], me)
 					 :ok
 		end
