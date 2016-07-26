@@ -12,15 +12,46 @@ defmodule Serverboards.Notifications.InApp do
   alias Serverboards.Repo
   alias Serverboards.Notifications.Model
 
+  def setup_eventsourcing(es) do
+    EventSourcing.subscribe es, :update, fn
+      %{ id: id, tags: tags} = what, me ->
+        update_real(id, what, me)
+    end
+  end
+
   def notify(email, subject, body, meta) do
     import Ecto.Query
     user_id = Repo.one( from u in Serverboards.Auth.Model.User, where: u.email == ^email, select: u.id )
-    Logger.debug("#{inspect meta}")
-    {:ok, _ } = Repo.insert( Model.Notification.changeset(
-        %Model.Notification{},
-        %{ user_id: user_id, subject: subject, body: body, meta: meta, tags: ["new","unread"] }
+    #Logger.debug("#{inspect meta}")
+
+    tags = ["new","unread"]
+    notification = %{ user_id: user_id, subject: subject, body: body, meta: meta, tags: tags }
+
+    {:ok, notification } = Repo.insert( Model.Notification.changeset(
+        %Model.Notification{}, notification
         ) )
+
+    notification = %{ notification | inserted_at: Ecto.DateTime.to_iso8601(notification.inserted_at)}
+    Serverboards.Event.emit("notifications.new", %{notification: notification}, %{ user: email, perms: ["notifications.list"] })
+
     :ok
+  end
+
+  def update(id, what, me) do
+    EventSourcing.dispatch(
+      :notifications, :update,
+      %{ id: id } |> Map.merge(what),
+      me.email)
+  end
+
+  def update_real(id, what, email) do
+    me = Serverboards.Auth.User.user_info email, %{email: email}
+    model = %Serverboards.Notifications.Model.Notification{}
+      |> Map.merge(details(id, me))
+      |> Map.put(:user_id, me.id)
+    {:ok, notification} = Repo.update(Model.Notification.changeset( model, what ))
+    #notification = %{ notification | inserted_at: Ecto.DateTime.to_iso8601(notification.inserted_at)}
+    Serverboards.Event.emit("notifications.update", %{notification: notification}, %{ user: email, perms: ["notifications.list"] })
   end
 
   def list(filter, user) do
@@ -49,21 +80,6 @@ defmodule Serverboards.Notifications.InApp do
         %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}
       end)
 
-
-    # For those with new tags, remove it. Doing it manually, should be a single
-    # query. Its a complex one, as it has to have the limit of messages,
-    # ordering..., maybe later.
-    Logger.debug("#{inspect ret}")
-    ids = ret
-      |> Enum.filter(&("new" in &1.tags))
-      |> Enum.map(&(&1.id))
-    Repo.update_all(
-      (
-        from n in Model.Notification,
-        where: n.id in ^ids,
-        update: [set: [tags: fragment("array_remove(tags, 'new')")]]
-      ), [])
-
     {:ok, ret}
   end
 
@@ -74,13 +90,6 @@ defmodule Serverboards.Notifications.InApp do
       where: (m.user_id == ^user.id) and (m.id == ^id),
       select: %{ subject: m.subject, body: m.body, tags: m.tags, meta: m.meta, inserted_at: m.inserted_at, id: m.id }
     )
-    # Mark as read
-    Repo.update_all(
-      (
-        from n in Model.Notification,
-        where: n.id == ^id,
-        update: [set: [tags: fragment("array_remove(tags, 'unread')")]]
-      ), [])
 
     # post process
     %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}

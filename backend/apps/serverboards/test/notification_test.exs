@@ -119,6 +119,7 @@ defmodule Serverboards.NotificationTest do
     user = Test.User.system
 
     :ok = Serverboards.Notifications.notify("dmoreno@serverboards.io", "Notification for list", "This is a test that should be stored in app", [medatadata: "test"], user)
+    Client.expect(client, method: "notifications.new")
 
     {:ok, coms} = Client.call client, "notifications.list", %{}
     mymsg = Enum.find(coms, nil, &(&1["subject"]=="Notification for list"))
@@ -128,9 +129,20 @@ defmodule Serverboards.NotificationTest do
     {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
     mymsg = Enum.find(coms, nil, &(&1["subject"]=="Notification for list"))
     assert mymsg != nil
-    assert not "new" in mymsg["tags"]
+    assert "new" in mymsg["tags"]
+    assert "unread" in mymsg["tags"]
 
     {:ok, fullmsg} = Client.call client, "notifications.details", [mymsg["id"]]
     assert fullmsg["id"] == mymsg["id"]
+
+
+    {:ok, :ok} = Client.call client, "notifications.update", %{ id: mymsg["id"], tags: ["other"]}
+    Client.expect(client, method: "notifications.update")
+    {:ok, fullmsg} = Client.call client, "notifications.details", [mymsg["id"]]
+    Logger.info(inspect fullmsg)
+    assert fullmsg["id"] == mymsg["id"]
+    assert fullmsg["tags"] == ["other"]
+    assert not "new" in fullmsg["tags"]
+    assert not "unread" in fullmsg["tags"]
   end
 end

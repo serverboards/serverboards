@@ -27,6 +27,8 @@ defmodule Serverboards.Notifications do
         notify_real(email, subject, body, extra)
     end
 
+    Serverboards.Notifications.InApp.setup_eventsourcing(es)
+
     Serverboards.Notifications.RPC.start_link []
 
     {:ok, es}

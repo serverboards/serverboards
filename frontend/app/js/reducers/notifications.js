@@ -35,6 +35,20 @@ export function notifications(state=default_state, action){
       break;
     case "UPDATE_NOTIFICATIONS_UNREAD":
       return merge( state, {unread: action.unread})
+    case "@RPC_EVENT/notifications.new":
+      return merge( state, {unread: [action.notification].concat(state.unread)})
+    case "@RPC_EVENT/notifications.update":
+      let updated = false
+      let unread = state.unread.map( (u) => {
+        if (u.id == action.notification.id){
+          updated = true
+          return action.notification
+        }
+        return u
+      })
+      if (!updated)
+        unread = [action.notification].concat(unread)
+      return merge( state, {unread})
   }
   return state
 }

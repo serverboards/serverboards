@@ -18,7 +18,7 @@ var Top=Event.subscribe_connect(
     toggleMenu: (menu) => dispatch({type: "TOP_TOGGLE_MENU", menu: menu}),
     closeMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
   }),
-  ["action.started","action.stopped"],
+  ["action.started","action.stopped","notifications.new","notifications.update"],
   [action_ps, notifications_unread]
 )(TopView)
 
