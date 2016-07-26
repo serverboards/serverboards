@@ -27,6 +27,8 @@ defmodule Serverboards.Notifications do
         notify_real(email, subject, body, extra)
     end
 
+    Serverboards.Notifications.InApp.setup_eventsourcing(es)
+
     Serverboards.Notifications.RPC.start_link []
 
     {:ok, es}
@@ -72,6 +74,7 @@ defmodule Serverboards.Notifications do
   config has the channel configuration plus the user data (as map email, perms, groups).
   """
   def notify(email, subject, body, extra, me) do
+    extra = Map.new extra
     EventSourcing.dispatch(
       :notifications, :notify,
       %{ email: email, subject: subject, body: body, extra: extra },
@@ -80,6 +83,8 @@ defmodule Serverboards.Notifications do
   end
 
   def notify_real(email, subject, body, extra) do
+    :ok = Serverboards.Notifications.InApp.notify(email, subject, body, extra)
+
     cm = Map.new(
       config_get(email)
       |> Map.to_list

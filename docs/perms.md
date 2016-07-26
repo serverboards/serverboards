@@ -64,6 +64,7 @@ settings.user.update_all -- Update settings of all users (admin)
 
 notifications.notify -- Can notify current user. Needed for `notifications.notify_all`
 notifications.notify_all -- Can notify any user. Needs `notifications.notify` permission.
+notifications.list -- List notifications for current user.
 
 ## Rules
 
