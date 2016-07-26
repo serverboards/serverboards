@@ -1,0 +1,16 @@
+id: serverboards.core.widgets
+name: Core Widgets
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.0.1
+description: >
+  Various core widgets.
+
+components:
+  - name: Core widgets daemon
+    id: daemon
+    type: cmd
+    command: ./serverboards-widgets.py
+  - name: Clock
+    description: Simple clock with local time
+    id: clock
+    type: widget

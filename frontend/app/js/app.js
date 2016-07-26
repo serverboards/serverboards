@@ -28,7 +28,9 @@ window.Serverboards = {
   store,
   Flash,
   React,
+  ReactDOM,
   add_screen: plugin.add_screen,
+  add_widget: plugin.add_widget,
 }
 
 ReactDOM.render(

@@ -17,6 +17,7 @@ const ExternalScreen = React.createClass({
       plugin.load(`${servername}/static/${props.params.plugin}/index.js`).done(() => {
         plugin.do_screen(
           `${props.params.plugin}/${props.params.component}`,
+          $('.ui.central'),
           this.props.location.state
         )
       }).fail((e) => {
