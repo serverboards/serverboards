@@ -16,6 +16,7 @@ defmodule Serverboards.Serverboard do
     #EventSourcing.subscribe :serverboard, :debug_full
 
     setup_eventsourcing(es)
+    Serverboards.Serverboard.Widget.setup_eventsourcing(es)
 
     {:ok, es}
   end

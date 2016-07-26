@@ -44,4 +44,24 @@ defmodule Serverboards.Serverboard.Model do
 		@required_fields ~w(serverboard_id service_id)
 		@optional_fields ~w()
 	end
+
+	defmodule Widget do
+		use Ecto.Schema
+		schema "serverboard_widget" do
+			field :serverboard_id, :id
+			field :uuid, Ecto.UUID
+			field :widget, :string
+			field :config, :map
+			field :ui, :map
+			timestamps
+		end
+
+		@required_fields ~w(serverboard_id uuid widget)
+		@optional_fields ~w(config ui)
+		def changeset(widget, changes \\ :empty) do
+			import Ecto.Changeset
+			widget
+				|> cast(changes, @required_fields, @optional_fields)
+		end
+	end
 end

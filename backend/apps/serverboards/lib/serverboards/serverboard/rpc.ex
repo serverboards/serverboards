@@ -36,6 +36,29 @@ defmodule Serverboards.Serverboard.RPC do
       Enum.map serverboards, &Serverboards.Utils.clean_struct(&1)
     end, [required_perm: "serverboard.info", context: true]
 
+
+    RPC.MethodCaller.add_method mc, "serverboard.widget.add", fn attr, context ->
+      me = Context.get(context, :user)
+      Serverboards.Serverboard.Widget.widget_add(attr["serverboard"], %{
+        config: attr["config"],
+        ui: attr["ui"],
+        widget: attr["widget"]
+        }, me)
+    end, [required_perm: "serverboard.widget.add", context: true]
+
+    RPC.MethodCaller.add_method mc, "serverboard.widget.update", fn attr, context ->
+      me = Context.get(context, :user)
+      Serverboards.Serverboard.Widget.widget_update(attr["uuid"], %{
+        config: attr["config"],
+        ui: attr["ui"],
+        widget: attr["widget"]
+        }, me)
+    end, [required_perm: "serverboard.widget.update", context: true]
+
+    RPC.MethodCaller.add_method mc, "serverboard.widget.list", fn [shortname] ->
+      Serverboards.Serverboard.Widget.widget_list(shortname)
+    end, [required_perm: "serverboard.info"]
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc

@@ -15,6 +15,7 @@ all_perms = [
     "plugin",
     "serverboard.add", "serverboard.update",
     "serverboard.delete", "serverboard.info",
+    "serverboard.widget.add", "serverboard.widget.update",
     "service.add", "service.update",
     "service.delete", "service.info",
     "service.attach",
