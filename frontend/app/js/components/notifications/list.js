@@ -25,6 +25,12 @@ const List = React.createClass({
     const filter={}
     rpc.call("notifications.list", filter).then((list) =>{
       this.setState({list})
+      list.map((n) => {
+        if (n.tags.indexOf("new")>=0){
+          const tags = n.tags.filter( (t) => (t!="new") )
+          rpc.call("notifications.update", {id: n.id, tags})
+        }
+      })
     })
   },
   showNotification(id){

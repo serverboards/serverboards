@@ -48,6 +48,7 @@ export function notifications(state=default_state, action){
       })
       if (!updated)
         unread = [action.notification].concat(unread)
+      unread = unread.filter( (n) => (n.tags.indexOf("new")>=0) )
       return merge( state, {unread})
   }
   return state
