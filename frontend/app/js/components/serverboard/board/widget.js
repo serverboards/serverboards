@@ -9,13 +9,17 @@ const Widget = React.createClass({
     })
   },
   componentWillUnmount(){
-    console.log("Widget umount %o", this.umount)
     this.umount && this.umount()
   },
   render(){
     const config = this.props.config
     return (
-      <div className="card" ref="el"/>
+      <div className="card">
+        <div style={{flexGrow:1}} ref="el"/>
+        <a style={{textAlign: "right", color:"#bbb"}} onClick={this.props.onEdit}>
+          Edit <i className="ui icon edit"/>
+        </a>
+      </div>
     )
   }
 })
