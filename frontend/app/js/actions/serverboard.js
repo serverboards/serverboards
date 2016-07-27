@@ -49,7 +49,6 @@ function serverboard_reload_services(shortname){
 
 function serverboard_attach_service(serverboard_shortname, service_uuid){
   return function(dispatch){
-    console.log("Attach %o, %o", serverboard_shortname, service_uuid)
     rpc.call("service.attach",[serverboard_shortname, service_uuid]).then(function(){
       Flash.info("Added service to serverboard")
     })
