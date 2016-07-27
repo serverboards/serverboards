@@ -43,7 +43,7 @@ defmodule Serverboards.Serverboard.Widget do
         id: w.id,
         name: w.name,
         description: w.description,
-        params: w.extra[:params]
+        params: w.extra["params"]
       }
     end
   end
