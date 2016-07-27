@@ -3,23 +3,28 @@
   width: 80%
   left: 10%
   top: 0
-  background: rgba(0,0,0, 0.6)
+  background: rgba(0,0,0, 0.9)
   padding: 1em
   z-index: 1002
 
   .prompt
     span
       width: 4em
+      color: white
     input
       background: none
       border: none
       width: calc( 100% - 4em )
+      color: white
   .history
     max-height: 40em
     overflow: auto
   .line
     pre
+      background: inherit
+      border: 0
       margin: 0
+      padding: 0
       font-size: 10pt
       white-space: pre-wrap       /* CSS 3 */
       white-space: -moz-pre-wrap  /* Mozilla, since 1999 */
