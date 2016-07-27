@@ -41,12 +41,12 @@ function main(element, config){
       return (
         React.createElement('div', {className: ""}, [
           React.createElement('div', {className: "ui header"}, [ "Current time" ]),
-          React.createElement('div', {className: "content", style: {"font-family":"fixed", "font-size": "75px"}}, [
+          React.createElement('div', {className: "content", style: {"font-family":"fixed", "line-height": "75px", "font-size": "75px", "padding-top":"20px"}}, [
             React.createElement('span', {className: "hour"}, hour),
             ":",
             React.createElement('span', {className: "minute"}, minute),
             ":",
-            React.createElement('span', {className: "second", style: {"font-size":"50px", "color":"#aaa"}}, second)
+            React.createElement('span', {className: "second", style: {"font-size":"50px", "color":"#888"}}, second)
           ] )
         ] )
       )

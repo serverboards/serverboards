@@ -29,6 +29,7 @@ window.Serverboards = {
   Flash,
   React,
   ReactDOM,
+  Components: require("app/components/export").default,
   add_screen: plugin.add_screen,
   add_widget: plugin.add_widget,
 }

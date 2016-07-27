@@ -14,3 +14,12 @@ components:
     description: Simple clock with local time
     id: clock
     type: widget
+  - name: Markdown text
+    description: A simple markdown text to write notes
+    id: markdown
+    type: widget
+    params:
+      - label: Text in markdown
+        name: text
+        type: textarea
+        placeholder: "# Title"
