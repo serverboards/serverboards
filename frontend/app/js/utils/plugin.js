@@ -1,10 +1,15 @@
 var screens = {}
+var widgets = {}
 
 export function load(url, options){
+  let full_url=url
+  if (localStorage.servername)
+    full_url=`${localStorage.servername}/static/${url}`
+
   options = $.extend( options || {}, {
     dataType: "script",
     cache: true,
-    url: url
+    url: full_url
   });
 
   return jQuery.ajax( options );
@@ -14,8 +19,16 @@ export function add_screen(id, fn){
   screens[id]=fn
 }
 
-export function do_screen(id, data){
-  screens[id](data)
+export function do_screen(id, el, data){
+  return screens[id](el, data)
 }
 
-export default {load, add_screen, do_screen}
+export function add_widget(id, fn){
+  widgets[id]=fn
+}
+
+export function do_widget(id, el, data){
+  return widgets[id](el, data)
+}
+
+export default {load, add_screen, do_screen, add_widget, do_widget}

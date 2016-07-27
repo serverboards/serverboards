@@ -44,9 +44,8 @@ var LoginView = React.createClass({
   resetPassword(email){
     this.setState({modal: 'reset_password', email})
   },
-  setPassword(email){
-    console.log("Set password %o", email)
-    this.setState({modal: 'set_password', email})
+  setPassword(pw){
+    this.setState({modal: 'set_password', pw})
   },
   render(){
     if (this.state.modal=='reset_password')
@@ -71,7 +70,7 @@ var LoginView = React.createClass({
             <div className="field">
               <label>Email</label>
               <input type="email" name="email" placeholder="user@company.com"
-                onChange={(ev) => {console.log(ev.target); this.setState({email: ev.target.value})}}
+                onChange={(ev) => {this.setState({email: ev.target.value})}}
                 />
             </div>
 

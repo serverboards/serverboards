@@ -1,31 +1,38 @@
+import {merge} from 'app/utils'
+
 var default_state={
   serverboards: [],
   current: undefined,
   current_services: undefined,
-  catalog: undefined
+  catalog: undefined,
+  widgets: undefined
 }
 
 function serverboard(state=default_state, action){
   switch(action.type){
     case '@@router/LOCATION_CHANGE':
-      var current=action.payload.pathname.replace(RegExp("^/serverboard/([^/]*)/.*"), "$1")
-      var current_services=state.current_services
+    {
+      let current=action.payload.pathname.replace(RegExp("^/serverboard/([^/]*)/.*"), "$1")
+      let current_services=state.current_services
+      let widgets=state.widgets
       if (current!=state.current){ // On change of location, no current services
-        current_services=undefined
+        current_services = undefined
+        widgets = undefined
       }
-      return Object.assign({}, state, {current, current_services} )
+      return merge(state, {current, current_services, widgets} )
+    }
     case 'UPDATE_ALL_SERVERBOARDS':
-      return Object.assign({}, state, {serverboards: action.serverboards} )
+      return merge(state, {serverboards: action.serverboards} )
     case 'UPDATE_SERVICE_CATALOG':
-      return Object.assign({}, state, {catalog: action.services} )
+      return merge(state, {catalog: action.services} )
     case 'UPDATE_ALL_SERVICES':
-      return Object.assign({}, state, {all_services: action.services} )
+      return merge(state, {all_services: action.services} )
     case 'UPDATE_SERVERBOARD_SERVICES':
-      return Object.assign({}, state, {current_services: action.services} )
+      return merge(state, {current_services: action.services} )
     case '@RPC_EVENT/serverboard.added':
-      return Object.assign({}, state, {serverboards: state.serverboards.concat(action.serverboard) } )
+      return merge(state, {serverboards: state.serverboards.concat(action.serverboard) } )
     case '@RPC_EVENT/serverboard.deleted':
-      return Object.assign({}, state, {serverboards: state.serverboards.filter( s => s.shortname != action.shortname ) } )
+      return merge(state, {serverboards: state.serverboards.filter( s => s.shortname != action.shortname ) } )
     case '@RPC_EVENT/serverboard.updated':
       {
       let serverboards = state.serverboards.map( s => {
@@ -38,7 +45,7 @@ function serverboard(state=default_state, action){
       if (state.current==action.shortname)
         current_services=action.serverboard.services
 
-      return Object.assign({}, state, {serverboards, current_services})
+      return merge(state, {serverboards, current_services})
       }
     case '@RPC_EVENT/service.updated':
       {
@@ -55,8 +62,21 @@ function serverboard(state=default_state, action){
         }).filter( (s) => s != undefined )
         if (!changed)
           current_services.push(action.service)
-        return Object.assign({}, state, {current_services})
+        return merge(state, {current_services})
       }
+    case 'UPDATE_SERVERBOARD_WIDGETS':
+      const widgets=action.widgets
+      return merge(state, {widgets})
+    case "@RPC_EVENT/serverboard.widget.added":
+      return merge(state, {widgets: state.widgets.concat(action)})
+    case "@RPC_EVENT/serverboard.widget.updated":
+      return merge(state, {widgets: state.widgets.map( (w) => {
+        if (w.uuid==action.uuid)
+          return merge(w, {config: action.config})
+        return w
+      }) } )
+    case "@RPC_EVENT/serverboard.widget.removed":
+      return merge(state, {widgets: state.widgets.filter( (w) => (w.uuid != action.uuid ) )} )
   }
   return state
 }

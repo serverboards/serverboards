@@ -54,3 +54,33 @@ export function random_color(str){
 
   return color_set[hash(str)%color_set.length]
 }
+
+/// Merges two dicts into a new one. Do not modify origins. B items have priority.
+export function merge(a,b){
+  return Object.assign({}, a, b)
+}
+
+export function object_is_equal(a,b){
+  if (a == b) // Fast comparison, for object always false
+    return true
+  if (a == undefined || b == undefined) // Only one, (see prev comparison), so !=
+    return false
+  for(let k in a){
+    if (!b.hasOwnProperty(k))
+      return false
+    let v=a[k]
+    switch(typeof(v)){
+      case 'object':
+        if (!object_is_equal(v, b[k]))
+          return false
+      break;
+      case 'function': // Ignore fns
+      break;
+      default:
+        if (v!=b[k])
+          return false
+      break;
+    }
+  }
+  return true
+}

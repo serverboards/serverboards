@@ -1,5 +1,6 @@
 import React from 'react'
 import {random_color} from 'app/utils'
+import Board from 'app/containers/serverboard/board'
 
 function Overview(props){
   function tag(tagname){
@@ -12,10 +13,13 @@ function Overview(props){
 
   return (
     <div className="ui background white central">
-    <div className="ui text container">
-      <h1>{props.serverboard.name}</h1>
-      {props.serverboard.tags.map( (t) => tag(t) )}
-      <div className="ui text segment">{props.serverboard.description}</div>
+      <div className="ui text container">
+        <h1>{props.serverboard.name}</h1>
+        {props.serverboard.tags.map( (t) => tag(t) )}
+        <div className="ui text container">{props.serverboard.description}</div>
+      </div>
+      <div className="ui container" style={{paddingTop:30}}>
+        <Board location={props.location} serverboard={props.serverboard.shortname}/>
       </div>
     </div>
   )

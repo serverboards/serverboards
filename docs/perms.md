@@ -34,6 +34,9 @@ serverboard.update -- Modify serverboard
 serverboard.delete -- Deletes serverboard
 serverboard.info -- Gets all info from serverboard
 
+serverboard.widget.add -- Can add widgets
+serverboard.widget.update -- Can update widgets
+
 ## Services
 
 service.add -- Add/remove services

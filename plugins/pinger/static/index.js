@@ -29,7 +29,7 @@ function update(){
   })
 }
 
-function main(config){
+function main(_el, config){
   console.log("Called JS! %o", config)
   if (config && config.service){
     ip=config.service.config.ip

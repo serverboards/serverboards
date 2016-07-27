@@ -49,9 +49,16 @@ function serverboard_reload_services(shortname){
 
 function serverboard_attach_service(serverboard_shortname, service_uuid){
   return function(dispatch){
-    console.log("Attach %o, %o", serverboard_shortname, service_uuid)
     rpc.call("service.attach",[serverboard_shortname, service_uuid]).then(function(){
       Flash.info("Added service to serverboard")
+    })
+  }
+}
+
+function serverboards_widget_list(serverboard){
+  return function(dispatch){
+    rpc.call("serverboard.widget.list", [serverboard]).then((widgets) => {
+      dispatch({type:"UPDATE_SERVERBOARD_WIDGETS", serverboard, widgets})
     })
   }
 }
@@ -62,5 +69,6 @@ export {
   serverboard_delete,
   serverboard_update,
   serverboard_reload_services,
-  serverboard_attach_service
+  serverboard_attach_service,
+  serverboards_widget_list
   }

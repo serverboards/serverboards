@@ -262,6 +262,20 @@ plugins.data_get("serverboards.core.notifications/telegram", "user_to_map")
 
 ## serverboard.info(shortname)
 
+## serverboard.widget.add(attrs)
+
+attr MUST have a "serverboard" with the serverboard shortname
+
+## serverboard.widget.update(changes)
+
+changes MUST have a "uuid" with the widget uuid
+
+## serverboard.widget.list(serverboard_shortname)
+
+## serverboard.widget.catalog(serverboard_shortname)
+
+Returns compatible widgets for this serverboard
+
 # Services
 
 ## service.add(attributes) -> UUID

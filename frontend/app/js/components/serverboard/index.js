@@ -49,7 +49,7 @@ var Service = function(props){
       <Sidebar/>
       <SidebarSections section={props.params.section} serverboard={props.serverboard} onSectionChange={props.handleSectionChange}/>
       <div className="ui central white background">
-        <Section serverboard={props.serverboard} subsection={props.params.subsection}/>
+        <Section serverboard={props.serverboard} subsection={props.params.subsection} location={props.location}/>
       </div>
     </div>
   )
