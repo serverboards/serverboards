@@ -10,13 +10,13 @@ defmodule Serverboards.Serverboard.Widget do
   alias Serverboards.Repo
 
   def setup_eventsourcing(es) do
-    EventSourcing.subscribe es, :add_widget, fn attr, me ->
+    EventSourcing.subscribe es, :add_widget, fn attr, _me ->
       widget_add_real(attr.serverboard, attr)
     end
-    EventSourcing.subscribe es, :update_widget, fn attr, me ->
+    EventSourcing.subscribe es, :update_widget, fn attr, _me ->
       widget_update_real(attr.uuid, attr)
     end
-    EventSourcing.subscribe es, :remove_widget, fn attr, me ->
+    EventSourcing.subscribe es, :remove_widget, fn attr, _me ->
       widget_remove_real(attr.uuid)
     end
   end
@@ -40,7 +40,7 @@ defmodule Serverboards.Serverboard.Widget do
 
   TODO. Now returns all.
   """
-  def catalog(serverboard) do
+  def catalog(_serverboard) do
     for w <- Serverboards.Plugin.Registry.filter_component([type: "widget"]) do
       %{
         id: w.id,
@@ -67,7 +67,7 @@ defmodule Serverboards.Serverboard.Widget do
       select: s.id
       )
     data = Map.put(data, :serverboard_id, serverboard_id)
-    {:ok, widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
+    {:ok, _widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
 
     Serverboards.Event.emit("serverboard.widget.added", data, ["serverboard.info"])
     Serverboards.Event.emit("serverboard.widget.added[#{serverboard}]", data, ["serverboard.info"])
