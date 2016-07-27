@@ -29,6 +29,25 @@ defmodule Serverboards.Serverboard.Widget do
     {:ok, list}
   end
 
+
+  @doc ~S"""
+  Returns the list of compatible plugins for the given serverboard.
+
+  Compatibility depends on installed services / traits.
+
+  TODO. Now returns all.
+  """
+  def catalog(serverboard) do
+    for w <- Serverboards.Plugin.Registry.filter_component([type: "widget"]) do
+      %{
+        id: w.id,
+        name: w.name,
+        description: w.description,
+        params: w.extra[:params]
+      }
+    end
+  end
+
   def widget_add(serverboard, data, me) do
     Logger.debug("Pre #{inspect data}")
     uuid = data[:uuid] || UUID.uuid4

@@ -59,6 +59,10 @@ defmodule Serverboards.Serverboard.RPC do
       Serverboards.Serverboard.Widget.widget_list(shortname)
     end, [required_perm: "serverboard.info"]
 
+    RPC.MethodCaller.add_method mc, "serverboard.widget.catalog", fn [serverboard] ->
+        Serverboards.Serverboard.Widget.catalog(serverboard)
+    end, [required_perm: "serverboard.info"]
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc

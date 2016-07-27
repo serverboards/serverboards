@@ -2,7 +2,7 @@ require Logger
 
 defmodule ServerboardsTest do
   use ExUnit.Case
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   doctest Serverboards
   doctest Serverboards.Utils, import: true
@@ -55,5 +55,8 @@ defmodule ServerboardsTest do
 
     assert Test.Client.expect(client, method: "serverboard.widget.updated")
     {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "serverboard.widget.list", [sbds])
+
+    # just dont fail
+    {:ok, _catalog} = Test.Client.call(client, "serverboard.widget.catalog", ["SBDS-TST13"])
   end
 end

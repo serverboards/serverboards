@@ -272,6 +272,10 @@ changes MUST have a "uuid" with the widget uuid
 
 ## serverboard.widget.list(serverboard_shortname)
 
+## serverboard.widget.catalog(serverboard_shortname)
+
+Returns compatible widgets for this serverboard
+
 # Services
 
 ## service.add(attributes) -> UUID
