@@ -16,6 +16,9 @@ defmodule Serverboards.Serverboard.Widget do
     EventSourcing.subscribe es, :update_widget, fn attr, me ->
       widget_update_real(attr.uuid, attr)
     end
+    EventSourcing.subscribe es, :remove_widget, fn attr, me ->
+      widget_remove_real(attr.uuid)
+    end
   end
 
   def widget_list(serverboard) do
@@ -83,6 +86,19 @@ defmodule Serverboards.Serverboard.Widget do
     Repo.update( Model.Widget.changeset(prev, data) )
 
     Serverboards.Event.emit("serverboard.widget.updated", data, ["serverboard.info"])
+    :ok
+  end
+
+  def widget_remove(uuid, me) do
+    EventSourcing.dispatch(:serverboard, :remove_widget, %{ uuid: uuid }, me.email )
+    :ok
+  end
+  def widget_remove_real(uuid) do
+    import Ecto.Query
+    Repo.delete_all(
+      from s in Model.Widget,
+      where: s.uuid == ^uuid
+      )
     :ok
   end
 end

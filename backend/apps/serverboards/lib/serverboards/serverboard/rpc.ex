@@ -46,6 +46,11 @@ defmodule Serverboards.Serverboard.RPC do
         }, me)
     end, [required_perm: "serverboard.widget.add", context: true]
 
+    RPC.MethodCaller.add_method mc, "serverboard.widget.remove", fn [uuid], context ->
+      me = Context.get(context, :user)
+      Serverboards.Serverboard.Widget.widget_remove(uuid, me)
+    end, [required_perm: "serverboard.widget.add", context: true]
+
     RPC.MethodCaller.add_method mc, "serverboard.widget.update", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Serverboard.Widget.widget_update(attr["uuid"], %{

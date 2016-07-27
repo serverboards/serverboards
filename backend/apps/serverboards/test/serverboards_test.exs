@@ -58,5 +58,8 @@ defmodule ServerboardsTest do
 
     # just dont fail
     {:ok, _catalog} = Test.Client.call(client, "serverboard.widget.catalog", ["SBDS-TST13"])
+
+    {:ok, _} = Test.Client.call(client, "serverboard.widget.remove", [uuid])
+    {:ok, []} = Test.Client.call(client, "serverboard.widget.list", [sbds])
   end
 end
