@@ -56,11 +56,20 @@ function serverboard_attach_service(serverboard_shortname, service_uuid){
   }
 }
 
+function serverboards_widget_list(serverboard){
+  return function(dispatch){
+    rpc.call("serverboard.widget.list", [serverboard]).then((widgets) => {
+      dispatch({type:"UPDATE_SERVERBOARD_WIDGETS", serverboard, widgets})
+    })
+  }
+}
+
 export {
   serverboard_add,
   serverboard_update_all,
   serverboard_delete,
   serverboard_update,
   serverboard_reload_services,
-  serverboard_attach_service
+  serverboard_attach_service,
+  serverboards_widget_list
   }

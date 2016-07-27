@@ -54,3 +54,27 @@ export function random_color(str){
 
   return color_set[hash(str)%color_set.length]
 }
+
+/// Merges two dicts into a new one. Do not modify origins.
+export function merge(a,b){
+  return $.extend({}, a, b)
+}
+
+export function object_is_equal(a,b){
+  for(let k in a){
+    if (!b.hasOwnProperty(k))
+      return false
+    let v=a[k]
+    switch(typeof(v)){
+      case 'object':
+        if (!object_is_equal(v, b[k]))
+          return false
+      break;
+      default:
+        if (v!=b[k])
+          return false
+      break;
+    }
+  }
+  return true
+}

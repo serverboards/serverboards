@@ -3,19 +3,8 @@ import Widget from './widget'
 import AddWidget from './add_widget'
 import EditWidget from './edit_widget'
 import Loading from 'app/components/loading'
-import rpc from 'app/rpc'
 
 const Board = React.createClass({
-  getInitialState(){
-    return {
-      widgets: undefined
-    }
-  },
-  componentDidMount(){
-    rpc.call("serverboard.widget.list",[this.props.serverboard]).then((widgets) => {
-      this.setState({widgets})
-    })
-  },
   handleEdit(uuid){
     this.setModal("edit", {uuid})
   },
@@ -35,7 +24,7 @@ const Board = React.createClass({
     router: React.PropTypes.object,
   },
   render(){
-    const widgets=this.state.widgets
+    const widgets=this.props.widgets
     if (widgets == undefined){
       return (
         <Loading>Serverboard widget data</Loading>

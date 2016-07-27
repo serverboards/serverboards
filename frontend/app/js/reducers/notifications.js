@@ -1,13 +1,11 @@
+import {merge} from 'app/utils'
+
 // Default status, put over current
 const default_state={
   catalog: undefined,
   config: undefined,
   catalog_with_config: undefined,
   unread: []
-}
-
-function merge(a,b){
-  return $.extend({}, a, b)
 }
 
 function fill_catalog(catalog, config){

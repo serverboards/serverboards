@@ -1,6 +1,6 @@
 import React from 'react'
 import {random_color} from 'app/utils'
-import Board from './board'
+import Board from 'app/containers/serverboard/board'
 
 function Overview(props){
   function tag(tagname){

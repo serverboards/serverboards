@@ -70,6 +70,7 @@ defmodule Serverboards.Serverboard.Widget do
     {:ok, widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
 
     Serverboards.Event.emit("serverboard.widget.added", data, ["serverboard.info"])
+    Serverboards.Event.emit("serverboard.widget.added[#{serverboard}]", data, ["serverboard.info"])
     {:ok, data.uuid}
   end
 
@@ -86,6 +87,12 @@ defmodule Serverboards.Serverboard.Widget do
     Repo.update( Model.Widget.changeset(prev, data) )
 
     Serverboards.Event.emit("serverboard.widget.updated", data, ["serverboard.info"])
+    serverboard = Repo.one(
+      from s in Model.Serverboard,
+      where: s.id == ^prev.serverboard_id,
+      select: s.shortname
+    )
+    Serverboards.Event.emit("serverboard.widget.updated[#{serverboard}]", data, ["serverboard.info"])
     :ok
   end
 
@@ -95,10 +102,19 @@ defmodule Serverboards.Serverboard.Widget do
   end
   def widget_remove_real(uuid) do
     import Ecto.Query
+    serverboard = Repo.one(
+      from s in Model.Serverboard,
+      join: w in Model.Widget,
+      on: w.serverboard_id == s.id,
+      where: w.uuid == ^uuid,
+      select: s.shortname
+    )
     Repo.delete_all(
       from s in Model.Widget,
       where: s.uuid == ^uuid
       )
+    Serverboards.Event.emit("serverboard.widget.removed", %{uuid: uuid}, ["serverboard.info"])
+    Serverboards.Event.emit("serverboard.widget.removed[#{serverboard}]", %{uuid: uuid}, ["serverboard.info"])
     :ok
   end
 end

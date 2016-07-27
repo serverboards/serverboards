@@ -1,5 +1,6 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
+import {object_is_equal} from 'app/utils'
 
 const Widget = React.createClass({
   umount: undefined,
@@ -10,6 +11,13 @@ const Widget = React.createClass({
   },
   componentWillUnmount(){
     this.umount && this.umount()
+  },
+  componentWillReceiveProps(nextprops){
+    if (!object_is_equal(nextprops.config, this.props.config)){
+      this.umount && this.umount()
+      $(this.refs.el).html('')
+      this.umount=plugin.do_widget(this.props.widget, this.refs.el, nextprops.config)
+    }
   },
   render(){
     const config = this.props.config
