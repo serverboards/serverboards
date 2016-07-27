@@ -14,7 +14,8 @@ const Board = event.subscribe_connect(
   ],
   (props) => [
     () => serverboards_widget_list(props.serverboard)
-  ]
+  ],
+  ['serverboard'] // Watch this prop
 )(BoardView)
 
 export default Board
