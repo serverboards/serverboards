@@ -35,7 +35,10 @@ defmodule Serverboards.Mixfile do
             :timex,
             :yaml_elixir,
             :cowboy, :ranch,
-            :exfswatch
+            :exfswatch,
+            :fs,
+            :eventsourcing,
+            :json
             ],
       mod: {Serverboards, []},
     ]
@@ -67,6 +70,8 @@ defmodule Serverboards.Mixfile do
       {:yamerl, github: "yakaz/yamerl" },
       {:cowboy, "~> 1.0"},
       {:exfswatch, "~> 0.1.0"},
+      {:fs, "~> 0.9"},
+      {:exrm, ">= 1.0.8"},
     ]
   end
 end

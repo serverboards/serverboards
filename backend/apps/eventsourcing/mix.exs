@@ -21,7 +21,8 @@ defmodule EventSourcing.Mixfile do
     [applications: [
       :logger,
       :ecto,
-      :postgrex
+      :postgrex,
+      :poison
     ]]
   end
 
@@ -41,7 +42,8 @@ defmodule EventSourcing.Mixfile do
   defp deps do
     [
       {:ecto, "~> 2.0"},
-      {:poison, "~> 1.0"}
+      {:poison, "~> 1.0"},
+      {:exrm, ">= 1.0.8"},
     ]
   end
 end

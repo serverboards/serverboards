@@ -32,6 +32,8 @@ defmodule Backend.Mixfile do
     [
       {:ex_doc, "~> 0.11", only: :dev},
       {:cmark, ">= 0.5.0", only: :dev},
+      {:exrm, ">= 1.0.8"},
+      {:relx, "~> 3.20"}
     ]
   end
 end
