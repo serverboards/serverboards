@@ -17,6 +17,7 @@ setup(){
   echo "export SERVERBOARDS_DB=${SERVERBOARDS_DB}" > ${SERVERBOARDS_PATH}/setup-env.sh
 
   cd backend
+  make setup
   mix ecto.migrate -r Serverboards.Repo
   mix run apps/serverboards/priv/repo/seed.exs
   cd ..

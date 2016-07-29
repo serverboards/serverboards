@@ -48,6 +48,7 @@ test-frontend:
 docker-run:
 	[ "${SERVERBOARDS_PATH}" ] # need SERVERBOARDS_PATH envvar
 	mkdir -p ${SERVERBOARDS_PATH}/
+	[ -e /etc/selinux ] && sudo chcon -Rt svirt_sandbox_file_t ${SERVERBOARDS_PATH}
 	docker run -P \
 		-v ${SERVERBOARDS_PATH}/data/:/home/serverboards/ \
 		-v ${SERVERBOARDS_PATH}/postgres/:/var/lib/postgresql/9.5/main/ \

@@ -4,9 +4,9 @@ all:
 test: test-setup test-do
 
 setup:
-	mix local.hex --force
-	mix local.rebar --force
-	mix deps.get
+	yes Y | mix local.hex --force
+	yes Y | mix local.rebar --force
+	yes Y | mix deps.get
 
 test-setup: setup
 	mix deps.compile
