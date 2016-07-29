@@ -142,24 +142,21 @@ defmodule Serverboards.Logger.Server do
       :timer.cancel(state.timer)
     end
 
-    for {message, timestamp, metadata, level} <- state.queue do
-      changelog = Model.Line.changelog(%Model.Line{}, %{
+    entries = for {message, timestamp, metadata, level} <- state.queue do
+      {ymd, {h,m,s, _}} = timestamp
+      timestamp = {ymd, {h,m,s}}
+      %{
         message: to_string(message),
         level: to_string(level),
-        timestamp: timestamp,
+        timestamp: Ecto.DateTime.from_erl(timestamp),
         meta: Map.new(metadata, fn {k,v} -> {k, to_json_type v} end)
-        })
-      try do
-        case Repo.insert( changelog ) do
-          {:ok, _} -> :ok
-          {:error, changeset} ->
-            IO.puts("Error storing log line: #{inspect changeset}")
-            :error
-        end
-      catch
-        :exit, reason ->
-          IO.puts("Error storing log line: #{inspect reason} (maybe not ready yet)")
+        }
       end
+    try do
+      Repo.insert_all(Model.Line, entries)
+    catch
+      :exit, reason ->
+        IO.puts("Error storing log line: #{inspect reason} (maybe not ready yet)")
     end
 
     {:reply, state.count, %{ count: 0, queue: [], timer: nil}}

@@ -11,7 +11,7 @@ defmodule Serverboards.Logger.Model do
     @required_fields ~w(message level timestamp meta)
     @optional_fields ~w()
 
-    def changelog(line, params \\ :empty) do
+    def changeset(line, params \\ :empty) do
       import Ecto.Changeset
       line
         |> cast(params, @required_fields, @optional_fields)
