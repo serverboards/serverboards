@@ -58,7 +58,7 @@ function Details(props){
   const line = props.line
 
   const filename=line.meta.file
-  const shortpath=filename.slice(filename.indexOf('serverboards/backend')+13,-1)
+  const shortpath=filename.slice(filename.indexOf('serverboards/backend')+13)
   const related=`https://github.com/serverboards/serverboards/tree/master/${shortpath}#L${line.meta.line}`
 
   return (
