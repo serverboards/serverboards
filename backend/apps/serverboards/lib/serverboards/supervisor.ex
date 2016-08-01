@@ -30,15 +30,14 @@ defmodule Serverboards.Supervisor do
     ]
 
     run_servers = (System.get_env("SERVERBOARDS_SERVER") || "true") == "true"
-    Logger.debug("Run servers #{inspect run_servers} #{(System.get_env("SERVERBOARDS_SERVER") || "true") == "true"}")
 
     children = if run_servers do
       tcp = Application.get_env(:serverboards, :tcp, 4040)
       http = Application.get_env(:serverboards, :http, 8080)
-      [
-        worker(Task, [Serverboards.IO.TCP, :accept, tcp]),
-        worker(Serverboards.IO.HTTP, [:start_link, http]),
-      ] ++  children
+      children ++ [
+        worker(Serverboards.IO.HTTP, [:start_link, [http]]),
+        worker(Task, [Serverboards.IO.TCP, :accept, tcp])
+      ]
     else
       children
     end
