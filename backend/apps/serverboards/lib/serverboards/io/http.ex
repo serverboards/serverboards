@@ -37,11 +37,10 @@ defmodule Serverboards.IO.HTTP do
   end
 
   defp postrequest(500, headers, _, req) do
-      log_request( req, headers, 500 )
       body = '500 Internal error'
       headers=update_header(headers, "content-length", "#{Enum.count body}")
       {:ok, req} = :cowboy_req.reply(500, headers, body, req)
-      log_request( req, headers, 404 )
+      log_request( req, headers, 500 )
       req
   end
 
