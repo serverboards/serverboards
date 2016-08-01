@@ -36,7 +36,7 @@ defmodule Serverboards.Supervisor do
       http = Application.get_env(:serverboards, :http, 8080)
       children ++ [
         worker(Serverboards.IO.HTTP, [:start_link, [http]]),
-        worker(Task, [Serverboards.IO.TCP, :accept, tcp])
+        worker(Task, [Serverboards.IO.TCP, :accept, [tcp]])
       ]
     else
       children
