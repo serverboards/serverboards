@@ -21,9 +21,10 @@ config :serverboards,
   plugin_path: "../plugins/"
 
 config :serverboards, Serverboards.HTTP.Endpoint,
-  server: true,
-  url: [host: "localhost"],
-  http: [port: 8080],
+  server: (System.get_env("SERVERBOARDS_SERVER") || "true") == "true",
+  servername: "localhost",
+  http: 8080,
+  tcp: 4040,
   root: Path.dirname(__DIR__),
   secret_key_base: "z/AByyR5GKLMJjrMpW/a/pbenQxIYoa3Pa27Ibxs6LLPK1zev45A3zuGShA8aXoH",
   render_errors: [accepts: ~w(html json)]
@@ -49,6 +50,8 @@ config :eventsourcing, Eventsourcing.Repo,
     pool: Ecto.Adapters.SQL.Sandbox,
     url: dburl
   ]
+config :eventsourcing, ecto_repos: []
+
 
 config :serverboards,
   plugin_paths: [

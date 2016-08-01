@@ -14,9 +14,7 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.Repo, []),
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
-      worker(Task, [Serverboards.IO.TCP, :accept, [4040]]),
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
-      worker(Serverboards.IO.HTTP, [:start_link, [8080]]),
       worker(Serverboards.Auth, [:start_link, []]),
       worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
       worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
@@ -30,6 +28,20 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
     ]
+
+    run_servers = (System.get_env("SERVERBOARDS_SERVER") || "true") == "true"
+    Logger.debug("Run servers #{inspect run_servers} #{(System.get_env("SERVERBOARDS_SERVER") || "true") == "true"}")
+
+    children = if run_servers do
+      tcp = Application.get_env(:serverboards, :tcp, 4040)
+      http = Application.get_env(:serverboards, :http, 8080)
+      [
+        worker(Task, [Serverboards.IO.TCP, :accept, tcp]),
+        worker(Serverboards.IO.HTTP, [:start_link, http]),
+      ] ++  children
+    else
+      children
+    end
 
     opts = [strategy: :one_for_one]
 

@@ -34,3 +34,21 @@ user write simplified RPC calls:
 > echo "Hola mundo"
 "Hola mundo"
 ```
+
+## Command line considerations for backend
+
+### Environmental vars:
+
+* SERVERBOARDS_DB -- postgres://username:password@hostname/dbname
+* SERVERBOARDS_SERVER -- true -- Run the server mode (TCP/HTTP)
+
+### Scripts
+
+Check scripts at scripts/* as they contain several day to day management tasks,
+as updating permission list needed after new deployments.
+
+Running should be as:
+
+```shell
+$ SERVERBOARDS_SERVER=false mix run scripts/perms.exs
+```
