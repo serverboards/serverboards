@@ -61,6 +61,14 @@ defmodule Serverboards.Auth do
 			end
 		end
 
+		{:ok, es } = EventSourcing.start_link name: Serverboards.Auth.EventSourcing
+
+    EventSourcing.Model.subscribe es, Serverboards.Auth.EventSourcing, Serverboards.Repo
+    EventSourcing.subscribe es, :debug_full
+
+    Serverboards.Auth.User.setup_eventsourcing(es)
+    Serverboards.Auth.Group.setup_eventsourcing(es)
+
 		#Logger.debug("Auth server ready.")
 
 		{:ok, pid}
@@ -169,15 +177,6 @@ defmodule Serverboards.Auth do
 
 	## server impl
 	def init(:ok) do
-		{:ok, es } = EventSourcing.start_link name: :auth
-		{:ok, _rpc} = Serverboards.Auth.RPC.start_link
-
-		EventSourcing.Model.subscribe es, :auth, Serverboards.Repo
-    EventSourcing.subscribe es, :debug_full
-
-		Serverboards.Auth.User.setup_eventsourcing(es)
-		Serverboards.Auth.Group.setup_eventsourcing(es)
-
 		{:ok, %{
 			auths: %{}
 		} }

@@ -16,6 +16,7 @@ defmodule Serverboards.Plugin.Registry do
   """
   def load_plugins() do
     paths=Application.fetch_env! :serverboards, :plugin_paths
+    Logger.debug("Loading plugins from #{paths}")
     plugins = Enum.flat_map paths, fn path ->
       path = Path.expand path
       case Serverboards.Plugin.Parser.read_dir(path) do

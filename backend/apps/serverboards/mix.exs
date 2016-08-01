@@ -38,7 +38,8 @@ defmodule Serverboards.Mixfile do
             :exfswatch,
             :fs,
             :eventsourcing,
-            :json
+            :json,
+            :uuid
             ],
       mod: {Serverboards, []},
     ]
@@ -72,6 +73,7 @@ defmodule Serverboards.Mixfile do
       {:exfswatch, "~> 0.1.0"},
       {:fs, "~> 0.9"},
       {:exrm, ">= 1.0.8"},
+      {:uuid, "~> 1.1" },
     ]
   end
 end
