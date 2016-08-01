@@ -55,7 +55,7 @@ defmodule Serverboards.IO.HTTP do
     {path, _} = :cowboy_req.path req
     #{headers, _} = :cowboy_req.headers req
     content_length = fetch_header headers, "content-length", "-"
-    if status in [200,101,302] do
+    if status in [200,101,302,304] do
       Logger.info("#{method} #{path} #{inspect status} #{content_length}", method: method, path: path, status: status, content_length: content_length)
     else
       Logger.error("#{method} #{path} #{inspect status} #{content_length}", method: method, path: path, status: status, content_length: content_length)
