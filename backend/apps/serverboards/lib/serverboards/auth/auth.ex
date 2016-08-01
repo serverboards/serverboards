@@ -223,13 +223,19 @@ defmodule Serverboards.Auth do
 
 		# some normalization for bad behaved plugins, be a bit permisive
 		user = case user do
-			nil -> false
-			user -> user
+			nil ->
+				Logger.error("Login failed: #{type}", [ type: type])
+				false
+			false ->
+				Logger.error("Login failed: #{type}", [ type: type])
+				false
+			user ->
+				Logger.info("Login success #{user.email}", [type: type, email: user.email, perms: user.perms ])
+				user
 		end
-		Logger.info("#{inspect user}")
 
 		if user do
-			Logger.info("Logged in #{inspect user} via #{type}", user: user, type: type)
+			#Logger.info("Logged in #{inspect user} via #{type}", user: user, type: type)
 			{:reply, user, state}
 		else
 			{:reply, false, state}

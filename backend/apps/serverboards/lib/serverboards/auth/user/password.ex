@@ -97,6 +97,7 @@ defmodule Serverboards.Auth.User.Password do
 	dummy check, just to take some time and processing.
 	"""
 	def password_check(user, password, _me) do
+		Logger.debug("#{inspect user}, #{inspect password}")
 		import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
 		case Repo.get_by(Model.Password, user_id: user.id) do
 			{:error, _} ->

@@ -98,6 +98,10 @@ defmodule Serverboards.Auth.User do
     }
   end
 
+  def user_info(email) when is_binary(email) do
+    user_info(email, %{ email: email })
+  end
+
   def user_list(_me) do
     Repo.all( from u in Model.User, select: [u.id, u.email, u.is_active, u.name] )
       |> Enum.map( fn [id, email, is_active, name] ->
