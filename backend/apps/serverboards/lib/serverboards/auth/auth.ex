@@ -15,15 +15,17 @@ defmodule Serverboards.Auth do
 	Create new auths:
 
 		iex> add_auth "letmein", fn %{ "email" => email } -> email end
-		iex> auth %{ "type" => "letmein", "email" => "dmoreno@serverboards.io" }
+		iex> {:ok, ret} = auth %{ "type" => "letmein", "email" => "dmoreno@serverboards.io" }
+		iex> ret.email
 		"dmoreno@serverboards.io"
 
 	Using the fake auth plugin:
 
-		iex> auth %{ "type" => "fake", "token" => "XXX" }
-		{:ok, "dmoreno@serverboards.io"}
+		iex> {:ok, ret} = auth %{ "type" => "fake", "token" => "XXX" }
+		iex> ret.email
+		"dmoreno@serverboards.io"
 		iex> auth %{ "type" => "fake", "token" => "xxx" }
-		{:ok, false}
+		false
 
 	"""
 	use GenServer
@@ -94,19 +96,15 @@ defmodule Serverboards.Auth do
 
 		RPC.Client.add_method(client, "auth.auth", fn
 			%{ "type" => _ } = params ->
-				user = auth(params)
-				if user do
-					#remove_method(method_id)
-					#Logger.debug("Logged in!")
-					client_set_user(client, user)
-
-					if cont do
-						cont.(user)
-					end
-					user
-				else
-					#Logger.debug("NOT Logged in.")
-					false
+				case auth(params) do
+					{:ok, user} ->
+						client_set_user(client, user)
+						if cont do
+							cont.(user)
+						end
+						user
+					_ ->
+						false
 				end
 		end)
 		RPC.Client.add_method(client, "auth.reset_password", fn
@@ -186,6 +184,7 @@ defmodule Serverboards.Auth do
 	end
 
 
+	# Try to auth with any user, and return an {:ok, %User{}} or false
 	def handle_call({:auth, params}, _, state) do
 		type = Map.get(params, "type")
 		auth_f = Map.get(state.auths, type)
@@ -221,26 +220,26 @@ defmodule Serverboards.Auth do
 		end
 		#Logger.debug("Auth result #{inspect auth}")
 
-		# some normalization for bad behaved plugins, be a bit permisive
 		user = case user do
-			nil ->
-				Logger.error("Login failed: #{type}", [ type: type])
-				false
-			false ->
-				Logger.error("Login failed: #{type}", [ type: type])
-				false
-			user ->
-				Logger.info("Login success #{user.email}", [type: type, email: user.email, perms: user.perms ])
-				user
+			{:ok, user} -> user
+			nil -> false
+			false -> false
+			user -> user
 		end
 
-		if user do
-			#Logger.info("Logged in #{inspect user} via #{type}", user: user, type: type)
-			{:reply, user, state}
-		else
-			{:reply, false, state}
+		user = case user do
+			email when is_binary(email) ->
+				Logger.info("Login success #{email}", [type: type, email: email ])
+				{:ok, Serverboards.Auth.User.user_info user}
+			%{ email: email, perms: _perms, name: _name } = user ->
+				Logger.info("Login success #{email}", [type: type, email: email ])
+				{:ok, user}
+			_ ->
+				Logger.error("Login failed: #{type} // #{inspect user}", [ type: type])
+				false
 		end
 
+		{:reply, user, state}
 	end
 
 	def handle_call({:add_auth, name, f}, _, state) do

@@ -64,13 +64,8 @@ defmodule Serverboards.Auth.User do
   end
   def user_info(email, options, me) when is_binary(email) and is_map(me) do
     if (me.email == email) or (Enum.member? me.perms, "auth.info_any_user") do
-      user=case Repo.get_by(Model.User, email: email) do
-        {:error, _} ->
-          Logger.warn("Try to get non existant user by email: #{email}")
-          nil
-        user -> user
-      end
-
+      user=Repo.get_by(Model.User, email: email)
+      
       cond do
         user == nil ->
           Logger.debug("No such user #{email}")

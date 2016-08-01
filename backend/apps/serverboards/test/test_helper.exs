@@ -5,7 +5,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, :manual)
 Serverboards.Auth.add_auth "freepass", fn params ->
   require Logger
   Logger.debug("Freepass: #{inspect params}")
-  "dmoreno@coralbits.io"
+  "dmoreno@serverboards.io"
 end
 
 ExUnit.start()
