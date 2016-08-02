@@ -4,8 +4,8 @@ defmodule Serverboards.Auth.RPC do
   alias MOM.RPC
   alias Serverboards.Auth
 
-  def start_link do
-    {:ok, mc} = RPC.MethodCaller.start_link
+  def start_link(_args \\ [], options \\ []) do
+    {:ok, mc} = RPC.MethodCaller.start_link [name: __MODULE__] ++ options
 
     # Adds that it needs permissions and user
     Serverboards.Utils.Decorators.permission_method_caller mc

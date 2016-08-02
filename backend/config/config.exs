@@ -17,9 +17,6 @@ config :logger, :backends,
     #:console,
   ]
 
-config :serverboards,
-  plugin_path: "../plugins/"
-
 config :serverboards, Serverboards.HTTP.Endpoint,
   server: (System.get_env("SERVERBOARDS_SERVER") || "true") == "true",
   servername: "localhost",
@@ -57,6 +54,7 @@ config :serverboards,
   plugin_paths: [
     "../plugins/",
   ],
+  frontend_path: "../frontend/dist",
   debug: false
 
 

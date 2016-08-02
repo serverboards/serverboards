@@ -13,25 +13,24 @@ help:
 compile: compile-backend compile-frontend
 
 compile-backend:
-	(cd backend; make compile)
+	(cd backend; $(MAKE) compile)
 
 compile-frontend:
-	(cd frontend; make compile)
+	(cd frontend; $(MAKE) compile)
 
 setup: setup-backend setup-frontend
 
-git-submodules:
-	git submodule update --recursive
-
 setup-backend:
-	(cd backend; make setup)
+	(cd backend; $(MAKE) setup)
 
 setup-frontend:
-	(cd frontend; make setup)
+	(cd frontend; $(MAKE) setup)
 
 clean:
-	cd backend; mix clean
-	cd frontend; make clean
+	cd backend; $(MAKE) clean
+	cd frontend; $(MAKE) clean
+	rm rel -rf
+	rm serverboards.tar.gz -f
 
 docker: compile
 	docker build -t serverboards .
@@ -40,10 +39,10 @@ docker: compile
 test: test-backend test-frontend
 
 test-backend:
-	cd backend; make test
+	cd backend; $(MAKE) test
 
 test-frontend:
-	cd frontend; make test
+	cd frontend; $(MAKE) test
 
 docker-run:
 	[ "${SERVERBOARDS_PATH}" ] # need SERVERBOARDS_PATH envvar
@@ -53,3 +52,14 @@ docker-run:
 		-v ${SERVERBOARDS_PATH}/data/:/home/serverboards/ \
 		-v ${SERVERBOARDS_PATH}/postgres/:/var/lib/postgresql/9.5/main/ \
 		serverboards
+
+release: serverboards.tar.gz
+
+serverboards.tar.gz: compile-frontend compile-backend
+	cp backend/apps/serverboards/rel . -a
+	mkdir -p rel/serverboards/share/serverboards/
+	cp -a frontend/dist rel/serverboards/share/serverboards/frontend
+	cp -a plugins rel/serverboards/share/serverboards/plugins
+	rm rel/serverboards/share/serverboards/plugins/.git -rf
+
+	cd rel && tar cfz serverboards.tar.gz serverboards

@@ -14,8 +14,9 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.Repo, []),
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
+      supervisor(Serverboards.Auth.Supervisor, []),
+
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
-      worker(Serverboards.Auth, [:start_link, []]),
       worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
       worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
       worker(Serverboards.Plugin.Data, [ [name: Serverboards.Plugin.Data] ]),
