@@ -193,7 +193,7 @@ defmodule Serverboards.IO.HTTP do
             200,
             [
               {"content-type", mimetype},
-              {"content-length", to_string(String.length(content))},
+              {"content-length", to_string(byte_size(content))},
               {"access-control-allow-origin", "*"}
             ],
             content,
