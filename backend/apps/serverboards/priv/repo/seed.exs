@@ -8,7 +8,12 @@
 #
 require Logger
 
-{:ok, password} = File.read '/etc/hostname'
+password = case System.get_env("SERVERBOARDS_PASSWORD") do
+  nil ->
+    {:ok, password} = File.read('/etc/hostname')
+    password
+  other -> other
+end
 
 data = [
   groups: [
