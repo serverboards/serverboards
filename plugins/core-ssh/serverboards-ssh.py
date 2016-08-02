@@ -4,7 +4,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, urlparse, re
 
 ID_RSA=os.path.expanduser("~/.ssh/id_rsa")
-ID_RSA=os.path.expanduser("/tmp/id_rsa")
 ID_RSA_PUB=ID_RSA+'.pub'
 
 def ensure_ID_RSA():
