@@ -15,7 +15,8 @@ def render_message(_to, user, message):
 
 @serverboards.rpc_method
 def send_email(user=None, config=None, message=None):
-    assert settings
+    if not settings:
+        return False
     _to = config and config.get("email") or user["email"]
     msg = MIMEMultipart('alternative')
 
@@ -55,6 +56,9 @@ if len(sys.argv)==2 and sys.argv[1]=="test":
             "extra":[]
         })
 else:
-    settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
+    try:
+        settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
+    except:
+        settings=None
 
     serverboards.loop()
