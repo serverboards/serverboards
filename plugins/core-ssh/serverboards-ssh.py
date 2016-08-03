@@ -69,9 +69,21 @@ def open(url):
     return _uuid
 
 @serverboards.rpc_method
-def send(uuid, data):
+def send(uuid, data=None, data64=None):
+    """
+    Sends data to the terminal.
+
+    It may be `data` as utf8 encoded, or `data64` as base64 encoded
+
+    data64 is needed as control charaters as Crtl+L are not utf8 encodable and
+    can not be transmited via json.
+    """
     sp=sessions[uuid]
-    ret = sp.send(bytes(data, 'ascii'))
+    if not data:
+        data=base64.decodestring(bytes(data64,'ascii'))
+    else:
+        data=bytes(data, 'ascii')
+    ret = sp.send(data)
     return ret
 
 @serverboards.rpc_method
@@ -79,16 +91,26 @@ def sendline(uuid, data):
     return send(uuid, data+'\n')
 
 @serverboards.rpc_method
-def recv(uuid):
+def recv(uuid, encoding='utf8'):
+    """
+    Reads some data from the ssh end.
+
+    It may be encoded for transmission. Nromally all text is utf8, but control
+    chars are not, and they can not be converted for JSON encoding. Thus base64
+    is allowed as encoding.
+    """
     sp=sessions[uuid]
     try:
-        data = sp.read_nonblocking(128,0)
+        data = sp.read_nonblocking(4096,0)
     except pexpect.exceptions.TIMEOUT:
         data = b''
     except:
         import traceback; traceback.print_exc()
         raise
-    return str( base64.encodestring(data), 'ascii' )
+    if encoding=='b64':
+        return str( base64.encodestring(data), 'ascii' )
+    return str( data, encoding )
+
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
