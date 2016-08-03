@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import {MarkdownPreview} from 'react-marked-markdown';
 
 require("sass/messages.sass")
 
@@ -15,7 +16,7 @@ var FlashMessage=React.createClass({
     return (
       <div className={"ui message "+color}>
         <i className="close icon" onClick={() => this.props.onClose(this.props.message)}></i>
-        {this.props.message}
+        <MarkdownPreview value={this.props.message}/>
       </div>
     )
   }
