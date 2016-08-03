@@ -57,6 +57,17 @@ defmodule Serverboards.IO.Cmd do
     GenServer.call(cmd, {:client})
   end
 
+  # returns the string length from the list_lines
+  defp list_line_length(l) when is_binary(l) do
+    byte_size(l)
+  end
+  defp list_line_length([l | rest]) when is_binary(l) do
+    list_line_length(l) + list_line_length(rest)
+  end
+  defp list_line_length(l) when is_list(l) do # when is char list (as from stdin)
+    Enum.count(l)
+  end
+
   ## server implementation
   def init({cmd, args, cmdopts, perms}) do
     Process.flag(:trap_exit, true)
@@ -88,6 +99,7 @@ defmodule Serverboards.IO.Cmd do
       cmd: cmd,
       port: port,
       client: client,
+      line: [],
     }
     {:ok, state}
   end
@@ -131,13 +143,22 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do
+    line = to_string([state.line, line])
     case RPC.Client.parse_line(state.client, line) do
       {:error, e} ->
         Logger.error("Error parsing line: #{inspect e}")
         Logger.debug("Offending line is: #{line}")
       _ -> nil
     end
-    {:noreply, state}
+    {:noreply, %{ state | line: [] }}
+  end
+  def handle_info({ _, {:data, {:noeol, line}}} = input, state) do
+    line = [state.line, line]
+    if list_line_length(line) > (1024*8) do # 8kb line.. long one indeed.
+      {:stop, :too_long_line}
+    else
+      {:noreply, %{ state | line: line }}
+    end
   end
   def handle_info({:EXIT, port, :normal}, state) when is_port(port) do
     {:stop, :normal, state}
