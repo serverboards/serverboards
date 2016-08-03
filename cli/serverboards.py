@@ -38,7 +38,7 @@ def debugc(s, **kwargs):
     """
     printc(s, file=sys.stderr, **kwargs)
 
-def parse_command(line):
+def parse_command(line, vars={}):
     """
     Parses a line and returns a simplified json rpc call dict.
 
@@ -74,6 +74,8 @@ def parse_command(line):
             return None
         elif a.isdigit():
             return int(a)
+        elif a.startswith('$'):
+            return resolve_var(a[1:], vars)
         elif '=' in a:
             k,v = a.split('=')
             return {k.strip():v.strip()}
@@ -93,10 +95,22 @@ def parse_command(line):
                 r.update(d)
             return r
         return ld
+    def resolve_var(expr, vars):
+        if not type(vars) in (dict,list):
+            return '%s.%s'%(str(vars), expr)
+        if '.' in expr:
+            (pre,post) = expr.split('.',1)
+            if pre.isdigit():
+                pre=int(pre)
+            return resolve_var(post, vars[pre])
+        if expr.isdigit():
+            expr=int(expr)
+        return vars[expr]
+
 
     cmd = shlex.split( line )
     return {
-        'method':cmd[0],
+        'method':parse_arg(cmd[0]),
         'params':list_or_dict( [parse_arg(x) for x in cmd[1:]] )
     }
 
@@ -115,6 +129,33 @@ class Client:
     def __init__(self, iostream):
         self.maxid=1
         self.iostream=iostream
+        self.vars={}
+        self.builtin={
+            's': self.builtin_set,
+            'set': self.builtin_set,
+            'unset': self.builtin_unset,
+            'vars': lambda :self.vars,
+            'debug': self.set_debug,
+            'print': lambda x: x,
+            'p': lambda x: x,
+            'import': self.parse_file,
+        }
+        self.debug=False
+
+    def set_debug(self, _on=True):
+        self.debug=_on
+        return self.debug
+
+    def builtin_set(self, varname, expr=None):
+        if expr is None:
+            expr=self.vars['']
+        self.vars[varname]=expr
+        return expr
+
+    def builtin_unset(self, varname):
+        old = self.vars[varname]
+        del self.vars[varname]
+        return old
 
     @staticmethod
     def printc(*a, **b):
@@ -129,8 +170,6 @@ class Client:
             self.maxid+=1
         else:
             cmd['method']=cmd['method'][1:]
-
-        #Client.printc(json.dumps(cmd), color="grey")
 
         self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
         return cmd
@@ -159,12 +198,27 @@ class Client:
 
     def call(self, line):
         """
-        Performs the parsing, sending command, and receiving answer
+        Performs the parsing, sending command, and receiving answer.
+
+        May be a builtin command, as set.
         """
         if line.startswith('#'):
             return None
-        cmd = self.send_command( parse_command(line) )
-        res = self.wait_for_response(cmd.get('id'))
+        cmd = parse_command(line, self.vars)
+        if self.debug:
+            Client.printc(json.dumps(cmd), color="grey")
+        if cmd['method'] in self.builtin:
+            params = cmd['params']
+            if type(params) == list:
+                res = {'id': cmd.get('id'), 'result': self.builtin[cmd['method']](*params)}
+            else:
+                res = {'id': cmd.get('id'), 'result': self.builtin[cmd['method']](**params)}
+        else:
+            req = self.send_command( cmd )
+            res = self.wait_for_response(req.get('id'))
+        # keep last result
+        if res and res.get('result')!=self.vars:
+            self.vars['']=res.get('result')
         return res
 
     def parse_file(self, filename):
@@ -175,6 +229,28 @@ class Client:
             except Exception:
                 pass
         return ret
+
+    def autocomplete(self, text):
+        def vars(vs):
+            if type(vs)==dict:
+                for k,v in vs.items():
+                    yield k
+                    for s in vars(v):
+                        yield '%s.%s'%(k,s)
+            if type(vs)==list:
+                for k,v in enumerate(vs):
+                    yield '%d'%(k)
+                    for s in vars(v):
+                        yield '%d.%s'%(k,s)
+            return
+        try:
+            candidates = list(self.call("dir")['result'])
+            candidates += list(self.builtin.keys())
+            candidates += list('$'+x for x in vars(self.vars))
+        except:
+            import traceback; traceback.print_exc()
+            return []
+        return candidates
 
 class Completer:
     """
@@ -215,7 +291,7 @@ class Completer:
 
     def complete(self, text, index):
         if index==0:
-            self.options=sorted( self.client.call("dir")['result'] )
+            self.options=sorted( self.client.autocomplete(text) )
             if text:
                 self.options=[x+' ' for x in self.options if x.startswith(text)]
         if index<len(self.options):
