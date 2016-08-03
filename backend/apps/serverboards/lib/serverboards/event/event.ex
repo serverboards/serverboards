@@ -41,10 +41,6 @@ defmodule Serverboards.Event do
       end)
     end)
 
-    MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
-      Logger.info("Sent #{payload.type} event", event: payload)
-    end)
-
     Serverboards.Event.RPC.start_link(options)
   end
 
