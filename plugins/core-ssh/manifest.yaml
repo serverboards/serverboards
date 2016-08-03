@@ -70,4 +70,5 @@ components:
     id: daemon
     type: cmd
     timeout: 10000
+    perms: event.emit
     command: serverboards-ssh.py

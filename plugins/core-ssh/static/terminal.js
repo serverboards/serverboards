@@ -15,9 +15,12 @@ function main(element, config){
   term.send_buffer=''
   term.ssh='undefined'
   term.host='undefined'
+  term.end=0
 
   function poll_data(){
-    rpc.call(term.ssh+".recv",[term.host,'b64']).then(function(data){
+    rpc.call(term.ssh+".recv",{uuid: term.host, start: term.end, encoding:'b64'}).then(function(data){
+      term.end=data.end
+      data=data.data
       if (data){
         term.term.write(atob(data))
       }
@@ -31,10 +34,10 @@ function main(element, config){
     term.send_buffer+=data
     if (term.send_timeout_id)
       clearTimeout(term.send_timeout_id)
-    term.send_timeout_id=setTimeout(function(){ // Coalesce 100 ms worth of user input
+    term.send_timeout_id=setTimeout(function(){ // Coalesce 20 ms worth of user input
       rpc.call(term.ssh+".send", {uuid:term.host, data64: btoa(term.send_buffer)})
       term.send_buffer=''
-    }, 100)
+    }, 20)
   }
 
   rpc.call("plugin.start", ["serverboards.core.ssh/daemon"]).then(function(ssh){
@@ -42,8 +45,20 @@ function main(element, config){
     return rpc.call(ssh+".open", [config.service.config.url])
   }).then(function(host){
     term.host=host
-    term.interval_id=setInterval(poll_data, 1000) // polling, very bad
+    //term.interval_id=setInterval(poll_data, 1000) // polling, very bad
     term.term.on('data', send_data)
+
+    // subscribe to new data at terminal
+    var evname='terminal.data.received.'+host
+    rpc.call("event.subscribe", [evname])
+    rpc.on(evname, function(data){
+      var newdata=atob(data.data64)
+      term.term.write(newdata)
+      if (data.end != (term.end + newdata.length)){
+        console.warn("Data end do not match. Maybe some data lost.")
+      }
+      term.end=data.end
+    })
   }).catch(function(e){
     Flash.error("Could not start SSH session\n\n"+e)
   })

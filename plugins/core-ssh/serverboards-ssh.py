@@ -1,7 +1,7 @@
 #!/bin/python3
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
-import serverboards, pexpect, shlex, re
+import serverboards, pexpect, shlex, re, subprocess
 import urllib.parse as urlparse
 import base64
 
@@ -63,9 +63,14 @@ def open(url):
     (opts, url) = url_to_opts(url)
     opts += ['--', '/bin/bash']
     serverboards.rpc.debug(repr(opts))
-    sp=pexpect.spawn("/usr/bin/ssh",opts)
-    _uuid = uuid.uuid4().hex
-    sessions[_uuid]=sp
+    #sp=pexpect.spawn("/usr/bin/ssh",opts)
+    sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _uuid = str(uuid.uuid4())
+    sessions[_uuid]=dict(process=sp, buffer=b"", end=0)
+
+    serverboards.rpc.add_event(sp.stdout, lambda :new_data_event(_uuid) )
+
     return _uuid
 
 @serverboards.rpc_method
@@ -78,38 +83,66 @@ def send(uuid, data=None, data64=None):
     data64 is needed as control charaters as Crtl+L are not utf8 encodable and
     can not be transmited via json.
     """
-    sp=sessions[uuid]
+    sp=sessions[uuid]['process']
     if not data:
         data=base64.decodestring(bytes(data64,'ascii'))
     else:
         data=bytes(data, 'ascii')
-    ret = sp.send(data)
+    #ret = sp.send(data)
+    ret = os.write( sp.stdin.fileno(), data )
     return ret
 
 @serverboards.rpc_method
 def sendline(uuid, data):
     return send(uuid, data+'\n')
 
+def new_data_event(uuid):
+    sp=sessions[uuid]
+    raw_data = os.read( sp['process'].stdout.fileno(), 4096 )
+    sp['buffer']=(sp['buffer'] + raw_data)[-4096:] # keep last 4k
+    sp['end']+=len(raw_data)
+
+    data = str( base64.encodestring( raw_data ), 'ascii' )
+    serverboards.rpc.event("event.emit", "terminal.data.received.%s"%uuid, {"data64": data, "end": sp["end"]})
+
 @serverboards.rpc_method
-def recv(uuid, encoding='utf8'):
+def recv(uuid, start=None, encoding='utf8'):
     """
     Reads some data from the ssh end.
 
-    It may be encoded for transmission. Nromally all text is utf8, but control
+    It may be encoded for transmission. Normally all text is utf8, but control
     chars are not, and they can not be converted for JSON encoding. Thus base64
     is allowed as encoding.
+
+    It can receive a `start` parameter that is from where to start the buffer to
+    return. The buffer has a position from the original stream, and all data
+    returns to the end of that stream position. Its possible to ask from a specific
+    position and if available will be returned. If its none returns all buffer.
+
+    This can be used to regenrate the terminal status from latest 4096 bytes. On
+    most situations may suffice to restore current view. Also can be used to do
+    polling, although events are recomended.
     """
-    sp=sessions[uuid]
-    try:
-        data = sp.read_nonblocking(4096,0)
-    except pexpect.exceptions.TIMEOUT:
-        data = b''
-    except:
-        import traceback; traceback.print_exc()
-        raise
+    serverboards.rpc.debug(repr(sessions))
+    sp = sessions[uuid]
+    raw_data = sp['buffer']
+    bend = sp['end']
+    bstart = bend-len(raw_data)
+
+    i=0 # on data buffer, where to start
+    if start is not None:
+        if start<bstart:
+            raise Exception("Data not in buffer")
+        elif start>bend:
+            i=len(raw_data) # just end
+        else:
+            i=start-bstart
+    raw_data=raw_data[i:]
     if encoding=='b64':
-        return str( base64.encodestring(data), 'ascii' )
-    return str( data, encoding )
+        data = str( base64.encodestring(raw_data), 'ascii' )
+    else:
+        data = str( raw_data, encoding )
+    return {'end': bend, 'data': data }
 
 
 if __name__=='__main__':
@@ -124,4 +157,4 @@ if __name__=='__main__':
         print(recv(localhost))
         print()
     else:
-        serverboards.loop()
+        serverboards.loop( debug = None )

@@ -1,4 +1,4 @@
-import json, os, sys
+import json, os, sys, select
 
 try:
     input=raw_input
@@ -19,6 +19,8 @@ class RPC:
         self.send_id=1
         self.pid=os.getpid()
         self.manual_replies=set()
+        self.events={}
+        self.add_event(sys.stdin, self.read_parse_line)
 
     def set_debug(self, debug):
         self.stderr=debug
@@ -54,6 +56,8 @@ class RPC:
                     'error': str(e),
                     'id' : rpc['id']
                 }
+        if not f:
+            return { 'error':'not_found', 'id': rpc['id'] }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -66,14 +70,28 @@ class RPC:
 
         # incoming
         while self.loop_status=='IN':
-            l=self.stdin.readline()
-            if not l:
-                self.loop_stop()
-                continue
-            self.debug(l)
-            rpc = json.loads(l)
-            self.__process_request(rpc)
+            self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
+            (read_ready,_,_) = select.select(self.events.keys(),[],[])
+            self.debug("Ready fds: %s"%([x for x in read_ready]))
+            for ready in read_ready:
+                self.events[ready]()
+
         self.loop_status=prev_status
+
+    def read_parse_line(self):
+        l=self.stdin.readline()
+        if not l:
+            self.loop_stop()
+            return
+        self.debug(l)
+        rpc = json.loads(l)
+        self.__process_request(rpc)
+
+    def add_event(self, fd, cont):
+        self.events[fd]=cont
+
+    def remove_event(self, fd):
+        del self.events[fd]
 
     def loop_stop(self):
         self.debug("--- EOF ---")
