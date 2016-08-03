@@ -27,7 +27,7 @@ class RPC:
     def debug(self, x):
         if not self.stderr:
             return
-        if type(x) not in (str, unicode):
+        if type(x) != str:
             x=repr(x)
         self.stderr.write("%d: %s\r\n"%(self.pid, x))
         self.stderr.flush()
@@ -192,7 +192,7 @@ def rpc_method(f):
 
 @rpc_method("dir")
 def __dir():
-    return rpc.rpc_registry.keys()
+    return list( rpc.rpc_registry.keys() )
 
 def loop(debug=None):
     if debug:
@@ -214,7 +214,7 @@ class Config:
     @staticmethod
     def __ensure_path_exists(path):
         try:
-            os.makedirs(path, 0700)
+            os.makedirs(path, 0o0700)
         except OSError as e:
             if 'File exists' not in str(e):
                 raise

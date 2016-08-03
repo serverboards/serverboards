@@ -42,6 +42,13 @@ components:
       html: static/index.html
       js: static/index.js
 
+  - name: SSH Terminal
+    id: terminal
+    description: Can access via SSH to server
+    type: action
+    traits: ssh
+    screen: true
+
   - name: Execute SSH Command
     id: exec
     type: action
