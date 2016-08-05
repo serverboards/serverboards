@@ -94,7 +94,7 @@ defmodule Serverboards.Auth.Group do
 
   def group_add(name, me) when is_binary(name) do
     if Enum.member? me.perms, "auth.modify_groups" do
-      EventSourcing.dispatch(:auth, :add_group, %{name: name}, me.email)
+      EventSourcing.dispatch(Serverboards.Auth.EventSourcing, :add_group, %{name: name}, me.email)
       :ok
     else
       {:error, :not_allowed}
@@ -103,7 +103,7 @@ defmodule Serverboards.Auth.Group do
 
   def group_remove(name, me) when is_binary(name) do
     if Enum.member? me.perms, "auth.modify_groups" do
-      EventSourcing.dispatch(:auth, :remove_group, %{name: name}, me.email)
+      EventSourcing.dispatch(Serverboards.Auth.EventSourcing, :remove_group, %{name: name}, me.email)
       :ok
     else
       {:error, :not_allowed}
@@ -112,7 +112,7 @@ defmodule Serverboards.Auth.Group do
 
   def user_add(group, user, me) when is_binary(group) and is_binary(user) do
     if Enum.member? me.perms, "auth.manage_groups" do
-      EventSourcing.dispatch(:auth, :add_user_to_group, %{group: group, user: user}, me.email)
+      EventSourcing.dispatch(Serverboards.Auth.EventSourcing, :add_user_to_group, %{group: group, user: user}, me.email)
       :ok
     else
       {:error, :not_allowed}
@@ -120,7 +120,7 @@ defmodule Serverboards.Auth.Group do
   end
   def user_remove(group, user, me) when is_binary(group) and is_binary(user) do
     if Enum.member? me.perms, "auth.manage_groups" do
-      EventSourcing.dispatch(:auth, :remove_user_from_group, %{group: group, user: user}, me.email)
+      EventSourcing.dispatch(Serverboards.Auth.EventSourcing, :remove_user_from_group, %{group: group, user: user}, me.email)
       :ok
     else
       {:error, :not_allowed}
@@ -129,7 +129,7 @@ defmodule Serverboards.Auth.Group do
 
   def perm_add(group, perm, me) when is_binary(group) and is_binary(perm) do
     if Enum.member? me.perms, "auth.manage_groups" do
-      EventSourcing.dispatch(:auth, :add_perm_to_group, %{group: group, perm: perm}, me.email)
+      EventSourcing.dispatch(Serverboards.Auth.EventSourcing, :add_perm_to_group, %{group: group, perm: perm}, me.email)
       :ok
     else
       {:error, :not_allowed}
@@ -138,7 +138,7 @@ defmodule Serverboards.Auth.Group do
 
   def perm_remove(group, perm, me) when is_binary(group) and is_binary(perm) do
     if Enum.member? me.perms, "auth.manage_groups" do
-      EventSourcing.dispatch(:auth, :remove_perm_from_group, %{group: group, perm: perm}, me.email)
+      EventSourcing.dispatch(Serverboards.Auth.EventSourcing, :remove_perm_from_group, %{group: group, perm: perm}, me.email)
       :ok
     else
       {:error, :not_allowed}
