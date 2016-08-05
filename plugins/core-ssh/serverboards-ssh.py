@@ -74,6 +74,15 @@ def open(url):
     return _uuid
 
 @serverboards.rpc_method
+def close(uuid):
+    sp=sessions[uuid]
+    serverboards.rpc.remove_event(sp['process'].stdout)
+    sp['process'].kill()
+    sp['process'].wait()
+    del sp['process']
+    return True
+
+@serverboards.rpc_method
 def send(uuid, data=None, data64=None):
     """
     Sends data to the terminal.
@@ -99,6 +108,11 @@ def sendline(uuid, data):
 def new_data_event(uuid):
     sp=sessions[uuid]
     raw_data = os.read( sp['process'].stdout.fileno(), 4096 )
+    if not raw_data:
+        serverboards.rpc.event("event.emit", "terminal.data.received.%s"%uuid, {"eof": True, "end": sp["end"]})
+        serverboards.rpc.remove_event(sp['process'].stdout)
+        sp['process'].wait(1) # wait a little bit, normally will be already exited
+        return
     sp['buffer']=(sp['buffer'] + raw_data)[-4096:] # keep last 4k
     sp['end']+=len(raw_data)
 

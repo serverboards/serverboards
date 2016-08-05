@@ -88,10 +88,12 @@ class RPC:
         self.__process_request(rpc)
 
     def add_event(self, fd, cont):
-        self.events[fd]=cont
+        if not fd in self.events:
+            self.events[fd]=cont
 
     def remove_event(self, fd):
-        del self.events[fd]
+        if fd in self.events:
+            del self.events[fd]
 
     def loop_stop(self):
         self.debug("--- EOF ---")

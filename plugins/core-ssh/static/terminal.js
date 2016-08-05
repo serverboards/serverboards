@@ -1,5 +1,6 @@
-let rpc = Serverboards.rpc
-let Flash = Serverboards.Flash
+'strict mode'
+var rpc = Serverboards.rpc
+var Flash = Serverboards.Flash
 
 function main(element, config){
   var term={}
