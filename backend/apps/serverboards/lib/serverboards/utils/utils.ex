@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.Utils do
   @doc ~S"""
   Performs basic cleaning of a struct to convert it into a record, and remove
@@ -96,4 +98,17 @@ defmodule Serverboards.Utils do
     end), " | ")
   end
 
+  @doc ~S"""
+  Converts a string defining a tie interval to ms, or fails.
+  """
+  def timespec_to_ms!(timespec) do
+    Logger.debug(timespec)
+    case Integer.parse(timespec) do
+      {s, "ms"} -> s
+      {s, "s"} -> s * 1000
+      {s, "m"} -> s * 1000 * 60
+      {s, "h"} -> s * 1000 * 60 * 60
+      {s, "d"} -> s * 1000 * 60 * 60 * 24
+    end
+  end
 end

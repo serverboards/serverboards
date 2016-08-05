@@ -22,15 +22,18 @@ defmodule Serverboards.PluginTest do
   end
 
   test "Plugin test no RPC, singleton" do
-    {:ok, component} = Serverboards.Plugin.Registry.get "serverboards.test.auth/fake"
+    component = Serverboards.Plugin.Registry.find("serverboards.test.auth/fake")
     component = %Serverboards.Plugin.Component{ component | # Force singleton
-      strategy: :singleton,
-      timeout: 1000
+      extra: Map.merge(
+        component.extra,
+        %{ "strategy" => "singleton", "timeout" => "1s" }
+      )
     }
+    Logger.debug(inspect component)
     {:ok, uuid} = Serverboards.Plugin.Runner.start component
     # If start again, same uuid
     {:ok, ^uuid} = Serverboards.Plugin.Runner.start component.id
-    false = Serverboards.Plugin.Runner.stop uuid
+    {:error, :cant_stop} = Serverboards.Plugin.Runner.stop uuid
     # If start again, same uuid
     {:ok, ^uuid} = Serverboards.Plugin.Runner.start component.id
 
@@ -38,6 +41,27 @@ defmodule Serverboards.PluginTest do
     # Should have stopped in bg, if start new uuid
     {:ok, uuid2} = Serverboards.Plugin.Runner.start component.id
     assert uuid2 != uuid
+  end
+
+  test "Plugin test no RPC, singleton, keep using" do
+    component = Serverboards.Plugin.Registry.find("serverboards.test.auth/fake")
+    component = %Serverboards.Plugin.Component{ component | # Force singleton
+      extra: Map.merge(
+        component.extra,
+        %{ "strategy" => "singleton", "timeout" => "1000ms" }
+      )
+    }
+    Logger.debug(inspect component)
+    {:ok, uuid} = Serverboards.Plugin.Runner.start component
+
+    :timer.sleep(800)
+    Serverboards.Plugin.Runner.call uuid, "dir", []
+    :timer.sleep(800)
+    Serverboards.Plugin.Runner.call uuid, "dir", []
+    :timer.sleep(800)
+    # Should have stopped in bg, if start new uuid
+    {:ok, uuid2} = Serverboards.Plugin.Runner.start component.id
+    assert uuid2 == uuid
   end
 
   test "Can start/call/stop plugins" do
