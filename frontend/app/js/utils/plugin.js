@@ -2,9 +2,9 @@ var screens = {}
 var widgets = {}
 
 export function load(url, options){
-  let full_url=url
+  let full_url=`/static/${url}`
   if (localStorage.servername)
-    full_url=`${localStorage.servername}/static/${url}`
+    full_url=`${localStorage.servername}/${url}`
 
   options = $.extend( options || {}, {
     dataType: "script",
