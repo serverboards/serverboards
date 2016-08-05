@@ -54,18 +54,22 @@ defmodule Serverboards.Plugin.Runner do
   """
   def start(runner, %Serverboards.Plugin.Component{} = component)
   when (is_pid(runner) or is_atom(runner)) do
-    case Plugin.Component.run component do
-      {:ok, cmd } ->
-        require UUID
-        uuid = UUID.uuid4
-        Logger.debug("Adding runner #{uuid} #{inspect cmd} to #{inspect runner}")
-        :ok = GenServer.call(runner, {:start, uuid, cmd})
-        {:ok, uuid}
-      {:error, e} ->
-        Logger.error("Error starting plugin component #{inspect component}: #{inspect e}")
-        {:error, e}
+    case GenServer.call(runner, {:get_by_component_id, component.id}) do
+      {:ok, uuid} -> {:ok, uuid}
+      {:error, :not_found} ->
+      case Plugin.Component.run component do
+        {:ok, cmd } ->
+          require UUID
+          uuid = UUID.uuid4
+          Logger.debug("Adding runner #{uuid} #{inspect component.id}")
+          :ok = GenServer.call(runner, {:start, uuid, cmd, component.id})
+          {:ok, uuid}
+        {:error, e} ->
+          Logger.error("Error starting plugin component #{inspect component}: #{inspect e}")
+          {:error, e}
       end
     end
+  end
   def start(runner, plugin_component_id)
   when (is_pid(runner) or is_atom(runner)) and is_binary(plugin_component_id) do
       case Serverboards.Plugin.Registry.find(plugin_component_id) do
@@ -189,13 +193,24 @@ defmodule Serverboards.Plugin.Runner do
 
     {:ok, %{
       method_caller: method_caller,
-      running: %{}
+      running: %{}, # UUID -> cmd
+      by_component_id: %{} # component_id -> UUID, only last
       }}
   end
 
-  def handle_call({:start, id, cmd}, _from, state) do
+  def handle_call({:get_by_component_id, component_id}, _from, state) do
+    ret = case Map.get(state.by_component_id, component_id, false) do
+      false -> {:error, :not_found}
+      uuid -> {:ok, uuid}
+    end
+    {:reply, ret, state}
+  end
+  def handle_call({:start, id, cmd, component_id}, _from, state) do
     {:reply, :ok,
-      %{ state | running: Map.put(state.running, id, cmd) }
+      %{ state |
+        running: Map.put(state.running, id, cmd),
+        by_component_id: Map.put(state.by_component_id, component_id, id)
+      }
     }
   end
   def handle_call({:pop, id}, _from, state) do

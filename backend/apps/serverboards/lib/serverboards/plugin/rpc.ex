@@ -5,7 +5,7 @@ defmodule Serverboards.Plugin.RPC do
   alias Serverboards.Plugin
 
   def start_link(runner) do
-    {:ok, method_caller} = RPC.MethodCaller.start_link
+    {:ok, method_caller} = RPC.MethodCaller.start_link name: Serverboards.Plugin.RPC
     Serverboards.Utils.Decorators.permission_method_caller method_caller
 
     RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id] ->

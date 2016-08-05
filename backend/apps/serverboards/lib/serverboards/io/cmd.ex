@@ -75,8 +75,8 @@ defmodule Serverboards.IO.Cmd do
 
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
-    Logger.debug("Starting command #{cmd} at port #{inspect port}")
     Port.connect(port, server)
+    Logger.debug("Starting command #{cmd} at port #{inspect port}")
 
     {:ok, client} = RPC.Client.start_link [
         writef: fn line ->

@@ -21,6 +21,25 @@ defmodule Serverboards.PluginTest do
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
   end
 
+  test "Plugin test no RPC, singleton" do
+    {:ok, component} = Serverboards.Plugin.Registry.get "serverboards.test.auth/fake"
+    component = %Serverboards.Plugin.Component{ component | # Force singleton
+      strategy: :singleton,
+      timeout: 1000
+    }
+    {:ok, uuid} = Serverboards.Plugin.Runner.start component
+    # If start again, same uuid
+    {:ok, ^uuid} = Serverboards.Plugin.Runner.start component.id
+    false = Serverboards.Plugin.Runner.stop uuid
+    # If start again, same uuid
+    {:ok, ^uuid} = Serverboards.Plugin.Runner.start component.id
+
+    :timer.sleep(2000)
+    # Should have stopped in bg, if start new uuid
+    {:ok, uuid2} = Serverboards.Plugin.Runner.start component.id
+    assert uuid2 != uuid
+  end
+
   test "Can start/call/stop plugins" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
@@ -129,6 +148,5 @@ defmodule Serverboards.PluginTest do
       ]
     ) == {:ok, %{ "test" => true }}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
-
   end
 end

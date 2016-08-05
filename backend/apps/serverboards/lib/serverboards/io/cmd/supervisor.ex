@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.IO.Cmd.Supervisor do
   @moduledoc """
   Supervisor for extranl executed commands/plugins.
