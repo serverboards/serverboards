@@ -25,12 +25,12 @@ defmodule Serverboards.PluginTest do
     component = "serverboards.test.auth/fake_singleton"
     {:ok, uuid} = Serverboards.Plugin.Runner.start component
     # If start again, same uuid
-    {:ok, ^uuid} = Serverboards.Plugin.Runner.start component
-    {:error, :cant_stop} = Serverboards.Plugin.Runner.stop uuid
+    assert {:ok, uuid} == Serverboards.Plugin.Runner.start component
+    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
     # If start again, same uuid
     {:ok, ^uuid} = Serverboards.Plugin.Runner.start component
 
-    :timer.sleep(1200)
+    :timer.sleep(1500)
     # Should have stopped in bg, if start new uuid
     {:ok, uuid2} = Serverboards.Plugin.Runner.start component
     assert uuid2 != uuid
@@ -49,7 +49,7 @@ defmodule Serverboards.PluginTest do
     assert :not_running == Serverboards.Plugin.Runner.status uuid1
     assert :running == Serverboards.Plugin.Runner.status uuid2
     # If start again, same uuid
-    :timer.sleep(1200)
+    :timer.sleep(1500)
     assert :not_running == Serverboards.Plugin.Runner.status uuid2
   end
   test "Plugin test no RPC, init is already running" do

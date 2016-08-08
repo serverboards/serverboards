@@ -55,7 +55,9 @@ defmodule Serverboards.Plugin.Runner do
   def start(runner, %Serverboards.Plugin.Component{} = component)
   when (is_pid(runner) or is_atom(runner)) do
     case GenServer.call(runner, {:get_by_component_id, component.id}) do
-      {:ok, uuid} -> {:ok, uuid}
+      {:ok, uuid} ->
+        Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
+        {:ok, uuid}
       {:error, :not_found} ->
       case Plugin.Component.run component do
         {:ok, pid } ->
@@ -297,7 +299,7 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   def handle_cast({:ping, uuid}, state) do
-    Logger.debug("ping #{inspect uuid }")
+    #Logger.debug("ping #{inspect uuid }")
     case state.timeouts[uuid] do
       oldref ->
         {:ok, :cancel} = :timer.cancel(oldref)
@@ -313,14 +315,16 @@ defmodule Serverboards.Plugin.Runner do
   def handle_info({:timeout, uuid}, state) do
     {entry, running} = Map.pop(state.running, uuid, nil)
     if entry do
-      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.id}",
-        uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.id)
+      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id}",
+        uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.component.id)
       Process.exit(entry.pid, :timeout)
+      by_component_id = Map.drop(state.by_component_id, [entry.component.id])
 
       timeouts = Map.drop(state.timeouts, [uuid])
       {:noreply, %{ state |
         running: running,
-        timeouts: timeouts
+        timeouts: timeouts,
+        by_component_id: by_component_id
       }}
     else
       {:noreply, state}
