@@ -193,6 +193,10 @@ defmodule Serverboards.Plugin.Runner do
   #end
 
 
+  def status(uuid) do
+    GenServer.call(Serverboards.Plugin.Runner, {:status, uuid})
+  end
+
   ## server impl
   def init :ok do
     #Logger.info("Plugin runner ready #{inspect self()}")
@@ -215,13 +219,14 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, ret, state}
   end
   def handle_call({:start, uuid, pid, component}, _from, state) do
+    Logger.debug("Component start #{inspect Map.drop(component,[:plugin])}")
     # get strategy and timeout
     {timeout, strategy} = case Map.get(component.extra, "strategy", "one_for_one") do
       "one_for_one" ->
-        timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout","5m"))
+        timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout", "5m"))
         {timeout, :one_for_one}
       "singleton" ->
-        timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout","5m"))
+        timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout", "5m"))
         {timeout, :singleton}
       "init" ->
         {:never, :init}
@@ -229,6 +234,7 @@ defmodule Serverboards.Plugin.Runner do
     # prepare timeout
     state = if timeout != :never do
       {:ok, timeout_ref} = :timer.send_after( timeout, self, {:timeout, uuid})
+      Logger.debug("new timer #{inspect timeout_ref} #{inspect timeout} #{inspect strategy}")
       %{ state |
         timeouts: Map.put(state.timeouts, uuid, timeout_ref)
       }
@@ -258,17 +264,20 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, :ok, state}
   end
   def handle_call({:stop, uuid}, _from, state) do
-    {entry, running} = Map.pop(state.running, uuid, nil)
-    # only applicable to one_for_one
-    # remove from running and return
-    state = %{ state | running: running }
+    entry = state.running[uuid]
     cond do
       entry == nil ->
         {:reply, {:error, :not_running}, state }
       entry.strategy == :one_for_one ->
         # Maybe remove from timeouts
         :timer.cancel(state.timeouts[uuid])
-        state = %{ state | timeouts: Map.drop(state.timeouts, [uuid]) }
+        running = Map.drop(state.running, [uuid])
+
+        # only applicable to one_for_one
+        state = %{ state |
+          running: running,
+          timeouts: Map.drop(state.timeouts, [uuid])
+        }
 
         {:reply, {:ok, entry.pid}, state }
       true ->
@@ -280,6 +289,10 @@ defmodule Serverboards.Plugin.Runner do
   end
   def handle_call({:get, id}, _from, state) do
     {:reply, Map.get(state.running, id, :not_found), state}
+  end
+  def handle_call({:status, uuid}, _from, state) do
+    status = if Map.has_key?(state.running, uuid) do :running else :not_running end
+    {:reply, status, state}
   end
 
   def handle_cast({:ping, uuid}, state) do

@@ -22,14 +22,7 @@ defmodule Serverboards.PluginTest do
   end
 
   test "Plugin test no RPC, singleton" do
-    component = Serverboards.Plugin.Registry.find("serverboards.test.auth/fake")
-    component = %Serverboards.Plugin.Component{ component | # Force singleton
-      extra: Map.merge(
-        component.extra,
-        %{ "strategy" => "singleton", "timeout" => "1s" }
-      )
-    }
-    Logger.debug(inspect component)
+    component = "serverboards.test.auth/fake_singleton"
     {:ok, uuid} = Serverboards.Plugin.Runner.start component
     # If start again, same uuid
     {:ok, ^uuid} = Serverboards.Plugin.Runner.start component.id
@@ -37,10 +30,38 @@ defmodule Serverboards.PluginTest do
     # If start again, same uuid
     {:ok, ^uuid} = Serverboards.Plugin.Runner.start component.id
 
-    :timer.sleep(2000)
+    :timer.sleep(1200)
     # Should have stopped in bg, if start new uuid
     {:ok, uuid2} = Serverboards.Plugin.Runner.start component.id
     assert uuid2 != uuid
+  end
+
+  test "Plugin test no RPC, one_for_one, timeout" do
+    component = "serverboards.test.auth/fake_one_for_one"
+    {:ok, uuid1} = Serverboards.Plugin.Runner.start component
+    # If start again, another uuid, still running
+    {:ok, uuid2} = Serverboards.Plugin.Runner.start component
+    assert uuid1 != uuid2
+    assert :running == Serverboards.Plugin.Runner.status uuid1
+    assert :running == Serverboards.Plugin.Runner.status uuid2
+    # stop 1
+    true = Serverboards.Plugin.Runner.stop uuid1
+    assert :not_running == Serverboards.Plugin.Runner.status uuid1
+    assert :running == Serverboards.Plugin.Runner.status uuid2
+    # If start again, same uuid
+    :timer.sleep(1200)
+    assert :not_running == Serverboards.Plugin.Runner.status uuid2
+  end
+  test "Plugin test no RPC, init is already running" do
+    component = "serverboards.test.auth/fake_init"
+    {:ok, uuid} = Serverboards.Plugin.Runner.start component
+    {:ok, ^uuid} = Serverboards.Plugin.Runner.start component
+    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
+    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
+    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
+    :timer.sleep(800)
+    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
+    assert {:ok, uuid} == Serverboards.Plugin.Runner.start component
   end
 
   test "Plugin test no RPC, singleton, keep using" do
