@@ -114,7 +114,7 @@ defmodule Serverboards.Plugin.Registry do
     iex> {:ok, rg} = start_link # Using custom registry
     iex> c = find(rg, "serverboards.test.auth/fake")
     iex> c.id
-    "fake"
+    "serverboards.test.auth/fake"
     iex> c.type
     "cmd"
     iex> c.plugin != nil

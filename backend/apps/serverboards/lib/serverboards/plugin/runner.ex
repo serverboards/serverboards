@@ -85,7 +85,7 @@ defmodule Serverboards.Plugin.Runner do
   def stop(runner, uuid) do
     case GenServer.call(runner, {:stop, uuid}) do
       {:error, e} ->
-        Logger.error("Error stoping component #{inspect e}")
+        Logger.error("Error stopping component #{inspect e}")
         {:error, e}
       {:ok, cmd} ->
         Serverboards.IO.Cmd.stop cmd
@@ -281,6 +281,7 @@ defmodule Serverboards.Plugin.Runner do
 
         {:reply, {:ok, entry.pid}, state }
       true ->
+        Logger.debug("Cant stop plugin, strategy is #{entry.strategy}")
         {:reply, {:error, :cant_stop}, state}
     end
   end
@@ -299,11 +300,10 @@ defmodule Serverboards.Plugin.Runner do
     Logger.debug("ping #{inspect uuid }")
     case state.timeouts[uuid] do
       oldref ->
-        Logger.debug("update timer #{inspect oldref}")
         {:ok, :cancel} = :timer.cancel(oldref)
         timeout = state.running[uuid].timeout
         {:ok, newref} = :timer.send_after( timeout, self, {:timeout, uuid} )
-        Logger.debug("new timer #{inspect oldref}")
+        Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
         {:noreply, %{ state | timeouts: Map.put(state.timeouts, uuid, newref) }}
       nil ->
         {:noreply, state}
@@ -312,15 +312,19 @@ defmodule Serverboards.Plugin.Runner do
 
   def handle_info({:timeout, uuid}, state) do
     {entry, running} = Map.pop(state.running, uuid, nil)
-    Logger.info("Timeout process, stopping. #{inspect uuid}",
-      uuid: uuid, timeout: entry.timeout, strategy: entry.strategy)
-    Process.stop(entry, :timeout)
+    if entry do
+      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.id}",
+        uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.id)
+      Process.exit(entry.pid, :timeout)
 
-    timeouts = Map.drop(state.timeouts, [uuid])
-    {:noreply, %{ state |
-      running: running,
-      timeouts: timeouts
-    }}
+      timeouts = Map.drop(state.timeouts, [uuid])
+      {:noreply, %{ state |
+        running: running,
+        timeouts: timeouts
+      }}
+    else
+      {:noreply, state}
+    end
   end
 
   def handle_info(any, state) do

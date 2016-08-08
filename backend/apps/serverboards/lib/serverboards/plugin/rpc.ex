@@ -26,7 +26,7 @@ defmodule Serverboards.Plugin.RPC do
     RPC.MethodCaller.add_method method_caller, "plugin.alias", fn
       [id, newalias], context ->
         cmd = GenServer.call(runner, {:get, id})
-        RPC.Context.update context, :plugin_aliases, [{ newalias, cmd }]
+        RPC.Context.update context, :plugin_aliases, [{ newalias, cmd.pid }]
 
         true
     end, [required_perm: "plugin", context: true]

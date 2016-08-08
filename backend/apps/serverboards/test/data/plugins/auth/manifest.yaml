@@ -128,21 +128,18 @@ components:
 
   - name: fake auth singleton
     type: cmd
-    traits: auth
     id: fake_singleton
     strategy: singleton
     timeout: 1s
     command: auth.py
   - name: fake auth one for one
     type: cmd
-    traits: auth
     id: fake_one_for_one
     strategy: one_for_one
     timeout: 1s
     command: auth.py
   - name: fake auth init
     type: cmd
-    traits: auth
     id: fake_init
     strategy: init
     timeout: 200ms
