@@ -40,11 +40,7 @@ function main(element, config){
       term.send_buffer=''
     }, 20)
   }
-
-  rpc.call("plugin.start", ["serverboards.core.ssh/daemon"]).then(function(ssh){
-    term.ssh=ssh
-    return rpc.call(ssh+".open", [config.service.config.url])
-  }).then(function(host){
+  function setup_host(host){
     term.host=host
     //term.interval_id=setInterval(poll_data, 1000) // polling, very bad
     term.term.on('data', send_data)
@@ -53,6 +49,8 @@ function main(element, config){
     var evname='terminal.data.received.'+host
     rpc.call("event.subscribe", [evname])
     rpc.on(evname, function(data){
+      if (data.eof)
+        return
       var newdata=atob(data.data64)
       term.term.write(newdata)
       if (data.end != (term.end + newdata.length)){
@@ -60,6 +58,27 @@ function main(element, config){
       }
       term.end=data.end
     })
+  }
+
+  rpc.call("plugin.start", ["serverboards.core.ssh/daemon"]).then(function(ssh){
+    term.ssh=ssh
+    return rpc.call(ssh+".list")
+  }).then(function(list){
+    console.log(list)
+    var new_term=true
+    for (var i in list){
+      if (list[i][1]==config.service.config.url){
+        new_term=false
+        host=list[i][0]
+        setup_host(host)
+        rpc.call(term.ssh+".recv", { uuid: host, encoding: "b64" }).then(function(data){
+          term.term.write( atob( data.data ) )
+        })
+        break;
+      }
+    }
+    if (new_term)
+      rpc.call(term.ssh+".open", [config.service.config.url]).then(setup_host)
   }).catch(function(e){
     Flash.error("Could not start SSH session\n\n"+e)
   })
@@ -67,6 +86,11 @@ function main(element, config){
   return function(){
     if (term.interval_id)
       clearInterval(term.interval_id)
+    if (term.host){
+      var evname='terminal.data.received.'+term.host
+      rpc.call("event.unsubscribe", [evname])
+      rpc.off(evname)
+    }
   }
 }
 

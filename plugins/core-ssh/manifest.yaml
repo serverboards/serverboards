@@ -69,6 +69,7 @@ components:
   - name: SSH daemon
     id: daemon
     type: cmd
-    timeout: 10000
+    timeout: 24h
+    strategy: singleton
     perms: event.emit
     command: serverboards-ssh.py

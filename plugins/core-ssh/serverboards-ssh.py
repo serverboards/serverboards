@@ -59,7 +59,10 @@ sessions={}
 import uuid
 
 @serverboards.rpc_method
-def open(url):
+def open(url, uidesc=None):
+    if not uidesc:
+        uidesc=url
+
     (opts, url) = url_to_opts(url)
     opts += ['--', '/bin/bash']
     serverboards.rpc.debug(repr(opts))
@@ -67,7 +70,7 @@ def open(url):
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _uuid = str(uuid.uuid4())
-    sessions[_uuid]=dict(process=sp, buffer=b"", end=0)
+    sessions[_uuid]=dict(process=sp, buffer=b"", end=0, uidesc=uidesc)
 
     serverboards.rpc.add_event(sp.stdout, lambda :new_data_event(_uuid) )
 
@@ -80,7 +83,12 @@ def close(uuid):
     sp['process'].kill()
     sp['process'].wait()
     del sp['process']
+    del sessions[uuid]
     return True
+
+@serverboards.rpc_method
+def list():
+    return [(k, v['uidesc']) for k,v in sessions.items()]
 
 @serverboards.rpc_method
 def send(uuid, data=None, data64=None):
@@ -133,7 +141,7 @@ def recv(uuid, start=None, encoding='utf8'):
     returns to the end of that stream position. Its possible to ask from a specific
     position and if available will be returned. If its none returns all buffer.
 
-    This can be used to regenrate the terminal status from latest 4096 bytes. On
+    This can be used to regenerate the terminal status from latest 4096 bytes. On
     most situations may suffice to restore current view. Also can be used to do
     polling, although events are recomended.
     """
