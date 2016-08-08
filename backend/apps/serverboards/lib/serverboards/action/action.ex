@@ -45,7 +45,7 @@ defmodule Serverboards.Action do
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.stopped", data: action }  } ->
         Logger.info("Stopped action #{inspect action}")
-        prev = Repo.get_by( Model.History, uuid: action.uuid )
+        prev = Repo.get_by!( Model.History, uuid: action.uuid )
         case Repo.update( Model.History.changeset(prev, action) ) do
           {:ok, hist} -> {:ok, hist}
           {:error, %{ errors: errors } } ->
@@ -228,7 +228,7 @@ defmodule Serverboards.Action do
 
       action = %{
        uuid: uuid, name: action_component.name,
-       id: "#{action_component.plugin.id}/#{action_component.id}",
+       id: action_component.id,
        user: user, params: params,
        timer_start: Timex.Time.now
        }
