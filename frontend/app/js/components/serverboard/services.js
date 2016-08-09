@@ -57,7 +57,7 @@ let Services=React.createClass({
     }
 
     return (
-      <div className="ui text container">
+      <div className="ui container">
         <h1>Services at {props.serverboard.name}</h1>
         <div className="ui cards">
           {props.services.map((p) => (

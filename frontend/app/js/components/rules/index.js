@@ -122,7 +122,7 @@ const Rules=React.createClass({
       )
     }
     return (
-      <div className="ui text container">
+      <div className="ui container">
         <div className="ui cards">
           {props.rules.map((r) =>
             <Rule rule={r} onOpenEdit={() => props.onOpenEdit(r)}
