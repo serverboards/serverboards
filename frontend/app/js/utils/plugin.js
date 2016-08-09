@@ -4,7 +4,7 @@ var widgets = {}
 export function load(url, options){
   let full_url=`/static/${url}`
   if (localStorage.servername)
-    full_url=`${localStorage.servername}/${url}`
+    full_url=`${localStorage.servername}${full_url}`
 
   options = $.extend( options || {}, {
     dataType: "script",
