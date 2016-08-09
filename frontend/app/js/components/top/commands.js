@@ -27,10 +27,13 @@ const CommandSearch = React.createClass({
       $search.find('input').focus()
     })
     $search.find('input').on('keyup',function(ev){
-      if (ev.keyCode==27)
+      if (ev.keyCode==27){
+        $search.search("set value", "")
         $search.search('hide results')
+      }
     })
     $search.search({
+      cache: false,
       apiSettings : {
         responseAsync(settings, callback){
           let Q = $search.search('get value').toLowerCase().split(" ")

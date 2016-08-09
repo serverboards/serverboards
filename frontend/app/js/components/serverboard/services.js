@@ -2,6 +2,7 @@ import React from 'react'
 import Card from 'app/containers/service/card'
 import Loading from '../loading'
 import AddServiceModal from 'app/containers/serverboard/addservice'
+import Command from 'app/utils/command'
 
 let Services=React.createClass({
   handleAttachService(service){
@@ -13,7 +14,7 @@ let Services=React.createClass({
     this.setModal(false)
   },
   openAddServiceModal(ev){
-    ev.preventDefault()
+    ev && ev.preventDefault()
     this.setModal('add_service')
   },
   setModal(modal){
@@ -27,6 +28,15 @@ let Services=React.createClass({
   },
   contextTypes: {
     router: React.PropTypes.object
+  },
+  componentDidMount(){
+    let self = this
+    Command.add_command_search("sbds-services", (Q, context) => ([
+        {id: 'add-service', title: "Add Service", description: `Add a new service`, run: () => self.openAddServiceModal()},
+      ]) )
+  },
+  componentWillUnmount(){
+    Command.remove_command_search("sbds-services")
   },
   render(){
     let props=this.props

@@ -5,6 +5,7 @@ import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import ActionModal from './actionmodal'
+import Command from 'app/utils/command'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -30,7 +31,17 @@ let Card=React.createClass({
         transition: 'fade up',
         onShow: this.loadAvailableActions,
       })
-    ;
+    let self=this
+    let s = this.props.service
+    Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
+      {id: `service-settings-${s.uuid}`, title: `${s.name} settings`,
+       description: `Modify ${s.name} service settings`, run: () => self.handleOpenSettings()},
+      {id: `service-more-${s.uuid}`, title: `${s.name} more actions`,
+       description: `Show ${s.name} more actions menu`, run: () => $(self.refs.dropdown).dropdown('show').focus()},
+    ] )
+  },
+  componentWillUnmount(){
+    Command.remove_command_search(`service-${this.props.service.uuid}`)
   },
   setModal(modal, data){
     let state

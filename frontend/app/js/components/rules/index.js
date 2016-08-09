@@ -2,6 +2,7 @@ import React from 'react'
 import RuleEdit from 'app/containers/rules/edit'
 import Loading from 'app/components/loading'
 import ImageIcon from 'app/components/imageicon'
+import Command from 'app/utils/command'
 
 const icon = require("../../../imgs/rules.svg")
 
@@ -78,9 +79,25 @@ const empty_rule={
 const Rules=React.createClass({
   componentDidMount(){
     this.props.onUpdateRules()
+
+    let self=this
+    let serverboard=this.props.serverboard.shortname
+
+    Command.add_command_search('sbds-rules',function(Q,context){
+      let ret = [
+        {id: 'add-rules', title: 'Add Rule', description: 'Add a new rule', path: `/serverboard/${serverboard}/rules/add` }
+      ]
+      self.props.rules.map( (r) => {
+        ret.push(
+          {id: `rule-${r.uuid}`, title: `Rule ${r.name}`, description: `Edit *${r.name}* configuration`, path: `/serverboard/${serverboard}/rules/${r.uuid}` }
+        )
+      } )
+      return ret
+    })
   },
   componentWillUnmount(){
     this.props.cleanRules()
+    Command.remove_command_search('sbds-rules')
   },
   render(){
     const props=this.props
