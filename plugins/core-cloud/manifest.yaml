@@ -1,0 +1,49 @@
+id: serverboards.core.cloud
+name: Core cloud services
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.1.0
+description: >
+  Definition an basic ussage of cloud services.
+
+components:
+  - id: daemon
+    name: Cloud services daemon
+    type: cmd
+    perms: settings.view[serverboards.core.cloud]
+    strategy: singleton
+    timeout: 24h
+    command: ./serverboards-cloud.py
+  - id: libvirt
+    type: service
+    name: Libvirt Cloud
+    description: Management of [libvirt](https://libvirt.org) based clouds.
+    traits: core.cloud.compute
+    fields:
+      - name: server
+        type: text
+        label: Remote Server Address
+        placeholder: ie. 192.168.1.200, api.example.com...
+      - name: type
+        type: hidden
+        value: libvirt
+
+  - id: digital.ocean
+    name: Digital Ocean
+    type: service
+    name: Digital Ocean
+    description: Management of [Digital Ocean](https://digitalocean.com) clouds.
+    traits: core.cloud.compute
+    fields:
+      - name: token
+        type: text
+        label: Access Token
+        description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
+      - name: type
+        type: hidden
+        value: digitalocean
+
+  - id: list
+    name: List nodes
+    type: action
+    traits: core.cloud.compute
+    screen: true
