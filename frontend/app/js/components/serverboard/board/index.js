@@ -3,6 +3,7 @@ import Widget from './widget'
 import AddWidget from './add_widget'
 import EditWidget from './edit_widget'
 import Loading from 'app/components/loading'
+import Command from 'app/utils/command'
 
 const Board = React.createClass({
   handleEdit(uuid){
@@ -22,6 +23,15 @@ const Board = React.createClass({
   },
   contextTypes: {
     router: React.PropTypes.object,
+  },
+  componentDidMount(){
+    let self=this
+    Command.add_command_search('add-widget',(Q, context) => [
+      {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: () => self.setModal('add') }
+    ], 2)
+  },
+  componentWillUnmount(){
+    Command.remove_command_search('add-widget')
   },
   render(){
     const widgets=this.props.widgets

@@ -3,11 +3,12 @@ import UserMenu from 'app/containers/top/usermenu'
 import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
+import CommandSearh from './commands'
 
 require("sass/top.sass")
 
 function notifications_color(notifications){
-  if (notifications.length==0)
+  if (!notifications || notifications.length==0)
     return ""
   for(let n of notifications){
     if (n.tags.indexOf("new")>=0)
@@ -51,20 +52,14 @@ var Top = function(props){
         </a>
       </div>
       <div className="item search">
-        <div className="ui search">
-          <div className="ui icon input">
-            <input className="prompt" type="text" placeholder="Search anything..."/>
-            <i className="search icon"></i>
-          </div>
-          <div className="results"></div>
-        </div>
+        <CommandSearh/>
       </div>
 
       <div className="right menu">
         <a className="item" onClick={() => props.toggleMenu('notifications')}>
           <i className="alarm outline icon"></i>
           Notifications
-          <span className={`ui label ${notifications_color(props.notifications)}`}>{props.notifications.length}</span>
+          <span className={`ui label ${notifications_color(props.notifications)}`}>{(props.notifications || []).length}</span>
           <i className="dropdown icon"></i>
         </a>
         <a className="item" onClick={() => props.toggleMenu('processes')}>

@@ -2,6 +2,8 @@ import React from 'react'
 require("sass/logoicon.sass")
 
 function logo(name){
+  if (!name)
+    return ''
   let ns=name.split(' ')
   if (ns.length>=2){
     return ns.map((n) => n[0]).join('').slice(0,2).toUpperCase()
