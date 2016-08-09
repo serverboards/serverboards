@@ -36,7 +36,7 @@ export function setup_fields(service, service_catalog){
   let definition=service_definition(service.type, service_catalog)
 
   let fields = definition.fields.map( (f) => Object.assign({}, f,
-      { value: service.config[f.name] }
+      { value: service.config[f.name] || f.value }
     ) )
   fields = default_service_fields(service.name).concat( fields )
   return fields

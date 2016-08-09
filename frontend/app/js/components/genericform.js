@@ -103,6 +103,10 @@ let GenericField=React.createClass({
             <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
           </div>
         )
+      case 'hidden':
+        return (
+          <input type="text" disabled={true} name={props.name} value={props.value}/>
+        )
       default:
         return (
           <div className="ui message error" style={{display: "block"}}>Unknown field type "{props.type}"</div>
