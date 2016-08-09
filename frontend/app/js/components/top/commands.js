@@ -24,8 +24,11 @@ const CommandSearch = React.createClass({
     $("body").on('keypress', function(ev){
       if (skip_nodes[ev.target.nodeName])
         return
-      //console.log(ev.target.nodeName)
       $search.find('input').focus()
+    })
+    $search.find('input').on('keyup',function(ev){
+      if (ev.keyCode==27)
+        $search.search('hide results')
     })
     $search.search({
       apiSettings : {
