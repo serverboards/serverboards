@@ -38,7 +38,7 @@ let Card=React.createClass({
        description: `Modify ${s.name} service settings`, run: () => self.handleOpenSettings()},
       {id: `service-more-${s.uuid}`, title: `${s.name} more actions`,
        description: `Show ${s.name} more actions menu`, run: () => $(self.refs.dropdown).dropdown('show').focus()},
-    ] )
+    ],2 )
   },
   componentWillUnmount(){
     Command.remove_command_search(`service-${this.props.service.uuid}`)

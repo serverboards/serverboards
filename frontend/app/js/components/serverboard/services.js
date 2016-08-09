@@ -33,7 +33,7 @@ let Services=React.createClass({
     let self = this
     Command.add_command_search("sbds-services", (Q, context) => ([
         {id: 'add-service', title: "Add Service", description: `Add a new service`, run: () => self.openAddServiceModal()},
-      ]) )
+      ]), 2)
   },
   componentWillUnmount(){
     Command.remove_command_search("sbds-services")

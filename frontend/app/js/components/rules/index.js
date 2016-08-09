@@ -89,11 +89,12 @@ const Rules=React.createClass({
       ]
       self.props.rules.map( (r) => {
         ret.push(
-          {id: `rule-${r.uuid}`, title: `Rule ${r.name}`, description: `Edit *${r.name}* configuration`, path: `/serverboard/${serverboard}/rules/${r.uuid}` }
+          {id: `rule-${r.uuid}`, title: `Rule ${r.name}`, description: `Edit *${r.name}* configuration`,
+           path: `/serverboard/${serverboard}/rules/${r.uuid}` }
         )
       } )
       return ret
-    })
+    },2)
   },
   componentWillUnmount(){
     this.props.cleanRules()

@@ -2,14 +2,12 @@ import {merge} from './index'
 
 let command_searchs = {}
 
-export function add_command_search(name, f){
-  command_searchs[name]=f
-  console.log(command_searchs)
+export function add_command_search(name, f, score=0){
+  command_searchs[name]={ fn: f, score: score }
 }
 
 export function remove_command_search(name){
   delete command_searchs[name]
-  console.log(command_searchs)
 }
 
 export function search(Q, context){
@@ -18,13 +16,17 @@ export function search(Q, context){
     let results = []
 
     for(let section in command_searchs){
-      let f = command_searchs[section]
+      let s = command_searchs[section]
       try{
-        results = results.concat(f(Q, context))
+        results = results.concat(s.fn(Q, context).map(
+          (item) => merge(item, {score: (item.score || 0) + s.score})
+        ))
       } catch(e) {
         console.error("%s: %o at %o", section, e, f)
       }
     }
+
+    results.sort( (a,b) => b.score - a.score )
 
     resolve(results)
   })
@@ -46,12 +48,12 @@ add_command_search('serverboards', function(Q, context){
     if (serverboard){
       const name=serverboard.name
       results = results.concat( [
-        {id: 'overview', title: "Overview", description: `Go to overview`, run: () => context.goto(`/serverboard/${shortname}/overview`)},
-        {id: 'services', title: "Services", description: `Go to services`, run: () => context.goto(`/serverboard/${shortname}/services`)},
-        {id: 'permissions', title: "Permissions", description: `Go to permissions`, run: () => context.goto(`/serverboard/${shortname}/permissions`)},
-        {id: 'rules', title: "Rules", description: `Go to rules`, run: () => context.goto(`/serverboard/${shortname}/rules`)},
-        {id: 'logs', title: "Logs", description: `Go to logs`, run: () => context.goto(`/serverboard/${shortname}/logs`)},
-        {id: 'settings', title: "Settings", description: `Go to settings`, run: () => context.goto(`/serverboard/${shortname}/settings`)},
+        {id: 'overview', title: "Overview", description: `Go to overview`, run: () => context.goto(`/serverboard/${shortname}/overview`), score: 1},
+        {id: 'services', title: "Services", description: `Go to services`, run: () => context.goto(`/serverboard/${shortname}/services`), score: 1},
+        {id: 'permissions', title: "Permissions", description: `Go to permissions`, run: () => context.goto(`/serverboard/${shortname}/permissions`), score: 1},
+        {id: 'rules', title: "Rules", description: `Go to rules`, run: () => context.goto(`/serverboard/${shortname}/rules`), score: 1},
+        {id: 'logs', title: "Logs", description: `Go to logs`, run: () => context.goto(`/serverboard/${shortname}/logs`), score: 1},
+        {id: 'settings', title: "Settings", description: `Go to settings`, run: () => context.goto(`/serverboard/${shortname}/settings`), score: 1},
       ] )
     }
   }
