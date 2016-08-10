@@ -105,7 +105,7 @@ let GenericField=React.createClass({
         )
       case 'hidden':
         return (
-          <input type="text" disabled={true} name={props.name} value={props.value}/>
+          <input type="hidden" disabled={true} name={props.name} value={props.value}/>
         )
       default:
         return (
