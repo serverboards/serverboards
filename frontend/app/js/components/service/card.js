@@ -6,6 +6,8 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import ActionModal from './actionmodal'
 import Command from 'app/utils/command'
+import VirtualServices from './virtual'
+import {colorize} from 'app/utils'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -66,9 +68,7 @@ let Card=React.createClass({
   loadAvailableActions(){
     if (!this.state.actions){
       this.setState({loading: true})
-      console.log(this.props.service)
       rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
-        console.log("All actions %o",actions)
         this.setState({
           actions: actions,
           loading: false
@@ -142,10 +142,13 @@ let Card=React.createClass({
         popup=(
           <ActionModal {...this.props.location.state.data}/>
         )
-
+        break;
+      case 'virtual':
+        popup=(
+          <VirtualServices serverboards={this.props.serverboards} parent={props} location={this.props.location}/>
+        )
         break;
     }
-
     return (
       <div className="service card">
         <div className="content">
@@ -154,6 +157,9 @@ let Card=React.createClass({
           </div>
           <div className="header">{props.name}</div>
           <div className="meta">{(props.serverboards || []).join(' ')}</div>
+          <div className="meta">{(props.tags || []).map( (l) => (
+            <span className={`ui label ${colorize(l)}`}>{l}</span>
+          ))}</div>
           <div className="description">{props.description || "No description yet"}</div>
           <ul>
           {(Object.keys(props.config || {})).map((k) => (
@@ -163,13 +169,22 @@ let Card=React.createClass({
         </div>
         <div className="extra content">
           <div className="ui inverted yellow menu bottom attached">
-            <div className="ui right item" style={{marginRight: 10}}>
-              <div ref="dropdown" className={`ui dropdown`}>
+            <div className="right menu">
+              {props.virtual ? (
+                <div className="item">
+                  <a onClick={() => this.setModal('virtual', {service: props})}><i className="ui icon block layout"/></a>
+                </div>
+              ) : []}
+              <div ref="dropdown" className="ui item dropdown">
                 Options
                 <i className="ui dropdown icon"/>
                 <div className="menu">
-                  <HoldButton className="ui item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
-                  <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
+                  {!props.is_virtual ? (
+                    <HoldButton className="ui item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
+                  ) : []}
+                  {props.fields ? (
+                    <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
+                  ) : []}
                   {this.state.actions ? this.state.actions.map( (ac) => (
                     <div className="ui item" onClick={() => this.triggerAction(ac.id)}>{ac.name}</div>
                   )) : (

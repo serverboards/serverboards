@@ -37,6 +37,21 @@ export function map_drop(map, keys){
 }
 
 const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
+const fixed_colors={
+  "stopped" : "_grey",
+  "running" : "green",
+  "unknown" : "grey",
+  "error" : "red",
+  "ok" : "green",
+  "warning" : "orange"
+}
+
+export function colorize(str){
+  if (fixed_colors[str])
+    return fixed_colors[str]
+  return random_color(str)
+}
+
 /// Returns a random nice color for the logo icon
 export function random_color(str){
   // From http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
