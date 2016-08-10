@@ -364,17 +364,23 @@ defmodule Serverboards.Service do
         service
           |> Map.put(:fields, [])
           |> Map.put(:traits, [])
+          |> Map.put(:description, "")
       [service_definition] ->
         fields = service_definition.fields |> Enum.map(fn f ->
           Map.put(f, :value, Map.get(service.config, f["name"], ""))
         end)
+        service = if service_definition[:virtual] do
+          service |> Map.put(:virtual, service_definition.virtual)
+        else
+          service
+        end
         service
           |> Map.put(:fields, fields)
           |> Map.put(:traits, service_definition.traits)
           |> Map.put(:description, service_definition.description)
     end
 
-    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits)a)
+    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits virtual)a)
   end
 
   @doc ~S"""
@@ -522,13 +528,20 @@ defmodule Serverboards.Service do
         Enum.all?(filter, &match_service_filter(service, &1))
       end)
       |> Enum.map(fn service ->
-        _c = %{
+        s = %{
           name: service.name,
           type: service.id,
           fields: service.extra["fields"],
           traits: service.traits,
           description: service.description,
          }
+        s = if service.extra["virtual"] do
+          Map.put(s, :virtual, service.extra["virtual"])
+        else
+          s
+        end
+
+        s
       end)
   end
 end
