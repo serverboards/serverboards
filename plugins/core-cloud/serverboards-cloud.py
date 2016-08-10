@@ -91,6 +91,24 @@ def reboot(connection, node):
     conn=driver['driver']
     return conn.reboot_node( conn.ex_get_node_by_uuid(node) )
 
+@serverboards.rpc_method
+def virtual_nodes(**config):
+    connection = connect(**config)
+    def decorate(node):
+        serverboards.rpc.debug(repr(node))
+        return {
+            'type': 'serverboards.core.cloud/cloud.node', # optional, if not, can not be instantiated.
+            'id': node['id'],
+            'name': node['name'],
+            'tags': [ "stopped" if node['state']=="terminated" else "running" ],
+            'traits': ['core.cloud.node'],
+            'config': {
+                'node': node['id'],
+                'connection': connection
+                }
+        }
+    return [decorate(node) for node in _list(connection)]
+
 def test():
     #uuid=connect(uri="qemu:///system",type="libvirt")
     uuid=connect(uri="qemu+ssh://dmoreno@localhost/system",type="libvirt")
@@ -123,6 +141,7 @@ def test():
 
 
 def main():
+    #serverboards.rpc.set_debug(sys.stdout)
     serverboards.loop()
 
 if __name__=='__main__':
