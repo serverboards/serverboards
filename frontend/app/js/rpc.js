@@ -178,6 +178,12 @@ var RPC = function(options={}){
     console.warn("DEPRECATED rpc.on %o", event)
     rpc.subscriptions[event]=(rpc.subscriptions[event] || []).concat([fn])
   }
+  rpc.off = function(event, fn){
+    if (fn)
+      rpc.subscriptions[event]=(rpc.subscriptions[event] || []).filter( (f) => (f != fn) )
+    else
+      delete rpc.subscriptions[event]
+  }
   rpc.trigger = function(event, data){
     console.warn("DEPRECATED rpc.trigger %o", event)
     for (let fn of (rpc.subscriptions[event] || [])){

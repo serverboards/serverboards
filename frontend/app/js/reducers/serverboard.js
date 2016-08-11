@@ -60,7 +60,7 @@ function serverboard(state=default_state, action){
           }
           return s
         }).filter( (s) => s != undefined )
-        if (!changed)
+        if (!changed && action.service.serverboards && action.service.serverboards.indexOf(state.current)>=0)
           current_services.push(action.service)
         return merge(state, {current_services})
       }

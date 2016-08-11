@@ -4,54 +4,64 @@ import Loading from '../loading'
 import Card from './card'
 import rpc from 'app/rpc'
 import {merge} from 'app/utils'
-
-
-const virtual_services = [
-  {
-    "config": {
-      "connection": "546f49ca-6e58-475a-bfd8-8fa2d4301a0b",
-      "node": "2b4fb189-06e7-4c2e-8b6d-ae7ad5119424"
-    },
-    "name": "ubuntu15.10",
-    "tags": [
-      "stopped"
-    ],
-    "id": "2b4fb189-06e7-4c2e-8b6d-ae7ad5119424",
-    "type": "serverboards.core.cloud/cloud.node",
-    'traits': ['core.cloud.node'],
-    is_virtual: true
-  },
-  {
-    "config": {
-      "connection": "546f49ca-6e58-475a-bfd8-8fa2d4301a0b",
-      "node": "ad2a7f49-acf4-45e2-bad6-c7e8dacebc40"
-    },
-    "name": "fedora23",
-    "tags": [
-      "stopped"
-    ],
-    "id": "ad2a7f49-acf4-45e2-bad6-c7e8dacebc40",
-    "type": "serverboards.core.cloud/cloud.node",
-    'traits': ['core.cloud.node'],
-    is_virtual: true
-  }
-]
+import Flash from 'app/flash'
+import { goBack } from 'react-router-redux'
+import store from 'app/utils/store'
 
 const VirtualServices=React.createClass({
   getInitialState(){
     return {services: undefined}
   },
+  update_services(event){
+    let service=event.service
+    console.log("Service change %o", service)
+    let changed=false
+    let services = this.state.services.map( (s) => {
+      if (s.id == service.id){
+        changed=true
+        return service
+      }
+      return s
+    })
+    if (!changed)
+    services.push(service)
+    this.setState({services})
+  },
   componentDidMount(){
     const parent=this.props.parent
     let command=parent.virtual.command
     let method=parent.virtual.call
+    let subscribe=parent.virtual.subscribe
+    let self=this
     rpc.call("plugin.start",[ command ])
-      .then((uuid) => rpc.call(`${uuid}.${method}`, parent.config))
+      .then((uuid) => {
+        self.connection=uuid
+        return rpc.call(`${uuid}.${method}`, parent.config)
+      })
       .then((services) => {
         services = services.map( (s) => merge(s, {is_virtual: true}) )
-        this.setState({services})
+        self.setState({services})
+        if (subscribe){
+          rpc.call('event.subscribe',["service.updated"])
+          rpc.call(`${self.connection}.${subscribe}`, parent.config)
+            .then( (subscribe_id) => {
+              self.subscribe_id=subscribe_id
+              rpc.on("service.updated", self.update_services)
+            })
+          }
         })
-      .catch((e) => Flash.error(`Error loading virtual services\n\n${e}`))
+      .catch((e) => {
+        Flash.error(`Error loading virtual services\n\n${e}`)
+        store.dispatch( goBack() )
+      })
+  },
+  componentWillUnmount(){
+    const parent=this.props.parent
+    let unsubscribe=parent.virtual.unsubscribe
+    rpc.call(`${this.connection}.${unsubscribe}`, [this.subscribe_id])
+    rpc.call('event.unsubscribe',["service.updated"])
+    rpc.off("service.updated", self.update_services)
+    this.subscribe_id=undefined
   },
   render(){
     const props=this.props
