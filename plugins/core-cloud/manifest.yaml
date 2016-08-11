@@ -9,7 +9,7 @@ components:
   - id: daemon
     name: Cloud services daemon
     type: cmd
-    perms: settings.view[serverboards.core.cloud]
+    perms: settings.view[serverboards.core.cloud] event.emit
     strategy: singleton
     timeout: 24h
     command: ./serverboards-cloud.py
@@ -35,6 +35,8 @@ components:
     virtual:
       command: serverboards.core.cloud/daemon
       call: virtual_nodes
+      subscribe: virtual_nodes_subscribe
+      unsubscribe: virtual_nodes_unsubscribe
     fields:
       - name: server
         type: text

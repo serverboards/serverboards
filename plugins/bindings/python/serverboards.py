@@ -1,4 +1,4 @@
-import json, os, sys, select
+import json, os, sys, select, time
 
 try:
     input=raw_input
@@ -20,6 +20,8 @@ class RPC:
         self.pid=os.getpid()
         self.manual_replies=set()
         self.events={}
+        self.timers={} # timer_id -> (next_stop, id, seconds, continuation)
+        self.timer_id=1
         self.add_event(sys.stdin, self.read_parse_line)
 
     def set_debug(self, debug):
@@ -71,10 +73,24 @@ class RPC:
         # incoming
         while self.loop_status=='IN':
             self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
-            (read_ready,_,_) = select.select(self.events.keys(),[],[])
-            self.debug("Ready fds: %s"%([x for x in read_ready]))
-            for ready in read_ready:
-                self.events[ready]()
+            if self.timers:
+                next_timeout, timeout_id, timeout, timeout_cont=min(self.timers.values())
+                next_timeout-=time.time()
+            else:
+                next_timeout, timeout_id, timeout, timeout_cont=None, None, None, None
+
+            if not next_timeout or next_timeout>=0: 
+                (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
+            else: # maybe timeout already expired
+                read_ready=[]
+
+            self.debug("Ready fds: %s // %s %s"%([x for x in read_ready], repr(timeout), repr(timeout_cont)))
+            if read_ready:
+                for ready in read_ready:
+                    self.events[ready]()
+            else: # timeout
+                self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
+                timeout_cont()
 
         self.loop_status=prev_status
 
@@ -94,6 +110,16 @@ class RPC:
     def remove_event(self, fd):
         if fd in self.events:
             del self.events[fd]
+
+    def add_timer(self, s, cont):
+        tid=self.timer_id
+        self.timer_id+=1
+        next_stop=time.time()+s
+        self.timers[tid]=(next_stop, tid, s, cont)
+        return tid
+
+    def remove_timer(self, tid):
+        del self.timers[tid]
 
     def loop_stop(self):
         self.debug("--- EOF ---")

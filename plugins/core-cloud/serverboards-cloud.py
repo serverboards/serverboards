@@ -109,15 +109,52 @@ def virtual_nodes(**config):
         }
     return [decorate(node) for node in _list(connection)]
 
+@serverboards.rpc_method
+def virtual_nodes_subscribe(**config):
+    nodes=dict( (x['id'], x) for x in virtual_nodes(**config) )
+    def send_changes():
+        serverboards.rpc.debug("tick")
+        changes=[]
+        nnodes=dict( (x['id'], x) for x in virtual_nodes(**config) )
+
+        for (k,v) in nnodes.items():
+            if not k in nodes:
+                changes.append(v) # added
+                nodes[k]=v
+            elif v != nodes[k]:
+                changes.append(v) # changed
+                nodes[k]=v
+        for k in nodes.keys(): # removed
+            if not k in nnodes:
+                changes.append({'id':k, '_removed': True})
+                del nodes[k]
+
+        for c in changes:
+            serverboards.rpc.event("event.emit", "service.updated", {"service":c})
+
+
+    return serverboards.rpc.add_timer(1.0, send_changes)
+
+@serverboards.rpc_method
+def virtual_nodes_unsubscribe(timerid):
+    serverboards.rpc.remove_timer(timerid)
+    return True
+
 def test():
+
+    tid=virtual_nodes_subscribe(type="libvirt",server="localhost")
+    serverboards.rpc.set_debug(sys.stderr)
+    serverboards.rpc.loop()
+
+
     #uuid=connect(uri="qemu:///system",type="libvirt")
-    uuid=connect(uri="qemu+ssh://dmoreno@localhost/system",type="libvirt")
+    uuid=connect(type="libvirt",server="localhost")
     print(_list())
     print(disconnect(uuid))
 
-    uuid=connect(uri="qemu+ssh://dmoreno@localhost/system",type="libvirt")
+    uuid=connect(type="libvirt",server="localhost")
     # reconnect
-    assert uuid==connect(uri="qemu+ssh://dmoreno@localhost/system",type="libvirt")
+    assert uuid==connect(type="libvirt",server="localhost")
 
     l = _list(uuid)
     print(l)
@@ -141,7 +178,7 @@ def test():
 
 
 def main():
-    #serverboards.rpc.set_debug(sys.stdout)
+    #serverboards.rpc.set_debug(sys.stderr)
     serverboards.loop()
 
 if __name__=='__main__':
