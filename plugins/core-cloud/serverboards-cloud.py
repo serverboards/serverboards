@@ -9,6 +9,11 @@ from libcloud.compute.providers import get_driver
 
 connections={}
 uri_type_to_connection={}
+timer_refcount={} # connhash -> (timerid, refcount)
+timerid_to_connhash={} # timerid -> connhash
+
+def connection_hash(type, **extra):
+    return hash( (repr(sorted(extra.items())),type) )
 
 @serverboards.rpc_method
 def providers():
@@ -16,7 +21,7 @@ def providers():
 
 @serverboards.rpc_method
 def connect(type, **extra):
-    urik=hash( (repr(sorted(extra.items())),type) )
+    urik=connection_hash(type=type, **extra)
     if urik in uri_type_to_connection: # already exists
         return uri_type_to_connection[urik]
 
@@ -95,7 +100,7 @@ def reboot(connection, node):
 def virtual_nodes(**config):
     connection = connect(**config)
     def decorate(node):
-        serverboards.rpc.debug(repr(node))
+        #serverboards.rpc.debug(repr(node))
         return {
             'type': 'serverboards.core.cloud/cloud.node', # optional, if not, can not be instantiated.
             'id': node['id'],
@@ -111,9 +116,14 @@ def virtual_nodes(**config):
 
 @serverboards.rpc_method
 def virtual_nodes_subscribe(**config):
+    h=connection_hash(**config)
+    if h in timer_refcount:
+        timer_refcount[h]=(timer_refcount[h][0], timer_refcount[h][1]+1)
+        return timer_refcount[h][0]
+
     nodes=dict( (x['id'], x) for x in virtual_nodes(**config) )
     def send_changes():
-        serverboards.rpc.debug("tick")
+        #serverboards.rpc.debug("tick")
         changes=[]
         nnodes=dict( (x['id'], x) for x in virtual_nodes(**config) )
 
@@ -133,11 +143,23 @@ def virtual_nodes_subscribe(**config):
             serverboards.rpc.event("event.emit", "service.updated", {"service":c})
 
 
-    return serverboards.rpc.add_timer(1.0, send_changes)
+    # this subscription is via polling. If in the future there are better options, use them.
+    timerid=serverboards.rpc.add_timer(10.0, send_changes)
+
+    timerid_to_connhash[timerid]=h
+    timer_refcount[h]=(timerid, 1)
+    return timerid
 
 @serverboards.rpc_method
 def virtual_nodes_unsubscribe(timerid):
-    serverboards.rpc.remove_timer(timerid)
+    h=timerid_to_connhash[timerid]
+    if timer_refcount[h][1]==1:
+        #serverboards.rpc.debug("Unsubscribe")
+        serverboards.rpc.remove_timer(timerid)
+        del timer_refcount[h]
+        del timerid_to_connhash[timerid]
+    else:
+        timer_refcount[h]=(timer_refcount[h][0], timer_refcount[h][1]-1)
     return True
 
 def test():
@@ -178,7 +200,7 @@ def test():
 
 
 def main():
-    #serverboards.rpc.set_debug(sys.stderr)
+    serverboards.rpc.set_debug(sys.stderr)
     serverboards.loop()
 
 if __name__=='__main__':

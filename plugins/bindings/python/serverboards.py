@@ -72,19 +72,19 @@ class RPC:
 
         # incoming
         while self.loop_status=='IN':
-            self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
+            #self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
             if self.timers:
                 next_timeout, timeout_id, timeout, timeout_cont=min(self.timers.values())
                 next_timeout-=time.time()
             else:
                 next_timeout, timeout_id, timeout, timeout_cont=None, None, None, None
 
-            if not next_timeout or next_timeout>=0: 
+            if not next_timeout or next_timeout>=0:
                 (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
             else: # maybe timeout already expired
                 read_ready=[]
 
-            self.debug("Ready fds: %s // %s %s"%([x for x in read_ready], repr(timeout), repr(timeout_cont)))
+            #self.debug("Ready fds: %s // maybe_timer %s"%([x for x in read_ready], timeout_id))
             if read_ready:
                 for ready in read_ready:
                     self.events[ready]()
