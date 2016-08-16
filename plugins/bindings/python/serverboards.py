@@ -25,7 +25,10 @@ class RPC:
         self.add_event(sys.stdin, self.read_parse_line)
 
     def set_debug(self, debug):
-        self.stderr=debug
+        if debug is True:
+            self.stderr=sys.stderr
+        else:
+            self.stderr=debug
         self.debug("--- BEGIN ---")
 
     def debug(self, x):
