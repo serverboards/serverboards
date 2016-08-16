@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import readline, sys, shlex, json, select, os, atexit, time
+import readline, sys, shlex, json, select, os, atexit, time, math
 
 def printc(s, color=None, hl=None, **kwargs):
     """
@@ -302,9 +302,27 @@ class Completer:
         return None
     def display_matches(self, substitution, matches, longest_match_length):
         line_buffer = readline.get_line_buffer()
-        print("\r", end='')
-        for match in matches:
-            print("%s\t"%match, end='')
+        print("")
+        ll=0
+        tabsize=[4,10,18,40,72]
+        max_columns=80
+        try:
+            max_columns=os.get_terminal_size().columns
+        except:
+            pass
+        try:
+            padding=max( len(m) for m in matches )+2
+            for match in matches:
+                s=match+(' '*(padding-len(match)))
+                ll+=len(s)
+                if ll>max_columns:
+                    print("")
+                    ll=len(s)
+                print(s, end='')
+        except:
+            import traceback
+            traceback.print_exc()
+
         print("\n> ", end="")
         print(line_buffer, end="")
         sys.stdout.flush()
