@@ -52,6 +52,31 @@ components:
           default: 60
     traits: url
 
+  - name: Socket is receiving connections
+    id: socket.is_up
+    type: trigger
+    states: down up
+    command: daemon
+    call:
+      method: socket_is_up
+      params:
+        - name: uri
+          label: URI
+          type: text
+          description: Full URI of the resource
+          placeholder: http://example.com, https://google.com, smtp://mail.com:25, ...
+        - name: frequency
+          label: Check frequency
+          description: Time between checks in seconds
+          placeholder: 60s
+          default: 60
+        - name: grace
+          label: Grace period
+          description: Seconds that connectivity can be lost without triggering
+          placeholder: 60s
+          default: 60
+    traits: uri
+
   - name: Periodic trigger
     id: periodic
     type: trigger
@@ -63,6 +88,8 @@ components:
         - name: timeout
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
+
+
   - name: Core triggers daemon
     id: daemon
     type: cmd
