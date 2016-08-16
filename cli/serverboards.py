@@ -366,7 +366,10 @@ class CmdStream:
         """
         try:
             self.process.terminate()
-            time.sleep(1)
+            for i in range(20):
+                time.sleep(0.1)
+                if self.process.poll():
+                    return
             self.process.kill()
         except OSError:
             pass
