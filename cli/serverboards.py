@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import readline, sys, shlex, json, select, os, atexit
+import readline, sys, shlex, json, select, os, atexit, time
 
 def printc(s, color=None, hl=None, **kwargs):
     """
@@ -141,6 +141,9 @@ class Client:
             'import': self.parse_file,
         }
         self.debug=False
+
+    def close(self):
+        self.iostream.close()
 
     def set_debug(self, _on=True):
         self.debug=_on
@@ -355,6 +358,18 @@ class CmdStream:
         """
         return self.process.stdout.fileno()
 
+    def close(self):
+        """
+        Terminates the command, and after 1s kills it.
+
+        TODO Use wait with timeout to kill it.
+        """
+        try:
+            self.process.terminate()
+            time.sleep(1)
+            self.process.kill()
+        except OSError:
+            pass
 
 if __name__=='__main__':  # pragma: no cover
     def main():
@@ -395,6 +410,7 @@ if __name__=='__main__':  # pragma: no cover
         if interactive:
             completer=Completer(client)
             cli_loop(client)
+        client.close()
         sys.exit(0)
 
     if len(sys.argv)>1 and sys.argv[1]=='--test':
