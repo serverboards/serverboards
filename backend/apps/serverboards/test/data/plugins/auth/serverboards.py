@@ -1,4 +1,4 @@
-import json, os, sys
+import json, os, sys, select, time
 
 try:
     input=raw_input
@@ -19,15 +19,22 @@ class RPC:
         self.send_id=1
         self.pid=os.getpid()
         self.manual_replies=set()
+        self.events={}
+        self.timers={} # timer_id -> (next_stop, id, seconds, continuation)
+        self.timer_id=1
+        self.add_event(sys.stdin, self.read_parse_line)
 
     def set_debug(self, debug):
-        self.stderr=debug
+        if debug is True:
+            self.stderr=sys.stderr
+        else:
+            self.stderr=debug
         self.debug("--- BEGIN ---")
 
     def debug(self, x):
         if not self.stderr:
             return
-        if type(x) not in (str, unicode):
+        if type(x) != str:
             x=repr(x)
         self.stderr.write("%d: %s\r\n"%(self.pid, x))
         self.stderr.flush()
@@ -54,10 +61,8 @@ class RPC:
                     'error': str(e),
                     'id' : rpc['id']
                 }
-        return {
-            'error': "unknown_method",
-            'id' : rpc['id']
-        }
+        if not f:
+            return { 'error':'not_found', 'id': rpc['id'] }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -70,14 +75,54 @@ class RPC:
 
         # incoming
         while self.loop_status=='IN':
-            l=self.stdin.readline()
-            if not l:
-                self.loop_stop()
-                continue
-            self.debug(l)
-            rpc = json.loads(l)
-            self.__process_request(rpc)
+            #self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
+            if self.timers:
+                next_timeout, timeout_id, timeout, timeout_cont=min(self.timers.values())
+                next_timeout-=time.time()
+            else:
+                next_timeout, timeout_id, timeout, timeout_cont=None, None, None, None
+
+            if not next_timeout or next_timeout>=0:
+                (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
+            else: # maybe timeout already expired
+                read_ready=[]
+
+            #self.debug("Ready fds: %s // maybe_timer %s"%([x for x in read_ready], timeout_id))
+            if read_ready:
+                for ready in read_ready:
+                    self.events[ready]()
+            else: # timeout
+                self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
+                timeout_cont()
+
         self.loop_status=prev_status
+
+    def read_parse_line(self):
+        l=self.stdin.readline()
+        if not l:
+            self.loop_stop()
+            return
+        self.debug(l)
+        rpc = json.loads(l)
+        self.__process_request(rpc)
+
+    def add_event(self, fd, cont):
+        if not fd in self.events:
+            self.events[fd]=cont
+
+    def remove_event(self, fd):
+        if fd in self.events:
+            del self.events[fd]
+
+    def add_timer(self, interval, cont):
+        tid=self.timer_id
+        self.timer_id+=1
+        next_stop=time.time()+interval
+        self.timers[tid]=(next_stop, tid, interval, cont)
+        return tid
+
+    def remove_timer(self, tid):
+        del self.timers[tid]
 
     def loop_stop(self):
         self.debug("--- EOF ---")
@@ -86,25 +131,20 @@ class RPC:
     def __process_request(self, rpc):
         self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
-        res_id=res and res.get("id")
-        if res_id not in self.manual_replies:
+        if res.get("id") not in self.manual_replies:
             try:
                 self.println(json.dumps(res))
             except:
                 import traceback; traceback.print_exc()
                 sys.stderr.write(repr(res)+'\n')
-                self.println(json.dumps({"error": "serializing json response", "id": res_id}))
+                self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
         else:
-            self.manual_replies.discard(res_id)
+            self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
         self.debug(line)
-        try:
-            self.stdout.write(line + '\n')
-            self.stdout.flush()
-        except IOError:
-            self.debug("Error on PIPE error.")
-            sys.exit(1)
+        self.stdout.write(line + '\n')
+        self.stdout.flush()
 
     def log(self, message=None, type="LOG"):
         assert message
@@ -201,7 +241,7 @@ def rpc_method(f):
 
 @rpc_method("dir")
 def __dir():
-    return rpc.rpc_registry.keys()
+    return list( rpc.rpc_registry.keys() )
 
 def loop(debug=None):
     if debug:
@@ -223,7 +263,7 @@ class Config:
     @staticmethod
     def __ensure_path_exists(path):
         try:
-            os.makedirs(path, 0700)
+            os.makedirs(path, 0o0700)
         except OSError as e:
             if 'File exists' not in str(e):
                 raise

@@ -32,7 +32,8 @@ defmodule Serverboards.Rules.Trigger do
          description: tr.extra["description"],
          traits: tr.traits,
          command: command,
-         call: tr.extra["call"],
+         start: tr.extra["start"],
+         stop: tr.extra["stop"],
          id: tr.id,
          states: states
        }
@@ -55,40 +56,56 @@ defmodule Serverboards.Rules.Trigger do
     GenServer.call(Serverboards.Rules.Trigger, {:stop, uuid})
   end
 
-  # impl
-  def init(:ok) do
-    {:ok, %{}}
+  def get_trigger(uuid) do
+    GenServer.call(Serverboards.Rules.Trigger, {:get_trigger, uuid})
   end
 
-  def handle_call({:start, trigger, params, cont}, _from, running) do
-    {:ok, uuid} = Plugin.Runner.start trigger.command
-
-    Plugin.Runner.call( uuid, trigger.call["method"], params )
-
-    {:ok, client} = Plugin.Runner.client uuid
+  def setup_client_for_rules(client) do
     #Logger.debug("Method caller of this trigger #{inspect client}")
     MOM.RPC.Client.add_method client, "trigger", fn params ->
-      Logger.debug("Trigger #{inspect trigger.id}, #{inspect params}")
-      params = Map.merge(params, %{ uuid: uuid, trigger: trigger.id })
-      try do # FIXME Use proper supervission tree for rules.
-        cont.(params)
-      catch
-        :exit, _ ->
-          Plugin.Runner.stop trigger.command
-      end
-    end
+      trigger = get_trigger(params["id"])
+      Logger.debug("Trigger #{inspect trigger.trigger.id}, #{inspect params}")
+      Plugin.Runner.ping(trigger.plugin_id)
 
-    {:reply, uuid,
-      Map.put(running, uuid, trigger)
-    }
+      params = Map.merge(params, %{ trigger: trigger.trigger.id, id: params["id"] })
+      trigger.cont.(params)
+    end
   end
 
-  def handle_call({:stop, uuid}, _from, running) do
-    if uuid in running do
-      true = Plugin.Runner.stop uuid
-      {:reply, :ok, Map.drop(running, [uuid])}
+  # impl
+  def init(:ok) do
+    {:ok, %{
+      triggers: %{}
+      }}
+  end
+
+  def handle_call({:start, trigger, params, cont}, _from, state) do
+    {:ok, plugin_id} = Plugin.Runner.start trigger.command
+    {:ok, client} = Plugin.Runner.client plugin_id
+    setup_client_for_rules client # can setup over without any problem. If not would need to setup only once.
+
+    uuid = UUID.uuid4
+    params = Map.put(params, :id, uuid)
+    {:ok, stop_id} = Plugin.Runner.call( plugin_id, trigger.start["method"], params )
+    stop_id = if stop_id do stop_id else uuid end
+
+    {:reply, uuid, %{
+      triggers: Map.put(state.triggers, uuid, %{ trigger: trigger, cont: cont, plugin_id: plugin_id, stop_id: stop_id })
+      }}
+  end
+
+  def handle_call({:stop, uuid}, _from, state) do
+    if uuid in state.triggers do
+      trigger=state.triggers[uuid]
+      Plugin.Runner.call( trigger.plugin_id, trigger.trigger.stop, trigger.stop_id )
+      {:reply, :ok, %{ state |
+        triggers: Map.drop(state.triggers, [uuid])}}
     else
-      {:reply, {:error, :not_found}, running}
+      {:reply, {:error, :not_found}, state}
     end
+  end
+
+  def handle_call({:get_trigger, uuid}, _from, state) do
+    {:reply, state.triggers[uuid], state}
   end
 end

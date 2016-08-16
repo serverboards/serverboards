@@ -47,13 +47,19 @@ def data_set(k, v):
 def data_get(k):
     return serverboards.rpc.call("plugin.data_get", PLUGIN_ID, k)
 
+
 @serverboards.rpc_method
-def periodic_timer(period=10):
+def periodic_timer(id, period=10):
     period=float(period)
-    serverboards.rpc.reply("ok")
-    while True:
-        time.sleep(period)
-        serverboards.rpc.event("trigger", state="tick")
+    def tick():
+        serverboards.rpc.event("trigger", state="tick", id=id)
+    timer_id = serverboards.rpc.add_timer(period, tick)
+    return timer_id
+
+@serverboards.rpc_method
+def periodic_timer_stop(timer_id):
+    serverboards.rpc.remove_timer(timer_id)
+    return True
 
 @serverboards.rpc_method
 def touchfile(filename="/tmp/auth-py-touched"):

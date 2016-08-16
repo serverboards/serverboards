@@ -109,7 +109,8 @@ components:
     states: tick stop
     id: periodic.timer
     command: fake
-    call:
+    stop: periodic_timer_stop
+    start:
       method: periodic_timer
       params:
         - name: period
