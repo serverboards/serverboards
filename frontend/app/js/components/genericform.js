@@ -74,6 +74,17 @@ let GenericField=React.createClass({
             onChange={this.handleChange}/>
           </div>
         )
+      case 'url':
+        return (
+          <div className="field">
+          <label>{props.label}</label>
+          <input type="url"
+            name={props.name}
+            placeholder={props.placeholder || props.description}
+            defaultValue={props.value}
+            onChange={this.handleChange}/>
+          </div>
+        )
       case 'textarea':
         return (
           <div className="field">
