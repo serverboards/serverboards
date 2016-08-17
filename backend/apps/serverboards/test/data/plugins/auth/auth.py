@@ -15,6 +15,10 @@ def ping(*args):
     return 'pong'
 
 @serverboards.rpc_method
+def pingm(message=None):
+    return message
+
+@serverboards.rpc_method
 def abort(*args):
     sys.stderr.write("Pretend to work\n")
     time.sleep(0.500)

@@ -188,4 +188,10 @@ defmodule Serverboards.PluginTest do
     ) == {:ok, %{ "test" => true }}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
   end
+
+  test "Plugin call with full method definition and fitlering" do
+    {:ok, cmd} = Serverboards.Plugin.Runner.start "serverboards.test.auth/fake"
+    res = Serverboards.Plugin.Runner.call cmd, %{ "method" => "pingm", "params" => [ %{ "name" => "message" } ] }, %{ "message" => "Pong!", "ingored" => "ignore me"}
+    assert res == {:ok, "Pong!"}
+  end
 end

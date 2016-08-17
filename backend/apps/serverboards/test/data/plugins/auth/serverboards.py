@@ -62,7 +62,7 @@ class RPC:
                     'id' : rpc['id']
                 }
         if not f:
-            return { 'error':'not_found', 'id': rpc['id'] }
+            return { 'error':'unknown_method', 'id': rpc['id'] }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'

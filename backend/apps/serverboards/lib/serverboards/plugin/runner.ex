@@ -167,6 +167,20 @@ defmodule Serverboards.Plugin.Runner do
     iex> call cmd, "ping"
     {:error, :unknown_method}
 
+  The method can be both a binary or a map, if the method is a map, it is a map
+  in the form
+
+      %{ "method" => "...", "params" => [ %{ "name" => "...", ...} ] }
+
+  Then then params in the method definition are used to filter the passed `params`,
+  and the method name is at `method`. This enables the use of simple method
+  calls or more complex with a list of possible parameters, and then filter.
+  Necessary for triggers with service config as values, for example.
+
+    iex> {:ok, cmd} = start "serverboards.test.auth/fake"
+    iex> call cmd, %{ "method" => "pingm", "params" => [ %{ "name" => "message" } ] }, %{ "message" => "Pong", "ingored" => "ignore me"}
+    {:ok, "Pong"}
+
   """
   def call(runner, id, method, params) when (is_pid(runner) or is_atom(runner)) and is_binary(id) and is_binary(method) do
     case GenServer.call(runner, {:get, id}) do
@@ -177,6 +191,22 @@ defmodule Serverboards.Plugin.Runner do
         GenServer.cast(runner, {:ping, id})
         Serverboards.IO.Cmd.call pid, method, params
     end
+  end
+  # map version
+  def call(runner, id, %{ "method" => method, "params" => params }, defparams) when (is_pid(runner) or is_atom(runner)) and is_binary(id) do
+    params = params |> Enum.map( fn %{ "name" => name } = param ->
+      # this with is just to try to fetch in order or nil
+      value = with :error <- Map.fetch(defparams, name),
+                   :error <- Map.fetch(param, "default"),
+                   :error <- Map.fetch(param, "value")
+              do
+                nil
+              else
+                {:ok, value} -> value
+              end
+      {name, value}
+    end ) |> Map.new
+    call(runner, id, method, params)
   end
   def call(id, method, params \\ []) do
     #Logger.info("Calling #{id}.#{method}(#{inspect params})")
