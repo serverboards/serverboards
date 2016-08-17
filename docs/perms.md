@@ -43,6 +43,7 @@ service.add -- Add/remove services
 service.attach -- Attach/detach a service to an existing serverboard
 service.update -- Modifies service configuration
 service.delete -- Deletes services
+service.info -- Gathers information about any service
 
 ## Event
 
