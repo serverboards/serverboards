@@ -43,10 +43,13 @@ const fixed_colors={
   "unknown" : "grey",
   "error" : "red",
   "ok" : "green",
-  "warning" : "orange"
+  "warning" : "orange",
+  "up" : "green",
+  "down" : "red"
 }
 
 export function colorize(str){
+  str=str.toLowerCase()
   if (fixed_colors[str])
     return fixed_colors[str]
   return random_color(str)
