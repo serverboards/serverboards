@@ -15,6 +15,7 @@ defmodule Serverboards.Rules.Rule do
     actions: []
   ]
   def start_link(rule, _options \\ []) do
+    Logger.debug("#{inspect rule}")
     trigger = rule.trigger
     actions = rule.actions
 
@@ -24,9 +25,9 @@ defmodule Serverboards.Rules.Rule do
     # selected service
     # Also if the service is modified then just restarting the rule make
     # it up to date with the new data. TODO
-    default_params = if rule.service do
-      rule.service.config
-        |> Map.put(:service, rule.service.uuid)
+    default_params = if rule.service != nil do
+      Serverboards.Service.service_config(rule.service)
+        |> Map.put(:service, rule.service)
     else
       %{ service: nil }
     end

@@ -142,9 +142,12 @@ class RPC:
             self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
-        self.debug(line)
-        self.stdout.write(line + '\n')
-        self.stdout.flush()
+        try:
+            self.debug(line)
+            self.stdout.write(line + '\n')
+            self.stdout.flush()
+        except IOError:
+            self.loop_stop()
 
     def log(self, message=None, type="LOG"):
         assert message

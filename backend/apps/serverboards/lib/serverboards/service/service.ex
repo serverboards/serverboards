@@ -384,6 +384,19 @@ defmodule Serverboards.Service do
   end
 
   @doc ~S"""
+  Gathers the config of a service
+  """
+  def service_config(uuid) do
+    import Ecto.Query
+    [config] = Repo.all(
+      from s in ServiceModel,
+      where: s.uuid == ^uuid,
+      select: s.config
+      )
+    config
+  end
+
+  @doc ~S"""
   Attaches existing services to a serverboard
 
   ## Example
