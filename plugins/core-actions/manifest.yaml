@@ -38,11 +38,11 @@ components:
     traits: url
 
   - name: Set label
-    id: set-label
+    id: set-labels
     type: action
     command: serverboards.core.actions/cmd
     call:
-      method: set-label
+      method: set_labels
       params:
         - name: service
           type: text
@@ -58,3 +58,4 @@ components:
     id: cmd
     timeout: 1000
     command: serverboards-core.py
+    perms: service.info service.update

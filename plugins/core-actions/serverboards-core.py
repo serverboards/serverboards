@@ -34,4 +34,16 @@ def http_get(url=None):
         "ms": ret.elapsed.total_seconds()*1000
     }
 
+@serverboards.rpc_method
+def set_labels(service=None, labels=None):
+    serverboards.rpc.debug("service %s"%repr(service))
+    tags = serverboards.rpc.call("service.info", service)["tags"]
+    for i in labels.replace(",", " ").split(" "):
+        if i[0]=='-':
+            if i[1:] in tags:
+                tags.remove(i[1:])
+        else:
+            tags.append(i)
+    serverboards.rpc.call("service.update", service, { "tags": tags })
+
 serverboards.loop(debug=sys.stderr)
