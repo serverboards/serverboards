@@ -88,7 +88,7 @@ defmodule Serverboards.IO.Cmd do
     Serverboards.Auth.client_set_user(
       client,
       %{
-        email: :plugin,
+        email: "cmd/#{cmd}",
         name: cmd,
         perms: (if perms, do: perms, else: []),
         groups: []
