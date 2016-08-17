@@ -31,7 +31,7 @@ defmodule Serverboards.Rules.Rule do
       %{ service: nil }
     end
 
-    params = overwrite_params(trigger.params, default_params)
+    params = Map.merge(trigger.params, default_params)
     Logger.debug("Trigger params: #{inspect params}")
 
     Serverboards.Rules.Trigger.start trigger.trigger, params, fn params ->
@@ -39,19 +39,12 @@ defmodule Serverboards.Rules.Rule do
       Logger.debug("Action state: #{inspect actions} / #{inspect state}")
       action = actions[state]
 
-      params = overwrite_params(action.params, default_params)
+      params = Map.merge(action.params, default_params)
       Logger.debug("Action params: #{inspect params}")
 
       Logger.info("Triggered action #{inspect action}", rule: rule, params: params, action: action)
       Serverboards.Action.trigger(action.action, params, %{ email: "rule/#{rule.uuid}", perms: []})
     end
-  end
-
-  def overwrite_params(orig, forced) do
-    Logger.debug("overwrote_params #{inspect orig} #{inspect forced}")
-    Map.new(Map.to_list(orig) |> Enum.map(fn {k,v} ->
-      {k, Map.get(forced, k, v)}
-    end))
   end
 
   def stop(rule) do

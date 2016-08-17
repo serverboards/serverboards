@@ -86,7 +86,7 @@ defmodule Serverboards.Rules.Trigger do
 
     uuid = UUID.uuid4
     params = Map.put(params, :id, uuid)
-    {:ok, stop_id} = Plugin.Runner.call( plugin_id, trigger.start["method"], params )
+    {:ok, stop_id} = Plugin.Runner.call( plugin_id, trigger.start, params )
     stop_id = if stop_id do stop_id else uuid end
 
     {:reply, uuid, %{
