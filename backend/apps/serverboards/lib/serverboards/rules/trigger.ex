@@ -62,7 +62,7 @@ defmodule Serverboards.Rules.Trigger do
 
   def setup_client_for_rules(%MOM.RPC.Client{} = client) do
     #Logger.debug("Method caller of this trigger #{inspect client}")
-    MOM.RPC.Client.add_method client, "trigger", fn params ->
+    MOM.RPC.Client.add_method client, "trigger", fn [params] ->
       case get_trigger(params["id"]) do
         nil ->
           Logger.warn("Invalid trigger triggered (#{params["id"]}). Check plugin trigger function. #{inspect params}", uuid: params["id"])
