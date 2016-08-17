@@ -66,7 +66,7 @@ def periodic_timer_stop(timer_id):
     return True
 
 @serverboards.rpc_method
-def touchfile(filename="/tmp/auth-py-touched"):
+def touchfile(filename="/tmp/auth-py-touched", **_kwargs):
     import datetime
     with open(filename, "w") as fd:
         fd.write(str(datetime.datetime.now()))

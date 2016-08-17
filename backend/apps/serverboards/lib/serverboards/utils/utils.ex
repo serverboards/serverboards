@@ -102,7 +102,7 @@ defmodule Serverboards.Utils do
   Converts a string defining a tie interval to ms, or fails.
   """
   def timespec_to_ms!(timespec) do
-    Logger.debug(timespec)
+    #Logger.debug(timespec)
     case Integer.parse(timespec) do
       {s, "ms"} -> s
       {s, "s"} -> s * 1000

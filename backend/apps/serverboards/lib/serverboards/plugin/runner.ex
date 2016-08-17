@@ -189,14 +189,16 @@ defmodule Serverboards.Plugin.Runner do
         {:error, :unknown_method}
       %{ pid: pid } when is_pid(pid) ->
         GenServer.cast(runner, {:ping, id})
+        Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
         Serverboards.IO.Cmd.call pid, method, params
     end
   end
   # map version
   def call(runner, id, %{ "method" => method, "params" => params }, defparams) when (is_pid(runner) or is_atom(runner)) and is_binary(id) do
+    defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k,v} -> {to_string(k), v} end))
     params = params |> Enum.map( fn %{ "name" => name } = param ->
       # this with is just to try to fetch in order or nil
-      value = with :error <- Map.fetch(defparams, name),
+      value = with :error <- Map.fetch(defparams, to_string(name)),
                    :error <- Map.fetch(param, "default"),
                    :error <- Map.fetch(param, "value")
               do
@@ -266,7 +268,7 @@ defmodule Serverboards.Plugin.Runner do
     # prepare timeout
     state = if timeout != :never do
       {:ok, timeout_ref} = :timer.send_after( timeout, self, {:timeout, uuid})
-      Logger.debug("new timer #{inspect timeout_ref} #{inspect timeout} #{inspect strategy}")
+      #Logger.debug("new timer #{inspect timeout_ref} #{inspect timeout} #{inspect strategy}")
       %{ state |
         timeouts: Map.put(state.timeouts, uuid, timeout_ref)
       }
@@ -335,7 +337,7 @@ defmodule Serverboards.Plugin.Runner do
         {:ok, :cancel} = :timer.cancel(oldref)
         timeout = state.running[uuid].timeout
         {:ok, newref} = :timer.send_after( timeout, self, {:timeout, uuid} )
-        Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
+        #Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
         {:noreply, %{ state | timeouts: Map.put(state.timeouts, uuid, newref) }}
       nil ->
         {:noreply, state}

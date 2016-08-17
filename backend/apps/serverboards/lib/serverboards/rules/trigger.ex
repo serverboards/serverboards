@@ -60,15 +60,20 @@ defmodule Serverboards.Rules.Trigger do
     GenServer.call(Serverboards.Rules.Trigger, {:get_trigger, uuid})
   end
 
-  def setup_client_for_rules(client) do
+  def setup_client_for_rules(%MOM.RPC.Client{} = client) do
     #Logger.debug("Method caller of this trigger #{inspect client}")
     MOM.RPC.Client.add_method client, "trigger", fn params ->
-      trigger = get_trigger(params["id"])
-      Logger.debug("Trigger #{inspect trigger.trigger.id}, #{inspect params}")
-      Plugin.Runner.ping(trigger.plugin_id)
+      case get_trigger(params["id"]) do
+        nil ->
+          Logger.warn("Invalid trigger triggered (#{params["id"]}). Check plugin trigger function. #{inspect params}", uuid: params["id"])
+          {:error, :not_found}
+        trigger ->
+          Logger.debug("Trigger #{inspect trigger.trigger.id}, #{inspect params}")
+          Plugin.Runner.ping(trigger.plugin_id)
 
-      params = Map.merge(params, %{ trigger: trigger.trigger.id, id: params["id"] })
-      trigger.cont.(params)
+          params = Map.merge(params, %{ trigger: trigger.trigger.id, id: params["id"] })
+          trigger.cont.(params)
+      end
     end
   end
 
@@ -85,9 +90,11 @@ defmodule Serverboards.Rules.Trigger do
     setup_client_for_rules client # can setup over without any problem. If not would need to setup only once.
 
     uuid = UUID.uuid4
-    params = Map.put(params, :id, uuid)
-    {:ok, stop_id} = Plugin.Runner.call( plugin_id, trigger.start, params )
+    method = %{ trigger.start | "params" => [%{ "name" => "id", "value" => uuid }] ++ trigger.start["params"] }
+    {:ok, stop_id} = Plugin.Runner.call( plugin_id, method, params )
     stop_id = if stop_id do stop_id else uuid end
+
+    Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
 
     {:reply, uuid, %{
       triggers: Map.put(state.triggers, uuid, %{ trigger: trigger, cont: cont, plugin_id: plugin_id, stop_id: stop_id })
@@ -95,9 +102,12 @@ defmodule Serverboards.Rules.Trigger do
   end
 
   def handle_call({:stop, uuid}, _from, state) do
-    if uuid in state.triggers do
+    Logger.debug("Try to stop trigger #{inspect uuid}")
+    if Map.has_key?(state.triggers, uuid) do
       trigger=state.triggers[uuid]
-      Plugin.Runner.call( trigger.plugin_id, trigger.trigger.stop, trigger.stop_id )
+      Logger.debug("#{inspect Map.keys(trigger)}")
+      Plugin.Runner.call( trigger.plugin_id, trigger.trigger.stop, [trigger.stop_id] )
+      Logger.info("Stopping trigger #{inspect trigger.trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
       {:reply, :ok, %{ state |
         triggers: Map.drop(state.triggers, [uuid])}}
     else

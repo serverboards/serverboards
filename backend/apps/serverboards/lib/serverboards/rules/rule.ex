@@ -32,15 +32,13 @@ defmodule Serverboards.Rules.Rule do
     end
 
     params = Map.merge(trigger.params, default_params)
-    Logger.debug("Trigger params: #{inspect params}")
+    Logger.info("Start rule with trigger checker #{inspect trigger.trigger} #{rule.uuid}", rule: rule, params: params)
 
     Serverboards.Rules.Trigger.start trigger.trigger, params, fn params ->
       state = params["state"]
-      Logger.debug("Action state: #{inspect actions} / #{inspect state}")
       action = actions[state]
 
       params = Map.merge(action.params, default_params)
-      Logger.debug("Action params: #{inspect params}")
 
       Logger.info("Triggered action #{inspect action}", rule: rule, params: params, action: action)
       Serverboards.Action.trigger(action.action, params, %{ email: "rule/#{rule.uuid}", perms: []})
@@ -48,6 +46,7 @@ defmodule Serverboards.Rules.Rule do
   end
 
   def stop(rule) do
+    Logger.info("Stop rule with trigger #{rule}", rule: rule)
     Serverboards.Rules.Trigger.stop rule
   end
 
@@ -111,7 +110,7 @@ defmodule Serverboards.Rules.Rule do
     import Ecto.Query
 
     uuid = if uuid=="" or uuid==nil do UUID.uuid4 else uuid end
-    Logger.debug("UUID is #{inspect uuid}")
+    #Logger.debug("UUID is #{inspect uuid}")
     actions = data.actions
 
     service_id = case data.service do
@@ -148,11 +147,13 @@ defmodule Serverboards.Rules.Rule do
 
     rule = decorate(rule)
 
-    Logger.debug("Decorated rule: #{inspect rule.trigger} / #{inspect rule.is_active}")
+    #Logger.debug("Decorated rule: #{inspect rule.trigger} / #{inspect rule.is_active}")
 
     if (rule.is_active and rule.trigger.trigger != nil and rule.trigger.trigger != "") do
+      #Logger.debug("Ensure active")
       Serverboards.Rules.ensure_rule_active rule
     else
+      #Logger.debug("Ensure NOT active")
       Serverboards.Rules.ensure_rule_not_active rule
     end
 

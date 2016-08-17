@@ -44,7 +44,7 @@ defmodule Serverboards.Action do
     end)
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.stopped", data: action }  } ->
-        Logger.info("Stopped action #{inspect action}")
+        #Logger.debug("Action finished #{inspect action.id}", action: action)
         prev = Repo.get_by!( Model.History, uuid: action.uuid )
         case Repo.update( Model.History.changeset(prev, action) ) do
           {:ok, hist} -> {:ok, hist}
@@ -224,7 +224,7 @@ defmodule Serverboards.Action do
       else
         "#{action_component.plugin.id}/#{action_component.extra["command"]}"
       end
-      method = action_component.extra["call"]["method"]
+      method = action_component.extra["call"]
 
       action = %{
        uuid: uuid, name: action_component.name,

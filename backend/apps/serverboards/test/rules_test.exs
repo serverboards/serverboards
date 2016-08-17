@@ -185,4 +185,38 @@ defmodule Serverboards.TriggersTest do
     {:ok, l} = Test.Client.call(client, "rules.list", [])
     Logger.info(inspect l)
   end
+
+  test "Enable, Disable, Enable rule" do
+    alias Serverboards.Rules.Rule
+    uuid = UUID.uuid4
+    me = Test.User.system
+
+    File.rm("/tmp/sbds-rule-test")
+    Rule.upsert( rule(%{ uuid: uuid, is_active: true }), me )
+    :timer.sleep(1000)
+    Logger.info("Should have triggered")
+    {:ok, _ } = File.stat("/tmp/sbds-rule-test")
+
+    Logger.info("UPDATE")
+    Rule.upsert( rule(%{ uuid: uuid, is_active: false }), me )
+    :timer.sleep(1000)
+    File.rm("/tmp/sbds-rule-test")
+    :timer.sleep(1000)
+    Logger.info("Should NOT have triggered")
+    {:error, _ } = File.stat("/tmp/sbds-rule-test")
+
+    File.rm("/tmp/sbds-rule-test")
+    Rule.upsert( rule(%{ uuid: uuid, is_active: true }), me )
+    :timer.sleep(1000)
+    Logger.info("Should have triggered")
+    {:ok, _ } = File.stat("/tmp/sbds-rule-test")
+
+    Rule.upsert( rule(%{ uuid: uuid, is_active: false }), me )
+    :timer.sleep(1000)
+    File.rm("/tmp/sbds-rule-test")
+    :timer.sleep(1000)
+    Logger.info("Should NOT have triggered")
+    {:error, _ } = File.stat("/tmp/sbds-rule-test")
+
+  end
 end

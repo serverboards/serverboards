@@ -86,11 +86,11 @@ defmodule Serverboards.Rules do
     GenServer.call(Serverboards.Rules, {:ps})
   end
 
-  def ensure_rule_active(rule) do
+  def ensure_rule_active(%Serverboards.Rules.Rule{} = rule) do
     GenServer.call(Serverboards.Rules, {:ensure_rule_active, rule})
 
   end
-  def ensure_rule_not_active(rule) do
+  def ensure_rule_not_active(%Serverboards.Rules.Rule{} = rule) do
     GenServer.call(Serverboards.Rules, {:ensure_rule_not_active, rule})
 
   end
@@ -103,21 +103,23 @@ defmodule Serverboards.Rules do
   def handle_call({:ps}, _from, status) do
     {:reply, Map.keys(status), status}
   end
-  def handle_call({:ensure_rule_active, rule}, _from, status) do
-    status = if not rule in status do
+  def handle_call({:ensure_rule_active, %Serverboards.Rules.Rule{} = rule}, _from, status) do
+    status = if not Map.has_key?(status, rule.uuid) do
       {:ok, trigger} = Rules.Rule.start_link(rule)
       Map.put(status, rule.uuid, trigger)
     end
+    #Logger.debug("Ensure active #{inspect rule.uuid} #{inspect status}")
     {:reply, :ok, status}
   end
-  def handle_call({:ensure_rule_not_active, rule}, _from, status) do
-
-    status = if not rule in status do
-      trigger = status[rule]
+  def handle_call({:ensure_rule_not_active, %Serverboards.Rules.Rule{} = rule}, _from, status) do
+    #Logger.debug("Ensure not active #{inspect rule.uuid} #{inspect status}")
+    status = if Map.has_key?(status, rule.uuid) do
+      trigger = status[rule.uuid]
       Rules.Rule.stop(trigger)
       Map.drop(status, [rule.uuid])
+    else
+      status
     end
-
 
     {:reply, :ok, status}
   end
