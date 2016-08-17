@@ -86,13 +86,51 @@ defmodule Serverboards.TriggersTest do
     File.rm("/tmp/sbds-rule-test")
     {:ok, rule} = Rules.Rule.start_link rule_description
 
-    :timer.sleep 4000
+    :timer.sleep 1500
 
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
     Rules.Rule.stop rule
     File.rm("/tmp/sbds-rule-test")
   end
+
+    test "Service config overwrites trigger and actions params" do
+      # same as above, but config in service
+      rule_description = %{
+        uuid: UUID.uuid4,
+        service: %{
+          uuid: "fd496e0a-6467-11e6-8514-742f68cd0608",
+          config: %{
+            filename: "/tmp/sbds-rule-test",
+            period: 0.5
+          }
+        },
+        trigger: %{
+          trigger: "serverboards.test.auth/periodic.timer",
+          params: %{
+            period: 100000,
+          }
+        },
+        actions: %{
+          "tick" => %{
+            action: "serverboards.test.auth/touchfile",
+            params: %{
+              filename: nil,
+            }
+          }
+        }
+      }
+
+      File.rm("/tmp/sbds-rule-test")
+      {:ok, rule} = Rules.Rule.start_link rule_description
+
+      :timer.sleep 1500
+
+      {:ok, _ } = File.stat("/tmp/sbds-rule-test")
+
+      Rules.Rule.stop rule
+      File.rm("/tmp/sbds-rule-test")
+    end
 
   test "Rules DB" do
     alias Serverboards.Rules.Rule
@@ -146,5 +184,5 @@ defmodule Serverboards.TriggersTest do
     :timer.sleep(500)
     {:ok, l} = Test.Client.call(client, "rules.list", [])
     Logger.info(inspect l)
-    end
+  end
 end

@@ -18,15 +18,40 @@ defmodule Serverboards.Rules.Rule do
     trigger = rule.trigger
     actions = rule.actions
 
-    Serverboards.Rules.Trigger.start trigger.trigger, trigger.params, fn params ->
-      Logger.debug("Trigger params: #{inspect params}")
+    # def params are gotten from service, and overwritten later.
+    # this makes it easy to fill only required fields at UI and later
+    # use service data to complete it, for example to change labels on the
+    # selected service
+    # Also if the service is modified then just restarting the rule make
+    # it up to date with the new data. TODO
+    default_params = if rule.service do
+      rule.service.config
+        |> Map.put(:service, rule.service.uuid)
+    else
+      %{ service: nil }
+    end
+
+    params = overwrite_params(trigger.params, default_params)
+    Logger.debug("Trigger params: #{inspect params}")
+
+    Serverboards.Rules.Trigger.start trigger.trigger, params, fn params ->
       state = params["state"]
-      Logger.debug("Trigger state: #{inspect actions} / #{inspect state}")
+      Logger.debug("Action state: #{inspect actions} / #{inspect state}")
       action = actions[state]
 
-      Logger.debug("Triggered action #{inspect action}")
-      Serverboards.Action.trigger(action.action, action.params, %{ email: "rule/#{rule.uuid}", perms: []})
+      params = overwrite_params(action.params, default_params)
+      Logger.debug("Action params: #{inspect params}")
+
+      Logger.info("Triggered action #{inspect action}", rule: rule, params: params, action: action)
+      Serverboards.Action.trigger(action.action, params, %{ email: "rule/#{rule.uuid}", perms: []})
     end
+  end
+
+  def overwrite_params(orig, forced) do
+    Logger.debug("overwrote_params #{inspect orig} #{inspect forced}")
+    Map.new(Map.to_list(orig) |> Enum.map(fn {k,v} ->
+      {k, Map.get(forced, k, v)}
+    end))
   end
 
   def stop(rule) do
