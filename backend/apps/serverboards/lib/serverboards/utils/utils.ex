@@ -101,7 +101,7 @@ defmodule Serverboards.Utils do
   @doc ~S"""
   Converts a string defining a tie interval to ms, or fails.
   """
-  def timespec_to_ms!(timespec) do
+  def timespec_to_ms!(timespec) when is_binary(timespec) do
     #Logger.debug(timespec)
     case Integer.parse(timespec) do
       {s, "ms"} -> s
@@ -110,5 +110,8 @@ defmodule Serverboards.Utils do
       {s, "h"} -> s * 1000 * 60 * 60
       {s, "d"} -> s * 1000 * 60 * 60 * 24
     end
+  end
+  def timespec_to_ms!(timespec) when is_number(timespec) do
+    timespec
   end
 end
