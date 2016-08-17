@@ -9,13 +9,14 @@ defmodule Serverboards.Service.Model do
 				field :creator_id, :id
 				field :priority, :integer
 				field :config, :map
+				field :description, :string
 
 				has_many :tags, Serverboards.Service.Model.ServiceTag
 				timestamps
 		 end
 
 		 @required_fields ~w(name type creator_id priority config)
-		 @optional_fields ~w()
+		 @optional_fields ~w(description)
 		 def changeset(service, changes \\ :empty) do
 			import Ecto.Changeset
 			service

@@ -50,21 +50,15 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
-      tags = MapSet.new Map.get(operations, :tags, [])
-
-      current_tags = Repo.all(from ct in ServiceTagModel, where: ct.service_id == ^service.id, select: ct.name )
-      current_tags = MapSet.new current_tags
-
-      new_tags = MapSet.difference(tags, current_tags)
-      expired_tags = MapSet.difference(current_tags, tags)
-
-      if (Enum.count expired_tags) > 0 do
-        expired_tags = MapSet.to_list expired_tags
-        Repo.delete_all( from t in ServiceTagModel, where: t.service_id == ^service.id and t.name in ^expired_tags )
+      Logger.debug("Operations: #{inspect operations}")
+      case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
+        nil -> :none
+        l when is_list(l) ->
+          update_tags_real(service, l)
+        s when is_binary(s) ->
+          tags = String.split(s)
+          update_tags_real(service, tags)
       end
-      Enum.map(new_tags, fn name ->
-        Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
-      end)
 
       {:ok, upd} = Repo.update( ServiceModel.changeset(
       service, operations
@@ -77,7 +71,25 @@ defmodule Serverboards.Service do
     else
       {:error, :not_found}
     end
+  end
 
+  defp update_tags_real(service, tags) do
+    import Ecto.Query
+    tags = MapSet.new tags
+
+    current_tags = Repo.all(from ct in ServiceTagModel, where: ct.service_id == ^service.id, select: ct.name )
+    current_tags = MapSet.new current_tags
+
+    new_tags = MapSet.difference(tags, current_tags)
+    expired_tags = MapSet.difference(current_tags, tags)
+
+    if (Enum.count expired_tags) > 0 do
+      expired_tags = MapSet.to_list expired_tags
+      Repo.delete_all( from t in ServiceTagModel, where: t.service_id == ^service.id and t.name in ^expired_tags )
+    end
+    Enum.map(new_tags, fn name ->
+      Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
+    end)
   end
 
   def service_update_serverboard_real( serverboard, attributes, me) do
@@ -377,10 +389,9 @@ defmodule Serverboards.Service do
         service
           |> Map.put(:fields, fields)
           |> Map.put(:traits, service_definition.traits)
-          |> Map.put(:description, service_definition.description)
     end
 
-    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits virtual)a)
+    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits virtual description)a)
   end
 
   @doc ~S"""
@@ -468,6 +479,7 @@ defmodule Serverboards.Service do
         "priority" -> :priority
         "tags" -> :tags
         "config" -> :config
+        "description" -> :description
         e ->
           Logger.error("Unknown operation #{inspect e}. Failing.")
           raise RuntimeError, "Unknown operation updating service #{service}: #{inspect e}. Failing."

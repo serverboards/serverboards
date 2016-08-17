@@ -40,26 +40,10 @@ defmodule Serverboards.Serverboard do
       # update tags
       serverboard = Repo.get_by!(ServerboardModel, shortname: shortname)
 
-      tags = MapSet.new(
-        Map.get(operations, :tags, [])
-        |> Enum.filter(&(&1 != ""))
-        )
-
-      current_tags = Repo.all(from st in ServerboardTagModel, where: st.serverboard_id == ^serverboard.id, select: st.name )
-      current_tags = MapSet.new current_tags
-
-      new_tags = MapSet.difference(tags, current_tags)
-      expired_tags = MapSet.difference(current_tags, tags)
-
-      Logger.debug("Update serverboard tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
-
-      if (Enum.count expired_tags) > 0 do
-        expired_tags = MapSet.to_list expired_tags
-        Repo.delete_all( from t in ServerboardTagModel, where: t.serverboard_id == ^serverboard.id and t.name in ^expired_tags )
+      tags = Map.get(operations, :tags, nil)
+      if tags != nil do
+        update_serverboards_tags_real(serverboard, tags)
       end
-      Enum.map(new_tags, fn name ->
-        Repo.insert( %ServerboardTagModel{name: name, serverboard_id: serverboard.id} )
-      end)
 
       {:ok, upd} = Repo.update( ServerboardModel.changeset(
         serverboard, operations
@@ -81,6 +65,30 @@ defmodule Serverboards.Serverboard do
 
       Serverboards.Event.emit("serverboard.deleted", %{ shortname: shortname}, ["serverboard.info"])
     end
+  end
+
+  defp update_serverboards_tags_real(serverboard, tags) do
+    import Ecto.Query
+    tags = MapSet.new(
+      tags
+        |> Enum.filter(&(&1 != ""))
+      )
+
+    current_tags = Repo.all(from st in ServerboardTagModel, where: st.serverboard_id == ^serverboard.id, select: st.name )
+    current_tags = MapSet.new current_tags
+
+    new_tags = MapSet.difference(tags, current_tags)
+    expired_tags = MapSet.difference(current_tags, tags)
+
+    Logger.debug("Update serverboard tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
+
+    if (Enum.count expired_tags) > 0 do
+      expired_tags = MapSet.to_list expired_tags
+      Repo.delete_all( from t in ServerboardTagModel, where: t.serverboard_id == ^serverboard.id and t.name in ^expired_tags )
+    end
+    Enum.map(new_tags, fn name ->
+      Repo.insert( %ServerboardTagModel{name: name, serverboard_id: serverboard.id} )
+    end)
   end
 
   @doc ~S"""
