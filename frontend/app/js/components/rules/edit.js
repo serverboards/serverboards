@@ -163,7 +163,7 @@ const Details=React.createClass({
       is_active: $el.find("input[name=is_active]").is(":checked"),
       name: $el.find("input[name=name]").val(),
       description: $el.find("textarea[name=description]").val(),
-      service: this.state.service.uuid,
+      service: this.state.service && this.state.service.uuid,
       serverboard: props.serverboard,
       trigger: {
         trigger: state.trigger.trigger,
