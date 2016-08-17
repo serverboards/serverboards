@@ -52,14 +52,14 @@ def ssh_exec(url, command="uname -a"):
 @serverboards.rpc_method
 def ssh_public_key():
     ensure_ID_RSA()
-    with open(ID_RSA_PUB,'r') as fd:
+    with open(ID_RSA_PUB, 'r') as fd:
         return fd.read()
 
 sessions={}
 import uuid
 
-@serverboards.rpc_method
-def open(url, uidesc=None):
+@serverboards.rpc_method("open")
+def _open(url, uidesc=None):
     if not uidesc:
         uidesc=url
 

@@ -2,6 +2,7 @@ import React from 'react'
 import GenericForm from '../genericform'
 import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
+import { to_map, to_list, merge } from 'app/utils'
 
 const icon = require("../../../imgs/rules.svg")
 
@@ -36,7 +37,10 @@ const ActionDetails=React.createClass({
   render(){
     const action=this.props.action
     const action_type=(this.props.catalog || []).find( (ac) => ac.id == this.state.action )
-    const params = action_type ? action_type.extra.call.params : []
+    let params = action_type ? action_type.extra.call.params : []
+    const noparams = this.props.noparams || {}
+    params=params.filter( (p) => !(p.name in noparams) )
+    console.log(noparams, params)
     return (
       <div>
         <h3 className="ui header uppercase">{action.state}</h3>
@@ -62,7 +66,15 @@ const ActionDetails=React.createClass({
 
 const Details=React.createClass({
   getInitialState(){
+    const service_uuid=this.props.rule.service
+    let service=undefined
+    if (service_uuid){
+      service = this.props.services.find( (s) => s.uuid == service_uuid )
+    }
+    //console.log("service %o %o %o", this.props.rule, service_uuid, service)
+
     return {
+      service,
       trigger: {
         trigger: undefined,
         params: {}
@@ -72,7 +84,12 @@ const Details=React.createClass({
   },
   componentDidMount(){
     let self=this
-    $(this.refs.service).dropdown()
+    $(this.refs.service).dropdown({
+      onChange(value, text, $el){
+        const service = self.props.services.find( (s) => s.uuid == value )
+        self.setState({service})
+      }
+    })
     $(this.refs.trigger).dropdown({
       onChange(value, text, $el){
         self.handleChangeTrigger(value)
@@ -146,7 +163,7 @@ const Details=React.createClass({
       is_active: $el.find("input[name=is_active]").is(":checked"),
       name: $el.find("input[name=name]").val(),
       description: $el.find("textarea[name=description]").val(),
-      service: $el.find("input[name=service]").val(),
+      service: this.state.service.uuid,
       serverboard: props.serverboard,
       trigger: {
         trigger: state.trigger.trigger,
@@ -163,8 +180,11 @@ const Details=React.createClass({
     const services=props.services
     const state=this.state
     const actions = state.actions
+    let defconfig=merge( this.state.service && this.state.service.config || {}, {service: this.state.service && this.state.service.uuid } )
     let trigger_fields=triggers.find( (tr) => tr.id == state.trigger.trigger )
-    trigger_fields=trigger_fields ? trigger_fields.call.params : []
+    trigger_fields=trigger_fields && trigger_fields.start && trigger_fields.start.params || []
+    trigger_fields=trigger_fields.filter( (tf) => !(tf.name in defconfig) )
+    //console.log("defconfig", this.state.service, defconfig, trigger_fields)
     return (
       <Modal>
       <div ref="el">
@@ -240,7 +260,7 @@ const Details=React.createClass({
           )}
 
           {actions.map( (action) =>
-            <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig}/>
+            <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
           )}
 
         </div>

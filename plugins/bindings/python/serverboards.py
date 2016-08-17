@@ -62,7 +62,7 @@ class RPC:
                     'id' : rpc['id']
                 }
         if not f:
-            return { 'error':'not_found', 'id': rpc['id'] }
+            return { 'error':'unknown_method', 'id': rpc['id'] }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -114,11 +114,11 @@ class RPC:
         if fd in self.events:
             del self.events[fd]
 
-    def add_timer(self, s, cont):
+    def add_timer(self, interval, cont):
         tid=self.timer_id
         self.timer_id+=1
-        next_stop=time.time()+s
-        self.timers[tid]=(next_stop, tid, s, cont)
+        next_stop=time.time()+interval
+        self.timers[tid]=(next_stop, tid, interval, cont)
         return tid
 
     def remove_timer(self, tid):

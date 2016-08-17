@@ -28,7 +28,7 @@ defmodule Serverboards.Rules.RPC do
             } }
           end) |> Map.new
         }
-        Logger.info("Rule #{inspect rule}")
+        #Logger.info("Rule #{inspect rule}")
         me = MOM.RPC.Context.get context, :user
         Serverboards.Rules.Rule.upsert rule, me
         :ok

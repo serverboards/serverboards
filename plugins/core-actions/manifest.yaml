@@ -37,6 +37,22 @@ components:
         text: text
     traits: url
 
+  - name: Set label
+    id: set-label
+    type: action
+    command: serverboards.core.actions/cmd
+    call:
+      method: set-label
+      params:
+        - name: service
+          type: text
+          label: Service
+        - name: labels
+          label: Label to set.
+          type: text
+          description: New label set. Can be -label to remove such label
+          placeholder: eg. UP -DOWN
+
   - name: Core actions.
     type: cmd
     id: cmd

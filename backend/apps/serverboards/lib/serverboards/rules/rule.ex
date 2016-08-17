@@ -15,7 +15,7 @@ defmodule Serverboards.Rules.Rule do
     actions: []
   ]
   def start_link(rule, _options \\ []) do
-    Logger.debug("#{inspect rule}")
+    #Logger.debug("#{inspect rule}")
     trigger = rule.trigger
     actions = rule.actions
 

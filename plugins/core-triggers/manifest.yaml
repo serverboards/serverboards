@@ -1,7 +1,7 @@
 id: serverboards.core.triggers
 name: Core Triggers
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 0.1.0
 description: >
   Various core triggers.
 
@@ -11,6 +11,8 @@ components:
     type: trigger
     states: down up
     command: daemon
+    stop: stop_trigger
+    start:
     call:
       method: ping
       params:
@@ -32,7 +34,8 @@ components:
     type: trigger
     command: daemon
     states: down up
-    call:
+    stop: stop_trigger
+    start:
       method: http
       params:
         - name: url
@@ -57,13 +60,14 @@ components:
     type: trigger
     states: down up
     command: daemon
-    call:
+    stop: stop_trigger
+    start:
       method: socket_is_up
       params:
-        - name: uri
-          label: URI
+        - name: url
+          label: URL
           type: text
-          description: Full URI of the resource
+          description: Full URL of the resource
           placeholder: http://example.com, https://google.com, smtp://mail.com:25, ...
         - name: frequency
           label: Check frequency
@@ -75,7 +79,7 @@ components:
           description: Seconds that connectivity can be lost without triggering
           placeholder: 60s
           default: 60
-    traits: uri
+    traits: url
 
   - name: Periodic trigger
     id: periodic
@@ -95,3 +99,5 @@ components:
     type: cmd
     command: serverboards-triggers.py
     shared: none
+    strategy: singleton
+    timeout: 7d

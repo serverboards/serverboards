@@ -13,6 +13,8 @@ td_to_s_multiplier=[
     ("d", 24*60*60),
 ]
 
+uuid_to_timer={}
+
 def time_description_to_seconds(td):
     if type(td) in (int, float):
         return float(td)
@@ -20,6 +22,38 @@ def time_description_to_seconds(td):
         if td.endswith(sufix):
             return float(td[:-len(sufix)])*multiplier
     return float(td)
+
+class TimerCheck:
+    def __init__(self, id, check, type, frequency, grace):
+        if id in uuid_to_timer:
+            raise Exception("Trigger id already registered")
+        self.id=id
+        self.check=check
+        self.type=type
+        self.frequency=time_description_to_seconds(frequency)
+        self.grace=time_description_to_seconds(grace)
+        self.mgrace=self.grace
+        self.is_up=True
+        self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick)
+        uuid_to_timer[id]=self
+
+    def tick(self):
+        check_result=self.check()
+        serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
+        if self.is_up:
+            if not check_result:
+                self.mgrace-=self.frequency
+            else:
+                self.mgrace=self.grace
+
+            if self.mgrace<=0:
+                serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "down"})
+                self.is_up=False
+        else:
+            if check_result:
+                serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "up"})
+                self.is_up=True
+                self.mgrace=self.grace
 
 def real_ping(ip):
     try:
@@ -39,8 +73,8 @@ def real_http(url=None):
     except:
         return False
 
-def real_socket_up(uri=None):
-    purl=urlparse.urlparse(uri)
+def real_socket_up(url=None):
+    purl=urlparse.urlparse(url)
     host=purl.hostname
     port=purl.port or str(purl.scheme)
     #serverboards.rpc.debug("<%s> <%s> %s"%(host, type(port), repr(purl)))
@@ -64,47 +98,27 @@ def real_socket_up(uri=None):
         return False
 
 @serverboards.rpc_method
-def ping(ip=None, frequency=30, grace=60):
-    serverboards.rpc.reply("ok")
-
-    response_limit(lambda: real_ping(ip), "ping", frequency, grace)
+def ping(id, ip=None, frequency=30, grace=60):
+    TimerCheck(id, lambda: real_ping(ip), "ping", frequency, grace)
+    return id
 
 @serverboards.rpc_method
-def http(url=None, maxs=1, frequency=30, grace=60):
-    serverboards.rpc.reply("ok")
-
+def http(id, url=None, maxs=1, frequency=30, grace=60):
     maxs=float(maxs)
-    response_limit(lambda: real_http(url) <= maxs, "http", frequency, grace)
+    TimerCheck(id, lambda: real_http(url) <= maxs, "http", frequency, grace)
+    return id
 
 @serverboards.rpc_method
-def socket_is_up(uri=None, frequency=30, grace=60):
-    serverboards.rpc.reply("ok")
+def socket_is_up(id, url=None, frequency=30, grace=60):
+    TimerCheck(id, lambda: real_socket_up(url), "socket_is_up", frequency, grace)
+    return id
 
-    response_limit(lambda: real_socket_up(uri), "socket_is_up", frequency, grace)
-
-def response_limit(check, type, frequency, grace):
-    frequency=time_description_to_seconds(frequency)
-    grace=time_description_to_seconds(grace)
-    mgrace=grace
-    is_up=True
-    while True:
-        check_result=check()
-        serverboards.rpc.debug("Check result: %s"%check_result)
-        if is_up:
-            if not check_result:
-                mgrace-=frequency
-            else:
-                mgrace=grace
-
-            if mgrace<=0:
-                serverboards.rpc.event("trigger", {"type": type, "state" : "down"})
-                is_up=False
-        else:
-            if check_result:
-                serverboards.rpc.event("trigger", {"type": type, "state" : "up"})
-                is_up=True
-                mgrace=grace
-        time.sleep(frequency)
+@serverboards.rpc_method
+def stop_trigger(id):
+    timer=uuid_to_timer[id]
+    serverboards.rpc.remove_timer(timer.timer_id)
+    del uuid_to_timer[id]
+    return True
 
 @serverboards.rpc_method
 def periodic(timeout=None):
@@ -115,4 +129,4 @@ def periodic(timeout=None):
         time.sleep(s)
         serverboards.rpc.event("trigger", {"type": "periodic", "state" : "tick"})
 
-serverboards.loop(debug=True)
+serverboards.loop()
