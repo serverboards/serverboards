@@ -10,19 +10,20 @@ export function is_same_service(c1, c2){
 }
 
 
-export function default_service_fields(name){
+export function default_service_fields(service){
   return [
     {
       label: 'Name',
       name: 'name',
       type: 'text',
       description: 'Service name as shown in UI',
-      value: name,
+      value: service.name,
       validation: 'empty'
     }, {
       label: 'Description',
       name: 'description',
       type: 'textarea',
+      value: service.description,
       description: 'Comments about this service'
     },
   ]
@@ -38,6 +39,6 @@ export function setup_fields(service, service_catalog){
   let fields = definition.fields.map( (f) => Object.assign({}, f,
       { value: service.config[f.name] || f.value }
     ) )
-  fields = default_service_fields(service.name).concat( fields )
+  fields = default_service_fields(service).concat( fields )
   return fields
 }

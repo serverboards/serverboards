@@ -31,8 +31,11 @@ let SetupComponent=React.createClass({
       console.log(operations)
       let name = operations.name
       delete operations.name
+      let description = operations.description
+      delete operations.description
       this.props.onUpdate( this.props.service.uuid, {
         name: name,
+        description: description,
         config: operations
       } )
       this.props.onClose()
