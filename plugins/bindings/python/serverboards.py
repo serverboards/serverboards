@@ -36,7 +36,7 @@ class RPC:
             return
         if type(x) != str:
             x=repr(x)
-        self.stderr.write("%d: %s\r\n"%(self.pid, x))
+        self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
         self.stderr.flush()
 
     def add_method(self, name, f):
@@ -247,6 +247,9 @@ def loop(debug=None):
     if debug:
         rpc.set_debug(debug)
     rpc.loop()
+
+def debug(s):
+    rpc.debug(s)
 
 class Config:
     def __init__(self):
