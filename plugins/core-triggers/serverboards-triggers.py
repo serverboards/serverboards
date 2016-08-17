@@ -80,7 +80,10 @@ def real_socket_up(url=None):
     #serverboards.rpc.debug("<%s> <%s> %s"%(host, type(port), repr(purl)))
 
     initt=time.time()
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except:
+        return False
     sock.settimeout(5)
     try:
         for address in socket.getaddrinfo(host, port):
@@ -93,8 +96,9 @@ def real_socket_up(url=None):
                 pass # normally no IPv6 support
         return False
     except:
-        import traceback
-        traceback.print_exc()
+        if serverboards.rpc.stderr:
+            import traceback
+            traceback.print_exc()
         return False
 
 @serverboards.rpc_method
