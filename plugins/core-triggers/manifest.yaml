@@ -93,6 +93,25 @@ components:
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
 
+  - name: Server socket is up
+    description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
+    id: serverboards.core.triggers/rule.socket.is_up
+    type: rule template
+    traits: url
+    trigger:
+      id: socket.is_up
+      config:
+        frequency: 5m
+        grace: 10m
+    actions:
+      up:
+        id: serverboards.core.actions/set-tags
+        config:
+          labels: UP -DOWN
+      down:
+        id: serverboards.core.actions/set-tags
+        config:
+          labels: -UP DOWN
 
   - name: Core triggers daemon
     id: daemon
