@@ -3,6 +3,32 @@ import Modal from '../modal'
 import GenericForm from '../genericform'
 import { setup_fields, service_definition } from '../service'
 import Loading from '../loading'
+import rpc from 'app/rpc'
+
+const RuleList = function(props){
+  if (props.rules.length == 0)
+    return (<span/>)
+  return (
+    <div className="ui equal width form">
+      <h3 className="ui header">Rule presets</h3>
+      <div className="ui meta">
+        Here you can activate preset rules. Custom rules can be activated at the
+        rules section
+      </div>
+      <div className="ui two column grid"  style={{paddingTop:10}}>
+      {props.rules.map( (r) => (
+        <div className="field column">
+          <div className="ui checkbox toggle">
+            <input type="checkbox" className="toggle" defaultChecked={r.is_active}/>
+            <label>{r.name}
+            <div className="ui meta">{r.description}</div></label>
+          </div>
+        </div>
+      ))}
+      </div>
+    </div>
+  )
+}
 
 let SetupComponent=React.createClass({
   getInitialState(){
@@ -12,7 +38,8 @@ let SetupComponent=React.createClass({
     }
     return {fields,
       values:
-        Object.assign({name: this.props.service.name}, this.props.service.config)
+        Object.assign({name: this.props.service.name}, this.props.service.config),
+      rules: undefined
     }
   },
   handleAccept : function(ev){
@@ -49,7 +76,16 @@ let SetupComponent=React.createClass({
       return this.state.fields
     return setup_fields(this.props.service, this.props.service_catalog)
   },
+  componentDidMount(){
+    let filter = { traits: this.props.service.traits }
+    console.log(filter)
+    rpc.call("rules.templates", filter).then( (rules) => {
+      this.setState({rules})
+    })
+  },
   render(){
+    const rules=this.state.rules || []
+
     let props=this.props
     let state=this.state
     if (!props.service_catalog)
@@ -73,6 +109,7 @@ let SetupComponent=React.createClass({
         <div className="content">
           <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
+        <RuleList rules={rules}/>
         <div className="actions">
           <button className="ui ok yellow button" onClick={this.handleAccept}>Accept</button>
         </div>
