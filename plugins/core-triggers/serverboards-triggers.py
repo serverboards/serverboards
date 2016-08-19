@@ -80,6 +80,7 @@ def real_http(url=None):
     except:
         return False
 
+@serverboards.rpc_method
 def real_socket_up(url=None):
     purl=urlparse.urlparse(url)
     host=purl.hostname

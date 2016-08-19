@@ -38,12 +38,14 @@ def http_get(url=None):
 def set_tags(service=None, tags=None):
     serverboards.rpc.debug("service %s"%repr(service))
     service_tags = serverboards.rpc.call("service.info", service)["tags"] or []
+    orig_tags=service_tags[:]
     for i in tags.replace(",", " ").split(" "):
         if i[0]=='-':
             if i[1:] in service_tags:
                 service_tags.remove(i[1:])
-        else:
+        elif not i in service_tags:
             service_tags.append(i)
-    serverboards.rpc.call("service.update", service, { "tags": service_tags })
+    if service_tags != orig_tags:
+        serverboards.rpc.call("service.update", service, { "tags": service_tags })
 
 serverboards.loop(debug=sys.stderr)
