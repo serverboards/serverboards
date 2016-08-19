@@ -10,7 +10,11 @@ defmodule Serverboards.Rules do
     {:ok, es} = EventSourcing.start_link( [name: :rules] ++ options )
     Serverboards.Rules.Rule.setup_eventsourcing(es)
     Serverboards.Rules.RPC.start_link
-    GenServer.start_link(__MODULE__, :ok, name: Serverboards.Rules)
+    {:ok, pid } = GenServer.start_link(__MODULE__, :ok, name: Serverboards.Rules)
+
+    for r <- list([is_active: true]), do: ensure_rule_active(r)
+
+    {:ok, pid}
   end
 
   defp get_actions(rule_id) do
@@ -50,6 +54,8 @@ defmodule Serverboards.Rules do
         q |> where([rule, _service, _serverboard], rule.uuid == ^v )
       {:service, v}, q ->
         q |> where([_rule, service, _serverboard], service.uuid == ^v )
+      {:is_active, v}, q ->
+        q |> where([rule, _service, _serverboard], rule.is_active == ^v )
       end)
     q = q |> select( [rule, service, serverboard], %{
       id: rule.id,
@@ -108,11 +114,11 @@ defmodule Serverboards.Rules do
     GenServer.call(Serverboards.Rules, {:ps})
   end
 
-  def ensure_rule_active(%Serverboards.Rules.Rule{} = rule) do
+  def ensure_rule_active(%{} = rule) do
     GenServer.call(Serverboards.Rules, {:ensure_rule_active, rule})
 
   end
-  def ensure_rule_not_active(%Serverboards.Rules.Rule{} = rule) do
+  def ensure_rule_not_active(%{} = rule) do
     GenServer.call(Serverboards.Rules, {:ensure_rule_not_active, rule})
 
   end
@@ -125,7 +131,7 @@ defmodule Serverboards.Rules do
   def handle_call({:ps}, _from, status) do
     {:reply, Map.keys(status), status}
   end
-  def handle_call({:ensure_rule_active, %Serverboards.Rules.Rule{} = rule}, _from, status) do
+  def handle_call({:ensure_rule_active, %{} = rule}, _from, status) do
     status = if not Map.has_key?(status, rule.uuid) do
       {:ok, trigger} = Rules.Rule.start_link(rule)
       Map.put(status, rule.uuid, trigger)
@@ -133,7 +139,7 @@ defmodule Serverboards.Rules do
     #Logger.debug("Ensure active #{inspect rule.uuid} #{inspect status}")
     {:reply, :ok, status}
   end
-  def handle_call({:ensure_rule_not_active, %Serverboards.Rules.Rule{} = rule}, _from, status) do
+  def handle_call({:ensure_rule_not_active, %{} = rule}, _from, status) do
     #Logger.debug("Ensure not active #{inspect rule.uuid} #{inspect status}")
     status = if Map.has_key?(status, rule.uuid) do
       trigger = status[rule.uuid]
