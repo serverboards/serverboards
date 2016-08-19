@@ -460,6 +460,10 @@ Returns a list of rules, in the rule format. Applies the given filter:
 
 Return the list of triggers that comply with thegiven filter
 
+## rules.templates(filter)
+
+Returns the list of rule templates.
+
 # Logs
 
 ## logs.history(filter)
