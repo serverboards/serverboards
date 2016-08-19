@@ -37,20 +37,20 @@ components:
         text: text
     traits: url
 
-  - name: Set label
-    id: set-labels
+  - name: Service tag change
+    id: set-tags
     type: action
     command: serverboards.core.actions/cmd
     call:
-      method: set_labels
+      method: set_tags
       params:
         - name: service
           type: text
           label: Service
-        - name: labels
-          label: Label to set.
+        - name: tags
+          label: Tags to set.
           type: text
-          description: New label set. Can be -label to remove such label
+          description: Space separated list of tags to add. It can start with a dash to remove the label (-label).
           placeholder: eg. UP -DOWN
 
   - name: Core actions.

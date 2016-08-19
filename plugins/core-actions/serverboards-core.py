@@ -35,15 +35,15 @@ def http_get(url=None):
     }
 
 @serverboards.rpc_method
-def set_labels(service=None, labels=None):
+def set_tags(service=None, tags=None):
     serverboards.rpc.debug("service %s"%repr(service))
-    tags = serverboards.rpc.call("service.info", service)["tags"]
-    for i in labels.replace(",", " ").split(" "):
+    service_tags = serverboards.rpc.call("service.info", service)["tags"]
+    for i in tags.replace(",", " ").split(" "):
         if i[0]=='-':
             if i[1:] in tags:
-                tags.remove(i[1:])
+                service_tags.remove(i[1:])
         else:
-            tags.append(i)
-    serverboards.rpc.call("service.update", service, { "tags": tags })
+            service_tags.append(i)
+    serverboards.rpc.call("service.update", service, { "tags": service_tags })
 
 serverboards.loop(debug=sys.stderr)
