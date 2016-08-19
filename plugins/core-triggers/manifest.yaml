@@ -95,22 +95,22 @@ components:
 
   - name: Server socket is up
     description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
-    id: serverboards.core.triggers/rule.socket.is_up
+    id: rule.socket.is_up
     type: rule template
     traits: url
     trigger:
-      id: socket.is_up
-      config:
+      trigger: socket.is_up
+      params:
         frequency: 5m
         grace: 10m
     actions:
       up:
-        id: serverboards.core.actions/set-tags
-        config:
+        action: serverboards.core.actions/set-tags
+        params:
           labels: UP -DOWN
       down:
-        id: serverboards.core.actions/set-tags
-        config:
+        action: serverboards.core.actions/set-tags
+        params:
           labels: -UP DOWN
 
   - name: Core triggers daemon
