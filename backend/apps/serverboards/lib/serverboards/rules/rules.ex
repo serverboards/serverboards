@@ -35,7 +35,7 @@ defmodule Serverboards.Rules do
     alias Serverboards.Serverboard.Model.Serverboard
     alias Serverboards.Service.Model.Service
 
-    Logger.debug("All rules: #{inspect Repo.all(from rule in Model.Rule)}")
+    #Logger.debug("All rules: #{inspect Repo.all(from rule in Model.Rule)}")
 
     q = from rule in Model.Rule,
       left_join: service in Service,
@@ -44,14 +44,12 @@ defmodule Serverboards.Rules do
               on: serverboard.id == rule.serverboard_id
 
     q = Enum.reduce(filter, q, fn
-      {"serverboard", v}, q ->
-        q |> where([_rule, _service, serverboard], serverboard.shortname == ^v )
       {:serverboard, v}, q ->
         q |> where([_rule, _service, serverboard], serverboard.shortname == ^v )
-      {"uuid", v}, q ->
-        q |> where([rule, _service, _serverboard], rule.uuid == ^v )
       {:uuid, v}, q ->
         q |> where([rule, _service, _serverboard], rule.uuid == ^v )
+      {:service, v}, q ->
+        q |> where([_rule, service, _serverboard], service.uuid == ^v )
       end)
     q = q |> select( [rule, service, serverboard], %{
       id: rule.id,
@@ -61,6 +59,7 @@ defmodule Serverboards.Rules do
       description: rule.description,
       serverboard: serverboard.shortname,
       service: service.uuid,
+      from_template: rule.from_template,
       trigger: %{
         trigger: rule.trigger,
         params: rule.params

@@ -12,7 +12,8 @@ defmodule Serverboards.Rules.Rule do
     name: nil,
     description: nil,
     trigger: %{},
-    actions: []
+    actions: [],
+    from_template: nil # original template rule
   ]
   def start_link(rule, _options \\ []) do
     #Logger.debug("#{inspect rule}")
@@ -87,7 +88,6 @@ defmodule Serverboards.Rules.Rule do
         } }
     end) |> Map.new
 
-
     %Serverboards.Rules.Rule{
       uuid: model.uuid,
       is_active: model.is_active,
@@ -95,6 +95,7 @@ defmodule Serverboards.Rules.Rule do
       service: service,
       name: model.name,
       description: model.description,
+      from_template: model.from_template,
       trigger: %{
         trigger: model.trigger,
         params: model.params
@@ -137,6 +138,7 @@ defmodule Serverboards.Rules.Rule do
       description: data.description,
       trigger: data.trigger.trigger,
       params: data.trigger.params,
+      from_template: data.from_template
     }
 
     {:ok, rule} = case Repo.all(from rule in Model.Rule, where: rule.uuid == ^uuid ) do

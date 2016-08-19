@@ -13,11 +13,13 @@ defmodule Serverboards.Rules.Model do
       field :trigger, :string
       field :params, :map
 
+      field :from_template, :string
+
       timestamps
     end
 
     @required_fields ~w(uuid is_active)
-    @optional_fields ~w(name description serverboard_id service_id trigger params)
+    @optional_fields ~w(name description serverboard_id service_id trigger params from_template)
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data

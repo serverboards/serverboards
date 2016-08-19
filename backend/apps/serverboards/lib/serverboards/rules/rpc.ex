@@ -21,12 +21,13 @@ defmodule Serverboards.Rules.RPC do
             trigger: rule["trigger"]["trigger"],
             params: rule["trigger"]["params"]
           },
-          actions: Enum.map(rule["actions"], fn {state, ac} ->
+          actions: (Enum.map(rule["actions"], fn {state, ac} ->
             {state, %{
               action: ac["action"],
               params: ac["params"]
             } }
-          end) |> Map.new
+          end) |> Map.new),
+          from_template: rule["from_template"]
         }
         #Logger.info("Rule #{inspect rule}")
         me = MOM.RPC.Context.get context, :user
@@ -35,16 +36,24 @@ defmodule Serverboards.Rules.RPC do
     end, required_perm: "rules.update", context: true
 
     add_method mc, "rules.list", fn
-      [filter] -> Serverboards.Rules.list filter
+      [filter] ->
+        key_list = ~w(serverboard uuid service)
+        filter_a = Map.to_list(filter)
+          |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
+        Serverboards.Rules.list filter_a
       [] -> Serverboards.Rules.list
-      filter -> Serverboards.Rules.list filter
+      filter ->
+        key_list = ~w(serverboard uuid service)
+        filter_a = Map.to_list(filter)
+          |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
+        Serverboards.Rules.list filter_a
     end, required_perm: "rules.view"
 
     add_method mc, "rules.templates", fn %{} = filter ->
       key_list = ~w(id trait traits type)
       filter_a = Map.to_list(filter)
         |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
-        
+
       {:ok, Serverboards.Rules.rule_templates( filter_a ) }
     end, required_perm: "rules.view"
 
