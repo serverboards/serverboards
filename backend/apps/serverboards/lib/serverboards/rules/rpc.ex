@@ -40,6 +40,14 @@ defmodule Serverboards.Rules.RPC do
       filter -> Serverboards.Rules.list filter
     end, required_perm: "rules.view"
 
+    add_method mc, "rules.templates", fn %{} = filter ->
+      key_list = ~w(id trait traits type)
+      filter_a = Map.to_list(filter)
+        |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
+        
+      {:ok, Serverboards.Rules.rule_templates( filter_a ) }
+    end, required_perm: "rules.view"
+
     add_method mc, "rules.catalog", fn
       [filter] -> Serverboards.Rules.Trigger.find filter
       [] -> Serverboards.Rules.Trigger.find

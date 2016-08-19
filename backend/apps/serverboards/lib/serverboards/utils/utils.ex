@@ -114,4 +114,35 @@ defmodule Serverboards.Utils do
   def timespec_to_ms!(timespec) when is_number(timespec) do
     timespec
   end
+
+
+  @doc ~S"""
+  Try to convert a key name to an atom from a list of valid atoms
+
+  If its not there, the original string is returned.
+
+  This is used at translation from external clients where dict keys are
+  strings to internal representation where they are atoms.
+
+  The list of valid atoms is actually a string list, as otherwise it would need
+  to be translated to strings anyway.
+  """
+  def key_to_atom_from_list(k, []), do: k
+  def key_to_atom_from_list(k, [k | _]), do: String.to_atom(k)
+  def key_to_atom_from_list(k, [_ | rest]), do: key_to_atom_from_list(k, rest)
+
+  @doc ~S"""
+  Converts all keys from the original list to use atoms if they are at the atom list
+
+  Uses key_to_atom_from_list
+
+  First list is a list of {k,v} with a key string. Second is a list of strings
+  of valid atoms.
+  """
+  def keys_to_atoms_from_list([], _), do: []
+  def keys_to_atoms_from_list([{k,v} | rest], l) do
+    [{key_to_atom_from_list(k, l), v}] ++ keys_to_atoms_from_list(rest, l)
+  end
+
+
 end

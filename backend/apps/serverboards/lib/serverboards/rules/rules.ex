@@ -82,6 +82,29 @@ defmodule Serverboards.Rules do
         end)
   end
 
+  def rule_templates(filter \\ []) do
+    Serverboards.Plugin.Registry.filter_component([type: "rule template"] ++ filter)
+    |> Enum.map(fn %{ name: name, traits: traits, id: id, description: description, plugin: plugin, extra: extra} ->
+      %{
+        id: id,
+        name: name,
+        traits: traits,
+        description: description,
+        plugin: plugin,
+        trigger: %{
+          id: extra["trigger"]["id"],
+          config: extra["trigger"]["config"]
+        },
+        actions: Map.new(Enum.map(Map.to_list(extra["actions"]), fn {k,v}->
+          {k, %{
+            config: v["config"],
+            id: v["id"]
+          } }
+        end))
+      }
+    end)
+  end
+
   def ps do
     GenServer.call(Serverboards.Rules, {:ps})
   end
