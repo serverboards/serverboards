@@ -10,7 +10,7 @@ description: >
 components:
   - name: SSH access
     type: service
-    traits: ssh
+    traits: ssh url
     id: ssh
     description: Access via SSH to any server
     fields:
