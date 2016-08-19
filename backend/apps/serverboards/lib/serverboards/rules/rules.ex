@@ -78,7 +78,7 @@ defmodule Serverboards.Rules do
             actions: get_actions( rule.id ),
             trigger: Map.merge(rule.trigger, %{ name: name })
             }) |> Map.drop([:id])
-          )
+          ) |> Map.from_struct
         end)
   end
 
@@ -92,13 +92,13 @@ defmodule Serverboards.Rules do
         description: description,
         plugin: plugin,
         trigger: %{
-          id: extra["trigger"]["id"],
-          config: extra["trigger"]["config"]
+          trigger: extra["trigger"]["trigger"],
+          params: extra["trigger"]["params"]
         },
         actions: Map.new(Enum.map(Map.to_list(extra["actions"]), fn {k,v}->
           {k, %{
-            config: v["config"],
-            id: v["id"]
+            params: v["params"],
+            action: v["action"]
           } }
         end))
       }
