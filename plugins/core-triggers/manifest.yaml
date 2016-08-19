@@ -107,11 +107,11 @@ components:
       up:
         action: serverboards.core.actions/set-tags
         params:
-          labels: UP -DOWN
+          tags: UP -DOWN
       down:
         action: serverboards.core.actions/set-tags
         params:
-          labels: -UP DOWN
+          tags: -UP DOWN
 
   - name: Core triggers daemon
     id: daemon

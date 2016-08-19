@@ -33,9 +33,16 @@ class TimerCheck:
         self.frequency=time_description_to_seconds(frequency)
         self.grace=time_description_to_seconds(grace)
         self.mgrace=self.grace
-        self.is_up=True
         self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick)
         uuid_to_timer[id]=self
+         # initial status
+        if self.check():
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "up"})
+            self.is_up=True
+        else:
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "down"})
+            self.is_up=False
+
 
     def tick(self):
         check_result=self.check()
