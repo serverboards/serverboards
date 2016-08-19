@@ -27,18 +27,22 @@ export default function(state=default_state, action){
       break;
     case "@RPC_EVENT/action.stopped":
       {
-        console.log(action)
-
-        return { processes: state.processes.map( (p) => {
-          if (p.uuid==action.uuid){
-            let clean_action = $.extend( {},
-              p,
-              {status: action.status, elapsed: action.elapsed, result: action.result}
-            )
-            return clean_action
-          }
-          return p
-        })}
+        try{
+          return { processes: state.processes.map( (p) => {
+            if (p.uuid==action.uuid){
+              let clean_action = $.extend( {},
+                p,
+                {status: action.status, elapsed: action.elapsed, result: action.result}
+              )
+              return clean_action
+            }
+            return p
+          })}
+        }
+        catch(e){
+          console.warn("May fail here for very short lived actions: it may not have proper uuid assigned")
+          console.error(e)
+        }
       }
       break;
   }
