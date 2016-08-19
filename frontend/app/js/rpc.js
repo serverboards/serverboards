@@ -169,13 +169,13 @@ var RPC = function(options={}){
       if (rpc.store)
         rpc.store.dispatch( Object.assign({type: `@RPC_EVENT/${jmsg.method}`}, jmsg.params) )
       rpc.trigger(jmsg.method, jmsg.params)
-      console.log("Event: %o %o", jmsg.method, jmsg)
+      if (rpc.debug)
+        console.log("Event: %o %o", jmsg.method, jmsg)
     }
   }
 
   rpc.subscriptions = {}
   rpc.on = function(event, fn){
-    console.warn("DEPRECATED rpc.on %o", event)
     rpc.subscriptions[event]=(rpc.subscriptions[event] || []).concat([fn])
   }
   rpc.off = function(event, fn){
@@ -185,7 +185,6 @@ var RPC = function(options={}){
       delete rpc.subscriptions[event]
   }
   rpc.trigger = function(event, data){
-    console.warn("DEPRECATED rpc.trigger %o", event)
     for (let fn of (rpc.subscriptions[event] || [])){
       try{
         fn(data)
