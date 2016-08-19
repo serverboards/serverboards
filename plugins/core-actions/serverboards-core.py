@@ -37,10 +37,10 @@ def http_get(url=None):
 @serverboards.rpc_method
 def set_tags(service=None, tags=None):
     serverboards.rpc.debug("service %s"%repr(service))
-    service_tags = serverboards.rpc.call("service.info", service)["tags"]
+    service_tags = serverboards.rpc.call("service.info", service)["tags"] or []
     for i in tags.replace(",", " ").split(" "):
         if i[0]=='-':
-            if i[1:] in tags:
+            if i[1:] in service_tags:
                 service_tags.remove(i[1:])
         else:
             service_tags.append(i)
