@@ -40,27 +40,28 @@ and have some communication.
 
 Can perform operations using SSH on remote machines.
 
-## 2016-07-30 - Manage virtual machines
+## 2016-07-30 - ~Manage virtual machines~
 
 ## 2016-09 - BETA RELEASE
 
 * First version
 * Core MUST have:
-  - Plugin comunication via RPC
-  - Plugin sections on UI
-  - Plugin settings
-  - Communications: inapp, email, telegram
-  - User management: permissions & groups
-  - Easy deploy with docker
-  - Recover from errors
-  - Simple Rules
-  - Serverboard Simple Widgets
+  - [x] Plugin comunication via RPC
+  - [x] Plugin sections on UI
+  - [x] Plugin settings
+  - [x] Communications: inapp, email, telegram
+  - [x] User management: permissions & groups
+  - [ ] Easy deploy with docker
+  - [ ] Recover from errors
+  - [x] Simple Rules
+  - [x] Serverboard Simple Widgets
 * Plugins for:
-  - Simple virtual machine management: start, stop, list.
-  - see the remote logs,
-  - use SSH terminal from Serverboards.
+  - [x] Simple virtual machine management: start, stop, list.
+  - [ ] see the remote logs,
+  - [x] use SSH terminal from Serverboards.
 * Overall MUST be posible to
-  - Monitor server (Ping/HTTP/port conn) uptime, notify down/up
+  - [ ] Monitor server (Ping/HTTP/port conn) uptime,
+  - [x] notify down/up
 
 Extras:
 * Monitor webpage changes
