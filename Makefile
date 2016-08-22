@@ -8,6 +8,7 @@ help:
 	@echo "  clean   -- Cleans all development data."
 	@echo "  test    -- Runs all tests."
 	@echo "  docker  -- Creates a docker image. Compiles all beforehand."
+	@echo "  release  -- Prepares a release tarball."
 	@echo
 
 compile: compile-backend compile-frontend
