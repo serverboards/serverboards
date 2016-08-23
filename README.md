@@ -1,6 +1,8 @@
 # Serverboards
 https://serverboards.io
 
+[![build status](https://git.coralbits.com/serverboards/serverboards/badges/master/build.svg)](https://git.coralbits.com/serverboards/serverboards/commits/master)
+
 **This is still work in progress. Use with caution.**
 
 ----
