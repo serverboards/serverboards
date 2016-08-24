@@ -28,7 +28,7 @@ backend-test:
       - backend/deps
   script:
     - cd backend; make test-do
-  depends:
+  dependencies:
     - backend-build
 
 frontend-build:
@@ -43,7 +43,7 @@ frontend-test:
   stage: test
   script:
     - cd frontend; make test
-  depends:
+  dependencies:
     - frontend-build
 
 release:
@@ -53,6 +53,6 @@ release:
   artifacts:
     paths:
       - serverboards.tar.gz
-  depends:
+  dependencies:
     - frontend-build
   expire_in: 1 week
