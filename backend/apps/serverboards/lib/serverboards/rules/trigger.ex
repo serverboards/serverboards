@@ -62,18 +62,25 @@ defmodule Serverboards.Rules.Trigger do
 
   def setup_client_for_rules(%MOM.RPC.Client{} = client) do
     #Logger.debug("Method caller of this trigger #{inspect client}")
-    MOM.RPC.Client.add_method client, "trigger", fn [params] ->
-      case get_trigger(params["id"]) do
-        nil ->
-          Logger.warn("Invalid trigger triggered (#{params["id"]}). Check plugin trigger function. #{inspect params}", uuid: params["id"])
-          {:error, :not_found}
-        trigger ->
-          Logger.debug("Trigger #{inspect trigger.trigger.id}, #{inspect params}")
-          Plugin.Runner.ping(trigger.plugin_id)
+    MOM.RPC.Client.add_method client, "trigger", fn
+      [params] ->
+        trigger_real(params)
+      %{} = params ->
+        trigger_real(params)
+    end
+  end
 
-          params = Map.merge(params, %{ trigger: trigger.trigger.id, id: params["id"] })
-          trigger.cont.(params)
-      end
+  def trigger_real(params) do
+    case get_trigger(params["id"]) do
+      nil ->
+        Logger.warn("Invalid trigger triggered (#{params["id"]}). Check plugin trigger function.", params: params)
+        {:error, :not_found}
+      trigger ->
+        Logger.debug("Trigger #{inspect trigger.trigger.id}, #{inspect params}")
+        Plugin.Runner.ping(trigger.plugin_id)
+
+        params = Map.merge(params, %{ trigger: trigger.trigger.id, id: params["id"] })
+        trigger.cont.(params)
     end
   end
 
