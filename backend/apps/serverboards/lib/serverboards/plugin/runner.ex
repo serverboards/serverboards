@@ -333,14 +333,14 @@ defmodule Serverboards.Plugin.Runner do
   def handle_cast({:ping, uuid}, state) do
     #Logger.debug("ping #{inspect uuid }")
     case state.timeouts[uuid] do
+      nil ->
+        {:noreply, state}
       oldref ->
         {:ok, :cancel} = :timer.cancel(oldref)
         timeout = state.running[uuid].timeout
         {:ok, newref} = :timer.send_after( timeout, self, {:timeout, uuid} )
         #Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
         {:noreply, %{ state | timeouts: Map.put(state.timeouts, uuid, newref) }}
-      nil ->
-        {:noreply, state}
     end
   end
 

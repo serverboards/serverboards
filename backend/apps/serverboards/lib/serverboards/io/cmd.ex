@@ -152,7 +152,7 @@ defmodule Serverboards.IO.Cmd do
     end
     {:noreply, %{ state | line: [] }}
   end
-  def handle_info({ _, {:data, {:noeol, line}}} = input, state) do
+  def handle_info({ _, {:data, {:noeol, line}}}, state) do
     line = [state.line, line]
     if list_line_length(line) > (1024*8) do # 8kb line.. long one indeed.
       {:stop, :too_long_line}
