@@ -8,6 +8,8 @@ variables:
   GIT_DEPTH: "3"
 
 cache:
+  key: "$CI_PROJECT_NAME"
+  untracked: true
   paths:
     - frontend/node_modules
     - backend/deps
