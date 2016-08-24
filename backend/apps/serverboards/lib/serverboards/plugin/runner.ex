@@ -194,9 +194,9 @@ defmodule Serverboards.Plugin.Runner do
     end
   end
   # map version
-  def call(runner, id, %{ "method" => method, "params" => params }, defparams) when (is_pid(runner) or is_atom(runner)) and is_binary(id) do
+  def call(runner, id, %{ "method" => method } = defcall, defparams) when (is_pid(runner) or is_atom(runner)) and is_binary(id) do
     defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k,v} -> {to_string(k), v} end))
-    params = params |> Enum.map( fn %{ "name" => name } = param ->
+    params = Map.get(defcall,"params",[]) |> Enum.map( fn %{ "name" => name } = param ->
       # this with is just to try to fetch in order or nil
       value = with :error <- Map.fetch(defparams, to_string(name)),
                    :error <- Map.fetch(param, "default"),
