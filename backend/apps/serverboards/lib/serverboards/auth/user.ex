@@ -35,7 +35,7 @@ defmodule Serverboards.Auth.User do
     Logger.debug("Add user by #{inspect me}")
 
     if Enum.member? perms, "auth.create_user" do
-      EventSourcing.dispatch :auth, :add_user, user, email
+      EventSourcing.dispatch Serverboards.Auth.EventSourcing, :add_user, user, email
       :ok
     else
       {:error, :not_allowed}
@@ -48,7 +48,7 @@ defmodule Serverboards.Auth.User do
   def user_update(email, operations, me) do
     if (Enum.member? me.perms, "auth.modify_any") or
        (email==me.email and (Enum.member? me.perms, "auth.modify_self")) do
-         EventSourcing.dispatch :auth, :update_user, %{ user: email, operations: operations }, me.email
+         EventSourcing.dispatch Serverboards.Auth.EventSourcing, :update_user, %{ user: email, operations: operations }, me.email
          :ok
     else
       {:error, :not_allowed}
@@ -65,7 +65,7 @@ defmodule Serverboards.Auth.User do
   def user_info(email, options, me) when is_binary(email) and is_map(me) do
     if (me.email == email) or (Enum.member? me.perms, "auth.info_any_user") do
       user=Repo.get_by(Model.User, email: email)
-      
+
       cond do
         user == nil ->
           Logger.debug("No such user #{email}")
