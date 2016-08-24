@@ -2,7 +2,7 @@ all: setup compile
 
 compile: dist/
 
-dist/: app/* app/*/* *.js
+dist/: node_modules app/* app/*/* *.js
 	rm dist -rf
 	NODE_ENV=production node_modules/.bin/webpack -p --progress
 

@@ -1,13 +1,61 @@
-backend:
+stages:
+  - build
+  - test
+  - release
+
+variables:
+  GIT_STRATEGY: fetch
+  GIT_DEPTH: "3"
+
+cache:
+  key: "$CI_PROJECT_NAME"
+  untracked: true
+  paths:
+    - frontend/node_modules
+    - backend/deps
+    - backend/_build
+
+backend-build:
+  stage: build
+  script:
+    - cd backend; make test-compile
+  stage: build
+  artifacts:
+    paths:
+      - backend/_build
+
+backend-test:
+  stage: test
   cache:
     paths:
       - backend/deps
   script:
-    - cd backend; make test
+    - cd backend; make test-do
+  dependencies:
+    - backend-build
 
-frontend:
-  cache:
+frontend-build:
+  stage: build
+  script:
+    - cd frontend; make compile
+  artifacts:
     paths:
-      - frontend/node_modules
+      - frontend/dist
+
+frontend-test:
+  stage: test
   script:
     - cd frontend; make test
+  dependencies:
+    - frontend-build
+
+release:
+  stage: release
+  script:
+    - make release
+  artifacts:
+    paths:
+      - serverboards.tar.gz
+    expire_in: 1 week
+  dependencies:
+    - frontend-build
