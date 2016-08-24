@@ -53,6 +53,6 @@ release:
   artifacts:
     paths:
       - serverboards.tar.gz
+    expire_in: 1 week
   dependencies:
     - frontend-build
-  expire_in: 1 week
