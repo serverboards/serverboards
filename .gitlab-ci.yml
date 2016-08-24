@@ -15,10 +15,11 @@ cache:
 backend-build:
   stage: build
   script:
-    - cd backend; make
+    - cd backend; make compile
   stage: build
   artifacts:
-    - backend/_build
+    paths:
+      - backend/_build
 
 backend-test:
   stage: test
@@ -33,9 +34,10 @@ backend-test:
 frontend-build:
   stage: build
   script:
-    - cd frontend; make
+    - cd frontend; make compile
   artifacts:
-    - frontend/dist
+    paths:
+      - frontend/dist
 
 frontend-test:
   stage: test
@@ -49,5 +51,8 @@ release:
   script:
     - make release
   artifacts:
-    - serverboards.tgz
-  expire_in: 1 month
+    paths:
+      - serverboards.tar.gz
+  depends:
+    - frontend-build
+  expire_in: 1 week
