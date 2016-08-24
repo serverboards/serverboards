@@ -1,13 +1,53 @@
-backend:
+stages:
+  - build
+  - test
+  - release
+
+variables:
+  GIT_STRATEGY: fetch
+  GIT_DEPTH: "3"
+
+cache:
+  paths:
+    - frontend/node_modules
+    - backend/deps
+
+backend-build:
+  stage: build
+  script:
+    - cd backend; make
+  stage: build
+  artifacts:
+    - backend/_build
+
+backend-test:
+  stage: test
   cache:
     paths:
       - backend/deps
   script:
-    - cd backend; make test
+    - cd backend; make test-do
+  depends:
+    - backend-build
 
-frontend:
-  cache:
-    paths:
-      - frontend/node_modules
+frontend-build:
+  stage: build
+  script:
+    - cd frontend; make
+  artifacts:
+    - frontend/dist
+
+frontend-test:
+  stage: test
   script:
     - cd frontend; make test
+  depends:
+    - frontend-build
+
+release:
+  stage: release
+  script:
+    - make release
+  artifacts:
+    - serverboards.tgz
+  expire_in: 1 month
