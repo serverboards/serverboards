@@ -11,11 +11,12 @@ cache:
   paths:
     - frontend/node_modules
     - backend/deps
+    - backend/_build
 
 backend-build:
   stage: build
   script:
-    - cd backend; make compile
+    - cd backend; make test-compile
   stage: build
   artifacts:
     paths:

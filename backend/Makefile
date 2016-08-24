@@ -8,14 +8,16 @@ setup:
 	yes Y | mix local.rebar --force
 	yes Y | mix deps.get
 
-test-setup: setup
-	mix deps.compile
-	MIX_ENV=test mix compile
+test-setup: test-compile setup
 	MIX_ENV=test mix ecto.migrate -r Serverboards.Repo
 	MIX_ENV=test mix run apps/serverboards/priv/repo/test_seeds.exs
 
 test-do:
 	MIX_ENV=test mix test
+
+test-compile: setup
+	mix deps.compile
+	MIX_ENV=test mix compile
 
 compile: apps/serverboards/rel/serverboards/bin/serverboards
 
