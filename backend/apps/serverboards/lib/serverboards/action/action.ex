@@ -24,6 +24,7 @@ defmodule Serverboards.Action do
 
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.started", data: action }  } ->
+        #Logger.warn("Trigger start saved #{inspect action}")
         user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
           [] -> nil
           [id] -> id
@@ -44,13 +45,25 @@ defmodule Serverboards.Action do
     end)
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "action.stopped", data: action }  } ->
-        #Logger.debug("Action finished #{inspect action.id}", action: action)
-        prev = Repo.get_by!( Model.History, uuid: action.uuid )
-        case Repo.update( Model.History.changeset(prev, action) ) do
-          {:ok, hist} -> {:ok, hist}
-          {:error, %{ errors: errors } } ->
-            Logger.error("Error storing action result: #{ inspect errors }. Storing as error finished.")
-            Repo.update( Model.History.changeset(prev, %{ status: "error", result: %{ database_error: Map.new(errors) } } ) )
+        import Ecto.Query
+        #Logger.warn("Action finished #{inspect action.uuid}", action: action)
+        case Repo.all(from h in Model.History, where: h.uuid == ^action.uuid) do
+          [prev] ->
+            case Repo.update( Model.History.changeset(prev, action) ) do
+              {:ok, hist} -> {:ok, hist}
+              {:error, %{ errors: errors } } ->
+                Logger.error("Error storing action result: #{ inspect errors }. Storing as error finished.")
+                Repo.update( Model.History.changeset(prev, %{ status: "error", result: %{ database_error: Map.new(errors) } } ) )
+            end
+          [] ->
+            Logger.warn("Storing action finished on non yet started action (or not registered yet). May be a fast action. #{inspect action}", action: action)
+            Logger.debug("Also happens in tests, where the database may be cleaned and after some time the action finished.")
+            user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
+              [] -> nil
+              [id] -> id
+            end
+            action = Map.merge( action, %{ type: action[:id], user_id: user_id } )
+            {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
         end
         :ok
       _ -> :ok
@@ -184,11 +197,14 @@ defmodule Serverboards.Action do
   @doc ~S"""
   Returns a list of currently running actions
 
+    iex> require Logger
     iex> user = Test.User.system
+    iex> Logger.info("start action")
     iex> {:ok, uuid} = trigger("serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 1 }, user)
     iex> :timer.sleep 300
     iex> list = ps(user)
     iex> uuid_list = list |> Enum.map(&(&1.uuid))
+    iex> Logger.info("#{inspect uuid} in #{inspect uuid_list}")
     iex> uuid in uuid_list
     true
 

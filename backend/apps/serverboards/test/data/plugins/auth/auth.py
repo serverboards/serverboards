@@ -32,7 +32,7 @@ def bad_protocol(*args):
 
 @serverboards.rpc_method
 def http_get(url=None, sleep=0.100):
-    sys.stderr.write("Faking Get\n")
+    sys.stderr.write("Faking Get %.2f\n"%sleep)
     time.sleep(sleep)
     return { "body": "404 - not found", "response_code": 404, "time": 20 }
 
