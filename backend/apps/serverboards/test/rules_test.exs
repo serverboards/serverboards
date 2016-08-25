@@ -229,4 +229,38 @@ defmodule Serverboards.TriggersTest do
     {:error, _ } = File.stat("/tmp/sbds-rule-test")
 
   end
+
+  test "Modify rule restarts it" do
+    alias Serverboards.Rules.Rule
+    uuid = UUID.uuid4
+    me = Test.User.system
+
+    File.rm("/tmp/sbds-rule-test")
+    Rule.upsert( rule(%{ uuid: uuid, is_active: true }), me )
+    :timer.sleep(1000)
+    Logger.info("Should have triggered")
+    {:ok, _ } = File.stat("/tmp/sbds-rule-test")
+
+    # now with just 100 ms
+    File.rm("/tmp/sbds-rule-test")
+    Rule.upsert( rule(%{
+      uuid: uuid,
+      is_active: true,
+      trigger: %{
+        trigger: "serverboards.test.auth/periodic.timer",
+        params: %{
+          period: "0.1"
+        },
+      } } ), me )
+
+    :timer.sleep(300)
+    Logger.info("Should have triggered")
+    {:ok, _ } = File.stat("/tmp/sbds-rule-test")
+
+    Rule.upsert( rule(%{
+      uuid: uuid,
+      is_active: false
+      } ), me )
+
+  end
 end
