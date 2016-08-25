@@ -5,6 +5,14 @@ defmodule Serverboards.IO.Cmd do
 
   alias MOM.RPC
 
+  @ratelimit_bucket_size 100 # 100 slots
+  @ratelimit_bucket_rate 1000 # ms
+  @ratelimit_bucket_add 50 # add X buckets every rate ms, lower better latency,
+                           # more means more burstines alas uses lees resources.
+
+  # check https://en.wikipedia.org/wiki/Token_bucket forthe algorithm details
+  # rate is variable from a max of (rate / size) to min of (rate / add)
+
   @doc ~S"""
   Runs a command (to properly shlex), and returns the handler to be able to
   comunicate with it
@@ -94,14 +102,36 @@ defmodule Serverboards.IO.Cmd do
         groups: []
       }
     )
+    {:ok, timer} = :timer.send_interval(@ratelimit_bucket_rate, self, :ratelimit_bucket_add)
+    Logger.debug("Timer is #{inspect timer}")
 
     state=%{
       cmd: cmd,
       port: port,
       client: client,
       line: [],
+      ratelimit: @ratelimit_bucket_size,
+      ratelimit_skip: 0,
     }
     {:ok, state}
+  end
+
+  defp rate_limit_wait(state) do
+    #Logger.debug("Ratelimit count #{state.ratelimit}")
+    {ratelimit, skip} = if state.ratelimit <= 0 do
+      Logger.debug("Messages arriving too fast from CMD #{inspect state.cmd}. Wait #{inspect @ratelimit_bucket_rate} ms", cmd: state.cmd)
+      :timer.sleep(@ratelimit_bucket_rate) # sleep here.
+      # set the state as one has been processed, added the buckets, but also
+      # mark skip later add.
+      # IO may have a looong queue of messages waiting before getting to the
+      # interval timer (and then they may be all at a time). Setting how
+      # many to skip helps the have always the algorithm in sync.
+      {@ratelimit_bucket_add - 1, state.ratelimit_skip + 1}
+    else
+      {state.ratelimit - 1, state.ratelimit_skip}
+    end
+
+    %{ state | ratelimit: ratelimit, ratelimit_skip: skip }
   end
 
   def handle_call({:write_line, line}, _from, state) do
@@ -143,6 +173,8 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do
+    state = rate_limit_wait(state)
+
     line = to_string([state.line, line])
     case RPC.Client.parse_line(state.client, line) do
       {:error, e} ->
@@ -153,6 +185,8 @@ defmodule Serverboards.IO.Cmd do
     {:noreply, %{ state | line: [] }}
   end
   def handle_info({ _, {:data, {:noeol, line}}}, state) do
+    state = rate_limit_wait(state)
+
     line = [state.line, line]
     if list_line_length(line) > (1024*8) do # 8kb line.. long one indeed.
       {:stop, :too_long_line}
@@ -168,6 +202,21 @@ defmodule Serverboards.IO.Cmd do
     {:stop, reason, state}
   end
 
+  def handle_info(:ratelimit_bucket_add, state) do
+    if state.ratelimit_skip > 0 do
+      {:noreply, %{ state | ratelimit_skip: state.ratelimit_skip - 1 }}
+    else
+      ratelimit = state.ratelimit + @ratelimit_bucket_add
+      ratelimit = if state.ratelimit > @ratelimit_bucket_size do
+        @ratelimit_bucket_size
+      else
+        state.ratelimit
+      end
+
+      {:noreply, %{ state |
+        ratelimit: ratelimit}}
+    end
+  end
   def handle_info(any, state) do
     Logger.warn("Command got info #{inspect any}")
     {:noreply, state}
