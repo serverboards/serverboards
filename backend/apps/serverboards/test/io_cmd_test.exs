@@ -12,4 +12,15 @@ defmodule Serverboards.IO.CmdTest do
     # Setting the shared mode must be done only after checkout
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
   end
+
+  test "Rate limit" do
+    import Serverboards.IO.Cmd
+
+    {:ok, rl } = start_link("test/data/plugins/auth/auth.py")
+    init = Timex.Time.now
+    {:ok, "ok" } = call( rl, "test_rate_limiting", [150])
+    total_t = Timex.Time.elapsed(init)
+
+    assert total_t > 1000 # depends on default timerates at cmd.ex.
+  end
 end
