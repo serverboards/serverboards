@@ -48,4 +48,8 @@ def set_tags(service=None, tags=None):
     if service_tags != orig_tags:
         serverboards.rpc.call("service.update", service, { "tags": service_tags })
 
-serverboards.loop(debug=sys.stderr)
+@serverboards.rpc_method
+def send_notification(email, subject, body):
+    serverboards.rpc.call("notifications.notify", email=email, subject=subject, body=body)
+
+serverboards.loop() #debug=sys.stderr)
