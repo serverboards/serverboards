@@ -93,6 +93,25 @@ components:
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
 
+  - name: Service tags changed
+    description: Triggers when a specific tag appears or disappears from service tags, as UP or DOWN
+    id: tag_change
+    type: trigger
+    states: added removed
+    command: daemon
+    start:
+      method: tag_change
+      params:
+        - name: service
+          type: service
+          label: Service to watch
+        - name: tag
+          type: text
+          label: Label
+          placeholder: eg. UP, DOWN, UNKNOWN
+    stop: tag_change_stop
+
+
   - name: Server socket is up
     description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
     id: rule.socket.is_up
@@ -119,4 +138,5 @@ components:
     command: serverboards-triggers.py
     shared: none
     strategy: singleton
+    perms: service.update service.info
     timeout: 7d

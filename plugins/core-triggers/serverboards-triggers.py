@@ -46,7 +46,7 @@ class TimerCheck:
 
     def tick(self):
         check_result=self.check()
-        serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
+        #serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
         if self.is_up:
             if not check_result:
                 self.mgrace-=self.frequency
@@ -141,4 +141,33 @@ def periodic(timeout=None):
         time.sleep(s)
         serverboards.rpc.event("trigger", {"type": "periodic", "state" : "tick"})
 
-serverboards.loop()
+@serverboards.rpc_method
+def tag_change(id, service, tag):
+    class TagUpdated:
+        def __init__(self, service_id):
+            service=serverboards.rpc.call("service.info",service_id)
+            self.tags=service["tags"]
+            self.is_in=False
+            self.service_id=service_id
+        def check(self, service):
+            serverboards.debug("Check if service changed status %s %s %s %s"%(self.is_in, tag, service["tags"], tag in service["tags"]))
+            if service["uuid"]!=self.service_id:
+                serverboards.debug("Not for me")
+                return
+            if self.is_in:
+                if not tag in service["tags"]:
+                    serverboards.rpc.event("trigger", {"id" : id, "state" : "removed"})
+                    self.is_in=False
+            else:
+                if tag in service["tags"]:
+                    serverboards.rpc.event("trigger", {"id" : id, "state" : "added"})
+                    self.is_in=True
+
+    subscription_id = serverboards.rpc.subscribe("service.updated[%s]"%service, TagUpdated(service).check)
+    return subscription_id
+
+@serverboards.rpc_method
+def tag_change_clear(id):
+    serverboards.rpc.unsubscribe(id)
+
+serverboards.loop(debug=True)
