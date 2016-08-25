@@ -23,6 +23,9 @@ class RPC:
         self.timers={} # timer_id -> (next_stop, id, seconds, continuation)
         self.timer_id=1
         self.add_event(sys.stdin, self.read_parse_line)
+        self.subscriptions={}
+        self.subscriptions_ids={}
+        self.subscription_id=1
 
     def set_debug(self, debug):
         if debug is True:
@@ -43,26 +46,36 @@ class RPC:
         self.rpc_registry[name]=f
 
     def call_local(self, rpc):
-        f=self.rpc_registry.get(rpc['method'])
-        if f:
-            params=rpc['params']
+        method=rpc['method']
+        params=rpc['params']
+        call_id=rpc.get('id')
+        (args,kwargs) = ([],params) if type(params)==dict else (params, {})
+
+        if method in self.rpc_registry:
+            f=self.rpc_registry[method]
             try:
-                if type(params)==dict:
-                    res=f(**params)
-                else:
-                    res=f(*params)
+                res=f(*args, **kwargs)
                 return {
                     'result' : res,
-                    'id' : rpc['id']
+                    'id' : call_id
                     }
             except Exception as e:
                 import traceback; traceback.print_exc()
                 return {
                     'error': str(e),
-                    'id' : rpc['id']
+                    'id' : call_id
                 }
-        if not f:
-            return { 'error':'unknown_method', 'id': rpc['id'] }
+        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions)))
+        if method in self.subscriptions:
+            assert call_id is None
+            for f in self.subscriptions[method]:
+                try:
+                    f(*args, **kwargs)
+                except:
+                    import traceback; traceback.print_exc()
+            return None
+
+        return { 'error':'unknown_method', 'id': call_id }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -131,15 +144,16 @@ class RPC:
     def __process_request(self, rpc):
         self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
-        if res.get("id") not in self.manual_replies:
-            try:
-                self.println(json.dumps(res))
-            except:
-                import traceback; traceback.print_exc()
-                sys.stderr.write(repr(res)+'\n')
-                self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
-        else:
-            self.manual_replies.discard(res.get("id"))
+        if res: # subscription do not give back response
+            if res.get("id") not in self.manual_replies:
+                try:
+                    self.println(json.dumps(res))
+                except:
+                    import traceback; traceback.print_exc()
+                    sys.stderr.write(repr(res)+'\n')
+                    self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+            else:
+                self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
         self.debug(line)
@@ -204,6 +218,24 @@ class RPC:
                 else:
                     self.debug("Waiting for reply; Queue for later: %s"% res)
                     self.requestq.append(rpc)
+
+    def subscribe(self, event, callback):
+        eventname=event.split('[',1)[0] # maybe event[context], we keep only event as only events are sent.
+        sid=self.subscription_id
+
+        self.subscriptions[eventname]=self.subscriptions.get(event,[]) + [callback]
+        self.subscriptions_ids[sid]=(eventname, callback)
+
+        self.call("event.subscribe",event)
+        self.debug("Subscribed to %s"%event)
+        self.subscription_id+=1
+        return sid
+
+    def unsubscribe(self, subscription_id):
+        self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
+        (event, callback) = self.subscriptions_ids[subscription_id]
+        self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
+        del self.subscriptions_ids[subscription_id]
 
 rpc=RPC(sys.stdin, sys.stdout)
 sys.stdout=sys.stderr # allow debugging by print
