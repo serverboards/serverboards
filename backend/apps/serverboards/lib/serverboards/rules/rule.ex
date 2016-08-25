@@ -154,7 +154,7 @@ defmodule Serverboards.Rules.Rule do
 
     if (rule.is_active and rule.trigger.trigger != nil and rule.trigger.trigger != "") do
       #Logger.debug("Ensure active")
-      Serverboards.Rules.ensure_rule_active rule
+      Serverboards.Rules.restart_rule rule
     else
       #Logger.debug("Ensure NOT active")
       Serverboards.Rules.ensure_rule_not_active rule
