@@ -17,7 +17,8 @@ var RPC = function(options={}){
     store: options.store,
     url: options.url,
     debug: false,
-    reconnect_max: 10 // max count of reconnects, if more reload page.
+    reconnect_max: 10, // max count of reconnects, if more reload page.
+    reconnection_message_queue: [] // messages to send when reconnected.
   }
 
   if (!rpc.url){
@@ -59,22 +60,34 @@ var RPC = function(options={}){
 
   rpc.onopen=function(){
     rpc.set_status("CONNECTED")
-    if (rpc.reconnect_time>1000){
+    //if (rpc.reconnect_time>1000){
       //Flash.success("Connected to remote RPC server.")
-    }
-    console.debug("Connection success.")
+    //}
+    //console.debug("Connection success.")
     if (rpc.reconnect_token){
       rpc.call('auth.auth',{type:'token',token:rpc.reconnect_token}).then(function(user){
         if (user==false){
           Flash.error("Could not reauthenticate automatically. Reload.")
           rpc.reconnect_token=false
+          rpc.reconnection_message_queue=[]
           return
         }
         //Flash.success("Reconnection succeded.")
         event.subscribe(["user.updated"])
 
         rpc.store.dispatch({ type: 'AUTH_LOGIN', user })
+
+        // Send pending messages
+        for (let msg of rpc.reconnection_message_queue){
+          rpc.rpc.send( msg )
+        }
+        rpc.reconnection_message_queue=[]
+      }).catch(function(){
+        rpc.reconnection_message_queue=[]
       })
+    }
+    else{
+      rpc.reconnection_message_queue=[]
     }
 
     rpc.reconnect_time=1000
@@ -209,7 +222,11 @@ var RPC = function(options={}){
     try{
       if (this.debug)
         console.debug("Send: %o", msg)
-      rpc.rpc.send( msg )
+      if (this.status=="CONNECTED")
+        rpc.rpc.send( msg )
+      else{
+        rpc.reconnection_message_queue.push( msg )
+      }
     }
     catch(e){
       rpc.reconnect()
