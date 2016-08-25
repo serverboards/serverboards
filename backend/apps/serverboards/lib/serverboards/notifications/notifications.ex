@@ -82,7 +82,20 @@ defmodule Serverboards.Notifications do
     :ok
   end
 
-  def notify_real(email, subject, body, extra) do
+  def notify_real(who, subject, body, extra) do
+    if String.starts_with?(who,"@") do
+      Logger.debug("Notifying group #{inspect who}", subject: subject, body: body, extra: extra)
+      me = %{ email: "system", perms: ["auth.info_any_user"]}
+      for email <- Serverboards.Auth.Group.user_list(String.slice(who, 1, 1000), me) do
+        notify_real_one(email, subject, body, extra)
+      end
+      {:ok, true}
+    else
+      notify_real_one(who, subject, body, extra)
+    end
+  end
+
+  def notify_real_one(email, subject, body, extra) do
     :ok = Serverboards.Notifications.InApp.notify(email, subject, body, extra)
 
     cm = Map.new(
