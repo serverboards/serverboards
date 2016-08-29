@@ -15,8 +15,8 @@ const Notification=React.createClass({
     const id = Number( this.props.params.id )
     rpc.call("notifications.details", [id]).then( (n) => {
       this.setState({notification: n})
-      if (n.tags.indexOf("unread")>=0){
-        const tags = n.tags.filter( (t) => (t!="unread") )
+      if (n.tags.indexOf("unread")>=0 || n.tags.indexOf("new")>=0){
+        const tags = n.tags.filter( (t) => (t!="unread" && t!="new") )
         rpc.call("notifications.update", {id: n.id, tags})
       }
     })
