@@ -8,8 +8,11 @@ import { merge } from 'app/utils'
 
 const RuleList = React.createClass({
   componentDidMount(){
+    this.updateToggles( $(this.refs.form).find('.checkbox.toggle') )
+  },
+  updateToggles(sel){
     let self=this
-    $(this.refs.form).find('.checkbox.toggle').checkbox({
+    $(sel).checkbox({
       onChecked(ev){
         console.log("Activated rule name %o", this.name)
         self.props.activateRule(this.name)
@@ -19,6 +22,9 @@ const RuleList = React.createClass({
         self.props.deactivateRule(this.name)
       }
     })
+  },
+  componentDidUpdate(newprops){
+    this.updateToggles( $(this.refs.form).find('.checkbox.toggle') )
   },
   render(){
     const props = this.props
