@@ -132,6 +132,29 @@ components:
         params:
           tags: -UP DOWN
 
+  - name: Service is DOWN
+    description: Monitors server tags to know when a server is DOWN or UP and notifies all users
+    id: rule.server.DOWN
+    type: rule template
+    traits: url
+    trigger:
+      trigger: tag_change
+      params:
+        tag: DOWN
+    actions:
+      added:
+        action: serverboards.core.actions/send-notification
+        params:
+          email: @user
+          subject: Service is DOWN
+          body: The service is DOWN. Please check ASAP.
+      removed:
+        action: serverboards.core.actions/send-notification
+        params:
+          email: @user
+          subject: Service is back UP
+          body: The service is UP. 
+
   - name: Core triggers daemon
     id: daemon
     type: cmd
