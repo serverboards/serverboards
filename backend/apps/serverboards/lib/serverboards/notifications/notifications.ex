@@ -64,6 +64,7 @@ defmodule Serverboards.Notifications do
   * extra:
     - all: true -- Send to all configured channels
     - type: str -- Type of the comunication: info, error...
+    - ...: Custom from origin
 
   Options itself is passed to the notification channel handler, so it may contain
   extra required configuration, as notification type.
@@ -96,7 +97,21 @@ defmodule Serverboards.Notifications do
   end
 
   def notify_real_one(email, subject, body, extra) do
-    :ok = Serverboards.Notifications.InApp.notify(email, subject, body, extra)
+    user = Auth.User.user_info(email, %{ email: email})
+    extra = extra
+      |> Map.merge(%{ "email" => email, "user" => user })
+
+    {:ok, subject} = Serverboards.Utils.Template.render(subject, extra)
+    {:ok, body} = Serverboards.Utils.Template.render(body, extra)
+
+    Logger.debug("Extra data for notification: #{inspect extra}\n#{subject}\n#{body}")
+
+    :ok = Serverboards.Notifications.InApp.notify(
+      email,
+      String.slice(subject, 0, 255),
+      body,
+      extra
+      )
 
     cm = Map.new(
       config_get(email)
@@ -113,7 +128,6 @@ defmodule Serverboards.Notifications do
     end
     Logger.debug("Notifications config map #{inspect cm}")
 
-    user = Auth.User.user_info(email, %{ email: email})
     for c <- catalog do
       config = cm[c.channel]
       if config do
@@ -193,7 +207,7 @@ defmodule Serverboards.Notifications do
       with {:ok, plugin} <- Plugin.Runner.start( command_id ),
         do: Plugin.Runner.call(plugin, channel.call, params)
     if ok == :error do
-      Logger.error("Error running #{command_id} #{inspect params}: #{inspect ret}")
+      Logger.error("Error sending message to #{command_id} / #{inspect user.email}", params: params, ret: ret, user: user, channel: channel, config: config)
     end
     {ok, ret}
   end

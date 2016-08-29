@@ -48,8 +48,12 @@ defmodule Serverboards.Rules.Trigger do
     {:ok, uuid}
   end
   def start(triggerid, params, cont) when is_binary(triggerid) do
-    [trigger] = find id: triggerid
-    start(trigger, params, cont)
+    case find id: triggerid do
+      [trigger] ->
+        start(trigger, params, cont)
+      [] ->
+        Logger.error("Could not find trigger #{triggerid}", trigger: triggerid)
+    end
   end
 
   def stop(uuid) do
