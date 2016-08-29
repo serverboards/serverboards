@@ -145,16 +145,23 @@ components:
       added:
         action: serverboards.core.actions/send-notification
         params:
-          email: @user
-          subject: Service is DOWN
-          body: The service is DOWN. Please check ASAP.
+          email: "@user"
+          subject: "{{service.name}} is DOWN"
+          body: |
+              The service {{service.name}} is DOWN.
+
+              Please check ASAP.
+
+              {{service.url}}
       removed:
         action: serverboards.core.actions/send-notification
         params:
-          email: @user
-          subject: Service is back UP
-          body: The service is UP. 
+          email: "@user"
+          subject: "{{service.name}} is back UP"
+          body: |
+            The service {{service.name}} is UP.
 
+            {{service.url}}
   - name: Core triggers daemon
     id: daemon
     type: cmd
