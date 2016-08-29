@@ -164,7 +164,7 @@ let Card=React.createClass({
               <span className={`ui tag label ${colorize(l)}`}>{l}</span>
             ))}</div>
           )}
-          <div className="description">{props.description || "No description yet"}</div>
+          <div className="description">{props.description || ""}</div>
           <ul>
           {(Object.keys(props.config || {})).map((k) => (
             <Field key={k} name={k} value={props.config[k]}/>
