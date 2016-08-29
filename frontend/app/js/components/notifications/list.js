@@ -61,7 +61,7 @@ const List = React.createClass({
                   <td>{n.subject}</td>
                   <td>{n.inserted_at.replace('T',' ')}</td>
                   <td>{n.tags.map( (t) => (
-                    <span className={`ui label ${label_color(t)}`}>{t}</span>
+                    <span className={`ui tag tiny label ${label_color(t)}`}>{t}</span>
                   ))}</td>
                   <td className="right aligned"><a><i className="ui icon angle right"/></a></td>
                 </tr>

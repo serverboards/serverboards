@@ -8,7 +8,7 @@ function NotificationsMenu(props){
       {(props.unread || []).map((p) =>
         <a href={`#/notifications/${p.id}`} className="item">
           <span style={{float: "right", marginTop: -8, paddingLeft: 15}}>{p.tags.map( (t) => (
-            <span className={`ui label ${label_color(t)}`}>{t}</span>
+            <span className={`ui tag tiny label ${label_color(t)}`}>{t}</span>
           ))}
           </span>
           <span>{p.subject}</span>

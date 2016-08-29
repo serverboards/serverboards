@@ -34,7 +34,7 @@ const Notification=React.createClass({
         <div className="ui meta">{n.inserted_at.replace('T',' ')}</div>
         <div className="ui labels">
           {n.tags.map( (t) => (
-            <span className={`ui label ${label_color(t)}`}>{t}</span>
+            <span className={`ui tag tiny label ${label_color(t)}`}>{t}</span>
           ))}
         </div>
         <div className="ui body">
