@@ -70,10 +70,11 @@ components:
         - name: body
           type: textarea
           lable: Body
+        - name: service
 
   - name: Core actions.
     type: cmd
     id: cmd
     timeout: 1000
     command: serverboards-core.py
-    perms: service.info service.update notifications.notify notifications.notify_all
+    perms: service.info service.update notifications.notify notifications.notify_all settings.view[serverboards.core.settings/base]

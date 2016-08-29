@@ -48,8 +48,24 @@ def set_tags(service=None, tags=None):
     if service_tags != orig_tags:
         serverboards.rpc.call("service.update", service, { "tags": service_tags })
 
+def base_url():
+    url="http://localhost:3000"
+    try:
+        url=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
+    except:
+        pass
+    return url
+
 @serverboards.rpc_method
-def send_notification(email, subject, body):
-    serverboards.rpc.call("notifications.notify", email=email, subject=subject, body=body)
+def send_notification(email, subject, body, service=None):
+    extra={}
+    if service:
+        service_data = serverboards.rpc.call("service.info", service)
+        if service_data["serverboards"]:
+            serverboard=service_data["serverboards"][0]
+            service_data["url"] = "%s/#/serverboard/%s/services"%(base_url(), serverboard)
+        extra["service"] = service_data
+
+    serverboards.rpc.call("notifications.notify", email=email, subject=subject, body=body, extra=extra)
 
 serverboards.loop() #debug=sys.stderr)
