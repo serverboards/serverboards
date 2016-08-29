@@ -223,18 +223,21 @@ class RPC:
         eventname=event.split('[',1)[0] # maybe event[context], we keep only event as only events are sent.
         sid=self.subscription_id
 
-        self.subscriptions[eventname]=self.subscriptions.get(event,[]) + [callback]
+        self.subscriptions[eventname]=self.subscriptions.get(eventname,[]) + [callback]
         self.subscriptions_ids[sid]=(eventname, callback)
 
         self.call("event.subscribe",event)
-        self.debug("Subscribed to %s"%event)
         self.subscription_id+=1
+
+        self.debug("Subscribed to %s"%event)
+        self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
         return sid
 
     def unsubscribe(self, subscription_id):
         self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
         (event, callback) = self.subscriptions_ids[subscription_id]
         self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
+        self.debug("Removed subscription %s id %s"%(event, subscription_id))
         del self.subscriptions_ids[subscription_id]
 
 rpc=RPC(sys.stdin, sys.stdout)
