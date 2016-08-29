@@ -49,7 +49,7 @@ def set_tags(service=None, tags=None):
         serverboards.rpc.call("service.update", service, { "tags": service_tags })
 
 def base_url():
-    url="http://localhost:3000"
+    url="http://localhost:8080"
     try:
         url=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
     except:
