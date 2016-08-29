@@ -55,13 +55,12 @@ let Services=React.createClass({
         )
         break;
     }
-
     return (
       <div className="ui container">
         <h1>Services at {props.serverboard.name}</h1>
         <div className="ui cards">
           {props.services.map((p) => (
-            <Card key={p.id} service={p} serverboard={this.props.serverboard}/>
+            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.props.service_catalog.find((d) => d.id == p.id)}/>
           ))}
         </div>
 

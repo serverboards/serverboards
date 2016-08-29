@@ -20,6 +20,7 @@ components:
         name: url
         type: text
         validation: empty
+        card: true
 
   - name: Email Account
     type: service
@@ -30,9 +31,11 @@ components:
         name: smtp
         type: text
         validation: empty
+        card: true
       - label: SMTP Username
         name: smtp_username
         type: text
+        card: true
       - label: SMTP Password
         name: smtp_pw
         type: password
@@ -45,4 +48,5 @@ components:
       - label: IP Addresses
         description: Space or comma separated list of ip addresses and DNS names that point to this server
         name: ip
+        card: true
         type: text

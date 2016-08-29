@@ -119,6 +119,17 @@ let Card=React.createClass({
   handleDetach(){
     this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
   },
+  show_config(k){
+    var fields = (this.props.service_description || {}).fields || []
+    for(var p of fields){
+      if (p.name==k){
+        if(p.card)
+          return true;
+        return false;
+      }
+    }
+    return false;
+  },
   render(){
     let props=this.props.service
     let popup=[]
@@ -166,9 +177,9 @@ let Card=React.createClass({
           )}
           <div className="description">{props.description || ""}</div>
           <ul>
-          {(Object.keys(props.config || {})).map((k) => (
+          {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]}/>
-          ))}
+          ) : [])}
           </ul>
         </div>
         <div className="extra content">

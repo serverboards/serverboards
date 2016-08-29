@@ -18,6 +18,7 @@ components:
         name: url
         type: text
         validation: empty
+        card: true
       - label: Comments
         type: description
         description: |
