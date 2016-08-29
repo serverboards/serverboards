@@ -184,12 +184,10 @@ let Card=React.createClass({
         </div>
         <div className="extra content">
           <div className="ui inverted yellow menu bottom attached">
+            {props.virtual ? (
+              <a className="item" onClick={() => this.setModal('virtual', {service: props})}>Related services <i className="ui icon caret right"/></a>
+            ) : []}
             <div className="right menu">
-              {props.virtual ? (
-                <div className="item">
-                  <a onClick={() => this.setModal('virtual', {service: props})}><i className="ui icon block layout"/></a>
-                </div>
-              ) : []}
               <div ref="dropdown" className="ui item dropdown">
                 Options
                 <i className="ui dropdown icon"/>
