@@ -66,6 +66,7 @@ defmodule Serverboards.Service do
 
       {:ok, service} = service_info upd.uuid, me
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
+      Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.update"])
 
       :ok
     else

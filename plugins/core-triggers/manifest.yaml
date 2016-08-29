@@ -93,6 +93,25 @@ components:
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
 
+  - name: Service tags changed
+    description: Triggers when a specific tag appears or disappears from service tags, as UP or DOWN
+    id: tag_change
+    type: trigger
+    states: added removed
+    command: daemon
+    start:
+      method: tag_change
+      params:
+        - name: service
+          type: service
+          label: Service to watch
+        - name: tag
+          type: text
+          label: Label
+          placeholder: eg. UP, DOWN, UNKNOWN
+    stop: tag_change_stop
+
+
   - name: Server socket is up
     description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
     id: rule.socket.is_up
@@ -113,10 +132,41 @@ components:
         params:
           tags: -UP DOWN
 
+  - name: Service is DOWN
+    description: Monitors server tags to know when a server is DOWN or UP and notifies all users
+    id: rule.server.DOWN
+    type: rule template
+    traits: url
+    trigger:
+      trigger: tag_change
+      params:
+        tag: DOWN
+    actions:
+      added:
+        action: serverboards.core.actions/send-notification
+        params:
+          email: "@user"
+          subject: "{{service.name}} is DOWN"
+          body: |
+              The service {{service.name}} is DOWN.
+
+              Please check ASAP.
+
+              {{service.url}}
+      removed:
+        action: serverboards.core.actions/send-notification
+        params:
+          email: "@user"
+          subject: "{{service.name}} is back UP"
+          body: |
+            The service {{service.name}} is UP.
+
+            {{service.url}}
   - name: Core triggers daemon
     id: daemon
     type: cmd
     command: serverboards-triggers.py
     shared: none
     strategy: singleton
+    perms: service.update service.info
     timeout: 7d

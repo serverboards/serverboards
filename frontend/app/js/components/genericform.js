@@ -8,7 +8,7 @@ const RichDescription=React.createClass({
     vars = vars || []
     let text = this.props.value
     vars.map( (kv) => {
-      text=text.replace(`{${kv[0]}}`, kv[1])
+      text=text.replace(`{{${kv[0]}}}`, kv[1])
     })
     return text
   },
@@ -25,8 +25,9 @@ const RichDescription=React.createClass({
         .then((uuid) => {
           rpc.call(`${uuid}.${v.call}`, [])
           .then((content) => resolve([v.id, content]))
-          .then(() => rpc.call("plugin.stop", [uuid]))
           .catch((e) => reject(e))
+          .then(() => rpc.call("plugin.stop", [uuid]))
+          .catch((e) => true) // no prob if no stop
         })
         .catch((e) => reject(e))
       })
