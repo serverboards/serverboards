@@ -67,6 +67,19 @@ def parse_command(line, vars={}):
     >>> res = parse_command("test \\"\\" ''")
     >>> res == {"method":"test", "params":["",""]}
     True
+
+    >>> res = parse_command("__placeholder__ service:uuid:asdf,tags:[DOWN]")
+    >>> res["params"]["service"]["uuid"]
+    'asdf'
+    >>> res["params"]["service"]["tags"]
+    ['DOWN']
+
+    >>> res = parse_command("__placeholder__ service:{uuid:asdf,tags:[DOWN]}")
+    >>> res["params"]["service"]["uuid"]
+    'asdf'
+    >>> res["params"]["service"]["tags"]
+    ['DOWN']
+
     """
     def parse_arg(a):
         assert a is not None
@@ -76,12 +89,24 @@ def parse_command(line, vars={}):
             return int(a)
         elif a.startswith('$'):
             return resolve_var(a[1:], vars)
+        elif a and a[0] == "[" and a[-1]=="]":
+            return [parse_arg(x) for x in a[1:-1].split(',')]
+        elif a and a[0] == "{" and a[-1]=="}":
+            return list_or_dict([parse_arg(x) for x in a[1:-1].split(',')])
         elif '=' in a:
-            k,v = a.split('=')
+            k,v = a.split('=',1)
             return {k.strip():v.strip()}
+        elif '://' in a: # special case for protocols
+            return a
         elif ':' in a:
-            k,v = a.split(':')
-            return {k.strip():v.strip()}
+            k,v = a.split(':',1)
+            if ',' in v:
+                if v[0]=='{' and v[-1]=='}': # unnecesary, but may help readability
+                    v=v[1:-1]
+                vv = list_or_dict( [parse_arg(x.strip()) for x in v.split(',')] )
+                return {k.strip():vv }
+
+            return {k.strip():parse_arg(v.strip())}
         elif a == '{}':
             return {}
         # literal
@@ -174,6 +199,9 @@ class Client:
         else:
             cmd['method']=cmd['method'][1:]
 
+        if self.debug:
+            Client.printc(json.dumps(cmd), color="grey")
+
         self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
         return cmd
 
@@ -182,10 +210,17 @@ class Client:
             response = self.get_response()
             if not response:
                 return None
-            elif id and response.get('id')==id:
+            elif id and not 'method' in response and response.get('id')==id:
                 return response
             else:
-                Client.printc(response, color="grey")
+                if 'method' in response and 'id' in response: # this is a call
+                    user_response = input("%s%s> "%(response["method"], repr(response.get("params"))))
+                    result = parse_command("__placeholder__ %s"%(user_response), self.vars)["params"]
+                    cmd={"id": response["id"], "result": result }
+                    self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
+                else:
+                    Client.printc(response, color="grey")
+
         return None
 
     def get_response(self):
@@ -208,9 +243,9 @@ class Client:
         if line.startswith('#'):
             return None
         cmd = parse_command(line, self.vars)
-        if self.debug:
-            Client.printc(json.dumps(cmd), color="grey")
         if cmd['method'] in self.builtin:
+            if self.debug:
+                Client.printc(json.dumps(cmd), color="grey")
             params = cmd['params']
             if type(params) == list:
                 res = {'id': cmd.get('id'), 'result': self.builtin[cmd['method']](*params)}
@@ -440,6 +475,7 @@ if __name__=='__main__':  # pragma: no cover
         Client.printc=lambda *a, **b: None
 
         res = doctest.testmod()
-        os.exit(res)
+        #res = doctest.run_docstring_examples(parse_command, {"parse_command": parse_command})
+        sys.exit(res)
 
     main()

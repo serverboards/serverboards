@@ -41,6 +41,16 @@ defmodule Serverboards.NotificationTest do
     assert data["user"]["email"] == user.email
   end
 
+  test "Simple notification to group" do
+    {:ok, true} = Serverboards.Notifications.notify_real("@admin", "Test message", "This is the body", %{})
+
+    {:ok, fd} = File.open("/tmp/lastmail.json")
+    data = IO.read(fd, :all)
+    File.close(fd)
+
+    {:ok, data} = JSON.decode(data)
+  end
+
   test "Configure for user" do
     chan = hd Serverboards.Notifications.catalog
     user = Test.User.system

@@ -217,6 +217,9 @@ defmodule Serverboards.IO.Cmd do
         ratelimit: ratelimit}}
     end
   end
+  def handle_info({:EXIT, _pid, :normal}, state) do
+    {:noreply, state}
+  end
   def handle_info(any, state) do
     Logger.warn("Command got info #{inspect any}")
     {:noreply, state}
