@@ -27,7 +27,7 @@ components:
           **SSH Public Key:**
 
           ```
-          {ssh_key}
+          {{ssh_key}}
           ```
         vars:
           - id: ssh_key
