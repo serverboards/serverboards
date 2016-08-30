@@ -14,6 +14,16 @@ defmodule Serverboards.Rules do
 
     for r <- list([is_active: true]), do: ensure_rule_active(r)
 
+
+    MOM.Channel.subscribe(:client_events, fn
+      %{ payload: %{ type: "service.updated", data: %{ service: %{ uuid: uuid }}}} ->
+        restart_rules_for_service(uuid)
+        :ok
+      _ -> :ok
+    end)
+
+
+
     {:ok, pid}
   end
 
@@ -124,6 +134,13 @@ defmodule Serverboards.Rules do
 
   def restart_rule(%{} = rule) do
     GenServer.call(Serverboards.Rules, {:restart_rule, rule})
+  end
+
+  def restart_rules_for_service(service) do
+    Logger.debug("Service updated, check rules to restart #{service}", service: service)
+    list(service: service)
+      |> Enum.map( &restart_rule/1 )
+    :ok
   end
 
   # server impl
