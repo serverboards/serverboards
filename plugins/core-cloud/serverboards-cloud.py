@@ -106,6 +106,7 @@ def virtual_nodes(**config):
             'id': node['id'],
             'name': node['name'],
             'tags': [ "stopped" if node['state']=="terminated" else "running" ],
+            'description': '%s MB RAM'%(node['extra']['used_memory']),
             'traits': ['core.cloud.node'],
             'config': {
                 'node': node['id'],
@@ -200,7 +201,7 @@ def test():
 
 
 def main():
-    serverboards.rpc.set_debug(sys.stderr)
+    #serverboards.rpc.set_debug(sys.stderr)
     serverboards.loop()
 
 if __name__=='__main__':
