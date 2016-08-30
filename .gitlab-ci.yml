@@ -11,6 +11,7 @@ cache:
   key: "$CI_PROJECT_NAME"
   untracked: true
   paths:
+    - frontend/dist
     - frontend/node_modules
     - backend/deps
     - backend/mix.lock
