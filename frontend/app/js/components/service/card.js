@@ -18,7 +18,84 @@ function Field(props){
   )
 }
 
-let Card=React.createClass({
+
+function RealBottomMenu(props){
+  return (
+    <div className="ui inverted yellow menu bottom attached">
+      {props.service.virtual ? (
+        <a className="item" onClick={() => props.setModal('virtual', {service: props.service})}>Related services <i className="ui icon caret right"/></a>
+      ) : []}
+      <div className="right menu">
+        <div className="ui item dropdown">
+          Options
+          <i className="ui dropdown icon"/>
+          <div className="ui vertical menu">
+            {!props.service.is_virtual ? (
+              <HoldButton className="item" onHoldClick={props.handleDetach}>Hold to Detach</HoldButton>
+            ) : []}
+            {props.service.fields ? (
+              <div className="item" onClick={props.handleOpenSettings}>Settings<i className="ui icon settings"/></div>
+            ) : []}
+            {props.actions ? props.actions.map( (ac) => (
+              <div className="item" onClick={() => props.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
+            )) : (
+              <div className="item disabled">
+                Loading
+              </div>
+            ) }
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const VirtualBottomMenu=React.createClass({
+  componentDidMount(){
+    $(this.refs.dropdown).dropdown()
+  },
+  componentDidUpdate(){
+    $(this.refs.dropdown).dropdown() // Ensure has working dropdown
+  },
+  render(){
+    const props=this.props
+    if (!props.actions){
+      return (
+        <div className="item disabled">
+          <i className="ui wait icon"/>
+          Loading
+        </div>
+      )
+    }
+
+    const maxicons=4
+    const head = props.actions.slice(0, maxicons)
+    //const tail = props.actions.slice(maxicons)
+    return (
+      <div className="ui menu bottom attached">
+        { head.map( (ac) => (
+          <a className="item" onClick={() => props.triggerAction(ac.id)}>
+            <i className={`ui ${ac.extra.icon} icon`} title={ac.name}/>
+          </a>
+        ) ) }
+        <div className="right menu">
+          <a className="ui item dropdown" ref="dropdown">
+            <i className="ui ellipsis vertical icon"/>
+            <div className="ui vertical menu">
+              { props.actions.map( (ac) => (
+                <a className="item" onClick={() => props.triggerAction(ac.id)}>
+                  {ac.name} <i className={`ui ${ac.extra.icon} icon`}/>
+                </a>
+              ) ) }
+            </div>
+          </a>
+        </div>
+      </div>
+    )
+  }
+})
+
+const Card=React.createClass({
   getInitialState(){
     return {
       actions: undefined,
@@ -27,20 +104,25 @@ let Card=React.createClass({
   },
 
   componentDidMount(){
-    $(this.refs.dropdown)
-      .dropdown({
-        // you can use any ui transition
-        transition: 'fade up',
-        onShow: this.loadAvailableActions,
-      })
-    let self=this
-    let s = this.props.service
-    Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
-      {id: `service-settings-${s.uuid}`, title: `${s.name} settings`,
-       description: `Modify ${s.name} service settings`, run: () => self.handleOpenSettings()},
-      {id: `service-more-${s.uuid}`, title: `${s.name} more actions`,
-       description: `Show ${s.name} more actions menu`, run: () => $(self.refs.dropdown).dropdown('show').focus()},
-    ],2 )
+    if (this.props.service.is_virtual){
+      this.loadAvailableActions()
+    }
+    else{
+      let dropdown=$(this.refs.menu).find('.ui.dropdown')
+      dropdown.dropdown({
+          // you can use any ui transition
+          transition: 'fade up',
+          onShow: this.loadAvailableActions,
+        })
+      let self=this
+      let s = this.props.service
+      Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
+        {id: `service-settings-${s.uuid}`, title: `${s.name} settings`,
+         description: `Modify ${s.name} service settings`, run: () => self.handleOpenSettings()},
+        {id: `service-more-${s.uuid}`, title: `${s.name} more actions`,
+         description: `Show ${s.name} more actions menu`, run: () => dropdown.dropdown('show').focus()},
+      ],2 )
+    }
   },
   componentWillUnmount(){
     Command.remove_command_search(`service-${this.props.service.uuid}`)
@@ -85,11 +167,9 @@ let Card=React.createClass({
   },
 
   triggerAction(action_id){
-    console.log(action_id)
     let action=this.state.actions.filter( (a) => a.id == action_id )[0]
     // Discriminate depending on action type (by shape)
     if (action.extra.call){
-      console.log(action)
       const params = this.props.service.config
 
       let missing_params = action.extra.call.params.filter((p) => !(p.name in params))
@@ -182,33 +262,23 @@ let Card=React.createClass({
           ) : [])}
           </ul>
         </div>
-        <div className="extra content">
-          <div className="ui inverted yellow menu bottom attached">
-            {props.virtual ? (
-              <a className="item" onClick={() => this.setModal('virtual', {service: props})}>Related services <i className="ui icon caret right"/></a>
-            ) : []}
-            <div className="right menu">
-              <div ref="dropdown" className="ui item dropdown">
-                Options
-                <i className="ui dropdown icon"/>
-                <div className="ui vertical menu">
-                  {!props.is_virtual ? (
-                    <HoldButton className="item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
-                  ) : []}
-                  {props.fields ? (
-                    <div className="item" onClick={this.handleOpenSettings}>Settings<i className="ui icon settings"/></div>
-                  ) : []}
-                  {this.state.actions ? this.state.actions.map( (ac) => (
-                    <div className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
-                  )) : (
-                    <div className="item disabled">
-                      Loading
-                    </div>
-                  ) }
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="extra content" ref="menu">
+          {props.is_virtual ? (
+            <VirtualBottomMenu
+              actions={this.state.actions}
+              triggerAction={this.triggerAction}
+              service={props}
+              />
+          ) : (
+            <RealBottomMenu
+              actions={this.state.actions}
+              setModal={this.setModal}
+              handleDetach={this.handleDetach}
+              handleOpenSettings={this.handleOpenSettings}
+              triggerAction={this.triggerAction}
+              service={props}
+              />
+          )}
         </div>
         {popup}
       </div>
