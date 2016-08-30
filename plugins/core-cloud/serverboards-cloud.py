@@ -59,6 +59,20 @@ def guess_icon(node):
     if 'linux' in nodename:
         return 'linux'
     return None
+
+def get_description(node):
+    extra=node["extra"]
+    desc=[]
+    if 'used_memory' in extra:
+        desc.append( '%s MB RAM'%(extra["used_memory"]) )
+    if 'memory' in extra:
+        desc.append( '%s MB RAM'%(extra["memory"]) )
+    if 'disk' in extra:
+        desc.append( '%.2f GB'%(extra['disk']) )
+    if 'public_ips' in node:
+        desc.append( ' '.join(node['public_ips']) )
+    return ', '.join(desc)
+
 @serverboards.rpc_method("list")
 def _list(uuid=None):
     if uuid is None:
@@ -112,13 +126,13 @@ def reboot(connection, node):
 def virtual_nodes(**config):
     connection = connect(**config)
     def decorate(node):
-        #serverboards.rpc.debug(repr(node))
+        serverboards.rpc.debug(repr(node))
         return {
             'type': 'serverboards.core.cloud/cloud.node', # optional, if not, can not be instantiated.
             'id': node['id'],
             'name': node['name'],
             'tags': [ "stopped" if node['state']=="terminated" else "running" ],
-            'description': '%s MB RAM'%(node['extra']['used_memory']),
+            'description': get_description(node),
             'traits': ['core.cloud.node'],
             'config': {
                 'node': node['id'],
@@ -214,7 +228,7 @@ def test():
 
 
 def main():
-    #serverboards.rpc.set_debug(sys.stderr)
+    serverboards.rpc.set_debug(sys.stderr)
     serverboards.loop()
 
 if __name__=='__main__':
