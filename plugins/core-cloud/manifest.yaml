@@ -74,6 +74,7 @@ components:
     type: action
     traits: core.cloud.node stopped
     command: serverboards.core.cloud/daemon
+    icon: play
     call:
       method: start
       params:
@@ -84,6 +85,7 @@ components:
     type: action
     traits: core.cloud.node running
     command: serverboards.core.cloud/daemon
+    icon: stop
     call:
       method: shutdown
       params:
@@ -94,6 +96,7 @@ components:
     type: action
     traits: core.cloud.node running
     command: serverboards.core.cloud/daemon
+    icon: stop circle outline
     call:
       method: force_stop
       params:
@@ -104,6 +107,7 @@ components:
     type: action
     traits: core.cloud.node running
     command: serverboards.core.cloud/daemon
+    icon: undo
     call:
       method: reboot
       params:

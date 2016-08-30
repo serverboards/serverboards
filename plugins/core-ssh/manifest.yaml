@@ -48,6 +48,7 @@ components:
     description: Can access via SSH to server
     type: action
     traits: ssh
+    icon: terminal
     screen: true
 
   - name: Execute SSH Command
@@ -56,6 +57,7 @@ components:
     command: daemon
     description: Executes a remote command. It is recommended that the key exchange is configured prior, so no ssh passwords are stored on the database.
     traits: ssh
+    icon: terminal
     call:
       method: ssh_exec
       params:

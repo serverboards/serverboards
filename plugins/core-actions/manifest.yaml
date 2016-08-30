@@ -24,6 +24,7 @@ components:
     id: webhook.call
     type: action
     command: serverboards.core.actions/cmd
+    icon: world
     call:
       method: http_get
       params:
@@ -41,6 +42,7 @@ components:
     id: set-tags
     type: action
     command: serverboards.core.actions/cmd
+    icon: tag
     call:
       method: set_tags
       params:
@@ -58,6 +60,7 @@ components:
     type: action
     command: cmd
     traits: url
+    icon: mail
     call:
       method: send_notification
       params:

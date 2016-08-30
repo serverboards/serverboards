@@ -191,17 +191,17 @@ let Card=React.createClass({
               <div ref="dropdown" className="ui item dropdown">
                 Options
                 <i className="ui dropdown icon"/>
-                <div className="menu">
+                <div className="ui vertical menu">
                   {!props.is_virtual ? (
-                    <HoldButton className="ui item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
+                    <HoldButton className="item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
                   ) : []}
                   {props.fields ? (
-                    <div className="ui item" onClick={this.handleOpenSettings}>Settings</div>
+                    <div className="item" onClick={this.handleOpenSettings}>Settings<i className="ui icon settings"/></div>
                   ) : []}
                   {this.state.actions ? this.state.actions.map( (ac) => (
-                    <div className="ui item" onClick={() => this.triggerAction(ac.id)}>{ac.name}</div>
+                    <div className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
                   )) : (
-                    <div className="ui item disabled">
+                    <div className="item disabled">
                       Loading
                     </div>
                   ) }
