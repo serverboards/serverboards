@@ -20,9 +20,6 @@ backend-build:
   script:
     - cd backend; make test-compile
   stage: build
-  artifacts:
-    paths:
-      - backend/_build
 
 backend-test:
   stage: test
@@ -38,9 +35,6 @@ frontend-build:
   stage: build
   script:
     - cd frontend; make compile
-  artifacts:
-    paths:
-      - frontend/dist
 
 frontend-test:
   stage: test
