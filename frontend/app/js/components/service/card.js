@@ -241,12 +241,13 @@ const Card=React.createClass({
         )
         break;
     }
+    console.log(props)
     return (
       <div className="service card">
         <div className="content">
           <div className="right floated">
             {props.icon ? (
-              <IconIcon src={icon} icon={props.icon}/>
+              <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
             ) : (
               <ImageIcon src={icon}  name={props.name}/>
             )}

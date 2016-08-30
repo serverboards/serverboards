@@ -60,7 +60,7 @@ let AddService=React.createClass({
       return (
         <a key={props.uuid || props.type} className="column center aligned svg" onClick={(ev) => self.handleAdd(ev, props)} href="#">
           {props.icon ? (
-            <IconIcon src={icon} icon={props.icon}/>
+            <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
           ) : (
             <ImageIcon src={icon}  name={props.name}/>
           )}

@@ -32,7 +32,7 @@ components:
     name: Libvirt
     description: Management of [libvirt](https://libvirt.org) based clouds.
     traits: core.cloud.compute
-    icon: cloud
+    icon: libvirtLogo.png
     virtual:
       command: serverboards.core.cloud/daemon
       call: virtual_nodes
@@ -52,7 +52,7 @@ components:
     name: Digital Ocean
     description: Management of [Digital Ocean](https://digitalocean.com) clouds.
     traits: core.cloud.compute
-    icon: cloud
+    icon: digitalocean.svg
     virtual:
       command: serverboards.core.cloud/daemon
       call: virtual_nodes
