@@ -13,6 +13,7 @@ components:
     traits: ssh url
     id: ssh
     description: Access via SSH to any server
+    icon: terminal
     fields:
       - label: SSH Address
         name: url

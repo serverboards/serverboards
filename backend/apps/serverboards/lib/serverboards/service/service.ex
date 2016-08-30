@@ -378,6 +378,7 @@ defmodule Serverboards.Service do
           |> Map.put(:fields, [])
           |> Map.put(:traits, [])
           |> Map.put(:description, "")
+          |> Map.put(:icon, nil)
       [service_definition] ->
         fields = service_definition.fields |> Enum.map(fn f ->
           Map.put(f, :value, Map.get(service.config, f["name"], ""))
@@ -390,9 +391,10 @@ defmodule Serverboards.Service do
         service
           |> Map.put(:fields, fields)
           |> Map.put(:traits, service_definition.traits)
+          |> Map.put(:icon, service_definition.icon)
     end
 
-    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits virtual description)a)
+    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits virtual description icon)a)
   end
 
   @doc ~S"""
@@ -560,6 +562,7 @@ defmodule Serverboards.Service do
           fields: service.extra["fields"],
           traits: service.traits,
           description: service.description,
+          icon: service.extra["icon"]
          }
         s = if service.extra["virtual"] do
           Map.put(s, :virtual, service.extra["virtual"])

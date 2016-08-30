@@ -48,6 +48,17 @@ def disconnect(id):
     del uri_type_to_connection[conn['urik']]
     return True
 
+def guess_icon(node):
+    nodename=node.name.lower()
+    if 'debian' in nodename:
+        return 'debian.svg'
+    if 'fedora' in nodename:
+        return 'fedora.svg'
+    if 'ubuntu' in nodename:
+        return 'ubuntu.svg'
+    if 'linux' in nodename:
+        return 'linux'
+    return None
 @serverboards.rpc_method("list")
 def _list(uuid=None):
     if uuid is None:
@@ -63,7 +74,8 @@ def _list(uuid=None):
             'private_ips':node.private_ips,
             'public_ips':node.public_ips,
             'created_at':str(node.created_at),
-            'state':node.state
+            'state':node.state,
+            'icon':guess_icon(node)
         }
 
     return [decorate(node) for node in driver.list_nodes()]
@@ -111,7 +123,8 @@ def virtual_nodes(**config):
             'config': {
                 'node': node['id'],
                 'connection': connection
-                }
+                },
+            'icon': node['icon']
         }
     return [decorate(node) for node in _list(connection)]
 
