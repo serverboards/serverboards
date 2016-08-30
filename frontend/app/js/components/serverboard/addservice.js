@@ -1,5 +1,6 @@
 import React from 'react'
 import ImageIcon from '../imageicon'
+import IconIcon from '../iconicon'
 import Loading from '../loading'
 import Modal from '../modal'
 import { default_service_fields } from '../service'
@@ -58,7 +59,11 @@ let AddService=React.createClass({
     function WrappedService(props){
       return (
         <a key={props.uuid || props.type} className="column center aligned svg" onClick={(ev) => self.handleAdd(ev, props)} href="#">
-          <ImageIcon src={icon} name={props.name}/>
+          {props.icon ? (
+            <IconIcon src={icon} icon={props.icon}/>
+          ) : (
+            <ImageIcon src={icon}  name={props.name}/>
+          )}
           <span className="ui header small">{props.name}</span>
         </a>
       )

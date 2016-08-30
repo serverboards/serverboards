@@ -15,6 +15,7 @@ components:
     type: service
     traits: url
     id: web_server
+    icon: world
     fields:
       - label: URL
         name: url
@@ -26,6 +27,7 @@ components:
     type: service
     traits: email
     id: email
+    icon: mail
     fields:
       - label: SMTP Server Address
         name: smtp
@@ -44,6 +46,7 @@ components:
     type: service
     traits: ip
     id: server
+    icon: server
     fields:
       - label: IP Addresses
         description: Space or comma separated list of ip addresses and DNS names that point to this server
