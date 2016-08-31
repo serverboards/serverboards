@@ -32,7 +32,8 @@ defmodule Serverboards.Logger.Console do
       "#{time} [#{String.pad_trailing level, 5}] [#{String.pad_leading fileline, 30} / #{pid}] "
         |> color_event(metadata[:level], colors)
       )
-    [String.pad_trailing(to_string(header), 80),
+    ["\r", 
+      String.pad_trailing(to_string(header), 80),
       msg]
   end
 

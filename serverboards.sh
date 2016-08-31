@@ -16,19 +16,16 @@ setup(){
 
   echo "export SERVERBOARDS_DB=${SERVERBOARDS_DB}" > ${SERVERBOARDS_PATH}/setup-env.sh
 
-  cd backend
-  make setup
-  mix ecto.migrate -r Serverboards.Repo
-  mix run apps/serverboards/priv/repo/seed.exs
-  cd ..
+  postgres_wait
+  bin/serverboards command Elixir.Serverboards.Setup initial "[ password: \"$(hostname)\" ]"
 
   echo
   echo "Serverboards is setup at ${SERVERBOARDS_PATH}"
-  echo "Remember your username / password is admin@serverboards.io / $(hostname)"
+  echo "Remember that your default username / password is admin@serverboards.io / $(hostname)"
   echo
 }
 
-postgresql_setup(){
+postgres_setup(){
   chmod 0700 /var/lib/postgresql/9.5/main/
   chown postgres:postgres /var/lib/postgresql/9.5/main/
 
@@ -39,41 +36,47 @@ postgresql_setup(){
   su postgres -c "psql --command \"CREATE USER serverboards WITH SUPERUSER PASSWORD 'serverboards';\""
   su postgres -c "createdb -O serverboards serverboards"
 
+  cat share/serverboards/backend/initial.sql | psql $SERVERBOARDS_DB
+
   su postgres -c "/usr/lib/postgresql/9.5/bin/pg_ctl -D /var/lib/postgresql/9.5/main/ stop"
 }
 
+postgres_start(){
+  [ -e " /var/run/postgresql/9.5-main.pg_stat_tmp/" ] || (
+    mkdir /var/run/postgresql/9.5-main.pg_stat_tmp/ &&
+    chown postgres:postgres /var/run/postgresql/9.5-main.pg_stat_tmp/
+    )
+  [ -e "/var/lib/postgresql/9.5/main/PG_VERSION" ] || postgres_setup
+  exec su postgres -c "/usr/lib/postgresql/9.5/bin/postgres --config_file=/etc/postgresql/9.5/main/postgresql.conf"
+}
+
+postgres_wait(){
+  local cont="1"
+  while [ "$cont" == "0" ]; do
+    echo "select * from action_history;" | psql $SERVERBOARDS_DB
+    cont = "$?"
+    if [ "$cont" == "1" ]; then
+      sleep 4
+    fi
+  done
+}
+
 main(){
-  [ -e "${SERVERBOARDS_PATH}/setup-env.sh" ] && . ${SERVERBOARDS_PATH}/setup-env.sh
+  if [ ! -e "${SERVERBOARDS_PATH}/setup-env.sh" ]; then
+    setup
+  fi
+  . ${SERVERBOARDS_PATH}/setup-env.sh
 
   case "$1" in
     start)
-      [ -e "${SERVERBOARDS_PATH}/setup-env.sh" ] || setup
-
-      cd backend
-      mix deps.get
-      mix deps.compile
-      mix ecto.migrate -r Serverboards.Repo
-      exec mix run --no-halt
+      postgres_wait
+      exec bin/serverboards foreground
       ;;
-    postgresql-start)
-      [ -e " /var/run/postgresql/9.5-main.pg_stat_tmp/" ] || (
-        mkdir /var/run/postgresql/9.5-main.pg_stat_tmp/ &&
-        chown postgres:postgres /var/run/postgresql/9.5-main.pg_stat_tmp/
-        )
-      [ -e "/var/lib/postgresql/9.5/main/PG_VERSION" ] || postgresql_setup
-      exec su postgres -c "/usr/lib/postgresql/9.5/bin/postgres --config_file=/etc/postgresql/9.5/main/postgresql.conf"
+    postgres-start)
+      postgres_start
     ;;
-    serverboards-start)
-      chown -R serverboards:serverboards ${SERVERBOARDS_PATH}
-      chown -R serverboards:serverboards $( dirname $0 )
-
-      su serverboards -c "$0 start"
-      ;;
     stop)
-      echo "Not yet"
-    ;;
-    test)
-      make -j2 -m test
+      exec bin/serverboards stop
     ;;
     *)
       echo "start|stop"
