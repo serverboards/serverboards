@@ -26,6 +26,7 @@ defmodule Serverboards.Setup do
   Setups the database for initial state, with given username and password
   """
   def initial(options \\ []) do
+    start
     import_user(%{
       email: Keyword.get(options, :email, "admin@serverboards.io"),
       name: "Admin",
@@ -33,6 +34,7 @@ defmodule Serverboards.Setup do
       groups: ["user", "admin"],
       password: Keyword.get(options, :password, UUID.uuid4)
     })
+    :init.stop()
   end
 
   @doc ~S"""

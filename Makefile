@@ -33,7 +33,7 @@ clean:
 	rm rel -rf
 	rm serverboards.tar.gz -f
 
-docker: compile
+docker: serverboards.tar.gz
 	docker build -t serverboards .
 
 .PHONY: test test-backend test-frontend
@@ -60,6 +60,9 @@ release: serverboards.tar.gz
 serverboards.tar.gz: compile-frontend compile-backend
 	cp backend/apps/serverboards/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
+
+	cp /usr/lib64/libtinfo* rel/serverboards/lib
+	cp /usr/lib64/libcrypto* rel/serverboards/lib
 
 	cp -a frontend/dist rel/serverboards/share/serverboards/frontend
 

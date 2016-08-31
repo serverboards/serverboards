@@ -7,9 +7,9 @@ export MIX_ENV=prod
 export SERVERBOARDS_PATH=${SERVERBOARDS_PATH:-${HOME}/.serverboards/}
 # Default database setup, user, password and database are serverboards
 export SERVERBOARDS_DB=${SERVERBOARDS_DB:-postgres://serverboards:serverboards@localhost/serverboards}
+export LD_LIBRARY_PATH=$( dirname $0 )/lib
 
 # Setups the environment on first run. Connects to the database and creates all
-# does not exist. Sets up intial directory.
 setup(){
   mkdir -p ${SERVERBOARDS_PATH}
   mkdir -p ${SERVERBOARDS_PATH}/plugins/
@@ -72,9 +72,12 @@ main(){
       postgres_wait
       exec bin/serverboards foreground
       ;;
-    postgres-start)
-      postgres_start
-    ;;
+      postgres-start)
+        postgres_start
+      ;;
+      postgres-setup)
+        postgres_setup
+      ;;
     stop)
       exec bin/serverboards stop
     ;;
