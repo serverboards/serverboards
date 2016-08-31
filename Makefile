@@ -61,8 +61,8 @@ serverboards.tar.gz: compile-frontend compile-backend
 	cp backend/apps/serverboards/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
 
-	cp /usr/lib64/libtinfo* rel/serverboards/lib
-	cp /usr/lib64/libcrypto* rel/serverboards/lib
+	[ -e /usr/lib64/libtinfo* ] && cp /usr/lib64/libtinfo* rel/serverboards/lib || true
+	[ -e /usr/lib64/libcrypto* ] && cp /usr/lib64/libcrypto* rel/serverboards/lib || true
 
 	cp -a frontend/dist rel/serverboards/share/serverboards/frontend
 
