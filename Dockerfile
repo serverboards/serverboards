@@ -17,12 +17,14 @@ RUN apt-get -y update && apt-get install -y \
 
 RUN useradd serverboards -m -U
 
-# setup and compile
-ADD . /opt/serverboards/
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Uncompress serverboards
+ADD rel/serverboards.tar.gz /opt/
 RUN chown :serverboards /opt/serverboards/
 
-ENV MIX_ENV=prod SERVERBOARDS_PATH=/home/serverboards
+# copy some extra data
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY serverboards.sh /opt/serverboards/
+
 ENV SERVERBOARDS_DB=postgres://serverboards:serverboards@localhost:5432/serverboards
 
 # go !

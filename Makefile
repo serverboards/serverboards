@@ -61,6 +61,9 @@ serverboards.tar.gz: compile-frontend compile-backend
 	mkdir -p rel/serverboards/share/serverboards/
 	cp -a frontend/dist rel/serverboards/share/serverboards/frontend
 	cp -a plugins rel/serverboards/share/serverboards/plugins
+	mkdir -p rel/serverboards/share/serverboards/backend
+	cp -a backend/apps/serverboards/priv/repo/initial.sql rel/serverboards/share/serverboards/backend/
+	cp -a backend/apps/serverboards/priv/repo/migrations rel/serverboards/share/serverboards/backend/
 	rm rel/serverboards/share/serverboards/plugins/.git -rf
 
 	cd rel && tar cfz serverboards.tar.gz serverboards
