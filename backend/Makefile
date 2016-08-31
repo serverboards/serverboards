@@ -3,10 +3,14 @@ all:
 .PHONY: test test-setup test-do
 test: test-setup test-do
 
-setup:
+setup: ~/.mix/rebar ~/.mix/archives/hex-*
+	mix deps.get
+
+~/.mix/archives/hex-*:
 	yes Y | mix local.hex --force
+
+~/.mix/rebar:
 	yes Y | mix local.rebar --force
-	yes Y | mix deps.get
 
 test-setup: test-compile setup
 	MIX_ENV=test mix ecto.migrate -r Serverboards.Repo

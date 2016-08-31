@@ -52,10 +52,10 @@ postgres_start(){
 
 postgres_wait(){
   local cont="1"
-  while [ "$cont" == "0" ]; do
+  while [ "$cont" = "0" ]; do
     echo "select * from action_history;" | psql $SERVERBOARDS_DB
     cont = "$?"
-    if [ "$cont" == "1" ]; then
+    if [ "$cont" = "1" ]; then
       sleep 4
     fi
   done

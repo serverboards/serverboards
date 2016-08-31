@@ -8,10 +8,6 @@ defmodule Serverboards.Setup do
   alias Serverboards.Auth.Model
   alias Serverboards.Auth
 
-  defp init do
-    start
-  end
-
   def start do
     {:ok, _} = Application.ensure_all_started(:ecto)
     {:ok, _} = Application.ensure_all_started(:postgrex)
@@ -26,16 +22,10 @@ defmodule Serverboards.Setup do
   def exit(nil), do: :ok
   def exit(pid), do: Process.exit(pid, :normal)
 
-  defp stop do
-    :init.stop()
-  end
-
   @doc ~S"""
   Setups the database for initial state, with given username and password
   """
   def initial(options \\ []) do
-    update
-
     import_user(%{
       email: Keyword.get(options, :email, "admin@serverboards.io"),
       name: "Admin",
@@ -43,15 +33,12 @@ defmodule Serverboards.Setup do
       groups: ["user", "admin"],
       password: Keyword.get(options, :password, UUID.uuid4)
     })
-
-    stop
   end
 
   @doc ~S"""
   Ensures some data is up to date, as default groups and permissions
   """
   def update do
-    init
     Logger.debug("Updating database")
     # update database
     path = Application.app_dir(:serverboards, "share/serverboards/backend/migrations")
