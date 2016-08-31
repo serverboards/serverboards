@@ -253,14 +253,10 @@ const Card=React.createClass({
             )}
           </div>
           <div className="header">{props.name}</div>
+          <div className="meta">{(props.tags || []).map( (l) => (
+            <span style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
+          ))}</div>
           <div className="meta">{(props.serverboards || []).join(' ')}</div>
-          {(props.tags || []).length == 1 ? (
-            <span className={`ui right corner label ${colorize(props.tags[0])}`} title={props.tags[0]}></span>
-          ) : (
-            <div className="meta">{(props.tags || []).map( (l) => (
-              <span className={`ui tag label ${colorize(l)}`}>{l}</span>
-            ))}</div>
-          )}
           <div className="description">{props.description || ""}</div>
           <ul>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
