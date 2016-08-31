@@ -38,12 +38,12 @@ frontend-build:
   script:
     - cd frontend; make compile
 
-frontend-test:
-  stage: test
-  script:
-    - cd frontend; make test
-  dependencies:
-    - frontend-build
+#frontend-test:
+#  stage: test
+#  script:
+#    - cd frontend; make test
+#  dependencies:
+#    - frontend-build
 
 release:
   stage: release
