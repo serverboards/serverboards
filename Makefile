@@ -33,7 +33,7 @@ clean:
 	rm rel -rf
 	rm serverboards.tar.gz -f
 
-docker: compile
+docker: serverboards.tar.gz
 	docker build -t serverboards .
 
 .PHONY: test test-backend test-frontend
@@ -52,6 +52,7 @@ docker-run:
 	docker run -P \
 		-v ${SERVERBOARDS_PATH}/data/:/home/serverboards/ \
 		-v ${SERVERBOARDS_PATH}/postgres/:/var/lib/postgresql/9.5/main/ \
+		-m 512m \
 		serverboards
 
 release: serverboards.tar.gz
@@ -59,8 +60,19 @@ release: serverboards.tar.gz
 serverboards.tar.gz: compile-frontend compile-backend
 	cp backend/apps/serverboards/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
+
+	[ -e /usr/lib64/libtinfo* ] && cp /usr/lib64/libtinfo* rel/serverboards/lib || true
+	[ -e /usr/lib64/libcrypto* ] && cp /usr/lib64/libcrypto* rel/serverboards/lib || true
+
 	cp -a frontend/dist rel/serverboards/share/serverboards/frontend
+
+	mkdir -p rel/serverboards/share/serverboards/backend
+	cp -a backend/apps/serverboards/priv/repo/initial.sql rel/serverboards/share/serverboards/backend/
+	cp -a backend/apps/serverboards/priv/repo/migrations rel/serverboards/share/serverboards/backend/
+
 	cp -a plugins rel/serverboards/share/serverboards/plugins
 	rm rel/serverboards/share/serverboards/plugins/.git -rf
+
+	cp -a serverboards.sh rel/serverboards/
 
 	cd rel && tar cfz serverboards.tar.gz serverboards

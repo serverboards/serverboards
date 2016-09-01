@@ -11,8 +11,10 @@ cache:
   key: "$CI_PROJECT_NAME"
   untracked: true
   paths:
+    - frontend/dist
     - frontend/node_modules
     - backend/deps
+    - backend/mix.lock
     - backend/_build
 
 backend-build:
@@ -20,9 +22,6 @@ backend-build:
   script:
     - cd backend; make test-compile
   stage: build
-  artifacts:
-    paths:
-      - backend/_build
 
 backend-test:
   stage: test
@@ -38,16 +37,13 @@ frontend-build:
   stage: build
   script:
     - cd frontend; make compile
-  artifacts:
-    paths:
-      - frontend/dist
 
-frontend-test:
-  stage: test
-  script:
-    - cd frontend; make test
-  dependencies:
-    - frontend-build
+#frontend-test:
+#  stage: test
+#  script:
+#    - cd frontend; make test
+#  dependencies:
+#    - frontend-build
 
 release:
   stage: release
@@ -55,7 +51,7 @@ release:
     - make release
   artifacts:
     paths:
-      - serverboards.tar.gz
+      - rel/serverboards.tar.gz
     expire_in: 1 week
   dependencies:
     - frontend-build

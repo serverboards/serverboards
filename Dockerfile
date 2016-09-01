@@ -3,26 +3,19 @@ FROM ubuntu:16.04
 ENV LANG=C.UTF-8
 
 RUN apt-get -y update && apt-get install -y \
-  git make gcc wget  \
   postgresql \
-  nodejs npm  \
-  sass \
   supervisor inotify-tools
-# prepare elixir
-RUN wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && dpkg -i erlang-solutions_1.0_all.deb
-RUN rm erlang-solutions_1.0_all.deb
-
-RUN apt-get -y update && apt-get install -y \
-  esl-erlang elixir rebar
 
 RUN useradd serverboards -m -U
 
-# setup and compile
-ADD . /opt/serverboards/
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Uncompress serverboards
+ADD rel/serverboards.tar.gz /opt/
 RUN chown :serverboards /opt/serverboards/
 
-ENV MIX_ENV=prod SERVERBOARDS_PATH=/home/serverboards
+# copy some extra data
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY serverboards.sh /opt/serverboards/
+
 ENV SERVERBOARDS_DB=postgres://serverboards:serverboards@localhost:5432/serverboards
 
 # go !

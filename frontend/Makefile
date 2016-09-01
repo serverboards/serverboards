@@ -33,7 +33,7 @@ mrproper: clean
 	rm -rf node_modules
 
 .PHONY: test
-test: clean all
+test: all
 
 
 clean:
