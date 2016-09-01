@@ -4,6 +4,7 @@ import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import CommandSearh from './commands'
+import gravatar from 'gravatar'
 
 require("sass/top.sass")
 
@@ -43,6 +44,7 @@ var Top = function(props){
       </div>
     )
   let logo=require("../../../imgs/logo.svg")
+  const gravatar_url=gravatar.url(props.user.email, {s: 32})
 
   return (
     <nav className="ui top fixed menu">
@@ -56,20 +58,25 @@ var Top = function(props){
       </div>
 
       <div className="right menu">
-        <a className="item" onClick={() => props.toggleMenu('notifications')}>
-          <i className="alarm outline icon"></i>
-          Notifications
-          <span className={`ui label ${notifications_color(props.notifications)}`}>{(props.notifications || []).length}</span>
-          <i className="dropdown icon"></i>
+        <a className="item" onClick={() => props.toggleMenu('notifications')}
+          data-tooltip="Notifications">
+          <i className="announcement icon"></i>
+          <span
+            className={`ui mini label floating circular ${notifications_color(props.notifications)}`}
+            style={{top: 3, left: 43}}
+            >{(props.notifications || []).length}</span>
         </a>
         <a className="item" onClick={() => props.toggleMenu('processes')}>
-          <i className="spinner icon"></i>
-          Processes
-          <span className={`ui label ${props.actions.length==0 ? "" : "teal"}`}>{props.actions.length}</span>
+          <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
+          <span
+            className={`ui mini label floating circular ${props.actions.length==0 ? "" : "teal"}`}
+            style={{top: 3, left: 43}}
+            >{props.actions.length}</span>
           <i className="dropdown icon"></i>
         </a>
         <a className="item" onClick={() => props.toggleMenu('user')}>
-          {props.user.email}
+        <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
+          data-tooltip={props.user.email}/>
           <i className="dropdown icon"></i>
         </a>
       </div>
