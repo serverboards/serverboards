@@ -3,7 +3,6 @@ import rpc from 'app/rpc'
 import Loading from 'app/components/loading'
 import store from 'app/utils/store'
 import {push} from 'react-router-redux'
-import {label_color} from './index'
 import NotificationItem from './item'
 import {months} from 'app/utils'
 
