@@ -13,7 +13,12 @@ const Notification=React.createClass({
     }
   },
   componentDidMount(){
-    const id = Number( this.props.params.id )
+    this.load_notification(this.props.params.id)
+  },
+  load_notification(id){
+    if (id == undefined)
+      return
+    this.setState({notification: undefined})
     rpc.call("notifications.details", [id]).then( (n) => {
       this.setState({notification: n})
       if (n.tags.indexOf("unread")>=0 || n.tags.indexOf("new")>=0){
@@ -29,8 +34,23 @@ const Notification=React.createClass({
       )
 
     const n=this.state.notification
+
     return (
       <Modal>
+        <div className="ui top secondary menu">
+          <div className="right menu">
+            <a
+              className={`item ${n.last_id ? "" : "disabled"}`}
+              title="Last message"
+              onClick={() => this.load_notification(n.last_id)}
+              ><i className="ui icon chevron left"/></a>
+            <a
+              className={`item ${n.next_id ? "" : "disabled"}`}
+              title="Next message"
+              onClick={() => this.load_notification(n.next_id)}
+              ><i className="ui icon chevron right"/></a>
+          </div>
+        </div>
       <div className="ui meta">{pretty_ago(n.inserted_at)}</div>
         <h1 className="ui header" style={{margin: 0}}>{n.subject}</h1>
         <div className="ui labels">

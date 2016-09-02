@@ -5,7 +5,6 @@ import {MarkdownPreview} from 'react-marked-markdown';
 
 function NotificationItem(props){
   try{
-  console.log(props)
   const p=props.notification
   const timespec=pretty_ago(p.inserted_at)
   let tags=p.tags

@@ -116,7 +116,6 @@ const timeunits={
 }
 
 export function pretty_ago(t){
-  console.log(t)
   let today = new Date()
   let other = new Date(t)
   let timediff = today-other
