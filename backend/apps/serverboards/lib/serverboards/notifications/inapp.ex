@@ -59,7 +59,7 @@ defmodule Serverboards.Notifications.InApp do
     q=   from m in Model.Notification,
         where: m.user_id == ^user.id,
      order_by: [desc: m.id],
-       select: %{ subject: m.subject, tags: m.tags, inserted_at: m.inserted_at, id: m.id }
+       select: %{ subject: m.subject, tags: m.tags, inserted_at: m.inserted_at, id: m.id, body: m.body }
 
     # default values
     filter = Map.merge(%{"count" => 50}, filter)
@@ -77,7 +77,10 @@ defmodule Serverboards.Notifications.InApp do
 
     ret = Repo.all( q )
       |> Enum.map( fn n -> # post processing
-        %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}
+        %{ n |
+          inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at),
+          body: String.slice(n.body, 0, 512)
+        }
       end)
 
     {:ok, ret}
