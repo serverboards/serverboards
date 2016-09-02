@@ -19,6 +19,11 @@ function notifications_color(notifications){
 }
 
 const Top = React.createClass({
+  getInitialState(){
+    return {
+      open_time: undefined
+    }
+  },
   componentDidMount(){
     $(this.refs.notifications_item).popup({
       popup: $(this.refs.el).find('#notifications_menu'),
@@ -28,7 +33,8 @@ const Top = React.createClass({
       delay: {
         show: 100,
         hide: 300
-      }
+      },
+      onVisible: () => this.setState({open_time: new Date()})
     })
   },
   render(){
@@ -43,11 +49,6 @@ const Top = React.createClass({
       case 'processes':
         menu=(
           <ProcessesMenu/>
-        )
-        break;
-      case 'notifications':
-        menu=(
-          <NotificationsMenu/>
         )
         break;
     }
@@ -79,7 +80,7 @@ const Top = React.createClass({
               style={{top: 3, left: 43}}
               >{(props.notifications || []).length}</span>
           </a>
-          <NotificationsMenu/>
+          <NotificationsMenu open_time={this.state.open_time}/>
           <a className="item" onClick={() => props.toggleMenu('processes')}>
             <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
             <span

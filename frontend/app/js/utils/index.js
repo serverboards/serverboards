@@ -115,10 +115,11 @@ const timeunits={
   MAX: 1000 * 60 * 60 * 24 * 14
 }
 
-export function pretty_ago(t){
-  let today = new Date()
+export function pretty_ago(t, now){
+  if (!now)
+    now = new Date()
   let other = new Date(t)
-  let timediff = today-other
+  let timediff = now-other
 
   if (timediff>timeunits.MAX){
     return pretty_date(other)

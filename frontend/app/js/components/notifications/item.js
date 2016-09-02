@@ -6,7 +6,7 @@ import {MarkdownPreview} from 'react-marked-markdown';
 function NotificationItem(props){
   try{
   const p=props.notification
-  const timespec=pretty_ago(p.inserted_at)
+  const timespec=pretty_ago(p.inserted_at, props.now)
   let tags=p.tags
   if (tags.indexOf('new')>=0){
     tags=tags.filter((t) => t!='unread')
