@@ -1,18 +1,34 @@
 .ui.top.fixed.menu
-  .item:before
-    width: 0
-    height: 0
-
-  .item
+  > .item, > .menu > .item
     max-height: 45px
+    &:before
+      width: 0
+      height: 0
 
-  .item.logo
+  > .item.logo
     padding: 0 20px
     img
       height: 40px
 
-  .item.search
+  > .item.search
     flex-grow: 1
     width: 350px
     .icon.input, input, .ui.search
       width: 100%
+
+  #notifications_menu
+    width: 600px
+    padding: 0
+    .item
+      flex-direction: column
+      align-items: flex-start
+      border: 0
+      border-bottom: 1px solid #eee
+      &:before
+        width: 0
+        height: 0
+      h5
+        margin: 3px 0
+      .ui.basic.plain.label
+        background: rgba(0, 0, 0, 0) !important
+        box-shadow: none

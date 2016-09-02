@@ -102,3 +102,38 @@ export function object_is_equal(a,b){
   }
   return true
 }
+
+const timeunits={
+  millisecond: 1,
+  second: 1000,
+  minute: 1000 * 60,
+  hour: 1000 * 60 * 60,
+  day: 1000 * 60 * 60 * 24,
+  MAX: 1000 * 60 * 60 * 24 * 14
+}
+
+export function pretty_ago(t){
+  console.log(t)
+  let today = new Date()
+  let other = new Date(t)
+  let timediff = today-other
+
+  if (timediff>timeunits.MAX){
+    return pretty_date(other)
+  }
+
+  let lastunit='millisecond'
+  for (let d in timeunits){
+    if (timediff > timeunits[d])
+      lastunit=d
+  }
+  const units=Math.round(timediff / timeunits[lastunit])
+  const s=units > 1 ? 's' : ''
+  return String(units)+' '+lastunit+s+' ago'
+}
+
+export const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+export function pretty_date(d){
+  return weekdays[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+}

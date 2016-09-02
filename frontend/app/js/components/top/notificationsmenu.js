@@ -1,23 +1,19 @@
 import React from 'react'
-import {Link} from 'app/router'
-import {label_color} from 'app/components/notifications'
+import NotificationItem from 'app/components/notifications/item'
 
 function NotificationsMenu(props){
+  console.log(props.unread)
+  const example={id: 10, tags:["new"], inserted_at:"2016-09-01T10:10+0200", subject:"This is a test", body: "Long body of several\nlines"}
   return (
-    <div className="ui dropdown vertical menu" style={{position: "fixed", right: 175, top: 45, width: "auto", minWidth: 400}}>
-      {(props.unread || []).map((p) =>
-        <a href={`#/notifications/${p.id}`} className="item">
-          <span style={{float: "right", marginTop: -8, paddingLeft: 15}}>{p.tags.map( (t) => (
-            <span className={`ui tag tiny label ${label_color(t)}`}>{t}</span>
-          ))}
-          </span>
-          <span>{p.subject}</span>
+    <div className="ui popup" id="notifications_menu">
+      <div className="vertical menu">
+        {(props.unread || []).map((p) => (
+          <NotificationItem key={p.id} notification={p}/>
+        ))}
+        <a href="#/notifications/list" className="item" style={{flexDirection: "row"}}>
+          View all <i className="ui chevron right icon" style={{paddingLeft: 10}}/>
         </a>
-      )}
-      <div className="ui divider"/>
-      <a href="#/notifications/list" className="item">
-        View all
-      </a>
+      </div>
     </div>
   )
 }

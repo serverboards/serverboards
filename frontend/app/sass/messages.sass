@@ -7,3 +7,18 @@
   right: 20px
   @media (max-width: 600px)
     max-width: 80vw
+
+#message_list, #notifications_menu
+  .item
+    position: relative
+    &:hover
+      background: rgba(0,0,0,0.02)
+    .ui.rail
+      width: auto
+      margin-right: 0
+      text-align: right
+    .ui.meta
+      max-height: 4em
+      overflow: hidden
+      p
+        margin: 0

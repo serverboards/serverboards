@@ -4,6 +4,8 @@ import Loading from 'app/components/loading'
 import store from 'app/utils/store'
 import {push} from 'react-router-redux'
 import {label_color} from './index'
+import NotificationItem from './item'
+import {months} from 'app/utils'
 
 require('sass/table.sass')
 
@@ -37,6 +39,27 @@ const List = React.createClass({
     store.dispatch( push(`/notifications/${id}`) )
   },
   render(){
+    let month=undefined
+    let year=(new Date()).getFullYear()
+    let lastyear=year
+    function maybe_month(d){
+      const dd=new Date(d)
+      const dmonth=dd.getMonth()
+      const dyear=dd.getFullYear()
+      if (month==dmonth && dyear==lastyear)
+        return []
+      month=dmonth
+      let txt=months[month]
+
+      if (dyear!=year){
+        txt=txt+' '+dyear
+      }
+
+      return (
+        <div className="ui rail left"><span className="ui tiny header">{txt}</span></div>
+      )
+    }
+
     const list = this.state.list
     if (!list)
       return (
@@ -44,30 +67,16 @@ const List = React.createClass({
       )
     return(
       <div className="ui central white background">
-        <div className="ui container">
-          <h1 className="ui header">Notifications</h1>
-          <table className="ui very basic selectable table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Date</th>
-                <th>Tags</th>
-                <th/>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map( (n) => (
-                <tr key={n.id} style={{cursor:"pointer"}} onClick={() => this.showNotification(n.id)} className={row_color(n)}>
-                  <td>{n.subject}</td>
-                  <td>{n.inserted_at.replace('T',' ')}</td>
-                  <td>{n.tags.map( (t) => (
-                    <span className={`ui tag tiny label ${label_color(t)}`}>{t}</span>
-                  ))}</td>
-                  <td className="right aligned"><a><i className="ui icon angle right"/></a></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="ui text container">
+          <h1 className="ui header">All Notifications</h1>
+          <div className="ui relaxed divided list" id="message_list">
+            {list.map( (n) => (
+              <div className="item">
+                {maybe_month(n['inserted_at'])}
+                <NotificationItem notification={n}/>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )
