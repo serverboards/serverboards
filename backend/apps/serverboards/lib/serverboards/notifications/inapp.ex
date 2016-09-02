@@ -58,8 +58,8 @@ defmodule Serverboards.Notifications.InApp do
     import Ecto.Query
     q=   from m in Model.Notification,
         where: m.user_id == ^user.id,
-     order_by: [desc: m.id],
-       select: %{ subject: m.subject, tags: m.tags, inserted_at: m.inserted_at, id: m.id }
+     order_by: [desc: m.inserted_at],
+       select: %{ subject: m.subject, tags: m.tags, inserted_at: m.inserted_at, id: m.id, body: m.body }
 
     # default values
     filter = Map.merge(%{"count" => 50}, filter)
@@ -77,7 +77,10 @@ defmodule Serverboards.Notifications.InApp do
 
     ret = Repo.all( q )
       |> Enum.map( fn n -> # post processing
-        %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}
+        %{ n |
+          inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at),
+          body: String.slice(n.body, 0, 512)
+        }
       end)
 
     {:ok, ret}
@@ -91,8 +94,33 @@ defmodule Serverboards.Notifications.InApp do
       select: %{ subject: m.subject, body: m.body, tags: m.tags, meta: m.meta, inserted_at: m.inserted_at, id: m.id }
     )
 
+    # Next is next at the list which is actually last in time
+    last_id = case Repo.all(
+      from m in Model.Notification,
+      where: (m.user_id == ^user.id) and (m.inserted_at > ^n.inserted_at),
+      select: m.id,
+      order_by: [m.inserted_at],
+      limit: 1
+    ) do
+      [] -> nil
+      [id] -> id
+    end
+    next_id = case Repo.all(
+      from m in Model.Notification,
+      where: (m.user_id == ^user.id) and (m.inserted_at < ^n.inserted_at),
+      select: m.id,
+      order_by: [desc: m.inserted_at],
+      limit: 1
+    ) do
+      [] -> nil
+      [id] -> id
+    end
+
     # post process
-    %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)}
+    Map.merge(
+      %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)},
+      %{ next_id: next_id, last_id: last_id }
+      )
   end
 
 end

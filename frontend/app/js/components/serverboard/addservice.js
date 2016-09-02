@@ -3,7 +3,6 @@ import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
 import Loading from '../loading'
 import Modal from '../modal'
-import { default_service_fields } from '../service'
 
 const icon = require("../../../imgs/services.svg")
 
@@ -22,7 +21,6 @@ let AddService=React.createClass({
     if (service.uuid){
       // Service is a plain services, need to have the fields field
       let current_service=Object.assign({}, this.props.catalog.find((c) => c.type == service.type))
-      current_service.fields=$.extend(true, [], default_service_fields(current_service.name).concat( current_service.fields ) )
       // set fields values
       current_service.uuid=service.uuid
       current_service.name=service.name
@@ -37,7 +35,6 @@ let AddService=React.createClass({
     else{
       let current_service=Object.assign({}, this.props.catalog.find((c) => c.type == service.type))
 
-      current_service.fields=$.extend(true, [], default_service_fields(current_service.name).concat( current_service.fields ) )
       current_service.id=undefined
 
       this.props.onAdd( current_service )
