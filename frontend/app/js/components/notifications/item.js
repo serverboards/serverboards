@@ -1,5 +1,5 @@
 import React from 'react'
-import {label_color} from 'app/components/notifications'
+import {colorize} from 'app/utils'
 import {pretty_ago} from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown';
 
@@ -16,7 +16,7 @@ function NotificationItem(props){
     <a href={`#/notifications/${p.id}`} className="item">
       <div>
         <span>{tags.map( (t) => (
-          <span style={{marginRight: 5}} className={`ui tiny basic plain label ${label_color(t)}`}>{t}</span>
+          <span style={{marginRight: 5}} className={`ui tiny basic plain label ${colorize(t)}`}>{t}</span>
         ))}
         </span>
         <span className="ui meta"> {timespec}</span>

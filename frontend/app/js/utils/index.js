@@ -45,7 +45,10 @@ const fixed_colors={
   "ok" : "green",
   "warning" : "orange",
   "up" : "green",
-  "down" : "red"
+  "down" : "red",
+  "important" : "red",
+  "new" : "green",
+  "unread" : "yellow"
 }
 
 export function colorize(str){
