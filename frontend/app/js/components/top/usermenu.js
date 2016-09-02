@@ -3,7 +3,7 @@ import {Link} from 'app/router'
 
 function UserMenu(props){
   return (
-    <div className="ui dropdown vertical menu" style={{position: "fixed", right: 0, top: "40px"}}>
+    <div className="ui dropdown vertical menu" style={{position: "fixed", right: 0, top: 45}}>
       <a className="item" href="#/user/profile">
           {props.user.name}
         <i className="ui icon right user"></i>

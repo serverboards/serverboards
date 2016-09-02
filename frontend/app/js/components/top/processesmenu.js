@@ -3,7 +3,7 @@ import {Link} from 'app/router'
 
 function ProcessesMenu(props){
   return (
-    <div className="ui dropdown vertical menu" style={{position: "fixed", right: 180, top: 40}}>
+    <div className="ui dropdown vertical menu" style={{position: "fixed", right: 80, top: 45}}>
       {props.running.map((p) =>
         <a href={`#/process/${p.uuid}`} className="item">
           {p.name}
