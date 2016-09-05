@@ -1,6 +1,7 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import {MarkdownPreview} from 'react-marked-markdown'
+import {to_list} from 'app/utils'
 import Flash from 'app/flash'
 
 const RichDescription=React.createClass({
@@ -58,6 +59,17 @@ let GenericField=React.createClass({
   handleChange: function(ev){
     this.setState({value: ev.target.value})
     this.props.setValue(ev)
+  },
+  componentDidMount(){
+    // Some may need post initialization
+    switch (this.props.type){
+      case 'select':
+        $(this.refs.select).dropdown()
+        break;
+      default:
+        ;;
+      break;
+    }
   },
   render(){
     let props=this.props
@@ -118,6 +130,17 @@ let GenericField=React.createClass({
       case 'hidden':
         return (
           <input type="hidden" disabled={true} name={props.name} value={props.value}/>
+        )
+      case 'select':
+        return (
+          <div className="field">
+            <label>{props.label}</label>
+            <select ref="select" name={props.name} value={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`}>
+              {props.options.map((o) => (
+                <option value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
         )
       default:
         return (
