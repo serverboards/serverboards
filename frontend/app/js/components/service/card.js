@@ -35,7 +35,6 @@ const ServiceField=React.createClass({
 })
 
 function Field(props){
-  console.log(props)
   if (props.description.type=='service')
     return (
       <ServiceField {...props}/>
