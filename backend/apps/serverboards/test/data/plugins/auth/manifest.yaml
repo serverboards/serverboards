@@ -131,7 +131,7 @@ components:
   - name: Simple trigger no stop
     type: trigger
     id: simple.trigger
-    command: fake_one_for_one
+    command: nonstop.trigger.command
     states: tick
     start:
       method: simple_trigger
@@ -154,3 +154,9 @@ components:
     strategy: init
     timeout: 200ms
     command: auth.py
+  - name: nonstop trigger one for one
+    type: cmd
+    id: nonstop.trigger.command
+    strategy: one_for_one
+    timeout: 1s
+    command: nonstoptrigger.py

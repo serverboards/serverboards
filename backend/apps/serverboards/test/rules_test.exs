@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.TriggersTest do
   use ExUnit.Case
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   alias Serverboards.Rules.Trigger
   alias Serverboards.Rules
@@ -71,7 +71,7 @@ defmodule Serverboards.TriggersTest do
 
     {:ok, last_trigger} = Agent.start_link fn -> :none end
 
-    output = :os.cmd(String.to_charlist("ps aux | grep auth.py | grep -v grep"))
+    output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
     assert output == []
 
     {:ok, id} = Trigger.start r, %{ }, fn params ->
@@ -84,7 +84,7 @@ defmodule Serverboards.TriggersTest do
 
     assert Agent.get(last_trigger, &(&1)) == :triggered
 
-    output = :os.cmd(String.to_charlist("ps aux | grep auth.py | grep -v grep"))
+    output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
     assert output == []
   end
 

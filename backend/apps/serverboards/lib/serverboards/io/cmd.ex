@@ -139,6 +139,7 @@ defmodule Serverboards.IO.Cmd do
           :timer.sleep(200)
           :os.cmd(String.to_charlist("kill -9 #{pid}"))
         end
+      nil -> :ok
     end
     :ok
   end
