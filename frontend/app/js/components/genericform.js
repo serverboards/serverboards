@@ -52,19 +52,34 @@ const RichDescription=React.createClass({
 
 let GenericField=React.createClass({
   getInitialState(){
-    return {
-      value: this.props.value || ''
-    }
+    return { items: [] }
   },
   handleChange: function(ev){
-    this.setState({value: ev.target.value})
-    this.props.setValue(ev)
+    this.props.setValue(this.props.name, ev.target.value)
   },
   componentDidMount(){
     // Some may need post initialization
     switch (this.props.type){
       case 'select':
         $(this.refs.select).dropdown()
+        break;
+      case 'service':
+        let self=this
+        rpc.call("service.list", {traits: (self.props.traits || [])}).then( (services) => {
+          console.log("Got services: %o", services)
+          const results=services.map( (s) => ({
+            //name: s.name,
+            value: s.uuid,
+            name: s.name,
+            description: s.fields.filter( (p) => p.card ).map( (p) => p.value ).join(',')
+          }))
+          self.setState({items: results})
+          $(self.refs.select).dropdown({
+            onChange(value){
+              self.props.setValue(self.props.name, value)
+            }
+          })
+        })
         break;
       default:
         ;;
@@ -135,11 +150,27 @@ let GenericField=React.createClass({
         return (
           <div className="field">
             <label>{props.label}</label>
-            <select ref="select" name={props.name} value={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`}>
+            <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
               {props.options.map((o) => (
                 <option value={o.value}>{o.label}</option>
               ))}
             </select>
+          </div>
+        )
+      case 'service':
+        return (
+          <div className="field">
+            <label>{props.label}</label>
+            <div ref="select" className={`ui fluid ${props.search ? "search" : ""} selection dropdown`}>
+              <input type="hidden" name={props.name} defaultValue={props.value} onChange={this.handleChange}/>
+              <i className="dropdown icon"></i>
+              <div className="default text" style={{display:"block"}}>{props.value || props.placeholder}</div>
+              <div className="menu">
+                {(this.state.items || []).map( (ac) => (
+                  <div key={ac.id} className="item" data-value={ac.value}>{ac.name}<span className="ui meta" style={{float:"right"}}>{ac.description}</span></div>
+                ))}
+              </div>
+            </div>
           </div>
         )
       default:
@@ -160,8 +191,8 @@ let GenericForm=React.createClass({
     }
     return state
   },
-  setValue : function(ev, field){
-    let update = {[field]: ev.target.value }
+  setValue : function(k, v){
+    let update = {[k]: v }
     this.setState( update )
     let nstate=Object.assign({}, this.state, update ) // looks like react delays state change, I need it now
     //console.log(nstate, this.props)
@@ -191,7 +222,7 @@ let GenericForm=React.createClass({
         className={`ui form ${props.className || ""}`}
         onSubmit={(ev) => { ev.preventDefault(); props.onSubmit && props.onSubmit(ev) }}>
         {(props.fields || []).map((f) => (
-            <GenericField key={f.name} setValue={(ev) => this.setValue(ev, f.name)} value={this.state[f.name]} {...f}/>
+            <GenericField key={f.name} setValue={this.setValue} value={this.state[f.name]} {...f}/>
         ))}
         {props.children}
       </form>
