@@ -256,7 +256,6 @@ const Card=React.createClass({
           <div className="meta">{(props.tags || []).map( (l) => (
             <span style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
           ))}</div>
-          <div className="meta">{(props.serverboards || []).join(' ')}</div>
           <div className="description">{props.description || ""}</div>
           <ul>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
