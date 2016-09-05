@@ -77,12 +77,13 @@ div.ui.main
     width: 85px
     height: calc( 100vh - 47px ) !important
     border-radius: 0
-    overflow: auto
+    overflow: visible
     margin: 0 !important
     border: 0
     visibility: visible
     position: relative
     padding: 0
+    overflow-y: visible !important
 
     -webkit-transform: none
     transform: none
@@ -96,8 +97,6 @@ div.ui.main
       color: white
 
       &.active
-        border-left: 4px solid white !important
-        padding-left: 12px
         &:hover
           color: white
 
@@ -221,3 +220,10 @@ code
   .ui.central .ui.dimmer
     top: 45px !important
     left: 85px !important
+
+.ui.basic.plain.label
+  border: 0
+  background: none !important
+  padding: 0 2px
+  text-transform: uppercase
+  font-size: 0.9em

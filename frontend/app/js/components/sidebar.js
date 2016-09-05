@@ -9,10 +9,12 @@ var Sidebar = function(props){
     if (props.current == serverboard.shortname)
       klass+="active"
     return (
-      <a key={serverboard.shortname} className={klass} title={serverboard.name} onClick={() => props.onServiceSelect(serverboard.shortname)}>
-        <LogoIcon name={serverboard.shortname} color="slim"/>
-        {serverboard.shortname}
-      </a>
+      <div data-tooltip={`${serverboard.name}: ${serverboard.description}`} data-position="right center">
+        <a key={serverboard.shortname} className={klass} onClick={() => props.onServiceSelect(serverboard.shortname)}>
+          <LogoIcon name={serverboard.shortname} color="slim"/>
+          {serverboard.shortname}
+        </a>
+      </div>
     )
   }
 

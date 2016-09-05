@@ -32,6 +32,7 @@ components:
     name: Libvirt
     description: Management of [libvirt](https://libvirt.org) based clouds.
     traits: core.cloud.compute
+    icon: libvirtLogo.png
     virtual:
       command: serverboards.core.cloud/daemon
       call: virtual_nodes
@@ -51,6 +52,7 @@ components:
     name: Digital Ocean
     description: Management of [Digital Ocean](https://digitalocean.com) clouds.
     traits: core.cloud.compute
+    icon: digitalocean.svg
     virtual:
       command: serverboards.core.cloud/daemon
       call: virtual_nodes
@@ -74,6 +76,7 @@ components:
     type: action
     traits: core.cloud.node stopped
     command: serverboards.core.cloud/daemon
+    icon: play
     call:
       method: start
       params:
@@ -84,6 +87,7 @@ components:
     type: action
     traits: core.cloud.node running
     command: serverboards.core.cloud/daemon
+    icon: stop
     call:
       method: shutdown
       params:
@@ -94,6 +98,7 @@ components:
     type: action
     traits: core.cloud.node running
     command: serverboards.core.cloud/daemon
+    icon: stop circle outline
     call:
       method: force_stop
       params:
@@ -104,6 +109,7 @@ components:
     type: action
     traits: core.cloud.node running
     command: serverboards.core.cloud/daemon
+    icon: undo
     call:
       method: reboot
       params:

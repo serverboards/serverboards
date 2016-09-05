@@ -72,5 +72,11 @@ def touchfile(filename="/tmp/auth-py-touched", **_kwargs):
         fd.write(str(datetime.datetime.now()))
     return True
 
+@serverboards.rpc_method
+def test_rate_limiting(count):
+    for i in range(count):
+        serverboards.rpc.event("count_for_rate_limiting", i)
+    return "ok"
+
 #print(serverboards.__dir(), file=sys.stderr)
-serverboards.loop() #debug=sys.stderr)
+serverboards.loop() # debug=sys.stderr)

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 import {MarkdownPreview} from 'react-marked-markdown';
+import ConnectionBanner from 'app/containers/connectionbanner'
 
 require("sass/messages.sass")
 
@@ -28,6 +29,7 @@ function FlashMessageList({messages, handleClose}){
       {messages.map(msg =>
         <FlashMessage key={msg.id} {...msg} onClose={handleClose}/>
       )}
+      <ConnectionBanner status="WILL_NOT_RECONNECT"/>
     </div>
   )
 }

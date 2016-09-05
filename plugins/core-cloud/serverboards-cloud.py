@@ -48,6 +48,31 @@ def disconnect(id):
     del uri_type_to_connection[conn['urik']]
     return True
 
+def guess_icon(node):
+    nodename=node.name.lower()
+    if 'debian' in nodename:
+        return 'debian.svg'
+    if 'fedora' in nodename:
+        return 'fedora.svg'
+    if 'ubuntu' in nodename:
+        return 'ubuntu.svg'
+    if 'linux' in nodename:
+        return 'linux'
+    return None
+
+def get_description(node):
+    extra=node["extra"]
+    desc=[]
+    if 'used_memory' in extra:
+        desc.append( '%s MB RAM'%(extra["used_memory"]) )
+    if 'memory' in extra:
+        desc.append( '%s MB RAM'%(extra["memory"]) )
+    if 'disk' in extra:
+        desc.append( '%.2f GB'%(extra['disk']) )
+    if 'public_ips' in node:
+        desc.append( ' '.join(node['public_ips']) )
+    return ', '.join(desc)
+
 @serverboards.rpc_method("list")
 def _list(uuid=None):
     if uuid is None:
@@ -63,7 +88,8 @@ def _list(uuid=None):
             'private_ips':node.private_ips,
             'public_ips':node.public_ips,
             'created_at':str(node.created_at),
-            'state':node.state
+            'state':node.state,
+            'icon':guess_icon(node)
         }
 
     return [decorate(node) for node in driver.list_nodes()]
@@ -100,17 +126,19 @@ def reboot(connection, node):
 def virtual_nodes(**config):
     connection = connect(**config)
     def decorate(node):
-        #serverboards.rpc.debug(repr(node))
+        serverboards.rpc.debug(repr(node))
         return {
             'type': 'serverboards.core.cloud/cloud.node', # optional, if not, can not be instantiated.
             'id': node['id'],
             'name': node['name'],
             'tags': [ "stopped" if node['state']=="terminated" else "running" ],
+            'description': get_description(node),
             'traits': ['core.cloud.node'],
             'config': {
                 'node': node['id'],
                 'connection': connection
-                }
+                },
+            'icon': node['icon']
         }
     return [decorate(node) for node in _list(connection)]
 

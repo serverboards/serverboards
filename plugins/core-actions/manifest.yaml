@@ -24,6 +24,7 @@ components:
     id: webhook.call
     type: action
     command: serverboards.core.actions/cmd
+    icon: world
     call:
       method: http_get
       params:
@@ -41,6 +42,7 @@ components:
     id: set-tags
     type: action
     command: serverboards.core.actions/cmd
+    icon: tag
     call:
       method: set_tags
       params:
@@ -53,9 +55,29 @@ components:
           description: Space separated list of tags to add. It can start with a dash to remove the label (-label).
           placeholder: eg. UP -DOWN
 
+  - name: Send notification
+    id: send-notification
+    type: action
+    command: cmd
+    traits: url
+    icon: mail
+    call:
+      method: send_notification
+      params:
+        - name: email
+          type: text
+          label: User email or @group
+        - name: subject
+          type: text
+          label: Subject
+        - name: body
+          type: textarea
+          lable: Body
+        - name: service
+
   - name: Core actions.
     type: cmd
     id: cmd
     timeout: 1000
     command: serverboards-core.py
-    perms: service.info service.update
+    perms: service.info service.update notifications.notify notifications.notify_all settings.view[serverboards.core.settings/base]

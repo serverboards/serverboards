@@ -5,11 +5,15 @@ import { setup_fields, service_definition } from '../service'
 import Loading from '../loading'
 import rpc from 'app/rpc'
 import { merge } from 'app/utils'
+import {MarkdownPreview} from 'react-marked-markdown';
 
 const RuleList = React.createClass({
   componentDidMount(){
+    this.updateToggles( $(this.refs.form).find('.checkbox.toggle') )
+  },
+  updateToggles(sel){
     let self=this
-    $(this.refs.form).find('.checkbox.toggle').checkbox({
+    $(sel).checkbox({
       onChecked(ev){
         console.log("Activated rule name %o", this.name)
         self.props.activateRule(this.name)
@@ -20,24 +24,24 @@ const RuleList = React.createClass({
       }
     })
   },
+  componentDidUpdate(newprops){
+    this.updateToggles( $(this.refs.form).find('.checkbox.toggle') )
+  },
   render(){
     const props = this.props
     if (props.rules.length == 0)
       return (<span/>)
     return (
       <div className="ui equal width form" ref="form">
-        <h3 className="ui header">Rule presets</h3>
-        <div className="ui meta">
-          Here you can activate preset rules. Custom rules can be activated at the
-          rules section
-        </div>
+        <h4 className="ui header">
+          Rule presets
+        </h4>
         <div className="ui two column grid"  style={{paddingTop:10}}>
         {props.rules.map( (r) => (
           <div className="field column">
-            <div className="ui checkbox toggle">
+            <div className="ui checkbox toggle" data-position="bottom left" data-tooltip={r.description}>
               <input type="checkbox" className="toggle" defaultChecked={r.is_active} name={r.id}/>
-              <label>{r.name}
-              <div className="ui meta">{r.description}</div></label>
+              <label>{r.name}</label>
             </div>
           </div>
         ))}
@@ -85,8 +89,8 @@ const SetupComponent=React.createClass({
   handleAccept : function(ev){
     ev && ev.preventDefault()
 
-    let form = this.refs.form.refs.form
-    if ( $(form).form('validate form' ) ){
+    let $form = $(this.refs.form.refs.form)
+    if ( $form.form('validate form' ) ){
       //console.log("Ok %o", this.state.values)
       let operations={}
       let values = this.state.values
@@ -96,20 +100,19 @@ const SetupComponent=React.createClass({
           operations[f.name]=v
       })
       //console.log(operations)
-      let name = operations.name
-      delete operations.name
-      let description = operations.description
-      delete operations.description
+      let name = $(this.refs.content).find("input[name=name]").val()
+      let description = $(this.refs.content).find("textarea[name=description]").val()
+      console.log(name, description)
       this.props.onUpdate( this.props.service.uuid, {
         name: name,
         description: description,
         config: operations
       } )
       // Save changed rules
-      console.log("Save rules %o %o", this.state.changed_rules, this.state.rules)
+      //console.log("Save rules %o %o", this.state.changed_rules, this.state.rules)
       this.state.rules.find( (rule) => {
         if (this.state.changed_rules.indexOf(rule.id)>=0){
-          console.log("Save rule %o", rule)
+          //console.log("Save rule %o", rule)
           this.props.onSaveRule(rule)
         }
       })
@@ -166,12 +169,30 @@ const SetupComponent=React.createClass({
           Update settings for {props.service.name}
         </h2>
         <div className="ui meta" style={{paddingBottom: 20}}>
-          {servicedef.description || "No description at service definition"}
+          <MarkdownPreview value={servicedef.description || "No description at service definition"}/>
         </div>
-        <div className="content">
-          <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+        <div className="content" ref="content">
+          <div className="ui form">
+            <div className="field">
+              <label>Name</label>
+              <input type="text" name="name"
+                placeholder="Service name as shown in UI"
+                defaultValue={props.service.name}/>
+            </div>
+
+            <RuleList rules={rules} activateRule={this.handleActivateRule} deactivateRule={this.handleDeactivateRule}/>
+            <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+
+            <div className="field">
+              <label>Description</label>
+              <textarea
+                name="description"
+                placeholder="Comments about this service"
+                defaultValue={props.service.description}
+              />
+            </div>
+          </div>
         </div>
-        <RuleList rules={rules} activateRule={this.handleActivateRule} deactivateRule={this.handleDeactivateRule}/>
         <div className="actions">
           <button className="ui ok yellow button" onClick={this.handleAccept}>Accept</button>
         </div>

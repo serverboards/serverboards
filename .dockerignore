@@ -1,9 +1,4 @@
-frontend/node_modules/
-frontend/app/
-frontend/semantic/
-cli/htmlcov
-cli/__pycache__
-cli/.coverage
-**/*~
-**/.git
-.git
+*
+!rel/serverboards.tar.gz
+!supervisord.conf
+!serverboards.sh

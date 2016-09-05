@@ -6,6 +6,7 @@ import rpc from 'app/rpc'
 import store from 'app/utils/store'
 import plugin from 'app/utils/plugin'
 import Command from 'app/utils/command'
+import {pretty_ago} from 'app/utils'
 
 require("sass/serverboards.sass")
 
@@ -33,7 +34,8 @@ window.Serverboards = {
   Components: require("app/components/export").default,
   add_screen: plugin.add_screen,
   add_widget: plugin.add_widget,
-  add_command_search: Command.add_command_search
+  add_command_search: Command.add_command_search,
+  pretty_ago,
 }
 
 ReactDOM.render(

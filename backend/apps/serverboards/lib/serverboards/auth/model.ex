@@ -31,6 +31,12 @@ defmodule Serverboards.Auth.Model do
   		field :group_id, :id
   		field :perm_id, :id
   	end
+
+    def changeset(obj, params \\ :empty) do
+      import Ecto.Changeset
+      obj
+        |> cast(params, [:group_id, :perm_id], [])
+    end
   end
 
   defmodule UserGroup do
@@ -40,6 +46,12 @@ defmodule Serverboards.Auth.Model do
   		field :user_id, :id
   		field :group_id, :id
   	end
+
+    def changeset(obj, params \\ :empty) do
+      import Ecto.Changeset
+      obj
+        |> cast(params, [:group_id, :user_id], [])
+    end
   end
 
   defmodule Group do
@@ -63,5 +75,11 @@ defmodule Serverboards.Auth.Model do
   	schema "auth_permission" do
   		field :code, :string
   	end
+
+    def changeset(obj, params \\ :empty) do
+      import Ecto.Changeset
+      obj
+        |> cast(params, [:code], [])
+    end
   end
 end

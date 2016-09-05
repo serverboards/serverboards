@@ -80,5 +80,6 @@ components:
     traits: telegram
     perms:
       - settings.view[serverboards.core.notifications/settings.telegram]
+      - settings.view[serverboards.core.settings/base]
       - plugin.data[serverboards.core.notifications/telegram]
     command: serverboards_telegram.py
