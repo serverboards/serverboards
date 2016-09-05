@@ -38,6 +38,10 @@ let Services=React.createClass({
   componentWillUnmount(){
     Command.remove_command_search("sbds-services")
   },
+  service_description(tpe){
+     const desc=this.props.service_catalog.find((d) => d.type == tpe)
+     return desc
+  },
   render(){
     let props=this.props
     if (!props.services)
@@ -60,7 +64,7 @@ let Services=React.createClass({
         <h1>Services at {props.serverboard.name}</h1>
         <div className="ui cards">
           {props.services.map((p) => (
-            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.props.service_catalog.find((d) => d.id == p.id)}/>
+            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.service_description( p.type )}/>
           ))}
         </div>
 
