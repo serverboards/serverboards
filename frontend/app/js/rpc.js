@@ -14,11 +14,12 @@ var RPC = function(options={}){
     maxid: 1,
     status: 'NOTCONNECTED',
     reconnect_token: undefined,
+    keep_logged_in: false,
     store: options.store,
     url: options.url,
     debug: false,
     reconnect_max: 10, // max count of reconnects, if more reload page.
-    reconnection_message_queue: [] // messages to send when reconnected.
+    reconnection_message_queue: [], // messages to send when reconnected.
   }
 
   if (!rpc.url){
@@ -141,9 +142,13 @@ var RPC = function(options={}){
       if (user){
         if (!rpc.reconnect_token){
           rpc.call("auth.create_token").then(function(token){
-            console.debug("My reconnect token is "+token)
+            //console.debug("My reconnect token is "+token)
             rpc.reconnect_token=token
-            localStorage.reconnect_token=token
+            if (rpc.keep_logged_in)
+              localStorage.reconnect_token=token
+            else{
+              delete localStorage.reconnect_token
+            }
           })
         }
       }

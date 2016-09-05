@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react';
 import ResetPassword from './reset_password'
 import SetPassword from './set_password'
+import rpc from 'app/rpc'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
@@ -47,6 +48,10 @@ var LoginView = React.createClass({
   setPassword(pw){
     this.setState({modal: 'set_password', pw})
   },
+  keep_logged_in(){
+    const keep_logged_in = $(this.refs.el).find("input[name=keep_logged_in]").is(':checked')
+    rpc.keep_logged_in=keep_logged_in
+  },
   render(){
     if (this.state.modal=='reset_password')
       return(
@@ -84,8 +89,8 @@ var LoginView = React.createClass({
 
           <div className="actions">
             <span className="ui checkbox action left" style={{float: "left"}}>
-                <input type="checkbox" name="keep_logged_in" disabled/>
-                <label>
+              <input type="checkbox" id="keep_logged_in" onClick={this.keep_logged_in}/>
+              <label htmlFor="keep_logged_in" style={{cursor:"pointer"}}>
                 Keep logged login
               </label>
             </span>
