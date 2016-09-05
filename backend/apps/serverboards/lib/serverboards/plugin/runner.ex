@@ -86,10 +86,14 @@ defmodule Serverboards.Plugin.Runner do
 
   def stop(runner, uuid) do
     case GenServer.call(runner, {:stop, uuid}) do
+      {:error, :cant_stop} -> # just do not log it, as it is quite normal
+        Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
+        {:error, :cant_stop}
       {:error, e} ->
         Logger.error("Error stopping component #{inspect e}")
         {:error, e}
       {:ok, cmd} ->
+        Logger.debug("Stop plugin #{inspect uuid}")
         Serverboards.IO.Cmd.stop cmd
         true
     end
@@ -315,7 +319,7 @@ defmodule Serverboards.Plugin.Runner do
 
         {:reply, {:ok, entry.pid}, state }
       true ->
-        Logger.debug("Cant stop plugin, strategy is #{entry.strategy}")
+        Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
         {:reply, {:error, :cant_stop}, state}
     end
   end

@@ -88,6 +88,10 @@ defmodule Serverboards.Rules.Trigger do
     end
   end
 
+  def terminate(a,b) do
+    Logger.error("Terminate trigger server with #{Enum.count b.triggers} rules", reason: a, state: b)
+  end
+
   # impl
   def init(:ok) do
     {:ok, %{
@@ -101,7 +105,7 @@ defmodule Serverboards.Rules.Trigger do
     setup_client_for_rules client # can setup over without any problem. If not would need to setup only once.
 
     uuid = UUID.uuid4
-    method = %{ trigger.start | "params" => [%{ "name" => "id", "value" => uuid }] ++ trigger.start["params"] }
+    method = Map.put( trigger.start, "params", [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", []) )
     {:ok, stop_id} = Plugin.Runner.call( plugin_id, method, params )
     stop_id = if stop_id do stop_id else uuid end
 
@@ -116,9 +120,12 @@ defmodule Serverboards.Rules.Trigger do
     Logger.debug("Try to stop trigger #{inspect uuid}")
     if Map.has_key?(state.triggers, uuid) do
       trigger=state.triggers[uuid]
-      Logger.debug("#{inspect Map.keys(trigger)}")
-      Plugin.Runner.call( trigger.plugin_id, trigger.trigger.stop, [trigger.stop_id] )
       Logger.info("Stopping trigger #{inspect trigger.trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+      if trigger.trigger.stop do
+        Plugin.Runner.call( trigger.plugin_id, trigger.trigger.stop, [trigger.stop_id] )
+      end
+      # maybe stop plugin if one_for_one strategy
+      Plugin.Runner.stop( trigger.plugin_id )
       {:reply, :ok, %{ state |
         triggers: Map.drop(state.triggers, [uuid])}}
     else

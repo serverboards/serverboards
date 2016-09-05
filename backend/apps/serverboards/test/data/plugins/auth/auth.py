@@ -78,5 +78,12 @@ def test_rate_limiting(count):
         serverboards.rpc.event("count_for_rate_limiting", i)
     return "ok"
 
+@serverboards.rpc_method
+def simple_trigger(id):
+    serverboards.rpc.reply(id)
+    while True:
+        serverboards.rpc.event("trigger", state="tick", id=id)
+        time.sleep(0.2)
+
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() # debug=sys.stderr)

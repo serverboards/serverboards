@@ -116,6 +116,33 @@ defmodule Serverboards.IO.Cmd do
     {:ok, state}
   end
 
+  def terminate(reason, state) do
+    Logger.debug("Terminate CMD #{inspect state.cmd}")
+    kill(state.port)
+    #Port.close(state.port)
+    {:ok}
+  end
+
+  def kill(port) do
+    # manual kill.. should be better way FIXME
+    case Port.info(port, :os_pid)  do
+      {:os_pid, pid} ->
+        :os.cmd(String.to_charlist("kill #{pid}"))
+        for i <- 1..5 do
+          if Port.info(port, :os_pid) != nil do
+            :timer.sleep(200)
+            :os.cmd(String.to_charlist("kill #{pid}"))
+          end
+        end
+        if Port.info(port, :os_pid) != nil do
+          Logger.debug("Force kill pid #{inspect pid}")
+          :timer.sleep(200)
+          :os.cmd(String.to_charlist("kill -9 #{pid}"))
+        end
+    end
+    :ok
+  end
+
   defp rate_limit_wait(state) do
     #Logger.debug("Ratelimit count #{state.ratelimit}")
     {ratelimit, skip} = if state.ratelimit <= 0 do
