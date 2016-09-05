@@ -13,7 +13,6 @@ components:
     command: daemon
     stop: stop_trigger
     start:
-    call:
       method: ping
       params:
         - name: ip

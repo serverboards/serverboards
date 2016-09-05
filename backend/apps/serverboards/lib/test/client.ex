@@ -75,7 +75,7 @@ defmodule Test.Client do
   """
   def expect(client, what, timeout \\ 5000) do
     try do
-      GenServer.call(RPC.Client.get(client, :pid), {:expect, what}, timeout)
+      GenServer.call(RPC.Client.get(client, :pid), {:expect, what, timeout}, timeout + 1000 )
     rescue
       _e ->
         false
@@ -164,15 +164,16 @@ defmodule Test.Client do
     end
   end
 
-  def handle_call({:expect, what}, from, status) do
+  def handle_call({:expect, what, timeout}, from, status) do
     Logger.debug("Look for #{inspect what} at #{inspect status.messages}")
     {isin, messages} = expect_rec(what, status.messages)
     if isin do
       #Logger.debug("Already here")
       {:reply, true, %{status | messages: messages, expecting: nil }}
     else
+      #Logger.debug("Not here here")
       status=%{ status | expecting: %{ what: what, from: from } }
-      {:noreply, status, 200}
+      {:noreply, status, timeout}
     end
   end
 

@@ -65,6 +65,29 @@ defmodule Serverboards.TriggersTest do
     assert Agent.get(last_trigger, &(&1)) == :triggered
   end
 
+
+  test "Simple trigger non stop" do
+    [r] = Trigger.find id: "serverboards.test.auth/simple.trigger"
+
+    {:ok, last_trigger} = Agent.start_link fn -> :none end
+
+    output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
+    assert output == []
+
+    {:ok, id} = Trigger.start r, %{ }, fn params ->
+      Logger.debug("Triggered event: #{inspect params}")
+      Agent.update last_trigger, fn _ -> :triggered end
+    end
+
+    :timer.sleep(300)
+    Trigger.stop id
+
+    assert Agent.get(last_trigger, &(&1)) == :triggered
+
+    output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
+    assert output == []
+  end
+
   test "Manual rule" do
     rule_description = %{
       uuid: UUID.uuid4,

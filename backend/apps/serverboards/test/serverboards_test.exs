@@ -11,7 +11,7 @@ defmodule ServerboardsTest do
   def email_type, do: "serverboards.test.auth/email"
 
   def check_if_event_on_client(client, event, shortname) do
-    Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}] )
+    Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}], 500 )
   end
   def check_if_event_on_serverboard(agent, event, shortname) do
     check_if_event_on_serverboard(agent, event, shortname, 10)

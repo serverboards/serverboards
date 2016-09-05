@@ -46,30 +46,29 @@ defmodule Serverboards.AuthTest do
 
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
-
     {:ok, :ok} = Client.call(client, "group.add", ["test"])
-    Client.expect( client, method: "group.added" )
+    Client.expect( client, [method: "group.added"], 500 )
 
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user","test"]), MapSet.new(groups)
 
     {:ok, :ok} = Client.call(client, "group.add_user", ["test", "dmoreno@serverboards.io"])
-    Client.expect( client, method: "group.user_added" )
+    Client.expect( client, [method: "group.user_added"], 500 )
 
     {:ok, :ok} = Client.call(client, "group.add_perm", ["test", "auth.modify_self"])
-    Client.expect( client, method: "group.perm_added" )
+    Client.expect( client, [method: "group.perm_added"], 500 )
     {:ok, perms} = Client.call(client, "group.list_perms", ["test"])
     assert perms == ["auth.modify_self"]
 
     {:ok, :ok} = Client.call(client, "group.remove_perm", ["test", "auth.modify_self"])
-    Client.expect( client, method: "group.perm_removed" )
+    Client.expect( client, [method: "group.perm_removed"], 500 )
     {:ok, perms} = Client.call(client, "group.list_perms", ["test"])
     assert perms == []
 
     assert Client.call(client, "group.list_users", ["test"]) == {:ok, ["dmoreno@serverboards.io"]}
 
     {:ok, :ok} = Client.call(client, "group.remove_user", ["test", "dmoreno@serverboards.io"])
-    Client.expect( client, method: "group.user_removed" )
+    Client.expect( client, [method: "group.user_removed"], 500 )
 
     assert Client.call(client, "group.list_users", ["test"]) == {:ok, []}
 
