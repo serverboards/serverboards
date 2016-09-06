@@ -167,6 +167,49 @@ def recv(uuid, start=None, encoding='utf8'):
     return {'end': bend, 'data': data }
 
 
+@serverboards.rpc_method
+def open_port(url, hostname="localhost", port="22"):
+    """
+    Opens a connection to a remote ssh server on the given hostname and port.
+
+    This will make a local port accesible that will be equivalen to the remote
+    one. The local one is random.
+
+    Arguments:
+        url --  The ssh server url, as ssh://[username@]hostname[:port], or
+                simple hostname
+        hostname -- Remote hostname to connect to. Default `localhost` which
+                would be the SSH server
+        port -- Remote port to connect to
+
+    Returns:
+     localport -- Port id on Serverboards side to connect to.
+    """
+    (opts, url) = url_to_opts(url)
+    sp=pexpect.spawn("/usr/bin/ssh",opts + ['--'] + shlex.split(command))
+    mopts=opts+["-nNT","-L","%d:%h:%d"%(localport, hostname, port)]
+    running=True
+    while running:
+        ret=sp.expect([re.compile('^(.*)\'s password:'), "Could not request local forwarding.", pexpect.EOF])
+        data=sp.before
+        if ret==1:
+            running=False
+        if ret==2:
+            running=False
+        elif ret==0:
+            if not url.password:
+                raise Exception("Need password")
+            sp.sendline(url.password)
+    return localport
+
+@serverboards.rpc_method
+def close_port(localport):
+    """
+    Closes a remote connected port.
+
+    Uses the local port as identifier to close it.
+    """
+
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
         #print(ssh_exec("localhost","ls -l | tr -cs '[:alpha:]' '\\\\n' | sort | uniq -c | sort -n"))
