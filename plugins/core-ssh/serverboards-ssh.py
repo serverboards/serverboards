@@ -1,7 +1,7 @@
 #!/bin/python3
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
-import serverboards, pexpect, shlex, re, subprocess
+import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
 import base64
 
@@ -166,6 +166,7 @@ def recv(uuid, start=None, encoding='utf8'):
         data = str( raw_data, encoding )
     return {'end': bend, 'data': data }
 
+port_to_pexpect={}
 
 @serverboards.rpc_method
 def open_port(url, hostname="localhost", port="22"):
@@ -186,20 +187,28 @@ def open_port(url, hostname="localhost", port="22"):
      localport -- Port id on Serverboards side to connect to.
     """
     (opts, url) = url_to_opts(url)
-    sp=pexpect.spawn("/usr/bin/ssh",opts + ['--'] + shlex.split(command))
-    mopts=opts+["-nNT","-L","%d:%h:%d"%(localport, hostname, port)]
-    running=True
-    while running:
-        ret=sp.expect([re.compile('^(.*)\'s password:'), "Could not request local forwarding.", pexpect.EOF])
-        data=sp.before
-        if ret==1:
-            running=False
-        if ret==2:
-            running=False
-        elif ret==0:
-            if not url.password:
-                raise Exception("Need password")
-            sp.sendline(url.password)
+    keep_trying=True
+    while keep_trying:
+        localport=random.randint(20000,60000)
+        mopts=opts+["-nNT","-L","%s:%s:%s"%(localport, hostname, port)]
+        sp=pexpect.spawn("/usr/bin/ssh",mopts)
+        port_to_pexpect[localport]=sp
+        running=True
+        while running:
+            ret=sp.expect([str('^(.*)\'s password:'), str('Could not request local forwarding.'), pexpect.EOF, pexpect.TIMEOUT], timeout=2)
+            if ret==0:
+                if not url.password:
+                    raise Exception("Need password")
+                    sp.sendline(url.password)
+            if ret==1:
+                running=False
+                del port_to_pexpect[localport]
+            if ret==2:
+                keep_trying=False
+                running=False
+            if ret==3:
+                keep_trying=False
+                running=False
     return localport
 
 @serverboards.rpc_method
@@ -209,6 +218,9 @@ def close_port(localport):
 
     Uses the local port as identifier to close it.
     """
+    port_to_pexpect[localport].close()
+    del port_to_pexpect[localport]
+    return True
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
