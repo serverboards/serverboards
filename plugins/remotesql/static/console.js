@@ -49,121 +49,11 @@ var SQLTextInput = React$2.createClass({
   }
 });
 
-var React$3 = Serverboards.React;
-
-function DataGrid(props) {
-  return React$3.createElement(
-    "div",
-    { style: { height: "60vh", overflow: "scroll" } },
-    React$3.createElement(
-      "table",
-      { className: "ui celled unstackable table" },
-      React$3.createElement(
-        "thead",
-        null,
-        props.headers.map(function (h) {
-          return React$3.createElement(
-            "th",
-            null,
-            h
-          );
-        })
-      ),
-      React$3.createElement(
-        "tbody",
-        null,
-        props.data.map(function (row) {
-          return React$3.createElement(
-            "tr",
-            null,
-            row.map(function (cell) {
-              return React$3.createElement(
-                "td",
-                null,
-                cell
-              );
-            })
-          );
-        })
-      )
-    )
-  );
-}
-
-var React$1 = Serverboards.React;
-var rpc = Serverboards.rpc;
-var Flash = Serverboards.Flash;
-
-var Console = React$1.createClass({
-  displayName: 'Console',
-  getInitialState: function getInitialState() {
-    return {
-      data: [],
-      columns: ["", "", ""],
-      plugin_id: undefined
-    };
-  },
-  componentDidMount: function componentDidMount() {
-    var _this = this;
-
-    rpc.call("plugin.start", ["serverboards.remotesql/daemon"]).then(function (plugin_id) {
-      console.log("plugin id %o", plugin_id);
-      _this.setState({ plugin_id: plugin_id });
-      return _this.openConnection("serverboards", plugin_id);
-    }).catch(function (e) {
-      console.error(e);
-      Flash.error(String(e));
-    });
-  },
-  openConnection: function openConnection(database, plugin_id) {
-    if (!plugin_id) plugin_id = this.state.plugin_id;
-    var c = this.props.service.config;
-    return rpc.call(plugin_id + '.open', {
-      via: c.via,
-      type: c.type,
-      hostname: c.hostname,
-      port: c.port,
-      username: c.username,
-      password_pw: c.password_pw,
-      database: database
-    });
-  },
-  handleExecute: function handleExecute(sql, plugin_id) {
-    var _this2 = this;
-
-    if (!plugin_id) plugin_id = this.state.plugin_id;
-    console.log("Execute at %s: %s", plugin_id, sql);
-    rpc.call(plugin_id + '.execute', [sql]).then(function (res) {
-      console.log("Got response: %o", res);
-      _this2.setState({ data: res.data, columns: res.columns });
-    }).catch(function (e) {
-      console.error(e);
-      Flash.error(String(e));
-    });
-  },
-  render: function render() {
-    var props = this.props;
-    var state = this.state;
-    var service = props.service || {};
-    console.log(this);
-    return React$1.createElement(
-      'div',
-      { className: 'ui container' },
-      React$1.createElement(
-        'h2',
-        { className: 'ui header' },
-        'SQL Console for ',
-        React$1.createElement(
-          'i',
-          null,
-          service.name
-        )
-      ),
-      React$1.createElement(DataGrid, { data: state.data, headers: state.columns }),
-      React$1.createElement(SQLTextInput, { onExecute: this.handleExecute })
-    );
-  }
-});
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+};
 
 var slicedToArray = function () {
   function sliceIterator(arr, i) {
@@ -203,6 +93,179 @@ var slicedToArray = function () {
   };
 }();
 
+var React$3 = Serverboards.React;
+
+function DataGrid(props) {
+  function to_string(c) {
+    if ((typeof c === "undefined" ? "undefined" : _typeof(c)) == 'object') return JSON.stringify(c);
+    return c;
+  }
+
+  return React$3.createElement(
+    "div",
+    { style: { height: "60vh", overflow: "scroll" } },
+    React$3.createElement(
+      "table",
+      { className: "ui celled unstackable table" },
+      React$3.createElement(
+        "thead",
+        null,
+        props.headers.map(function (h) {
+          return React$3.createElement(
+            "th",
+            null,
+            h
+          );
+        })
+      ),
+      React$3.createElement(
+        "tbody",
+        null,
+        props.data.map(function (row) {
+          return React$3.createElement(
+            "tr",
+            null,
+            row.map(function (cell) {
+              return React$3.createElement(
+                "td",
+                null,
+                to_string(cell)
+              );
+            })
+          );
+        })
+      )
+    )
+  );
+}
+
+var React$1 = Serverboards.React;
+var rpc = Serverboards.rpc;
+var Flash = Serverboards.Flash;
+
+var Console = React$1.createClass({
+  displayName: 'Console',
+  getInitialState: function getInitialState() {
+    return {
+      data: [],
+      columns: ["", "", ""],
+      databases: ['template1'],
+      tables: [],
+      plugin_id: undefined
+    };
+  },
+  componentDidMount: function componentDidMount() {
+    var _this = this;
+
+    var plugin_id = void 0;
+    rpc.call("plugin.start", ["serverboards.remotesql/daemon"]).then(function (pid) {
+      plugin_id = pid;
+      console.log("plugin id %o", plugin_id);
+      _this.setState({ plugin_id: plugin_id });
+      return _this.openConnection("template1", plugin_id);
+    }).then(function () {
+      console.log("plugin id %o", plugin_id);
+      return rpc.call(plugin_id + '.databases').then(function (databases) {
+        _this.setState({ databases: databases });
+      });
+    }).catch(function (e) {
+      console.error(e);
+      Flash.error(String(e));
+    });
+
+    $(this.refs.el).find('.ui.dropdown').dropdown();
+  },
+  componentWillUnmount: function componentWillUnmount() {
+    console.log("Stop database connection? %o", this.state.plugin_id);
+    if (this.state.plugin_id) {
+      console.log("Stop database connection");
+      rpc.call("plugin.stop", [this.state.plugin_id]);
+    }
+  },
+  openConnection: function openConnection(database, plugin_id) {
+    var _this2 = this;
+
+    if (!plugin_id) plugin_id = this.state.plugin_id;
+    var c = this.props.service.config;
+    return rpc.call(plugin_id + '.open', {
+      via: c.via,
+      type: c.type,
+      hostname: c.hostname,
+      port: c.port,
+      username: c.username,
+      password_pw: c.password_pw,
+      database: database
+    }).then(function () {
+      return rpc.call(plugin_id + '.tables');
+    }).then(function (tables) {
+      _this2.setState({ tables: tables });
+    });
+  },
+  handleExecute: function handleExecute(sql, plugin_id) {
+    var _this3 = this;
+
+    if (!plugin_id) plugin_id = this.state.plugin_id;
+    console.log("Execute at %s: %s", plugin_id, sql);
+    rpc.call(plugin_id + '.execute', [sql]).then(function (res) {
+      console.log("Got response: %o", res);
+      _this3.setState({ data: res.data, columns: res.columns });
+    }).catch(function (e) {
+      console.error(e);
+      Flash.error(String(e));
+    });
+  },
+  render: function render() {
+    var _this4 = this;
+
+    var props = this.props;
+    var state = this.state;
+    var service = props.service || {};
+    console.log(this);
+    return React$1.createElement(
+      'div',
+      { ref: 'el', className: 'ui container' },
+      React$1.createElement(
+        'h2',
+        { className: 'ui header' },
+        'SQL Console for ',
+        React$1.createElement(
+          'i',
+          null,
+          service.name
+        )
+      ),
+      React$1.createElement(
+        'select',
+        { name: 'database', defaultValue: 'template1', className: 'ui dropdown', onChange: function onChange(ev) {
+            return _this4.openConnection(ev.target.value);
+          } },
+        state.databases.map(function (db) {
+          return React$1.createElement(
+            'option',
+            { value: db },
+            db
+          );
+        })
+      ),
+      React$1.createElement(
+        'select',
+        { name: 'tables', className: 'ui dropdown', onChange: function onChange(ev) {
+            return _this4.handleExecute('SELECT * FROM ' + ev.target.value);
+          } },
+        state.tables.map(function (db) {
+          return React$1.createElement(
+            'option',
+            { value: db },
+            db
+          );
+        })
+      ),
+      React$1.createElement(DataGrid, { data: state.data, headers: state.columns }),
+      React$1.createElement(SQLTextInput, { onExecute: this.handleExecute })
+    );
+  }
+});
+
 var React = Serverboards.React;
 function main(_ref, settings) {
   var _ref2 = slicedToArray(_ref, 1);
@@ -220,8 +283,4 @@ function main(_ref, settings) {
   };
 }
 
-Serverboards.add_screen("serverboards.remotesql/console", function (el, co) {
-  setTimeout(function () {
-    main(el, co);
-  }, 1000);
-});
+Serverboards.add_screen("serverboards.remotesql/console", main);

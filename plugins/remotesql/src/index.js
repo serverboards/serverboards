@@ -17,4 +17,4 @@ function main([el], settings){
   }
 }
 
-Serverboards.add_screen("serverboards.remotesql/console", function(el,co){ setTimeout(function(){ main(el,co) }, 1000) })
+Serverboards.add_screen("serverboards.remotesql/console", main)

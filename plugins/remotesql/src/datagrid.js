@@ -1,6 +1,12 @@
 let React = Serverboards.React
 
 function DataGrid(props){
+  function to_string(c){
+    if (typeof c == 'object')
+      return JSON.stringify(c)
+    return c
+  }
+
   return (
     <div style={{height:"60vh", overflow: "scroll"}}>
       <table className="ui celled unstackable table">
@@ -13,7 +19,7 @@ function DataGrid(props){
           {props.data.map( (row) => (
             <tr>
               {row.map( (cell) => (
-                <td>{cell}</td>
+                <td>{to_string(cell)}</td>
               ))}
             </tr>
           ))}

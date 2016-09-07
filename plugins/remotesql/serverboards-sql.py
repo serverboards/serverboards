@@ -24,7 +24,7 @@ def open(via=None, type="postgresql", hostname="localhost", port="5432", usernam
     if type!="postgresql":
         raise Exception("Database type not supported")
 
-    if via and hostname!=localhost:
+    if via and hostname!="localhost":
         conn.ssh_plugin_id = rpc.call("plugin.start", "serverboards.core.ssh/daemon")
         conn.port = rpc.call("%s.open_port"%conn.ssh_plugin_id, url=via, hostname=hostname, port=port)
         hostname="localhost"
