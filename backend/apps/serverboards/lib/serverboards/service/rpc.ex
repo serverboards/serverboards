@@ -32,6 +32,22 @@ defmodule Serverboards.Service.RPC do
     end, [required_perm: "service.info", context: true]
 
     RPC.MethodCaller.add_method mc, "service.list", fn filter, context ->
+      # some cleanup
+      filter = Enum.map(filter, fn
+        [k,v] -> {k,v}
+        {k,v} -> {k,v}
+      end)
+      filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"name type serverboard traits")
+      filter = if Keyword.has_key?(filter, :traits) do
+        traits = case filter[:traits] do
+          b when is_binary(b) -> String.split(b)
+          l when is_list(l) -> l
+        end
+        Keyword.put(filter, :traits, traits)
+      else
+        filter
+      end
+
       services = service_list filter, Context.get(context, :user)
       Enum.map services, &Serverboards.Utils.clean_struct(&1)
     end, [required_perm: "service.info", context: true]

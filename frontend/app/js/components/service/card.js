@@ -13,9 +13,34 @@ import {colorize} from 'app/utils'
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
 
+const ServiceField=React.createClass({
+  getInitialState(){
+    return {service: undefined}
+  },
+  componentDidMount(){
+    rpc.call("service.info", [this.props.value]).then( (service) => {
+      this.setState({service: service.name})
+    })
+  },
+  render(){
+    if (this.state.service)
+      return (
+        <span className="ui meta">{this.props.description.label}: {this.state.service}<br/></span>
+      )
+    else
+      return (
+        <span/>
+      )
+  }
+})
+
 function Field(props){
+  if (props.description.type=='service')
+    return (
+      <ServiceField {...props}/>
+    )
   return (
-    <li>{props.name}: <b>{props.value}</b></li>
+    <span className="ui meta">{props.description.label}: {props.value}<br/></span>
   )
 }
 
@@ -184,9 +209,12 @@ const Card=React.createClass({
       }
     }
     else if (action.extra.screen){
-      this.context.router.push({
-        pathname: `/s/${action.id}`,
-        state: { service: this.props.service }
+      // Use full info, not just the one at card. May have more info as _pw
+      rpc.call('service.info',[this.props.service.uuid]).then( (service) => {
+        this.context.router.push({
+          pathname: `/s/${action.id}`,
+          state: { service }
+        })
       })
     }
     else {
@@ -200,16 +228,22 @@ const Card=React.createClass({
   handleDetach(){
     this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
   },
-  show_config(k){
-    var fields = (this.props.service_description || {}).fields || []
+  get_field(k){
+    var fields = (this.props.service_description || {}).fields
+    if (!fields)
+      return undefined
     for(var p of fields){
       if (p.name==k){
-        if(p.card)
-          return true;
-        return false;
+        return p
       }
     }
-    return false;
+    return undefined;
+  },
+  show_config(k){
+    var field = this.get_field(k)
+    if (!field)
+      return false
+    return field.card ? true : false
   },
   render(){
     let props=this.props.service
@@ -241,7 +275,6 @@ const Card=React.createClass({
         )
         break;
     }
-    console.log(props)
     return (
       <div className="service card">
         <div className="content">
@@ -257,11 +290,11 @@ const Card=React.createClass({
             <span style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
           ))}</div>
           <div className="description">{props.description || ""}</div>
-          <ul>
+          <div>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
-            <Field key={k} name={k} value={props.config[k]}/>
+            <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
           ) : [])}
-          </ul>
+          </div>
         </div>
         <div className="extra content" ref="menu">
           {props.is_virtual ? (
