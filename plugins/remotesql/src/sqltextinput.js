@@ -20,9 +20,12 @@ const SQLTextInput=React.createClass({
   render(){
     return (
       <div className="ui form">
-        <textarea ref="textarea" className="ui input" placeholder="Write your SQL query and press Crtl+Enter">
-        SELECT * FROM auth_user;
-        </textarea>
+        <textarea
+          ref="textarea"
+          className="ui input"
+          placeholder="Write your SQL query and press Crtl+Enter"
+          id="query_area"
+          />
         <div className="ui buttons" style={{marginTop: 10}}>
           <button className="ui button yellow" onClick={this.handleExecute} style={{paddingTop:10}}>Execute query (Crtl+Enter)</button>
           <button className="ui button" onClick={this.clearTextArea} style={{paddingTop:10}}>Clear area (ESC)</button>

@@ -46,6 +46,7 @@ const Console=React.createClass({
     if (!plugin_id)
       plugin_id=this.state.plugin_id
     const c=this.props.service.config
+    console.log(this.props.service)
     return rpc.call(`${plugin_id}.open`, {
       via: c.via,
       type: c.type,
@@ -61,7 +62,6 @@ const Console=React.createClass({
   handleExecute(sql, plugin_id){
     if (!plugin_id)
       plugin_id=this.state.plugin_id
-    console.log("Execute at %s: %s", plugin_id, sql)
     rpc.call(`${plugin_id}.execute`, [sql]).then( (res) => {
       console.log("Got response: %o", res)
       this.setState({data:res.data, columns:res.columns})
@@ -69,12 +69,12 @@ const Console=React.createClass({
       console.error(e)
       Flash.error(String(e))
     })
+    $(this.refs.el).find('#query_area').val(sql)
   },
   render(){
     const props=this.props
     const state=this.state
     const service=props.service || {}
-    console.log(this)
     return (
       <div ref="el" className="ui container">
         <h2 className="ui header">SQL Console for <i>{service.name}</i></h2>
@@ -83,7 +83,7 @@ const Console=React.createClass({
             <option value={db}>{db}</option>
           ))}
         </select>
-        <select name="tables" className="ui dropdown" onChange={(ev) => this.handleExecute(`SELECT * FROM ${ev.target.value}`)}>
+        <select name="tables" className="ui dropdown" onChange={(ev) => this.handleExecute(`SELECT * FROM ${ev.target.value} LIMIT 100;`)}>
           {state.tables.map( (db) => (
             <option value={db}>{db}</option>
           ))}

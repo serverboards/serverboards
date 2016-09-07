@@ -212,14 +212,14 @@ def open_port(url, hostname="localhost", port="22"):
     return localport
 
 @serverboards.rpc_method
-def close_port(localport):
+def close_port(port):
     """
     Closes a remote connected port.
 
     Uses the local port as identifier to close it.
     """
-    port_to_pexpect[localport].close()
-    del port_to_pexpect[localport]
+    port_to_pexpect[port].close()
+    del port_to_pexpect[port]
     return True
 
 if __name__=='__main__':
@@ -234,4 +234,4 @@ if __name__=='__main__':
         print(recv(localhost))
         print()
     else:
-        serverboards.loop( debug = None )
+        serverboards.loop( debug = False )

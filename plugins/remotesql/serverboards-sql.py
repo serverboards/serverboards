@@ -24,9 +24,12 @@ def open(via=None, type="postgresql", hostname="localhost", port="5432", usernam
     if type!="postgresql":
         raise Exception("Database type not supported")
 
-    if via and hostname!="localhost":
+    if via or hostname!="localhost":
+        rpc.debug("Connection via %s"%via)
         conn.ssh_plugin_id = rpc.call("plugin.start", "serverboards.core.ssh/daemon")
-        conn.port = rpc.call("%s.open_port"%conn.ssh_plugin_id, url=via, hostname=hostname, port=port)
+        service = rpc.call("service.info", via)
+        conn.port = rpc.call("%s.open_port"%conn.ssh_plugin_id, url=service['config']['url'], hostname=hostname, port=port)
+        rpc.debug("Use port  %s"%conn.port)
         hostname="localhost"
         port=conn.port
     conn.conn = psycopg2.connect(database=database, user=username, password=password_pw, host=hostname, port=port)

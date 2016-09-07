@@ -49,13 +49,15 @@ components:
 
   - id: console
     type: action
-    description: SQL Console
+    name: SQL Console
+    description: Perform basic SQL queries directly to a remote database
     screen: true
     traits: sql
     icon: terminal
 
   - id: daemon
     type: cmd
+    timeout: 15m
     command: ./serverboards-sql.py
     name: Remote run SQL commands
-    perms: plugin[serverboards.core.ssh/daemon]
+    perms: plugin service.info

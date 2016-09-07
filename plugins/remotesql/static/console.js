@@ -26,11 +26,12 @@ var SQLTextInput = React$2.createClass({
     return React$2.createElement(
       'div',
       { className: 'ui form' },
-      React$2.createElement(
-        'textarea',
-        { ref: 'textarea', className: 'ui input', placeholder: 'Write your SQL query and press Crtl+Enter' },
-        'SELECT * FROM auth_user;'
-      ),
+      React$2.createElement('textarea', {
+        ref: 'textarea',
+        className: 'ui input',
+        placeholder: 'Write your SQL query and press Crtl+Enter',
+        id: 'query_area'
+      }),
       React$2.createElement(
         'div',
         { className: 'ui buttons', style: { marginTop: 10 } },
@@ -187,6 +188,7 @@ var Console = React$1.createClass({
 
     if (!plugin_id) plugin_id = this.state.plugin_id;
     var c = this.props.service.config;
+    console.log(this.props.service);
     return rpc.call(plugin_id + '.open', {
       via: c.via,
       type: c.type,
@@ -205,7 +207,6 @@ var Console = React$1.createClass({
     var _this3 = this;
 
     if (!plugin_id) plugin_id = this.state.plugin_id;
-    console.log("Execute at %s: %s", plugin_id, sql);
     rpc.call(plugin_id + '.execute', [sql]).then(function (res) {
       console.log("Got response: %o", res);
       _this3.setState({ data: res.data, columns: res.columns });
@@ -213,6 +214,7 @@ var Console = React$1.createClass({
       console.error(e);
       Flash.error(String(e));
     });
+    $(this.refs.el).find('#query_area').val(sql);
   },
   render: function render() {
     var _this4 = this;
@@ -220,7 +222,6 @@ var Console = React$1.createClass({
     var props = this.props;
     var state = this.state;
     var service = props.service || {};
-    console.log(this);
     return React$1.createElement(
       'div',
       { ref: 'el', className: 'ui container' },
@@ -250,7 +251,7 @@ var Console = React$1.createClass({
       React$1.createElement(
         'select',
         { name: 'tables', className: 'ui dropdown', onChange: function onChange(ev) {
-            return _this4.handleExecute('SELECT * FROM ' + ev.target.value);
+            return _this4.handleExecute('SELECT * FROM ' + ev.target.value + ' LIMIT 100;');
           } },
         state.tables.map(function (db) {
           return React$1.createElement(
