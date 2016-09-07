@@ -33,7 +33,7 @@ clean:
 	rm rel -rf
 	rm serverboards.tar.gz -f
 
-docker: serverboards.tar.gz
+docker: #serverboards.tar.gz
 	docker build -t serverboards .
 
 .PHONY: test test-backend test-frontend
@@ -75,4 +75,4 @@ serverboards.tar.gz: compile-frontend compile-backend
 
 	cp -a serverboards.sh rel/serverboards/
 
-	cd rel && tar cfz serverboards.tar.gz serverboards
+	cd rel && tar cfz ../serverboards.tar.gz serverboards

@@ -9,7 +9,7 @@ RUN apt-get -y update && apt-get install -y \
 RUN useradd serverboards -m -U
 
 # Uncompress serverboards
-ADD rel/serverboards.tar.gz /opt/
+ADD serverboards.tar.gz /opt/
 RUN chown :serverboards /opt/serverboards/
 
 # copy some extra data

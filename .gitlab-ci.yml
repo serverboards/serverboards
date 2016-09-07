@@ -51,7 +51,7 @@ release:
     - make release
   artifacts:
     paths:
-      - rel/serverboards.tar.gz
+      - serverboards.tar.gz
     expire_in: 1 week
   dependencies:
     - frontend-build
