@@ -209,9 +209,12 @@ const Card=React.createClass({
       }
     }
     else if (action.extra.screen){
-      this.context.router.push({
-        pathname: `/s/${action.id}`,
-        state: { service: this.props.service }
+      // Use full info, not just the one at card. May have more info as _pw
+      rpc.call('service.info',[this.props.service.uuid]).then( (service) => {
+        this.context.router.push({
+          pathname: `/s/${action.id}`,
+          state: { service }
+        })
       })
     }
     else {
