@@ -25,12 +25,12 @@ var SidebarSections = function(props){
       <h3 className="ui item header">{props.serverboard.name}</h3>
       <MenuItem section="overview">Overview</MenuItem>
       <MenuItem section="services">Services</MenuItem>
-      <MenuItem section="permissions">Permissions</MenuItem>
       <MenuItem section="rules">Rules</MenuItem>
-      <MenuItem section="logs">Logs</MenuItem>
       <MenuItem section="settings">Settings</MenuItem>
     </div>
   )
+  //<MenuItem section="permissions">Permissions</MenuItem>
+  //<MenuItem section="logs">Logs</MenuItem>
 }
 
 var Service = function(props){
