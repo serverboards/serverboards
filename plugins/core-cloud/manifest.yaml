@@ -43,6 +43,7 @@ components:
         type: text
         label: Remote Server Address
         placeholder: ie. 192.168.1.200, api.example.com...
+        card: true
       - name: type
         type: hidden
         value: libvirt

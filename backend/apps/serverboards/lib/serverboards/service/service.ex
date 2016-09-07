@@ -322,20 +322,11 @@ defmodule Serverboards.Service do
   """
   def service_list(filter, me) do
     import Ecto.Query
+
     Logger.info("Get service list for #{inspect filter}", filter: filter, user: me)
 
     query = if filter do
-        Enum.reduce(filter, from(c in ServiceModel), fn kv, acc ->
-          {k,v} = case kv do # decompose both tuples and lists / from RPC and from code.
-            [k,v] -> {k,v}
-            {k,v} -> {k,v}
-          end
-          k = case k do
-            "name" -> :name
-            "type" -> :type
-            "serverboard" -> :serverboard
-            other -> other
-          end
+        Enum.reduce(filter, from(c in ServiceModel), fn {k,v}, acc ->
           case k do
             :name ->
               acc |>
@@ -348,13 +339,24 @@ defmodule Serverboards.Service do
                 |> join(:inner,[c], sc in ServerboardServiceModel, sc.service_id == c.id)
                 |> join(:inner,[c,sc], s in ServerboardModel, s.id == sc.serverboard_id and s.shortname == ^v)
                 |> select([c,sc,s], c)
+            :traits -> # at post process
+              acc
           end
         end)
       else
         ServiceModel
       end
     #Logger.info("#{inspect filter} #{inspect query}")
-    Repo.all(query) |> Enum.map( &service_decorate(&1, me) )
+    res = Repo.all(query) |> Enum.map( &service_decorate(&1, me) )
+
+    # post process
+    if Keyword.has_key?(filter, :traits) do
+      res |> Enum.filter( fn s ->
+        Enum.all?(filter[:traits], &(&1 in s.traits))
+      end)
+    else
+      res
+    end
   end
 
   @doc ~S"""
