@@ -11,7 +11,7 @@ require('sass/cards.sass')
 function PluginCard(props){
   const p=props.plugin
   let author=p.author
-  if (author.indexOf('<')>0){
+  if (author && author.indexOf('<')>0){
     let m = author.match(/(.*)<(.*)>/)
     if (m){
       author=(
