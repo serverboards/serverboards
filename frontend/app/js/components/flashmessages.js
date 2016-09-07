@@ -13,11 +13,16 @@ const level_to_class = {
 var FlashMessage=React.createClass({
   render(){
     let color=level_to_class[this.props.level] || ''
+    let message = this.props.message
+    if (typeof message == 'object'){
+      console.log("Flash message object: %o", message)
+      message=message.message || String(message)
+    }
 
     return (
       <div className={"ui message "+color}>
         <i className="close icon" onClick={() => this.props.onClose(this.props.message)}></i>
-        <MarkdownPreview value={this.props.message}/>
+        <MarkdownPreview value={message}/>
       </div>
     )
   }
