@@ -61,10 +61,14 @@ def serialize(x):
 @serverboards.rpc_method
 def execute(query):
     with conn.conn.cursor() as cur:
-        cur.execute(query)
-        return {
-            "columns": [x[0] for x in cur.description],
-            "data": [[serialize(y) for y in x] for x in cur.fetchall()]
-        }
+        try:
+            cur.execute(query)
+            return {
+                "columns": [x[0] for x in cur.description],
+                "data": [[serialize(y) for y in x] for x in cur.fetchall()]
+            }
+        except:
+            conn.conn.rollback()
+            raise
 
 serverboards.loop()

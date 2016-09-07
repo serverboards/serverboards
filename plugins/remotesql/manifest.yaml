@@ -1,4 +1,4 @@
-id: serverboards.reqmotesql
+id: serverboards.remotesql
 name: Remote SQL
 description: |
   Access and perform basic queries at a remote SQL server accesible via a SSH
@@ -46,8 +46,16 @@ components:
         type: password
         description: User to access the database
         placeholder: Leave empty if no need for authentication
+
+  - id: console
+    type: action
+    description: SQL Console
+    screen: true
+    traits: sql
+    icon: terminal
+
   - id: daemon
-    type: command
+    type: cmd
     command: ./serverboards-sql.py
     name: Remote run SQL commands
     perms: plugin[serverboards.core.ssh/daemon]
