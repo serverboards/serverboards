@@ -62,6 +62,7 @@ components:
         type: text
         label: Access Token
         description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
+        placeholder: ""
       - name: type
         type: hidden
         value: digitalocean
