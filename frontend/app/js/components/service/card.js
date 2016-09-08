@@ -209,13 +209,23 @@ const Card=React.createClass({
       }
     }
     else if (action.extra.screen){
-      // Use full info, not just the one at card. May have more info as _pw
-      rpc.call('service.info',[this.props.service.uuid]).then( (service) => {
+      // If its a materialized service,
+      if (this.props.service.uuid){
+        // Use full info, not just the one at card. May have more info as _pw
+        rpc.call('service.info',[this.props.service.uuid]).then( (service) => {
+          this.context.router.push({
+            pathname: `/s/${action.id}`,
+            state: { service }
+          })
+        })
+      }
+      // If its a virtual service, use data as is
+      else{
         this.context.router.push({
           pathname: `/s/${action.id}`,
-          state: { service }
+          state: { service: this.props.service }
         })
-      })
+      }
     }
     else {
       Flash.error("Dont know how to trigger this action")
