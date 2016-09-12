@@ -16,7 +16,8 @@ export function get_modal(name){
       return require('app/containers/settings/user/edit').default
     case "notification.send":
       return require('app/components/notifications/send').default
-
+    case "service.action":
+      return require('app/components/service/actionmodal').default
   }
 }
 

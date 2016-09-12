@@ -3,6 +3,9 @@ import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 
 const ActionMenu=React.createClass({
+  contextTypes: {
+    router: React.PropTypes.object // Needed for plugin screens
+  },
   getInitialState(){
     return {
       actions: undefined
@@ -27,7 +30,7 @@ const ActionMenu=React.createClass({
           })
       }
       else{
-        this.props.setModal(ActionModal,{ action, params, missing_params })
+        this.props.setModal("service.action",{ action, params, missing_params })
       }
     }
     else if (action.extra.screen){
