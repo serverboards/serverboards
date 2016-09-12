@@ -1,0 +1,15 @@
+{
+  "presets": [
+    "babili",
+    [
+      "es2015",
+      {
+        "modules": false
+      }
+    ],
+    "react"
+  ],
+  "plugins": [
+    "external-helpers"
+  ]
+}
