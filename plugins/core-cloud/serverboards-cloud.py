@@ -73,6 +73,21 @@ def get_description(node):
         desc.append( ' '.join(node['public_ips']) )
     return ', '.join(desc)
 
+def get_traits(node):
+    if node.get('public_ips',[]):
+        yield 'ssh'
+
+def get_extra_config(node):
+    d={}
+    if node.get('public_ips',[]):
+        d['url']=node['public_ips'][0]
+    return d
+
+def merge_dicts(a, b):
+    c=a.copy()
+    a.update(b)
+    return a
+
 @serverboards.rpc_method("list")
 def _list(uuid=None):
     if uuid is None:
@@ -133,11 +148,11 @@ def virtual_nodes(**config):
             'name': node['name'],
             'tags': [ "stopped" if node['state']=="terminated" else "running" ],
             'description': get_description(node),
-            'traits': ['core.cloud.node'],
-            'config': {
+            'traits': list(get_traits(node))+['core.cloud.node'],
+            'config': merge_dicts({
                 'node': node['id'],
                 'connection': connection
-                },
+                }, get_extra_config(node)),
             'icon': node['icon']
         }
     return [decorate(node) for node in _list(connection)]
@@ -228,7 +243,7 @@ def test():
 
 
 def main():
-    serverboards.rpc.set_debug(sys.stderr)
+    #serverboards.rpc.set_debug(sys.stderr)
     serverboards.loop()
 
 if __name__=='__main__':

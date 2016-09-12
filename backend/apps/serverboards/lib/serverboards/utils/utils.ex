@@ -138,6 +138,10 @@ defmodule Serverboards.Utils do
 
   First list is a list of {k,v} with a key string. Second is a list of strings
   of valid atoms.
+
+    iex> keys_to_atoms_from_list([{"key", "value"}, {"nokey", "value"}], ~w"key other_key")
+    [{:key, "value"}, {"nokey", "value"}]
+
   """
   def keys_to_atoms_from_list([], _), do: []
   def keys_to_atoms_from_list([{k,v} | rest], l) do

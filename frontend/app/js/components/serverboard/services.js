@@ -4,6 +4,10 @@ import Loading from '../loading'
 import AddServiceModal from 'app/containers/serverboard/addservice'
 import Command from 'app/utils/command'
 
+function service_sort(a,b){
+  return a.name.localeCompare( b.name )
+}
+
 let Services=React.createClass({
   handleAttachService(service){
     this.props.onAttachService(this.props.serverboard.shortname, service.uuid)
@@ -38,6 +42,10 @@ let Services=React.createClass({
   componentWillUnmount(){
     Command.remove_command_search("sbds-services")
   },
+  service_description(tpe){
+     const desc=this.props.service_catalog.find((d) => d.type == tpe)
+     return desc
+  },
   render(){
     let props=this.props
     if (!props.services)
@@ -59,8 +67,8 @@ let Services=React.createClass({
       <div className="ui container">
         <h1>Services at {props.serverboard.name}</h1>
         <div className="ui cards">
-          {props.services.map((p) => (
-            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.props.service_catalog.find((d) => d.id == p.id)}/>
+          {props.services.sort(service_sort).map((p) => (
+            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.service_description( p.type )}/>
           ))}
         </div>
 

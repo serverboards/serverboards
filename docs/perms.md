@@ -24,7 +24,7 @@ auth.reset_password -- Given at the reset password action via email.
 
 ## Plugins
 
-plugin -- Can start, stop and make calls into plugins
+plugin -- Can start, stop and make calls into plugins. May have [plugin_id/cmd_id]
 plugin.data -- Can access and modify plugin data. May have a [context]
 
 ## Serverboards

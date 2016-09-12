@@ -170,4 +170,4 @@ def tag_change(id, service, tag):
 def tag_change_clear(id):
     serverboards.rpc.unsubscribe(id)
 
-serverboards.loop(debug=True)
+serverboards.loop(debug=False)

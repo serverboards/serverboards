@@ -4,7 +4,7 @@ defmodule Serverboards.Plugin.Registry do
   def start_link(options \\ []) do
     {:ok, pid} = Agent.start_link(&load_plugins/0, options)
 
-    Serverboards.Plugin.Monitor.start
+    Serverboards.Plugin.Monitor.start_link
     plugins = Agent.get pid, &(&1)
     Logger.info("Starting plugin registry #{inspect pid}, got #{Enum.count plugins}")
 

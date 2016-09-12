@@ -43,6 +43,7 @@ components:
         type: text
         label: Remote Server Address
         placeholder: ie. 192.168.1.200, api.example.com...
+        card: true
       - name: type
         type: hidden
         value: libvirt
@@ -61,6 +62,7 @@ components:
         type: text
         label: Access Token
         description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
+        placeholder: ""
       - name: type
         type: hidden
         value: digitalocean

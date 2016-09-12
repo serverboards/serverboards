@@ -5,6 +5,7 @@ import Login from 'app/containers/login.js'
 import Console from 'app/containers/console.js'
 import FlashMessageList from 'app/containers/flashmessages.js'
 import Router from 'app/router'
+import Piwik from 'app/containers/piwik.js'
 
 function Main(props){
   //console.log("Main component props %o", props.onLogin)
@@ -25,6 +26,7 @@ function Main(props){
 
   return (
     <div>
+      <Piwik/>
       <FlashMessageList/>
       <Console/>
       {contents}
