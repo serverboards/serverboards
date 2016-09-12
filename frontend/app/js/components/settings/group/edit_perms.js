@@ -4,30 +4,31 @@ import Loading from 'app/components/loading'
 
 let EditPerms=React.createClass({
   handleUpdatePermissions(){
-    let current = $.makeArray($(this.refs.form)
+    const new_perms = $.makeArray($(this.refs.form)
       .find('input[type=checkbox]:checked'))
       .map( (f) => f.name )
-    this.props.onUpdatePermissions(current)
+    const g = this.props.group
+
+    const to_remove_perms=$.makeArray( $(g.perms).not(new_perms) )
+    const to_add_perms=$.makeArray( $(new_perms).not(g.perms) )
+
+    this.props.onUpdatePerms(g.name, to_add_perms, to_remove_perms)
+    this.props.setModal(false)
   },
   componentDidMount(){
     let $form=$(this.refs.form)
     $form.form()
     $form.find('.ui.checkbox').checkbox()
-
-    if (!this.props.all_perms)
-      this.props.onLoadAllPerms()
-
   },
   render(){
     let props=this.props
     if (!props.all_perms){
       return (
         <Loading>
-        Permission list
+        Loading permissions
         </Loading>
       )
     }
-
 
     let perms=[]
     for (let p of props.all_perms){

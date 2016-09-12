@@ -19,7 +19,7 @@ function Field(props){
 
 function RealBottomMenu(props){
   function open_virtual(){
-    props.setModal("virtual_services", {parent: props.service})
+    props.setModal("service.virtual", {parent: props.service})
   }
   return (
     <div className="ui inverted yellow menu bottom attached">

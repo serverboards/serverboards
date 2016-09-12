@@ -7,79 +7,14 @@ import Table from '../maxtable'
 import HoldButton from '../holdbutton'
 
 let Groups=React.createClass({
-  contextTypes: {
-    router: React.PropTypes.object
+  handleEditUsers(g){
+    this.props.setModal('auth.group.edit_users', { group: g })
   },
-  setModal : function( what, data ){
-    let modal=what && { what, data }
-
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: { modal }
-    } )
+  handleEditPerms(g){
+    this.props.setModal('auth.group.edit_perms', { group: g })
   },
-  getModal() {
-    let router_state=this.props.location.state
-    let modal_state = (router_state && router_state.modal && router_state.modal) || {}
-
-    switch(modal_state.what){
-      case 'edit_perms':
-        return (
-          <EditPerms
-            group={modal_state.data}
-            onClose={ () => this.setModal(false) }
-            onUpdatePermissions={(perms) =>
-              this.handleUpdatePermissions(modal_state.data, perms) }
-            onLoadAllPerms={this.props.onLoadAllPerms}
-            all_perms={this.props.all_perms}
-          />
-        )
-        break;
-      case 'edit_users':
-        return (
-          <EditUsers
-            group={modal_state.data}
-            onClose={ () => this.setModal(false) }
-            onSubmit={(users) =>
-              this.handleUpdateUsers(modal_state.data, users) }
-            allUsers={this.props.all_users}
-          />
-        )
-        break;
-      case 'add_group':
-        return (
-          <AddGroup
-            onClose={ () => this.setModal(false) }
-            onSubmit={this.handleAddGroup}
-          />
-        )
-        break;
-    }
-    return []
-  },
-  handleEditUsers : function(g){
-    this.setModal('edit_users', g)
-  },
-  handleEditPerms : function(g){
-    this.setModal('edit_perms', g)
-  },
-  handleUpdatePermissions : function(g, new_perms){
-    let to_remove_perms=$.makeArray( $(g.perms).not(new_perms) )
-    let to_add_perms=$.makeArray( $(new_perms).not(g.perms) )
-
-    this.props.onUpdatePerms(g.name, to_add_perms, to_remove_perms)
-    this.setModal(false)
-  },
-  handleUpdateUsers : function(g, current){
-    let to_add = $.makeArray( $(current).not(g.users) )
-    let to_remove = $.makeArray( $(g.users).not(current) )
-
-    this.props.onUpdateUsers(g.name, to_add, to_remove)
-    this.setModal(false)
-  },
-  handleAddGroup : function(name){
-    this.props.onAddGroup(name)
-    this.setModal(false)
+  handleAddGroup(name){
+    this.props.setModal('auth.group.add_group')
   },
   render(){
     let props=this.props
@@ -90,8 +25,6 @@ let Groups=React.createClass({
         </Loading>
       )
     }
-
-    let modal=this.getModal()
     let self=this
 
     function Group(g){
@@ -134,9 +67,7 @@ let Groups=React.createClass({
 
         {props.groups.map(Group)}
 
-        {modal}
-
-        <a onClick={() => this.setModal('add_group')} className="ui massive button _add icon floating orange">
+        <a onClick={this.handleAddGroup} className="ui massive button _add icon floating orange">
           <i className="add icon"></i>
         </a>
       </div>

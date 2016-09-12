@@ -3,7 +3,7 @@ import HoldButton from '../holdbutton'
 
 const ActionMenu=React.createClass({
   handleOpenSettings(){
-    this.props.setModal("service_settings", {onAdd: this.handleAddService, onAttach: this.handleAttachService, service: this.props.service})
+    this.props.setModal("service.settings", {onAdd: this.handleAddService, onAttach: this.handleAttachService, service: this.props.service})
   },
   handleDetach(){
     this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )

@@ -2,11 +2,9 @@ import GroupsView from 'app/components/settings/groups'
 import event from 'app/utils/event'
 import {
     group_list, user_list,
-    group_update_perms, group_update_users,
-    group_add, group_remove,
-    perm_list,
-    group_remove_user, group_add_user
+    group_remove,
   } from '../../actions/auth'
+import { set_modal } from 'app/actions/modal'
 
 var Groups = event.subscribe_connect(
   (state) => ({
@@ -16,15 +14,8 @@ var Groups = event.subscribe_connect(
     all_perms: state.auth.all_perms
   }),
   (dispatch) => ({
-    loadGroups: () => dispatch( group_list() ),
-    loadUsers: () => dispatch( user_list() ),
-    onRemoveUser: (g, user) => dispatch( group_remove_user(g, user) ),
-    onAddUser: (g, user) => dispatch( group_add_user(g, user) ),
-    onUpdatePerms: (g, to_add, to_remove) => dispatch( group_update_perms(g, to_add, to_remove) ),
-    onUpdateUsers: (g, to_add, to_remove) => dispatch( group_update_users(g, to_add, to_remove) ),
-    onAddGroup: (g) => dispatch( group_add(g) ),
     onRemoveGroup: (g) => dispatch( group_remove(g) ),
-    onLoadAllPerms: () => dispatch( perm_list() ),
+    setModal: (modal, data) => dispatch( set_modal(modal, data) )
   }),
   ["group.user_added", "group.user_removed",
    "group.perm_added", "group.perm_removed",
