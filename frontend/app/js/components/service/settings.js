@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
-import { setup_fields, service_definition } from '../service'
+import { setup_fields, service_definition } from '../service/utils'
 import Loading from '../loading'
 import rpc from 'app/rpc'
 import { merge } from 'app/utils'
@@ -134,17 +134,17 @@ const SetupComponent=React.createClass({
       rpc.call("rules.templates", filter),
       rpc.call("rules.list", { service: this.props.service.uuid })
     ]).then( ([templates, rules]) => {
-      console.log(templates, rules)
+      //console.log(templates, rules)
       const decorated_templates = templates.map( (t) => {
         let r = rules.find( (r) => t.id == r.from_template )
-        console.log("Found rule: %o", r)
+        //console.log("Found rule: %o", r)
         t = merge(t, {service: this.props.service.uuid, is_active: false, from_template: t.id } )
         if (r){
           return merge( t, {is_active: r.is_active, uuid: r.uuid} )
         }
         return t
       })
-      console.log(decorated_templates)
+      //console.log(decorated_templates)
       this.setState({rules: decorated_templates})
     })
   },

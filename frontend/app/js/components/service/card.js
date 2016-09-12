@@ -1,14 +1,11 @@
 import React from 'react'
 import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
-import ServiceSettings from 'app/containers/service/settings'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
-import ActionModal from './actionmodal'
 import Command from 'app/utils/command'
-import VirtualServices from './virtual'
 import {colorize} from 'app/utils'
-import ActionMenu from './actionmenu'
+import ActionMenu from 'app/containers/service/actionmenu'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -21,10 +18,13 @@ function Field(props){
 
 
 function RealBottomMenu(props){
+  function open_virtual(){
+    props.setModal("virtual_services", {parent: props.service})
+  }
   return (
     <div className="ui inverted yellow menu bottom attached">
       {props.service.virtual ? (
-        <a className="item" onClick={() => props.setModal('virtual', {service: props.service})}>Related services <i className="ui icon caret right"/></a>
+        <a className="item" onClick={open_virtual}>Related services <i className="ui icon caret right"/></a>
       ) : []}
       <div className="right menu">
         <div className="ui item dropdown">
@@ -108,26 +108,6 @@ const Card=React.createClass({
   componentWillUnmount(){
     Command.remove_command_search(`service-${this.props.service.uuid}`)
   },
-  setModal(modal, data){
-    let state
-    if (data){
-      state={ modal, service: this.props.service, data }
-    }
-    else{
-      state={ modal, service: this.props.service }
-    }
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: state
-    } )
-  },
-  closeModal(){
-    this.setModal(false)
-  },
-  contextTypes: {
-    router: React.PropTypes.object
-  },
-
   loadAvailableActions(){
     if (!this.state.actions){
       this.setState({loading: true})
@@ -146,40 +126,6 @@ const Card=React.createClass({
     }
     return true;
   },
-
-  triggerAction(action_id){
-    let action=this.state.actions.filter( (a) => a.id == action_id )[0]
-    // Discriminate depending on action type (by shape)
-    if (action.extra.call){
-      const params = this.props.service.config
-
-      let missing_params = action.extra.call.params.filter((p) => !(p.name in params))
-      if (missing_params.length==0){
-        rpc.call("action.trigger",
-          [action_id, params]).then(function(){
-          })
-      }
-      else{
-        this.setModal("action",{ action, params, missing_params })
-      }
-    }
-    else if (action.extra.screen){
-      this.context.router.push({
-        pathname: `/s/${action.id}`,
-        state: { service: this.props.service }
-      })
-    }
-    else {
-      Flash.error("Dont know how to trigger this action")
-    }
-  },
-
-  handleOpenSettings(){
-    this.setModal("settings")
-  },
-  handleDetach(){
-    this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
-  },
   show_config(k){
     var fields = (this.props.service_description || {}).fields || []
     for(var p of fields){
@@ -193,34 +139,6 @@ const Card=React.createClass({
   },
   render(){
     let props=this.props.service
-    let popup=[]
-    let current_modal = (
-      this.props.location.state &&
-      (this.props.location.state.service == this.props.service) &&
-      this.props.location.state.modal
-    )
-    switch(current_modal){
-      case 'settings':
-        popup=(
-          <ServiceSettings
-            onAdd={this.handleAddService}
-            onAttach={this.handleAttachService}
-            onClose={this.closeModal}
-            service={props}
-            />
-        )
-        break;
-      case 'action':
-        popup=(
-          <ActionModal {...this.props.location.state.data}/>
-        )
-        break;
-      case 'virtual':
-        popup=(
-          <VirtualServices serverboards={this.props.serverboards} parent={props} location={this.props.location}/>
-        )
-        break;
-    }
     return (
       <div className="service card">
         <div className="content">
@@ -246,21 +164,16 @@ const Card=React.createClass({
           {props.is_virtual ? (
             <VirtualBottomMenu
               actions={this.state.actions}
-              triggerAction={this.triggerAction}
               service={props}
               />
           ) : (
             <RealBottomMenu
               actions={this.state.actions}
-              setModal={this.setModal}
-              handleDetach={this.handleDetach}
-              handleOpenSettings={this.handleOpenSettings}
-              triggerAction={this.triggerAction}
               service={props}
+              setModal={this.props.setModal}
               />
           )}
         </div>
-        {popup}
       </div>
     )
   }

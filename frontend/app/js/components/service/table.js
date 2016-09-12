@@ -2,7 +2,7 @@ import React from 'react'
 import {colorize} from 'app/utils'
 import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
-import ActionMenu from './actionmenu'
+import ActionMenu from 'app/containers/service/actionmenu'
 
 const icon = require("../../../imgs/services.svg")
 
