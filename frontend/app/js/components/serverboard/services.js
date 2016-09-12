@@ -4,6 +4,10 @@ import AddServiceModal from 'app/containers/serverboard/addservice'
 import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
 
+function service_sort(a,b){
+  return a.name.localeCompare( b.name )
+}
+
 let Services=React.createClass({
   handleAttachService(service){
     this.props.onAttachService(this.props.serverboard.shortname, service.uuid)
@@ -38,6 +42,10 @@ let Services=React.createClass({
   componentWillUnmount(){
     Command.remove_command_search("sbds-services")
   },
+  service_description(tpe){
+     const desc=this.props.service_catalog.find((d) => d.type == tpe)
+     return desc
+  },
   render(){
     let props=this.props
     if (!props.services)
@@ -58,7 +66,7 @@ let Services=React.createClass({
     return (
       <div className="ui container">
         <h1>Services at {props.serverboard.name}</h1>
-        <ServicesView services={props.services} serverboard={this.props.serverboard}/>
+        <ServicesView services={props.services.sort(service_sort)} serverboard={this.props.serverboard}/>
 
         <a href="#"
             onClick={this.openAddServiceModal}

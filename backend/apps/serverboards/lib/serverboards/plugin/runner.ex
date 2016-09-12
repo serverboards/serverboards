@@ -95,7 +95,6 @@ defmodule Serverboards.Plugin.Runner do
       {:ok, cmd} ->
         Logger.debug("Stop plugin #{inspect uuid}")
         Serverboards.IO.Cmd.stop cmd
-        Logger.debug("Done")
         true
     end
   end

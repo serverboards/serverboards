@@ -1,15 +1,26 @@
 body .ui.form
-  input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], input:not([type]), .ui.search, textarea
+  input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], input:not([type]), .ui.search, textarea, .ui.dropdown
     background: #555
     color: white
     &:focus
       background: #555
       color: white
   .field.error
-    input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], input:not([type]), .ui.search, textarea
+    input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], input:not([type]), .ui.search, textarea, .ui.dropdown
       background: #855
       color: white
       &:focus
         border: 1px solid #B66
         background: #555
         color: white
+  .ui.dropdown
+    > .text
+      color: #eee !important
+    > .menu > .item
+      background: #555 !important
+      color: white !important
+      border: 0
+      &:focus, &.selected, &:hover
+        background: #777 !important
+        color: white !important
+        border: 0

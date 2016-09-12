@@ -29,7 +29,7 @@ const left_pane_style={
 function PluginDetails({plugin}){
   console.log(plugin)
   let author=plugin.author
-  if (author.indexOf('<')>0){
+  if (author && author.indexOf('<')>0){
     let m = author.match(/(.*)<(.*)>/)
     if (m){
       author=(
