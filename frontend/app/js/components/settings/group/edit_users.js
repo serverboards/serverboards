@@ -4,7 +4,7 @@ import Modal from 'app/components/modal'
 let EditPerms=React.createClass({
   getInitialState:function(){
     let users = this.props.group.users.map( (u) => ({email: u, is_active: true}) )
-    let candidates_to_add = $.makeArray( $(this.props.allUsers).not(this.props.group.users) )
+    let candidates_to_add = $.makeArray( $(this.props.all_users).not(this.props.group.users) )
 
     return { users, candidates_to_add }
   },
@@ -25,11 +25,16 @@ let EditPerms=React.createClass({
 
   },
   handleSubmit(){
-    let current = $.makeArray(
+    const current = $.makeArray(
         $(this.refs.form).find('input[type=checkbox]:checked')
       ).map( (f) => f.name )
 
-    this.props.onSubmit( current )
+    const g = this.props.group
+    const to_add = $.makeArray( $(current).not(g.users) )
+    const to_remove = $.makeArray( $(g.users).not(current) )
+
+    this.props.onUpdateUsers(g.name, to_add, to_remove)
+    this.props.setModal(false)
   },
   render(){
     let props=this.props

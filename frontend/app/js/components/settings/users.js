@@ -1,9 +1,6 @@
 import React from 'react'
 import Loading from '../loading'
-import AddUser from './user/add'
-import EditUser from './user/edit'
 import HoldButton from '../holdbutton'
-import SendNotification from '../notifications/send'
 
 const UserRow = React.createClass({
   componentDidMount(){
@@ -56,20 +53,10 @@ const UserRow = React.createClass({
 
 const Users=React.createClass({
   handleOpenAddUser(){
-    this.setModal('add_user')
-  },
-  handleAddUser : function(newuser){
-    this.props.onAddUser(newuser)
-
-    this.setModal(false)
+    this.props.setModal('auth.user.add')
   },
   handleOpenEditUser : function(user){
-    this.setModal('edit_user', user)
-  },
-  handleEditUser : function(email, attributes){
-    this.props.onUpdateUser(email, attributes)
-
-    this.setModal(false)
+    this.props.setModal('auth.user.edit', {user})
   },
   handleDisableUser(user){
     this.props.onUpdateUser(user.email, {is_active: false})
@@ -78,58 +65,13 @@ const Users=React.createClass({
     this.props.onUpdateUser(user.email, {is_active: true})
   },
   handleOpenSendNotification : function(user){
-    this.setModal('send_notification', user)
-  },
-
-  contextTypes: {
-    router: React.PropTypes.object
-  },
-  setModal : function( what, data ){
-    let modal=what && { what, data }
-
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: { modal }
-    } )
-  },
-  getModal() {
-    let router_state=this.props.location.state
-    let modal_state = (router_state && router_state.modal && router_state.modal) || {}
-    switch(modal_state.what){
-      case 'add_user':
-        return (
-          <AddUser
-            onClose={ () => this.setModal(false) }
-            onSubmit={this.handleAddUser}
-          />
-        )
-      break;
-      case 'edit_user':
-        return (
-          <EditUser
-            onClose={ () => this.setModal(false) }
-            onSubmit={this.handleEditUser}
-            user={modal_state.data}
-          />
-        )
-      break;
-      case 'send_notification':
-        return (
-          <SendNotification
-            onClose={ () => this.setModal(false) }
-            user={modal_state.data}
-          />
-        )
-      break;
-    }
+    this.props.setModal('notification.send', {user})
   },
   render(){
     if (!this.props.users)
       return (
         <Loading>User list</Loading>
       )
-
-    const modal = this.getModal()
 
     return (
       <div className="ui container" ref="el">
@@ -158,7 +100,6 @@ const Users=React.createClass({
           </tbody>
         </table>
         <a onClick={this.handleOpenAddUser}><i className="ui massive button add icon floating olive"></i></a>
-        {modal}
       </div>
     )
   }

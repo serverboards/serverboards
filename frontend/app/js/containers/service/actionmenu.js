@@ -1,17 +1,14 @@
 import { connect } from 'react-redux'
-import CardView from 'app/components/service/card'
+import View from 'app/components/service/actionmenu'
 import { service_detach } from 'app/actions/service'
 import { set_modal } from 'app/actions/modal'
 
-var Card = connect(
-  (state) => {
-    return {
-      location: state.routing.locationBeforeTransitions
-    }
-  },
+var Container = connect(
+  (state) => ({}),
   (dispatch) => ({
+    onDetach: (sbds, service) => dispatch( service_detach(sbds, service) ),
     setModal: (modal, data) => dispatch( set_modal(modal, data) )
   })
-)(CardView)
+)(View)
 
-export default Card
+export default Container

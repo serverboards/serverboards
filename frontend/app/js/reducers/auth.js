@@ -96,7 +96,7 @@ export const auth = (state = default_state , action) => {
       )
     break;
     case '@RPC_EVENT/user.added':
-      state.users = sort_users( state.users.concat( action.email ) )
+      state.users = sort_users( state.users.concat( action.user ) )
     break;
     case '@RPC_EVENT/user.updated':
       if (state.user.id == action.user.id)

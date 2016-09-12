@@ -2,6 +2,7 @@ import React from 'react'
 import Modal from '../modal'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import { dispatch_set_modal } from 'app/actions/modal'
 
 let SendNotification=React.createClass({
   handleSend(){
@@ -13,12 +14,10 @@ let SendNotification=React.createClass({
     }
     rpc.call("notifications.notify", data).then(()=>{
       Flash.success("Notification sent")
+      dispatch_set_modal(false)
     }).catch(()=>{
       Flash.error("Error sending notification.")
     })
-
-    console.log("Send notification %o", data)
-    this.props.onClose()
   },
   render(){
     const props=this.props

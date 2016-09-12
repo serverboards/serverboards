@@ -1,8 +1,8 @@
 import React from 'react'
-import Card from 'app/containers/service/card'
 import Loading from '../loading'
 import AddServiceModal from 'app/containers/serverboard/addservice'
 import Command from 'app/utils/command'
+import ServicesView from 'app/containers/service'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -66,11 +66,7 @@ let Services=React.createClass({
     return (
       <div className="ui container">
         <h1>Services at {props.serverboard.name}</h1>
-        <div className="ui cards">
-          {props.services.sort(service_sort).map((p) => (
-            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.service_description( p.type )}/>
-          ))}
-        </div>
+        <ServicesView services={props.services.sort(service_sort)} serverboard={this.props.serverboard}/>
 
         <a href="#"
             onClick={this.openAddServiceModal}

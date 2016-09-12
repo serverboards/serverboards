@@ -81,8 +81,6 @@ const Plugins=React.createClass({
   },
 
   render(){
-    console.log(this)
-    console.log(this.props)
     const plugins=this.state.plugins
     let popup=[]
     let modal = (

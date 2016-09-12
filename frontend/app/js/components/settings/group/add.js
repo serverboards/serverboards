@@ -6,7 +6,8 @@ let AddGroup = React.createClass({
     ev.preventDefault()
 
     let $form = $(this.refs.form)
-    this.props.onSubmit( $form.find('[name=name]').val() )
+    this.props.onAddGroup( $form.find('[name=name]').val() )
+    this.props.setModal(false)
   },
   componentDidMount(){
     $(this.refs.form).form({

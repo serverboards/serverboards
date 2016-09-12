@@ -6,11 +6,12 @@ let AddUser = React.createClass({
     ev.preventDefault()
 
     let $form = $(this.refs.form)
-    this.props.onSubmit( {
+    this.props.onAddUser( {
       email: $form.find('[name=email]').val(),
       name: $form.find('[name=name]').val(),
       is_active: true,
     } )
+    this.props.setModal(false)
   },
   componentDidMount(){
     $(this.refs.form).form({
