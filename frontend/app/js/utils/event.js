@@ -13,7 +13,7 @@ export function subscribe(types){
     subscriptions[t]=(subscriptions[t] || 0)+1
   }
   if (newsubs.length!=0){
-    console.log("Subscribe to %o", newsubs)
+    //console.log("Subscribe to %o", newsubs)
     return rpc.call("event.subscribe", newsubs)
   }
   else{
@@ -29,7 +29,7 @@ export function unsubscribe(types){
     subscriptions[t]=(subscriptions[t] || 0)-1
   }
   if (newunsubs.length!=0){
-    console.log("Unsubscribe to %o", newunsubs)
+    //console.log("Unsubscribe to %o", newunsubs)
     return rpc.call("event.unsubscribe", newunsubs)
   }
   else{

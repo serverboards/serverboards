@@ -49,7 +49,8 @@ var LoginView = React.createClass({
     this.setState({modal: 'set_password', pw})
   },
   keep_logged_in(){
-    const keep_logged_in = $(this.refs.el).find("input[name=keep_logged_in]").is(':checked')
+    const keep_logged_in = $(this.refs.el).find("input#keep_logged_in").is(':checked')
+    //console.debug("Keep logged in %o", keep_logged_in)
     rpc.keep_logged_in=keep_logged_in
   },
   render(){

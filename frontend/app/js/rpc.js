@@ -13,7 +13,6 @@ var RPC = function(options={}){
     reconnect_time: 1000,
     maxid: 1,
     status: 'NOTCONNECTED',
-    reconnect_token: undefined,
     keep_logged_in: false,
     store: options.store,
     url: options.url,
@@ -32,7 +31,7 @@ var RPC = function(options={}){
   if (localStorage.ws_url) // Hack to connect to another server at dev.
     rpc.url=localStorage.ws_url
   if (localStorage.reconnect_token)
-    rpc.reconnect_token=localStorage.reconnect_token
+    sessionStorage.reconnect_token=localStorage.reconnect_token
 
   rpc.set_status = function(newstatus, extra=undefined){
     if (!rpc.store)
@@ -45,7 +44,8 @@ var RPC = function(options={}){
   rpc.connect = function(){
     if (rpc.status=="RECONNECT")
       console.warn("Assert already in connecting!")
-    console.debug("Connect RPC to %s: %s %o", rpc.url, rpc.status, rpc)
+    if (rpc.debug)
+      console.debug("Connect RPC to %s: %s %o", rpc.url, rpc.status, rpc)
     rpc.set_status("CONNECTING")
     try{
       rpc.rpc = new WebSocket(rpc.url)
@@ -65,11 +65,11 @@ var RPC = function(options={}){
       //Flash.success("Connected to remote RPC server.")
     //}
     //console.debug("Connection success.")
-    if (rpc.reconnect_token){
-      rpc.call('auth.auth',{type:'token',token:rpc.reconnect_token}).then(function(user){
+    if (sessionStorage.reconnect_token){
+      rpc.call('auth.auth',{type:'token',token:sessionStorage.reconnect_token}).then(function(user){
         if (user==false){
           Flash.error("Could not reauthenticate automatically. Reload.")
-          rpc.reconnect_token=false
+          delete sessionStorage.reconnect_token
           rpc.reconnection_message_queue=[]
           return
         }
@@ -140,10 +140,10 @@ var RPC = function(options={}){
     rpc.store=store
     store.on('auth.user', function(user){
       if (user){
-        if (!rpc.reconnect_token){
+        if (!sessionStorage.reconnect_token){
           rpc.call("auth.create_token").then(function(token){
             //console.debug("My reconnect token is "+token)
-            rpc.reconnect_token=token
+            sessionStorage.reconnect_token=token
             if (rpc.keep_logged_in)
               localStorage.reconnect_token=token
             else{
@@ -155,7 +155,7 @@ var RPC = function(options={}){
       else{
         //console.log("User disconnected, removing tokens")
 
-        rpc.reconnect_token=false
+        delete sessionStorage.reconnect_token
         delete localStorage.reconnect_token
         rpc.reconnect()
       }
