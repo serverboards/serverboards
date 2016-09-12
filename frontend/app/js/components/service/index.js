@@ -6,10 +6,11 @@ import Loading from 'app/components/loading'
 const ServicesView=React.createClass({
   getInitialState(){
     return {
-      mode: "grid"
+      mode: localStorage.service_view_mode || "grid"
     }
   },
   setListMode(mode){
+    localStorage.service_view_mode=mode
     this.setState({mode})
   },
   render(){

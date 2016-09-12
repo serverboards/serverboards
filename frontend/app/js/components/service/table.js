@@ -3,6 +3,7 @@ import {colorize} from 'app/utils'
 import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
 import ActionMenu from 'app/containers/service/actionmenu'
+import Loading from '../loading'
 
 const icon = require("../../../imgs/services.svg")
 
@@ -45,6 +46,10 @@ const ServiceTableLine = React.createClass({
 })
 
 function Table(props){
+  if (!props.catalog)
+    return (
+       <Loading>Service catalog</Loading>
+    )
   return (
     <table className="ui service selectable table">
       <thead><tr>
