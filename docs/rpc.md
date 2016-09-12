@@ -105,6 +105,12 @@ Result:
 "2b8c390c-12ba-4948-819e-bda8d834c1db"
 ```
 
+## auth.refresh_token(token)
+
+Refreshes the token for another day.
+
+May be called by the frontend to keep it working.
+
 ## group.list
 
 Returns the list of all groups in the system.
