@@ -151,6 +151,9 @@ var RPC = function(options={}){
             }
           })
         }
+        else{
+          rpc.setup_refresh_token()
+        }
       }
       else{
         //console.log("User disconnected, removing tokens")
@@ -243,6 +246,31 @@ var RPC = function(options={}){
 
   rpc.close = function(){
     rpc.rpc.close()
+  }
+
+  rpc.setup_refresh_token = function(){
+    // Refresh the token, and set up the refresher
+    if (rpc.refresh_token_id){
+      clearInterval(rpc.refresh_token_id)
+    }
+    rpc.refresh_token_id=setInterval(rpc.refresh_token, 1000 * 60 * 60) // Once per hour
+    rpc.refresh_token()
+  }
+
+  rpc.clear_refresh_token = function(){
+    clearInterval(rpc.refresh_token_id)
+    rpc.refresh_token_id=undefined
+  }
+
+  rpc.refresh_token = function(){
+    if (!sessionStorage.reconnect_token){
+      rpc.clear_refresh_token()
+    }
+    
+    rpc.call("auth.refresh_token",[sessionStorage.reconnect_token]).catch( (e) => {
+      console.error("Error refreshing the connection token")
+      rpc.clear_refresh_token()
+    })
   }
 
   rpc.connect()
