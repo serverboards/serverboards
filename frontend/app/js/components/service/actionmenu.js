@@ -1,7 +1,13 @@
 import React from 'react'
 import HoldButton from '../holdbutton'
+import rpc from 'app/rpc'
 
 const ActionMenu=React.createClass({
+  getInitialState(){
+    return {
+      actions: undefined
+    }
+  },
   handleOpenSettings(){
     this.props.setModal("service.settings", {onAdd: this.handleAddService, onAttach: this.handleAttachService, service: this.props.service})
   },
@@ -34,23 +40,46 @@ const ActionMenu=React.createClass({
       Flash.error("Dont know how to trigger this action")
     }
   },
+  loadAvailableActions(){
+    if (!this.state.actions){
+      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+        this.setState({ actions })
+      }).catch(() => {
+        Flash.error("Could not load actions for this service")
+        this.setState({
+          actions: undefined,
+        })
+      })
+    }
+    return true;
+  },
+  componentDidMount(){
+    $(this.refs.dropdown).dropdown({
+      onShow: this.loadAvailableActions,
+    })
+  },
   render(){
     const props=this.props
+    const state=this.state
     return (
-      <div className="ui vertical menu">
-        {!props.service.is_virtual ? (
-          <HoldButton className="item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
-        ) : []}
-        {props.service.fields ? (
-          <div className="item" onClick={this.handleOpenSettings}>Settings<i className="ui icon settings"/></div>
-        ) : []}
-        {props.actions ? props.actions.map( (ac) => (
-          <div className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
-        )) : (
-          <div className="item disabled">
-            Loading
-          </div>
-        ) }
+      <div className="ui right item dropdown" ref="dropdown">
+        More
+        <i className="ui dropdown icon"/>
+        <div className="ui vertical menu">
+          {!props.service.is_virtual ? (
+            <HoldButton className="item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
+          ) : []}
+          {props.service.fields ? (
+            <div className="item" onClick={this.handleOpenSettings}><i className="ui icon settings"/> Settings</div>
+          ) : []}
+          {state.actions ? state.actions.map( (ac) => (
+            <div className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
+          )) : (
+            <div className="item disabled">
+              Loading
+            </div>
+          ) }
+        </div>
       </div>
     )
   }

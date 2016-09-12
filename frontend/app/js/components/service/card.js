@@ -27,25 +27,35 @@ function RealBottomMenu(props){
         <a className="item" onClick={open_virtual}>Related services <i className="ui icon caret right"/></a>
       ) : []}
       <div className="right menu">
-        <div className="ui item dropdown">
-          More
-          <i className="ui dropdown icon"/>
-          <ActionMenu service={props.service} actions={props.actions}/>
-        </div>
+        <ActionMenu service={props.service} actions={props.actions}/>
       </div>
     </div>
   )
 }
 
 const VirtualBottomMenu=React.createClass({
-  componentDidMount(){
-    $(this.refs.dropdown).dropdown()
+  getInitialState(){
+    return {actions: undefined}
   },
-  componentDidUpdate(){
-    $(this.refs.dropdown).dropdown() // Ensure has working dropdown
+  loadAvailableActions(){
+    if (!this.state.actions){
+      this.setState({loading: true})
+      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+        this.setState({
+          actions: actions,
+        })
+      }).catch(() => {
+        Flash.error("Could not load actions for this service")
+        this.setState({
+          actions: undefined,
+        })
+      })
+    }
+    return true;
   },
   render(){
     const props=this.props
+    const state=this.state
     if (!props.actions){
       return (
         <div className="item disabled">
@@ -56,7 +66,7 @@ const VirtualBottomMenu=React.createClass({
     }
 
     const maxicons=4
-    const head = props.actions.slice(0, maxicons)
+    const head = state.actions.slice(0, maxicons)
     //const tail = props.actions.slice(maxicons)
     return (
       <div className="ui menu bottom attached">
@@ -68,7 +78,7 @@ const VirtualBottomMenu=React.createClass({
         <div className="right menu">
           <a className="ui item dropdown" ref="dropdown">
             <i className="ui ellipsis vertical icon"/>
-            <ActionMenu service={props.service} actions={props.actions}/>
+            <ActionMenu service={props.service} actions={state.actions}/>
           </a>
         </div>
       </div>
@@ -77,25 +87,8 @@ const VirtualBottomMenu=React.createClass({
 })
 
 const Card=React.createClass({
-  getInitialState(){
-    return {
-      actions: undefined,
-      loading: false
-    }
-  },
-
   componentDidMount(){
-    if (this.props.service.is_virtual){
-      this.loadAvailableActions()
-    }
-    else{
-      let dropdown=$(this.refs.menu).find('.ui.dropdown')
-      dropdown.dropdown({
-          // you can use any ui transition
-          transition: 'fade up',
-          onShow: this.loadAvailableActions,
-        })
-      let self=this
+    if (!this.props.service.is_virtual){
       let s = this.props.service
       Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
         {id: `service-settings-${s.uuid}`, title: `${s.name} settings`,
@@ -107,24 +100,6 @@ const Card=React.createClass({
   },
   componentWillUnmount(){
     Command.remove_command_search(`service-${this.props.service.uuid}`)
-  },
-  loadAvailableActions(){
-    if (!this.state.actions){
-      this.setState({loading: true})
-      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
-        this.setState({
-          actions: actions,
-          loading: false
-        })
-      }).catch(() => {
-        Flash.error("Could not load actions for this service")
-        this.setState({
-          actions: undefined,
-          loading: false
-        })
-      })
-    }
-    return true;
   },
   show_config(k){
     var fields = (this.props.service_description || {}).fields || []
@@ -165,10 +140,10 @@ const Card=React.createClass({
             <VirtualBottomMenu
               actions={this.state.actions}
               service={props}
+              setModal={this.props.setModal}
               />
           ) : (
             <RealBottomMenu
-              actions={this.state.actions}
               service={props}
               setModal={this.props.setModal}
               />

@@ -6,20 +6,19 @@ import ActionMenu from 'app/containers/service/actionmenu'
 
 const icon = require("../../../imgs/services.svg")
 
+require("sass/service/table.sass")
+
 export function service_definition(service_type, service_catalog){
   return service_catalog.find( (c) => c.type == service_type )
 }
 
 const ServiceTableLine = React.createClass({
-  componentDidMount(){
-    $(this.refs.dropdown).dropdown()
-  },
   render(){
     const props=this.props
     const s=props.service
     const d=props.definition || {}
     return (
-      <tr>
+      <tr ref="el">
         <td>
           {d.icon ? (
             <IconIcon src={icon} icon={d.icon} plugin={d.type.split('/',1)[0]}/>
@@ -38,12 +37,7 @@ const ServiceTableLine = React.createClass({
           ))}
         </td>
         <td>
-        <a className="ui item dropdown" ref="dropdown">
-          More
-          <i className="ui ellipsis vertical icon"/>
           <ActionMenu service={props.service} actions={props.actions}/>
-        </a>
-
         </td>
       </tr>
     )
@@ -52,7 +46,7 @@ const ServiceTableLine = React.createClass({
 
 function Table(props){
   return (
-    <table className="ui selectable table">
+    <table className="ui service selectable table">
       <thead><tr>
         <th/><th>Name</th><th>Type</th><th>Description</th><th>Status</th><th>Actions</th>
       </tr></thead>
