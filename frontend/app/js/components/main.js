@@ -13,7 +13,7 @@ function Main(props){
   if (props.location.state && props.location.state.modal){
     const mod = props.location.state
     const Modal = get_modal(mod.modal)
-    console.log("Render Modal %o", Modal)
+    console.log("Render Modal %o -> %o", mod.modal, Modal)
     modal=(
       <Modal {...mod.data}/>
     )

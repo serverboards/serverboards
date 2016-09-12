@@ -10,7 +10,7 @@ require('sass/cards.sass')
 
 function PluginCard(props){
   const p=props.plugin
-  let author=p.author
+  let author=p.author || ""
   if (author.indexOf('<')>0){
     let m = author.match(/(.*)<(.*)>/)
     if (m){
@@ -81,8 +81,6 @@ const Plugins=React.createClass({
   },
 
   render(){
-    console.log(this)
-    console.log(this.props)
     const plugins=this.state.plugins
     let popup=[]
     let modal = (

@@ -7,11 +7,11 @@ let EditUser = React.createClass({
     ev.preventDefault()
 
     let $form = $(this.refs.form)
-    this.props.onSubmit( this.props.user.email, {
+    this.props.onUpdateUser( this.props.user.email, {
       name: $form.find('[name=name]').val(),
       is_active: $(this.refs.is_active).find('input').is(':checked')  ? true : false,
     } )
-    this.props.onClose && this.props.onClose()
+    this.props.setModal(false)
   },
   componentDidMount(){
     let $form = $(this.refs.form)

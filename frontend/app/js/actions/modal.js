@@ -11,3 +11,7 @@ export function set_modal(modal, data={}){
     state: {modal, data}
   })
 }
+
+export function dispatch_set_modal(modal, data){
+  store.dispatch( set_modal(modal, data) )
+}

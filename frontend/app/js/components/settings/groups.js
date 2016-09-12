@@ -1,8 +1,5 @@
 import React from 'react'
 import Loading from '../loading'
-import EditPerms from './group/edit_perms'
-import EditUsers from './group/edit_users'
-import AddGroup from './group/add'
 import Table from '../maxtable'
 import HoldButton from '../holdbutton'
 
@@ -14,7 +11,7 @@ let Groups=React.createClass({
     this.props.setModal('auth.group.edit_perms', { group: g })
   },
   handleAddGroup(name){
-    this.props.setModal('auth.group.add_group')
+    this.props.setModal('auth.group.add')
   },
   render(){
     let props=this.props
