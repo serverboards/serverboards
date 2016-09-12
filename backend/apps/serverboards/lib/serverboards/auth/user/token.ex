@@ -30,6 +30,24 @@ defmodule Serverboards.Auth.User.Token do
 				)
 	end
 
+	@doc ~S"""
+	Set the end time again for a given token.
+
+	This allows to keep using the token for longer time.
+	"""
+	def refresh(token, email) do
+		time_limit = Timex.to_erlang_datetime( Timex.shift( Timex.DateTime.now, days: 1 ) )
+		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
+
+		[user_id] = Repo.all( from u in User, where: u.email == ^email, select: u.id )
+
+		(from t in Model.Token, where: t.token == ^token and t.user_id == ^user_id)
+			|> Repo.update_all(
+				set: [time_limit: time_limit]
+				)
+		:ok
+	end
+
 	def auth(token_uuid) do
 		token = Repo.one(
 			from u in User,

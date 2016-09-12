@@ -191,4 +191,22 @@ defmodule Serverboards.AuthUserTest do
 
     assert Serverboards.Auth.User.Password.password_set(user, "asdfasdf", user) == :ok
   end
+
+  test "Token refresh" do
+    alias Test.Client
+    import Ecto.Query
+
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, token} = Client.call(client, "auth.create_token", [])
+    assert token != ""
+    [time_limit] = Repo.all( from t in Serverboards.Auth.User.Model.Token, where: t.token == ^token, select: t.time_limit )
+    :timer.sleep(1500)
+
+    {:ok, res} = Client.call(client, "auth.refresh_token", [token])
+    assert res == :ok
+    [time_limit2] = Repo.all( from t in Serverboards.Auth.User.Model.Token, where: t.token == ^token, select: t.time_limit )
+
+    assert time_limit != time_limit2
+  end
 end

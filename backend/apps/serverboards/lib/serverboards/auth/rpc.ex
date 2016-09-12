@@ -31,6 +31,13 @@ defmodule Serverboards.Auth.RPC do
       Serverboards.Auth.User.Token.create(user)
     end, [required_perm: "auth.create_token", context: true]
 
+    add_method mc, "auth.refresh_token", fn [token], context ->
+      user = RPC.Context.get(context, :user)
+      Logger.info("#{user.email} refreshes a token.", user: user, token: token)
+      Serverboards.Auth.User.Token.refresh(token, user.email)
+    end, [required_perm: "auth.create_token", context: true]
+
+
     add_method mc, "auth.user", fn [], context ->
       user = RPC.Context.get(context, :user)
       user
