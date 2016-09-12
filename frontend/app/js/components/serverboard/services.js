@@ -1,8 +1,8 @@
 import React from 'react'
-import Card from 'app/containers/service/card'
 import Loading from '../loading'
 import AddServiceModal from 'app/containers/serverboard/addservice'
 import Command from 'app/utils/command'
+import ServicesView from 'app/containers/service'
 
 let Services=React.createClass({
   handleAttachService(service){
@@ -58,11 +58,7 @@ let Services=React.createClass({
     return (
       <div className="ui container">
         <h1>Services at {props.serverboard.name}</h1>
-        <div className="ui cards">
-          {props.services.map((p) => (
-            <Card key={p.id} service={p} serverboard={this.props.serverboard} service_description={this.props.service_catalog.find((d) => d.id == p.id)}/>
-          ))}
-        </div>
+        <ServicesView services={props.services} serverboard={this.props.serverboard}/>
 
         <a href="#"
             onClick={this.openAddServiceModal}

@@ -2,13 +2,13 @@ import React from 'react'
 import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
 import ServiceSettings from 'app/containers/service/settings'
-import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import ActionModal from './actionmodal'
 import Command from 'app/utils/command'
 import VirtualServices from './virtual'
 import {colorize} from 'app/utils'
+import ActionMenu from './actionmenu'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -28,23 +28,9 @@ function RealBottomMenu(props){
       ) : []}
       <div className="right menu">
         <div className="ui item dropdown">
-          Options
+          More
           <i className="ui dropdown icon"/>
-          <div className="ui vertical menu">
-            {!props.service.is_virtual ? (
-              <HoldButton className="item" onHoldClick={props.handleDetach}>Hold to Detach</HoldButton>
-            ) : []}
-            {props.service.fields ? (
-              <div className="item" onClick={props.handleOpenSettings}>Settings<i className="ui icon settings"/></div>
-            ) : []}
-            {props.actions ? props.actions.map( (ac) => (
-              <div className="item" onClick={() => props.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
-            )) : (
-              <div className="item disabled">
-                Loading
-              </div>
-            ) }
-          </div>
+          <ActionMenu service={props.service} actions={props.actions}/>
         </div>
       </div>
     </div>
@@ -82,13 +68,7 @@ const VirtualBottomMenu=React.createClass({
         <div className="right menu">
           <a className="ui item dropdown" ref="dropdown">
             <i className="ui ellipsis vertical icon"/>
-            <div className="ui vertical menu">
-              { props.actions.map( (ac) => (
-                <a className="item" onClick={() => props.triggerAction(ac.id)}>
-                  {ac.name} <i className={`ui ${ac.extra.icon} icon`}/>
-                </a>
-              ) ) }
-            </div>
+            <ActionMenu service={props.service} actions={props.actions}/>
           </a>
         </div>
       </div>
@@ -241,7 +221,6 @@ const Card=React.createClass({
         )
         break;
     }
-    console.log(props)
     return (
       <div className="service card">
         <div className="content">

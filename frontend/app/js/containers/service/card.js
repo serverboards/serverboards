@@ -1,4 +1,3 @@
-import React from 'react'
 import { connect } from 'react-redux'
 import CardView from 'app/components/service/card'
 import { service_detach } from 'app/actions/service'
