@@ -41,16 +41,14 @@ function serverboard(state=default_state, action){
         }
         return s
       })
-      let current_services=state.current_services
-      if (state.current==action.shortname)
-        current_services=action.serverboard.services
+      let serverboard = serverboards.find( (s) => s.shortname == state.current )
 
-      return merge(state, {serverboards, current_services})
+      return merge(state, {serverboards, serverboard})
       }
     case '@RPC_EVENT/service.updated':
       {
         let changed = false
-        let current_services = state.current_services.map( s => {
+        let current_services = state.serverboard.services.map( s => {
           if (s.uuid == action.service.uuid){
             changed = true
             if (action.service.serverboards.indexOf(state.current)>=0)
@@ -62,7 +60,7 @@ function serverboard(state=default_state, action){
         }).filter( (s) => s != undefined )
         if (!changed && action.service.serverboards && action.service.serverboards.indexOf(state.current)>=0)
           current_services.push(action.service)
-        return merge(state, {current_services})
+        return merge(state, {serverboard: merge(state.serverboard, {services: current_services})})
       }
     case 'UPDATE_SERVERBOARD_WIDGETS':
       const widgets=action.widgets
