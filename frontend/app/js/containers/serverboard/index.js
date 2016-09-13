@@ -11,15 +11,7 @@ var Serverboard=event.subscribe_connect(
     }
   },
   (dispatch, props) => ({
-    handleSectionChange(section, data){
-      if (section.indexOf('/')>=0){
-        dispatch(push(`/s/${section}/`, data))
-      }
-      else{
-        const serverboard=props.params.serverboard
-        dispatch(push(`/serverboard/${serverboard}/${section}`))
-      }
-    },
+    goto(url){ dispatch( push(url) ) },
     onAdd(){ dispatch( push("/serverboard/add") ) }
   }),
   [],

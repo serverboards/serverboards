@@ -47,10 +47,9 @@ components:
   - name: SSH Terminal
     id: terminal
     description: Can access via SSH to server
-    type: action
+    type: screen
     traits: ssh
     icon: terminal
-    screen: true
 
   - name: Execute SSH Command
     id: exec

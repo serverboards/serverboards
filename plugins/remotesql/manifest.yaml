@@ -48,10 +48,9 @@ components:
         placeholder: Leave empty if no need for authentication
 
   - id: console
-    type: action
+    type: screen
     name: SQL Console
     description: Perform basic SQL queries directly to a remote database
-    screen: true
     traits: sql
     icon: terminal
 
