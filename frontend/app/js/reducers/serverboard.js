@@ -3,7 +3,7 @@ import {merge} from 'app/utils'
 var default_state={
   serverboards: [],
   current: undefined,
-  current_services: undefined,
+  serverboard: undefined,
   catalog: undefined,
   widgets: undefined
 }
@@ -77,6 +77,10 @@ function serverboard(state=default_state, action){
       }) } )
     case "@RPC_EVENT/serverboard.widget.removed":
       return merge(state, {widgets: state.widgets.filter( (w) => (w.uuid != action.uuid ) )} )
+    case "UPDATE_SERVERBOARD_INFO":
+      if (state.current == action.serverboard )
+        return merge(state, {serverboard: action.info})
+      break;
   }
   return state
 }
