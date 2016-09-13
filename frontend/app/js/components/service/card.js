@@ -135,6 +135,17 @@ const Card=React.createClass({
     }
     return undefined;
   },
+  get_field(k){
+    var fields = (this.props.service_description || {}).fields
+    if (!fields)
+      return undefined
+    for(var p of fields){
+      if (p.name==k){
+        return p
+      }
+    }
+    return undefined;
+  },
   show_config(k){
     var field = this.get_field(k)
     if (!field)
