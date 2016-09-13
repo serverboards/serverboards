@@ -95,30 +95,34 @@ const SidebarSections = React.createClass({
   }
 })
 
-function Serverboard(props){
-  if (!props.serverboard)
+const Serverboard=React.createClass({
+  render(){
+    const props=this.props
+    console.log(props)
+    if (!props.serverboard)
+      return (
+        <Loading>
+        Serverboard information.
+        </Loading>
+      )
+
+    let section = props.params.section || 'default'
+    let Section = require(`../../containers/serverboard/${section}`).default
+
     return (
-      <Loading>
-      Serverboard information.
-      </Loading>
-    )
-
-  let section = props.params.section || 'default'
-  let Section = require(`../../containers/serverboard/${section}`).default
-
-  return (
-    <div className="ui central with menu">
-      <Sidebar/>
-      <SidebarSections
-        section={props.params.section}
-        serverboard={props.serverboard}
-        goto={props.goto}
-        />
-      <div className="ui central white background">
-        <Section serverboard={props.serverboard} subsection={props.params.subsection} location={props.location}/>
+      <div className="ui central with menu">
+        <Sidebar/>
+        <SidebarSections
+          section={props.params.section}
+          serverboard={props.serverboard}
+          goto={props.goto}
+          />
+        <div className="ui central white background">
+          <Section serverboard={props.serverboard} subsection={props.params.subsection} location={props.location}/>
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
+})
 
 export default Serverboard

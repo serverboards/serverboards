@@ -12,12 +12,14 @@ var Serverboard=event.subscribe_connect(
   },
   (dispatch, props) => ({
     goto(url){ dispatch( push(url) ) },
-    onAdd(){ dispatch( push("/serverboard/add") ) }
+    onAdd(){ dispatch( push("/serverboard/add") ) },
+    onUpdate(){ dispatch( serverboards_update_info(props.params.serverboard) ) }
   }),
   [],
   (props) => [
     () => (serverboards_update_info(props.shortname)),
-  ]
+  ],
+  ["shortname"]
 )(ServerboardView)
 
 export default Serverboard

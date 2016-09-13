@@ -53,6 +53,7 @@ function serverboards_widget_list(serverboard){
 
 function serverboards_update_info(serverboard){
   return function(dispatch){
+    dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, undefined})
     rpc.call("serverboard.info", [serverboard]).then( (info) => {
       dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, info})
     })
