@@ -160,3 +160,12 @@ components:
     strategy: one_for_one
     timeout: 1s
     command: nonstoptrigger.py
+
+  - name: simple screen
+    id: no.traits.screen
+    type: screen
+
+  - name: traits screen
+    id: traits.screen
+    type: screen
+    traits: email

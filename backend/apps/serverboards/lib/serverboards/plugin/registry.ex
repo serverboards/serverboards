@@ -44,6 +44,8 @@ defmodule Serverboards.Plugin.Registry do
 
   Can get by id or trait.
 
+  Trait can be :none for component without traits
+
   ## Example
 
     iex> [auth] = filter_component id: "fake"
@@ -85,7 +87,11 @@ defmodule Serverboards.Plugin.Registry do
                 :trait ->
                   member? Map.get(c, :traits), v
                 :traits -> # any of the traits fit
-                  any? v, &(&1 in Map.get(c, :traits))
+                  if v == :none do
+                    Map.get(c, :traits) == []
+                  else
+                    any? v, &(&1 in Map.get(c, :traits))
+                  end
                 :type ->
                   Map.get(c, :type) == v
               end

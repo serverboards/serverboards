@@ -35,7 +35,7 @@ defmodule Serverboards.Serverboard do
       serverboard.shortname
     end, name: :serverboard
 
-    EventSourcing.subscribe es, :update_serverboard, fn [shortname, operations], _me ->
+    EventSourcing.subscribe es, :update_serverboard, fn [shortname, operations], me ->
       import Ecto.Query
       # update tags
       serverboard = Repo.get_by!(ServerboardModel, shortname: shortname)
@@ -49,7 +49,7 @@ defmodule Serverboards.Serverboard do
         serverboard, operations
       ) )
 
-      {:ok, serverboard} = serverboard_info upd
+      {:ok, serverboard} = serverboard_info upd, me
 
       Serverboards.Event.emit(
         "serverboard.updated",
@@ -196,7 +196,7 @@ defmodule Serverboards.Serverboard do
   @doc ~S"""
   Returns the information of a serverboard by id or name
   """
-  def serverboard_info(%ServerboardModel{} = serverboard) do
+  def serverboard_info(%ServerboardModel{} = serverboard, me) do
     alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
 
     serverboard = Repo.preload(serverboard, :tags)
@@ -206,30 +206,57 @@ defmodule Serverboards.Serverboard do
       tags: Enum.map(serverboard.tags, fn t -> t.name end)
     }
 
-    services = Repo.all(from c in ServiceModel,
-        join: sc in ServerboardServiceModel,
-          on: sc.service_id==c.id,
-       where: sc.serverboard_id == ^serverboard.id,
-      select: c)
+    services = Serverboards.Service.service_list [serverboard: serverboard.shortname], me
     serverboard = Map.put(serverboard, :services, services)
+
+    serverboard = Map.put(serverboard, :screens, serverboard_screens(serverboard))
 
     #Logger.info("Got serverboard #{inspect serverboard}")
     {:ok, serverboard}
   end
 
-  def serverboard_info(serverboard_id, _me) when is_number(serverboard_id) do
+  def serverboard_info(serverboard_id, me) when is_number(serverboard_id) do
     case Repo.one( from( s in ServerboardModel, where: s.id == ^serverboard_id, preload: :tags ) ) do
       nil -> {:error, :not_found}
       serverboard ->
-        serverboard_info(serverboard)
+        serverboard_info(serverboard, me)
     end
   end
-  def serverboard_info(serverboard_shortname, _me) when is_binary(serverboard_shortname) do
+  def serverboard_info(serverboard_shortname, me) when is_binary(serverboard_shortname) do
     case Repo.one( from(s in ServerboardModel, where: s.shortname == ^serverboard_shortname, preload: :tags ) ) do
       nil -> {:error, :not_found}
       serverboard ->
-        serverboard_info(serverboard)
+        serverboard_info(serverboard, me)
     end
+  end
+
+  @doc ~S"""
+  Returns the related screens for this serverboard
+  """
+  def serverboard_screens(%{services: services} = serverboard) do
+    traits = Enum.reduce(services, [], fn s, acc ->
+      case Serverboards.Plugin.Registry.find(s.type) do
+        nil -> acc
+        s -> s.traits ++ acc
+      end
+    end) |> MapSet.new
+
+    Logger.debug("Looking for screens with traits: #{inspect traits}")
+    screens =
+      (Serverboards.Plugin.Registry.filter_component type: "screen", traits: traits)
+      ++
+      (Serverboards.Plugin.Registry.filter_component type: "screen", traits: :none)
+
+    screens |> Enum.map( fn s ->
+      %{
+        id: s.id,
+        name: s.name,
+        icon: Map.get(s.extra, "icon", nil),
+        description: s.description,
+        traits: s.traits,
+        perms: Map.get(s.extra, "perms", [])
+      }
+    end)
   end
 
   @doc ~S"""
