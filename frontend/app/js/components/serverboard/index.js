@@ -1,6 +1,8 @@
 import React from 'react'
 import Loading from '../loading'
 import Sidebar from 'app/containers/sidebar'
+import {merge} from 'app/utils'
+import rpc from 'app/rpc'
 
 function by_name(a,b){
   return a.name.localeCompare( b.name )
@@ -23,8 +25,15 @@ const SidebarSections = React.createClass({
     if (section.indexOf('/')>=0){
       const screen=this.get_screen_data(section)
       console.log(screen, screen.traits.length==0)
-      if (!screen.traits || screen.traits.length==0 || data)
-        this.props.goto({pathname: `/s/${section}/`, state: data})
+      if (!screen.traits || screen.traits.length==0 || data){
+        if (data.service){
+          rpc.call("service.info", [data.service.uuid]).then( (service) => { // May need full info
+            this.props.goto({pathname: `/s/${section}/`, state: merge(data, {service}) })
+          })
+        }
+        else
+          this.props.goto({pathname: `/s/${section}/`, state: data})
+      }
       else{
         const candidates = this.props.serverboard.services.filter( (s) => {
           for (let trait of screen.traits){
