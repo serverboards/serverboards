@@ -2,13 +2,12 @@ import EditView from 'app/components/rules/edit'
 import event from 'app/utils/event'
 import { update_trigger_catalog, rules_save } from 'app/actions/rules'
 import { action_catalog } from 'app/actions/action'
-import { serverboard_reload_services } from 'app/actions/serverboard'
 import { push } from 'react-router-redux'
 
 var Edit = event.subscribe_connect(
   (state) => ({
     triggers: state.rules.trigger_catalog,
-    services: state.serverboard.current_services || [],
+    services: state.serverboard.serverboard.services || [],
     action_catalog: state.action.catalog
   }),
   (dispatch, props) => ({
@@ -16,7 +15,6 @@ var Edit = event.subscribe_connect(
   }),
   undefined,
   (props) => [
-    () => (serverboard_reload_services(props.serverboard)),
     update_trigger_catalog, action_catalog
   ]
 

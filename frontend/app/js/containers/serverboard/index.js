@@ -1,24 +1,25 @@
 import ServerboardView from 'app/components/serverboard'
-import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
+import event from 'app/utils/event'
+import { serverboards_update_info } from 'app/actions/serverboard'
 
-var Serverboard=connect(
+var Serverboard=event.subscribe_connect(
   (state) => {
-    let serverboard
-    if (state.serverboard.current)
-      serverboard = state.serverboard.serverboards.find( (el) => el.shortname == state.serverboard.current )
     return {
-      serverboard: serverboard,
-      serverboards: state.serverboard.serverboards
+      shortname: state.serverboard.current,
+      serverboard: state.serverboard.serverboard,
     }
   },
   (dispatch, props) => ({
-    handleSectionChange : function(section){
-      let serverboard=props.params.serverboard
-      dispatch(push(`/serverboard/${serverboard}/${section}`))
-    },
-    onAdd : () => dispatch( push("/serverboard/add") )
-  })
+    goto(url){ dispatch( push(url) ) },
+    onAdd(){ dispatch( push("/serverboard/add") ) },
+    onUpdate(){ dispatch( serverboards_update_info(props.params.serverboard) ) }
+  }),
+  [],
+  (props) => [
+    () => (serverboards_update_info(props.shortname)),
+  ],
+  ["shortname"]
 )(ServerboardView)
 
 export default Serverboard

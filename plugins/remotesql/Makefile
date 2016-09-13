@@ -1,9 +1,15 @@
 all: setup compile
 
-setup: node_modules/.bin/rollup
+setup: node_modules/
 
-node_modules/.bin/babel: package.json
+node_modules/.bin/babel: node_modules/
+
+node_modules/.bin/rollupnode_modules/.bin/rollup: node_modules/
 	npm install
+
+node_modules/: package.json
+	npm install
+
 
 compile: static/console.js
 

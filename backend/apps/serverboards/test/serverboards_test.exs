@@ -241,4 +241,24 @@ defmodule ServerboardsTest do
     Test.Client.stop(client)
   end
 
+  test "Screens on serverboard", %{ system: system } do
+    import Serverboards.Serverboard
+    import Serverboards.Service
+    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
+    serverboard_add "SBDS-TST13", %{ "name" => "Test 13" }, user
+
+    {:ok, info} = serverboard_info "SBDS-TST13", user
+    screens = Map.get(info, :screens)
+    assert screens != nil
+    assert Enum.count( screens ) == 1
+
+    {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "serverboards.test.auth/email" }, user
+    service_attach "SBDS-TST13", service, user
+    {:ok, info} = serverboard_info "SBDS-TST13", user
+    screens = Map.get(info, :screens)
+    assert screens != nil
+    assert Enum.count( screens ) == 2
+
+  end
+
 end

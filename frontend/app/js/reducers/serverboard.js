@@ -3,7 +3,7 @@ import {merge} from 'app/utils'
 var default_state={
   serverboards: [],
   current: undefined,
-  current_services: undefined,
+  serverboard: undefined,
   catalog: undefined,
   widgets: undefined
 }
@@ -13,13 +13,7 @@ function serverboard(state=default_state, action){
     case '@@router/LOCATION_CHANGE':
     {
       let current=action.payload.pathname.replace(RegExp("^/serverboard/([^/]*)/.*"), "$1")
-      let current_services=state.current_services
-      let widgets=state.widgets
-      if (current!=state.current){ // On change of location, no current services
-        current_services = undefined
-        widgets = undefined
-      }
-      return merge(state, {current, current_services, widgets} )
+      return merge(state, {current} )
     }
     case 'UPDATE_ALL_SERVERBOARDS':
       return merge(state, {serverboards: action.serverboards} )
@@ -35,22 +29,20 @@ function serverboard(state=default_state, action){
       return merge(state, {serverboards: state.serverboards.filter( s => s.shortname != action.shortname ) } )
     case '@RPC_EVENT/serverboard.updated':
       {
-      let serverboards = state.serverboards.map( s => {
-        if (s.shortname == action.shortname){
-          return action.serverboard
-        }
-        return s
-      })
-      let current_services=state.current_services
-      if (state.current==action.shortname)
-        current_services=action.serverboard.services
+        let serverboards = state.serverboards.map( s => {
+          if (s.shortname == action.shortname){
+            return action.serverboard
+          }
+          return s
+        })
+        let serverboard = serverboards.find( (s) => s.shortname == state.current )
 
-      return merge(state, {serverboards, current_services})
+        return merge(state, {serverboards, serverboard})
       }
     case '@RPC_EVENT/service.updated':
       {
         let changed = false
-        let current_services = state.current_services.map( s => {
+        let current_services = state.serverboard.services.map( s => {
           if (s.uuid == action.service.uuid){
             changed = true
             if (action.service.serverboards.indexOf(state.current)>=0)
@@ -62,7 +54,7 @@ function serverboard(state=default_state, action){
         }).filter( (s) => s != undefined )
         if (!changed && action.service.serverboards && action.service.serverboards.indexOf(state.current)>=0)
           current_services.push(action.service)
-        return merge(state, {current_services})
+        return merge(state, {serverboard: merge(state.serverboard, {services: current_services})})
       }
     case 'UPDATE_SERVERBOARD_WIDGETS':
       const widgets=action.widgets
@@ -77,6 +69,9 @@ function serverboard(state=default_state, action){
       }) } )
     case "@RPC_EVENT/serverboard.widget.removed":
       return merge(state, {widgets: state.widgets.filter( (w) => (w.uuid != action.uuid ) )} )
+    case "UPDATE_SERVERBOARD_INFO":
+      return merge(state, {serverboard: action.info})
+      break;
   }
   return state
 }

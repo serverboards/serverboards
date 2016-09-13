@@ -11,9 +11,6 @@ description: >
 
 components:
   - name: Pinger console
-    type: action
+    type: screen
     traits: ip url
     id: pinger
-    screen:
-      html: index.html
-      js: index.js
