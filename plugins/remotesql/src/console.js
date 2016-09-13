@@ -78,16 +78,26 @@ const Console=React.createClass({
     return (
       <div ref="el" className="ui container">
         <h2 className="ui header">SQL Console for <i>{service.name}</i></h2>
-        <select name="database" defaultValue="template1" className="ui dropdown" onChange={(ev) => this.openConnection(ev.target.value)}>
-          {state.databases.map( (db) => (
-            <option value={db}>{db}</option>
-          ))}
-        </select>
-        <select name="tables" className="ui dropdown" onChange={(ev) => this.handleExecute(`SELECT * FROM ${ev.target.value} LIMIT 100;`)}>
-          {state.tables.map( (db) => (
-            <option value={db}>{db}</option>
-          ))}
-        </select>
+        <div className="ui form">
+          <div className="two fields">
+            <div className="field">
+              <label>Database</label>
+              <select name="database" defaultValue="template1" className="ui dropdown" onChange={(ev) => this.openConnection(ev.target.value)}>
+                {state.databases.map( (db) => (
+                  <option value={db}>{db}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label>Table</label>
+              <select name="tables" className="ui dropdown" onChange={(ev) => this.handleExecute(`SELECT * FROM ${ev.target.value} LIMIT 100;`)}>
+                {state.tables.sort().map( (db) => (
+                  <option value={db}>{db}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
         <DataGrid data={state.data} headers={state.columns}/>
         <SQLTextInput onExecute={this.handleExecute}/>
       </div>
