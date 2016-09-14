@@ -1,7 +1,6 @@
 require Logger
 
 defmodule Serverboards.Rules.Trigger do
-
   alias Serverboards.Plugin
   def start_link options \\ [] do
     GenServer.start_link __MODULE__, :ok, options
@@ -18,6 +17,7 @@ defmodule Serverboards.Rules.Trigger do
        states = case tr.extra["states"] do
          l when is_list(l) -> l
          str when is_binary(str) -> String.split(str)
+         nil -> []
        end
        command = tr.extra["command"]
        #Logger.debug("Command is #{inspect command}")
@@ -44,8 +44,7 @@ defmodule Serverboards.Rules.Trigger do
   Executes the command for a trigger
   """
   def start(trigger, params, cont) when is_map(trigger) do
-    uuid = GenServer.call(Serverboards.Rules.Trigger, {:start, trigger, params, cont})
-    {:ok, uuid}
+    GenServer.call(Serverboards.Rules.Trigger, {:start, trigger, params, cont})
   end
   def start(triggerid, params, cont) when is_binary(triggerid) do
     case find id: triggerid do
@@ -106,14 +105,32 @@ defmodule Serverboards.Rules.Trigger do
 
     uuid = UUID.uuid4
     method = Map.put( trigger.start, "params", [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", []) )
-    {:ok, stop_id} = Plugin.Runner.call( plugin_id, method, params )
-    stop_id = if stop_id do stop_id else uuid end
 
-    Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+    call_response = try do
+      Plugin.Runner.call( plugin_id, method, params )
+    catch # may cowardly exit the calling process (or already exited? just started!)
+      :exit, _ -> {:error, :exit}
+    end
 
-    {:reply, uuid, %{
-      triggers: Map.put(state.triggers, uuid, %{ trigger: trigger, cont: cont, plugin_id: plugin_id, stop_id: stop_id })
-      }}
+
+    {res, uuid, triggerdata} = case call_response do
+      {:ok, stop_id} ->
+        stop_id = if stop_id do stop_id else uuid end
+
+        Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+        {:ok, uuid, %{ trigger: trigger, cont: cont, plugin_id: plugin_id, stop_id: stop_id } }
+      {:error, error} ->
+        Logger.error("Error starting trigger #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
+        {:error, :aborted, %{}}
+    end
+
+    if res == :ok do
+      {:reply, {:ok, uuid}, %{
+        triggers: Map.put(state.triggers, uuid, triggerdata)
+        }}
+    else
+      {:reply, {:error, :aborted}, state}
+    end
   end
 
   def handle_call({:stop, uuid}, _from, state) do

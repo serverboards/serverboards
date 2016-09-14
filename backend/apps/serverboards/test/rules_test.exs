@@ -67,12 +67,13 @@ defmodule Serverboards.TriggersTest do
 
 
   test "Simple trigger non stop" do
+    # This are simple triggers that run forever and do not have a stop mark
     [r] = Trigger.find id: "serverboards.test.auth/simple.trigger"
 
     {:ok, last_trigger} = Agent.start_link fn -> :none end
 
     output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
-    assert output == []
+    assert output == [], "Is already running? Fail from provious test?"
 
     {:ok, id} = Trigger.start r, %{ }, fn params ->
       Logger.debug("Triggered event: #{inspect params}")
@@ -285,5 +286,49 @@ defmodule Serverboards.TriggersTest do
       is_active: false
       } ), me )
 
+  end
+
+  test "Fail rule start / Exception" do
+    alias Serverboards.Rules.Rule
+    me = Test.User.system
+    uuid = UUID.uuid4
+
+    assert (Process.whereis Serverboards.Rules) != nil
+
+    Rule.upsert( rule(%{
+      uuid: uuid,
+      trigger: %{
+        trigger: "serverboards.test.auth/except.trigger",
+        params: %{ }
+        },
+      is_active: true
+      }), me )
+    :timer.sleep(300)
+
+    assert (Process.whereis Serverboards.Rules) != nil
+    [rule] = Rules.list uuid: uuid
+    assert rule.is_active == false
+  end
+
+  test "Abort rule start / Exception" do
+    alias Serverboards.Rules.Rule
+    me = Test.User.system
+    uuid = UUID.uuid4
+
+    assert (Process.whereis Serverboards.Rules) != nil
+
+    Rule.upsert( rule(%{
+      uuid: uuid,
+      trigger: %{
+        trigger: "serverboards.test.auth/abort.trigger",
+        params: %{ }
+        },
+      is_active: true
+      }), me )
+    :timer.sleep(300)
+
+    assert (Process.whereis Serverboards.Rules) != nil
+    [rule] = Rules.list uuid: uuid
+    assert rule.is_active == false
   end
 end

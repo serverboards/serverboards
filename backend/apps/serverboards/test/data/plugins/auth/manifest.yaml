@@ -136,6 +136,20 @@ components:
     start:
       method: simple_trigger
 
+  - name: Abort trigger
+    type: trigger
+    id: abort.trigger
+    command: fake
+    start:
+      method: abort
+
+  - name: Except trigger
+    type: trigger
+    id: except.trigger
+    command: fake
+    start:
+      method: exception
+
   - name: fake auth singleton
     type: cmd
     id: fake_singleton

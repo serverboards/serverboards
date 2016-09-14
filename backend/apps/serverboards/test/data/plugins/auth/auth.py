@@ -19,11 +19,15 @@ def pingm(message=None):
     return message
 
 @serverboards.rpc_method
-def abort(*args):
+def abort(*args, **kwargs):
     sys.stderr.write("Pretend to work\n")
     time.sleep(0.500)
     sys.stderr.write("Aborting\n")
     sys.exit(1)
+
+@serverboards.rpc_method
+def exception(*args, **kwargs):
+    raise Exception("Exception requested")
 
 @serverboards.rpc_method
 def bad_protocol(*args):

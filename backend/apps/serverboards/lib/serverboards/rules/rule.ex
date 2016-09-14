@@ -56,11 +56,11 @@ defmodule Serverboards.Rules.Rule do
     EventSourcing.Model.subscribe es, :rules, Serverboards.Repo
 
     EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
-      upsert_real(data)
-      Serverboards.Event.emit("rules.update", %{ rule: data }, ["rules.view"])
+      rule = upsert_real(data)
+      Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
       Logger.debug("Serverboard: #{inspect data.serverboard}")
       if (data.serverboard != nil) do
-        Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: data }, ["rules.view"])
+        Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: rule }, ["rules.view"])
       end
     end
   end
@@ -141,25 +141,37 @@ defmodule Serverboards.Rules.Rule do
       from_template: data.from_template
     }
 
-    {:ok, rule} = case Repo.all(from rule in Model.Rule, where: rule.uuid == ^uuid ) do
+    {:ok, rulem} = case Repo.all(from rule in Model.Rule, where: rule.uuid == ^uuid ) do
       [] ->
         insert_rule( data, actions )
       [rule] ->
         update_rule( rule, data, actions )
     end
 
-    rule = decorate(rule)
+    rule = decorate(rulem)
 
     #Logger.debug("Decorated rule: #{inspect rule.trigger} / #{inspect rule.is_active}")
 
-    if (rule.is_active and rule.trigger.trigger != nil and rule.trigger.trigger != "") do
+    rule = if (rule.is_active and rule.trigger.trigger != nil and rule.trigger.trigger != "") do
       #Logger.debug("Ensure active")
-      Serverboards.Rules.restart_rule rule
+      case Serverboards.Rules.restart_rule(rule) do
+        :error ->
+          Logger.error("Cant ensure rule is started, disabling it.", rule: rule)
+          Serverboards.Rules.ensure_rule_not_active rule
+          Repo.update(
+            Model.Rule.changeset(rulem, %{ is_active: false })
+          )
+          %{ rule | is_active: false }
+        :ok ->
+          rule
+      end
     else
       #Logger.debug("Ensure NOT active")
       Serverboards.Rules.ensure_rule_not_active rule
+      rule
     end
 
+    rule
     #Logger.debug("Upserted #{inspect rule}")
   end
   defp insert_rule( data, actions ) do

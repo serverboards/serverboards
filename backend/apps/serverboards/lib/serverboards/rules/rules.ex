@@ -14,7 +14,6 @@ defmodule Serverboards.Rules do
 
     for r <- list([is_active: true]), do: ensure_rule_active(r)
 
-
     MOM.Channel.subscribe(:client_events, fn
       %{ payload: %{ type: "service.updated", data: %{ service: %{ uuid: uuid }}}} ->
         restart_rules_for_service(uuid)
@@ -126,7 +125,6 @@ defmodule Serverboards.Rules do
 
   def ensure_rule_active(%{} = rule) do
     GenServer.call(Serverboards.Rules, {:ensure_rule_active, rule})
-
   end
   def ensure_rule_not_active(%{} = rule) do
     GenServer.call(Serverboards.Rules, {:ensure_rule_not_active, rule})
@@ -152,14 +150,18 @@ defmodule Serverboards.Rules do
     {:reply, Map.keys(status), status}
   end
   def handle_call({:ensure_rule_active, %{} = rule}, _from, status) do
-    status = if not Map.has_key?(status, rule.uuid) do
-      {:ok, trigger} = Rules.Rule.start_link(rule)
-      Map.put(status, rule.uuid, trigger)
+    {ret, status} = if not Map.has_key?(status, rule.uuid) do
+      case Rules.Rule.start_link(rule) do
+        {:ok, trigger} ->
+          {:ok, Map.put(status, rule.uuid, trigger)}
+        {:error, _} ->
+          {:error, status}
+      end
     else
       status
     end
     #Logger.debug("Ensure active #{inspect rule.uuid} #{inspect status}")
-    {:reply, :ok, status}
+    {:reply, ret, status}
   end
   def handle_call({:ensure_rule_not_active, %{} = rule}, _from, status) do
     #Logger.debug("Ensure not active #{inspect rule.uuid} #{inspect status}")
