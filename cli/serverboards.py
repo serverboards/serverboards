@@ -216,6 +216,8 @@ class Client:
                 if 'method' in response and 'id' in response: # this is a call
                     user_response = input("%s%s> "%(response["method"], repr(response.get("params"))))
                     result = parse_command("__placeholder__ %s"%(user_response), self.vars)["params"]
+                    if type(result) == list and len(result)==1:
+                        result=result[0]
                     cmd={"id": response["id"], "result": result }
                     self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
                 else:

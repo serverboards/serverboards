@@ -23,9 +23,13 @@ components:
           placeholder: "eg: /backups/backup-{today}.sql.gpg"
           description: |
             Full expression to check for file exists. May contain some variables,
+<<<<<<< HEAD
             or globs. Variables are: {today}, {today_}, {today_year},
             {today_month}, {today_day}, {yesterday}, {yesteday_}... All full
             dates in ISO format.
+=======
+            or globs. Variables are: {today}, {yesterday}. All dates in ISO format.
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH
         - name: when
           type: text
           label: When
@@ -34,16 +38,22 @@ components:
             Time at when to check for file exists.
     stop: stop_file_exists
 
+<<<<<<< HEAD
   - name: Backup watcher
     description: Watches backup all monitors in this serverboard for fast check if done
     id: watcher
     type: widget
 
+=======
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH
   - name: Daemon
     id: daemon
     type: cmd
     command: serverboards-backup-manager.py
+<<<<<<< HEAD
     perms:
       - service.info
       - plugin.data[serverboards.backup_manager]
       - action.trigger[serverboards.core.ssh/exec]
+=======
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH

@@ -1,11 +1,18 @@
 #!/usr/bin/python3
 
+<<<<<<< HEAD
 import sys, os, datetime, hashlib
+=======
+import sys, os, datetime
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import rpc
 
+<<<<<<< HEAD
 plugin_id="serverboards.backup_manager"
+=======
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH
 
 def convert_timespec_to_seconds(when):
     serverboards.debug("When %s"%repr(when))
@@ -44,6 +51,7 @@ def get_next_when(when):
     else:
         return today_seconds + (24 * 60 * 60) - seconds_in_day
 
+<<<<<<< HEAD
 def filename_template(filename):
     today_dt=datetime.datetime.now()
     today=today_dt.strftime("%Y-%m-%d")
@@ -61,6 +69,8 @@ def filename_template(filename):
         yesterday_month=yesterday_dt.month,
         yesterday_day=yesterday_dt.day,
     )
+=======
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH
 
 file_exist_timers={}
 
@@ -73,6 +83,7 @@ def file_exists(id, service, file_expression, when):
             if file_exist_timers.get(id):
                 rpc.remove_timer(file_exist_timers.get(id))
 
+<<<<<<< HEAD
             url = rpc.call("service.info", service)["config"]["url"]
 
             filename=filename_template(file_expression)
@@ -99,6 +110,22 @@ def file_exists(id, service, file_expression, when):
                         ).hexdigest()
 
                     rpc.call("plugin.data_set", plugin_id, 'test-'+sha, data)
+=======
+            url = rpc.call("service.info", [service])["config"]["url"]
+
+            today=datetime.datetime.now().strftime("%Y-%m-%d")
+            yesterday=(datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+            filename=file_expression.replace('{today}', today).replace('{yesterday}', yesterday)
+
+            ssh = rpc.call("plugin.start", ["serverboards.core.ssh/daemon"])
+            res = rpc.call(ssh+".ssh_exec", {"url":url, "command": "ls -sh %s"%filename})
+            rpc.call("plugin.stop",[ssh])
+
+            exists = res and res[0]!="0"
+            if exists != self.prev_exists:
+                if exists:
+                    serverboards.rpc.event("trigger", {"id": id, "state" : "exists"})
+>>>>>>> 70b67f7... [WIP] Initial trigger that monitors a file using SSH
                 else:
                     serverboards.rpc.event("trigger", {"id": id, "state" : "not-exists"})
                 self.prev_exists = exists
