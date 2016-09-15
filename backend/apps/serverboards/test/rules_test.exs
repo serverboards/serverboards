@@ -331,4 +331,26 @@ defmodule Serverboards.TriggersTest do
     [rule] = Rules.list uuid: uuid
     assert rule.is_active == false
   end
+
+  test "No fail start non existant trigger" do
+    alias Serverboards.Rules.Rule
+    me = Test.User.system
+    uuid = UUID.uuid4
+
+    assert (Process.whereis Serverboards.Rules) != nil
+
+    Rule.upsert( rule(%{
+      uuid: uuid,
+      trigger: %{
+        trigger: "serverboards.test.auth/does.not.exist",
+        params: %{ }
+        },
+      is_active: true
+      }), me )
+    :timer.sleep(300)
+
+    assert (Process.whereis Serverboards.Rules) != nil
+    [rule] = Rules.list uuid: uuid
+    assert rule.is_active == false
+  end
 end
