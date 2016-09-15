@@ -15,7 +15,7 @@ defmodule Serverboards.Rules.Rule do
     actions: [],
     from_template: nil # original template rule
   ]
-  def start_link(rule, _options \\ []) do
+  def start(rule, _options \\ []) do
     #Logger.debug("#{inspect rule}")
     trigger = rule.trigger
     actions = rule.actions

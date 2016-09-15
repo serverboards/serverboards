@@ -52,6 +52,7 @@ defmodule Serverboards.Rules.Trigger do
         start(trigger, params, cont)
       [] ->
         Logger.error("Could not find trigger #{triggerid}", trigger: triggerid)
+        {:error, :not_found}
     end
   end
 

@@ -151,7 +151,7 @@ defmodule Serverboards.Rules do
   end
   def handle_call({:ensure_rule_active, %{} = rule}, _from, status) do
     {ret, status} = if not Map.has_key?(status, rule.uuid) do
-      case Rules.Rule.start_link(rule) do
+      case Rules.Rule.start(rule) do
         {:ok, trigger} ->
           {:ok, Map.put(status, rule.uuid, trigger)}
         {:error, _} ->
