@@ -46,8 +46,13 @@ defmodule Serverboards.Setup do
     path = Application.app_dir(:serverboards, "share/serverboards/backend/migrations")
     Ecto.Migrator.run(Serverboards.Repo, path, :up, all: true)
 
-    import_group( %{ name: "user", perms: []} )
-    import_group( %{ name: "admin", perms: all_perms} )
+    import Ecto.Query
+    status = %{
+      perms: Repo.all( from p in Model.Permission, select: {p.code, p.id} ) |> Map.new
+    }
+
+    import_group(status, %{ name: "user", perms: []} )
+    import_group(status, %{ name: "admin", perms: all_perms} )
     Logger.debug("Done")
   end
 
@@ -67,13 +72,39 @@ defmodule Serverboards.Setup do
 
   @doc ~S"""
   Ensures this group with thouse permissions exist.
+
   """
-  def import_group(group) do
-    groupm = Repo.get_or_create_and_update(Model.Group, [name: group.name], %{name: group.name})
-    perms = group.perms
+  def import_group(status, group) do
+    #Could be optimized/coded smartily, but not really needed.
+    # For example use the perms at status to get the permids I want, do a
+    # set difference, and just add whats needed.
+    import Ecto.Query
+
+    groupm = Repo.get_or_create_and_update(
+      Model.Group,
+      [name: group.name],
+      %{name: group.name}
+      )
+    perms = group.perms # perms I want by name
+    #Logger.debug("#{inspect status} #{inspect perms}")
+    group_perms = Repo.all( # perms I have by id
+      from gp in Model.GroupPerms,
+        where: gp.group_id == ^groupm.id,
+        select: gp.perm_id
+      )
     Enum.map perms, fn p ->
-      perm = Repo.get_or_create_and_update(Model.Permission, [code: p], %{ code: p })
-      Repo.get_or_create_and_update(Model.GroupPerms, [ group_id: groupm.id, perm_id: perm.id ], %{ group_id: groupm.id, perm_id: perm.id })
+      perm_id = case status.perms[p] do
+        nil ->
+          Repo.get_or_create_and_update(Model.Permission, [code: p], %{ code: p }).id
+        perm_id -> perm_id
+      end
+      if not perm_id in group_perms do
+        Repo.get_or_create_and_update(
+          Model.GroupPerms,
+          [ group_id: groupm.id, perm_id: perm_id ],
+          %{ group_id: groupm.id, perm_id: perm_id }
+          )
+      end
     end
   end
 
