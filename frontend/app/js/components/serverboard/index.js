@@ -1,6 +1,7 @@
 import React from 'react'
 import Loading from '../loading'
 import Sidebar from 'app/containers/sidebar'
+import PluginScreen from 'app/components/plugin/screen'
 import {merge} from 'app/utils'
 import rpc from 'app/rpc'
 
@@ -22,17 +23,18 @@ const SidebarSections = React.createClass({
       this.setState({service_menu: {screen, candidates}})
   },
   handleSectionChange(section, data){
+    const serverboard = this.props.serverboard.shortname
     if (section.indexOf('/')>=0){
       const screen=this.get_screen_data(section)
       console.log(screen, screen.traits.length==0)
       if (!screen.traits || screen.traits.length==0 || data){
         if (data.service){
           rpc.call("service.info", [data.service.uuid]).then( (service) => { // May need full info
-            this.props.goto({pathname: `/s/${section}/`, state: merge(data, {service}) })
+            this.props.goto({pathname: `/serverboard/${serverboard}/${section}/`, state: merge(data, {service}) })
           })
         }
         else
-          this.props.goto({pathname: `/s/${section}/`, state: data})
+          this.props.goto({pathname: `/serverboard/${serverboard}/${section}/`, state: data})
       }
       else{
         const candidates = this.props.serverboard.services.filter( (s) => {
@@ -47,7 +49,7 @@ const SidebarSections = React.createClass({
       }
     }
     else{
-      this.props.goto(`/serverboard/${this.props.serverboard.shortname}/${section}`)
+      this.props.goto(`/serverboard/${serverboard}/${section}`)
     }
   },
   render(){
@@ -115,8 +117,17 @@ const Serverboard=React.createClass({
         </Loading>
       )
 
-    let section = props.params.section || 'default'
-    let Section = require(`../../containers/serverboard/${section}`).default
+    const section = props.params.section || 'default'
+    const subsection = props.params.subsection
+    let Section
+    if (section.indexOf('.')>=0){
+      Section = (props) => (
+        <PluginScreen {...props} plugin={section} component={subsection}/>
+      )
+      console.log("Got plugin screen %o", Section)
+    }
+    else
+      Section = require(`../../containers/serverboard/${section}`).default
 
     return (
       <div className="ui central with menu">
@@ -127,7 +138,7 @@ const Serverboard=React.createClass({
           goto={props.goto}
           />
         <div className="ui central white background">
-          <Section serverboard={props.serverboard} subsection={props.params.subsection} location={props.location}/>
+          <Section serverboard={props.serverboard} subsection={subsection} location={props.location}/>
         </div>
       </div>
     )

@@ -2,6 +2,9 @@ import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
 
+const plugin_load = plugin.load
+const plugin_do_screen = plugin.do_screen
+
 const ExternalScreen = React.createClass({
   contextTypes: {
     router: React.PropTypes.object
@@ -21,16 +24,20 @@ const ExternalScreen = React.createClass({
     const props=this.props
     //const service=this.props.location.state.service
     //console.log(service)
-    $.get(`${servername}/static/${props.params.plugin}/${props.params.component}.html`, (html) => {
-      $(this.refs.loading).html(html)
+    const plugin = props.plugin || props.params.plugin
+    const component = props.component || props.params.component
 
-      plugin.load(`${props.params.plugin}/${props.params.component}.js`).done(() => {
-        let cleanupf=plugin.do_screen(
-          `${props.params.plugin}/${props.params.component}`,
-          $('.ui.central'),
+    $.get(`${servername}/static/${plugin}/${component}.html`, (html) => {
+      let $el = $(this.refs.el).html(html)
+
+      plugin_load(`${plugin}/${component}.js`).done(() => {
+        let cleanupf=plugin_do_screen(
+          `${plugin}/${component}`,
+          $el,
           this.props.location.state
+        ).then( (cleanupf) =>
+          this.setState({cleanupf})
         )
-        this.setState({cleanupf})
       }).fail((e) => {
         console.error("Error loading plugin data: %o", e)
       })
@@ -38,10 +45,13 @@ const ExternalScreen = React.createClass({
   },
   render(){
     let props=this.props
+    const plugin = props.plugin || props.params.plugin
+    const component = props.component || props.params.component
+
     return (
-      <div ref="loading" className="ui central white background">
+      <div ref="el" className="ui central white background">
         <Loading>
-          External plugin {props.params.plugin}/{props.params.component}
+          External plugin {plugin}/{component}
         </Loading>
       </div>
     )

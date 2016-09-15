@@ -15,12 +15,35 @@ export function load(url, options){
   return jQuery.ajax( options );
 }
 
+let waiting_for_screen={}
+
+function when_screen_added(id){
+  return new Promise(function(accept, reject){
+    waiting_for_screen[id] = (waiting_for_screen[id] || []).concat({accept, reject})
+    setTimeout(30000, () => { // Will always fire, but maybe empty
+      for (let {reject} of (waiting_for_screen[id] || []))
+        reject(id)
+    })
+  })
+}
+
 export function add_screen(id, fn){
   screens[id]=fn
+  for (let {accept} of (waiting_for_screen[id] || [])){
+    accept(fn)
+  }
+  delete waiting_for_screen[id]
 }
 
 export function do_screen(id, el, data){
-  return screens[id](el, data)
+
+  if (id in screens){
+    let cleanf=screens[id](el, data)
+    return Promise.resolve(cleanf)
+  }
+  return when_screen_added(id).then( (screen) => {
+    return screen(el,data)
+  })
 }
 
 export function add_widget(id, fn){

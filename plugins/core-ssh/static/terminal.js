@@ -7,7 +7,7 @@ function main(element, config){
   term.$el= $(element)
   term.$el.find('h2.ui.header').text(config.service.name)
 
-  $('pre.terminal').text('')
+  term.$el.find('pre.terminal').text('')
   term.term = new Terminal()
   term.term.open(term.$el.find('pre.terminal')[0])
 
@@ -26,9 +26,7 @@ function main(element, config){
         term.term.write(atob(data))
       }
     }).catch(function(e){
-      clearInterval(term.interval_id)
       Flash.error("Closed connection // Error reading data\n\n"+e)
-      term.interval_id=undefined
     })
   }
   function send_data(data){
@@ -42,7 +40,6 @@ function main(element, config){
   }
   function setup_host(host){
     term.host=host
-    //term.interval_id=setInterval(poll_data, 1000) // polling, very bad
     term.term.on('data', send_data)
 
     // subscribe to new data at terminal
@@ -84,14 +81,20 @@ function main(element, config){
   })
 
   return function(){
-    if (term.interval_id)
-      clearInterval(term.interval_id)
     if (term.host){
       var evname='terminal.data.received.'+term.host
       rpc.call("event.unsubscribe", [evname])
       rpc.off(evname)
     }
+    if (term.term){
+      term.term.destroy()
+    }
+    term.$el.html('')
   }
 }
 
-Serverboards.add_screen("serverboards.core.ssh/terminal", function(el,co){ setTimeout(function(){ main(el,co) }, 1000) })
+// I wait until the xterm.js is loaded, then register this. Could be using r.js or similar too
+setTimeout(function(){
+  Serverboards.add_screen("serverboards.core.ssh/terminal", main)
+}, 1000)
+// function(el,co){ setTimeout(function(){ main(el,co) }, 1000) })
