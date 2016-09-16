@@ -100,37 +100,41 @@ defmodule Serverboards.Rules.Trigger do
   end
 
   def handle_call({:start, trigger, params, cont}, _from, state) do
-    {:ok, plugin_id} = Plugin.Runner.start trigger.command
-    {:ok, client} = Plugin.Runner.client plugin_id
-    setup_client_for_rules client # can setup over without any problem. If not would need to setup only once.
+    case Plugin.Runner.start trigger.command do
+      {:ok, plugin_id} ->
+        {:ok, client} = Plugin.Runner.client plugin_id
+        setup_client_for_rules client # can setup over without any problem. If not would need to setup only once.
 
-    uuid = UUID.uuid4
-    method = Map.put( trigger.start, "params", [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", []) )
+        uuid = UUID.uuid4
+        method = Map.put( trigger.start, "params", [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", []) )
 
-    call_response = try do
-      Plugin.Runner.call( plugin_id, method, params )
-    catch # may cowardly exit the calling process (or already exited? just started!)
-      :exit, _ -> {:error, :exit}
-    end
+        call_response = try do
+          Plugin.Runner.call( plugin_id, method, params )
+        catch # may cowardly exit the calling process (or already exited? just started!)
+          :exit, _ -> {:error, :exit}
+        end
 
 
-    {res, uuid, triggerdata} = case call_response do
-      {:ok, stop_id} ->
-        stop_id = if stop_id do stop_id else uuid end
+        {res, uuid, triggerdata} = case call_response do
+          {:ok, stop_id} ->
+            stop_id = if stop_id do stop_id else uuid end
 
-        Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
-        {:ok, uuid, %{ trigger: trigger, cont: cont, plugin_id: plugin_id, stop_id: stop_id } }
-      {:error, error} ->
-        Logger.error("Error starting trigger #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
-        {:error, :aborted, %{}}
-    end
+            Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+            {:ok, uuid, %{ trigger: trigger, cont: cont, plugin_id: plugin_id, stop_id: stop_id } }
+          {:error, error} ->
+            Logger.error("Error starting trigger #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
+            {:error, :aborted, %{}}
+        end
 
-    if res == :ok do
-      {:reply, {:ok, uuid}, %{
-        triggers: Map.put(state.triggers, uuid, triggerdata)
-        }}
-    else
-      {:reply, {:error, :aborted}, state}
+        if res == :ok do
+          {:reply, {:ok, uuid}, %{
+            triggers: Map.put(state.triggers, uuid, triggerdata)
+            }}
+        else
+          {:reply, {:error, :aborted}, state}
+        end
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
     end
   end
 
