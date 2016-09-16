@@ -1,4 +1,4 @@
-id: serverboards.backup_manager
+id: serverboards.backup.monitor
 name: Backup Manager
 author: David Moreno <dmoreno@serverboards.io>
 version: 0.1.0
@@ -42,8 +42,8 @@ components:
   - name: Daemon
     id: daemon
     type: cmd
-    command: serverboards-backup-manager.py
+    command: serverboards-backup-monitor.py
     perms:
       - service.info
-      - plugin.data[serverboards.backup_manager]
+      - plugin.data[serverboards.backup.monitor]
       - action.trigger[serverboards.core.ssh/exec]

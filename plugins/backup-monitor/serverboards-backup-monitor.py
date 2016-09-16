@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import rpc
 
-plugin_id="serverboards.backup_manager"
+plugin_id="serverboards.backup.monitor"
 
 def convert_timespec_to_seconds(when):
     serverboards.debug("When %s"%repr(when))
