@@ -13,7 +13,7 @@ export function load(url, options){
   });
 
   let p = new Promise(function(accept, reject){
-    jQuery.ajax( options ).then(accept).fail(reject)
+    jQuery.ajax( options ).then(accept).fail((xhr, text, error) => reject(text))
   })
 
   return p
