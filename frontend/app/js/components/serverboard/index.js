@@ -107,7 +107,6 @@ const SidebarSections = React.createClass({
 const Serverboard=React.createClass({
   render(){
     const props=this.props
-    console.log(props)
     if (!props.serverboard)
       return (
         <Loading>
