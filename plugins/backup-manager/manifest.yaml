@@ -1,0 +1,49 @@
+id: serverboards.backup_manager
+name: Backup Manager
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.1.0
+description: |
+  Manage and monitor backups.
+
+components:
+  - name: Remote file exists
+    id: file_exists
+    type: trigger
+    states: exists not-exists
+    traits: url
+    command: daemon
+    start:
+      method: file_exists
+      params:
+        - name: service
+          type: service
+        - name: file_expression
+          type: text
+          label: File Expression
+          placeholder: "eg: /backups/backup-{today}.sql.gpg"
+          description: |
+            Full expression to check for file exists. May contain some variables,
+            or globs. Variables are: {today}, {today_}, {today_year},
+            {today_month}, {today_day}, {yesterday}, {yesteday_}... All full
+            dates in ISO format.
+        - name: when
+          type: text
+          label: When
+          placeholder: 9pm, 18:00
+          description: |
+            Time at when to check for file exists.
+    stop: stop_file_exists
+
+  - name: Backup watcher
+    description: Watches backup all monitors in this serverboard for fast check if done
+    id: watcher
+    type: widget
+
+  - name: Daemon
+    id: daemon
+    type: cmd
+    command: serverboards-backup-manager.py
+    perms:
+      - service.info
+      - plugin.data[serverboards.backup_manager]
+      - action.trigger[serverboards.core.ssh/exec]
