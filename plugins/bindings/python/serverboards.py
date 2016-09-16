@@ -202,6 +202,7 @@ class RPC:
 
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
+            self.debug(res)
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
