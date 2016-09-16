@@ -13,8 +13,23 @@ defmodule Serverboards.Action.RPC do
 
     add_method mc, "action.trigger", fn [action, params], context ->
       user = RPC.Context.get context, :user
-      Serverboards.Action.trigger action, params, user
-    end, [required_perm: "action.trigger", context: true]
+      perms = user.perms
+      if ("action.trigger" in perms) or ("action.trigger[#{action}]" in perms) do
+        Serverboards.Action.trigger action, params, user
+      else
+        {:error, :unknown_method}
+      end
+    end, context: true
+
+    add_method mc, "action.trigger_wait", fn [action, params], context ->
+      user = RPC.Context.get context, :user
+      perms = user.perms
+      if ("action.trigger" in perms) or ("action.trigger[#{action}]" in perms) do
+        Serverboards.Action.trigger_wait action, params, user
+      else
+        {:error, :unknown_method}
+      end
+    end, context: true
 
     add_method mc, "action.filter", fn q, context ->
       user = RPC.Context.get context, :user
