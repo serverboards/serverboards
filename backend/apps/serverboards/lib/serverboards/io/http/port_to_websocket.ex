@@ -123,9 +123,9 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
         {:shutdown, req}
     end
   end
-  def websocket_terminate(_reason, _req, connection) do
+  def websocket_terminate(_reason, _req, socket) do
     Logger.debug("Websocket disconnected.")
-    Serverboards.IO.HTTP.PortToWebsocket.Connection.stop( connection )
+    :gen_tcp.close(socket)
     :ok
   end
   def websocket_handle({:text, line}, req, socket) do
