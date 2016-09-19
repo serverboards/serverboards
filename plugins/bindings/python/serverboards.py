@@ -39,8 +39,11 @@ class RPC:
             return
         if type(x) != str:
             x=repr(x)
-        self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
-        self.stderr.flush()
+        try:
+            self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
+            self.stderr.flush()
+        except BlockingIOError:
+            pass
 
     def add_method(self, name, f):
         self.rpc_registry[name]=f
