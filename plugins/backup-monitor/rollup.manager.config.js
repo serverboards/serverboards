@@ -4,5 +4,6 @@ export default {
   entry: 'src/manager.js',
   format: 'cjs',
   plugins: [ babel() ],
-  dest: 'static/manager.js'
+  dest: 'static/manager.js',
+  sourceMap: true
 };

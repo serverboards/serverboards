@@ -4,5 +4,6 @@ export default {
   entry: 'src/watcher.js',
   format: 'cjs',
   plugins: [ babel() ],
-  dest: 'static/watcher.js'
+  dest: 'static/watcher.js',
+  sourceMap: true
 };

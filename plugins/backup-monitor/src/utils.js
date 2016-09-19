@@ -1,5 +1,7 @@
 const {rpc} = Serverboards
 
+const plugin_id = 'serverboards.backup.monitor'
+
 export function basename(filepath){
   var parts=filepath.split('/')
   if (parts.length==0)
@@ -44,5 +46,41 @@ export function get_servername(uuid){
       reject( e )
     })
   })
+  return p
+}
+
+
+export function get_state({file_expression, service}){
+  console.log(file_expression + "-" + service)
+  var to_check = new TextEncoder("utf-8").encode(file_expression + "-" + service);
+  var p = crypto.subtle.digest("SHA-256", to_check).then( (sha) => {
+    var key="test-"+hex(sha)
+    console.log(key)
+    return rpc.call("plugin.data_get",[plugin_id, key])
+  } ).then( (data) => {
+    console.log(data)
+    if (!data.filename){
+      return {
+        color: "red",
+        state: "Cant get data from any backup. Maybe not performed yet?"
+      }
+    }
+    console.log(data)
+    const is_old = old_backup(data.datetime)
+    return {
+      filename: data.filename,
+      datetime: data.datetime.slice(0,16).replace('T',' '),
+      color: is_old ? "red" : "green",
+      state: is_old ? "Old backup. Check ASAP" : "Ok",
+      size: data.size,
+    }
+  }).catch((e) => {
+    console.error(e)
+    return {
+      color: "red",
+      state: e.toString()
+    }
+  })
+
   return p
 }

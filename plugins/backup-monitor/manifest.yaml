@@ -39,6 +39,11 @@ components:
     id: watcher
     type: widget
 
+  - name: Backup watcher manager
+    description: Eases the management of the rules for backup watchers
+    id: manager
+    type: screen
+
   - name: Daemon
     id: daemon
     type: cmd

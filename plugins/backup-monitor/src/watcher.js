@@ -1,4 +1,4 @@
-import {basename, hex, old_backup, get_servername} from './utils'
+import {basename, hex, get_state, get_servername} from './utils'
 const {React, rpc} = Serverboards
 
 const plugin_id = 'serverboards.backup.monitor'
@@ -56,36 +56,7 @@ const BackupFileRow = React.createClass({
     get_servername(this.props.file.service_uuid).then( (servername) => {
       this.setState({servername})
     })
-    console.log(f, f.file_expression + "-" + f.service_uuid)
-    var to_check = new TextEncoder("utf-8").encode(f.file_expression + "-" + f.service_uuid);
-    crypto.subtle.digest("SHA-256", to_check).then( (sha) => {
-      var key="test-"+hex(sha)
-      console.log(key)
-      return rpc.call("plugin.data_get",[plugin_id, key])
-    } ).then( (data) => {
-      if (!data.filename){
-        this.setState({
-          color: "red",
-          state: "Cant get data from any backup. Maybe not performed yet?"
-        })
-        return;
-      }
-      console.log(data)
-      const is_old = old_backup(data.datetime)
-      this.setState({
-        filename: data.filename,
-        datetime: data.datetime.slice(0,16).replace('T',' '),
-        color: is_old ? "red" : "green",
-        state: is_old ? "Old backup. Check ASAP" : "Ok",
-        size: data.size,
-      })
-    }).catch((e) => {
-      console.error(e)
-      this.setState({
-        color: "red",
-        state: e.toString()
-      })
-    })
+    get_state(f).then( (state) => this.setState(state) )
   },
   render(){
     const state = this.state
