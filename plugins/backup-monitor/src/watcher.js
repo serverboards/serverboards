@@ -12,7 +12,7 @@ const Widget = Serverboards.React.createClass({
   componentDidMount(){
     rpc.call("rules.list", {serverboard: this.props.config.serverboard.shortname}).then( (list) => {
       const files = list
-        .filter( (el) => el.trigger.trigger == `${plugin_id}/file_exists` )
+        .filter( (el) => el.trigger.trigger == `${plugin_id}/file_exists` && el.is_active )
         .map( (el) => ({
           is_active: el.is_active,
           file_expression: el.trigger.params.file_expression,
@@ -46,8 +46,8 @@ const BackupFileRow = React.createClass({
       servername: undefined,
       filename: f.file_expression,
       datetime: undefined,
-      color: f.is_active ? 'yellow' : 'grey',
-      state: f.is_active ? 'Gathering information' : 'Not active',
+      color: 'blue',
+      state: 'Gathering information',
       size: undefined,
     }
   },
@@ -56,7 +56,7 @@ const BackupFileRow = React.createClass({
     get_servername(this.props.file.service_uuid).then( (servername) => {
       this.setState({servername})
     })
-    get_state(f).then( (state) => this.setState(state) )
+    get_state({file_expression: f.file_expression, service: f.service_uuid}).then( (state) => this.setState(state) )
   },
   render(){
     const state = this.state

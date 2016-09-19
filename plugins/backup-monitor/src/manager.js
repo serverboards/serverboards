@@ -20,7 +20,6 @@ const Manager=React.createClass({
   },
   reload_rules(){
     rpc.call("rules.list", {serverboard:this.props.serverboard.shortname}).then( (all_rules) => {
-      console.log("all rules", all_rules)
       const rules = all_rules
         .filter( (r) => r.trigger.trigger == `${plugin_id}/file_exists` )
         .map( (r) => ({
@@ -52,7 +51,6 @@ const Manager=React.createClass({
     const props=this.props
     const state=this.state
 
-    console.log(props, state)
     return (
       <div className="ui central container">
         <h1 className="ui header">Backup Monitor Manager</h1>
