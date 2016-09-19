@@ -8,7 +8,7 @@ defmodule Serverboards.Plugin.RPC do
     Logger.debug(inspect context)
     perms = RPC.Context.get(context, :user).perms
     cond do
-      plugin == :any -> Enum.any?(perms, &(String.startswith(&1, "plugin[") or &1 == "plugin"))
+      plugin == :any -> Enum.any?(perms, &(String.starts_with?(&1, "plugin[") or &1 == "plugin"))
       "plugin" in perms -> true
       "plugin[#{plugin}]" in perms -> true
       true -> false
