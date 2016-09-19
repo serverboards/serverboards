@@ -75,55 +75,6 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
   end
 end
 
-defmodule Serverboards.IO.HTTP.PortToWebsocket.Connection do
-  @moduledoc ~S"""
-  Keeps the state of the connection, and sends data received from the websocket
-  and to it.
-  """
-  use GenServer
-  def start_link(port, websocket) do
-    GenServer.start_link __MODULE__, {port, websocket}, []
-  end
-
-  def stop(pid, reason \\ :normal, timeout \\ :infinity) do
-    GenServer.stop(pid, reason, timeout)
-  end
-
-  def send_to_socket(pid, data) do
-    GenServer.call(pid, {:send, data})
-  end
-
-  ## server impl
-  def init({port, websocket}) do
-    opts = [:binary, active: true]
-    {:ok, socket} = :gen_tcp.connect('localhost', port, opts)
-
-    :gen_tcp.controlling_process(socket, self())
-
-    state = %{ socket: socket, websocket: websocket }
-    {:ok, state}
-  end
-
-  # got data from the websocket side, send to socket
-  def handle_call({:send, data}, _from, state) do
-    :gen_tcp.send(state.socket, data)
-    {:reply, :ok, state}
-  end
-
-  def handle_info({:tcp, _, data}, state) do
-    send(state.websocket, {:send, data})
-    {:noreply, state}
-  end
-  def handle_info({:tcp_closed, _}, state) do
-    send(state.websocket, {:close})
-    {:noreply, state}
-  end
-  def handle_info(any, state) do
-    Logger.debug("Got some data from socket: #{inspect any}")
-    {:noreply, state}
-  end
-end
-
 defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
   @moduledoc ~S"""
   Uses the PortToWebsocket mappings to open a connection on a new
@@ -147,7 +98,9 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
     uuid = get_uuid(req)
     case Serverboards.IO.HTTP.PortToWebsocket.pop_port( uuid ) do
       {:ok, port} ->
-        {:ok, connection} = Serverboards.IO.HTTP.PortToWebsocket.Connection.start_link( port, self() )
+        opts = [:binary, active: true]
+        {:ok, socket} = :gen_tcp.connect('localhost', port, opts)
+        :gen_tcp.controlling_process(socket, self())
 
         Logger.info("websocket protocol: #{inspect :cowboy_req.parse_header("sec-websocket-protocol", req)}")
         req = case :cowboy_req.parse_header("sec-websocket-protocol", req) do
@@ -164,7 +117,7 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
               end
         end
         Logger.info("Websocket connected: #{uuid} -> #{port}", uuid: uuid, port: port)
-        {:ok, req, connection }
+        {:ok, req, socket }
       {:error, :not_found} ->
         Logger.error("Trying to connect to an unknown WS: #{uuid}", uuid: uuid)
         {:shutdown, req}
@@ -175,27 +128,28 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
     Serverboards.IO.HTTP.PortToWebsocket.Connection.stop( connection )
     :ok
   end
-  def websocket_handle({:text, line}, req, connection) do
-    Serverboards.IO.HTTP.PortToWebsocket.Connection.send_to_socket(connection, line)
-    {:ok, req, connection}
+  def websocket_handle({:text, line}, req, socket) do
+    :gen_tcp.send(socket, line)
+    {:ok, req, socket}
   end
-  def websocket_handle({:binary, line}, req, connection) do
-    Serverboards.IO.HTTP.PortToWebsocket.Connection.send_to_socket(connection, line)
-    {:ok, req, connection}
+  def websocket_handle({:binary, line}, req, socket) do
+    :gen_tcp.send(socket, line)
+    {:ok, req, socket}
   end
-  def websocket_handle(data, req, state) do
+  def websocket_handle(data, req, socket) do
     Logger.debug("Fallback ignore data #{inspect data}")
-    {:ok, req, state}
+    {:ok, req, socket}
   end
   # we send the :send info that will in turn make it send real data
-  def websocket_info({:send, data}, req, state) do
-    {:reply, {:binary, data}, req, state}
+  def websocket_info({:tcp, _, data}, req, socket) do
+    {:reply, {:binary, data}, req, socket}
   end
-  def websocket_info({:close}, req, state) do
-    {:shutdown, req, state}
+  def websocket_info({:tcp_closed, _}, req, socket) do
+    {:shutdown, req, socket}
   end
-  def websocket_info(info, req, state) do
+
+  def websocket_info(info, req, socket) do
     Logger.debug("Got info #{inspect info}")
-    {:noreply, req, state}
+    {:noreply, req, socket}
   end
 end
