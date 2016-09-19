@@ -64,10 +64,11 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
   def handle_call({:pop_port, uuid}, _from, state) do
     port = state.uuid_to_port[uuid]
     if port != nil do
-      {:reply, {:ok, port}, %{
-        state |
-          uuid_to_port: Map.drop(state.uuid_to_port, [uuid])
-        } }
+      {:reply, {:ok, port}, state }
+      #%{
+      #  state |
+      #    uuid_to_port: Map.drop(state.uuid_to_port, [uuid])
+      #  } }
     else
       {:reply, {:error, :not_found}, state}
     end
@@ -148,6 +149,20 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
       {:ok, port} ->
         {:ok, connection} = Serverboards.IO.HTTP.PortToWebsocket.Connection.start_link( port, self() )
 
+        Logger.info("websocket protocol: #{inspect :cowboy_req.parse_header("sec-websocket-protocol", req)}")
+        req = case :cowboy_req.parse_header("sec-websocket-protocol", req) do
+            {:undefined, :undefined, _} ->
+              req
+            {:ok, subprotocols, req} ->
+              Logger.info("Requesting subprotocols: #{inspect subprotocols}")
+              if "binary" in subprotocols do
+                Logger.info("Using binary subprotocol")
+                :cowboy_req.set_resp_header("sec-websocket-protocol", "binary", req)
+              else
+                Logger.error("Requested websocket subprotocol, and dont know how to handle. Ignoring request, quite probably client will just close. #{inspect subprotocols}")
+                req
+              end
+        end
         Logger.info("Websocket connected: #{uuid} -> #{port}", uuid: uuid, port: port)
         {:ok, req, connection }
       {:error, :not_found} ->
