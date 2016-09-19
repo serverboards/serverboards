@@ -46,6 +46,7 @@ components:
 
   - name: Daemon
     id: daemon
+    timeout: 48h
     type: cmd
     command: serverboards-backup-monitor.py
     perms:

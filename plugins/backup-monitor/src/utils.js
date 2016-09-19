@@ -51,21 +51,17 @@ export function get_servername(uuid){
 
 
 export function get_state({file_expression, service}){
-  console.log(file_expression + "-" + service)
   var to_check = new TextEncoder("utf-8").encode(file_expression + "-" + service);
   var p = crypto.subtle.digest("SHA-256", to_check).then( (sha) => {
     var key="test-"+hex(sha)
-    console.log(key)
     return rpc.call("plugin.data_get",[plugin_id, key])
   } ).then( (data) => {
-    console.log(data)
     if (!data.filename){
       return {
         color: "red",
         state: "Cant get data from any backup. Maybe not performed yet?"
       }
     }
-    console.log(data)
     const is_old = old_backup(data.datetime)
     return {
       filename: data.filename,

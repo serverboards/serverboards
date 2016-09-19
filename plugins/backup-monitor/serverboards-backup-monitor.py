@@ -86,7 +86,7 @@ def file_exists(id, service, file_expression, when):
             exists = res['exit']==0
             if exists != self.prev_exists:
                 if exists:
-                    serverboards.rpc.event("trigger", id=id, state=exists)
+                    serverboards.rpc.event("trigger", id=id, state="exists")
                     res=res['stdout'].split()
                     data = {
                         "filename" : filename,
@@ -113,9 +113,9 @@ def file_exists(id, service, file_expression, when):
 
 @serverboards.rpc_method
 def stop_file_exists(id):
-    if file_exists_timers.get(id):
-        rpc.remove_timer(file_exists_timers.get(id))
-        del file_exists_timers[id]
+    if file_exist_timers.get(id):
+        rpc.remove_timer(file_exist_timers.get(id))
+        del file_exist_timers[id]
 
 
 def test():
