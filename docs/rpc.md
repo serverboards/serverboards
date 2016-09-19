@@ -21,6 +21,17 @@ Returns "pong". To check conectivity.
 ping()
 ```
 
+# HTTP
+
+## http.add_port(port) -> uuid
+
+Adds a port mapping to websockets.
+
+It creates a /ws/[uuid] connection point that will be available for 1 minute or
+one connection. These limitations are to ensure security, as anybody with the
+UUID could connect to that port. By limiting it in time and connections we
+ensure a very limited window of attack opportunity.
+
 # Auth
 
 ## auth.auth({type, ...})
