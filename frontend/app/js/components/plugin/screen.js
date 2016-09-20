@@ -2,6 +2,9 @@ import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
 
+const plugin_load = plugin.load
+const plugin_do_screen = plugin.do_screen
+
 const ExternalScreen = React.createClass({
   contextTypes: {
     router: React.PropTypes.object
@@ -22,33 +25,40 @@ const ExternalScreen = React.createClass({
     let self=this
     //const service=this.props.location.state.service
     //console.log(service)
-    function load_js(){
-      plugin.load(`${props.params.plugin}/${props.params.component}.js`).then(() => {
-        let cleanupf=plugin.do_screen(
-          `${props.params.plugin}/${props.params.component}`,
-          self.refs.loading,
-          props.location.state
+    const plugin = props.plugin || props.params.plugin
+    const component = props.component || props.params.component
+
+    const load_js = () => {
+      plugin_load(`${plugin}/${component}.js`).then(() =>
+        plugin_do_screen(
+          `${plugin}/${component}`,
+          this.refs.el,
+          this.props.location.state
         )
-        self.setState({cleanupf})
-      }).catch((e) => {
+      ).then( (cleanupf) =>
+        this.setState({cleanupf})
+      ).catch((e) => {
         console.error("Error loading plugin data: %o", e)
       })
     }
 
-    $.get(`${servername}/static/${props.params.plugin}/${props.params.component}.html`, (html) => {
-      $(this.refs.loading).html(html)
+    $.get(`${servername}/static/${props.plugin}/${props.component}.html`, (html) => {
+      $(this.refs.el).html(html)
       load_js()
     }).fail( (ev, text) => {
-      console.log("Could not load HTML, loading JS")
+      console.log("Could not load HTML, loading JS anyway.")
       load_js()
     })
   },
   render(){
     let props=this.props
+    const plugin = props.plugin || props.params.plugin
+    const component = props.component || props.params.component
+
     return (
-      <div ref="loading" className="ui central white background">
+      <div ref="el" className="ui central white background">
         <Loading>
-          External plugin {props.params.plugin}/{props.params.component}
+          External plugin {plugin}/{component}
         </Loading>
       </div>
     )

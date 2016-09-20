@@ -3,7 +3,7 @@ let ReactDOM = Serverboards.ReactDOM
 
 import Console from './console'
 
-function main([el], settings){
+function main(el, settings){
   let MyConsole = function(props){
     return (
       <Console service={settings.service}/>
