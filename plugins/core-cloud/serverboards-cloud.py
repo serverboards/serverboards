@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, os, uuid, time
+import sys, os, uuid, time, re
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 
@@ -36,7 +36,7 @@ def connect(type, **extra):
         raise Exception("Could not create connexion to remote cloud provider")
 
     id = str(uuid.uuid4())
-    connections[id]=dict( driver=driver, type=type, urik=urik )
+    connections[id]=dict( driver=driver, type=type, urik=urik, config=extra )
     uri_type_to_connection[urik]=id
     return id
 
@@ -71,16 +71,28 @@ def get_description(node):
         desc.append( '%.2f GB'%(extra['disk']) )
     if 'public_ips' in node:
         desc.append( ' '.join(node['public_ips']) )
-    return ', '.join(desc)
+    remote_desktop=extra.get('remote_desktop')
+    if remote_desktop:
+        desc.append( "[%s](%s)"%(remote_desktop,remote_desktop) )
+    return ', '.join(x for x in desc if x)
 
 def get_traits(node):
     if node.get('public_ips',[]):
         yield 'ssh'
+    remote_desktop = node['extra'].get('remote_desktop')
+    if remote_desktop:
+        if remote_desktop.startswith('spice://'):
+            yield 'spice_rdp'
+        if remote_desktop.startswith('vnc://'):
+            yield 'vnc_rdp'
 
 def get_extra_config(node):
     d={}
     if node.get('public_ips',[]):
         d['url']=node['public_ips'][0]
+    remote_desktop=node['extra'].get('remote_desktop')
+    if remote_desktop:
+        d['remote_desktop']=remote_desktop
     return d
 
 def merge_dicts(a, b):
@@ -142,6 +154,7 @@ def virtual_nodes(**config):
     connection = connect(**config)
     def decorate(node):
         serverboards.rpc.debug(repr(node))
+        node['extra']['remote_desktop']=get_remote_desktop_address(connection, node['id'])
         return {
             'type': 'serverboards.core.cloud/cloud.node', # optional, if not, can not be instantiated.
             'id': node['id'],
@@ -204,6 +217,23 @@ def virtual_nodes_unsubscribe(timerid):
     else:
         timer_refcount[h]=(timer_refcount[h][0], timer_refcount[h][1]-1)
     return True
+
+@serverboards.rpc_method
+def get_remote_desktop_address(connection, node):
+    driver=connections[connection]
+    conn=driver['driver']
+    if driver['type']=='libvirt':
+        n = conn.connection.lookupByUUIDString(node)
+        xmldesc = n.XMLDesc()
+        options=dict( [
+            (lambda l:[l[0],l[1][1:-1]])(x.split('='))
+            for x in re.findall(r'<graphics([^>]+)>', xmldesc)[0].split()
+            if x] )
+        servername=driver['config']['server']
+        if options.get('port','-1') != '-1':
+            return '%s://%s:%s'%(options['type'], servername, options['port'])
+    else:
+        return None
 
 def test():
 
