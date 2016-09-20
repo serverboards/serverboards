@@ -10,6 +10,7 @@ var Card = connect(
     }
   },
   (dispatch) => ({
+    onDetach: (sbds, service) => dispatch( service_detach(sbds, service) ),
     setModal: (modal, data) => dispatch( set_modal(modal, data) )
   })
 )(CardView)

@@ -14,9 +14,6 @@ const ActionMenu=React.createClass({
   handleOpenSettings(){
     this.props.setModal("service.settings", {onAdd: this.handleAddService, onAttach: this.handleAttachService, service: this.props.service})
   },
-  handleDetach(){
-    this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
-  },
   triggerAction(action_id){
     let action=this.state.actions.filter( (a) => a.id == action_id )[0]
     // Discriminate depending on action type (by shape)
@@ -70,7 +67,7 @@ const ActionMenu=React.createClass({
         <i className="ui dropdown icon"/>
         <div className="ui vertical menu">
           {!props.service.is_virtual ? (
-            <HoldButton className="item" onHoldClick={this.handleDetach}>Hold to Detach</HoldButton>
+            <HoldButton className="item" onHoldClick={this.props.onDetach}>Hold to Detach</HoldButton>
           ) : []}
           {props.service.fields ? (
             <div className="item" onClick={this.handleOpenSettings}><i className="ui icon settings"/> Settings</div>

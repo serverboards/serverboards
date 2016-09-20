@@ -54,7 +54,7 @@ function RealBottomMenu(props){
       ) : []}
       <div className="right menu">
         <div className="item">
-          <ActionMenu service={props.service} actions={props.actions}>
+          <ActionMenu service={props.service} actions={props.actions} onDetach={props.onDetach}>
             Menu
           </ActionMenu>
         </div>
@@ -134,6 +134,9 @@ const Card=React.createClass({
   componentWillUnmount(){
     Command.remove_command_search(`service-${this.props.service.uuid}`)
   },
+  handleDetach(){
+    this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
+  },
   show_config(k){
     var fields = (this.props.service_description || {}).fields || []
     for(var p of fields){
@@ -193,6 +196,7 @@ const Card=React.createClass({
             <RealBottomMenu
               service={props}
               setModal={this.props.setModal}
+              onDetach={this.handleDetach}
               />
           )}
         </div>
