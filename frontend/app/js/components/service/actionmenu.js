@@ -65,8 +65,8 @@ const ActionMenu=React.createClass({
     const props=this.props
     const state=this.state
     return (
-      <div className="ui right item dropdown" ref="dropdown">
-        More
+      <div className="ui dropdown" ref="dropdown" style={{minWidth: "4em"}}>
+        {props.children}
         <i className="ui dropdown icon"/>
         <div className="ui vertical menu">
           {!props.service.is_virtual ? (

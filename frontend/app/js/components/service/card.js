@@ -6,6 +6,7 @@ import Flash from 'app/flash'
 import Command from 'app/utils/command'
 import {colorize} from 'app/utils'
 import ActionMenu from 'app/containers/service/actionmenu'
+import {MarkdownPreview} from 'react-marked-markdown';
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -52,7 +53,11 @@ function RealBottomMenu(props){
         <a className="item" onClick={open_virtual}>Related services <i className="ui icon caret right"/></a>
       ) : []}
       <div className="right menu">
-        <ActionMenu service={props.service} actions={props.actions}/>
+        <div className="item">
+          <ActionMenu service={props.service} actions={props.actions}>
+            Menu
+          </ActionMenu>
+        </div>
       </div>
     </div>
   )
@@ -63,8 +68,7 @@ const VirtualBottomMenu=React.createClass({
     return {actions: undefined}
   },
   loadAvailableActions(){
-    if (!this.state.actions){
-      this.setState({loading: true})
+    if (this.state.actions == undefined){
       rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
         this.setState({
           actions: actions,
@@ -78,13 +82,16 @@ const VirtualBottomMenu=React.createClass({
     }
     return true;
   },
+  componentDidMount(){
+    this.loadAvailableActions()
+  },
   render(){
     const props=this.props
     const state=this.state
-    if (!props.actions){
+    if (state.actions == undefined){
       return (
         <div className="item disabled">
-          <i className="ui wait icon"/>
+          <i className="ui spinner loading icon"/>
           Loading
         </div>
       )
@@ -102,8 +109,9 @@ const VirtualBottomMenu=React.createClass({
         ) ) }
         <div className="right menu">
           <a className="ui item dropdown" ref="dropdown">
-            <i className="ui ellipsis vertical icon"/>
-            <ActionMenu service={props.service} actions={state.actions}/>
+            <ActionMenu service={props.service} actions={state.actions}>
+              <i className="ui ellipsis vertical icon"/>
+            </ActionMenu>
           </a>
         </div>
       </div>
@@ -168,7 +176,7 @@ const Card=React.createClass({
           <div className="meta">{(props.tags || []).map( (l) => (
             <span style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
           ))}</div>
-          <div className="description">{props.description || ""}</div>
+          <div className="description"><MarkdownPreview value={props.description || ""}/></div>
           <div>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
@@ -178,7 +186,6 @@ const Card=React.createClass({
         <div className="extra content" ref="menu">
           {props.is_virtual ? (
             <VirtualBottomMenu
-              actions={this.state.actions}
               service={props}
               setModal={this.props.setModal}
               />

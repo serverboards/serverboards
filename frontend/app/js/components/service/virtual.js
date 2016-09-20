@@ -40,6 +40,7 @@ const VirtualServices=React.createClass({
       })
       .then((services) => {
         services = services.map( (s) => merge(s, {is_virtual: true}) )
+        console.log(services)
         self.setState({services})
         if (subscribe){
           rpc.call('event.subscribe',["service.updated"])
@@ -51,6 +52,7 @@ const VirtualServices=React.createClass({
           }
         })
       .catch((e) => {
+        console.error(e)
         Flash.error(`Error loading virtual services\n\n${e}`)
         store.dispatch( goBack() )
       })
@@ -58,7 +60,8 @@ const VirtualServices=React.createClass({
   componentWillUnmount(){
     const parent=this.props.parent
     let unsubscribe=parent.virtual.unsubscribe
-    rpc.call(`${this.connection}.${unsubscribe}`, [this.subscribe_id])
+    if (this.subscribe_id)
+      rpc.call(`${this.connection}.${unsubscribe}`, [this.subscribe_id])
     rpc.call('event.unsubscribe',["service.updated"])
     rpc.off("service.updated", self.update_services)
     this.subscribe_id=undefined
