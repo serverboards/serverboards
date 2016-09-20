@@ -14,13 +14,11 @@ def ping(ip=None, url=None):
     It calls the system ping command.
     """
     if ip:
-        if re.match(r"^\d+\.\d+\.\d+\.\d+$", ip):
-            output = subprocess.check_output(["ping", ip, "-c", "1", "-W", "1"])
-            ms = re.findall(r" time=(\d+\.\d+) ms", output)
-            if ms:
-                return { "ms" : float(ms[0]) }
-            return False
-        raise Exception("Invalid IP")
+        output = subprocess.check_output(["ping", ip, "-c", "1", "-W", "1"])
+        ms = re.findall(r" time=(\d+\.\d+) ms", output)
+        if ms:
+            return { "ms" : float(ms[0]) }
+        return False
     elif url:
         return { "ms": http_get(url)["ms"] }
     raise Exception("Invalid ping type")
