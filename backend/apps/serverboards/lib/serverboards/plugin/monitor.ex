@@ -54,7 +54,7 @@ defmodule Serverboards.Plugin.Monitor do
     if not state.expect_exit do
       Logger.error("Unexpected inotifywait exit. Check max inotifywait is installed and /proc/sys/fs/inotify/max_user_watches is properly configured")
     end
-    {:stop, :inotifywait_failed, state}
+    {:stop, :normal, state}
   end
 
   def handle_info(any, state) do
