@@ -61,8 +61,9 @@ serverboards.tar.gz: compile-frontend compile-backend
 	cp backend/apps/serverboards/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
 
-	[ -e /usr/lib64/libtinfo* ] && cp /usr/lib64/libtinfo* rel/serverboards/lib || true
-	[ -e /usr/lib64/libcrypto* ] && cp /usr/lib64/libcrypto* rel/serverboards/lib || true
+	# when creating bundle from fedora to be run on ubuntu
+	cp /usr/lib64/libtinfo* rel/serverboards/lib || true
+	cp /usr/lib64/libcrypto* rel/serverboards/lib || true
 
 	cp -a frontend/dist rel/serverboards/share/serverboards/frontend
 
@@ -71,6 +72,7 @@ serverboards.tar.gz: compile-frontend compile-backend
 	cp -a backend/apps/serverboards/priv/repo/migrations rel/serverboards/share/serverboards/backend/
 
 	cp -a plugins rel/serverboards/share/serverboards/plugins
+	find rel -name node_modules | xargs rm -rf
 	rm rel/serverboards/share/serverboards/plugins/.git -rf
 
 	cp -a serverboards.sh rel/serverboards/
