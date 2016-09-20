@@ -8,6 +8,17 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
   It has an expiration time of 1 minute
 
   Clients require an entry here, and later the websocket will do the connection
+
+  Example:
+
+    iex> {:ok, uuid} = add_port(3030, 200)
+    iex> {:ok, port} = get_port(uuid)
+    iex> port
+    3030
+    iex> :timer.sleep(500) # let it timeout
+    iex> get_port(uuid)
+    {:error, :not_found}
+
   """
   use GenServer
 
@@ -17,16 +28,16 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
     GenServer.start_link __MODULE__, :ok, name: Serverboards.IO.HTTP.PortToWebsocket
   end
 
-  def add_port(port) do
-    GenServer.call(Serverboards.IO.HTTP.PortToWebsocket, {:add_port, port})
+  def add_port(port, timeout \\ @timeout) do
+    GenServer.call(Serverboards.IO.HTTP.PortToWebsocket, {:add_port, port, timeout})
   end
 
   def remove_port(uuid) do
     GenServer.call(Serverboards.IO.HTTP.PortToWebsocket, {:remove_port, uuid})
   end
 
-  def pop_port(uuid) do
-    GenServer.call(Serverboards.IO.HTTP.PortToWebsocket, {:pop_port, uuid})
+  def get_port(uuid) do
+    GenServer.call(Serverboards.IO.HTTP.PortToWebsocket, {:get_port, uuid})
   end
 
   ## server impl
@@ -36,11 +47,11 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
     }}
   end
 
-  def handle_call({:add_port, port}, _from, state) do
+  def handle_call({:add_port, port, timeout}, _from, state) do
     uuid = UUID.uuid4
 
     # remove it in @timeout ms
-    {:ok, _tref } = :timer.apply_after(@timeout, Serverboards.IO.HTTP.PortToWebsocket, :remove_port, [uuid])
+    {:ok, _tref } = :timer.apply_after(timeout, Serverboards.IO.HTTP.PortToWebsocket, :remove_port, [uuid])
 
     {:reply,
       {:ok, uuid},
@@ -61,14 +72,10 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
     end
   end
 
-  def handle_call({:pop_port, uuid}, _from, state) do
+  def handle_call({:get_port, uuid}, _from, state) do
     port = state.uuid_to_port[uuid]
     if port != nil do
       {:reply, {:ok, port}, state }
-      #%{
-      #  state |
-      #    uuid_to_port: Map.drop(state.uuid_to_port, [uuid])
-      #  } }
     else
       {:reply, {:error, :not_found}, state}
     end
@@ -96,7 +103,7 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
 
   def websocket_init(transport_name, req, opts) do
     uuid = get_uuid(req)
-    case Serverboards.IO.HTTP.PortToWebsocket.pop_port( uuid ) do
+    case Serverboards.IO.HTTP.PortToWebsocket.get_port( uuid ) do
       {:ok, port} ->
         opts = [:binary, active: true]
         {:ok, socket} = :gen_tcp.connect('localhost', port, opts)
