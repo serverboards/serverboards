@@ -6,10 +6,6 @@ var rpc = Serverboards.rpc
 
 function add_row(text, klass){
   var table=$('tbody#pinger')
-  if (table.length==0){ // There is no table, do not try again
-    console.log("Stop pinger table")
-    return;
-  }
   var cd=new Date()
   var time = ((cd.getHours() < 10)?"0":"") + cd.getHours() +":"+ ((cd.getMinutes() < 10)?"0":"") + cd.getMinutes() +":"+ ((cd.getSeconds() < 10)?"0":"") + cd.getSeconds();
 
