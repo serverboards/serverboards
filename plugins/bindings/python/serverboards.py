@@ -39,8 +39,11 @@ class RPC:
             return
         if type(x) != str:
             x=repr(x)
-        self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
-        self.stderr.flush()
+        try:
+            self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
+            self.stderr.flush()
+        except BlockingIOError:
+            pass
 
     def add_method(self, name, f):
         self.rpc_registry[name]=f
@@ -202,6 +205,7 @@ class RPC:
 
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
+            self.debug(res)
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)

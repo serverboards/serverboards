@@ -223,14 +223,14 @@ Performs the call on that uuid or allias
 Stops the plugin.
 
 
-## plugins.data_set(id, key, value)
+## plugin.data_set(id, key, value)
 
 Sets some data for some plugin id in a given key. Value must be a map.
 
 Needs plugins.data or plugins.data[pluginid] permission.
 
 ```js
-plugins.data_set("serverboards.core.notifications/telegram", "user_to_map",{
+plugin.data_set("serverboards.core.notifications/telegram", "user_to_map",{
   "dmoreno@serverboards.io": 12312312312
 })
 ```
@@ -240,7 +240,7 @@ to store data unrelated to plugins or shared between plugins, but anyway the
 name should be scoped to avoid collissions, and explanatory. *It is highly
 encouraged to use the plugin or plugin/component id.*
 
-## plugins.data_get(id, key)
+## plugin.data_get(id, key)
 
 Returns the data of the given section
 
@@ -388,6 +388,17 @@ Example:
 ```js
 action.trigger("core.actions/ping", { ip: "192.168.1.1" })
 // "8f3e8f70-acf4-4b2d-b929-ec8efed82c26"
+```
+
+## action.trigger_wait(action_id, params)
+
+Manually executes and action, and waits for response.
+
+This is useful in plugins to perform actions and the the answer.
+
+```js
+action.trigger_wait("core.actions/ping", {ip: "192.168.1.1"})
+// { response_time: 100 }
 ```
 
 ## action.ps()

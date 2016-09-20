@@ -12,7 +12,7 @@ defmodule Serverboards.Rules.RPC do
       %{} = rule, context ->
         rule = %Serverboards.Rules.Rule{
           uuid: rule["uuid"],
-          is_active: rule["is_active"],
+          is_active: Map.get(rule, "is_active", false),
           serverboard: rule["serverboard"],
           service: rule["service"],
           name: rule["name"],

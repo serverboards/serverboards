@@ -22,18 +22,17 @@ const ExternalScreen = React.createClass({
     const servername=localStorage.servername || window.location.origin
 
     const props=this.props
+    let self=this
     //const service=this.props.location.state.service
     //console.log(service)
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
 
-    $.get(`${servername}/static/${plugin}/${component}.html`, (html) => {
-      let $el = $(this.refs.el).html(html)
-
+    const load_js = () => {
       plugin_load(`${plugin}/${component}.js`).then(() =>
         plugin_do_screen(
           `${plugin}/${component}`,
-          $el,
+          this.refs.el,
           this.props.location.state
         )
       ).then( (cleanupf) =>
@@ -41,6 +40,14 @@ const ExternalScreen = React.createClass({
       ).catch((e) => {
         console.error("Error loading plugin data: %o", e)
       })
+    }
+
+    $.get(`${servername}/static/${props.plugin}/${props.component}.html`, (html) => {
+      $(this.refs.el).html(html)
+      load_js()
+    }).fail( (ev, text) => {
+      console.log("Could not load HTML, loading JS anyway.")
+      load_js()
     })
   },
   render(){

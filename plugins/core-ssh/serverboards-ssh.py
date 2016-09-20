@@ -35,10 +35,12 @@ def ssh_exec(url, command="uname -a"):
     if not command:
         raise Exception("Need a command to run")
     (opts, url) = url_to_opts(url)
-    sp=pexpect.spawn("/usr/bin/ssh",opts + ['--'] + shlex.split(command))
+    # Each argument is an element in the list, so the command, even if it
+    # contains ';' goes all in an argument to the SSH side
+    sp=pexpect.spawn("/usr/bin/ssh",opts + ['--', command])
     running=True
     while running:
-        ret=sp.expect([re.compile('^(.*)\'s password:'), pexpect.EOF])
+        ret=sp.expect([re.compile(b'^(.*)\'s password:'), pexpect.EOF])
         data=sp.before
         if ret==1:
             running=False
@@ -47,7 +49,7 @@ def ssh_exec(url, command="uname -a"):
                 raise Exception("Need password")
             sp.sendline(url.password)
     sp.wait()
-    return {"stdout": data, "exit": sp.exitstatus}
+    return {"stdout": data.decode('utf8'), "exit": sp.exitstatus}
 
 @serverboards.rpc_method
 def ssh_public_key():

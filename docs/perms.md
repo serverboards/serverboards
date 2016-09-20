@@ -51,7 +51,7 @@ event.emit -- Allow to emit events
 
 ## Action
 
-action.trigger -- Can start triggers.
+action.trigger -- Can start triggers. May have trigger id.
 action.watch   -- Can be notified when actions start/stop.
 
 ## Settings

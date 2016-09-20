@@ -26,15 +26,17 @@ const SidebarSections = React.createClass({
     const serverboard = this.props.serverboard.shortname
     if (section.indexOf('/')>=0){
       const screen=this.get_screen_data(section)
-      //console.log(screen, screen.traits.length==0)
-      if (!screen.traits || screen.traits.length==0 || data){
+      console.log(!screen.traits, screen.traits.length==0, data)
+      if (!screen.traits || screen.traits.length==0 || (data && data.service)){
         if (data.service){
           rpc.call("service.info", [data.service.uuid]).then( (service) => { // May need full info
             this.props.goto({pathname: `/serverboard/${serverboard}/${section}/`, state: merge(data, {service}) })
           })
         }
-        else
+        else{
+            console.log("Section without associated service")
           this.props.goto({pathname: `/serverboard/${serverboard}/${section}/`, state: data})
+        }
       }
       else{
         const candidates = this.props.serverboard.services.filter( (s) => {
@@ -78,6 +80,7 @@ const SidebarSections = React.createClass({
     }
 
     const service_menu=this.state.service_menu
+    const serverboard=this.props.serverboard
 
     return (
       <div className="ui vertical menu sections">
@@ -92,12 +95,23 @@ const SidebarSections = React.createClass({
             <MenuItem section={s.id} data-tooltip={s.description} icon="caret down">{s.name}</MenuItem>
             <div className="menu">
               {service_menu.candidates.map( (service) => (
-                <MenuItem section={s.id} data={{service}} data-tooltip={service.description}>{service.name}</MenuItem>
+                <MenuItem
+                  section={s.id}
+                  data={{service, serverboard}}
+                  data-tooltip={service.description}>
+                    {service.name}
+                </MenuItem>
               ))}
             </div>
           </div>
         ) : (
-          <MenuItem section={s.id} data-tooltip={s.description} icon={s.traits.length>0 ? "caret right" : undefined}>{s.name}</MenuItem>
+          <MenuItem
+            section={s.id}
+            data={{serverboard}}
+            data-tooltip={s.description}
+            icon={s.traits.length>0 ? "caret right" : undefined}>
+              {s.name}
+          </MenuItem>
         ))}
       </div>
     )

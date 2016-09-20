@@ -22,6 +22,8 @@ export default function(state=default_state, action){
           status: "running"
         }
 
+        if (state.processes == undefined)
+          return { processes: [clean_action] }
         return { processes: [clean_action].concat( state.processes )}
       }
       break;
