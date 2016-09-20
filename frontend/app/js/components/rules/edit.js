@@ -40,7 +40,6 @@ const ActionDetails=React.createClass({
     let params = action_type ? action_type.extra.call.params : []
     const noparams = this.props.noparams || {}
     params=params.filter( (p) => !(p.name in noparams) )
-    console.log(noparams, params)
     return (
       <div>
         <h3 className="ui header uppercase">{action.state}</h3>

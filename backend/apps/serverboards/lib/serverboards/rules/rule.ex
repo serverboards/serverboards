@@ -37,13 +37,19 @@ defmodule Serverboards.Rules.Rule do
     Logger.info("Start rule with trigger checker #{inspect trigger.trigger} #{rule.uuid}", rule: rule, params: params)
 
     Serverboards.Rules.Trigger.start trigger.trigger, params, fn params ->
+      Logger.debug("#{inspect params} #{inspect actions}")
       state = params["state"]
       action = actions[state]
 
-      params = Map.merge(action.params, default_params)
+      if action do
+        params = Map.merge(action.params, default_params)
 
-      Logger.info("Triggered action #{inspect action}", rule: rule, params: params, action: action)
-      Serverboards.Action.trigger(action.action, params, %{ email: "rule/#{rule.uuid}", perms: []})
+        Logger.info("Triggered action #{inspect action}", rule: rule, params: params, action: action)
+        Serverboards.Action.trigger(action.action, params, %{ email: "rule/#{rule.uuid}", perms: []})
+      else
+        Logger.info("Triggered empty action. Doing nothing.")
+        {:ok, :empty}
+      end
     end
   end
 

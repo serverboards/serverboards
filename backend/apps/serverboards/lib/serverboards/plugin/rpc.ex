@@ -4,17 +4,36 @@ defmodule Serverboards.Plugin.RPC do
   alias MOM.RPC
   alias Serverboards.Plugin
 
+  def has_perm_for_plugin(context, plugin) do
+    Logger.debug(inspect context)
+    perms = RPC.Context.get(context, :user).perms
+    cond do
+      plugin == :any -> Enum.any?(perms, &(String.starts_with?(&1, "plugin[") or &1 == "plugin"))
+      "plugin" in perms -> true
+      "plugin[#{plugin}]" in perms -> true
+      true -> false
+    end
+  end
+
   def start_link(runner) do
     {:ok, method_caller} = RPC.MethodCaller.start_link name: Serverboards.Plugin.RPC
     Serverboards.Utils.Decorators.permission_method_caller method_caller
 
-    RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id] ->
-      Plugin.Runner.start runner, plugin_component_id
-    end, [required_perm: "plugin"]
+    RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id], context ->
+      if has_perm_for_plugin(context, plugin_component_id) do
+        Plugin.Runner.start runner, plugin_component_id
+      else
+        {:error, :unknown_method}
+      end
+    end, context: true
 
-    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id] ->
-      Plugin.Runner.stop runner, plugin_component_id
-    end, [required_perm: "plugin"]
+    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id], context ->
+      if has_perm_for_plugin(context, :any) do
+        Plugin.Runner.stop runner, plugin_component_id
+      else
+        {:error, :unknown_method}
+      end
+    end, context: true
 
     RPC.MethodCaller.add_method method_caller, "plugin.call", fn
       [id, method, params] ->

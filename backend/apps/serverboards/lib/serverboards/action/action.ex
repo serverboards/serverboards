@@ -43,33 +43,31 @@ defmodule Serverboards.Action do
       _ ->
          :ok
     end)
-    MOM.Channel.subscribe(:client_events, fn
-      %{ payload: %{ type: "action.stopped", data: action }  } ->
-        import Ecto.Query
-        #Logger.warn("Action finished #{inspect action.uuid}", action: action)
-        case Repo.all(from h in Model.History, where: h.uuid == ^action.uuid) do
-          [prev] ->
-            case Repo.update( Model.History.changeset(prev, action) ) do
-              {:ok, hist} -> {:ok, hist}
-              {:error, %{ errors: errors } } ->
-                Logger.error("Error storing action result: #{ inspect errors }. Storing as error finished.")
-                Repo.update( Model.History.changeset(prev, %{ status: "error", result: %{ database_error: Map.new(errors) } } ) )
-            end
-          [] ->
-            Logger.warn("Storing action finished on non yet started action (or not registered yet). May be a fast action. #{inspect action}", action: action)
-            Logger.debug("Also happens in tests, where the database may be cleaned and after some time the action finished.")
-            user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
-              [] -> nil
-              [id] -> id
-            end
-            action = Map.merge( action, %{ type: action[:id], user_id: user_id } )
-            {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
-        end
-        :ok
-      _ -> :ok
-    end)
 
     GenServer.start_link __MODULE__, %{}, [name: Serverboards.Action] ++ options
+  end
+
+  def action_update_finished(action) do
+    import Ecto.Query
+    #Logger.warn("Action finished #{inspect action.uuid}", action: action)
+    case Repo.all(from h in Model.History, where: h.uuid == ^action.uuid) do
+      [prev] ->
+        case Repo.update( Model.History.changeset(prev, action) ) do
+          {:ok, hist} -> {:ok, hist}
+          {:error, %{ errors: errors } } ->
+            Logger.error("Error storing action result: #{ inspect errors }. Storing as error finished.")
+            Repo.update( Model.History.changeset(prev, %{ status: "error", result: %{ database_error: Map.new(errors) } } ) )
+        end
+      [] ->
+        Logger.warn("Storing action finished on non yet started action (or not registered yet). May be a fast action. #{inspect action}", action: action)
+        Logger.debug("Also happens in tests, where the database may be cleaned and after some time the action finished.")
+        user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
+          [] -> nil
+          [id] -> id
+        end
+        action = Map.merge( action, %{ type: action[:id], user_id: user_id } )
+        {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
+    end
   end
 
   @doc ~S"""
@@ -174,6 +172,16 @@ defmodule Serverboards.Action do
   end
 
   @doc ~S"""
+  Executes and action (normal trigger), and waits for result
+
+  Returns the result.
+  """
+  def trigger_wait(action_id, params, me) do
+    {:ok, uuid} = trigger(action_id, params, me)
+    GenServer.call(Serverboards.Action, {:wait, uuid}, 300_000 ) # 5 min to do it. Else fail
+  end
+
+  @doc ~S"""
   Performs the trigger executing the plugin and calling the method, but nothing else
 
   Called by the server
@@ -223,15 +231,15 @@ defmodule Serverboards.Action do
 
     EventSourcing.subscribe es, :trigger, fn
       %{ action: action, params: params, uuid: uuid}, me ->
-          GenServer.call(server, {:trigger, {uuid, action, params, me}})
+          GenServer.call(server, {:trigger, uuid, action, params, me})
     end
 
     {:ok, _} = Serverboards.Action.RPC.start_link
-    {:ok, %{}}
+    {:ok, %{ running: %{}, waiting: %{} }}
   end
 
   # first part, bookeeping and start the trigger_real in another Task
-  def handle_call({:trigger, {uuid, action_id, params, user}}, _from, status) do
+  def handle_call({:trigger, uuid, action_id, params, user}, _from, status) do
     action_component = Plugin.Registry.find(action_id)
     if (action_component != nil and action_component.extra["command"] !=nil ) do
       #Logger.info("Trigger action #{action_component.id} by #{inspect user}")
@@ -252,21 +260,26 @@ defmodule Serverboards.Action do
 
       server = self
       {:ok, task} = Task.start_link fn ->
-        Process.put(:name, Serverboards.Action.Running)
+        #Process.put(:name, Serverboards.Action.Running)
         # time and run
+        #Logger.debug("Trigger start #{inspect uuid}: #{inspect command_id}")
+
         {ok, ret} = trigger_real(command_id, method, params)
         GenServer.call(server, {:trigger_stop, {uuid, ok, ret}})
       end
       Process.monitor(task)
-      {:reply, :ok, Map.put(status, uuid, action)}
+      {:reply, :ok, %{
+        status |
+        running: Map.put(status.running, uuid, action)
+      } }
     else
       {:reply, {:error, :invalid_action}, status}
     end
   end
   # second part, bookkeeping
   def handle_call({:trigger_stop, {uuid, ok, ret} }, _from, status) do
-    action = status[uuid]
-
+    #Logger.debug("Trigger stop #{inspect uuid}: #{inspect ret}")
+    action = status.running[uuid]
     elapsed = round(
       Timex.Time.to_milliseconds(Timex.Time.elapsed(action.timer_start))
       )
@@ -284,13 +297,49 @@ defmodule Serverboards.Action do
       result: ret
     })
 
+    action_update_finished(action)
     Event.emit("action.stopped", action, ["action.watch"] )
 
-    {:reply, :ok, Map.drop(status, [uuid])}
+    #Logger.debug("Has it waiting? #{inspect status.waiting} #{inspect uuid}, #{inspect (status.waiting[uuid])}")
+    waiting = if status.waiting[uuid] != nil do
+      GenServer.reply(status.waiting[uuid], ret)
+      Map.drop(status.waiting, [uuid])
+    else
+      status.waiting
+    end
+
+    {:reply, :ok, %{
+      status |
+        running: Map.drop(status.running, [uuid]),
+        waiting: waiting,
+    } }
+  end
+
+  def handle_call({:wait, uuid}, from, status) do
+    status_result = if not Map.has_key?(status.running, uuid) do # If not running, may be in database as finished
+      import Ecto.Query
+      case Repo.all( from h in Model.History, where: h.uuid == ^uuid, select: {h.status, h.result} ) do
+        nil -> nil
+        [{"error", result}] -> {:error, result}
+        [{"ok", result}] -> {:ok, result}
+        [{code, _}] -> {:error, code}
+      end
+    else
+      nil
+    end
+
+    if status_result != nil do
+      {:reply, status_result, status}
+    else
+      {:noreply, %{
+        status |
+        waiting: Map.put(status.waiting, uuid, from)
+        } }
+    end
   end
 
   def handle_call({:ps}, _from, status) do
-    ret = status
+    ret = status.running
       |> Enum.map( fn {uuid, %{ id: action_id, params: params } } ->
         component = Plugin.Registry.find(action_id)
         #Logger.debug("ps: #{inspect component}/#{inspect action_id}")

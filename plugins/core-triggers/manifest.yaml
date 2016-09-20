@@ -110,7 +110,6 @@ components:
           placeholder: eg. UP, DOWN, UNKNOWN
     stop: tag_change_stop
 
-
   - name: Server socket is up
     description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
     id: rule.socket.is_up
@@ -161,6 +160,7 @@ components:
             The service {{service.name}} is UP.
 
             {{service.url}}
+
   - name: Core triggers daemon
     id: daemon
     type: cmd

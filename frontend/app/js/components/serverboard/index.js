@@ -76,6 +76,7 @@ const SidebarSections = React.createClass({
     }
 
     const service_menu=this.state.service_menu
+    const serverboard=this.props.serverboard
 
     return (
       <div className="ui vertical menu sections">
@@ -90,12 +91,23 @@ const SidebarSections = React.createClass({
             <MenuItem section={s.id} data-tooltip={s.description} icon="caret down">{s.name}</MenuItem>
             <div className="menu">
               {service_menu.candidates.map( (service) => (
-                <MenuItem section={s.id} data={{service}} data-tooltip={service.description}>{service.name}</MenuItem>
+                <MenuItem
+                  section={s.id}
+                  data={{service, serverboard}}
+                  data-tooltip={service.description}>
+                    {service.name}
+                </MenuItem>
               ))}
             </div>
           </div>
         ) : (
-          <MenuItem section={s.id} data-tooltip={s.description} icon={s.traits.length>0 ? "caret right" : undefined}>{s.name}</MenuItem>
+          <MenuItem
+            section={s.id}
+            data={{serverboard}}
+            data-tooltip={s.description}
+            icon={s.traits.length>0 ? "caret right" : undefined}>
+              {s.name}
+          </MenuItem>
         ))}
       </div>
     )
@@ -107,7 +119,6 @@ const SidebarSections = React.createClass({
 const Serverboard=React.createClass({
   render(){
     const props=this.props
-    console.log(props)
     if (!props.serverboard)
       return (
         <Loading>
