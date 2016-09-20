@@ -1,18 +1,29 @@
 var screens = {}
 var widgets = {}
+var already_loaded = {}
 
 export function load(url, options){
-  let full_url=`/static/${url}`
-  if (localStorage.servername)
+  if (already_loaded[url]){
+    return Promise.resolve()
+  }
+  let promise = new Promise(function(accept, reject){
+    let full_url=`/static/${url}`
+    if (localStorage.servername)
     full_url=`${localStorage.servername}${full_url}`
 
-  options = $.extend( options || {}, {
-    dataType: "script",
-    cache: true,
-    url: full_url
-  });
+    options = $.extend( options || {}, {
+      dataType: "script",
+      cache: true,
+      url: full_url
+    });
 
-  return jQuery.ajax( options );
+    return jQuery.ajax( options ).done( accept ).fail( reject )
+  })
+  promise = promise.then( () => {
+    already_loaded[url]=true
+    console.log("Loaded JS %o", url)
+  })
+  return promise
 }
 
 let waiting_for_screen={}

@@ -30,15 +30,15 @@ const ExternalScreen = React.createClass({
     $.get(`${servername}/static/${plugin}/${component}.html`, (html) => {
       let $el = $(this.refs.el).html(html)
 
-      plugin_load(`${plugin}/${component}.js`).done(() => {
-        let cleanupf=plugin_do_screen(
+      plugin_load(`${plugin}/${component}.js`).then(() =>
+        plugin_do_screen(
           `${plugin}/${component}`,
           $el,
           this.props.location.state
-        ).then( (cleanupf) =>
-          this.setState({cleanupf})
         )
-      }).fail((e) => {
+      ).then( (cleanupf) =>
+        this.setState({cleanupf})
+      ).catch((e) => {
         console.error("Error loading plugin data: %o", e)
       })
     })
