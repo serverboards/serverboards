@@ -27,6 +27,10 @@ auth.reset_password -- Given at the reset password action via email.
 plugin -- Can start, stop and make calls into plugins. May have [plugin_id/cmd_id]
 plugin.data -- Can access and modify plugin data. May have a [context]
 
+## HTTP
+
+http.port_to_websocket -- Allows to manage port to websocket mappings
+
 ## Serverboards
 
 serverboard.add -- Add/remove serverboards

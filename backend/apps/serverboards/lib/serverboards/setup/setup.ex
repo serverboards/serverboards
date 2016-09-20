@@ -118,6 +118,7 @@ defmodule Serverboards.Setup do
 
   defp all_perms do
     [
+    "http.port_to_websocket",
     "auth.modify_self", "auth.modify_any",
     "auth.create_user", "auth.create_token",
     "auth.info_any_user",

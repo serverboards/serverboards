@@ -10,6 +10,7 @@ defmodule Serverboards.IO.HTTP do
           {"/", :cowboy_static, {:file, "#{frontend_path}/index.html"} },
           {"/static/:plugin/[...]", Serverboards.IO.HTTP.StaticPlugin, []},
           {"/ws", Serverboards.IO.HTTP.WebSocketHandler, []},
+          {"/ws/:uuid", Serverboards.IO.HTTP.PortToWebsocket.Handler, []},
           {"/[...]", :cowboy_static, {:dir, frontend_path}}
         ]
       }
@@ -24,6 +25,9 @@ defmodule Serverboards.IO.HTTP do
         {:onresponse, &postrequest/4}
       ]
     )
+    Serverboards.IO.HTTP.PortToWebsocket.start_link
+    Serverboards.IO.HTTP.RPC.start_link
+
     Logger.info("Accepting HTTP connections at http://localhost:#{port}")
 
     {:ok, res}
