@@ -17,8 +17,13 @@ const AddWidget = React.createClass({
     rpc.call("serverboard.widget.catalog", [this.props.serverboard]).then( (catalog) => {
       const widget_id = this.props.widget.widget
       const widget = catalog.find( (w) => w.id == widget_id )
-      this.setState({widget})
-    } )
+      if (widget)
+        this.setState({widget})
+      this.setState({
+        widget: { name: widget_id },
+        error: "There was an error loading the widget description. Maybe the plugin that provides it was uninstalled? We suggest to remove it."
+      })
+    })
   },
   updateWidget(){
     const state=this.state
@@ -52,7 +57,6 @@ const AddWidget = React.createClass({
         </Modal>
       )
     }
-
     return (
       <Modal>
         <div className="ui top secondary menu">
@@ -60,14 +64,22 @@ const AddWidget = React.createClass({
             <HoldButton className="item" onHoldClick={this.removeWidget}>Remove <i className="ui icon trash"/></HoldButton>
           </div>
         </div>
-        <div className="ui header">Add widget</div>
         <div className="ui form" ref="form">
           <h2 className="ui header">{widget.name}</h2>
-          <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
-          <GenericForm fields={widget.params} data={this.state.config} updateForm={this.setFormData}/>
-          <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
-            Update widget
-          </button>
+          {this.state.error ? (
+            <div className="ui message visible error">
+              <div className="header">Error</div>
+              <p>{this.state.error}</p>
+            </div>
+          ) : (
+            <div>
+              <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
+              <GenericForm fields={widget.params} data={this.state.config} updateForm={this.setFormData}/>
+              <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
+                Update widget
+              </button>
+            </div>
+          )}
         </div>
       </Modal>
     )

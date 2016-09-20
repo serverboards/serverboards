@@ -108,7 +108,7 @@ defmodule Serverboards.TriggersTest do
     }
 
     File.rm("/tmp/sbds-rule-test")
-    {:ok, rule} = Rules.Rule.start_link rule_description
+    {:ok, rule} = Rules.Rule.start rule_description
 
     :timer.sleep 1500
 
@@ -156,7 +156,7 @@ defmodule Serverboards.TriggersTest do
 
 
     File.rm("/tmp/sbds-rule-test")
-    {:ok, rule} = Rules.Rule.start_link rule_description
+    {:ok, rule} = Rules.Rule.start rule_description
 
     :timer.sleep 1500
 
