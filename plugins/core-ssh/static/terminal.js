@@ -61,7 +61,7 @@ function main(element, config){
     term.ssh=ssh
     return rpc.call(ssh+".list")
   }).then(function(list){
-    console.log(list)
+    //console.log(list)
     var new_term=true
     for (var i in list){
       if (list[i][1]==config.service.config.url){
