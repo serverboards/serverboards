@@ -21,8 +21,6 @@ defmodule Serverboards.Rules do
       _ -> :ok
     end)
 
-
-
     {:ok, pid}
   end
 
@@ -151,14 +149,19 @@ defmodule Serverboards.Rules do
   end
   def handle_call({:ensure_rule_active, %{} = rule}, _from, status) do
     {ret, status} = if not Map.has_key?(status, rule.uuid) do
-      case Rules.Rule.start(rule) do
-        {:ok, trigger} ->
-          {:ok, Map.put(status, rule.uuid, trigger)}
-        {:error, _} ->
-          {:error, status}
+      try do
+        case Rules.Rule.start(rule) do
+          {:ok, trigger} ->
+            {:ok, Map.put(status, rule.uuid, trigger)}
+          {:error, reason} ->
+            {{:error, reason}, status}
+        end
+      catch
+        :exit, _ ->
+          {{:error, :exit_on_start}, status}
       end
     else
-      status
+      {{:error, :not_found}, status}
     end
     #Logger.debug("Ensure active #{inspect rule.uuid} #{inspect status}")
     {:reply, ret, status}

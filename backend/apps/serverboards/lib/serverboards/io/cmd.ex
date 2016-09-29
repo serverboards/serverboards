@@ -103,7 +103,7 @@ defmodule Serverboards.IO.Cmd do
       }
     )
     {:ok, timer} = :timer.send_interval(@ratelimit_bucket_rate, self, :ratelimit_bucket_add)
-    Logger.debug("Timer is #{inspect timer}")
+    #Logger.debug("Timer is #{inspect timer}")
 
     state=%{
       cmd: cmd,
@@ -222,10 +222,10 @@ defmodule Serverboards.IO.Cmd do
       {:noreply, %{ state | line: line }}
     end
   end
-  def handle_info({:EXIT, port, :normal}, state) when is_port(port) do
+  def handle_info({:EXIT, _port, :normal}, state) do
     {:stop, :normal, state}
   end
-  def handle_info({:EXIT, port, reason}, state) when is_port(port) do
+  def handle_info({:EXIT, _port, reason}, state) do
     Logger.warn("Command exit, not expected: #{reason}")
     {:stop, reason, state}
   end
@@ -244,9 +244,6 @@ defmodule Serverboards.IO.Cmd do
       {:noreply, %{ state |
         ratelimit: ratelimit}}
     end
-  end
-  def handle_info({:EXIT, _pid, :normal}, state) do
-    {:noreply, state}
   end
   def handle_info(any, state) do
     Logger.warn("Command got info #{inspect any}")
