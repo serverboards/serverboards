@@ -14,23 +14,31 @@ defmodule Serverboards.Plugin.Monitor do
   end
 
 
+  defp subdirs(dirname) do
+    {:ok, files} = File.ls(dirname)
+    files
+      |> Enum.map(&Path.join(dirname,&1))
+      |> Enum.filter(&File.dir?(&1))
+  end
+
   # server
   def init(dirnames) do
     Process.flag(:trap_exit, true)
 
     cmd = "/usr/bin/inotifywait"
-    args = ~w(-q -c -m -e close_write -e moved_to -e create -e delete -e attrib --exclude node_modules --exclude ".*~" -r)
-    args = args ++ dirnames
+    args = ~w(-q -c -m -e close_write -e moved_to -e create -e delete -e attrib )
+    all_subdirs = dirnames |> Enum.flat_map(&subdirs(&1))
+    args = args ++ dirnames ++ all_subdirs
     cmdopts = [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Port.connect(port, self)
 
-    Logger.warn("Plugin monitor ready! #{inspect port} #{inspect cmdopts}")
+    Logger.info("Plugin monitor ready! #{inspect port} #{inspect(dirnames++all_subdirs)}")
 
     {:ok, %{ port: port, dirnames: dirnames, expect_exit: false, timeout: :none }}
   end
 
-  def handle_info({port, {:data,{:eol, data}}}, state) do
+  def handle_info({_port, {:data,{:eol, data}}}, state) do
     [_, dirname, _actions, filename] = Regex.run(~r/^([^,]*),(.*),([^,]*)$/, List.to_string(data))
     file_path = "#{dirname}#{filename}"
     Logger.debug("Changes at #{file_path}")
@@ -50,7 +58,7 @@ defmodule Serverboards.Plugin.Monitor do
     {:noreply, %{state | timeout: :none}}
   end
 
-  def handle_info({:EXIT, port, :normal}, state) do
+  def handle_info({:EXIT, _port, :normal}, state) do
     if not state.expect_exit do
       Logger.error("Unexpected inotifywait exit. Check max inotifywait is installed and /proc/sys/fs/inotify/max_user_watches is properly configured")
     end
@@ -62,7 +70,7 @@ defmodule Serverboards.Plugin.Monitor do
     {:noreply, state}
   end
 
-  def terminate(reason, state) do
+  def terminate(_reason, state) do
     Logger.debug("Terminate plugin monitor #{inspect state.port}")
     Serverboards.IO.Cmd.kill(state.port)
     {:ok}
