@@ -48,9 +48,16 @@ defmodule Serverboards.IO.Cmd do
   """
   def call(cmd, method, params \\ []) do
     # 24h timeout
-    case GenServer.call(cmd, {:call, method, params}, 24 * 60 * 60 * 1000) do
-      {:ok, res} -> {:ok, res}
-      {:error, err} -> {:error, err}
+
+    try do
+      case GenServer.call(cmd, {:call, method, params}, 24 * 60 * 60 * 1000) do
+        {:ok, res} -> {:ok, res}
+        {:error, err} -> {:error, err}
+      end
+    catch
+      :exit, {reason, _} ->
+        Logger.error("Command exited while processing method call: #{inspect method}: #{inspect reason}", method: method, reason: reason)
+        {:error, :exit}
     end
   end
 
@@ -88,11 +95,15 @@ defmodule Serverboards.IO.Cmd do
 
     {:ok, client} = RPC.Client.start_link [
         writef: fn line ->
-          #Logger.debug("Wl #{inspect server} #{inspect line} #{inspect Process.alive?(server)}")
           GenServer.call(server, {:write_line, line})
         end,
         name: "CMD-#{cmd}"
       ]
+
+    MOM.RPC.Client.add_method client, "debug", fn [onoff] ->
+        GenServer.call(server, {:debug, onoff})
+    end
+
     Serverboards.Auth.client_set_user(
       client,
       %{
@@ -112,6 +123,7 @@ defmodule Serverboards.IO.Cmd do
       line: [],
       ratelimit: @ratelimit_bucket_size,
       ratelimit_skip: 0,
+      debug: true
     }
     {:ok, state}
   end
@@ -164,6 +176,9 @@ defmodule Serverboards.IO.Cmd do
 
   def handle_call({:write_line, line}, _from, state) do
     # If fails, makes the cmd exit. And by failing call, quite probably caller too. (Client)
+    if state.debug do
+      Logger.debug("CMD // #{state.cmd} // #{inspect self}> #{line}")
+    end
     res = Port.command(state.port, line)
     {:reply, res, state}
   end
@@ -181,6 +196,11 @@ defmodule Serverboards.IO.Cmd do
   def handle_call({:reply, cont, res}, _from, state) do
     ret = cont.(res)
     {:reply, ret, state}
+  end
+  
+  def handle_call({:debug, onoff}, _from, state) do
+    Logger.debug("Setting debug #{inspect onoff}")
+    {:reply, {:ok, :ok}, %{ state | debug: onoff }}
   end
 
   def handle_cast({:cast, method, params, cont}, state) do
@@ -204,6 +224,11 @@ defmodule Serverboards.IO.Cmd do
     state = rate_limit_wait(state)
 
     line = to_string([state.line, line])
+
+    if state.debug do
+      Logger.debug("CMD // #{state.cmd} // #{inspect self}< #{line}")
+    end
+
     case RPC.Client.parse_line(state.client, line) do
       {:error, e} ->
         Logger.error("Error parsing line: #{inspect e}")
