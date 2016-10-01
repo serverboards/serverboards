@@ -15,10 +15,15 @@ defmodule Serverboards.Plugin.Monitor do
 
 
   defp subdirs(dirname) do
-    {:ok, files} = File.ls(dirname)
-    files
-      |> Enum.map(&Path.join(dirname,&1))
-      |> Enum.filter(&File.dir?(&1))
+    case File.ls(dirname) do
+      {:ok, files} ->
+        files
+          |> Enum.map(&Path.join(dirname,&1))
+          |> Enum.filter(&File.dir?(&1))
+      {:error, error} ->
+        Logger.error("Plugin directory #{dirname} error: #{inspect error}")
+        []
+    end
   end
 
   # server
