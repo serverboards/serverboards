@@ -517,3 +517,13 @@ It returns a dict with:
 
   * total -- Total number of lines
   * lines -- The returned lines in this batch
+
+## log.error(msg, extra \\ [])
+
+extra may contain: file, line, function, to properly log origin.
+
+## log.info(msg, extra \\ [])
+
+## log.warning(msg, extra \\ [])
+
+## log.debug(msg, extra \\ [])

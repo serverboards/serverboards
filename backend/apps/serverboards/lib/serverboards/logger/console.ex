@@ -19,6 +19,7 @@ defmodule Serverboards.Logger.Console do
   end
 
   def format(msg, metadata, colors) do
+    metadata=Map.to_list(Map.new(metadata)) # get latest, to get the overwritten file/line/function
     time = Logger.Utils.format_time( elem metadata[:timestamp], 1 )
     level = String.upcase(to_string metadata[:level])
     fileline = if metadata[:file] do
@@ -32,7 +33,7 @@ defmodule Serverboards.Logger.Console do
       "#{time} [#{String.pad_trailing level, 5}] [#{String.pad_leading fileline, 30} / #{pid}] "
         |> color_event(metadata[:level], colors)
       )
-    ["\r", 
+    ["\r",
       String.pad_trailing(to_string(header), 80),
       msg]
   end

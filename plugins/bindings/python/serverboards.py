@@ -34,7 +34,31 @@ class RPC:
             self.stderr=debug
         self.debug("--- BEGIN ---")
 
-    def debug(self, x):
+    def __decorate_log(self, extra):
+        import inspect
+        callerf=inspect.stack()[1]
+
+        caller={
+          "function":callerf[3],
+          "file":callerf[1],
+          "line":callerf[2],
+        }
+        return caller.update(extra)
+
+    def debug(self, msg, extra={}):
+        self.debug_stdout(msg)
+        return self.call("log.debug", msg, self.__decorate_log(extra))
+    def info(self, msg, extra={}):
+        self.debug_stdout(msg)
+        return self.call("log.info", msg, extra)
+    def error(self, msg, extra={}):
+        self.debug_stdout(msg)
+        return self.call("log.error", msg, extra)
+    def info(self, msg, extra={}):
+        self.debug_stdout(msg)
+        return self.call("log.info", msg, extra)
+
+    def debug_stdout(self, x):
         if not self.stderr:
             return
         if type(x) != str:
@@ -118,7 +142,7 @@ class RPC:
         if not l:
             self.loop_stop()
             return
-        self.debug(l)
+        self.debug_stdout(l)
         rpc = json.loads(l)
         self.__process_request(rpc)
 
@@ -159,7 +183,7 @@ class RPC:
                 self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
-        self.debug(line)
+        self.debug_stdout(line)
         self.stdout.write(line + '\n')
         self.stdout.flush()
 
@@ -205,7 +229,7 @@ class RPC:
 
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
-            self.debug(res)
+            self.debug_stdout(res)
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
