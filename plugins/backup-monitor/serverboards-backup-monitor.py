@@ -103,12 +103,13 @@ def file_exists(id, service, file_expression, when):
                     serverboards.rpc.event("trigger", {"id": id, "state" : "not-exists"})
                 self.prev_exists = exists
 
+            self.start()
+        def start(self):
             next_when=get_next_when(when)
             serverboards.debug("Wait %d:%d:%d"%(next_when/(60*60), (next_when/60)%60, next_when%60))
-
             timer_id = rpc.add_timer(next_when, self.check)
             file_exist_timers[id]=timer_id
-    Check().check()
+    Check().start()
     return id
 
 @serverboards.rpc_method
@@ -140,6 +141,8 @@ def test():
     print(get_next_when("17:40") / (60.0*60.0))
     print("Today secs")
     print(time_in_seconds() / (60.0*60.0))
+
+    print(filename_template("test-{yesterday_}.tar.gz"))
 
 if __name__=='__main__':
     if len(sys.argv)>1 and sys.argv[1]=='test':
