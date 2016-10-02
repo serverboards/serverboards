@@ -161,6 +161,13 @@ defmodule Serverboards.Rules.Rule do
     rule = if (rule.is_active and rule.trigger.trigger != nil and rule.trigger.trigger != "") do
       #Logger.debug("Ensure active")
       case Serverboards.Rules.restart_rule(rule) do
+        {:error, reason} ->
+          Logger.error("Error starting rule #{inspect reason}. Disabling.", rule: rule)
+          Serverboards.Rules.ensure_rule_not_active rule
+          Repo.update(
+            Model.Rule.changeset(rulem, %{ is_active: false })
+          )
+          %{ rule | is_active: false }
         :error ->
           Logger.error("Cant ensure rule is started, disabling it.", rule: rule)
           Serverboards.Rules.ensure_rule_not_active rule
