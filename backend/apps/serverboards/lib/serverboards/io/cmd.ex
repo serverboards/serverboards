@@ -257,7 +257,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def handle_info(:ratelimit_bucket_add, state) do
-    Logger.debug("Add bucket to rate limiting")
+    #Logger.debug("Add bucket to rate limiting")
     if state.ratelimit_skip > 0 do
       {:noreply, %{ state | ratelimit_skip: state.ratelimit_skip - 1 }}
     else
