@@ -74,4 +74,5 @@ def execute(query):
             conn.conn.rollback()
             raise
 
+serverboards.rpc.call("debug", True)
 serverboards.loop()

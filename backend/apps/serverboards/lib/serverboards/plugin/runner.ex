@@ -302,6 +302,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, :ok, state}
   end
   def handle_call({:stop, uuid}, _from, state) do
+    Logger.debug("Stop plugin #{uuid}")
     entry = state.running[uuid]
     cond do
       entry == nil ->
