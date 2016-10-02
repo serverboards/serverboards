@@ -91,7 +91,7 @@ defmodule Serverboards.IO.Cmd do
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Port.connect(port, server)
-    Logger.debug("Starting command #{cmd} at port #{inspect port}")
+    Logger.debug("Starting command #{cmd} at port")
 
     {:ok, client} = RPC.Client.start_link [
         writef: fn line ->
@@ -129,7 +129,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def terminate(reason, state) do
-    Logger.debug("Terminate CMD #{inspect state.cmd}")
+    Logger.debug("Terminate CMD #{inspect reason} // #{inspect Path.basename(state.cmd)} //  #{inspect Port.info(state.port)}")
     kill(state.port)
     #Port.close(state.port)
     {:ok}
@@ -177,15 +177,16 @@ defmodule Serverboards.IO.Cmd do
   def handle_call({:write_line, line}, _from, state) do
     # If fails, makes the cmd exit. And by failing call, quite probably caller too. (Client)
     if state.debug do
-      Logger.debug("CMD // #{state.cmd} // #{inspect self}> #{line}")
+      Logger.debug("CMD // #{Path.basename state.cmd} // #{inspect self}> #{line} #{inspect Port.info(state.port)}")
     end
     res = Port.command(state.port, line)
+
     {:reply, res, state}
   end
   def handle_call({:call, method, params}, from, state) do
     #Logger.debug("Call #{method}")
     RPC.Client.cast( state.client, method, params, fn res ->
-      #Logger.debug("Response for #{method}: #{inspect res}")
+      Logger.debug("Response for #{method}: #{inspect res}")
       GenServer.reply(from, res)
     end)
     {:noreply, state }
@@ -197,7 +198,6 @@ defmodule Serverboards.IO.Cmd do
     ret = cont.(res)
     {:reply, ret, state}
   end
-  
   def handle_call({:debug, onoff}, _from, state) do
     Logger.debug("Setting debug #{inspect onoff}")
     {:reply, {:ok, :ok}, %{ state | debug: onoff }}
@@ -226,7 +226,7 @@ defmodule Serverboards.IO.Cmd do
     line = to_string([state.line, line])
 
     if state.debug do
-      Logger.debug("CMD // #{state.cmd} // #{inspect self}< #{line}")
+      Logger.debug("CMD // #{Path.basename state.cmd} // #{inspect self}< #{line}")
     end
 
     case RPC.Client.parse_line(state.client, line) do
@@ -247,15 +247,17 @@ defmodule Serverboards.IO.Cmd do
       {:noreply, %{ state | line: line }}
     end
   end
-  def handle_info({:EXIT, _port, :normal}, state) do
+  def handle_info({:EXIT, port, :normal}, state) when is_port(port) do
+    Logger.debug("Command exit normal")
     {:stop, :normal, state}
   end
-  def handle_info({:EXIT, _port, reason}, state) do
+  def handle_info({:EXIT, port, reason}, state) when is_port(port) do
     Logger.warn("Command exit, not expected: #{reason}")
     {:stop, reason, state}
   end
 
   def handle_info(:ratelimit_bucket_add, state) do
+    Logger.debug("Add bucket to rate limiting")
     if state.ratelimit_skip > 0 do
       {:noreply, %{ state | ratelimit_skip: state.ratelimit_skip - 1 }}
     else
@@ -274,9 +276,4 @@ defmodule Serverboards.IO.Cmd do
     Logger.warn("Command got info #{inspect any}")
     {:noreply, state}
   end
-  def handle_call(any, state) do
-    Logger.warn("Command got call #{inspect any}")
-    {:noreply, state}
-  end
-
 end
