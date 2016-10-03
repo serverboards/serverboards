@@ -2,8 +2,6 @@ import React from 'react'
 import NotificationItem from 'app/components/notifications/item'
 
 function NotificationsMenu(props){
-  console.log(props.unread)
-  const example={id: 10, tags:["new"], inserted_at:"2016-09-01T10:10+0200", subject:"This is a test", body: "Long body of several\nlines"}
   return (
     <div className="ui popup" id="notifications_menu">
       <div className="vertical menu">
