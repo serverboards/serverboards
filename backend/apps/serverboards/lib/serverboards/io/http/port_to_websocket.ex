@@ -109,14 +109,14 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
         {:ok, socket} = :gen_tcp.connect('localhost', port, opts)
         :gen_tcp.controlling_process(socket, self())
 
-        Logger.info("websocket protocol: #{inspect :cowboy_req.parse_header("sec-websocket-protocol", req)}")
+        #Logger.info("websocket protocol: #{inspect :cowboy_req.parse_header("sec-websocket-protocol", req)}")
         req = case :cowboy_req.parse_header("sec-websocket-protocol", req) do
             {:undefined, :undefined, _} ->
               req
             {:ok, subprotocols, req} ->
-              Logger.info("Requesting subprotocols: #{inspect subprotocols}")
+              #Logger.info("Requesting subprotocols: #{inspect subprotocols}")
               if "binary" in subprotocols do
-                Logger.info("Using binary subprotocol")
+                #Logger.info("Using binary subprotocol")
                 :cowboy_req.set_resp_header("sec-websocket-protocol", "binary", req)
               else
                 Logger.error("Requested websocket subprotocol, and dont know how to handle. Ignoring request, quite probably client will just close. #{inspect subprotocols}")

@@ -186,7 +186,7 @@ defmodule Serverboards.IO.Cmd do
   def handle_call({:call, method, params}, from, state) do
     #Logger.debug("Call #{method}")
     RPC.Client.cast( state.client, method, params, fn res ->
-      Logger.debug("Response for #{method}: #{inspect res}")
+      #Logger.debug("Response for #{method}: #{inspect res}")
       GenServer.reply(from, res)
     end)
     {:noreply, state }
