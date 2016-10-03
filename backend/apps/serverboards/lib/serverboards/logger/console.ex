@@ -27,7 +27,12 @@ defmodule Serverboards.Logger.Console do
       else
         "--/--"
       end
-    pid = String.slice (inspect metadata[:pid]), 4..-1
+    pid = inspect(metadata[:pid])
+    pid = if (String.starts_with?(pid, "#")) do
+      String.slice pid, 4..-1
+    else
+      pid
+    end
 
     header= (
       "#{time} [#{String.pad_trailing level, 5}] [#{String.pad_leading fileline, 30} / #{pid}] "

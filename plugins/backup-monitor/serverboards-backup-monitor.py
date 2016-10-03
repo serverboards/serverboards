@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys, os, datetime, hashlib
+import sys, os, datetime, hashlib, random
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import rpc
@@ -8,7 +8,7 @@ from serverboards import rpc
 plugin_id="serverboards.backup.monitor"
 
 def convert_timespec_to_seconds(when):
-    serverboards.debug("When %s"%repr(when))
+    serverboards.info("When %s"%repr(when))
     if when=='12pm':
         return 12 * 60 * 60
     if when=='12am':
@@ -81,7 +81,7 @@ def file_exists(id, service, file_expression, when):
                 "action.trigger_wait",
                 "serverboards.core.ssh/exec",
                 dict(url=url, command="stat -c '%%s %%y' %s; stat -f -c '%%f %%s' %s"%(filename, filename)))
-            rpc.debug(res)
+            rpc.debug("SSH stat result: %s"%res)
 
             exists = res['exit']==0
             if exists != self.prev_exists:
@@ -103,12 +103,16 @@ def file_exists(id, service, file_expression, when):
                     serverboards.rpc.event("trigger", {"id": id, "state" : "not-exists"})
                 self.prev_exists = exists
 
-            self.start()
-        def start(self):
+            self.rearm()
+        def rearm(self):
             next_when=get_next_when(when)
             serverboards.debug("Wait %d:%d:%d"%(next_when/(60*60), (next_when/60)%60, next_when%60))
             timer_id = rpc.add_timer(next_when, self.check)
             file_exist_timers[id]=timer_id
+        def start(self):
+            timer_id = rpc.add_timer(random.randint(10,100), self.check)
+            file_exist_timers[id]=timer_id
+
     Check().start()
     return id
 
@@ -148,4 +152,4 @@ if __name__=='__main__':
     if len(sys.argv)>1 and sys.argv[1]=='test':
         test()
     else:
-        serverboards.loop(True)
+        serverboards.loop()

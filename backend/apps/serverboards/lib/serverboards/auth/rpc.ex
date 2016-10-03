@@ -46,7 +46,7 @@ defmodule Serverboards.Auth.RPC do
     ## User management
     add_method mc, "user.list", fn [] ->
       Auth.User.user_list nil
-    end
+    end, required_perm: "auth.list"
     add_method mc, "user.add", fn attributes, context ->
       me = RPC.Context.get(context, :user)
       Auth.User.user_add %{
@@ -65,7 +65,7 @@ defmodule Serverboards.Auth.RPC do
     ## Group management
     add_method mc, "group.list", fn [] ->
       Auth.Group.group_list nil
-    end
+    end, required_perm: "auth.list"
     add_method mc, "group.add", fn [name], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.group_add name, me
@@ -97,7 +97,7 @@ defmodule Serverboards.Auth.RPC do
     add_method mc, "group.list_users", fn [group], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_list group, me
-    end, [context: true]
+    end, [context: true, required_perm: "auth.list"]
 
     # permission list
     add_method mc, "perm.list", fn [] ->

@@ -26,8 +26,10 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
       worker(Serverboards.Rules.Trigger, [ [name: Serverboards.Rules.Trigger] ]),
-      worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
+
+      # this should be the last, as it may use others
+      worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
     ]
 
     run_servers = (System.get_env("SERVERBOARDS_SERVER") || "true") == "true"

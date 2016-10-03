@@ -123,7 +123,7 @@ defmodule Serverboards.IO.Cmd do
       line: [],
       ratelimit: @ratelimit_bucket_size,
       ratelimit_skip: 0,
-      debug: true
+      debug: false
     }
     {:ok, state}
   end
@@ -273,7 +273,7 @@ defmodule Serverboards.IO.Cmd do
     end
   end
   def handle_info(any, state) do
-    Logger.warn("Command got info #{inspect any}")
+    # Logger.warn("Command got info #{inspect any}")
     {:noreply, state}
   end
 end

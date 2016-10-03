@@ -9,6 +9,7 @@ user".
 
 ## Auth
 
+auth.list -- Access to users, groups and users in groups lists
 auth.modify_self -- Modify my own user
 auth.modify_any  -- Modify any user
 auth.create_user -- Create user
