@@ -32,7 +32,7 @@ defmodule Serverboards.Logger.RPC do
         Logger.debug(message)
       [message, extra] ->
         extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line")
+          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
         Logger.debug(message, extra)
     end
     add_method mc, "log.error", fn
@@ -40,7 +40,7 @@ defmodule Serverboards.Logger.RPC do
         Logger.error(message)
       [message, extra] ->
         extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line")
+          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
         Logger.error(message, extra)
     end
     add_method mc, "log.warning", fn
@@ -48,19 +48,20 @@ defmodule Serverboards.Logger.RPC do
         Logger.warn(message)
       [message, extra] ->
         extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line")
+          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
         Logger.warn(message, extra)
     end
     add_method mc, "log.info", fn
       [message] ->
         Logger.info(message)
       [message, extra] ->
+        extra = Map.to_list(extra)
+          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
         Logger.info(message, extra)
     end
 
-
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: _user}} ->
-      MOM.RPC.Client.add_method_caller client, mc
+    MOM.Channel.subscribe(:auth_authenticated, fn msg ->
+      MOM.RPC.Client.add_method_caller msg.payload.client, mc
     end)
 
     {:ok, mc}

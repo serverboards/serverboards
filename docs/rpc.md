@@ -519,11 +519,15 @@ It returns a dict with:
   * lines -- The returned lines in this batch
 
 ## log.error(msg, extra \\ [])
+Event.
 
 extra may contain: file, line, function, to properly log origin.
 
 ## log.info(msg, extra \\ [])
+Event.
 
 ## log.warning(msg, extra \\ [])
+Event.
 
 ## log.debug(msg, extra \\ [])
+Event.

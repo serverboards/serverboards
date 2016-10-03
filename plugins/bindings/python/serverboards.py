@@ -27,6 +27,14 @@ class RPC:
         self.subscriptions_ids={}
         self.subscription_id=1
 
+        class WriteToLog:
+          def __init__(self, rpc):
+            self.rpc=rpc
+          def write(self, txt, *args, **kwargs):
+            self.rpc.error(txt)
+
+        self.write_to_log=WriteToLog(self)
+
     def set_debug(self, debug):
         if debug is True:
             self.stderr=sys.stderr
@@ -34,29 +42,31 @@ class RPC:
             self.stderr=debug
         self.debug("--- BEGIN ---")
 
-    def __decorate_log(self, extra):
+    def __decorate_log(self, extra, level=2):
         import inspect
-        callerf=inspect.stack()[1]
+        callerf=inspect.stack()[level]
 
         caller={
           "function":callerf[3],
           "file":callerf[1],
           "line":callerf[2],
+          "pid":os.getpid(),
         }
-        return caller.update(extra)
+        caller.update(extra)
+        return caller
 
-    def debug(self, msg, extra={}):
+    def debug(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.call("log.debug", msg, self.__decorate_log(extra))
-    def info(self, msg, extra={}):
+        return self.event("log.debug", msg, self.__decorate_log(extra, level=2+level))
+    def info(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.call("log.info", msg, extra)
-    def error(self, msg, extra={}):
+        return self.event("log.info", msg, self.__decorate_log(extra, level=2+level))
+    def error(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.call("log.error", msg, extra)
-    def info(self, msg, extra={}):
+        return self.event("log.error", msg, self.__decorate_log(extra, level=2+level))
+    def info(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.call("log.info", msg, extra)
+        return self.event("log.info", msg, self.__decorate_log(extra, level=2+level))
 
     def debug_stdout(self, x):
         if not self.stderr:
@@ -87,7 +97,7 @@ class RPC:
                     'id' : call_id
                     }
             except Exception as e:
-                import traceback; traceback.print_exc()
+                import traceback; traceback.print_exc(file=self.write_to_log)
                 return {
                     'error': str(e),
                     'id' : call_id
@@ -99,7 +109,7 @@ class RPC:
                 try:
                     f(*args, **kwargs)
                 except:
-                    import traceback; traceback.print_exc()
+                    import traceback; traceback.print_exc(file=self.write_to_log)
             return None
 
         return { 'error':'unknown_method', 'id': call_id }
@@ -176,7 +186,7 @@ class RPC:
                 try:
                     self.println(json.dumps(res))
                 except:
-                    import traceback; traceback.print_exc()
+                    import traceback; traceback.print_exc(file=self.write_to_log)
                     sys.stderr.write(repr(res)+'\n')
                     self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
             else:
@@ -312,7 +322,13 @@ def loop(debug=None):
     rpc.loop()
 
 def debug(s):
-    rpc.debug(s)
+    rpc.debug(s, level=1)
+def info(s):
+    rpc.debug(s, level=1)
+def warning(s):
+    rpc.debug(s, level=1)
+def error(s):
+    rpc.debug(s, level=1)
 
 class Config:
     def __init__(self):

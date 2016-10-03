@@ -23,6 +23,17 @@ class RPC:
         self.timers={} # timer_id -> (next_stop, id, seconds, continuation)
         self.timer_id=1
         self.add_event(sys.stdin, self.read_parse_line)
+        self.subscriptions={}
+        self.subscriptions_ids={}
+        self.subscription_id=1
+
+        class WriteToLog:
+          def __init__(self, rpc):
+            self.rpc=rpc
+          def write(self, txt, *args, **kwargs):
+            self.rpc.error(txt)
+
+        self.write_to_log=WriteToLog(self)
 
     def set_debug(self, debug):
         if debug is True:
@@ -31,38 +42,77 @@ class RPC:
             self.stderr=debug
         self.debug("--- BEGIN ---")
 
-    def debug(self, x):
+    def __decorate_log(self, extra, level=2):
+        import inspect
+        callerf=inspect.stack()[level]
+
+        caller={
+          "function":callerf[3],
+          "file":callerf[1],
+          "line":callerf[2],
+          "pid":os.getpid(),
+        }
+        caller.update(extra)
+        return caller
+
+    def debug(self, msg, extra={}, level=0):
+        self.debug_stdout(msg)
+        return self.event("log.debug", msg, self.__decorate_log(extra, level=2+level))
+    def info(self, msg, extra={}, level=0):
+        self.debug_stdout(msg)
+        return self.event("log.info", msg, self.__decorate_log(extra, level=2+level))
+    def error(self, msg, extra={}, level=0):
+        self.debug_stdout(msg)
+        return self.event("log.error", msg, self.__decorate_log(extra, level=2+level))
+    def info(self, msg, extra={}, level=0):
+        self.debug_stdout(msg)
+        return self.event("log.info", msg, self.__decorate_log(extra, level=2+level))
+
+    def debug_stdout(self, x):
         if not self.stderr:
             return
         if type(x) != str:
             x=repr(x)
-        self.stderr.write("%d: %s\r\n"%(self.pid, x))
-        self.stderr.flush()
+        try:
+            self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
+            self.stderr.flush()
+        except BlockingIOError:
+            pass
 
     def add_method(self, name, f):
         self.rpc_registry[name]=f
 
     def call_local(self, rpc):
-        f=self.rpc_registry.get(rpc['method'])
-        if f:
-            params=rpc['params']
+        method=rpc['method']
+        params=rpc['params']
+        call_id=rpc.get('id')
+        (args,kwargs) = ([],params) if type(params)==dict else (params, {})
+
+        if method in self.rpc_registry:
+            f=self.rpc_registry[method]
             try:
-                if type(params)==dict:
-                    res=f(**params)
-                else:
-                    res=f(*params)
+                res=f(*args, **kwargs)
                 return {
                     'result' : res,
-                    'id' : rpc['id']
+                    'id' : call_id
                     }
             except Exception as e:
-                import traceback; traceback.print_exc()
+                import traceback; traceback.print_exc(file=self.write_to_log)
                 return {
                     'error': str(e),
-                    'id' : rpc['id']
+                    'id' : call_id
                 }
-        if not f:
-            return { 'error':'unknown_method', 'id': rpc['id'] }
+        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions)))
+        if method in self.subscriptions:
+            assert call_id is None
+            for f in self.subscriptions[method]:
+                try:
+                    f(*args, **kwargs)
+                except:
+                    import traceback; traceback.print_exc(file=self.write_to_log)
+            return None
+
+        return { 'error':'unknown_method', 'id': call_id }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -102,7 +152,7 @@ class RPC:
         if not l:
             self.loop_stop()
             return
-        self.debug(l)
+        self.debug_stdout(l)
         rpc = json.loads(l)
         self.__process_request(rpc)
 
@@ -131,23 +181,21 @@ class RPC:
     def __process_request(self, rpc):
         self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
-        if res.get("id") not in self.manual_replies:
-            try:
-                self.println(json.dumps(res))
-            except:
-                import traceback; traceback.print_exc()
-                sys.stderr.write(repr(res)+'\n')
-                self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
-        else:
-            self.manual_replies.discard(res.get("id"))
+        if res: # subscription do not give back response
+            if res.get("id") not in self.manual_replies:
+                try:
+                    self.println(json.dumps(res))
+                except:
+                    import traceback; traceback.print_exc(file=self.write_to_log)
+                    sys.stderr.write(repr(res)+'\n')
+                    self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+            else:
+                self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
-        try:
-            self.debug(line)
-            self.stdout.write(line + '\n')
-            self.stdout.flush()
-        except IOError:
-            self.loop_stop()
+        self.debug_stdout(line)
+        self.stdout.write(line + '\n')
+        self.stdout.flush()
 
     def log(self, message=None, type="LOG"):
         assert message
@@ -191,6 +239,7 @@ class RPC:
 
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
+            self.debug_stdout(res)
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
@@ -207,6 +256,27 @@ class RPC:
                 else:
                     self.debug("Waiting for reply; Queue for later: %s"% res)
                     self.requestq.append(rpc)
+
+    def subscribe(self, event, callback):
+        eventname=event.split('[',1)[0] # maybe event[context], we keep only event as only events are sent.
+        sid=self.subscription_id
+
+        self.subscriptions[eventname]=self.subscriptions.get(eventname,[]) + [callback]
+        self.subscriptions_ids[sid]=(eventname, callback)
+
+        self.call("event.subscribe",event)
+        self.subscription_id+=1
+
+        self.debug("Subscribed to %s"%event)
+        self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
+        return sid
+
+    def unsubscribe(self, subscription_id):
+        self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
+        (event, callback) = self.subscriptions_ids[subscription_id]
+        self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
+        self.debug("Removed subscription %s id %s"%(event, subscription_id))
+        del self.subscriptions_ids[subscription_id]
 
 rpc=RPC(sys.stdin, sys.stdout)
 sys.stdout=sys.stderr # allow debugging by print
@@ -250,6 +320,15 @@ def loop(debug=None):
     if debug:
         rpc.set_debug(debug)
     rpc.loop()
+
+def debug(s):
+    rpc.debug(s, level=1)
+def info(s):
+    rpc.debug(s, level=1)
+def warning(s):
+    rpc.debug(s, level=1)
+def error(s):
+    rpc.debug(s, level=1)
 
 class Config:
     def __init__(self):
