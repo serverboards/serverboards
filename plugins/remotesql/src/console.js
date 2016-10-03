@@ -48,7 +48,7 @@ const Console=React.createClass({
     const c=this.props.service.config
     console.log(this.props.service)
     return rpc.call(`${plugin_id}.open`, {
-      via: c.via,
+      via: c.via.uuid,
       type: c.type,
       hostname: c.hostname,
       port: c.port,
