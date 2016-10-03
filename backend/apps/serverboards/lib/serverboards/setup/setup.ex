@@ -8,6 +8,32 @@ defmodule Serverboards.Setup do
   alias Serverboards.Auth.Model
   alias Serverboards.Auth
 
+  defp all_perms do
+    [
+    "http.port_to_websocket",
+    "auth.modify_self", "auth.modify_any",
+    "auth.create_user", "auth.create_token",
+    "auth.info_any_user", "auth.list",
+    "auth.modify_groups", "auth.manage_groups",
+    "plugin", "plugin.data",
+    "serverboard.add", "serverboard.update",
+    "serverboard.delete", "serverboard.info",
+    "serverboard.widget.add", "serverboard.widget.update",
+    "service.add", "service.update",
+    "service.delete", "service.info",
+    "service.attach",
+    "settings.user.view", "settings.user.view_all",
+    "settings.user.update", "settings.user.update_all",
+    "settings.view", "settings.update",
+    "debug",
+    "notifications.notify", "notifications.notify_all",
+    "notifications.list",
+    "action.trigger", "action.watch",
+    "rules.update", "rules.view",
+    "logs.view"
+    ]
+  end
+
   def start do
     {:ok, _} = Application.ensure_all_started(:ecto)
     {:ok, _} = Application.ensure_all_started(:postgrex)
@@ -115,31 +141,4 @@ defmodule Serverboards.Setup do
       perms: all_perms
     }
   end
-
-  defp all_perms do
-    [
-    "http.port_to_websocket",
-    "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
-    "auth.info_any_user",
-    "auth.modify_groups", "auth.manage_groups",
-    "plugin", "plugin.data",
-    "serverboard.add", "serverboard.update",
-    "serverboard.delete", "serverboard.info",
-    "serverboard.widget.add", "serverboard.widget.update",
-    "service.add", "service.update",
-    "service.delete", "service.info",
-    "service.attach",
-    "settings.user.view", "settings.user.view_all",
-    "settings.user.update", "settings.user.update_all",
-    "settings.view", "settings.update",
-    "debug",
-    "notifications.notify", "notifications.notify_all",
-    "notifications.list",
-    "action.trigger", "action.watch",
-    "rules.update", "rules.view",
-    "logs.view"
-    ]
-  end
-
 end
