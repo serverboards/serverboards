@@ -211,6 +211,7 @@ def open_port(url, hostname="localhost", port="22"):
             if ret==3:
                 keep_trying=False
                 running=False
+    serverboards.debug("Port redirect localhost:%s -> %s:%s"%(localport, hostname, port))
     return localport
 
 @serverboards.rpc_method
@@ -222,6 +223,7 @@ def close_port(port):
     """
     port_to_pexpect[port].close()
     del port_to_pexpect[port]
+    serverboards.debug("Closed port redirect localhost:%s"%(port))
     return True
 
 if __name__=='__main__':
