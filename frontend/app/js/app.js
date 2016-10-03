@@ -36,6 +36,7 @@ window.Serverboards = {
   add_widget: plugin.add_widget,
   add_command_search: Command.add_command_search,
   pretty_ago,
+  plugin,
 }
 
 ReactDOM.render(
