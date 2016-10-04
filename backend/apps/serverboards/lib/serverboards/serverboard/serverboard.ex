@@ -6,7 +6,6 @@ defmodule Serverboards.Serverboard do
   alias Serverboards.Repo
   alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
   alias Serverboards.Serverboard.Model.ServerboardTag, as: ServerboardTagModel
-  alias Serverboards.Service.Model.Service, as: ServiceModel
 
   def start_link(_options) do
     {:ok, es} = EventSourcing.start_link name: :serverboard
@@ -197,8 +196,6 @@ defmodule Serverboards.Serverboard do
   Returns the information of a serverboard by id or name
   """
   def serverboard_info(%ServerboardModel{} = serverboard, me) do
-    alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
-
     serverboard = Repo.preload(serverboard, :tags)
 
     serverboard = %{
@@ -233,7 +230,7 @@ defmodule Serverboards.Serverboard do
   @doc ~S"""
   Returns the related screens for this serverboard
   """
-  def serverboard_screens(%{services: services} = serverboard) do
+  def serverboard_screens(%{services: services}) do
     traits = Enum.reduce(services, [], fn s, acc ->
       case Serverboards.Plugin.Registry.find(s.type) do
         nil -> acc

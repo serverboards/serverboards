@@ -134,6 +134,7 @@ defmodule Serverboards.Setup do
     end
   end
 
+  """
   defp system_user do
     %{
       email: "system",
@@ -141,4 +142,5 @@ defmodule Serverboards.Setup do
       perms: all_perms
     }
   end
+  """
 end

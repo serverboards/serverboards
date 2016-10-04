@@ -14,7 +14,7 @@ defmodule Serverboards.Notifications.InApp do
 
   def setup_eventsourcing(es) do
     EventSourcing.subscribe es, :update, fn
-      %{ id: id, tags: tags} = what, me ->
+      %{ id: id } = what, me ->
         update_real(id, what, me)
     end
   end

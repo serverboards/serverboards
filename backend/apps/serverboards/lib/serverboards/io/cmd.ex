@@ -123,7 +123,8 @@ defmodule Serverboards.IO.Cmd do
       line: [],
       ratelimit: @ratelimit_bucket_size,
       ratelimit_skip: 0,
-      debug: false
+      debug: false,
+      timer: timer
     }
     {:ok, state}
   end
@@ -131,6 +132,7 @@ defmodule Serverboards.IO.Cmd do
   def terminate(reason, state) do
     Logger.debug("Terminate CMD #{inspect reason} // #{inspect Path.basename(state.cmd)} //  #{inspect Port.info(state.port)}")
     kill(state.port)
+    :timer.cancel(state.timer)
     #Port.close(state.port)
     {:ok}
   end
@@ -140,7 +142,7 @@ defmodule Serverboards.IO.Cmd do
     case Port.info(port, :os_pid)  do
       {:os_pid, pid} ->
         :os.cmd(String.to_charlist("kill #{pid}"))
-        for i <- 1..5 do
+        for _i <- 1..5 do
           if Port.info(port, :os_pid) != nil do
             :timer.sleep(200)
             :os.cmd(String.to_charlist("kill #{pid}"))
@@ -262,17 +264,17 @@ defmodule Serverboards.IO.Cmd do
       {:noreply, %{ state | ratelimit_skip: state.ratelimit_skip - 1 }}
     else
       ratelimit = state.ratelimit + @ratelimit_bucket_add
-      ratelimit = if state.ratelimit > @ratelimit_bucket_size do
+      ratelimit = if ratelimit > @ratelimit_bucket_size do
         @ratelimit_bucket_size
       else
-        state.ratelimit
+        ratelimit
       end
 
       {:noreply, %{ state |
         ratelimit: ratelimit}}
     end
   end
-  def handle_info(any, state) do
+  def handle_info(_any, state) do
     # Logger.warn("Command got info #{inspect any}")
     {:noreply, state}
   end

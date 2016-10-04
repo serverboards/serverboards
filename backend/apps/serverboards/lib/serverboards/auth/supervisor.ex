@@ -1,5 +1,5 @@
 defmodule Serverboards.Auth.Supervisor do
-  use Supervisor
+  import Supervisor.Spec
 
   def start_link(_options \\ [] ) do
     children = [

@@ -16,7 +16,7 @@ defmodule Serverboards.IO.HTTP.RPC do
       Serverboards.IO.HTTP.PortToWebsocket.add_port(port)
     end, [required_perm: "http.port_to_websocket"]
 
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc
     end)
   end

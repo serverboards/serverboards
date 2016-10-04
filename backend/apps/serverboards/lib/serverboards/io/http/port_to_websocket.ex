@@ -25,7 +25,7 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket do
   @timeout (60 * 1000) # 1min
 
   def start_link(options \\ []) do
-    GenServer.start_link __MODULE__, :ok, name: Serverboards.IO.HTTP.PortToWebsocket
+    GenServer.start_link __MODULE__, :ok, [name: Serverboards.IO.HTTP.PortToWebsocket] ++ options
   end
 
   def add_port(port, timeout \\ @timeout) do
@@ -101,7 +101,7 @@ defmodule Serverboards.IO.HTTP.PortToWebsocket.Handler do
     pathinfo
   end
 
-  def websocket_init(transport_name, req, opts) do
+  def websocket_init(_transport_name, req, opts) do
     uuid = get_uuid(req)
     case Serverboards.IO.HTTP.PortToWebsocket.get_port( uuid ) do
       {:ok, port} ->

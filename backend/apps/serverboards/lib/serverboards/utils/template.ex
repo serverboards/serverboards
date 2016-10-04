@@ -55,7 +55,7 @@ defmodule Serverboards.Utils.Template do
       end)
     case maybe_var do
       nil -> "[UNKNOWN #{var}]"
-      {k, v} -> v
+      {_k, v} -> v
     end
   end
 end
