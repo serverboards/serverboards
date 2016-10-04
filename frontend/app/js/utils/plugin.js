@@ -2,14 +2,19 @@ var screens = {}
 var widgets = {}
 var already_loaded = {}
 
+export function join_path(url){
+  let full_url=`/static/${url}`
+  if (localStorage.servername)
+    full_url=`${localStorage.servername}${full_url}`
+  return full_url
+}
+
 export function load(url, options){
   if (already_loaded[url]){
     return Promise.resolve()
   }
   let promise = new Promise(function(accept, reject){
-    let full_url=`/static/${url}`
-    if (localStorage.servername)
-    full_url=`${localStorage.servername}${full_url}`
+    let full_url=join_path(url)
 
     options = $.extend( options || {}, {
       dataType: "script",
@@ -83,4 +88,4 @@ export function do_widget(id, el, data){
   return Promise.resolve(widgets[id](el, data))
 }
 
-export default {load, add_screen, do_screen, add_widget, do_widget}
+export default {load, add_screen, do_screen, add_widget, do_widget, join_path}
