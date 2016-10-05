@@ -174,8 +174,9 @@ class RPC:
     def remove_timer(self, tid):
         del self.timers[tid]
 
-    def loop_stop(self):
-        self.debug("--- EOF ---")
+    def loop_stop(self, debug=True):
+        if debug:
+          self.debug("--- EOF ---")
         self.loop_status='EXIT'
 
     def __process_request(self, rpc):
@@ -194,8 +195,15 @@ class RPC:
 
     def println(self, line):
         self.debug_stdout(line)
-        self.stdout.write(line + '\n')
-        self.stdout.flush()
+        try:
+          self.stdout.write(line + '\n')
+          self.stdout.flush()
+        except IOError:
+          if self.loop_status=='EXIT':
+            os.exit(1)
+          self.loop_stop(debug=False)
+
+
 
     def log(self, message=None, type="LOG"):
         assert message
