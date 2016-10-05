@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.SettingsTest do
+defmodule Serverboards.TemplateTest do
   use ExUnit.Case
   @moduletag :capture_log
 

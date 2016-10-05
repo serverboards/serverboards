@@ -1,6 +1,6 @@
 require Logger
 
-defmodule EventTest do
+defmodule HTTPTest do
   use ExUnit.Case, async: false
   @moduletag :capture_log
 
