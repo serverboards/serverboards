@@ -19,12 +19,12 @@ const VirtualServices=React.createClass({
     let services = this.state.services.map( (s) => {
       if (s.id == service.id){
         changed=true
-        return service
+        return merge(service, {is_virtual:true })
       }
       return s
     })
     if (!changed)
-    services.push(service)
+      services.push(service)
     this.setState({services})
   },
   componentDidMount(){

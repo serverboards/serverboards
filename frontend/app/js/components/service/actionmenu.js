@@ -1,6 +1,7 @@
 import React from 'react'
 import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
+import {trigger_action} from './action'
 
 const ActionMenu=React.createClass({
   contextTypes: {
@@ -17,28 +18,7 @@ const ActionMenu=React.createClass({
   triggerAction(action_id){
     let action=this.state.actions.filter( (a) => a.id == action_id )[0]
     // Discriminate depending on action type (by shape)
-    if (action.extra.call){
-      const params = this.props.service.config
-
-      let missing_params = action.extra.call.params.filter((p) => !(p.name in params))
-      if (missing_params.length==0){
-        rpc.call("action.trigger",
-          [action_id, params]).then(function(){
-          })
-      }
-      else{
-        this.props.setModal("service.action",{ action, params, missing_params })
-      }
-    }
-    else if (action.extra.screen){
-      this.context.router.push({
-        pathname: `/s/${action.id}`,
-        state: { service: this.props.service }
-      })
-    }
-    else {
-      Flash.error("Dont know how to trigger this action")
-    }
+    trigger_action(action, this.props.service)
   },
   loadAvailableActions(){
     if (!this.state.actions){

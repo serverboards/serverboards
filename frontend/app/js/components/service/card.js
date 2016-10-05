@@ -7,6 +7,7 @@ import Command from 'app/utils/command'
 import {colorize} from 'app/utils'
 import ActionMenu from 'app/containers/service/actionmenu'
 import {MarkdownPreview} from 'react-marked-markdown';
+import {trigger_action} from './action'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -85,6 +86,11 @@ const VirtualBottomMenu=React.createClass({
   componentDidMount(){
     this.loadAvailableActions()
   },
+  triggerAction(action_id){
+    let action=this.state.actions.filter( (a) => a.id == action_id )[0]
+    // Discriminate depending on action type (by shape)
+    trigger_action(action, this.props.service)
+  },
   render(){
     const props=this.props
     const state=this.state
@@ -103,7 +109,7 @@ const VirtualBottomMenu=React.createClass({
     return (
       <div className="ui menu bottom attached">
         { head.map( (ac) => (
-          <a className="item" onClick={() => props.triggerAction(ac.id)}>
+          <a className="item" onClick={() => this.triggerAction(ac.id)}>
             <i className={`ui ${ac.extra.icon} icon`} title={ac.name}/>
           </a>
         ) ) }
