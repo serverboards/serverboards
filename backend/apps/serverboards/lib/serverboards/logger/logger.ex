@@ -89,7 +89,7 @@ defmodule Serverboards.Logger.Server do
   """
   use GenServer
 
-  @max_queue_size 10
+  @max_queue_size 100
 
   def start_link(options \\ []) do
     GenServer.start_link __MODULE__, [], options
@@ -121,11 +121,18 @@ defmodule Serverboards.Logger.Server do
 
   def handle_call({:log, msg}, from, state) do
     state = %{ state | count: state.count+1, queue: [msg | state.queue] }
-    state = if state.count >= @max_queue_size do
-      {_reply, _, state} = handle_call(:flush, from, state)
-      state
-    else
-      state
+    try do
+      state = if state.count >= @max_queue_size do
+        {_reply, _, state} = handle_call(:flush, from, state)
+        state
+      else
+        state
+      end
+    catch
+      a ->
+        IO.puts("Error flushing log to db: #{inspect a}")
+      a, b ->
+        IO.puts("Error flushing log to db: #{inspect a} // #{inspect b}")
     end
 
     if state.timer do
@@ -151,7 +158,7 @@ defmodule Serverboards.Logger.Server do
         timestamp: Ecto.DateTime.from_erl(timestamp),
         meta: Map.new(metadata, fn {k,v} -> {k, to_json_type v} end)
         }
-      end
+    end
     try do
       Repo.insert_all(Model.Line, entries)
     catch
