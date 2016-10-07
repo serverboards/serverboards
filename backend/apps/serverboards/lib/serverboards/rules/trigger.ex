@@ -88,8 +88,8 @@ defmodule Serverboards.Rules.Trigger do
     end
   end
 
-  def terminate(a,b) do
-    Logger.error("Terminate trigger server with #{Enum.count b.triggers} rules", reason: a, state: b)
+  def terminate(reason, state) do
+    Logger.error("Terminate trigger server with #{Enum.count state.triggers} rules: #{inspect reason}", reason: reason)
   end
 
   # impl
