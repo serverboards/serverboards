@@ -28,7 +28,9 @@ def connect(type, **extra):
     driver = None
     if type == 'libvirt':
         cls=get_driver(Provider.LIBVIRT)
-        driver=cls( "qemu+ssh://%s/system"%extra['server'] )
+        url="qemu+ssh://%s/system"%extra['server']
+        serverboards.debug("Connect to libvirt // %s"%url)
+        driver=cls( url )
     elif type == 'digitalocean':
         cls=get_driver(Provider.DIGITAL_OCEAN)
         driver=cls(extra['token'], api_version='v2')
