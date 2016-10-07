@@ -38,6 +38,12 @@ defmodule Serverboards.Auth.User.Password do
 	# Preconditions
 
 	* Only I can cahnge my password.
+
+	There is a second version, to be used from the iex console, that allows to just
+	change a password:
+
+		iex> Serverboards.Auth.User.Password.password_set("dmoreno@serverboards.io", "newpassword")
+		:ok
 	"""
 	def password_set(user, password, me) do
 		allow_change = (user.id == me.id)
@@ -51,6 +57,7 @@ defmodule Serverboards.Auth.User.Password do
 						} )
 					case cs do
 						%{ errors: [] } ->
+							Logger.info("Password add for user #{user.email}, by #{me.email}", user: user, me: me)
 							Repo.insert( cs )
 							:ok
 						_ ->
@@ -61,6 +68,7 @@ defmodule Serverboards.Auth.User.Password do
 					cs = Model.Password.changeset(pw, %{ password: password })
 					case cs do
 						%{ errors: [] } ->
+							Logger.info("Password change for user #{user.email}, by #{me.email}", user: user, me: me)
 							Repo.update( cs )
 							:ok
 						_ ->
@@ -86,6 +94,15 @@ defmodule Serverboards.Auth.User.Password do
 					 :ok
 		end
 	end
+	def password_set(email, password) when is_binary(email) and is_binary(password) do
+		case Repo.get_by(Serverboards.Auth.Model.User, email: email) do
+			nil ->
+				{:error, :unknown_user}
+			user ->
+				password_set(user, password, %{ user | email: "console" })
+		end
+	end
+
 
 	@doc ~S"""
 	Given an user (with user.id) and a password hash, checks it.

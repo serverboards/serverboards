@@ -5,6 +5,7 @@ defmodule Serverboards.AuthUserTest do
   @moduletag :capture_log
 
   doctest Serverboards.Auth.Permission
+  doctest Serverboards.Auth.User.Password
 
   alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}
   alias Serverboards.Repo
@@ -55,6 +56,12 @@ defmodule Serverboards.AuthUserTest do
     # Cant change other users password
     {:error, :not_allowed} = User.Password.password_set(user, password, userb)
 
+  end
+
+  test "Set password from console", %{ user: user } do
+    password="1234asdf"
+    :ok = User.Password.password_set("dmoreno+a@serverboards.io", password)
+    assert User.Password.password_check(user, password, user)
   end
 
   test "Authenticate with password", %{ user: user, admin: admin } do
