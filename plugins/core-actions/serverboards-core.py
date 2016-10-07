@@ -37,11 +37,18 @@ def set_tags(service=None, tags=None):
     serverboards.rpc.debug("service %s"%repr(service))
     service_tags = serverboards.rpc.call("service.info", service)["tags"] or []
     orig_tags=service_tags[:]
+    if tags is None:
+        tags=''
     for i in tags.replace(",", " ").split(" "):
+        if not i:
+            continue
         if i[0]=='-':
             if i[1:] in service_tags:
                 service_tags.remove(i[1:])
-        elif not i in service_tags:
+        elif i[0]=='+':
+            if i[1:] in service_tags:
+                service_tags.append(i[1:])
+        elif not i in service_tags: # default append
             service_tags.append(i)
     if service_tags != orig_tags:
         serverboards.rpc.call("service.update", service, { "tags": service_tags })

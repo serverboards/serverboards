@@ -2,11 +2,13 @@ const { React, rpc } = Serverboards
 const plugin_id = 'serverboards.backup.monitor'
 import { get_state } from './utils'
 
+const LABEL_ACTION='serverboards.core.actions/set-tags'
+
 const EditFileRow = React.createClass({
   getInitialState(){
     let action='custom'
     if (this.props.rule.actions && this.props.rule.actions.length !=0 ){
-      if (this.props.rule.actions.exists && this.props.rule.actions.exists.action=='serverboards.core.actions/set_label')
+      if (this.props.rule.actions.exists && this.props.rule.actions.exists.action==LABEL_ACTION)
         action='labels'
       if (this.props.rule.actions['not-exists'] && this.props.rule.actions['not-exists'].action=='serverboards.core.actions/send_notification')
         action='notification'
@@ -37,15 +39,15 @@ const EditFileRow = React.createClass({
         case 'labels':
           actions={
             exists:{
-              action:'serverboards.core.actions/set_label',
+              action:LABEL_ACTION,
               params:{
-                labels: "-BACKUP_FAIL"
+                tags: "-BACKUP_FAIL"
               }
             },
             "not-exists":{
-              action:'serverboards.core.actions/set_label',
+              action:LABEL_ACTION,
               params:{
-                labels: "BACKUP_FAIL"
+                tags: "BACKUP_FAIL"
               }
             }
           }

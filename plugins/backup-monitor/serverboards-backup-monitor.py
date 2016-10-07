@@ -110,7 +110,7 @@ def file_exists(id, service, file_expression, when):
             timer_id = rpc.add_timer(next_when, self.check)
             file_exist_timers[id]=timer_id
         def start(self):
-            timer_id = rpc.add_timer(random.randint(10,100), self.check)
+            timer_id = rpc.add_timer(random.randint(0,10), self.check)
             file_exist_timers[id]=timer_id
 
     Check().start()
