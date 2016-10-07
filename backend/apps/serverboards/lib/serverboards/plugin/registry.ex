@@ -18,7 +18,7 @@ defmodule Serverboards.Plugin.Registry do
     paths = Application.fetch_env! :serverboards, :plugin_paths
     paths = case System.get_env("SERVERBOARDS_PATH") do
       nil ->
-        paths
+        paths ++ [Path.join(System.get_env("HOME"), ".local/serverboards/plugins")]
       serverboards_path ->
         paths ++ [Path.join(serverboards_path, "plugins")]
     end
