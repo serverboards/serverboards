@@ -47,14 +47,14 @@ const Serverboard=React.createClass({
     const Section = this.selectSection()
 
     return (
-      <div className="ui central with menu">
+      <div className="ui central with menu white background">
         <Sidebar/>
         <SidebarSections
           section={props.params.section}
           serverboard={props.serverboard}
           goto={props.goto}
           />
-        <div className="ui central white background">
+        <div className="ui central">
           <Section serverboard={props.serverboard} subsection={props.params.subsection} location={props.location}/>
         </div>
       </div>
