@@ -1,23 +1,11 @@
 import React from 'react'
 import {merge} from 'app/utils'
 import rpc from 'app/rpc'
-
-function by_name(a,b){
-  return a.name.localeCompare( b.name )
-}
+import ScreensMenu from 'app/components/service/screensmenu'
 
 const SidebarSections = React.createClass({
-  getInitialState(){
-    return {service_menu: undefined}
-  },
   get_screen_data(screen_id){
     return this.props.serverboard.screens.find( (s) => s.id == screen_id )
-  },
-  screen_choose_service(screen, candidates){
-    if (this.state.service_menu && this.state.service_menu.screen.id == screen.id)
-      this.setState({service_menu: undefined}) // toggle off
-    else
-      this.setState({service_menu: {screen, candidates}})
   },
   get_service_data(uuid){
     // Gets service data, maybe including sub services (via/proxy)
@@ -94,7 +82,6 @@ const SidebarSections = React.createClass({
       )
     }
 
-    const service_menu=this.state.service_menu
     const serverboard=this.props.serverboard
 
     return (
@@ -105,29 +92,13 @@ const SidebarSections = React.createClass({
         <MenuItem section="rules">Rules</MenuItem>
         <MenuItem section="settings">Settings</MenuItem>
         <div className="ui divider"/>
-        {props.serverboard.screens.sort(by_name).map( (s) => (service_menu && service_menu.screen.id == s.id) ? (
-          <div>
-            <MenuItem section={s.id} data-tooltip={s.description} icon="caret down">{s.name}</MenuItem>
-            <div className="menu">
-              {service_menu.candidates.map( (service) => (
-                <MenuItem
-                  section={s.id}
-                  data={{service, serverboard}}
-                  data-tooltip={service.description}>
-                    {service.name}
-                </MenuItem>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <MenuItem
-            section={s.id}
-            data={{serverboard}}
-            data-tooltip={s.description}
-            icon={s.traits.length>0 ? "caret right" : undefined}>
-              {s.name}
-          </MenuItem>
-        ))}
+        <ScreensMenu
+          services={props.serverboard.services}
+          screens={props.serverboard.screens}
+          serverboard={props.serverboard}
+          current={props.section}
+          onSectionChange={this.handleSectionChange}
+          />
       </div>
     )
     //<MenuItem section="permissions">Permissions</MenuItem>
