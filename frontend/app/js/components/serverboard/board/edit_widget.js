@@ -19,10 +19,11 @@ const AddWidget = React.createClass({
       const widget = catalog.find( (w) => w.id == widget_id )
       if (widget)
         this.setState({widget})
-      this.setState({
-        widget: { name: widget_id },
-        error: "There was an error loading the widget description. Maybe the plugin that provides it was uninstalled? We suggest to remove it."
-      })
+      else
+        this.setState({
+          widget: { name: widget_id },
+          error: "There was an error loading the widget description. Maybe the plugin that provides it was uninstalled? We suggest to remove it."
+        })
     })
   },
   updateWidget(){
