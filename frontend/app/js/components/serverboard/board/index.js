@@ -4,6 +4,7 @@ import AddWidget from './add_widget'
 import EditWidget from './edit_widget'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
+import BoardHeader from './header'
 
 require('sass/board.sass')
 
@@ -61,21 +62,25 @@ const Board = React.createClass({
 
 
     return (
-      <div className="ui board centered cards">
-        {widgets.map( (w) => (
-          <Widget
-            key={w.uuid}
-            widget={w.widget}
-            config={w.config}
-            uuid={w.uuid}
-            onEdit={() => this.handleEdit(w.uuid)}
-            serverboard={this.props.serverboard}
-            />
-        ))}
-        <a onClick={(ev) => {ev.preventDefault(); this.setModal("add")}} className="ui massive button _add icon floating orange">
-          <i className="add icon"></i>
-        </a>
-        {modal}
+      <div className="ui board">
+        <BoardHeader/>
+        <div className="ui cards">
+
+          {widgets.map( (w) => (
+            <Widget
+              key={w.uuid}
+              widget={w.widget}
+              config={w.config}
+              uuid={w.uuid}
+              onEdit={() => this.handleEdit(w.uuid)}
+              serverboard={this.props.serverboard}
+              />
+          ))}
+          <a onClick={(ev) => {ev.preventDefault(); this.setModal("add")}} className="ui massive button _add icon floating orange">
+            <i className="add icon"></i>
+          </a>
+          {modal}
+        </div>
       </div>
     )
   }
