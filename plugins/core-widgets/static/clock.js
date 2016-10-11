@@ -40,7 +40,7 @@ function main(element, config){
       var second=time.second
       return (
         React.createElement('div', {className: "content"}, [
-          React.createElement('div', {className: "ui header"}, [ "Current time" ]),
+          //React.createElement('div', {className: "ui header"}, [ "Current time" ]),
           React.createElement('div', {className: "content", style: {"font-family":"fixed", "line-height": "75px", "font-size": "75px", "padding-top":"20px"}}, [
             React.createElement('span', {className: "hour"}, hour),
             ":",

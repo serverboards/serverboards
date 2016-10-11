@@ -60,6 +60,14 @@ function serverboards_update_info(serverboard){
   }
 }
 
+function serverboard_update_widget_catalog(serverboard){
+  return function(dispatch){
+    rpc.call("serverboard.widget.catalog", [serverboard]).then( (widget_catalog) => {
+      dispatch({type:"UPDATE_WIDGET_CATALOG", serverboard, widget_catalog})
+    })
+  }
+}
+
 export {
   serverboard_add,
   serverboard_update_all,
@@ -67,5 +75,6 @@ export {
   serverboard_update,
   serverboard_attach_service,
   serverboards_widget_list,
-  serverboards_update_info
+  serverboards_update_info,
+  serverboard_update_widget_catalog
   }

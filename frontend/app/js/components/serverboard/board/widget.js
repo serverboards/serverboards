@@ -37,17 +37,19 @@ const Widget = React.createClass({
   },
   render(){
     const config = this.props.config
+    const widget = this.props.template || {}
+
     return (
       <div className="card">
         <div className="ui top mini menu">
           <span className="ui header oneline">
-            {this.props.widget}
+            {config.name || widget.name}
           </span>
           <a className="item right" onClick={this.props.onEdit}>
             <i className="icon configure"/>
           </a>
           <a className="item right" onClick={this.props.onEdit}>
-            <i className="icon move"/>
+            <i className="icon expand"/>
           </a>
         </div>
         <div style={{flexGrow:1}} ref="el"/>

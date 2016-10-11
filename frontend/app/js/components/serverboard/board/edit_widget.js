@@ -13,19 +13,6 @@ const AddWidget = React.createClass({
       config: this.props.widget.config
     }
   },
-  componentDidMount(){
-    rpc.call("serverboard.widget.catalog", [this.props.serverboard]).then( (catalog) => {
-      const widget_id = this.props.widget.widget
-      const widget = catalog.find( (w) => w.id == widget_id )
-      if (widget)
-        this.setState({widget})
-      else
-        this.setState({
-          widget: { name: widget_id },
-          error: "There was an error loading the widget description. Maybe the plugin that provides it was uninstalled? We suggest to remove it."
-        })
-    })
-  },
   updateWidget(){
     const state=this.state
     const props=this.props
@@ -50,7 +37,7 @@ const AddWidget = React.createClass({
     this.setState({config})
   },
   render(){
-    const widget=this.state.widget
+    const widget=this.props.template
     if (!widget){
       return (
         <Modal>
