@@ -17,6 +17,9 @@ const Board = React.createClass({
     const widget=this.props.widgets.find( (w) => w.uuid == uuid )
     set_modal("serverboard.widget.edit", {uuid, widget})
   },
+  handleAddWidget(){
+    set_modal('serverboard.widget.add',{serverboard: this.props.serverboard})
+  },
   getLayout(props){
     const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
     return layout
@@ -47,7 +50,7 @@ const Board = React.createClass({
   componentDidMount(){
     let self=this
     Command.add_command_search('add-widget',(Q, context) => [
-      {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: () => set_modal('serverboard.widget.add') }
+      {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: this.handleAddWidget }
     ], 2)
   },
   componentWillUnmount(){
@@ -92,7 +95,7 @@ const Board = React.createClass({
               </div>
             ))}
         </ReactGridLayout>
-        <a onClick={(ev) => set_modal("serverboard.widget.add")} className="ui massive button _add icon floating orange">
+        <a onClick={this.handleAddWidget} className="ui massive button _add icon floating orange">
           <i className="add icon"></i>
         </a>
       </div>

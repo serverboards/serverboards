@@ -13,7 +13,7 @@ const AddWidget = React.createClass({
       config: {}
     }
   },
-  componentDidUpdate(){
+  componentDidMount(){
     let $select = $(this.refs.form).find('select')
     $select.dropdown({
       action: 'activate',
