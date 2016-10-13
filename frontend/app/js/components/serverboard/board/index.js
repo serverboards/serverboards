@@ -132,9 +132,9 @@ const Board = React.createClass({
         <BoardHeader/>
         <ReactGridLayout
           className="ui cards layout"
-          cols={4}
+          cols={8}
           rowHeight={280}
-          width={1200}
+          width={2400}
           margin={[15,15]}
           draggableHandle=".ui.top.mini.menu .ui.header"
           layout={this.state.layout}
