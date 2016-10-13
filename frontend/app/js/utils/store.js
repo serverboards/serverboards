@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import rpc from '../rpc'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { hashHistory } from 'react-router'
-import { routerMiddleware } from 'react-router-redux'
+import { routerMiddleware, push } from 'react-router-redux'
 
 var redux_extra=f => f
 
@@ -90,5 +90,12 @@ store.on('auth.logged_in', function(logged_in){
   }
 })
 
+export function set_modal(modal, data={}){
+  const pathname=store.getState().routing.locationBeforeTransitions.pathname
+  store.dispatch( push( {
+    pathname: pathname,
+    state: { modal, data }
+  } ) )
+}
 
 export default store

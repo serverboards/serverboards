@@ -7,90 +7,16 @@ import Command from 'app/utils/command'
 import BoardHeader from './header'
 import ReactGridLayout from 'react-grid-layout'
 import {object_is_equal} from 'app/utils'
-import rpc from 'app/rpc'
+import {set_modal} from 'app/utils/store'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
 
-const Boardx = React.createClass({
-  handleEdit(uuid){
-    this.setModal("edit", {uuid})
-  },
-  setModal(modal, data){
-    let state = {modal}
-    if (data)
-      state.data=data
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: state
-    } )
-  },
-  closeModal(){
-    this.setModal(false)
-  },
-  contextTypes: {
-    router: React.PropTypes.object,
-  },
-  componentDidMount(){
-    let self=this
-    Command.add_command_search('add-widget',(Q, context) => [
-      {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: () => self.setModal('add') }
-    ], 2)
-  },
-  componentWillUnmount(){
-    Command.remove_command_search('add-widget')
-  },
-  render(){
-    const widgets=this.props.widgets
-    if (widgets == undefined){
-      return (
-        <Loading>Serverboard widget data</Loading>
-      )
-    }
-
-    let modal = []
-    switch(this.props.location.state && this.props.location.state.modal){
-      case 'add':
-        modal=(
-          <AddWidget onClose={this.closeModal} serverboard={this.props.serverboard}/>
-        )
-        break;
-      case 'edit':
-        const uuid=this.props.location.state.data.uuid
-        const widget=widgets.find( (w) => w.uuid == uuid )
-        modal=(
-          <EditWidget onClose={this.closeModal} serverboard={this.props.serverboard} widget={widget}/>
-        )
-        break;
-    }
-
-
-    return (
-      <div className="ui board">
-        <BoardHeader/>
-        <div className="ui cards">
-
-          {widgets.map( (w) => (
-            <Widget
-              key={w.uuid}
-              widget={w.widget}
-              config={w.config}
-              uuid={w.uuid}
-              onEdit={() => this.handleEdit(w.uuid)}
-              serverboard={this.props.serverboard}
-              />
-          ))}
-          <a onClick={(ev) => {ev.preventDefault(); this.setModal("add")}} className="ui massive button _add icon floating orange">
-            <i className="add icon"></i>
-          </a>
-          {modal}
-        </div>
-      </div>
-    )
-  }
-})
-
 const Board = React.createClass({
+  handleEdit(uuid){
+    const widget=this.props.widgets.find( (w) => w.uuid == uuid )
+    set_modal("serverboard.widget.edit", {uuid, widget})
+  },
   getLayout(props){
     const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
     return layout
@@ -117,6 +43,15 @@ const Board = React.createClass({
       const layout = this.getLayout(newprops)
       this.setState({ layout })
     }
+  },
+  componentDidMount(){
+    let self=this
+    Command.add_command_search('add-widget',(Q, context) => [
+      {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: () => set_modal('serverboard.widget.add') }
+    ], 2)
+  },
+  componentWillUnmount(){
+    Command.remove_command_search('add-widget')
   },
   render() {
     const widgets=this.props.widgets
@@ -157,6 +92,9 @@ const Board = React.createClass({
               </div>
             ))}
         </ReactGridLayout>
+        <a onClick={(ev) => set_modal("serverboard.widget.add")} className="ui massive button _add icon floating orange">
+          <i className="add icon"></i>
+        </a>
       </div>
     )
   }

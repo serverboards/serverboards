@@ -5,6 +5,7 @@ import rpc from 'app/rpc'
 import Modal from 'app/components/modal'
 import HoldButton from 'app/components/holdbutton'
 import Flash from 'app/flash'
+import {set_modal} from 'app/utils/store'
 
 const AddWidget = React.createClass({
   getInitialState(){
@@ -23,14 +24,13 @@ const AddWidget = React.createClass({
       config: state.config
     }
     rpc.call("serverboard.widget.update", data).then( () => {
-      this.props.onClose()
+      set_modal(null)
     })
   },
   removeWidget(){
     console.log("remove")
     rpc.call("serverboard.widget.remove", [this.props.widget.uuid]).then(() => {
-      Flash.info("Removed widget")
-      this.props.onClose()
+      set_modal(null)
     })
   },
   setFormData(config){

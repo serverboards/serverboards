@@ -1,16 +1,6 @@
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
-import { push } from 'react-router-redux'
-import store from 'app/utils/store'
-
-function set_modal(modal, data={}){
-  console.log(modal, data)
-  const pathname=store.getState().routing.locationBeforeTransitions.pathname
-  store.dispatch( push( {
-    pathname: pathname,
-    state: { modal, data }
-  } ) )
-}
+import {set_modal} from 'app/utils/store'
 
 export function trigger_action(action, service){
   if (action.extra.call){

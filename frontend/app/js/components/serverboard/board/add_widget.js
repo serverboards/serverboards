@@ -3,6 +3,7 @@ import Loading from 'app/components/loading'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
 import Modal from 'app/components/modal'
+import {set_modal} from 'app/utils/store'
 
 const AddWidget = React.createClass({
   getInitialState(){
@@ -34,7 +35,7 @@ const AddWidget = React.createClass({
     }
     console.log(data, this)
     rpc.call("serverboard.widget.add", data).then( () => {
-      this.props.onClose()
+      set_modal(null)
     })
   },
   setFormData(config){
