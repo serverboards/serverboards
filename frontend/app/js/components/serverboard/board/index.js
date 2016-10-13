@@ -6,6 +6,8 @@ import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import BoardHeader from './header'
 import ReactGridLayout from 'react-grid-layout'
+import {object_is_equal} from 'app/utils'
+import rpc from 'app/rpc'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
@@ -89,19 +91,42 @@ const Boardx = React.createClass({
 })
 
 const Board = React.createClass({
-  render: function() {
+  getLayout(props){
+    const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
+    return layout
+  },
+  getInitialState(){
+    return {
+      layout: this.getLayout(this.props)
+    }
+  },
+  handleLayoutChange(layout){
+    const to_set=layout.map( (l) => {
+      const prev = (this.state.layout || []).find( (w) => w.i == l.i ) || {}
+      if (object_is_equal(prev,l))
+        return false
+      return l
+    }).filter( Boolean )
+    to_set.map( (w) => {
+      rpc.call("serverboard.widget.update", {uuid: w.i, ui: w})
+    })
+    this.setState({layout})
+  },
+  componentWillReceiveProps(newprops){
+    if (!object_is_equal){
+      const layout = this.getLayout(newprops)
+      this.setState({ layout })
+    }
+  },
+  render() {
     const widgets=this.props.widgets
     if (widgets == undefined){
       return (
         <Loading>Serverboard widget data</Loading>
       )
     }
-    // layout is an array of objects, see the demo for more complete usage
-    var layout = [
-      {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
-      {i: 'b', x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4},
-      {i: 'c', x: 4, y: 0, w: 1, h: 2}
-    ];
+    //const layout = this.state.layout || widgets.map( (w) => w.ui )
+    //console.log(layout)
     return (
       <div className="ui board">
         <BoardHeader/>
@@ -111,9 +136,16 @@ const Board = React.createClass({
           rowHeight={280}
           width={1200}
           margin={[15,15]}
-          draggableHandle=".ui.top.mini.menu .ui.header">
+          draggableHandle=".ui.top.mini.menu .ui.header"
+          layout={this.state.layout}
+          onLayoutChange={this.handleLayoutChange}
+          >
             {widgets.map( (w) => (
-              <div key={w.uuid} className="ui card">
+              <div
+                key={w.uuid}
+                data-grid={w.ui}
+                className="ui card"
+                >
                 <Widget
                   key={w.uuid}
                   widget={w.widget}

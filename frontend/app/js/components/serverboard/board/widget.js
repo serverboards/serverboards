@@ -36,7 +36,7 @@ const Widget = React.createClass({
     }
   },
   render(){
-    const config = this.props.config
+    const config = this.props.config || {}
     const widget = this.props.template || {}
 
     return (
