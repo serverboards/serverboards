@@ -40,7 +40,7 @@ const Widget = React.createClass({
     const widget = this.props.template || {}
 
     return (
-      <div className="card">
+      <div>
         <div className="ui top mini menu">
           <span className="ui header oneline">
             {config.name || widget.name}

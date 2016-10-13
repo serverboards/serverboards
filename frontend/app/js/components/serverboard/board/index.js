@@ -5,10 +5,12 @@ import EditWidget from 'app/containers/serverboard/board/edit_widget'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import BoardHeader from './header'
+import ReactGridLayout from 'react-grid-layout'
 
 require('sass/board.sass')
+require('sass/gridlayout.sass')
 
-const Board = React.createClass({
+const Boardx = React.createClass({
   handleEdit(uuid){
     this.setModal("edit", {uuid})
   },
@@ -85,5 +87,47 @@ const Board = React.createClass({
     )
   }
 })
+
+const Board = React.createClass({
+  render: function() {
+    const widgets=this.props.widgets
+    if (widgets == undefined){
+      return (
+        <Loading>Serverboard widget data</Loading>
+      )
+    }
+    // layout is an array of objects, see the demo for more complete usage
+    var layout = [
+      {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
+      {i: 'b', x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4},
+      {i: 'c', x: 4, y: 0, w: 1, h: 2}
+    ];
+    return (
+      <div className="ui board">
+        <BoardHeader/>
+        <ReactGridLayout
+          className="ui cards layout"
+          cols={4}
+          rowHeight={280}
+          width={1200}
+          margin={[15,15]}
+          draggableHandle=".ui.top.mini.menu .ui.header">
+            {widgets.map( (w) => (
+              <div key={w.uuid} className="ui card">
+                <Widget
+                  key={w.uuid}
+                  widget={w.widget}
+                  config={w.config}
+                  uuid={w.uuid}
+                  onEdit={() => this.handleEdit(w.uuid)}
+                  serverboard={this.props.serverboard}
+                  />
+              </div>
+            ))}
+        </ReactGridLayout>
+      </div>
+    )
+  }
+});
 
 export default Board
