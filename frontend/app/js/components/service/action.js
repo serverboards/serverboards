@@ -1,5 +1,16 @@
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
+import { push } from 'react-router-redux'
+import store from 'app/utils/store'
+
+function set_modal(modal, data={}){
+  console.log(modal, data)
+  const pathname=store.getState().routing.locationBeforeTransitions.pathname
+  store.dispatch( push( {
+    pathname: pathname,
+    state: { modal, data }
+  } ) )
+}
 
 export function trigger_action(action, service){
   if (action.extra.call){
@@ -12,7 +23,7 @@ export function trigger_action(action, service){
         })
     }
     else{
-      this.props.setModal("service.action",{ action, params, missing_params })
+      set_modal("service.action",{ action, params, missing_params })
     }
   }
   else if (action.extra.screen){
