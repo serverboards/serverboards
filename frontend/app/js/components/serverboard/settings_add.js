@@ -49,7 +49,7 @@ var Settings=React.createClass({
             {extra_buttons}
           </div>
         </div>
-        <div className="ui text container">
+        <div className="ui text container" style={{marginTop:20}}>
           <form className="ui form" ref="form">
             <h1 className="ui header">{this.props.title}</h1>
             <div className="field">

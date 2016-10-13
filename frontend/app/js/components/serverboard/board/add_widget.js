@@ -7,7 +7,7 @@ import Modal from 'app/components/modal'
 const AddWidget = React.createClass({
   getInitialState(){
     return {
-      catalog: undefined,
+      catalog: this.props.widget_catalog,
       widget: undefined,
       config: {}
     }
@@ -20,11 +20,6 @@ const AddWidget = React.createClass({
         this.setWidget(value)
       }
     })
-  },
-  componentDidMount(){
-    rpc.call("serverboard.widget.catalog", [this.props.serverboard]).then( (catalog) => {
-      this.setState({catalog})
-    } )
   },
   setWidget(id){
     const widget=this.state.catalog.find( (el) => el.id == id )
