@@ -35,42 +35,56 @@ $color4: #009245
         font-size: 16px
 
   .ui.cards > .card
+    display: flex
+    align-items: stretch
     overflow: hidden
     box-shadow: none !important
     border: 1px solid #eaeeed !important
     color: #596770
     border-radius: 6px !important
-    .header, h1, h2, h3, h4
-      color: $grey
-    > .ui.top.menu
-      border: 0
-      box-shadow: none
-      //background: #eee
-      min-height: inherit
-      > .item
-        color: #02a7a1
-        padding: 5px 10px
-        height: 25px
-        width: 30px
-        font-size: 15px
-        &:before
-          width: 0
-      > .ui.header
-        text-transform: uppercase
-        vertical-align: middle
-        padding: 3px 0px 3px 15px
-        font-weight: normal
-        margin: 0
-        min-width: calc( 100% - 60px )
-    .content
-      padding: 5px
+    margin: 0
+    > div
+      .header, h1, h2, h3, h4
+        color: $grey
+      > .ui.top.menu
+        border: 0
+        box-shadow: none
+        //background: #eee
+        min-height: inherit
+        cursor: move
+        > .item
+          color: #02a7a1
+          padding: 5px 10px
+          height: 25px
+          width: 30px
+          font-size: 15px
+          visibility: hidden
+          &:before
+            width: 0
+        > .ui.header
+          text-transform: uppercase
+          vertical-align: middle
+          padding: 3px 0px 3px 15px
+          font-weight: normal
+          margin: 0
+          min-width: calc( 100% - 60px )
+      .content
+        padding: 5px
 
-
-    .background0
-      color: $color1
-    .background1
-      color: $color1
-    .background2
-      color: $color2
-    .background4
-      color: $color1
+      .background0
+        background: $color0
+      .background1
+        background: $color1
+      .background2
+        background: $color2
+      .background3
+        background: $color3
+      .background4
+        background: $color4
+    .react-resizable-handle
+      visibility: hidden
+    &:hover
+      > div > .ui.top.menu > .item
+        visibility: visible
+      .react-resizable-handle
+        visibility: visible
