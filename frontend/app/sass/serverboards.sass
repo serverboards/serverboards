@@ -70,12 +70,13 @@ div.ui.main
     > .ui.central
       flex-grow: 1
       overflow: auto
-      > .ui.container
+  .ui.central > .ui.container
         padding: 20px 2em 80px 2em
         margin-top: 20px
 
   .ui.vertical.menu.sidebar
-    max-width: 100px !important
+    max-width: 85px !important
+    min-width: 85px !important
     width: 85px
     height: calc( 100vh - 47px ) !important
     border-radius: 0
@@ -106,6 +107,9 @@ div.ui.main
         color: white
 
 .ui.vertical.menu.sections
+  width: 220px !important
+  min-width: 220px !important
+  max-width: 220px !important
   margin: 0
   border-radius: 0
   border-top: 0

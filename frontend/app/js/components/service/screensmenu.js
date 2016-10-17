@@ -5,37 +5,68 @@ function by_name(a,b){
   return a.name.localeCompare( b.name )
 }
 
+function is_empty(l){
+  return (Boolean(l)==false) || (l.length==0)
+}
+
+function match_traits(s1, s2){
+  if (is_empty(s1) && is_empty(s2)) // both empty, ok
+    return true
+  if (is_empty(s1) || is_empty(s2)) // only one empty, nok
+    return false
+
+  // Search for coincidences, if just one, ok
+  for (let s of s1){
+    if (s2.indexOf(s)>=0)
+      return true
+  }
+  // eoc: nok
+  return false
+}
+
 function MenuItem(props){
-  console.log(props)
-  if (props.is_open){
+  const candidates=props.candidates
+  const has_candidates=!is_empty(candidates)
+
+  if (props.is_open && has_candidates){
     return (
       <div>
-        <a className="item active" onClick={props.onOpen}>
+        <a className="item" onClick={props.onOpen}>
           {props.children}
-          <i className="icon angle right floating right"/>
+          <i className="icon angle down floating right"/>
         </a>
-        {props.candidates.map( (s) => (
-          <MenuItem
-            section={s.id}
-            data={merge(props.data, {service: s})}
-            onSectionChange={props.onSectionChange}
-            >
-            {s.name}
-          </MenuItem>
-        ))}
+        <div className="menu">
+          {candidates.map( (s) => (
+            <MenuItem
+              section={s.id}
+              screen={props.screen}
+              data={merge(props.data, {service: s})}
+              onSectionChange={props.onSectionChange}
+              is_open={ s.uuid == props.subopen }
+              >
+              {s.name}
+            </MenuItem>
+          ))}
+        </div>
       </div>
     )
   }
   else {
+    const handleClick=(has_candidates ?
+      props.onOpen :
+      ( () => props.onSectionChange(props.screen.id, props.data) )
+    )
+
     return (
-      <a className="item" onClick={() => props.onSectionChange(props.section, props.data)}>
+      <a className={`item ${props.is_open ? "active" : ""}`} onClick={handleClick}>
         {props.children}
-        {(props.candidates && (props.candidates.length > 0)) ? (
-          <i className={`icon ${props.icon}`}/>
+        {has_candidates ? (
+          <i className="icon angle right floating right"/>
         ) :
         (
-          []
+          null
         )}
+        <i className={`ui icon ${props.icon}`}/>
       </a>
     )
   }
@@ -44,33 +75,43 @@ function MenuItem(props){
 const ScreensMenu=React.createClass({
   getInitialState(){
     return {
-      open_screen: undefined
+      open_screen: undefined,
+      service_id: undefined
     }
   },
   toggleScreen(id){
+    console.log("Toggle %o", id)
     if (id == this.state.open_screen){
-      this.setState({open_screen: undefined})
+      this.setState({open_screen: undefined, service_id: undefined})
     }
     else{
-      this.setState({open_screen: id})
+      this.setState({open_screen: id, service_id: undefined})
     }
+  },
+  handleSectionChange(screen_id, data){
+    this.setState({open_screen: screen_id, service_id: data.service && data.service.uuid})
+    this.props.onSectionChange(screen_id, data)
   },
   render(){
     const props=this.props
     const state=this.state
     let screens=[]
-    let open_item = undefined
+    let open_item = state.open_screen
     let serverboard = props.serverboard
     return (
       <div>
+        <h3 className="ui item header">
+          Tools
+        </h3>
         {props.screens.sort(by_name).map( (s) => (
           <MenuItem
             screen={s}
             data={{serverboard}}
-            candidates={props.services}
-            onSectionChange={props.onSectionChange}
+            candidates={props.services.filter((c) => match_traits(c.traits, s.traits))}
+            onSectionChange={this.handleSectionChange}
             onOpen={ () => this.toggleScreen(s.id) }
-            is_open={ s.id == props.current }>
+            is_open={ s.id == state.open_screen }
+            subopen={  (s.id == state.open_screen) && state.service_id }>
               {s.name}
           </MenuItem>
         )) }
