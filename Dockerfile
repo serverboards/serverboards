@@ -4,7 +4,9 @@ ENV LANG=C.UTF-8
 
 RUN apt-get -y update && apt-get install -y \
   postgresql \
-  supervisor inotify-tools
+  supervisor inotify-tools \
+  ssh openssh-server \
+  python3 python3-pexpect
 
 RUN useradd serverboards -m -U
 

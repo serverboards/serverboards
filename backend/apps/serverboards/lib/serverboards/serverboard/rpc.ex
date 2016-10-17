@@ -53,11 +53,14 @@ defmodule Serverboards.Serverboard.RPC do
 
     RPC.MethodCaller.add_method mc, "serverboard.widget.update", fn attr, context ->
       me = Context.get(context, :user)
-      Serverboards.Serverboard.Widget.widget_update(attr["uuid"], %{
+      config = [
         config: attr["config"],
         ui: attr["ui"],
         widget: attr["widget"]
-        }, me)
+        ] |> Enum.filter( fn {_key, value} -> value != nil end )
+          |> Map.new
+
+      Serverboards.Serverboard.Widget.widget_update(attr["uuid"], config, me)
     end, [required_perm: "serverboard.widget.update", context: true]
 
     RPC.MethodCaller.add_method mc, "serverboard.widget.list", fn [shortname] ->

@@ -5,7 +5,8 @@ var default_state={
   current: undefined,
   serverboard: undefined,
   catalog: undefined,
-  widgets: undefined
+  widgets: undefined,
+  widget_catalog: undefined,
 }
 
 function serverboard(state=default_state, action){
@@ -59,11 +60,14 @@ function serverboard(state=default_state, action){
     case 'UPDATE_SERVERBOARD_WIDGETS':
       const widgets=action.widgets
       return merge(state, {widgets})
+    case 'UPDATE_WIDGET_CATALOG':
+      const widget_catalog=action.widget_catalog
+      return merge(state, {widget_catalog})
     case "@RPC_EVENT/serverboard.widget.added":
       return merge(state, {widgets: state.widgets.concat(action)})
     case "@RPC_EVENT/serverboard.widget.updated":
       return merge(state, {widgets: state.widgets.map( (w) => {
-        if (w.uuid==action.uuid)
+        if (w.uuid==action.uuid && action.config)
           return merge(w, {config: action.config})
         return w
       }) } )

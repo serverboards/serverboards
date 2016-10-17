@@ -3,16 +3,17 @@ import Loading from 'app/components/loading'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
 import Modal from 'app/components/modal'
+import {set_modal} from 'app/utils/store'
 
 const AddWidget = React.createClass({
   getInitialState(){
     return {
-      catalog: undefined,
+      catalog: this.props.widget_catalog,
       widget: undefined,
       config: {}
     }
   },
-  componentDidUpdate(){
+  componentDidMount(){
     let $select = $(this.refs.form).find('select')
     $select.dropdown({
       action: 'activate',
@@ -20,11 +21,6 @@ const AddWidget = React.createClass({
         this.setWidget(value)
       }
     })
-  },
-  componentDidMount(){
-    rpc.call("serverboard.widget.catalog", [this.props.serverboard]).then( (catalog) => {
-      this.setState({catalog})
-    } )
   },
   setWidget(id){
     const widget=this.state.catalog.find( (el) => el.id == id )
@@ -39,7 +35,7 @@ const AddWidget = React.createClass({
     }
     console.log(data, this)
     rpc.call("serverboard.widget.add", data).then( () => {
-      this.props.onClose()
+      set_modal(null)
     })
   },
   setFormData(config){

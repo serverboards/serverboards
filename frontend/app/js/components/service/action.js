@@ -1,5 +1,6 @@
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
+import {set_modal} from 'app/utils/store'
 
 export function trigger_action(action, service){
   if (action.extra.call){
@@ -12,7 +13,7 @@ export function trigger_action(action, service){
         })
     }
     else{
-      this.props.setModal("service.action",{ action, params, missing_params })
+      set_modal("service.action",{ action, params, missing_params })
     }
   }
   else if (action.extra.screen){

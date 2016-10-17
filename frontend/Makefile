@@ -1,6 +1,6 @@
 all: setup compile
 
-compile: dist/
+compile: setup dist/
 
 dist/: node_modules app/* app/*/* *.js
 	rm dist -rf
@@ -21,13 +21,8 @@ help:
 watch:
 	npm run-script watch
 
-
-setup: node_modules
-
-node_modules: node_modules/react
-
-node_modules/react:
-	npm install
+setup: yarn.lock
+	yarn
 
 mrproper: clean
 	rm -rf node_modules

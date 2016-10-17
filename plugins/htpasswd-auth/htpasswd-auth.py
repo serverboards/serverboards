@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 
 # setup use of bindings
 import sys

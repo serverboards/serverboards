@@ -5,6 +5,7 @@ import rpc from 'app/rpc'
 import Modal from 'app/components/modal'
 import HoldButton from 'app/components/holdbutton'
 import Flash from 'app/flash'
+import {set_modal} from 'app/utils/store'
 
 const AddWidget = React.createClass({
   getInitialState(){
@@ -12,18 +13,6 @@ const AddWidget = React.createClass({
       widget: undefined,
       config: this.props.widget.config
     }
-  },
-  componentDidMount(){
-    rpc.call("serverboard.widget.catalog", [this.props.serverboard]).then( (catalog) => {
-      const widget_id = this.props.widget.widget
-      const widget = catalog.find( (w) => w.id == widget_id )
-      if (widget)
-        this.setState({widget})
-      this.setState({
-        widget: { name: widget_id },
-        error: "There was an error loading the widget description. Maybe the plugin that provides it was uninstalled? We suggest to remove it."
-      })
-    })
   },
   updateWidget(){
     const state=this.state
@@ -35,21 +24,20 @@ const AddWidget = React.createClass({
       config: state.config
     }
     rpc.call("serverboard.widget.update", data).then( () => {
-      this.props.onClose()
+      set_modal(null)
     })
   },
   removeWidget(){
     console.log("remove")
     rpc.call("serverboard.widget.remove", [this.props.widget.uuid]).then(() => {
-      Flash.info("Removed widget")
-      this.props.onClose()
+      set_modal(null)
     })
   },
   setFormData(config){
     this.setState({config})
   },
   render(){
-    const widget=this.state.widget
+    const widget=this.props.template
     if (!widget){
       return (
         <Modal>

@@ -84,16 +84,20 @@ defmodule Serverboards.Serverboard.Widget do
           from s in Model.Widget,
           where: s.uuid == ^uuid
           )
-    Repo.update( Model.Widget.changeset(prev, data) )
-
-    Serverboards.Event.emit("serverboard.widget.updated", data, ["serverboard.info"])
-    serverboard = Repo.one(
-      from s in Model.Serverboard,
-      where: s.id == ^prev.serverboard_id,
-      select: s.shortname
-    )
-    Serverboards.Event.emit("serverboard.widget.updated[#{serverboard}]", data, ["serverboard.info"])
-    :ok
+    case Repo.update( Model.Widget.changeset(prev, data) ) do
+      {:ok, update} ->
+        Serverboards.Event.emit("serverboard.widget.updated", data, ["serverboard.info"])
+        serverboard = Repo.one(
+          from s in Model.Serverboard,
+          where: s.id == ^prev.serverboard_id,
+          select: s.shortname
+        )
+        Serverboards.Event.emit("serverboard.widget.updated[#{serverboard}]", data, ["serverboard.info"])
+        :ok
+      {:error, reason} ->
+        Logger.error("Error updating widget: #{inspect reason}")
+        {:error, reason}
+    end
   end
 
   def widget_remove(uuid, me) do

@@ -12,15 +12,8 @@ function Overview(props){
   }
 
   return (
-    <div className="ui background white central">
-      <div className="ui text container">
-        <h1>{props.serverboard.name}</h1>
-        {props.serverboard.tags.map( (t) => tag(t) )}
-        <div className="ui text container">{props.serverboard.description}</div>
-      </div>
-      <div className="ui container" style={{paddingTop:30}}>
-        <Board location={props.location} serverboard={props.serverboard.shortname}/>
-      </div>
+    <div className="ui central board">
+      <Board location={props.location} serverboard={props.serverboard.shortname}/>
     </div>
   )
 }

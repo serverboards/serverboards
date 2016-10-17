@@ -18,6 +18,10 @@ export function get_modal(name){
       return require('app/components/notifications/send').default
     case "service.action":
       return require('app/components/service/actionmodal').default
+    case "serverboard.widget.add":
+      return require('app/containers/serverboard/board/add_widget').default
+    case "serverboard.widget.edit":
+      return require('app/containers/serverboard/board/edit_widget').default
   }
 }
 
