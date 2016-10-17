@@ -64,6 +64,10 @@ defmodule Serverboards.Service.RPC do
       service_detach serverboard, service, Context.get(context, :user)
     end, [required_perm: "service.attach", context: true]
 
+    RPC.MethodCaller.add_method mc, "service.screens", fn traits ->
+      service_screens traits
+    end, [required_perm: "service.info"]
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc
