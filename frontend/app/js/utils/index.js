@@ -14,6 +14,14 @@ export function to_list(d){
   return l
 }
 
+export function dedup(l){
+  let ret=[]
+  for (let i of l){
+    if (ret.indexOf(i)<0)
+      ret.push(i)
+  }
+  return ret
+}
 /// Drops some keys from a map, and returns a copy without these keys
 /// Its optimized for a small ammount of keys O(N²)
 export function map_drop(map, keys){

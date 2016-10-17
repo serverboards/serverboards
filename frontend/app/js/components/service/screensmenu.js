@@ -1,5 +1,6 @@
 import React from 'react'
 import {merge} from 'app/utils'
+import {set_modal} from 'app/utils/store'
 
 function by_name(a,b){
   return a.name.localeCompare( b.name )
@@ -80,7 +81,6 @@ const ScreensMenu=React.createClass({
     }
   },
   toggleScreen(id){
-    console.log("Toggle %o", id)
     if (id == this.state.open_screen){
       this.setState({open_screen: undefined, service_id: undefined})
     }
@@ -90,7 +90,15 @@ const ScreensMenu=React.createClass({
   },
   handleSectionChange(screen_id, data){
     this.setState({open_screen: screen_id, service_id: data.service && data.service.uuid})
-    this.props.onSectionChange(screen_id, data)
+    if (this.props.onSectionChange){
+      this.props.onSectionChange(screen_id, data)
+    }
+    else{
+      const screen_idl=screen_id.split('/')
+      const plugin=screen_idl[0]
+      const component=screen_idl[1]
+      set_modal("plugin.screen", {plugin: plugin, component: component, data:{service: data.service}})
+    }
   },
   render(){
     const props=this.props

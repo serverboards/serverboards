@@ -3,18 +3,23 @@ import Modal from '../modal'
 import Loading from '../loading'
 import Card from './card'
 import rpc from 'app/rpc'
-import {merge} from 'app/utils'
+import {merge, dedup} from 'app/utils'
 import Flash from 'app/flash'
 import { goBack } from 'react-router-redux'
 import store from 'app/utils/store'
+import ScreensMenu from 'app/components/service/screensmenu'
 
 const VirtualServices=React.createClass({
   getInitialState(){
-    return {services: undefined}
+    return {
+      services: undefined,
+      traits:[],
+      screens:[]
+    }
   },
   update_services(event){
     let service=event.service
-    console.log("Service change %o", service)
+    //console.log("Service change %o", service)
     let changed=false
     let services = this.state.services.map( (s) => {
       if (s.id == service.id){
@@ -26,6 +31,18 @@ const VirtualServices=React.createClass({
     if (!changed)
       services.push(service)
     this.setState({services})
+    this.update_screens(services)
+  },
+  update_screens(services){
+    const traits=dedup(services.reduce( (acc, s) => acc.concat(s.traits), [] ))
+    if (!this.props.screens && traits!=this.state.traits){
+      this.setState({traits})
+      console.log("traits are %o", traits)
+      rpc.call("service.screens", traits).then( (screens) =>{
+        console.log("Set screens: %o", screens)
+        this.setState({screens})
+      })
+    }
   },
   componentDidMount(){
     const parent=this.props.parent
@@ -40,7 +57,6 @@ const VirtualServices=React.createClass({
       })
       .then((services) => {
         services = services.map( (s) => merge(s, {is_virtual: true}) )
-        console.log(services)
         self.setState({services})
         if (subscribe){
           rpc.call('event.subscribe',["service.updated"])
@@ -50,7 +66,8 @@ const VirtualServices=React.createClass({
               rpc.on("service.updated", self.update_services)
             })
           }
-        })
+        self.update_screens(services)
+      })
       .catch((e) => {
         console.error(e)
         Flash.error(`Error loading virtual services\n\n${e}`)
@@ -76,9 +93,16 @@ const VirtualServices=React.createClass({
         </Modal>
       )
     }
-
     return (
       <Modal>
+        {state.screens ? (
+          <div className="ui vertical menu">
+            <ScreensMenu
+              screens={state.screens}
+              services={state.services}
+              />
+          </div>
+        ) : null}
         <div className="ui container">
           <h1 className="ui header">Virtual services for {props.parent.name}</h1>
           <div className="ui cards">
