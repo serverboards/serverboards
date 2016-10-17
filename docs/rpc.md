@@ -267,6 +267,10 @@ plugins.data_get("serverboards.core.notifications/telegram", "user_to_map")
 }
 ```
 
+## plugin.list()
+
+Lists all the installed plugins and componentes
+
 # Serverboards
 
 ## serverboard.add(shortname, attributes)
@@ -308,6 +312,8 @@ Returns compatible widgets for this serverboard
 ## service.attach(serverboard_shortname, service_uuid)
 
 ## service.detach(serverboard_shortname, service_uuid)
+
+## service.screens(trait list)
 
 # event
 

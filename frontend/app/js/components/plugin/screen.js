@@ -33,7 +33,7 @@ const ExternalScreen = React.createClass({
         plugin_do_screen(
           `${plugin}/${component}`,
           this.refs.el,
-          this.props.location.state
+          props.data || this.props.location.state
         )
       ).then( (cleanupf) =>
         this.setState({cleanupf})
