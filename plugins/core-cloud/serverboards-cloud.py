@@ -154,8 +154,10 @@ def reboot(connection, node):
 @serverboards.rpc_method
 def virtual_nodes(**config):
     connection = connect(**config)
+    via=connections[connection]['config'].get('server')
+    #serverboards.debug(connections[connection])
     def decorate(node):
-        serverboards.rpc.debug(repr(node))
+        #serverboards.rpc.debug(repr(node))
         node['extra']['remote_desktop']=get_remote_desktop_address(connection, node['id'])
         return {
             'type': 'serverboards.core.cloud/cloud.node', # optional, if not, can not be instantiated.
@@ -167,7 +169,7 @@ def virtual_nodes(**config):
             'config': merge_dicts({
                 'node': node['id'],
                 'connection': connection,
-                'via':{'config':{'url': config.get('url')}}
+                'via':{'config':{'url': via}}
                 }, get_extra_config(node)),
             'icon': node['icon']
         }
