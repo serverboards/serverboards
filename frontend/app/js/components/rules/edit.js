@@ -145,11 +145,11 @@ const Details=React.createClass({
             </div>
           </div>
         </div>
-        <h1 className="ui medium header side centered">
-        <ImageIcon src={icon}  name={props.rule.name}/>
-        <br/>
-        {props.rule.name}
-        </h1>
+        <div className="ui medium header side header centered">
+          <ImageIcon src={icon}  name={props.rule.name}/>
+          <br/>
+          <h3 className="ui header">{props.rule.name}</h3>
+        </div>
 
         <div className="ui form">
           <div className="field">
@@ -204,7 +204,10 @@ const Details=React.createClass({
           )}
 
           {props.action_catalog && actions.map( (action) =>
-            <ActionEdit key={action.state} action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
+            <div key={action.state} >
+              <h3 className="ui header uppercase">{action.state}</h3>
+              <ActionEdit action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
+            </div>
           )}
 
         </div>

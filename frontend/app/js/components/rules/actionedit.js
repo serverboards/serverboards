@@ -43,7 +43,6 @@ const ActionEdit=React.createClass({
     params=params.filter( (p) => !(p.name in noparams) )
     return (
       <div>
-        <h3 className="ui header uppercase">{action.state}</h3>
         <div className="field">
           <label>Action:</label>
           <div ref="action" className="ui fluid search normal selection dropdown">

@@ -65,10 +65,15 @@
         top: 45px
         margin-left: -150px
         width: 150px
+        &.header
+          margin-left: -110px
+          width: 80px
+          .header
+            margin-top: 0
 
     @media screen and (max-width: 1150px)
       > .content
-        .side
+        .side, .side.header
           position: relative
           top: auto
           margin-left: 0
