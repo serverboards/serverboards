@@ -32,7 +32,7 @@ function Rule(props){
     <div className="rule card">
       <div className="header content">
         <ImageIcon src={icon} className="right floated"  name={rule.name}/>
-        <h2 clasName="ui header">{rule.name}</h2>
+        <h2 className="ui header">{rule.name}</h2>
         <div className="meta">{rule.description}</div>
         <div>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</div>
       </div>
@@ -47,7 +47,7 @@ function Rule(props){
         <div>{Object.keys(rule.actions).map((state) => {
         const ac=rule.actions[state]
         return (
-          <div><b>{state}:</b>
+          <div key={state}><b>{state}:</b>
             <span style={{paddingLeft: 10}} className="meta">
             {(find_by_id(ac.action, props.action_catalog) || {name: ac.action}).name}
           </span></div>
@@ -125,7 +125,10 @@ const Rules=React.createClass({
       <div className="ui container">
         <div className="ui cards">
           {props.rules.map((r) =>
-            <Rule rule={r} onOpenEdit={() => props.onOpenEdit(r)}
+            <Rule
+              rule={r}
+              key={r.uuid}
+              onOpenEdit={() => props.onOpenEdit(r)}
               trigger_catalog={props.trigger_catalog}
               service_catalog={props.service_catalog}
               action_catalog={props.action_catalog}/>

@@ -3,65 +3,10 @@ import GenericForm from '../genericform'
 import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
 import { to_map, to_list, merge } from 'app/utils'
+import ActionEdit from './actionedit'
 
 const icon = require("../../../imgs/rules.svg")
 
-const ActionDetails=React.createClass({
-  getInitialState(){
-    return {
-      action: undefined,
-      params: {}
-    }
-  },
-  componentDidMount(){
-    let self=this
-    $(this.refs.action).dropdown({
-      onChange(v){
-        self.props.onUpdateAction(self.props.action.state, v, {})
-        self.setState({action: v, params: {}})
-      }
-    })
-  },
-  componentDidUpdate(newprops){
-    if (this.props.catalog && !this.state.action && newprops.action.action){
-      const action=newprops.action
-      console.log("Set action %o // %o", action, this.props.catalog)
-      $(this.refs.action).dropdown('set selected', action.action)
-      this.props.onUpdateAction(action.state, action.action, action.params)
-      this.setState({action: action.action, params: action.params})
-    }
-  },
-  handleParamsChange(params){
-    this.props.onUpdateAction(this.props.action.state, this.state.action, params)
-  },
-  render(){
-    const action=this.props.action
-    const action_type=(this.props.catalog || []).find( (ac) => ac.id == this.state.action )
-    let params = action_type ? action_type.extra.call.params : []
-    const noparams = this.props.noparams || {}
-    params=params.filter( (p) => !(p.name in noparams) )
-    return (
-      <div>
-        <h3 className="ui header uppercase">{action.state}</h3>
-        <div className="field">
-          <label>Action:</label>
-          <div ref="action" className="ui fluid search normal selection dropdown">
-            <input type="hidden" defaultValue={action.action} name="action"/>
-            <i className="dropdown icon"></i>
-            <div className="default text">Select action.</div>
-            <div className="menu">
-            {(this.props.catalog || []).map( (ac) => (
-              <div key={ac.id} className="item" data-value={ac.id}>{ac.name}</div>
-            ))}
-            </div>
-          </div>
-        </div>
-        <GenericForm fields={params} data={action.params} updateForm={this.handleParamsChange}/>
-
-      </div>
-    )
-  }
-})
 
 const Details=React.createClass({
   getInitialState(){
@@ -258,8 +203,8 @@ const Details=React.createClass({
             <span/>
           )}
 
-          {actions.map( (action) =>
-            <ActionDetails action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
+          {props.action_catalog && actions.map( (action) =>
+            <ActionEdit key={action.state} action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
           )}
 
         </div>
