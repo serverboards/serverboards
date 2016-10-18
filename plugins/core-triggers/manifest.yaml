@@ -85,7 +85,7 @@ components:
     type: trigger
     states: tick
     command: daemon
-    call:
+    start:
       method: periodic
       params:
         - name: timeout
