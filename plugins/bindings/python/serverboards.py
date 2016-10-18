@@ -31,7 +31,7 @@ class RPC:
           def __init__(self, rpc):
             self.rpc=rpc
           def write(self, txt, *args, **kwargs):
-            self.rpc.error(txt)
+            self.rpc.error(txt.rstrip())
 
         self.write_to_log=WriteToLog(self)
 
