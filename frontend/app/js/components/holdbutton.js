@@ -1,4 +1,5 @@
 import React from 'react'
+import {map_drop} from 'app/utils'
 
 require('sass/holdbutton.sass')
 
@@ -67,13 +68,13 @@ let HoldButton = React.createClass({
         </div>
       )
     if (this.props.className.includes("icon"))
-    return (
-      <a ref="button" className="hold icon">
-        <i className={this.props.className}  {...this.props}/>
-        {this.props.children}
-        <ProgressBar fill={this.state.count}/>
-      </a>
-    )
+      return (
+        <a ref="button" className="hold icon">
+          <i className={this.props.className}  {...map_drop(this.props, ["onHoldClick"])}/>
+          {this.props.children}
+          <ProgressBar fill={this.state.count}/>
+        </a>
+      )
 
     return (
       <div className="hold button">

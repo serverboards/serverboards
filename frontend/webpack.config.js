@@ -50,6 +50,7 @@ module.exports = {
         ]
     },
     plugins: [
+      new webpack.optimize.OccurenceOrderPlugin(),
       new webpack.NoErrorsPlugin(),
       HTMLWebpackPluginConfig,
       new CopyWebpackPlugin([
@@ -62,7 +63,7 @@ module.exports = {
       }),
       new webpack.DefinePlugin({
         'process.env': {
-          'NODE_ENV': JSON.stringify("production")
+          'NODE_ENV': __DEV__ ? JSON.stringify("development") : JSON.stringify("production")
         }
       })
     ],

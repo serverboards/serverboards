@@ -42,7 +42,11 @@ let Channel=React.createClass({
           <label>{this.state.is_active ? "Active" : "Disabled"}</label>
         </div>
         </h3>
-        <div className="ui meta"><MarkdownPreview value={props.channel.description}/></div>
+        <div className="ui meta">
+          { props.channel.description ? (
+            <MarkdownPreview value={props.channel.description}/>
+          ) : null }
+        </div>
         <GenericForm
           fields={props.channel.fields}
           updateForm={(data) => this.handleUpdate(data)}

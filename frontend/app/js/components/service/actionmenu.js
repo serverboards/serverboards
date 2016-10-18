@@ -53,7 +53,7 @@ const ActionMenu=React.createClass({
             <div className="item" onClick={this.handleOpenSettings}><i className="ui icon settings"/> Settings</div>
           ) : []}
           {state.actions ? state.actions.map( (ac) => (
-            <div className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
+            <div key={ac.id} className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
           )) : (
             <div className="item disabled">
               Loading

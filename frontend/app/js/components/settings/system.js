@@ -48,8 +48,8 @@ let System=React.createClass({
         <h1 className="ui header">System</h1>
 
         {props.settings.map( (section) => (
-            <div ref={section.id}>
-              <Section key={section.id} {...section} />
+            <div key={section.id} ref={section.id}>
+              <Section {...section} />
             </div>
           )) }
         <button

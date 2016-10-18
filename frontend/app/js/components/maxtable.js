@@ -37,7 +37,7 @@ let MaxTable=React.createClass({
                 </td>
                 {this.props.onDelete ? (
                   <td className="right aligned">
-                    <HoldButton className="ui trash icon" data-content="Hold to remove"
+                    <HoldButton className="ui trash icon" data-content="Hold to remove from group"
                      onHoldClick={() => this.props.onDelete(u)}/>
                     </td>
                   ) : []}

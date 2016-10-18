@@ -109,7 +109,7 @@ const VirtualBottomMenu=React.createClass({
     return (
       <div className="ui menu bottom attached">
         { head.map( (ac) => (
-          <a className="item" onClick={() => this.triggerAction(ac.id)}>
+          <a key={ac.id} className="item" onClick={() => this.triggerAction(ac.id)}>
             <i className={`ui ${ac.extra.icon} icon`} title={ac.name}/>
           </a>
         ) ) }
@@ -183,7 +183,7 @@ const Card=React.createClass({
           </div>
           <div className="header">{props.name}</div>
           <div className="meta">{(props.tags || []).map( (l) => (
-            <span style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
+            <span key={l} style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
           ))}</div>
           <div className="description"><MarkdownPreview value={props.description || ""}/></div>
           <div>

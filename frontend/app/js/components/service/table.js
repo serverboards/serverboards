@@ -32,7 +32,7 @@ const ServiceTableLine = React.createClass({
         <td className="ui meta">{s.description}</td>
         <td>
           {(s.tags || []).map( (l) => (
-            <span style={{color:"#ccc", display:"block", whiteSpace:"nowrap"}}>
+            <span key={l} style={{color:"#ccc", display:"block", whiteSpace:"nowrap"}}>
               <span className={`ui circular empty ${colorize(l)} label`}/> {l}
             </span>
           ))}
@@ -59,7 +59,7 @@ function Table(props){
       </tr></thead>
       <tbody>
       {props.services.map((p) => (
-        <ServiceTableLine service={p} serverboard={props.serverboard} definition={service_definition(p.type, props.catalog)}/>
+        <ServiceTableLine key={p.uuid} service={p} serverboard={props.serverboard} definition={service_definition(p.type, props.catalog)}/>
       ))}
       </tbody>
     </table>

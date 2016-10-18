@@ -33,7 +33,7 @@ let Groups=React.createClass({
             {g.users.length == 0 ? (
               <span style={{position: "absolute", top: 5, right: 0}}>
               <HoldButton className="ui trash icon"
-              data-content="Hold to remove"
+              data-content="Hold to remove from group"
               onHoldClick={() => {self.props.onRemoveGroup(g.name)}}
               />
               </span>

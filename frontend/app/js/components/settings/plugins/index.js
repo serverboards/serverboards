@@ -101,7 +101,7 @@ const Plugins=React.createClass({
 
         <div className="ui cards">
           {plugins.map((p) => (
-            <PluginCard plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
+            <PluginCard key={p.id} plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
           ))}
         </div>
         {popup}

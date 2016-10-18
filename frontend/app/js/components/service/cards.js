@@ -14,7 +14,7 @@ function Cards(props){
   return (
     <div className="ui cards">
       {props.services.map((p) => (
-        <Card key={p.id} service={p} serverboard={props.serverboard} service_description={service_definition(p.type, props.catalog)}/>
+        <Card key={p.uuid} service={p} serverboard={props.serverboard} service_description={service_definition(p.type, props.catalog)}/>
       ))}
     </div>
   )

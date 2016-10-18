@@ -39,6 +39,7 @@ function MenuItem(props){
         <div className="menu">
           {candidates.map( (s) => (
             <MenuItem
+              key={s.id}
               section={s.id}
               screen={props.screen}
               data={merge(props.data, {service: s})}
@@ -113,6 +114,7 @@ const ScreensMenu=React.createClass({
         </h3>
         {props.screens.sort(by_name).map( (s) => (
           <MenuItem
+            key={s.id}
             screen={s}
             data={{serverboard}}
             candidates={props.services.filter((c) => match_traits(c.traits, s.traits))}

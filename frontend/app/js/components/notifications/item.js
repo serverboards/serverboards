@@ -15,7 +15,7 @@ function NotificationItem(props){
     <a href={`#/notifications/${p.id}`} className="item">
       <div>
         <span>{tags.map( (t) => (
-          <span style={{marginRight: 5}} className={`ui tiny basic plain label ${colorize(t)}`}>{t}</span>
+          <span key={t} style={{marginRight: 5}} className={`ui tiny basic plain label ${colorize(t)}`}>{t}</span>
         ))}
         </span>
         <span className="ui meta"> {timespec}</span>
