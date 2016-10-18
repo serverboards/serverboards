@@ -69,9 +69,8 @@ components:
 
   - id: list
     name: List nodes
-    type: action
+    type: screen
     traits: core.cloud.compute
-    screen: true
 
   - id: start
     name: Start node

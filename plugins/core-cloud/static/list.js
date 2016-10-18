@@ -35,7 +35,7 @@ function main(el, config){
     d.server=server
     return rpc.call(d.daemon+'.list', [d.server])
   }).then(function(list){
-    el.find('#node-list').html( create_table( ["id","name","state"], list ) )
+    $(el).find('#node-list').html( create_table( ["id","name","state"], list ) )
 
     console.log(list)
   }).catch(function(e){
