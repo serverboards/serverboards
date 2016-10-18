@@ -165,6 +165,12 @@ class Client:
             'p': lambda x: x,
             'import': self.parse_file,
         }
+        self.internal={
+            'log.error':self.internal_log('red'),
+            'log.info':self.internal_log('white'),
+            'log.debug':self.internal_log('blue'),
+            'log.warning':self.internal_log('yellow'),
+        }
         self.debug=False
 
     def close(self):
@@ -173,6 +179,14 @@ class Client:
     def set_debug(self, _on=True):
         self.debug=_on
         return self.debug
+
+    def internal_log(self, color):
+        def real_log(msg, params):
+            file=os.path.basename(params.get('file','--'))[-20:]
+            line=params.get('line','--')
+            for m in msg.split('\n'):
+                printc("%20s:%d %s"%(file, line, m), color=color)
+        return real_log
 
     def builtin_set(self, varname, expr=None):
         if expr is None:
@@ -212,16 +226,26 @@ class Client:
                 return None
             elif id and not 'method' in response and response.get('id')==id:
                 return response
+            elif 'method' in response and 'id' in response: # this is a call
+                user_response = input("%s%s> "%(response["method"], repr(response.get("params"))))
+                result = parse_command("__placeholder__ %s"%(user_response), self.vars)["params"]
+                if type(result) == list and len(result)==1:
+                    result=result[0]
+                cmd={"id": response["id"], "result": result }
+                self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
+            elif 'method' in response and not 'id' in response and response['method'] in self.internal:
+                try:
+                    params=response['params']
+                    method=response['method']
+                    if type(params) == list:
+                        self.internal[method](*params)
+                    else:
+                        self.internal[method](**params)
+                except:
+                    import traceback
+                    traceback.print_exc()
             else:
-                if 'method' in response and 'id' in response: # this is a call
-                    user_response = input("%s%s> "%(response["method"], repr(response.get("params"))))
-                    result = parse_command("__placeholder__ %s"%(user_response), self.vars)["params"]
-                    if type(result) == list and len(result)==1:
-                        result=result[0]
-                    cmd={"id": response["id"], "result": result }
-                    self.iostream.send( bytearray(json.dumps(cmd)+'\n','utf8') )
-                else:
-                    Client.printc(response, color="grey")
+                Client.printc(response, color="grey")
 
         return None
 
