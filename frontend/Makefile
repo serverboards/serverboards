@@ -6,6 +6,10 @@ dist/: node_modules app/* app/*/* *.js
 	rm dist -rf
 	NODE_ENV=production node_modules/.bin/webpack -p --progress
 
+compile-dev: setup
+	rm dist -rf
+	NODE_ENV=development node_modules/.bin/webpack -p --progress
+
 start:
 	@echo "URL: http://localhost:3000/webpack-dev-server"
 	npm start
