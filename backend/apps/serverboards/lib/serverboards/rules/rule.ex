@@ -87,7 +87,7 @@ defmodule Serverboards.Rules.Rule do
       id ->
         Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.id == ^id, select: c.shortname )
     end
-    actions = Repo.all(from ac in Model.ActionAtState) |> Enum.map(fn ac ->
+    actions = Repo.all(from ac in Model.ActionAtState, where: ac.rule_id == ^model.id) |> Enum.map(fn ac ->
       { ac.state, %{
         action: ac.action,
         params: ac.params,
