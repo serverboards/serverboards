@@ -4,14 +4,18 @@ import GenericForm from '../genericform'
 const ActionEdit=React.createClass({
   propTypes:{
     catalog: React.PropTypes.arrayOf(React.PropTypes.object).isRequired, // Full catalog of actions
-    action: React.PropTypes.object, // Current action definition, to prefill
+    action: React.PropTypes.shape({ // Current action definition, to prefill
+      state: React.PropTypes.string, // State id, ex. UP
+      action: React.PropTypes.string, // Action id, ex. serverboards.core.actions/set-label
+      params: React.PropTypes.object, // Current configuration of the action
+    }),
     onUpdateAction: React.PropTypes.func, // Action to call whenever the action is updated
     noparams: React.PropTypes.object, // Prefilled params at action, do not show
   },
   getInitialState(){
     return {
-      action: undefined,
-      params: {}
+      action: (this.props.action || {}).action,
+      params: (this.props.action || {}).params
     }
   },
   componentDidMount(){
@@ -35,10 +39,12 @@ const ActionEdit=React.createClass({
   handleParamsChange(params){
     this.props.onUpdateAction(this.props.action.state, this.state.action, params)
   },
+  find_action(id){
+    return (this.props.catalog || []).find( (ac) => ac.id == id )
+  },
   render(){
-    const action=this.props.action
-    const action_type=(this.props.catalog || []).find( (ac) => ac.id == this.state.action )
-    let params = action_type ? action_type.extra.call.params : []
+    const action_template=this.find_action(this.state.action)
+    let params = action_template ? action_template.extra.call.params : []
     const noparams = this.props.noparams || {}
     params=params.filter( (p) => !(p.name in noparams) )
     return (
@@ -46,7 +52,7 @@ const ActionEdit=React.createClass({
         <div className="field">
           <label>Action:</label>
           <div ref="action" className="ui fluid search normal selection dropdown">
-            <input type="hidden" defaultValue={action.action} name="action"/>
+            <input type="hidden" defaultValue={this.state.action} name="action"/>
             <i className="dropdown icon"></i>
             <div className="default text">Select action.</div>
             <div className="menu">
@@ -56,7 +62,7 @@ const ActionEdit=React.createClass({
             </div>
           </div>
         </div>
-        <GenericForm fields={params} data={action.params} updateForm={this.handleParamsChange}/>
+        <GenericForm fields={params} data={this.state.params} updateForm={this.handleParamsChange}/>
 
       </div>
     )

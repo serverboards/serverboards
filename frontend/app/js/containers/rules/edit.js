@@ -8,7 +8,8 @@ var Edit = event.subscribe_connect(
   (state) => ({
     triggers: state.rules.trigger_catalog,
     services: state.serverboard.serverboard.services || [],
-    action_catalog: state.action.catalog
+    action_catalog: state.action.catalog,
+    location: state.routing.locationBeforeTransitions
   }),
   (dispatch, props) => ({
     onSave: (rule) => { dispatch( rules_save(rule) ); dispatch( push(`/serverboard/${props.serverboard}/rules`) ) }

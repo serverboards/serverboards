@@ -98,9 +98,10 @@ export function set_modal(modal, data={}){
   } ) )
 }
 
-export function goto(url){
+export function goto(url, extradata={}){
   store.dispatch( push( {
-    pathname: url
+    pathname: url,
+    state: extradata
   }))
 }
 
