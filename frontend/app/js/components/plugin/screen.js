@@ -13,8 +13,11 @@ const ExternalScreen = React.createClass({
     return {cleanupf(){}}
   },
   componentWillUnmount(){
-    if (this.state.cleanupf)
+    if (this.state.cleanupf){
+      console.debug("Cleanup plugin screen")
       this.state.cleanupf()
+      $(this.refs.el).html('')
+    }
     else
       console.debug("Plugin did not specify a cleanup function. This may lead to resource leaks.")
   },
@@ -47,6 +50,7 @@ const ExternalScreen = React.createClass({
       load_js()
     }).fail( (ev, text) => {
       console.log("Could not load HTML, loading JS anyway.")
+      $(this.refs.el).html('')
       load_js()
     })
   },
