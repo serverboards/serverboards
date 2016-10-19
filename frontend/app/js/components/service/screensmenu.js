@@ -1,13 +1,9 @@
 import React from 'react'
-import {merge} from 'app/utils'
+import {merge, is_empty} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 
 function by_name(a,b){
   return a.name.localeCompare( b.name )
-}
-
-function is_empty(l){
-  return (Boolean(l)==false) || (l.length==0)
 }
 
 function match_traits(s1, s2){

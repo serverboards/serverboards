@@ -22,6 +22,11 @@ export function dedup(l){
   }
   return ret
 }
+
+export function is_empty(l){
+  return !l || (l.length==0)
+}
+
 /// Drops some keys from a map, and returns a copy without these keys
 /// Its optimized for a small ammount of keys O(N²)
 export function map_drop(map, keys){
