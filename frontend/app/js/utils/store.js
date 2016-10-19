@@ -98,4 +98,10 @@ export function set_modal(modal, data={}){
   } ) )
 }
 
+export function goto(url){
+  store.dispatch( push( {
+    pathname: url
+  }))
+}
+
 export default store
