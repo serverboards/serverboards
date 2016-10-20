@@ -173,6 +173,12 @@ const Card=React.createClass({
     let props=this.props.service
     return (
       <div className="service card">
+        <div className="extra content">
+          {(props.tags || []).map( (l) => (
+            <span key={l} style={{color:"#ccc", paddingLeft:10}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
+          ))}&nbsp;
+        </div>
+
         <div className="content">
           <div className="right floated">
             {props.icon ? (
@@ -182,11 +188,8 @@ const Card=React.createClass({
             )}
           </div>
           <div className="header">{props.name}</div>
-          <div className="meta">{(props.tags || []).map( (l) => (
-            <span key={l} style={{color:"#ccc"}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
-          ))}</div>
-          <div className="description"><MarkdownPreview value={props.description || ""}/></div>
-          <div>
+          <div className="description" style={{display:"inline-block"}}><MarkdownPreview value={props.description || ""}/></div>
+          <div style={{clear:"both"}}>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
           ) : [])}

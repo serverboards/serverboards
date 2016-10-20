@@ -30,6 +30,14 @@ function Rule(props){
 
   return (
     <div className="rule card">
+      <div className="extra content" style={{padding:"0 10px"}}>
+        { rule.is_active ? (
+          <span><i className="ui label circular empty green"/> ON</span>
+        ) : (
+          <span><i className="ui label circular empty red"/> OFF</span>
+        )
+        }
+      </div>
       <div className="header content">
         <ImageIcon src={icon} className="right floated"  name={rule.name}/>
         <h2 className="ui header">{rule.name}</h2>
@@ -37,18 +45,21 @@ function Rule(props){
         <div>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</div>
       </div>
       <div className="content">
-        <h3 className="ui header uppercase">When</h3>
+        <h3 className="ui header uppercase">Trigger</h3>
         <div className="meta">
           {(find_by_id(rule.trigger.trigger, props.trigger_catalog) || {nmme: rule.trigger.trigger }).name}
         </div>
       </div>
       <div className="content">
-        <h3 className="ui header uppercase">On</h3>
+        <h3 className="ui header uppercase">Action</h3>
         <div>{Object.keys(rule.actions).map((state) => {
         const ac=rule.actions[state]
         return (
-          <div key={state}><b>{state}:</b>
-            <span style={{paddingLeft: 10}} className="meta">
+          <div key={state}>
+            <span className="ui meta uppercase">IF </span>
+            <span className="">{state}</span>
+            <span className="ui meta uppercase"> THEN </span>
+            <span className="">
             {(find_by_id(ac.action, props.action_catalog) || {name: ac.action}).name}
           </span></div>
         )
@@ -78,8 +89,6 @@ const empty_rule={
 
 const Rules=React.createClass({
   componentDidMount(){
-    this.props.onUpdateRules()
-
     let self=this
     let serverboard=this.props.serverboard.shortname
 

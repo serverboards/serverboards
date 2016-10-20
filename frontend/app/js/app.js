@@ -32,6 +32,8 @@ window.Serverboards = {
   React,
   ReactDOM,
   Components: require("app/components/export").default,
+  utils: require("app/utils"),
+  location: { goto: require('app/utils/store').goto },
   add_screen: plugin.add_screen,
   add_widget: plugin.add_widget,
   add_command_search: Command.add_command_search,

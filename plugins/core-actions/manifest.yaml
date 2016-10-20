@@ -54,6 +54,7 @@ components:
           type: text
           description: Space separated list of tags to add. It can start with a dash to remove the label (-label).
           placeholder: eg. UP -DOWN
+          card: true
 
   - name: Send notification
     id: send-notification
@@ -67,9 +68,11 @@ components:
         - name: email
           type: text
           label: User email or @group
+          card: true
         - name: subject
           type: text
           label: Subject
+          card: true
         - name: body
           type: textarea
           lable: Body

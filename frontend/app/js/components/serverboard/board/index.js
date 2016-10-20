@@ -8,6 +8,7 @@ import BoardHeader from './header'
 import ReactGridLayout from 'react-grid-layout'
 import {object_is_equal} from 'app/utils'
 import {set_modal} from 'app/utils/store'
+import rpc from 'app/rpc'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')

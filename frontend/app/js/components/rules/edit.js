@@ -4,82 +4,72 @@ import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
 import { to_map, to_list, merge } from 'app/utils'
 import ActionEdit from './actionedit'
+import SelectService from './selectservice'
+import TriggerSelect from './triggerselect'
 
 const icon = require("../../../imgs/rules.svg")
-
 
 const Details=React.createClass({
   getInitialState(){
     const service_uuid=this.props.rule.service
-    let service=undefined
+    const props=this.props
+    let service={}
     if (service_uuid){
       service = this.props.services.find( (s) => s.uuid == service_uuid )
     }
     //console.log("service %o %o %o", this.props.rule, service_uuid, service)
+    const location_state = this.props.location && this.props.location.state || {}
+    const trigger_id = location_state.trigger || this.props.rule.trigger.trigger
+    const trigger_fields = ((this.find_trigger(trigger_id) || {}).start || {}).params || []
+    const states = (this.find_trigger(trigger_id) || {}).states
 
     return {
-      service,
-      trigger: {
-        trigger: undefined,
-        params: {}
-      },
-      actions: []
+      is_active: props.rule.is_active,
+      name: props.rule.name,
+      description: props.rule.description,
+      service: service,
+      trigger: trigger_id,
+      trigger_fields: trigger_fields,
+      trigger_config: this.props.rule.trigger.params || location_state.params,
+      actions: this.get_actions(states)
     }
+  },
+  find_trigger(id, triggers){
+    if (!triggers)
+      triggers=this.props.triggers
+    return triggers.find( (t) => t.id == id )
+  },
+  get_actions(states){ // Check if knows some values from previous staes, and returns it all
+    let actions=this.props.rule.actions
+    console.log(this.props)
+    return states.map( (s) => ({
+      state: s,
+      params: actions[s] && actions[s].params || {},
+      action: actions[s] && actions[s].action || null
+    }))
   },
   componentDidMount(){
     let self=this
-    $(this.refs.service).dropdown({
-      onChange(value, text, $el){
-        const service = self.props.services.find( (s) => s.uuid == value )
-        self.setState({service})
-      }
-    })
-    $(this.refs.trigger).dropdown({
-      onChange(value, text, $el){
-        self.handleChangeTrigger(value)
-      },
-    }).dropdown("set selected", this.props.rule.trigger.trigger)
-    $(this.refs.el).find('.toggle').checkbox();
+    $(this.refs.el).find('.toggle').checkbox({
+      onChecked: () => this.handleIsActiveChange(true),
+      onUnchecked: () => this.handleIsActiveChange(false),
+    });
   },
-  componentDidUpdate(newprops){
-    if (newprops.triggers != this.props.triggers){
-      $(this.refs.el).find('.dropdown').dropdown('refresh');
-
-      $(this.refs.trigger).dropdown("set selected", this.props.rule.trigger.trigger)
-      this.handleChangeTrigger(this.props.rule.trigger.trigger, newprops.triggers)
-    }
-  },
-
-  handleChangeTrigger(v, triggers){
-    //console.log(v)
-    triggers = triggers || this.props.triggers
-    if (!triggers)
-      return
-    const trigger=triggers.find((el) => el.id == v)
-    if (trigger){
-      let trigger_params
-      let actions
-      if (v == this.props.rule.trigger.trigger){
-        trigger_params=this.props.rule.trigger.params
-        actions=trigger.states.map( (st) => ({
-          state: st,
-          action: this.props.rule.actions[st].action,
-          params: this.props.rule.actions[st].params
+  handleTriggerChange(trigger){
+    console.log("Selected trigger %o", trigger)
+    if (!trigger)
+      this.setState({trigger:null, trigger_fields:[], actions: []})
+    else
+      this.setState({
+        trigger: trigger.id,
+        trigger_fields: trigger.start.params,
+        actions: trigger.states.map( (s) => ({
+          state: s
         }))
-      } else {
-        trigger_params={}
-        actions=trigger.states.map( (st) => ({
-          state: st,
-          action: undefined,
-          params: {}
-        }))
-
-      }
-      this.setState({  trigger: { trigger: v, params: trigger_params}, actions  })
-    }
+      })
   },
-  handleUpdateTriggerConfig(params){
-    this.setState({trigger: {trigger: this.state.trigger.trigger, params }})
+  handleTriggerConfigChange(trigger_config){
+    this.setState({trigger_config})
   },
   handleActionConfig(state, action_id, params){
     const actions = this.state.actions.map( (ac) => {
@@ -88,6 +78,18 @@ const Details=React.createClass({
       return ac
     })
     this.setState({ actions })
+  },
+  handleServiceChange(service){
+    this.setState({service})
+  },
+  handleIsActiveChange(is_active){
+    this.setState({is_active})
+  },
+  handleDescriptionChange(ev){
+    this.setState({description: ev.target.value })
+  },
+  handleNameChange(ev){
+    this.setState({name: ev.target.value })
   },
   handleSave(){
     let actions={}
@@ -101,21 +103,19 @@ const Details=React.createClass({
       }
     })
 
-    let $el=$(this.refs.el)
     let rule={
       uuid: props.rule.uuid,
-      is_active: $el.find("input[name=is_active]").is(":checked"),
-      name: $el.find("input[name=name]").val(),
-      description: $el.find("textarea[name=description]").val(),
-      service: this.state.service && this.state.service.uuid,
+      is_active: state.is_active,
+      name: state.name,
+      description: state.description,
+      service: state.service && state.service.uuid,
       serverboard: props.serverboard,
       trigger: {
-        trigger: state.trigger.trigger,
-        params: state.trigger.params
+        trigger: state.trigger,
+        params: state.trigger_config
       },
       actions: actions
     }
-    console.log(rule)
     this.props.onSave(rule)
   },
   render(){
@@ -125,97 +125,74 @@ const Details=React.createClass({
     const state=this.state
     const actions = state.actions
     let defconfig=merge( this.state.service && this.state.service.config || {}, {service: this.state.service && this.state.service.uuid } )
-    let trigger_fields=triggers.find( (tr) => tr.id == state.trigger.trigger )
-    trigger_fields=trigger_fields && trigger_fields.start && trigger_fields.start.params || []
-    trigger_fields=trigger_fields.filter( (tf) => !(tf.name in defconfig) )
+    const trigger_params=state.trigger_fields.filter( (tf) => !(tf.name in defconfig) )
     //console.log("defconfig", this.state.service, defconfig, trigger_fields)
     return (
       <Modal>
-      <div ref="el">
-        <div className="ui top secondary menu">
-        <a className="item">
-          <i className="ui icon trash"/> Delete
-        </a>
-          <div className="right menu">
-            <div className="item">
-              <div className="ui checkbox toggle">
-                <label>Active</label>
-                <input type="checkbox" defaultChecked={props.rule.is_active} name="is_active"/>
+        <div ref="el">
+          <div className="ui top secondary menu">
+            <a className="item">
+              <i className="ui icon trash"/> Delete
+            </a>
+            <div className="right menu">
+              <div className="item">
+                <div className="ui checkbox toggle">
+                  <label>{state.is_active ? "Enabled " : "Disabled"}</label>
+                  <input type="checkbox" defaultChecked={state.is_active} name="is_active"/>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="ui medium header side header centered">
-          <ImageIcon src={icon}  name={props.rule.name}/>
-          <br/>
-          <h3 className="ui header">{props.rule.name}</h3>
-        </div>
 
-        <div className="ui form">
-          <div className="field">
-            <label>Name:</label>
-            <input type="text" defaultValue={props.rule.name} name="name"/>
+          <div className="ui medium header side header centered">
+            <ImageIcon src={icon} name={state.name}/>
+            <br/>
+            <h3 className="ui header">{state.name}</h3>
           </div>
-          <div className="field">
-            <label>Description:</label>
-            <textarea type="text" defaultValue={props.rule.description} name="description"/>
-          </div>
-          <div className="field">
-            <label>Service:</label>
-            <div ref="service" className="ui fluid search normal selection dropdown">
-              <input type="hidden" defaultValue={props.rule.service} name="service"/>
-              <i className="dropdown icon"></i>
-              <div className="default text">Select service.</div>
-              <div className="menu">
-                <div className="item" data-value="">No service</div>
-                {services.map( (sv) => (
-                  <div key={sv.uuid} className="item" data-value={sv.uuid}>
-                    {sv.name}
-                    <span style={{float: "right", paddingLeft: 10, fontStyle: "italic", color: "#aaa"}}>
-                      {Object.keys(sv.config).map((k) => sv.config[k]).join(', ')}
-                    </span>
+
+          <div className="ui form">
+            <div>
+              <div className="field">
+                <label>Name:</label>
+                <input type="text" defaultValue={state.name} name="name" onChange={this.handleNameChange}/>
+              </div>
+              <div className="field">
+                <label>Description:</label>
+                <textarea type="text" defaultValue={state.description} name="description" onChange={this.handleDescriptionChange}/>
+              </div>
+              <div className="field">
+                <label>Service:</label>
+                <SelectService defaultValue={state.service && state.service.uuid} services={services} onChange={this.handleServiceChange}/>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
+              <div className="field">
+                <label>Trigger:</label>
+                <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
+              </div>
+              <GenericForm fields={trigger_params} data={state.trigger_config} updateForm={this.handleTriggerConfigChange}/>
+            </div>
+
+            {actions.length != 0 ? (
+              <div>
+                <h2 className="ui header uppercase" style={{paddingTop:20}}>Action</h2>
+
+                {actions.map( (action) => (
+                  <div key={action.state} >
+                    <h3 className="ui header uppercase"><span className="ui meta">IF</span> {action.state} <span className="ui meta">THEN</span></h3>
+                    <ActionEdit action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
                   </div>
                 ))}
               </div>
-            </div>
+            ) : null }
           </div>
-
-          <h2 className="ui uppercase header">When</h2>
-          <div className="field">
-            <label>Trigger:</label>
-            <div ref="trigger" className="ui fluid search normal selection dropdown">
-              <input type="hidden" defaultValue={props.rule.trigger.trigger}
-                name="trigger" onChange={this.handleChangeTrigger}/>
-              <i className="dropdown icon"/>
-              <div className="default text">Select trigger</div>
-              <div className="menu">
-                {triggers.map( (tr) => (
-                  <div key={tr.id} className="item" data-value={tr.id}>{tr.name}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <GenericForm fields={trigger_fields} data={state.trigger.params} updateForm={this.handleUpdateTriggerConfig}/>
-
-          {actions.length != 0 ? (
-            <h2 className="ui header uppercase">on</h2>
-          ) : (
-            <span/>
-          )}
-
-          {props.action_catalog && actions.map( (action) =>
-            <div key={action.state} >
-              <h3 className="ui header uppercase">{action.state}</h3>
-              <ActionEdit action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
-            </div>
-          )}
 
         </div>
-
-      </div>
-      <div className="actions">
-        <button className="ui yellow button" onClick={this.handleSave}>Save changes</button>
-      </div>
+        <div className="actions">
+          <button className="ui yellow button" onClick={this.handleSave}>Save changes</button>
+        </div>
       </Modal>
     )
   }

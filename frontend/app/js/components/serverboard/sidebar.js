@@ -37,7 +37,7 @@ const SidebarSections = React.createClass({
           })
         }
         else{
-          console.log("Section without associated service")
+          //console.log("Section without associated service")
           this.props.goto({pathname: `/serverboard/${serverboard}/${section}/`, state: data})
         }
       }
