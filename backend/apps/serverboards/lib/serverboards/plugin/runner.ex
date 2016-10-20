@@ -342,8 +342,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, status, state}
   end
   def handle_call({:exit, uuid}, _from, state) do
-    Logger.error("Exitted process #{uuid}")
-    Logger.debug("#{inspect(Map.keys(state))}")
+    Logger.error("Unexpected exit process #{uuid}")
     state=case state.running[uuid] do
       nil ->
         state
@@ -398,7 +397,6 @@ defmodule Serverboards.Plugin.Runner do
   end
   def handle_info({:remove_uuid, uuid}, state) do
     # Removes after 60s after a uuid failed, to return some {:error, :exit}, but not mem leak the uuid forever
-    Logger.debug("Remove uuid #{uuid}")
     {:noreply, %{ state |
       running: Map.drop(state.running, [uuid])
     }}
