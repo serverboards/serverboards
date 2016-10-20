@@ -30,6 +30,14 @@ function Rule(props){
 
   return (
     <div className="rule card">
+      <div className="extra content" style={{padding:"0 10px"}}>
+        { rule.is_active ? (
+          <span><i className="ui label circular empty green"/> ON</span>
+        ) : (
+          <span><i className="ui label circular empty red"/> OFF</span>
+        )
+        }
+      </div>
       <div className="header content">
         <ImageIcon src={icon} className="right floated"  name={rule.name}/>
         <h2 className="ui header">{rule.name}</h2>
