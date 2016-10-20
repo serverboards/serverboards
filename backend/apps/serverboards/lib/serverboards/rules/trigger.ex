@@ -102,10 +102,17 @@ defmodule Serverboards.Rules.Trigger do
   def handle_call({:start, trigger, params, cont}, _from, state) do
     case Plugin.Runner.start trigger.command do
       {:ok, plugin_id} ->
+        uuid = UUID.uuid4
+
+        MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{uuid: ^plugin_id}} ->
+          stop(uuid)
+          start(trigger, params, cont) # no deadlock, wil be called from another pid
+          :autoremove
+        end)
+
         {:ok, client} = Plugin.Runner.client plugin_id
         setup_client_for_rules client # can setup over without any problem. If not would need to setup only once.
 
-        uuid = UUID.uuid4
         method = Map.put( trigger.start, "params", [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", []) )
 
         call_response = try do
