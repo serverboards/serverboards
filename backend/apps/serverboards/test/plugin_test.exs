@@ -194,4 +194,38 @@ defmodule Serverboards.PluginTest do
     res = Serverboards.Plugin.Runner.call cmd, %{ "method" => "pingm", "params" => [ %{ "name" => "message" } ] }, %{ "message" => "Pong!", "ingored" => "ignore me"}
     assert res == {:ok, "Pong!"}
   end
+
+  test "Plugin singleton fail, relaunch" do
+    {:ok, cmd} = Serverboards.Plugin.Runner.start "serverboards.test.auth/fake_singleton"
+
+    res = Serverboards.Plugin.Runner.call cmd, "ping"
+    assert res == {:ok, "pong"}
+
+    assert {:ok, cmd} == Serverboards.Plugin.Runner.start "serverboards.test.auth/fake_singleton"
+
+    table = :ets.new(:test_check, [:set, :public])
+    MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{ uuid: uuid, id: id }} ->
+      Logger.warn("Process is DOWN: #{uuid}, #{id}")
+      :ets.insert(table, {:down, true})
+    end)
+
+    # will fail always. first error, next bad id. (has a timeout to remove the uuid)
+    res = Serverboards.Plugin.Runner.call cmd, "abort", []
+    assert res == {:error, :exit}
+    res = Serverboards.Plugin.Runner.call cmd, "abort", []
+    assert res == {:error, :exit}
+    res = Serverboards.Plugin.Runner.call cmd, "abort", []
+    assert res == {:error, :exit}
+
+    :timer.sleep(2000)
+    assert :ets.lookup(table, :down) == [{:down,true}]
+
+    # If ask restart, it does, with other uuid
+    {:ok, cmd2} = Serverboards.Plugin.Runner.start "serverboards.test.auth/fake_singleton"
+    assert cmd2 != cmd
+
+    # and works
+    res = Serverboards.Plugin.Runner.call cmd2, "ping", "ping"
+    assert res == {:ok, "pong"}
+  end
 end
