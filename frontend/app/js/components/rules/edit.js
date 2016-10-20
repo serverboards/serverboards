@@ -167,7 +167,7 @@ const Details=React.createClass({
             </div>
 
             <div>
-              <h2 className="ui uppercase header">When</h2>
+              <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
               <div className="field">
                 <label>Trigger:</label>
                 <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
@@ -177,11 +177,11 @@ const Details=React.createClass({
 
             {actions.length != 0 ? (
               <div>
-                <h2 className="ui header uppercase">on</h2>
+                <h2 className="ui header uppercase" style={{paddingTop:20}}>Action</h2>
 
                 {actions.map( (action) => (
                   <div key={action.state} >
-                    <h3 className="ui header uppercase">{action.state}</h3>
+                    <h3 className="ui header uppercase"><span className="ui meta">IF</span> {action.state} <span className="ui meta">THEN</span></h3>
                     <ActionEdit action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
                   </div>
                 ))}
