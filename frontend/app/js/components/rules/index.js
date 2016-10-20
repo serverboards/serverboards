@@ -37,18 +37,21 @@ function Rule(props){
         <div>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</div>
       </div>
       <div className="content">
-        <h3 className="ui header uppercase">When</h3>
+        <h3 className="ui header uppercase">Trigger</h3>
         <div className="meta">
           {(find_by_id(rule.trigger.trigger, props.trigger_catalog) || {nmme: rule.trigger.trigger }).name}
         </div>
       </div>
       <div className="content">
-        <h3 className="ui header uppercase">On</h3>
+        <h3 className="ui header uppercase">Action</h3>
         <div>{Object.keys(rule.actions).map((state) => {
         const ac=rule.actions[state]
         return (
-          <div key={state}><b>{state}:</b>
-            <span style={{paddingLeft: 10}} className="meta">
+          <div key={state}>
+            <span className="ui meta uppercase">IF </span>
+            <span className="">{state}</span>
+            <span className="ui meta uppercase"> THEN </span>
+            <span className="">
             {(find_by_id(ac.action, props.action_catalog) || {name: ac.action}).name}
           </span></div>
         )
