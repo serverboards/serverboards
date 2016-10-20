@@ -31,7 +31,7 @@ defmodule Serverboards.Rules.RPC do
         }
         #Logger.info("Rule #{inspect rule}")
         me = MOM.RPC.Context.get context, :user
-        Serverboards.Rules.Rule.upsert rule, me
+        Serverboards.Rules.upsert rule, me
         :ok
     end, required_perm: "rules.update", context: true
 
