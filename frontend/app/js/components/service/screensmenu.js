@@ -30,7 +30,7 @@ function MenuItem(props){
       <div>
         <a className="item" onClick={props.onOpen}>
           {props.children}
-          <i className="icon angle down floating right"/>
+          <i className="icon caret down floating"/>
         </a>
         <div className="menu">
           {candidates.map( (s) => (
@@ -59,7 +59,7 @@ function MenuItem(props){
       <a className={`item ${props.is_open ? "active" : ""}`} onClick={handleClick}>
         {props.children}
         {has_candidates ? (
-          <i className="icon angle right floating right"/>
+          <i className="icon caret right floating right"/>
         ) :
         (
           null
@@ -105,9 +105,6 @@ const ScreensMenu=React.createClass({
     let serverboard = props.serverboard
     return (
       <div>
-        <h3 className="ui item header">
-          Tools
-        </h3>
         {props.screens.sort(by_name).map( (s) => (
           <MenuItem
             key={s.id}
