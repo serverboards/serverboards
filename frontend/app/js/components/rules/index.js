@@ -89,8 +89,6 @@ const empty_rule={
 
 const Rules=React.createClass({
   componentDidMount(){
-    this.props.onUpdateRules()
-
     let self=this
     let serverboard=this.props.serverboard.shortname
 

@@ -13,14 +13,13 @@ var Rules = event.subscribe_connect(
   }),
   (dispatch, props) => ({
     onOpenEdit: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.uuid}`)),
-    onUpdateRules: () => dispatch( rules_list(props.serverboard.shortname) ),
     cleanRules: () => dispatch( rules_list_clean() )
   }),
   (props) => [
     `rules.update[${props.serverboard.shortname}]`
   ],
-  [
-    update_trigger_catalog, action_catalog
+  (props) => [
+    update_trigger_catalog, action_catalog, () => rules_list(props.serverboard.shortname)
   ]
 )(RulesView)
 

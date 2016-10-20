@@ -44,8 +44,8 @@ const Details=React.createClass({
     console.log(this.props)
     return states.map( (s) => ({
       state: s,
-      params: actions[s].params || {},
-      action: actions[s].action || null
+      params: actions[s] && actions[s].params || {},
+      action: actions[s] && actions[s].action || null
     }))
   },
   componentDidMount(){
