@@ -8,9 +8,8 @@ defmodule Serverboards.Logger do
   It has some care not to store database messages, as they can generate new
   log events.
 
-  TODO:
-    * Use a queue in state and flush it at :flush. This should increase throughput
-    * First message always fails because database is not ready yet.
+    * Uses a queue in state and flush it at :flush. This should increase throughput
+    * First message may fail because database is not ready yet.
   """
   use GenEvent
 
@@ -58,12 +57,16 @@ defmodule Serverboards.Logger do
   end
 
   def init(_opts) do
-    {:ok, server} = Serverboards.Logger.Server.start_link name: Serverboards.Logger.Server
-    {:ok, %{ ignore_applications: ignore_applications, queue: [], server: server }}
+    children = [
+      Supervisor.Spec.worker(Serverboards.Logger.Server, [[name: Serverboards.Logger.Server]])
+    ]
+    {:ok, supervisor} = Supervisor.start_link(children, strategy: :one_for_one)
+
+    {:ok, %{ ignore_applications: ignore_applications, queue: [], supervisor: supervisor }}
   end
 
   def handle_event(:flush, state) do
-    Serverboards.Logger.Server.flush(state.server)
+    Serverboards.Logger.Server.flush(Serverboards.Logger.Server)
     {:ok, state}
   end
   # ignore if im not group leader
@@ -73,7 +76,7 @@ defmodule Serverboards.Logger do
   end
   def handle_event({level, _group_leader, {Logger, message, timestamp, metadata}}, state) do
     if should_log?(metadata, level) do
-      Serverboards.Logger.Server.log(state.server, {message, timestamp, metadata, level})
+      Serverboards.Logger.Server.log(Serverboards.Logger.Server, {message, timestamp, metadata, level})
     end
     {:ok, state}
   end
