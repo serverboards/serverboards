@@ -20,9 +20,9 @@ defmodule Serverboards.Rules.Rule do
     Logger.debug("Start rule #{inspect rule}")
 
     {:ok, pid} = GenServer.start_link __MODULE__, {}
+    Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
     case GenServer.call(pid, {:init, rule}) do
       :ok ->
-        Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
         {:ok, pid}
       {:error, _reason} ->
         GenServer.stop(pid)
@@ -51,9 +51,15 @@ defmodule Serverboards.Rules.Rule do
   end
 
   def trigger_real(params) do
-    pid = Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, params["id"])
-    params = Serverboards.Utils.keys_to_atoms_from_list(params, ~w(id state))
-    GenServer.call(pid, {:trigger, params } )
+    Logger.debug("Trigger real #{inspect params}")
+    case Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, params["id"]) do
+      nil ->
+        Logger.error("Invalid trigger id #{inspect params["id"]}")
+        {:error, :invalid}
+      pid ->
+        params = Serverboards.Utils.keys_to_atoms_from_list(params, ~w(id state))
+        GenServer.call(pid, {:trigger, params } )
+    end
   end
 
   ## server impl
