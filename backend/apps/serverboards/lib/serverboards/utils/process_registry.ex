@@ -44,7 +44,6 @@ defmodule Serverboards.ProcessRegistry do
   end
 
   def handle_call({:get, id}, _from, state) do
-    Logger.debug("#{inspect state}")
     {:reply, Map.get(state, id), state}
   end
   def handle_call({:pop, id}, _from, state) do

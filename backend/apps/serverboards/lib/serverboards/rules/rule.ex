@@ -17,7 +17,7 @@ defmodule Serverboards.Rules.Rule do
     from_template: nil # original template rule
   ]
   def start_link(rule, _options \\ []) do
-    Logger.debug("Start rule #{inspect rule}")
+    Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
 
     {:ok, pid} = GenServer.start_link __MODULE__, {}
     Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
@@ -51,7 +51,7 @@ defmodule Serverboards.Rules.Rule do
   end
 
   def trigger_real(params) do
-    Logger.debug("Trigger real #{inspect params}")
+    #Logger.debug("Trigger real #{inspect params}")
     case Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, params["id"]) do
       nil ->
         Logger.error("Invalid trigger id #{inspect params["id"]}")
@@ -171,7 +171,6 @@ defmodule Serverboards.Rules.Rule do
 
   def handle_call({:trigger, params}, _from, state) do
     %{ id: id, state: rule_state } = params
-    Logger.debug("Trigger action #{inspect state}")
 
     %{
       plugin_id: plugin_id,
@@ -185,14 +184,13 @@ defmodule Serverboards.Rules.Rule do
     action = actions[rule_state]
 
     full_params = Map.merge(params, %{ trigger: trigger.id })
-    Logger.debug("#{inspect params} #{inspect actions}")
 
     if action do
         full_params = Map.merge( Map.merge(action.params, default_params), full_params )
-        Logger.info("Trigger action #{rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
+        Logger.info("Trigger action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
         Serverboards.Action.trigger(action.action, full_params, %{ email: "rule/#{rule.uuid}", perms: []})
     else
-        Logger.info("Trigger empty action #{rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], action: action)
+        Logger.info("Trigger empty action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], action: action)
         {:ok, :empty}
     end
 

@@ -93,7 +93,7 @@ defmodule Serverboards.Plugin.Runner do
         Logger.error("Error stopping component #{inspect e}")
         {:error, e}
       {:ok, cmd} ->
-        Logger.debug("Stop plugin #{inspect uuid}")
+        #Logger.debug("Stop plugin #{inspect uuid}")
         Serverboards.IO.Cmd.stop cmd
         true
     end
@@ -264,7 +264,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, ret, state}
   end
   def handle_call({:start, uuid, pid, component}, _from, state) do
-    Logger.debug("Component start #{inspect Map.drop(component,[:plugin])}")
+    #Logger.debug("Component start #{component.id}")
     # get strategy and timeout
     {timeout, strategy} = case Map.get(component.extra, "strategy", "one_for_one") do
       "one_for_one" ->
@@ -309,7 +309,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, :ok, state}
   end
   def handle_call({:stop, uuid}, _from, state) do
-    Logger.debug("Stop plugin #{uuid}")
+    #Logger.debug("Stop plugin #{uuid}")
     entry = state.running[uuid]
     cond do
       entry == nil ->
