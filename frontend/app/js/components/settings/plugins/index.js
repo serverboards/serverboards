@@ -5,7 +5,7 @@ import {MarkdownPreview} from 'react-marked-markdown';
 import ImageIcon from 'app/components/imageicon'
 import PluginDetails from './details'
 
-const icon = require("../../../../imgs/services.svg")
+const icon = require("../../../../imgs/plugins.svg")
 require('sass/cards.sass')
 
 function PluginCard(props){
