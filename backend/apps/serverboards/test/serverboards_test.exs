@@ -250,14 +250,15 @@ defmodule ServerboardsTest do
     {:ok, info} = serverboard_info "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
-    assert Enum.count( screens ) == 1
+    assert Enum.count( screens ) >= 1
+    prev_count=Enum.count( screens )
 
     {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "serverboards.test.auth/email" }, user
     service_attach "SBDS-TST13", service, user
     {:ok, info} = serverboard_info "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
-    assert Enum.count( screens ) == 2
+    assert Enum.count( screens ) > prev_count
 
   end
 

@@ -18,7 +18,9 @@ defmodule Serverboards.Rules do
     children=[
       worker(Serverboards.Rules.RPC, [[name: Serverboards.Rules.RPC]]),
       worker(GenServer, [__MODULE__, :ok, [name: Serverboards.Rules] ++ options] ),
-      worker(__MODULE__, [], function: :start_eventsourcing)
+      worker(__MODULE__, [], function: :start_eventsourcing),
+      worker(Serverboards.ProcessRegistry, [[name: Serverboards.Rules.Registry]]),
+      supervisor(Serverboards.Rules.Supervisor,[])
     ]
 
     {:ok, pid} = Supervisor.start_link(children, strategy: :one_for_one, name: Serverboards.Rules.Supervisor)
@@ -335,7 +337,7 @@ defmodule Serverboards.Rules do
   def handle_call({:ensure_rule_active, %{} = rule}, _from, status) do
     {ret, status} = if not Map.has_key?(status, rule.uuid) do
       try do
-        case Rules.Rule.start(rule) do
+        case Rules.Supervisor.start(rule) do
           {:ok, trigger} ->
             {:ok, Map.put(status, rule.uuid, trigger)}
           {:error, reason} ->
@@ -354,8 +356,7 @@ defmodule Serverboards.Rules do
   def handle_call({:ensure_rule_not_active, %{} = rule}, _from, status) do
     #Logger.debug("Ensure not active #{inspect rule.uuid} #{inspect status}")
     status = if Map.has_key?(status, rule.uuid) do
-      trigger = status[rule.uuid]
-      Rules.Rule.stop(trigger)
+      Rules.Supervisor.stop(rule.uuid)
       Map.drop(status, [rule.uuid])
     else
       status

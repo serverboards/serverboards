@@ -25,7 +25,6 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
-      worker(Serverboards.Rules.Trigger, [ [name: Serverboards.Rules.Trigger] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
 
       # this should be the last, as it may use others
