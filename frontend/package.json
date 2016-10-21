@@ -27,6 +27,8 @@
     "md5": "^2.1.0",
     "minify": "^2.0.9",
     "node-sass": "^3.4.2",
+    "rc-calendar": "^7.3.1",
+    "rc-time-picker": "^2.0.2",
     "react": "^15.2.1",
     "react-dom": "^15.0.0",
     "react-grid-layout": "^0.13.9",

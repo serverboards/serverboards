@@ -128,7 +128,7 @@ const timeunits={
   MAX: 1000 * 60 * 60 * 24 * 14
 }
 
-export function pretty_ago(t, now){
+export function pretty_ago(t, now, minres){
   if (!now)
     now = new Date()
   let other = new Date(t)
@@ -143,7 +143,9 @@ export function pretty_ago(t, now){
     if (timediff > timeunits[d])
       lastunit=d
   }
-  const units=Math.round(timediff / timeunits[lastunit])
+  if (timeunits[lastunit] < minres)
+    return "now"
+  const units=Math.round(timediff / timeunits[lastunit])-1
   const s=units > 1 ? 's' : ''
   return String(units)+' '+lastunit+s+' ago'
 }

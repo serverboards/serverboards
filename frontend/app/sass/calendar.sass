@@ -1,0 +1,95 @@
+@import colors
+
+.ui.menu.full.background
+  position: fixed
+  top: 0
+  left: 0
+  width: 100vw
+  height: 100vh
+  background: none
+  z-index: 1000
+  cursor: default
+
+.ui.calendar
+  position: fixed
+  top: 45px
+  left: 400px
+  z-index: 1000
+  background: white
+  padding: 20px
+  border-radius: 5px
+  border: 1px solid #eee
+  table
+    width: 100%
+    th
+      padding: 5px
+      text-align: right
+    td
+      border: 1px solid #eee
+      padding: 5px
+      text-align: right
+      &.rc-calendar-next-month-btn-day, &.rc-calendar-last-month-cell
+        color: #aaa
+      div[aria-disabled=true]
+        color: #ddd
+      &.rc-calendar-selected-day
+        background: $teal
+      &.in-range
+        background: $olive
+      &:hover
+        background-color: #eee
+        cursor: pointer
+  .rc-calendar-input-wrap, .rc-calendar-month-panel-header, .rc-calendar-year-panel-header
+    display: none
+  .rc-calendar-year-panel-next-decade-cell:before
+    content: ">"
+  .rc-calendar-year-panel-last-decade-cell:before
+    content: "<"
+  .rc-calendar-month-panel-body
+    padding: 10px 0
+    td
+      text-align: center
+  .rc-calendar-my-select, .rc-calendar-footer-btn
+    text-align: center
+    padding-bottom: 20px
+    a
+      padding-left: 10px
+
+.ignore-me
+  background: white
+  border-radius: 3px
+  border: 1px solid #ddd
+  position: fixed
+  .daterangepicker_start_input, .daterangepicker_end_input
+    visibility: hidden
+  > .calendar
+    display: inline-block
+    padding: 20px
+    table
+      th
+        padding: 5px
+        text-align: right
+      td
+        border: 1px solid #eee
+        padding: 5px
+        text-align: right
+        &.off
+          color: #aaa
+        &.active
+          background: $teal
+        &.in-range
+          background: $olive
+        &.available
+          &:hover
+            background-color: #eee
+            cursor: pointer
+    // In wrong order in the original
+    &.first
+      float: right
+    &.second
+      float: left
+  .ui.button
+    float: right
+    padding: 10px
+    margin: 20px
+    margin-top: -20px
