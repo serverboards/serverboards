@@ -93,7 +93,7 @@ defmodule Serverboards.Plugin.Runner do
         Logger.error("Error stopping component #{inspect e}")
         {:error, e}
       {:ok, cmd} ->
-        Logger.debug("Stop plugin #{inspect uuid}")
+        #Logger.debug("Stop plugin #{inspect uuid}")
         Serverboards.IO.Cmd.stop cmd
         true
     end
@@ -191,10 +191,17 @@ defmodule Serverboards.Plugin.Runner do
       :not_found ->
         Logger.error("Could not find plugin id #{inspect id}: :not_found")
         {:error, :unknown_method}
+      :exit ->
+        {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
         GenServer.cast(runner, {:ping, id})
         Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
-        Serverboards.IO.Cmd.call pid, method, params
+        case Serverboards.IO.Cmd.call pid, method, params do
+          {:error, :exit} ->
+            GenServer.call(runner, {:exit, id}) # just exitted, mark it
+            {:error, :exit}
+          other -> other
+        end
     end
   end
   # map version
@@ -257,7 +264,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, ret, state}
   end
   def handle_call({:start, uuid, pid, component}, _from, state) do
-    Logger.debug("Component start #{inspect Map.drop(component,[:plugin])}")
+    #Logger.debug("Component start #{component.id}")
     # get strategy and timeout
     {timeout, strategy} = case Map.get(component.extra, "strategy", "one_for_one") do
       "one_for_one" ->
@@ -302,7 +309,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, :ok, state}
   end
   def handle_call({:stop, uuid}, _from, state) do
-    Logger.debug("Stop plugin #{uuid}")
+    #Logger.debug("Stop plugin #{uuid}")
     entry = state.running[uuid]
     cond do
       entry == nil ->
@@ -333,6 +340,27 @@ defmodule Serverboards.Plugin.Runner do
   def handle_call({:status, uuid}, _from, state) do
     status = if Map.has_key?(state.running, uuid) do :running else :not_running end
     {:reply, status, state}
+  end
+  def handle_call({:exit, uuid}, _from, state) do
+    Logger.error("Unexpected exit process #{uuid}")
+    state=case state.running[uuid] do
+      nil ->
+        state
+      :exit ->
+        state
+      %{ component: component } ->
+        :timer.cancel( state.timeouts[uuid] )
+        state = %{ state |
+          running: Map.put(state.running, uuid, :exit),
+          by_component_id: Map.drop(state.by_component_id, [component.id]),
+          timeouts: Map.drop(state.timeouts, [uuid])
+        }
+        MOM.Channel.send(:plugin_down, %MOM.Message{ payload: %{uuid: uuid, id: component.id}})
+        :timer.send_after(60000, {:remove_uuid, uuid})
+        state
+    end
+
+    {:reply, :ok, state}
   end
 
   def handle_cast({:ping, uuid}, state) do
@@ -366,6 +394,12 @@ defmodule Serverboards.Plugin.Runner do
     else
       {:noreply, state}
     end
+  end
+  def handle_info({:remove_uuid, uuid}, state) do
+    # Removes after 60s after a uuid failed, to return some {:error, :exit}, but not mem leak the uuid forever
+    {:noreply, %{ state |
+      running: Map.drop(state.running, [uuid])
+    }}
   end
 
   def handle_info(any, state) do

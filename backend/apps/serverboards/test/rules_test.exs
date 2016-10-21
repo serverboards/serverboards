@@ -49,46 +49,6 @@ defmodule Serverboards.TriggersTest do
     assert r.states == ["tick","stop"]
   end
 
-  test "Run trigger" do
-    [r] = Trigger.find id: "serverboards.test.auth/periodic.timer"
-
-    {:ok, last_trigger} = Agent.start_link fn -> :none end
-
-    {:ok, id} = Trigger.start r, %{ period: 0.1 }, fn params ->
-      Logger.debug("Triggered event: #{inspect params}")
-      Agent.update last_trigger, fn _ -> :triggered end
-    end
-
-    :timer.sleep(300)
-    Trigger.stop id
-
-    assert Agent.get(last_trigger, &(&1)) == :triggered
-  end
-
-
-  test "Simple trigger non stop" do
-    # This are simple triggers that run forever and do not have a stop mark
-    [r] = Trigger.find id: "serverboards.test.auth/simple.trigger"
-
-    {:ok, last_trigger} = Agent.start_link fn -> :none end
-
-    output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
-    assert output == [], "Is already running? Fail from provious test?"
-
-    {:ok, id} = Trigger.start r, %{ }, fn params ->
-      Logger.debug("Triggered event: #{inspect params}")
-      Agent.update last_trigger, fn _ -> :triggered end
-    end
-
-    :timer.sleep(300)
-    Trigger.stop id
-
-    assert Agent.get(last_trigger, &(&1)) == :triggered
-
-    output = :os.cmd(String.to_charlist("ps aux | grep nonstoptrigger.py | grep -v grep"))
-    assert output == []
-  end
-
   test "Manual rule" do
     rule_description = %{
       uuid: UUID.uuid4,
@@ -108,13 +68,13 @@ defmodule Serverboards.TriggersTest do
     }
 
     File.rm("/tmp/sbds-rule-test")
-    {:ok, rule} = Rules.Rule.start rule_description
+    {:ok, rule} = Rules.Rule.start_link rule_description
 
     :timer.sleep 1500
 
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
-    Rules.Rule.stop rule
+    Rules.Rule.stop rule_description.uuid
     File.rm("/tmp/sbds-rule-test")
   end
 
@@ -156,19 +116,17 @@ defmodule Serverboards.TriggersTest do
 
 
     File.rm("/tmp/sbds-rule-test")
-    {:ok, rule} = Rules.Rule.start rule_description
+    {:ok, _} = Rules.Rule.start_link rule_description
 
     :timer.sleep 1500
 
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
-    Rules.Rule.stop rule
+    Rules.Rule.stop rule.uuid
     File.rm("/tmp/sbds-rule-test")
   end
 
   test "Rules DB" do
-    alias Serverboards.Rules.Rule
-
     l = Rules.list
     assert Enum.count(l) >= 0
 
@@ -177,17 +135,17 @@ defmodule Serverboards.TriggersTest do
     me = Test.User.system
 
     # Some upserts
-    Rule.upsert( Map.put(rule, :uuid, uuid), me )
-    Rule.upsert( Map.put(rule, :uuid, uuid), me )
+    Rules.upsert( Map.put(rule, :uuid, uuid), me )
+    Rules.upsert( Map.put(rule, :uuid, uuid), me )
 
-    Rule.upsert( rule, me )
+    Rules.upsert( rule, me )
 
     # More complex with serverboard and related service
     Serverboards.Serverboard.serverboard_add "TEST-RULES-1", %{}, me
     {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
 
-    Rule.upsert( Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
-    Rule.upsert( Map.merge(rule, %{ service: service_uuid }), me )
+    Rules.upsert( Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
+    Rules.upsert( Map.merge(rule, %{ service: service_uuid }), me )
 
     # The full list
     l = Rules.list
@@ -200,9 +158,9 @@ defmodule Serverboards.TriggersTest do
     assert Rules.ps == []
 
     # update should start them
-    Rule.upsert( Map.merge(rule, %{uuid: uuid, is_active: true}), me )
+    Rules.upsert( Map.merge(rule, %{uuid: uuid, is_active: true}), me )
     assert Rules.ps == [uuid]
-    Rule.upsert( Map.merge(rule, %{uuid: uuid, is_active: false}), me )
+    Rules.upsert( Map.merge(rule, %{uuid: uuid, is_active: false}), me )
     assert Rules.ps == []
 
   end
@@ -226,13 +184,13 @@ defmodule Serverboards.TriggersTest do
     me = Test.User.system
 
     File.rm("/tmp/sbds-rule-test")
-    Rule.upsert( rule(%{ uuid: uuid, is_active: true }), me )
+    Rules.upsert( rule(%{ uuid: uuid, is_active: true }), me )
     :timer.sleep(1000)
     Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
     Logger.info("UPDATE")
-    Rule.upsert( rule(%{ uuid: uuid, is_active: false }), me )
+    Rules.upsert( rule(%{ uuid: uuid, is_active: false }), me )
     :timer.sleep(1000)
     File.rm("/tmp/sbds-rule-test")
     :timer.sleep(1000)
@@ -240,12 +198,12 @@ defmodule Serverboards.TriggersTest do
     {:error, _ } = File.stat("/tmp/sbds-rule-test")
 
     File.rm("/tmp/sbds-rule-test")
-    Rule.upsert( rule(%{ uuid: uuid, is_active: true }), me )
+    Rules.upsert( rule(%{ uuid: uuid, is_active: true }), me )
     :timer.sleep(1000)
     Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
-    Rule.upsert( rule(%{ uuid: uuid, is_active: false }), me )
+    Rules.upsert( rule(%{ uuid: uuid, is_active: false }), me )
     :timer.sleep(1000)
     File.rm("/tmp/sbds-rule-test")
     :timer.sleep(1000)
@@ -260,14 +218,14 @@ defmodule Serverboards.TriggersTest do
     me = Test.User.system
 
     File.rm("/tmp/sbds-rule-test")
-    Rule.upsert( rule(%{ uuid: uuid, is_active: true }), me )
+    Rules.upsert( rule(%{ uuid: uuid, is_active: true }), me )
     :timer.sleep(1000)
     Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
     # now with just 100 ms
     File.rm("/tmp/sbds-rule-test")
-    Rule.upsert( rule(%{
+    Rules.upsert( rule(%{
       uuid: uuid,
       is_active: true,
       trigger: %{
@@ -281,7 +239,7 @@ defmodule Serverboards.TriggersTest do
     Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
-    Rule.upsert( rule(%{
+    Rules.upsert( rule(%{
       uuid: uuid,
       is_active: false
       } ), me )
@@ -295,7 +253,7 @@ defmodule Serverboards.TriggersTest do
 
     assert (Process.whereis Serverboards.Rules) != nil
 
-    Rule.upsert( rule(%{
+    Rules.upsert( rule(%{
       uuid: uuid,
       trigger: %{
         trigger: "serverboards.test.auth/except.trigger",
@@ -317,7 +275,7 @@ defmodule Serverboards.TriggersTest do
 
     assert (Process.whereis Serverboards.Rules) != nil
 
-    Rule.upsert( rule(%{
+    Rules.upsert( rule(%{
       uuid: uuid,
       trigger: %{
         trigger: "serverboards.test.auth/abort.trigger",
@@ -339,7 +297,7 @@ defmodule Serverboards.TriggersTest do
 
     assert (Process.whereis Serverboards.Rules) != nil
 
-    Rule.upsert( rule(%{
+    Rules.upsert( rule(%{
       uuid: uuid,
       trigger: %{
         trigger: "serverboards.test.auth/does.not.exist",

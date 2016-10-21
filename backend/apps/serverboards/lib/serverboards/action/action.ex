@@ -358,12 +358,12 @@ defmodule Serverboards.Action do
   end
 
   def handle_info({:DOWN, _, :process, _, :normal}, status) do
-    Logger.debug("Got process down // This is the command port")
+    #Logger.debug("Got process down // This is the command port")
     # All ok
     {:noreply, status}
   end
   def handle_info({:EXIT, _, :normal}, status) do
-    Logger.debug("Got process exit normal")
+    #Logger.debug("Got process exit normal")
     # All ok
     {:noreply, status}
   end
