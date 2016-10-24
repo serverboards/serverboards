@@ -26,6 +26,7 @@
     "marked": "^0.3.5",
     "md5": "^2.1.0",
     "minify": "^2.0.9",
+    "moment-range": "^2.2.0",
     "node-sass": "^3.4.2",
     "rc-calendar": "^7.3.1",
     "rc-time-picker": "^2.0.2",

@@ -88,3 +88,44 @@ $color4: #009245
         visibility: visible
       .react-resizable-handle
         visibility: visible
+
+.ui.heatmap
+  display: flex
+  flex-wrap: wrap
+  table
+    border-collapse: separate
+    border-spacing: 1px
+  .row.header
+    text-align: right
+  .column.header
+    max-width: 20px
+    max-height: 20px
+    overflow: visible
+    word-wrap: break-word;
+    white-space: nowrap;
+
+  .cell
+    width: 20px
+    max-width: 20px
+    height: 20px
+    margin: 1px
+    background: $color0
+    border: 1px solid #eee
+    text-align: center
+    overflow: hidden
+    margin: 1px
+
+  .cell.color0
+    background: $color0
+
+  .cell.color1
+    background: $color1
+
+  .cell.color2
+    background: $color2
+
+  .cell.color3
+    background: $color3
+
+  .cell.color4
+    background: $color4
