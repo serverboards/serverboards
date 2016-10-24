@@ -52,7 +52,8 @@ const DatetimePicker=React.createClass({
 const DatetimeItem=React.createClass({
   propTypes:{
     value: React.PropTypes.object.isRequired,
-    onSelect: React.PropTypes.func.isRequired
+    now: React.PropTypes.object.isRequired,
+    onSelect: React.PropTypes.func.isRequired,
   },
   getInitialState(){
     return {
@@ -64,13 +65,16 @@ const DatetimeItem=React.createClass({
   },
   render(){
     const props=this.props
-    const ddhh=pretty_ago(props.value, null, 60 * 1000)
+    const pretty=pretty_ago(props.value, props.now, 60 * 1000)
 
     return (
       <div>
         <a className="item" onClick={this.onToggleCalendar}>
           <label>{props.label}</label>
-          <div className="value">{ddhh}</div>
+          <div className="value">
+            {pretty}<br/>
+            <span className="meta" style={{color: "#bbb", fontWeight: "normal"}}>at {props.value.format("hh:mm")}</span>
+            </div>
         </a>
         {this.state.open_calendar ? (
           <DatetimePicker
@@ -85,16 +89,18 @@ const DatetimeItem=React.createClass({
 
 const DateRange=function(props){
   return (
-    <div className="menu" ref="el" id="daterange">
+    <div className="menu" id="daterange">
       <DatetimeItem
-        label="Since"
+        label="From"
         value={props.start}
         onSelect={props.onStartChange}
+        now={props.now}
         />
       <DatetimeItem
-        label="Until"
+        label="to"
         value={props.end}
         onSelect={props.onEndChange}
+        now={props.now}
         />
     </div>
   )

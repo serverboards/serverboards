@@ -10,7 +10,8 @@ var default_state={
   widget_catalog: undefined,
   daterange: {
     start: (moment().subtract(7,"days")),
-    end: moment()
+    end: moment(),
+    now: moment()
   }
 }
 

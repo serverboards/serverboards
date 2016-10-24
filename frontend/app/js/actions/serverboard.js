@@ -1,5 +1,6 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import moment from 'moment'
 
 function serverboard_update_all(){
   return function(dispatch){
@@ -82,6 +83,13 @@ function board_set_daterange_end(end){
   }
 }
 
+function board_update_now(end){
+  return {
+    type: "UPDATE_DATERANGE",
+    daterange: { now: moment() }
+  }
+}
+
 export {
   serverboard_add,
   serverboard_update_all,
@@ -93,4 +101,5 @@ export {
   serverboard_update_widget_catalog,
   board_set_daterange_end,
   board_set_daterange_start,
-  }
+  board_update_now
+}

@@ -1,13 +1,19 @@
 import BoardView from 'app/components/serverboard/board'
 import event from 'app/utils/event'
-import {serverboards_widget_list, serverboard_update_widget_catalog} from 'app/actions/serverboard'
+import {
+  serverboards_widget_list,
+  serverboard_update_widget_catalog,
+  board_update_now
+  } from 'app/actions/serverboard'
 
 const Board = event.subscribe_connect(
   (state) => ({
     widgets: state.serverboard.widgets,
     widget_catalog: state.serverboard.widget_catalog
   }),
-  (dispatch, prop) => ({}),
+  (dispatch, prop) => ({
+    updateDaterangeNow: () => dispatch( board_update_now() )
+  }),
   (props) => [
     `serverboard.widget.added[${props.serverboard}]`,
     `serverboard.widget.removed[${props.serverboard}]`,

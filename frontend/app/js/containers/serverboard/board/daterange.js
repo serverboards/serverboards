@@ -5,7 +5,8 @@ import View from 'app/components/serverboard/board/daterange'
 const Controller = connect(
   (state) => ({
     start: state.serverboard.daterange.start,
-    end: state.serverboard.daterange.end
+    end: state.serverboard.daterange.end,
+    now: state.serverboard.daterange.now
   }),
   (dispatch, prop) => ({
     onStartChange: (start) => dispatch( board_set_daterange_start(start) ),
