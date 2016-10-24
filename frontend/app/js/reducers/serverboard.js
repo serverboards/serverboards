@@ -1,4 +1,5 @@
 import {merge} from 'app/utils'
+import moment from 'moment'
 
 var default_state={
   serverboards: [],
@@ -7,6 +8,10 @@ var default_state={
   catalog: undefined,
   widgets: undefined,
   widget_catalog: undefined,
+  daterange: {
+    start: (moment().subtract(7,"days")),
+    end: moment()
+  }
 }
 
 function serverboard(state=default_state, action){
@@ -75,7 +80,8 @@ function serverboard(state=default_state, action){
       return merge(state, {widgets: state.widgets.filter( (w) => (w.uuid != action.uuid ) )} )
     case "UPDATE_SERVERBOARD_INFO":
       return merge(state, {serverboard: action.info})
-      break;
+    case "UPDATE_DATERANGE":
+      return merge(state, {daterange: merge(state.daterange, action.daterange)})
   }
   return state
 }

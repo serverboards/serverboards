@@ -68,6 +68,20 @@ function serverboard_update_widget_catalog(serverboard){
   }
 }
 
+function board_set_daterange_start(start){
+  return {
+    type: "UPDATE_DATERANGE",
+    daterange: { start: start }
+  }
+}
+
+function board_set_daterange_end(end){
+  return {
+    type: "UPDATE_DATERANGE",
+    daterange: { end: end }
+  }
+}
+
 export {
   serverboard_add,
   serverboard_update_all,
@@ -76,5 +90,7 @@ export {
   serverboard_attach_service,
   serverboards_widget_list,
   serverboards_update_info,
-  serverboard_update_widget_catalog
+  serverboard_update_widget_catalog,
+  board_set_daterange_end,
+  board_set_daterange_start,
   }

@@ -1,5 +1,5 @@
 import React from 'react'
-import DateRange from './daterange'
+import DateRange from 'app/containers/serverboard/board/daterange'
 
 function Header(props){
   return (

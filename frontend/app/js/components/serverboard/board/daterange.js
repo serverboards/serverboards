@@ -50,6 +50,10 @@ const DatetimePicker=React.createClass({
 
 
 const DatetimeItem=React.createClass({
+  propTypes:{
+    value: React.PropTypes.object.isRequired,
+    onSelect: React.PropTypes.func.isRequired
+  },
   getInitialState(){
     return {
       open_calendar: false
@@ -71,43 +75,29 @@ const DatetimeItem=React.createClass({
         {this.state.open_calendar ? (
           <DatetimePicker
             onClose={this.onToggleCalendar}
-            onSelect={(value) => props.onSelect(moment(value).format(DATE_FORMAT))}
-
+            onSelect={(value) => props.onSelect(moment(value))}
             />
         ) : null }
       </div>
     )
   }
 })
-const DateRange=React.createClass({
-  getInitialState(){
-    return {
-      start: moment().subtract(8,"days").format(),
-      end: moment(),
-    }
-  },
-  setEnd(value){
-    if (value == moment().format(DATE_FORMAT))
-      this.setState({end: "now"})
-    else
-      this.setState({end: value})
-  },
-  render(){
-    return (
-      <div className="menu" ref="el" id="daterange">
-        <DatetimeItem
-          label="Since"
-          value={this.state.start}
-          onSelect={(value) => this.setState({start: value})}
-          />
-        <DatetimeItem
-          label="Until"
-          value={this.state.end}
-          onSelect={this.setEnd}
-          />
-      </div>
-    )
-  }
-})
+
+const DateRange=function(props){
+  return (
+    <div className="menu" ref="el" id="daterange">
+      <DatetimeItem
+        label="Since"
+        value={props.start}
+        onSelect={props.onStartChange}
+        />
+      <DatetimeItem
+        label="Until"
+        value={props.end}
+        onSelect={props.onEndChange}
+        />
+    </div>
+  )
+}
 
 export default DateRange

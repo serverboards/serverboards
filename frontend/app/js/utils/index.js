@@ -145,9 +145,12 @@ export function pretty_ago(t, now, minres){
   }
   if (timeunits[lastunit] < minres)
     return "now"
-  const units=Math.round(timediff / timeunits[lastunit])-1
+  const units=Math.round(timediff / timeunits[lastunit])
   const s=units > 1 ? 's' : ''
-  return String(units)+' '+lastunit+s+' ago'
+  let expr=String(units)+' '+lastunit+s+' ago'
+  if (expr=="1 day ago")
+    expr="yesterday"
+  return expr
 }
 
 export const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
