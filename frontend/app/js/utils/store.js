@@ -43,6 +43,8 @@ function object_equals(o1, o2){
     return false;
 
   if (to1=='object'){
+    if ('_d' in o1)
+      return o1._d == o2._d
     let k
     for(k in o1){
       if (k.slice(2)!='__')
@@ -58,12 +60,24 @@ function object_equals(o1, o2){
  * @short Adds simple .on(what, f) observer
  *
  * It observes for changes in the state, and when change,
- * calls the f.
+ * calls the f(new_value).
  */
 store.on=function(what, f){
-  let current_v=get_value(what)
-  store.subscribe(function(){
-    let new_v=get_value(what)
+  let current_v
+  try{
+    current_v=get_value(what)
+  } catch(e){
+    console.warn("Error getting initial value %o from store. Using undefined.\n%o",what, e )
+  }
+  // And subscribe
+  return store.subscribe(function(){
+    let new_v
+    try{
+      new_v=get_value(what)
+    } catch(e){
+      //console.warn("Error getting value %o from store. Using undefined.\n%o",what, e )
+    }
+    //console.log("Check changes: %o ->? %o => %o", current_v, new_v, !object_equals(current_v,new_v))
     if (!object_equals(current_v,new_v)){
       current_v=new_v
       //console.log("Changed status %o != %o", current_v, new_v)
