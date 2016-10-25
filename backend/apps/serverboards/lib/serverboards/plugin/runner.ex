@@ -56,6 +56,7 @@ defmodule Serverboards.Plugin.Runner do
     case GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component.id}) do
       {:ok, uuid} ->
         Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
+        ping(uuid)
         {:ok, uuid}
       {:error, :not_found} ->
       case Plugin.Component.run component do
