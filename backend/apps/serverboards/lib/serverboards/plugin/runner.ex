@@ -52,11 +52,11 @@ defmodule Serverboards.Plugin.Runner do
     true
 
   """
-  def start(runner, %Serverboards.Plugin.Component{} = component)
-  when (is_pid(runner) or is_atom(runner)) do
-    case GenServer.call(runner, {:get_by_component_id, component.id}) do
+  def start(%Serverboards.Plugin.Component{} = component) do
+    case GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component.id}) do
       {:ok, uuid} ->
         Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
+        ping(uuid)
         {:ok, uuid}
       {:error, :not_found} ->
       case Plugin.Component.run component do
@@ -64,7 +64,7 @@ defmodule Serverboards.Plugin.Runner do
           require UUID
           uuid = UUID.uuid4
           Logger.debug("Adding runner #{uuid} #{inspect component.id}")
-          :ok = GenServer.call(runner, {:start, uuid, pid, component})
+          :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component})
           {:ok, uuid}
         {:error, e} ->
           Logger.error("Error starting plugin component #{inspect component}: #{inspect e}")
@@ -72,20 +72,19 @@ defmodule Serverboards.Plugin.Runner do
       end
     end
   end
-  def start(runner, plugin_component_id)
-  when (is_pid(runner) or is_atom(runner)) and is_binary(plugin_component_id) do
+  def start(plugin_component_id)
+  when is_binary(plugin_component_id) do
       case Serverboards.Plugin.Registry.find(plugin_component_id) do
         nil ->
           Logger.error("Plugin component #{plugin_component_id} not found")
           {:error, :not_found}
         c ->
-          start(runner, c)
+          start(c)
       end
   end
-  def start(component), do: start(Serverboards.Plugin.Runner, component)
 
-  def stop(runner, uuid) do
-    case GenServer.call(runner, {:stop, uuid}) do
+  def stop(uuid) do
+    case GenServer.call(Serverboards.Plugin.Runner, {:stop, uuid}) do
       {:error, :cant_stop} -> # just do not log it, as it is quite normal
         Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
         {:error, :cant_stop}
@@ -98,7 +97,6 @@ defmodule Serverboards.Plugin.Runner do
         true
     end
   end
-  def stop(id), do: stop(Serverboards.Plugin.Runner, id)
 
   @doc ~S"""
   Marks that this plugin has been used, for timeout pourposes
@@ -127,7 +125,7 @@ defmodule Serverboards.Plugin.Runner do
 
   """
   def method_caller(runner) do
-    GenServer.call(runner, {:method_caller})
+    GenServer.call(Serverboards.Plugin.Runner, {:method_caller})
   end
   def method_caller do
     method_caller(Serverboards.Plugin.Runner)
@@ -137,13 +135,20 @@ defmodule Serverboards.Plugin.Runner do
   Rerurns the RPC client of a given uuid
   """
   def client(uuid) when is_binary(uuid) do
-    case GenServer.call(Serverboards.Plugin.Runner, {:get, uuid}) do
+    case get(uuid) do
       %{ pid: pid }  ->
         client = Serverboards.IO.Cmd.client pid
         {:ok, client}
       nil ->
         {:error, :not_found}
     end
+  end
+
+  @doc ~S"""
+  Returns the associated cmd struct to this uuid
+  """
+  def get(uuid) when is_binary(uuid) do
+    GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
   end
 
   @doc ~S"""
@@ -186,26 +191,26 @@ defmodule Serverboards.Plugin.Runner do
     {:ok, "Pong"}
 
   """
-  def call(runner, id, method, params) when (is_pid(runner) or is_atom(runner)) and is_binary(id) and is_binary(method) do
-    case GenServer.call(runner, {:get, id}) do
+  def call(id, method, params) when (is_binary(id) and is_binary(method)) do
+    case GenServer.call(Serverboards.Plugin.Runner, {:get, id}) do
       :not_found ->
         Logger.error("Could not find plugin id #{inspect id}: :not_found")
         {:error, :unknown_method}
       :exit ->
         {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
-        GenServer.cast(runner, {:ping, id})
+        GenServer.cast(Serverboards.Plugin.Runner, {:ping, id})
         Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
-            GenServer.call(runner, {:exit, id}) # just exitted, mark it
+            GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
             {:error, :exit}
           other -> other
         end
     end
   end
   # map version
-  def call(runner, id, %{ "method" => method } = defcall, defparams) when (is_pid(runner) or is_atom(runner)) and is_binary(id) do
+  def call(id, %{ "method" => method } = defcall, defparams) when is_binary(id) do
     defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k,v} -> {to_string(k), v} end))
     params = Map.get(defcall,"params",[]) |> Enum.map( fn %{ "name" => name } = param ->
       # this with is just to try to fetch in order or nil
@@ -219,11 +224,10 @@ defmodule Serverboards.Plugin.Runner do
               end
       {name, value}
     end ) |> Map.new
-    call(runner, id, method, params)
+    call(id, method, params)
   end
-  def call(id, method, params \\ []) do
-    #Logger.info("Calling #{id}.#{method}(#{inspect params})")
-    call(Serverboards.Plugin.Runner, id, method, params)
+  def call(id, method) do
+    call(id, method, %{})
   end
 
   #def cast(id, method, params, cont) do
@@ -246,7 +250,7 @@ defmodule Serverboards.Plugin.Runner do
   def init :ok do
     #Logger.info("Plugin runner ready #{inspect self()}")
 
-    {:ok, method_caller} = Serverboards.Plugin.RPC.start_link(self())
+    {:ok, method_caller} = Serverboards.Plugin.RPC.start_link()
 
     {:ok, %{
       method_caller: method_caller,
