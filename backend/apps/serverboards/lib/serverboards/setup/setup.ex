@@ -71,6 +71,8 @@ defmodule Serverboards.Setup do
     # update database
     path = Application.app_dir(:serverboards, "share/serverboards/backend/migrations")
     Ecto.Migrator.run(Serverboards.Repo, path, :up, all: true)
+    path = Application.app_dir(:serverboards, "priv/repo/migrations")
+    Ecto.Migrator.run(Serverboards.Repo, path, :up, all: true)
 
     import Ecto.Query
     status = %{

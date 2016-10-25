@@ -223,6 +223,9 @@ defmodule Serverboards.TriggersTest do
     Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
+    [rule] = Rules.list( uuid: uuid )
+    assert rule.last_state == "tick"
+
     # now with just 100 ms
     File.rm("/tmp/sbds-rule-test")
     Rules.upsert( rule(%{

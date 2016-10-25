@@ -14,6 +14,7 @@ defmodule Serverboards.Rules.Rule do
     description: nil,
     trigger: %{},
     actions: [],
+    last_state: nil,
     from_template: nil # original template rule
   ]
   def start_link(rule, _options \\ []) do
@@ -185,6 +186,9 @@ defmodule Serverboards.Rules.Rule do
 
     full_params = Map.merge(params, %{ trigger: trigger.id })
 
+    # set last state
+    EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: rule_state }, "rule/#{rule.uuid}")
+
     if action do
         full_params = Map.merge( Map.merge(action.params, default_params), full_params )
         Logger.info("Trigger action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
@@ -193,6 +197,7 @@ defmodule Serverboards.Rules.Rule do
         Logger.info("Trigger empty action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], action: action)
         {:ok, :empty}
     end
+
 
     {:reply, :ok, state}
   end

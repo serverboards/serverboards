@@ -33,9 +33,19 @@ defmodule Serverboards.Rules do
     EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
       rule = upsert_real(data)
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      Logger.debug("Serverboard: #{inspect data.serverboard}")
       if (data.serverboard != nil) do
         Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: rule }, ["rules.view"])
+      end
+    end
+    EventSourcing.subscribe es, :set_state, fn data, _me ->
+      import Ecto.Query, only: [from: 2]
+      rule = Repo.one( from u in Model.Rule, where: u.uuid == ^data.rule )
+      {:ok, rule} = Repo.update( Model.Rule.changeset( rule, %{ last_state: data.state }) )
+
+      Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
+      if (rule.serverboard_id != nil) do
+        serverboard = Repo.one( from u in Serverboards.Serverboard.Model.Serverboard, where: u.id == ^rule.serverboard_id, select: u.shortname )
+        Serverboards.Event.emit("rules.update[#{serverboard}]", %{ rule: rule }, ["rules.view"])
       end
     end
 
@@ -91,6 +101,7 @@ defmodule Serverboards.Rules do
       serverboard: serverboard.shortname,
       service: service.uuid,
       from_template: rule.from_template,
+      last_state: rule.last_state,
       trigger: %{
         trigger: rule.trigger,
         params: rule.params
@@ -170,6 +181,7 @@ defmodule Serverboards.Rules do
       name: model.name,
       description: model.description,
       from_template: model.from_template,
+      last_state: model.last_state,
       trigger: %{
         trigger: model.trigger,
         params: model.params
