@@ -23,7 +23,6 @@ function find_by_uuid(uuid, catalog){
 function TriggerDetails({trigger, trigger_catalog}){
   const template=find_by_id(trigger.trigger, trigger_catalog)
   const params=template.start.params.filter( (p) => p.card )
-  console.log(params)
   return (
     <div>
       <h5 className="ui header" style={{marginBottom: 0}}>{(template || {name: trigger.trigger }).name}</h5>
@@ -38,7 +37,6 @@ function TriggerDetails({trigger, trigger_catalog}){
 
 function ActionDetails({action, state, action_catalog}){
   let action_template=find_by_id(action.action, action_catalog)
-  console.log(action_template)
   let params
   if (action_template)
     params=action_template.extra.call.params.filter( (p) => p.card )

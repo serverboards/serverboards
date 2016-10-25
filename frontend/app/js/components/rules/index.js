@@ -2,9 +2,7 @@ import React from 'react'
 import RuleEdit from 'app/containers/rules/edit'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
-import Rule from './rule'
-
-require('sass/rules.sass')
+import Rules from './rules'
 
 const empty_rule={
   uuid: undefined,
@@ -17,7 +15,7 @@ const empty_rule={
   actions: {}
 }
 
-const Rules=React.createClass({
+const Index=React.createClass({
   componentDidMount(){
     let self=this
     let serverboard=this.props.serverboard.shortname
@@ -34,6 +32,7 @@ const Rules=React.createClass({
       } )
       return ret
     },2)
+    $(this.refs.filter).dropdown()
   },
   componentWillUnmount(){
     this.props.cleanRules()
@@ -61,24 +60,9 @@ const Rules=React.createClass({
       )
     }
     return (
-      <div className="ui container">
-        <div className="ui cards">
-          {props.rules.map((r) =>
-            <Rule
-              rule={r}
-              key={r.uuid}
-              onOpenEdit={() => props.onOpenEdit(r)}
-              trigger_catalog={props.trigger_catalog}
-              service_catalog={props.service_catalog}
-              action_catalog={props.action_catalog}/>
-          )}
-        </div>
-        <a href={`#/serverboard/${props.serverboard.shortname}/rules/add`} className="ui massive button add icon floating yellow">
-          <i className="add icon"></i>
-        </a>
-      </div>
+      <Rules {...props}/>
     )
   }
 })
 
-export default Rules
+export default Index

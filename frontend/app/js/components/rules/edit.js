@@ -10,6 +10,15 @@ import TriggerSelect from './triggerselect'
 const icon = require("../../../imgs/rules.svg")
 
 const Details=React.createClass({
+  propTypes:{
+    location: React.PropTypes.object,
+    rule: React.PropTypes.object.isRequired,
+    serverboard: React.PropTypes.string,
+    triggers: React.PropTypes.array.isRequired,
+    services: React.PropTypes.array.isRequired,
+    action_catalog: React.PropTypes.array.isRequired,
+    onSave: React.PropTypes.func.isRequired
+  },
   getInitialState(){
     const service_uuid=this.props.rule.service
     const props=this.props
@@ -21,7 +30,7 @@ const Details=React.createClass({
     const location_state = this.props.location && this.props.location.state || {}
     const trigger_id = location_state.trigger || this.props.rule.trigger.trigger
     const trigger_fields = ((this.find_trigger(trigger_id) || {}).start || {}).params || []
-    const states = (this.find_trigger(trigger_id) || {}).states
+    const states = (this.find_trigger(trigger_id) || {}).states || []
 
     return {
       is_active: props.rule.is_active,
