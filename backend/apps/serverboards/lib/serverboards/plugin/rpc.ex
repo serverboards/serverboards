@@ -15,13 +15,13 @@ defmodule Serverboards.Plugin.RPC do
     end
   end
 
-  def start_link(runner) do
+  def start_link do
     {:ok, method_caller} = RPC.MethodCaller.start_link name: Serverboards.Plugin.RPC
     Serverboards.Utils.Decorators.permission_method_caller method_caller
 
     RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id], context ->
       if has_perm_for_plugin(context, plugin_component_id) do
-        Plugin.Runner.start runner, plugin_component_id
+        Plugin.Runner.start plugin_component_id
       else
         {:error, :unknown_method}
       end
@@ -29,7 +29,7 @@ defmodule Serverboards.Plugin.RPC do
 
     RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id], context ->
       if has_perm_for_plugin(context, :any) do
-        Plugin.Runner.stop runner, plugin_component_id
+        Plugin.Runner.stop plugin_component_id
       else
         {:error, :unknown_method}
       end
@@ -37,17 +37,20 @@ defmodule Serverboards.Plugin.RPC do
 
     RPC.MethodCaller.add_method method_caller, "plugin.call", fn
       [id, method, params] ->
-        Plugin.Runner.call runner, id, method, params
+        Plugin.Runner.call id, method, params
       [id, method] ->
-        Plugin.Runner.call runner, id, method, []
+        Plugin.Runner.call id, method, []
     end, [required_perm: "plugin"]
 
     RPC.MethodCaller.add_method method_caller, "plugin.alias", fn
       [id, newalias], context ->
-        cmd = GenServer.call(runner, {:get, id})
-        RPC.Context.update context, :plugin_aliases, [{ newalias, cmd.pid }]
-
-        true
+        case Plugin.Runner.get(id) do
+          :not_found ->
+            {:error, :not_found}
+          %{ pid: pid } ->
+            RPC.Context.update context, :plugin_aliases, [{ newalias, pid }]
+            true
+          end
     end, [required_perm: "plugin", context: true]
 
     RPC.MethodCaller.add_method method_caller, "plugin.list", fn
@@ -89,29 +92,27 @@ defmodule Serverboards.Plugin.RPC do
       end
     end, context: true
 
-
     # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
-    RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1, runner),
+    RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1),
       [required_perm: "plugin", name: :call_with_uuid]
 
     # Catches all [alias].method calls and do it. Alias are stores into the context
-    RPC.MethodCaller.add_method_caller method_caller, &call_with_alias(&1, runner),
+    RPC.MethodCaller.add_method_caller method_caller, &call_with_alias(&1),
       [required_perm: "plugin", name: :call_with_alias]
-
 
     {:ok, method_caller}
   end
 
 
   # Method caller function UUID.method.
-  def call_with_uuid(%MOM.RPC.Message{ method: method, params: params, context: _context}, runner) do
+  def call_with_uuid(%MOM.RPC.Message{ method: method, params: params, context: _context}) do
     #Logger.debug("Try to call #{inspect msg}")
     if method == "dir" do
       {:ok, []} # Do not return it as it can lead to show of opaque pointers. Use alias.
     else
       case Regex.run(~r/(^[-0-9a-f]{36})\.(.*)$/, method) do
         [_, id, method] ->
-          res = Plugin.Runner.call runner, id, method, params
+          res = Plugin.Runner.call id, method, params
           #Logger.debug("UUID result #{inspect res}")
           res
         _ -> :nok
@@ -119,7 +120,7 @@ defmodule Serverboards.Plugin.RPC do
     end
   end
 
-  def call_with_alias(%MOM.RPC.Message{ method: method, params: params, context: context}, _runner) do
+  def call_with_alias(%MOM.RPC.Message{ method: method, params: params, context: context}) do
     if method == "dir" do
       {:ok, alias_dir(context)}
     else
