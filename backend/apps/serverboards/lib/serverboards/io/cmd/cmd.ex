@@ -56,7 +56,7 @@ defmodule Serverboards.IO.Cmd do
       end
     catch
       :exit, {reason, _} ->
-        Logger.error("Command exited while processing method call: #{inspect method}: #{inspect reason}", method: method, reason: reason)
+        Logger.error("Command exited while processing method call: #{inspect cmd}.#{inspect method}: #{inspect reason}", method: method, reason: reason)
         {:error, :exit}
     end
   end
