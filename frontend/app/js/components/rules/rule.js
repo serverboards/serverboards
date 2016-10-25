@@ -1,5 +1,6 @@
 import React from 'react'
 import ImageIcon from 'app/components/imageicon'
+import {colorize} from 'app/utils'
 
 const icon = require("../../../imgs/rules.svg")
 
@@ -71,12 +72,14 @@ function Rule(props){
   return (
     <div className="rule card">
       <div className="extra content" style={{padding:"0 10px"}}>
-        { rule.is_active ? (
-          <span><i className="ui label circular empty green"/> ON</span>
-        ) : (
-          <span><i className="ui label circular empty red"/> OFF</span>
-        )
-        }
+        { rule.is_active ?
+          rule.last_state ? (
+            <span><i className={`ui label circular empty ${colorize(rule.last_state)}`}/> {rule.last_state}</span>
+          ) :  (
+            <span><i className="ui label circular empty yellow"/> Pending trigger</span>
+          ) : (
+            <span><i className="ui label circular empty grey"/> OFF</span>
+        )}
       </div>
       <div className="header content">
         <ImageIcon src={icon} className="right floated"  name={rule.name}/>
