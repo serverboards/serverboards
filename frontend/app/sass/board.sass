@@ -89,31 +89,39 @@ $color4: #009245
       .react-resizable-handle
         visibility: visible
 
+$cellsize: 20px
+
 .ui.heatmap
   display: flex
   flex-wrap: wrap
-  table
-    border-collapse: separate
-    border-spacing: 1px
+  .header
+    font-size: 10pt
+    color: #666 !important
   .row.header
     text-align: right
   .column.header
-    max-width: 20px
-    max-height: 20px
+    max-width: $cellsize
+    max-height: $cellsize
     overflow: visible
-    word-wrap: break-word;
-    white-space: nowrap;
+    word-wrap: break-word
+    white-space: nowrap
+  td
+    text-align: center
+    line-height: $cellsize
 
   .cell
-    width: 20px
-    max-width: 20px
-    height: 20px
-    margin: 1px
+    margin: auto
+    width: $cellsize
+    max-width: $cellsize
+    min-width: $cellsize
+    height: $cellsize
     background: $color0
-    border: 1px solid #eee
     text-align: center
     overflow: hidden
     margin: 1px
+    display: inline-block
+    border-radius: 3px
+    padding: 1px
 
   .cell.color0
     background: $color0
