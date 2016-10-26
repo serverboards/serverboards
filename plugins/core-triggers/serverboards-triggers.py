@@ -144,11 +144,10 @@ def periodic(timeout=None):
 @serverboards.rpc_method
 def tag_change(id, service, tag):
     class TagUpdated:
-        def __init__(self, service_id):
-            service=serverboards.rpc.call("service.info",service_id)
+        def __init__(self, service):
             self.tags=service["tags"]
             self.is_in=False
-            self.service_id=service_id
+            self.service_id=service["uuid"]
         def check(self, service):
             serverboards.debug("Check if service changed status %s %s %s %s"%(self.is_in, tag, service["tags"], tag in service["tags"]))
             if service["uuid"]!=self.service_id:
@@ -163,7 +162,7 @@ def tag_change(id, service, tag):
                     serverboards.rpc.event("trigger", {"id" : id, "state" : "added"})
                     self.is_in=True
 
-    subscription_id = serverboards.rpc.subscribe("service.updated[%s]"%service, TagUpdated(service).check)
+    subscription_id = serverboards.rpc.subscribe("service.updated[%s]"%service["uuid"], TagUpdated(service).check)
     return subscription_id
 
 @serverboards.rpc_method

@@ -96,6 +96,29 @@ defmodule Serverboards.Rules.Rule do
     :ok
   end
 
+  @doc ~S"""
+  Gets the default params for both the trigger and actions, updated from
+  database.
+
+  If they are needed in the trigger/action it will have properly all the data.
+  """
+  def get_default_params(%{ service: service, rule: rule }) do
+    default_params = if service != nil do
+      Serverboards.Service.service_config(service)
+        |> Map.put(:service, Serverboards.Service.decorate(service))
+    else
+      %{ service: nil }
+    end
+    default_params = if rule do
+      default_params
+        |> Map.put(:rule, Serverboards.Rules.decorate(rule))
+    else
+      default_params
+    end
+
+    default_params
+  end
+
 
   def handle_call({:init, rule}, _from, {}) do
     %{
@@ -113,18 +136,19 @@ defmodule Serverboards.Rules.Rule do
     # use service data to complete it, for example to change labels on the
     # selected service
     # Also if the service is modified then just restarting the rule make
-    # it up to date with the new data. TODO
-    default_params = if service != nil do
-      Serverboards.Service.service_config(service)
-        |> Map.put(:service, service)
-    else
-      %{ service: nil }
-    end
+    # it up to date with the new data.
+    default_params = get_default_params(%{ service: service, rule: uuid})
     params = Map.merge(params, default_params)
 
     Logger.info("Start rule with trigger #{inspect trigger}, #{uuid}", uuid: uuid, trigger: trigger, params: params, actions: actions)
     [trigger] = Serverboards.Rules.Trigger.find(id: trigger)
-    {:ok, plugin_id} = Plugin.Runner.start trigger.command
+    plugin_id = case Plugin.Runner.start trigger.command do
+      {:ok, plugin_id} -> plugin_id
+      {:error, desc} ->
+        Logger.error("Could not start trigger", description: desc)
+        raise {:cant_start_trigger, desc}
+    end
+
     self_ = self
     #MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{uuid: ^plugin_id}} ->
     #  Process.exit(self_, :plugin_down) # sort of suicide if the cmd finishes
@@ -152,7 +176,6 @@ defmodule Serverboards.Rules.Rule do
           actions: actions,
           plugin_id: plugin_id,
           stop_id: stop_id,
-          default_params: default_params,
           rule: rule
         }
 
@@ -176,7 +199,6 @@ defmodule Serverboards.Rules.Rule do
       plugin_id: plugin_id,
       trigger: trigger,
       actions: actions,
-      default_params: default_params,
       rule: rule
     } = state
     Plugin.Runner.ping(plugin_id) # to keep it alive
@@ -184,6 +206,7 @@ defmodule Serverboards.Rules.Rule do
     action = actions[rule_state]
 
     full_params = Map.merge(params, %{ trigger: trigger.id })
+    default_params = get_default_params( %{ service: rule.service, rule: rule.uuid } )
 
     # set last state
     EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: rule_state }, "rule/#{rule.uuid}")
