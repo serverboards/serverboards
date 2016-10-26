@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 /// Convert a list of key,value into an object
 export function to_map(l){
   let d={}
@@ -128,11 +130,12 @@ const timeunits={
   MAX: 1000 * 60 * 60 * 24 * 14
 }
 
-export function pretty_ago(t, now){
+export function pretty_ago(t, now, minres){
   if (!now)
-    now = new Date()
-  let other = new Date(t)
-  let timediff = now-other
+    now = moment()
+  let other = moment(t)
+
+  let timediff = now.diff(other)
 
   if (timediff>timeunits.MAX){
     return pretty_date(other)
@@ -143,13 +146,16 @@ export function pretty_ago(t, now){
     if (timediff > timeunits[d])
       lastunit=d
   }
+  if (timeunits[lastunit] < minres)
+    return "now"
   const units=Math.round(timediff / timeunits[lastunit])
   const s=units > 1 ? 's' : ''
-  return String(units)+' '+lastunit+s+' ago'
+  let expr=String(units)+' '+lastunit+s+' ago'
+  if (expr=="1 day ago")
+    expr="yesterday"
+  return expr
 }
 
-export const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 export function pretty_date(d){
-  return weekdays[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+  return d.format("llll")
 }

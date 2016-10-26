@@ -7,6 +7,8 @@ import store from 'app/utils/store'
 import plugin from 'app/utils/plugin'
 import Command from 'app/utils/command'
 import {pretty_ago} from 'app/utils'
+import moment from 'moment'
+require('moment-range');
 
 require("sass/serverboards.sass")
 
@@ -39,6 +41,7 @@ window.Serverboards = {
   add_command_search: Command.add_command_search,
   pretty_ago,
   plugin,
+  moment,
 }
 
 ReactDOM.render(
