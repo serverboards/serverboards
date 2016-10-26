@@ -27,7 +27,7 @@ defmodule EventSourcing.Model do
 
   Requires a repository.
   """
-  def subscribe(pid, store_name, repo) when is_atom(store_name) do
+  def subscribe(pid, store_name, repo, options \\ []) when is_atom(store_name) do
     store_name="#{store_name}"
     EventSourcing.subscribe(pid, fn type, data, author ->
       data = case data do
@@ -44,7 +44,9 @@ defmodule EventSourcing.Model do
           data: data,
           author: author
         }) )
-      Logger.debug("Store #{type} #{inspect res}")
+      if options[:debug] do
+        Logger.debug("Store #{type} #{inspect res}")
+      end
       res
     end, name: :database, store: true)
   end
