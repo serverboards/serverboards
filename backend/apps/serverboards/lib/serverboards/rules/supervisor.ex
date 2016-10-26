@@ -19,7 +19,7 @@ defmodule Serverboards.Rules.Supervisor do
   end
 
   def start(ruledef) do
-    Logger.debug("Start rule #{inspect ruledef}")
+    #Logger.debug("Start rule #{inspect ruledef}")
     Supervisor.start_child(Serverboards.Rules.Rule.Supervisor, [ruledef, []])
   end
 

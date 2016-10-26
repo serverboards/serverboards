@@ -18,7 +18,7 @@ defmodule Serverboards.Rules.Rule do
     from_template: nil # original template rule
   ]
   def start_link(rule, _options \\ []) do
-    Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
+    #Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
 
     {:ok, pid} = GenServer.start_link __MODULE__, {}
     Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
@@ -42,7 +42,6 @@ defmodule Serverboards.Rules.Rule do
   end
 
   def setup_client_for_rules(pid, %MOM.RPC.Client{} = client) do
-    Logger.debug("Method caller of this trigger #{inspect client}, #{inspect Process.alive?(client.method_caller.method_caller)}")
     MOM.RPC.Client.add_method client, "trigger", fn
       [params] ->
         trigger_real(params)
@@ -146,7 +145,7 @@ defmodule Serverboards.Rules.Rule do
       {:ok, stop_id} ->
         stop_id = if stop_id do stop_id else uuid end
 
-        Logger.info("Starting rule #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+        #Logger.info("Starting rule #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
         state = %{
           trigger: trigger,
           params: params,

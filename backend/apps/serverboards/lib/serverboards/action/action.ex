@@ -285,7 +285,7 @@ defmodule Serverboards.Action do
       )
 
     if ok == :error do
-      Logger.error("Error running #{action.id} #{inspect action.params}: #{inspect ret}")
+      Logger.error("Error running #{action.id}: #{inspect ret}", action: action)
     end
     ret = case ret do
       %{} -> ret

@@ -48,7 +48,7 @@ defmodule Serverboards.Plugin.Component do
         perms when is_binary(perms) -> String.split(perms)
         nil -> []
       end
-      Logger.info("Running command #{fullcmd} // #{inspect perms}")
+      #Logger.info("Running command #{fullcmd} // #{inspect perms}")
       Cmd.Supervisor.start_command fullcmd, [], [], [perms: perms]
     end
   end
