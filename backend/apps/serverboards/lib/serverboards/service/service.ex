@@ -362,7 +362,16 @@ defmodule Serverboards.Service do
   @doc ~S"""
   Returns a service from database properly decorated for external use, with
   fields and traits, and no internal data.
+
+  Canbe get from uuid, or decorate an already got model.
   """
+  def decorate(uuid) when is_binary(uuid) do
+    import Ecto.Query
+    case Repo.one( from c in ServiceModel, where: c.uuid == ^uuid, preload: :tags ) do
+      nil -> nil
+      service -> decorate(service)
+    end
+  end
   def decorate(service) do
     import Ecto.Query
     service = service
