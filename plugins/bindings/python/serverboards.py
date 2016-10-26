@@ -200,7 +200,7 @@ class RPC:
           self.stdout.flush()
         except IOError:
           if self.loop_status=='EXIT':
-            os.exit(1)
+            sys.exit(1)
           self.loop_stop(debug=False)
 
 
