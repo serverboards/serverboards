@@ -18,6 +18,14 @@ defmodule Serverboards.Logger.Console do
     [  ]
   end
 
+  defp rpad(str, max) do
+    if String.length(str) >= max do
+      String.slice str, -max, max
+    else
+      String.pad_trailing str, max
+    end
+  end
+
   def format(msg, metadata, colors) do
     metadata=Map.to_list(Map.new(metadata)) # get latest, to get the overwritten file/line/function
     time = Logger.Utils.format_time( elem metadata[:timestamp], 1 )
@@ -35,12 +43,23 @@ defmodule Serverboards.Logger.Console do
     end
 
     header= (
-      "#{time} [#{String.pad_trailing level, 5}] [#{String.pad_leading fileline, 30} / #{pid}] "
+      "#{time} [#{String.pad_trailing level, 5}] [#{rpad fileline, 30} / #{String.pad_trailing pid, 10}] "
         |> color_event(metadata[:level], colors)
       )
-    ["\r",
-      String.pad_trailing(to_string(header), 80),
-      msg]
+    header = ["\r", String.pad_trailing(to_string(header), 80)]
+
+    if is_pid(metadata[:pid]) do
+      [
+        header,
+        msg
+      ]
+    else
+      msg = [[IO.ANSI.format_fragment([:blue, msg], true)], IO.ANSI.reset]
+      [
+        header,
+        msg
+      ]
+    end
   end
 
   defp color_event(data, level, colors) do
