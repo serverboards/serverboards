@@ -143,7 +143,10 @@ class RPC:
                     self.events[ready]()
             else: # timeout
                 self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
-                timeout_cont()
+                try:
+                    timeout_cont()
+                except:
+                    import traceback; traceback.print_exc(file=self.write_to_log)
 
         self.loop_status=prev_status
 
