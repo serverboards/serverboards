@@ -41,11 +41,11 @@ defmodule Serverboards.Rules do
       import Ecto.Query, only: [from: 2]
       rule = Repo.one( from u in Model.Rule, where: u.uuid == ^data.rule )
       {:ok, rule} = Repo.update( Model.Rule.changeset( rule, %{ last_state: data.state }) )
+      rule = decorate(rule)
 
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      if (rule.serverboard_id != nil) do
-        serverboard = Repo.one( from u in Serverboards.Serverboard.Model.Serverboard, where: u.id == ^rule.serverboard_id, select: u.shortname )
-        Serverboards.Event.emit("rules.update[#{serverboard}]", %{ rule: rule }, ["rules.view"])
+      if (rule.serverboard != nil) do
+        Serverboards.Event.emit("rules.update[#{rule.serverboard}]", %{ rule: rule }, ["rules.view"])
       end
     end
 
@@ -286,15 +286,24 @@ defmodule Serverboards.Rules do
     {:ok, rule} = Repo.update(
       Model.Rule.changeset(rule, data)
     )
-    actions |> Map.to_list |> Enum.map(fn {state, action} ->
-      action = %{
-        rule_id: rule.id,
-        state: state,
-        action: action.action,
-        params: action.params
-      }
-      upsert_action(rule.id, state, action)
-    end)
+    actions_to_update = actions
+      |> Map.to_list
+      |> Enum.filter(fn {state, action} ->
+        is_binary(action.action) and (action.action != "")
+        end)
+    actions_to_update
+      |> Enum.map(fn {state, action} ->
+        action = %{
+          rule_id: rule.id,
+          state: state,
+          action: action.action,
+          params: action.params
+        }
+        upsert_action(rule.id, state, action)
+      end)
+    states = actions_to_update |> Enum.map(fn {state, _} -> state end)
+    import Ecto.Query
+    Repo.delete_all( from a in Model.ActionAtState, where: a.rule_id == ^rule.id and not a.state in ^states )
     {:ok, rule}
   end
 

@@ -146,7 +146,7 @@ defmodule Serverboards.Rules.Rule do
       {:ok, stop_id} ->
         stop_id = if stop_id do stop_id else uuid end
 
-        Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+        Logger.info("Starting rule #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
         state = %{
           trigger: trigger,
           params: params,
@@ -159,7 +159,7 @@ defmodule Serverboards.Rules.Rule do
 
         {:ok, uuid, state}
       {:error, error} ->
-        Logger.error("Error starting trigger #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
+        Logger.error("Error starting rule #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
         {:error, :aborted, {}}
     end
 
