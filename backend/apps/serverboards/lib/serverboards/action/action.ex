@@ -22,29 +22,25 @@ defmodule Serverboards.Action do
         result: %{ reason: "Serverboards restart"}
       ] )
 
-    MOM.Channel.subscribe(:client_events, fn
-      %{ payload: %{ type: "action.started", data: action }  } ->
-        #Logger.warn("Trigger start saved #{inspect action}")
-        user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
-          [] -> nil
-          [id] -> id
-        end
-
-        action=Map.merge( action, %{
-          type: action.id,
-          status: "running",
-          user_id: user_id
-        })
-
-        {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
-        #Logger.info("Saved #{inspect _res}")
-
-        :ok
-      _ ->
-         :ok
-    end)
-
     GenServer.start_link __MODULE__, %{}, [name: Serverboards.Action] ++ options
+  end
+
+  def action_update_started(action) do
+    import Ecto.Query
+    #Logger.warn("Trigger start saved #{inspect action}")
+    user_id = case Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^action.user, select: u.id ) do
+      [] -> nil
+      [id] -> id
+    end
+
+    action=Map.merge( action, %{
+      type: action.id,
+      status: "running",
+      user_id: user_id
+    })
+
+    {:ok, _res} = Repo.insert( Model.History.changeset(%Model.History{}, action) )
+    #Logger.info("Saved #{inspect _res}")
   end
 
   def action_update_finished(action) do
@@ -256,6 +252,8 @@ defmodule Serverboards.Action do
        user: user, params: params,
        timer_start: Timex.Time.now
        }
+
+      action_update_started(action)
       Event.emit("action.started", action, ["action.watch"] )
 
       server = self
