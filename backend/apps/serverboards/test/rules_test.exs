@@ -163,6 +163,7 @@ defmodule Serverboards.TriggersTest do
     Rules.upsert( Map.merge(rule, %{uuid: uuid, is_active: false}), me )
     assert Rules.ps == []
 
+    assert Rules.decorate(uuid) != nil
   end
 
   test "Basic RPC" do

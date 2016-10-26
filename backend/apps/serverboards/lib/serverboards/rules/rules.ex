@@ -151,8 +151,15 @@ defmodule Serverboards.Rules do
   end
 
   @doc ~S"""
-  Gets a rule as from the database and returns a proper rule struct
+  Gets a rule as from the database and returns a proper rule struct, or from the
+  uuid returns the decorated rule.
   """
+  def decorate(uuid) when is_binary(uuid) do
+    import Ecto.Query
+
+    rule = Repo.one!( from c in Serverboards.Rules.Model.Rule, where: c.uuid == ^uuid )
+    decorate(rule)
+  end
   def decorate(model) do
     import Ecto.Query
 
