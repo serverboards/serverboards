@@ -21,12 +21,11 @@ function find_by_uuid(uuid, catalog){
   return undefined
 }
 
-function TriggerDetails({trigger, trigger_catalog}){
-  const template=find_by_id(trigger.trigger, trigger_catalog)
-  const params=template.start.params.filter( (p) => p.card )
+function TriggerDetails({trigger, trigger_template}){
+  const params=trigger_template.start.params.filter( (p) => p.card )
   return (
     <div>
-      <h5 className="ui header" style={{marginBottom: 0}}>{(template || {name: trigger.trigger }).name}</h5>
+      <h5 className="ui header" style={{marginBottom: 0}}>{(trigger_template || {name: trigger.trigger }).name}</h5>
       <div style={{paddingLeft: 10}}>
       {params.map( (p) => (
         <div key={p.name} className="ui oneline"><label>{p.label}:</label> <span className="meta">{trigger.params[p.name]}</span></div>
@@ -68,6 +67,7 @@ function ActionDetails({action, state, action_catalog}){
 
 function Rule(props){
   const rule = props.rule
+  const trigger_template = find_by_id(rule.trigger.trigger, props.trigger_catalog)
 
   return (
     <div className="rule card">
@@ -82,20 +82,26 @@ function Rule(props){
         )}
       </div>
       <div className="header content">
-        <ImageIcon src={icon} className="right floated"  name={rule.name}/>
-        <h2 className="ui header">{rule.name}</h2>
+        <ImageIcon src={icon} className="right floated" name={rule.name || trigger_template.name}/>
+        <h2 className="ui header">{rule.name || trigger_template.name}</h2>
         <div className="meta">{rule.description}</div>
         <div>{(find_by_uuid(rule.service, props.service_catalog) || {name: rule.service}).name}</div>
       </div>
       <div className="content">
         <h3 className="ui header uppercase">Trigger</h3>
-        <TriggerDetails trigger={rule.trigger} trigger_catalog={props.trigger_catalog}/>
+        <TriggerDetails trigger={rule.trigger} trigger_template={trigger_template}/>
       </div>
       <div className="content">
-        <h3 className="ui header uppercase">Action</h3>
-        <div>{Object.keys(rule.actions).map((state) => (
-          <ActionDetails key={state} action={rule.actions[state]} state={state} action_catalog={props.action_catalog}/>
-        ))}</div>
+        {Object.keys(rule.actions).length == 0 ? (
+          <h3 className="ui header uppercase">No actions defined</h3>
+        ) : (
+          <div>
+            <h3 className="ui header uppercase">Action</h3>
+            <div>{Object.keys(rule.actions).map((state) => (
+              <ActionDetails key={state} action={rule.actions[state]} state={state} action_catalog={props.action_catalog}/>
+            ))}</div>
+          </div>
+        )}
       </div>
       <div className="extra content" style={{padding:0}}>
         <div className={`ui inverted ${ rule.is_active ? 'yellow' : 'grey'} menu bottom attached`}>

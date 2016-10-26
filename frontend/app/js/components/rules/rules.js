@@ -35,7 +35,9 @@ const Rules=React.createClass({
       if (acc.indexOf(id)<0)
         acc.push(id)
       return acc
-    },[]).map( (id) => props.trigger_catalog.find( (tc) => tc.id == id ))
+    },[])
+      .map( (id) => props.trigger_catalog.find( (tc) => tc.id == id ))
+      .filter( (x) => x )
 
     if (this.state.filter){
       const filter=this.state.filter
