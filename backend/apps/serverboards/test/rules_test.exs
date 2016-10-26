@@ -247,6 +247,7 @@ defmodule Serverboards.TriggersTest do
       uuid: uuid,
       is_active: false
       } ), me )
+    :timer.sleep(300)
 
   end
 

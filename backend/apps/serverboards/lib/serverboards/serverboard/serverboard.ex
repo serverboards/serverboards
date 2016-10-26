@@ -194,6 +194,8 @@ defmodule Serverboards.Serverboard do
 
   @doc ~S"""
   Returns the information of a serverboard by id or name
+
+  TODO Return only services to which the user has access
   """
   def serverboard_info(%ServerboardModel{} = serverboard, me) do
     serverboard = Repo.preload(serverboard, :tags)
@@ -203,7 +205,7 @@ defmodule Serverboards.Serverboard do
       tags: Enum.map(serverboard.tags, fn t -> t.name end)
     }
 
-    services = Serverboards.Service.service_list [serverboard: serverboard.shortname], me
+    services = Serverboards.Service.service_list [serverboard: serverboard.shortname]
     serverboard = Map.put(serverboard, :services, services)
 
     serverboard = Map.put(serverboard, :screens, serverboard_screens(serverboard))

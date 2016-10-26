@@ -31,7 +31,7 @@ defmodule Serverboards.Service.RPC do
       service_info service, Context.get(context, :user)
     end, [required_perm: "service.info", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.list", fn filter, context ->
+    RPC.MethodCaller.add_method mc, "service.list", fn filter ->
       # some cleanup
       filter = Enum.map(filter, fn
         [k,v] -> {k,v}

@@ -157,8 +157,11 @@ defmodule Serverboards.Rules do
   def decorate(uuid) when is_binary(uuid) do
     import Ecto.Query
 
-    rule = Repo.one!( from c in Serverboards.Rules.Model.Rule, where: c.uuid == ^uuid )
-    decorate(rule)
+    case Repo.one( from c in Serverboards.Rules.Model.Rule, where: c.uuid == ^uuid ) do
+      nil -> nil
+      rule ->
+        decorate(rule)
+    end
   end
   def decorate(model) do
     import Ecto.Query

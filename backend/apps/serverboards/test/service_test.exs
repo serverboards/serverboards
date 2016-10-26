@@ -82,7 +82,7 @@ defmodule ServerboardTest do
   test "List service catalog" do
     import Serverboards.Service
 
-    services = service_catalog [], "dmoreno@serverboards.io"
+    services = service_catalog []
 
     assert Enum.count(services) > 0
     assert Enum.count((hd services).fields) > 0
