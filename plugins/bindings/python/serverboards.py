@@ -279,7 +279,7 @@ class RPC:
         self.subscription_id+=1
 
         self.debug("Subscribed to %s"%event)
-        self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
+        #self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
         return sid
 
     def unsubscribe(self, subscription_id):
