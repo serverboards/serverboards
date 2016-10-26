@@ -90,7 +90,7 @@ defmodule Serverboards.Plugin.Parser do
 
   """
 
-  def parse_yaml(yaml) do
+  def parse_yaml(yaml, filename \\ "") do
     try do
       data = YamlElixir.read_from_string(yaml)
       plugin = parse(data)
@@ -102,6 +102,17 @@ defmodule Serverboards.Plugin.Parser do
       e ->
         Logger.debug("Error loading yaml. #{inspect e}")
         {:error, e}
+      :exit, {_reason, _where} ->
+        Logger.debug("Error loading yaml. yamlr exited.")
+        {:error, :exit}
+    rescue
+      e in CaseClauseError->
+        %{ term: term } = e
+        { _, _, _, where, _} = term
+        line=where[:line]
+        column=where[:column]
+        Logger.error("Error loading yaml. Bad formed #{filename}:#{line}:#{column}")
+        {:error, :bad_formed}
     end
   end
 
@@ -122,12 +133,14 @@ defmodule Serverboards.Plugin.Parser do
   """
   def read(filename) do
     ret = with {:ok, data} <- File.read(filename),
-      {:ok, plugin} <- parse_yaml( data ),
+      {:ok, plugin} <- parse_yaml( data, filename ),
       do: {:ok, plugin}
     case ret do
       {:ok, v} -> {:ok, v}
       {:error, :enoent} ->
         {:error, :enoent}
+      {:error, :bad_formed} ->
+        {:error, :bad_formed}
       {:error, v} when is_binary(v) ->
         Logger.error("Error loading yaml file #{filename}:#{v}")
         {:error, :invalid_yaml}
