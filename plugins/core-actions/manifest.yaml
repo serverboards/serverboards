@@ -78,6 +78,30 @@ components:
           lable: Body
         - name: service
 
+  - name: Notify all users
+    type: action template
+    id: action.notify_user_template
+    actions:
+      any:
+        action: serverboards.core.actions/send-notification
+        params:
+          email: @user
+          subject: "{{rule.name}}: {{rule.last_state}}"
+          body: "{{rule.description}}"
+
+  - name: Mark service up/down
+    type: action template
+    id: action.tag_updown
+    actions:
+      up:
+        action: serverboards.core.actions/set-tags
+        params:
+          tags: "+DOWN -UP"
+      down:
+        action: serverboards.core.actions/set-tags
+        params:
+          tags: "-DOWN +UP"
+
   - name: Core actions.
     type: cmd
     id: cmd

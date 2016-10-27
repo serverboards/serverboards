@@ -3,11 +3,12 @@ import GenericForm from '../genericform'
 import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
 import { to_map, to_list, merge } from 'app/utils'
-import ActionEdit from './actionedit'
 import SelectService from './selectservice'
 import TriggerSelect from './triggerselect'
+import RuleActions from './ruleactions'
 
 const icon = require("../../../imgs/rules.svg")
+
 
 const Details=React.createClass({
   propTypes:{
@@ -81,6 +82,7 @@ const Details=React.createClass({
     this.setState({trigger_config})
   },
   handleActionConfig(state, action_id, params){
+    console.log(state, action_id, params)
     const actions = this.state.actions.map( (ac) => {
       if (ac.state == state)
         return { state: state, action: action_id, params: params }
@@ -185,16 +187,12 @@ const Details=React.createClass({
             </div>
 
             {actions.length != 0 ? (
-              <div>
-                <h2 className="ui header uppercase" style={{paddingTop:20}}>Action</h2>
-
-                {actions.map( (action) => (
-                  <div key={action.state} >
-                    <h3 className="ui header uppercase"><span className="ui meta">IF</span> {action.state} <span className="ui meta">THEN</span></h3>
-                    <ActionEdit action={action} catalog={props.action_catalog} onUpdateAction={this.handleActionConfig} noparams={defconfig}/>
-                  </div>
-                ))}
-              </div>
+              <RuleActions
+                actions={actions}
+                action_catalog={props.action_catalog}
+                handleActionConfig={this.handleActionConfig}
+                defconfig={defconfig}
+                />
             ) : null }
           </div>
 
