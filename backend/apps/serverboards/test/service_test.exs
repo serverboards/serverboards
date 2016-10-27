@@ -82,7 +82,7 @@ defmodule ServerboardTest do
   test "List service catalog" do
     import Serverboards.Service
 
-    services = service_catalog [], "dmoreno@serverboards.io"
+    services = service_catalog []
 
     assert Enum.count(services) > 0
     assert Enum.count((hd services).fields) > 0
@@ -132,5 +132,10 @@ defmodule ServerboardTest do
     assert "SBDS-TST11" in service.serverboards
 
     serverboard_delete "SBDS-TST11", user
+  end
+
+  test "Service RPC" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, _catalog} = Test.Client.call(client, "service.catalog", [])
   end
 end

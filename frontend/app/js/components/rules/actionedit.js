@@ -56,9 +56,10 @@ const ActionEdit=React.createClass({
             <i className="dropdown icon"></i>
             <div className="default text">Select action.</div>
             <div className="menu">
-            {(this.props.catalog || []).map( (ac) => (
-              <div key={ac.id} className="item" data-value={ac.id}>{ac.name}</div>
-            ))}
+              <div className="item" data-value="">Do nothing</div>
+              {(this.props.catalog || []).map( (ac) => (
+                <div key={ac.id} className="item" data-value={ac.id}>{ac.name}</div>
+              ))}
             </div>
           </div>
         </div>

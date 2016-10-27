@@ -92,6 +92,21 @@ defmodule Serverboards.Plugin.RPC do
       end
     end, context: true
 
+    RPC.MethodCaller.add_method method_caller, "plugin.list_components", fn
+      [] ->
+        []
+          |> Serverboards.Plugin.Registry.filter_component
+          |> Serverboards.Utils.clean_struct
+      [ filter ] ->
+        Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"type id trait traits")
+          |> Serverboards.Plugin.Registry.filter_component
+          |> Serverboards.Utils.clean_struct
+      %{} = filter ->
+        Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"type id trait traits")
+          |> Serverboards.Plugin.Registry.filter_component
+          |> Serverboards.Utils.clean_struct
+    end
+
     # Catches all [UUID].method calls and do it. This is what makes call plugin by uuid work.
     RPC.MethodCaller.add_method_caller method_caller, &call_with_uuid(&1),
       [required_perm: "plugin", name: :call_with_uuid]

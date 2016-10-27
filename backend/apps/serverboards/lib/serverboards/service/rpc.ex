@@ -31,7 +31,7 @@ defmodule Serverboards.Service.RPC do
       service_info service, Context.get(context, :user)
     end, [required_perm: "service.info", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.list", fn filter, context ->
+    RPC.MethodCaller.add_method mc, "service.list", fn filter ->
       # some cleanup
       filter = Enum.map(filter, fn
         [k,v] -> {k,v}
@@ -48,13 +48,13 @@ defmodule Serverboards.Service.RPC do
         filter
       end
 
-      services = service_list filter, Context.get(context, :user)
+      services = service_list filter
       Enum.map services, &Serverboards.Utils.clean_struct(&1)
-    end, [required_perm: "service.info", context: true]
+    end, [required_perm: "service.info"]
 
-    RPC.MethodCaller.add_method mc, "service.catalog", fn filter, context ->
-      service_catalog filter, Context.get(context, :user)
-    end, [required_perm: "service.info", context: true]
+    RPC.MethodCaller.add_method mc, "service.catalog", fn filter ->
+      service_catalog filter
+    end, [required_perm: "service.info"]
 
     RPC.MethodCaller.add_method mc, "service.attach", fn [serverboard, service], context ->
       service_attach serverboard, service, Context.get(context, :user)

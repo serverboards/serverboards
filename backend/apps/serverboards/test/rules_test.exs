@@ -163,6 +163,7 @@ defmodule Serverboards.TriggersTest do
     Rules.upsert( Map.merge(rule, %{uuid: uuid, is_active: false}), me )
     assert Rules.ps == []
 
+    assert Rules.decorate(uuid) != nil
   end
 
   test "Basic RPC" do
@@ -223,6 +224,9 @@ defmodule Serverboards.TriggersTest do
     Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
+    [rule] = Rules.list( uuid: uuid )
+    assert rule.last_state == "tick"
+
     # now with just 100 ms
     File.rm("/tmp/sbds-rule-test")
     Rules.upsert( rule(%{
@@ -243,6 +247,7 @@ defmodule Serverboards.TriggersTest do
       uuid: uuid,
       is_active: false
       } ), me )
+    :timer.sleep(300)
 
   end
 

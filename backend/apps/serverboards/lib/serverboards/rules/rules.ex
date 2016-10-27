@@ -33,9 +33,19 @@ defmodule Serverboards.Rules do
     EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
       rule = upsert_real(data)
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      Logger.debug("Serverboard: #{inspect data.serverboard}")
       if (data.serverboard != nil) do
         Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: rule }, ["rules.view"])
+      end
+    end
+    EventSourcing.subscribe es, :set_state, fn data, _me ->
+      import Ecto.Query, only: [from: 2]
+      rule = Repo.one( from u in Model.Rule, where: u.uuid == ^data.rule )
+      {:ok, rule} = Repo.update( Model.Rule.changeset( rule, %{ last_state: data.state }) )
+      rule = decorate(rule)
+
+      Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
+      if (rule.serverboard != nil) do
+        Serverboards.Event.emit("rules.update[#{rule.serverboard}]", %{ rule: rule }, ["rules.view"])
       end
     end
 
@@ -91,6 +101,7 @@ defmodule Serverboards.Rules do
       serverboard: serverboard.shortname,
       service: service.uuid,
       from_template: rule.from_template,
+      last_state: rule.last_state,
       trigger: %{
         trigger: rule.trigger,
         params: rule.params
@@ -140,8 +151,18 @@ defmodule Serverboards.Rules do
   end
 
   @doc ~S"""
-  Gets a rule as from the database and returns a proper rule struct
+  Gets a rule as from the database and returns a proper rule struct, or from the
+  uuid returns the decorated rule.
   """
+  def decorate(uuid) when is_binary(uuid) do
+    import Ecto.Query
+
+    case Repo.one( from c in Serverboards.Rules.Model.Rule, where: c.uuid == ^uuid ) do
+      nil -> nil
+      rule ->
+        decorate(rule)
+    end
+  end
   def decorate(model) do
     import Ecto.Query
 
@@ -170,6 +191,7 @@ defmodule Serverboards.Rules do
       name: model.name,
       description: model.description,
       from_template: model.from_template,
+      last_state: model.last_state,
       trigger: %{
         trigger: model.trigger,
         params: model.params
@@ -274,15 +296,24 @@ defmodule Serverboards.Rules do
     {:ok, rule} = Repo.update(
       Model.Rule.changeset(rule, data)
     )
-    actions |> Map.to_list |> Enum.map(fn {state, action} ->
-      action = %{
-        rule_id: rule.id,
-        state: state,
-        action: action.action,
-        params: action.params
-      }
-      upsert_action(rule.id, state, action)
-    end)
+    actions_to_update = actions
+      |> Map.to_list
+      |> Enum.filter(fn {state, action} ->
+        is_binary(action.action) and (action.action != "")
+        end)
+    actions_to_update
+      |> Enum.map(fn {state, action} ->
+        action = %{
+          rule_id: rule.id,
+          state: state,
+          action: action.action,
+          params: action.params
+        }
+        upsert_action(rule.id, state, action)
+      end)
+    states = actions_to_update |> Enum.map(fn {state, _} -> state end)
+    import Ecto.Query
+    Repo.delete_all( from a in Model.ActionAtState, where: a.rule_id == ^rule.id and not a.state in ^states )
     {:ok, rule}
   end
 

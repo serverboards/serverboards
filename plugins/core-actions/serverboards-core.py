@@ -34,8 +34,8 @@ def http_get(url=None):
 
 @serverboards.rpc_method
 def set_tags(service=None, tags=None):
-    serverboards.rpc.debug("service %s"%repr(service))
-    service_tags = serverboards.rpc.call("service.info", service)["tags"] or []
+    #serverboards.rpc.debug("service %s"%repr(service))
+    service_tags = service["tags"] or []
     orig_tags=service_tags[:]
     if tags is None:
         tags=''
@@ -51,7 +51,7 @@ def set_tags(service=None, tags=None):
         elif not i in service_tags: # default append
             service_tags.append(i)
     if service_tags != orig_tags:
-        serverboards.rpc.call("service.update", service, { "tags": service_tags })
+        serverboards.rpc.call("service.update", service["uuid"], { "tags": service_tags })
 
 def base_url():
     url="http://localhost:8080"
@@ -65,10 +65,9 @@ def base_url():
 def send_notification(email, subject, body, service=None):
     extra={}
     if service:
-        service_data = serverboards.rpc.call("service.info", service)
-        if service_data["serverboards"]:
-            serverboard=service_data["serverboards"][0]
-            service_data["url"] = "%s/#/serverboard/%s/services"%(base_url(), serverboard)
+        if service["serverboards"]:
+            serverboard=service["serverboards"][0]
+            service["url"] = "%s/#/serverboard/%s/services"%(base_url(), serverboard)
         extra["service"] = service_data
 
     serverboards.rpc.call("notifications.notify", email=email, subject=subject, body=body, extra=extra)

@@ -91,7 +91,7 @@ defmodule Serverboards.IO.Cmd do
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Port.connect(port, server)
-    Logger.debug("Starting command #{cmd} at port")
+    #Logger.debug("Starting command #{cmd} at port")
 
     {:ok, client} = RPC.Client.start_link [
         writef: fn line ->
@@ -129,11 +129,15 @@ defmodule Serverboards.IO.Cmd do
     {:ok, state}
   end
 
-  def terminate(reason, state) do
-    Logger.debug("Terminate CMD #{inspect reason} // #{inspect Path.basename(state.cmd)} //  #{inspect Port.info(state.port)}")
+  def terminate(:normal, state) do
     kill(state.port)
     :timer.cancel(state.timer)
-    #Port.close(state.port)
+    {:ok}
+  end
+  def terminate(reason, state) do
+    Logger.debug("Terminate CMD #{inspect reason} // #{inspect Path.basename(state.cmd)}")
+    kill(state.port)
+    :timer.cancel(state.timer)
     {:ok}
   end
 

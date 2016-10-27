@@ -271,6 +271,20 @@ plugins.data_get("serverboards.core.notifications/telegram", "user_to_map")
 
 Lists all the installed plugins and componentes
 
+## plugin.list_components(filter)
+
+Returns all the components in raw form that comply with the filter.
+
+The filter may have:
+
+* type -- Search for specific type
+* trait -- Must have this trait
+* traits -- Must have any of these traits
+* id -- The component_id or plugin_id/component_id matches
+
+This can be used to have custom components on the client side, without any kind
+of server implication.
+
 # Serverboards
 
 ## serverboard.add(shortname, attributes)

@@ -59,8 +59,7 @@ div.ui.main
       padding: 0 2em
     .top.secondary.menu
       border-bottom: 1px solid #ddd
-      padding-top: 10px
-      padding-bottom: 10px
+      padding: 10px 5px 10px 20px
 
   > .ui.central.with.menu
     display: flex
@@ -70,7 +69,7 @@ div.ui.main
     > .ui.central
       flex-grow: 1
       overflow: auto
-  .ui.central > .ui.container
+  .ui.central > .ui.container, .ui.central > div > .ui.container,
         padding: 20px 2em 80px 2em
         margin-top: 20px
 
@@ -233,6 +232,10 @@ code
   .ui.central .ui.dimmer
     top: 45px !important
     left: 85px !important
+  .ui.central.with.menu .ui.dimmer
+    top: 45px !important
+    left: 305px !important
+    width: calc( 100vw - 305px )
 
 .ui.basic.plain.label
   border: 0
