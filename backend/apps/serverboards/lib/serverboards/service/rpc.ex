@@ -52,7 +52,7 @@ defmodule Serverboards.Service.RPC do
       Enum.map services, &Serverboards.Utils.clean_struct(&1)
     end, [required_perm: "service.info"]
 
-    RPC.MethodCaller.add_method mc, "service.catalog", fn filter, context ->
+    RPC.MethodCaller.add_method mc, "service.catalog", fn filter ->
       service_catalog filter
     end, [required_perm: "service.info"]
 

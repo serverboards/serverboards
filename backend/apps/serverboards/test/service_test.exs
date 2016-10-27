@@ -133,4 +133,9 @@ defmodule ServerboardTest do
 
     serverboard_delete "SBDS-TST11", user
   end
+
+  test "Service RPC" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, _catalog} = Test.Client.call(client, "service.catalog", [])
+  end
 end
