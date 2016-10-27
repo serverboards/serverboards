@@ -45,10 +45,10 @@ const Rules=React.createClass({
     }
 
     return (
-      <div className="ui container">
-        <div className="ui form">
-          <div className="field">
-            <label>Filter by trigger type:</label>
+      <div>
+        <div className="ui top secondary header menu">
+          <div className="ui inline form fields">
+            <label>Filter by trigger type: </label>
             <select ref="filter" className="ui search dropdown">
               <option value="all">Show all</option>
               {trigger_catalog_in_use.map( (t) => (
@@ -57,17 +57,19 @@ const Rules=React.createClass({
             </select>
           </div>
         </div>
-        <div className="ui cards" style={{paddingTop: 20}}>
-          {rules.map((r) =>
-            <Rule
-              rule={r}
-              key={r.uuid}
-              onOpenEdit={() => props.onOpenEdit(r)}
-              trigger_catalog={props.trigger_catalog}
-              service_catalog={props.service_catalog}
-              action_catalog={props.action_catalog}
-              />
-          )}
+        <div className="ui container">
+          <div className="ui cards" style={{paddingTop: 20}}>
+            {rules.map((r) =>
+              <Rule
+                rule={r}
+                key={r.uuid}
+                onOpenEdit={() => props.onOpenEdit(r)}
+                trigger_catalog={props.trigger_catalog}
+                service_catalog={props.service_catalog}
+                action_catalog={props.action_catalog}
+                />
+            )}
+            </div>
         </div>
         <a onClick={() => this.handleAdd()} className="ui massive button add icon floating yellow">
           <i className="add icon"></i>
