@@ -143,7 +143,10 @@ class RPC:
                     self.events[ready]()
             else: # timeout
                 self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
-                timeout_cont()
+                try:
+                    timeout_cont()
+                except:
+                    import traceback; traceback.print_exc(file=self.write_to_log)
 
         self.loop_status=prev_status
 
@@ -200,7 +203,7 @@ class RPC:
           self.stdout.flush()
         except IOError:
           if self.loop_status=='EXIT':
-            os.exit(1)
+            sys.exit(1)
           self.loop_stop(debug=False)
 
 
@@ -276,7 +279,7 @@ class RPC:
         self.subscription_id+=1
 
         self.debug("Subscribed to %s"%event)
-        self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
+        #self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
         return sid
 
     def unsubscribe(self, subscription_id):

@@ -109,6 +109,25 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, "test.ping", []) == {:error, :unknown_method}
   end
 
+  test "List plugin components using RPC" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert (Enum.count(list)) > 0
+    Logger.debug("Got #{Enum.count list} plugins")
+
+    {:ok, list} = Client.call(client, "plugin.list_components", [])
+    Logger.debug("Got #{Enum.count list} components")
+    assert (Enum.count(list)) > 0
+
+    {:ok, list} = Client.call(client, "plugin.list_components", [ type: "action" ])
+    Logger.debug("Got #{Enum.count list} action components")
+    assert (Enum.count(list)) > 0
+
+    {:ok, list} = Client.call(client, "plugin.list_components", [ type: "action template" ])
+    Logger.debug("Got #{Enum.count list} action template components")
+    assert (Enum.count(list)) == 0
+
+  end
 
   test "Dir after login at plugins" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"

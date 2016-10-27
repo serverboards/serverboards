@@ -9,8 +9,14 @@ defmodule Serverboards.Plugin.Monitor do
   @timeout 5000 # batch changes to until no changes in 1s
 
   def start_link(options \\ []) do
-    dirnames = Application.fetch_env! :serverboards, :plugin_paths
-    GenServer.start_link __MODULE__, dirnames, options
+    paths = Application.fetch_env! :serverboards, :plugin_paths
+    paths = case System.get_env("SERVERBOARDS_PATH") do
+      nil ->
+        paths ++ [Path.join(System.get_env("HOME"), ".local/serverboards/plugins")]
+      serverboards_path ->
+        paths ++ [Path.join(serverboards_path, "plugins")]
+    end
+    GenServer.start_link __MODULE__, paths, options
   end
 
 

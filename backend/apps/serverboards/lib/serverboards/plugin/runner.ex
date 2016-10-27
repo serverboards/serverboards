@@ -55,7 +55,7 @@ defmodule Serverboards.Plugin.Runner do
   def start(%Serverboards.Plugin.Component{} = component) do
     case GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component.id}) do
       {:ok, uuid} ->
-        Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
+        #Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
         ping(uuid)
         {:ok, uuid}
       {:error, :not_found} ->
@@ -66,8 +66,11 @@ defmodule Serverboards.Plugin.Runner do
           Logger.debug("Adding runner #{uuid} #{inspect component.id}")
           :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component})
           {:ok, uuid}
+        {:error, {:timeout, _where}} ->
+          Logger.error("Timeout starting plugin component #{inspect component.id}")
+          {:error, :timeout}
         {:error, e} ->
-          Logger.error("Error starting plugin component #{inspect component}: #{inspect e}")
+          Logger.error("Error starting plugin component #{inspect component.id}: #{inspect e}")
           {:error, e}
       end
     end
@@ -86,7 +89,7 @@ defmodule Serverboards.Plugin.Runner do
   def stop(uuid) do
     case GenServer.call(Serverboards.Plugin.Runner, {:stop, uuid}) do
       {:error, :cant_stop} -> # just do not log it, as it is quite normal
-        Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
+        #Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
         {:error, :cant_stop}
       {:error, e} ->
         Logger.error("Error stopping component #{inspect e}")
@@ -200,7 +203,7 @@ defmodule Serverboards.Plugin.Runner do
         {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
         GenServer.cast(Serverboards.Plugin.Runner, {:ping, id})
-        Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
+        #Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
             GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
@@ -331,7 +334,7 @@ defmodule Serverboards.Plugin.Runner do
 
         {:reply, {:ok, entry.pid}, state }
       true ->
-        Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
+        #Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
         {:reply, {:error, :cant_stop}, state}
     end
   end

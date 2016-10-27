@@ -27,7 +27,8 @@ const Board = React.createClass({
   },
   getInitialState(){
     return {
-      layout: this.getLayout(this.props)
+      layout: this.getLayout(this.props),
+      interval_id: undefined,
     }
   },
   handleLayoutChange(layout){
@@ -53,9 +54,13 @@ const Board = React.createClass({
     Command.add_command_search('add-widget',(Q, context) => [
       {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: this.handleAddWidget }
     ], 2)
+    this.setState({
+      interval_id: setInterval(() => this.props.updateDaterangeNow(), 60 * 1000)
+    })
   },
   componentWillUnmount(){
     Command.remove_command_search('add-widget')
+    clearInterval(this.state.interval_id)
   },
   render() {
     const widgets=this.props.widgets

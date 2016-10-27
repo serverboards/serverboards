@@ -14,10 +14,11 @@ defmodule Serverboards.Rules.Rule do
     description: nil,
     trigger: %{},
     actions: [],
+    last_state: nil,
     from_template: nil # original template rule
   ]
   def start_link(rule, _options \\ []) do
-    Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
+    #Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
 
     {:ok, pid} = GenServer.start_link __MODULE__, {}
     Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
@@ -41,7 +42,6 @@ defmodule Serverboards.Rules.Rule do
   end
 
   def setup_client_for_rules(pid, %MOM.RPC.Client{} = client) do
-    Logger.debug("Method caller of this trigger #{inspect client}, #{inspect Process.alive?(client.method_caller.method_caller)}")
     MOM.RPC.Client.add_method client, "trigger", fn
       [params] ->
         trigger_real(params)
@@ -96,6 +96,29 @@ defmodule Serverboards.Rules.Rule do
     :ok
   end
 
+  @doc ~S"""
+  Gets the default params for both the trigger and actions, updated from
+  database.
+
+  If they are needed in the trigger/action it will have properly all the data.
+  """
+  def get_default_params(%{ service: service, rule: rule }) do
+    default_params = if service != nil do
+      Serverboards.Service.service_config(service)
+        |> Map.put(:service, Serverboards.Service.decorate(service))
+    else
+      %{ service: nil }
+    end
+    default_params = if rule do
+      default_params
+        |> Map.put(:rule, Serverboards.Rules.decorate(rule))
+    else
+      default_params
+    end
+
+    default_params
+  end
+
 
   def handle_call({:init, rule}, _from, {}) do
     %{
@@ -113,18 +136,19 @@ defmodule Serverboards.Rules.Rule do
     # use service data to complete it, for example to change labels on the
     # selected service
     # Also if the service is modified then just restarting the rule make
-    # it up to date with the new data. TODO
-    default_params = if service != nil do
-      Serverboards.Service.service_config(service)
-        |> Map.put(:service, service)
-    else
-      %{ service: nil }
-    end
+    # it up to date with the new data.
+    default_params = get_default_params(%{ service: service, rule: uuid})
     params = Map.merge(params, default_params)
 
     Logger.info("Start rule with trigger #{inspect trigger}, #{uuid}", uuid: uuid, trigger: trigger, params: params, actions: actions)
     [trigger] = Serverboards.Rules.Trigger.find(id: trigger)
-    {:ok, plugin_id} = Plugin.Runner.start trigger.command
+    plugin_id = case Plugin.Runner.start trigger.command do
+      {:ok, plugin_id} -> plugin_id
+      {:error, desc} ->
+        Logger.error("Could not start trigger", description: desc)
+        raise {:cant_start_trigger, desc}
+    end
+
     self_ = self
     #MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{uuid: ^plugin_id}} ->
     #  Process.exit(self_, :plugin_down) # sort of suicide if the cmd finishes
@@ -145,20 +169,19 @@ defmodule Serverboards.Rules.Rule do
       {:ok, stop_id} ->
         stop_id = if stop_id do stop_id else uuid end
 
-        Logger.info("Starting trigger #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
+        #Logger.info("Starting rule #{inspect trigger.id} // #{uuid}", trigger: trigger, uuid: uuid)
         state = %{
           trigger: trigger,
           params: params,
           actions: actions,
           plugin_id: plugin_id,
           stop_id: stop_id,
-          default_params: default_params,
           rule: rule
         }
 
         {:ok, uuid, state}
       {:error, error} ->
-        Logger.error("Error starting trigger #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
+        Logger.error("Error starting rule #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
         {:error, :aborted, {}}
     end
 
@@ -176,7 +199,6 @@ defmodule Serverboards.Rules.Rule do
       plugin_id: plugin_id,
       trigger: trigger,
       actions: actions,
-      default_params: default_params,
       rule: rule
     } = state
     Plugin.Runner.ping(plugin_id) # to keep it alive
@@ -184,6 +206,10 @@ defmodule Serverboards.Rules.Rule do
     action = actions[rule_state]
 
     full_params = Map.merge(params, %{ trigger: trigger.id })
+    default_params = get_default_params( %{ service: rule.service, rule: rule.uuid } )
+
+    # set last state
+    EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: rule_state }, "rule/#{rule.uuid}")
 
     if action do
         full_params = Map.merge( Map.merge(action.params, default_params), full_params )
@@ -193,6 +219,7 @@ defmodule Serverboards.Rules.Rule do
         Logger.info("Trigger empty action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], action: action)
         {:ok, :empty}
     end
+
 
     {:reply, :ok, state}
   end

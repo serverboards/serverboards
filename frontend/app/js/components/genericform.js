@@ -20,7 +20,7 @@ const RichDescription=React.createClass({
     }
   },
   componentDidMount(){
-    Promise.all( this.props.vars.map( (v) => { // For each var run plugin, get value, stop plugin
+    Promise.all( (this.props.vars || []).map( (v) => { // For each var run plugin, get value, stop plugin
       let p=new Promise((resolve, reject) => {
         rpc.call("plugin.start", [v.command])
         .then((uuid) => {
@@ -95,6 +95,7 @@ let GenericField=React.createClass({
         return (
           <div className="field">
           <label>{props.label}</label>
+          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
           <input type="text"
             name={props.name}
             placeholder={props.placeholder || props.description}
@@ -106,6 +107,7 @@ let GenericField=React.createClass({
         return (
           <div className="field">
           <label>{props.label}</label>
+          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
           <input type="url"
             name={props.name}
             placeholder={props.placeholder || props.description}
@@ -117,6 +119,7 @@ let GenericField=React.createClass({
         return (
           <div className="field">
           <label>{props.label}</label>
+          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
           <textarea
             name={props.name}
             placeholder={props.placeholder || props.description}
@@ -128,6 +131,7 @@ let GenericField=React.createClass({
         return (
           <div className="field">
           <label>{props.label}</label>
+          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
           <input type="password"
             name={props.name}
             placeholder={props.placeholder || props.description}
@@ -150,6 +154,7 @@ let GenericField=React.createClass({
         return (
           <div className="field">
             <label>{props.label}</label>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
             <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
               {props.options.map((o) => (
                 <option value={o.value}>{o.label}</option>
@@ -161,6 +166,7 @@ let GenericField=React.createClass({
         return (
           <div className="field">
             <label>{props.label}</label>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
             <div ref="select" className={`ui fluid ${props.search ? "search" : ""} selection dropdown`}>
               <input type="hidden" name={props.name} defaultValue={props.value} onChange={this.handleChange}/>
               <i className="dropdown icon"></i>

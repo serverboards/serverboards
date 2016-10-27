@@ -22,9 +22,9 @@ defmodule Serverboards.Plugin.Registry do
       serverboards_path ->
         paths ++ [Path.join(serverboards_path, "plugins")]
     end
-    Logger.debug("Loading plugins from #{inspect paths}")
     plugins = Enum.flat_map paths, fn path ->
       path = Path.expand path
+      Logger.debug("Loading plugins from #{inspect path}")
       case Serverboards.Plugin.Parser.read_dir(path) do
         {:ok, plugins} -> plugins
         {:error, err} ->
@@ -32,7 +32,6 @@ defmodule Serverboards.Plugin.Registry do
           []
       end
     end
-    #Logger.debug("Got plugins #{inspect plugins}")
     plugins
   end
 

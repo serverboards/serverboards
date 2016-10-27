@@ -18,10 +18,12 @@ components:
         - name: ip
           label: Remote IP address or DNS name
           type: text
+          card: true
         - name: frequency
           label: Check frequency
           description: Time between checks in seconds
           default: 60
+          card: true
         - name: grace
           label: Grace period
           description: Seconds that connectivity can be lost without triggering
@@ -40,6 +42,7 @@ components:
         - name: url
           label: Remote URL
           type: text
+          card: true
         - name: maxs
           label: Maximum response time (s)
           description: Trigger if response time is greater than the given value in seconds for longer that grace period.
@@ -48,6 +51,7 @@ components:
           label: Check frequency (s)
           description: Time between checks in seconds
           default: 60
+          card: true
         - name: grace
           label: Grace period (s)
           description: Seconds that connectivity can be lost without triggering
@@ -68,11 +72,13 @@ components:
           type: text
           description: Full URL of the resource
           placeholder: http://example.com, https://google.com, smtp://mail.com:25, ...
+          card: true
         - name: frequency
           label: Check frequency
           description: Time between checks in seconds
           placeholder: 60s
           default: 60
+          card: true
         - name: grace
           label: Grace period
           description: Seconds that connectivity can be lost without triggering
@@ -91,6 +97,7 @@ components:
         - name: timeout
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
+          card: true
 
   - name: Service tags changed
     description: Triggers when a specific tag appears or disappears from service tags, as UP or DOWN
@@ -104,10 +111,12 @@ components:
         - name: service
           type: service
           label: Service to watch
+          card: true
         - name: tag
           type: text
           label: Label
           placeholder: eg. UP, DOWN, UNKNOWN
+          card: true
     stop: tag_change_stop
 
   - name: Server socket is up

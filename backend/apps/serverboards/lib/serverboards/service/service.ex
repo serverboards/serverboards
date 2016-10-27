@@ -50,7 +50,7 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
-      Logger.debug("Operations: #{inspect operations}")
+      #Logger.debug("Operations: #{inspect operations}")
       case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
         nil -> :none
         l when is_list(l) ->
@@ -300,7 +300,7 @@ defmodule Serverboards.Service do
     iex> {:ok, _service_a} = service_add %{ "name" => "Generic A", "type" => "generic" }, user
     iex> {:ok, _service_b} = service_add %{ "name" => "Generic B", "type" => "email" }, user
     iex> {:ok, _service_c} = service_add %{ "name" => "Generic C", "type" => "generic" }, user
-    iex> services = service_list [], user
+    iex> services = service_list []
     iex> service_names = Enum.map(services, fn c -> c.name end )
     iex> Enum.member? service_names, "Generic A"
     true
@@ -308,7 +308,7 @@ defmodule Serverboards.Service do
     true
     iex> Enum.member? service_names, "Generic C"
     true
-    iex> services = service_list [type: "email"], user
+    iex> services = service_list [type: "email"]
     iex> service_names = Enum.map(services, fn c -> c.name end )
     iex> require Logger
     iex> Logger.info(inspect service_names)
@@ -320,10 +320,10 @@ defmodule Serverboards.Service do
     true
 
   """
-  def service_list(filter, me) do
+  def service_list(filter) do
     import Ecto.Query
 
-    Logger.info("Get service list for #{inspect filter}", filter: filter, user: me)
+    Logger.info("Get service list for #{inspect filter}", filter: filter)
 
     query = if filter do
         Enum.reduce(filter, from(c in ServiceModel), fn {k,v}, acc ->
@@ -347,7 +347,7 @@ defmodule Serverboards.Service do
         ServiceModel
       end
     #Logger.info("#{inspect filter} #{inspect query}")
-    res = Repo.all(query) |> Enum.map( &service_decorate(&1, me) )
+    res = Repo.all(query) |> Enum.map( &decorate(&1) )
 
     # post process
     if Keyword.has_key?(filter, :traits) do
@@ -362,8 +362,17 @@ defmodule Serverboards.Service do
   @doc ~S"""
   Returns a service from database properly decorated for external use, with
   fields and traits, and no internal data.
+
+  Canbe get from uuid, or decorate an already got model.
   """
-  def service_decorate(service, me) do
+  def decorate(uuid) when is_binary(uuid) do
+    import Ecto.Query
+    case Repo.one( from c in ServiceModel, where: c.uuid == ^uuid, preload: :tags ) do
+      nil -> nil
+      service -> decorate(service)
+    end
+  end
+  def decorate(service) do
     import Ecto.Query
     service = service
           |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
@@ -374,7 +383,7 @@ defmodule Serverboards.Service do
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
-    service = case service_catalog([type: service.type], me) do
+    service = case service_catalog([type: service.type]) do
       [] ->
         service
           |> Map.put(:fields, [])
@@ -421,11 +430,11 @@ defmodule Serverboards.Service do
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST7", %{ "name" => "serverboards" }, user
     iex> :ok = service_attach "SBDS-TST7", service, user
-    iex> services = service_list [serverboard: "SBDS-TST7"], user
+    iex> services = service_list [serverboard: "SBDS-TST7"]
     iex> Enum.map(services, fn c -> c.name end )
     ["Email server"]
     iex> :ok = service_delete service, user
-    iex> services = service_list [serverboard: "SBDS-TST7"], user
+    iex> services = service_list [serverboard: "SBDS-TST7"]
     iex> Enum.map(services, fn c -> c.name end )
     []
   """
@@ -443,11 +452,11 @@ defmodule Serverboards.Service do
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
     iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST9", %{ "name" => "serverboards" }, user
     iex> :ok = service_attach "SBDS-TST9", service, user
-    iex> services = service_list [serverboard: "SBDS-TST9"], user
+    iex> services = service_list [serverboard: "SBDS-TST9"]
     iex> Enum.map(services, fn c -> c.name end )
     ["Email server"]
     iex> :ok = service_detach "SBDS-TST9", service, user
-    iex> services = service_list [serverboard: "SBDS-TST9"], user
+    iex> services = service_list [serverboard: "SBDS-TST9"]
     iex> Enum.map(services, fn c -> c.name end )
     []
     iex> {:ok, info} = service_info service, user
@@ -463,21 +472,21 @@ defmodule Serverboards.Service do
   @doc ~S"""
   Returns info about a given service, including tags, name, config and serverboards
   it is in.
+
+  IT is a wrapper with {:ok, _}/{:error, :now_found} semantics that in the
+  future (TODO) will check for permission to access this service data
   """
-  def service_info(service, me) do
+  def service_info(service, _me) when is_binary(service) do
     import Ecto.Query
 
-    case Repo.one( from c in ServiceModel, where: c.uuid == ^service, preload: :tags ) do
+    case decorate(service) do
       nil -> {:error, :not_found}
-      service ->
-        service = service_decorate(service, me)
-        {:ok, service }
+      service -> {:ok, service}
     end
   end
 
   def service_update(service, operations, me) do
     changes = Enum.reduce(operations, %{}, fn op, acc ->
-      Logger.debug("#{inspect op}")
       {opname, newval} = op
       opatom = case opname do
         "name" -> :name
@@ -533,25 +542,25 @@ defmodule Serverboards.Service do
   ## Example
 
     iex> me = Test.User.system
-    iex> service_def_list = service_catalog([], me)
+    iex> service_def_list = service_catalog([])
     iex> Enum.count(service_def_list) >= 1
     true
 
     iex> me = Test.User.system
-    iex> [specific_service_type] = service_catalog([type: "serverboards.test.auth/server" ], me)
+    iex> [specific_service_type] = service_catalog([type: "serverboards.test.auth/server" ])
     iex> specific_service_type.type
     "serverboards.test.auth/server"
     iex> specific_service_type.traits
     ["generic"]
 
     iex> me = Test.User.system
-    iex> [] = service_catalog([traits: ["wrong", "traits"]], me)
-    iex> service_def_list = service_catalog([traits: ["wrong", "traits", "next_matches", "generic"]], me)
+    iex> [] = service_catalog([traits: ["wrong", "traits"]])
+    iex> service_def_list = service_catalog([traits: ["wrong", "traits", "next_matches", "generic"]])
     iex> Enum.count(service_def_list) >= 1
     true
 
   """
-  def service_catalog(filter, _me) do
+  def service_catalog(filter) do
     Serverboards.Plugin.Registry.filter_component(type: "service")
       |> Enum.filter(fn service ->
         #Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")
