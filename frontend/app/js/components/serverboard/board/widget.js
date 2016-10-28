@@ -5,8 +5,17 @@ import {merge} from 'app/utils'
 
 const Widget = React.createClass({
   umount: undefined,
+  find_service(uuid){
+    return this.props.services.find( (s) => s.uuid == uuid )
+  },
   decorate_config(config){
-    return merge(config, {serverboard: this.props.serverboard})
+    config = merge(config, {serverboard: this.props.serverboard})
+    const params = this.props.template.params || []
+    for(let p of params){
+      if (p.type=="service" && config[p.name])
+        config[p.name]=this.find_service(config[p.name])
+    }
+    return config
   },
   do_widget(props){
     return plugin.do_widget(
@@ -52,7 +61,7 @@ const Widget = React.createClass({
             <i className="icon expand"/>
           </a>
         </div>
-        <div style={{flexGrow:1}} ref="el"/>
+        <div ref="el"/>
       </div>
     )
   }
