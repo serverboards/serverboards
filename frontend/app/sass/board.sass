@@ -1,11 +1,4 @@
-$background:  #f5f7f6
-$grey: #58666E
-$green: #d9e021
-$color0: #E6F6F5
-$color1: #E7ED7F
-$color2: #D9E021
-$color3: #8CC63F
-$color4: #009245
+@import "graphs/colors.sass"
 
 .ui.board
   background: $background
@@ -35,15 +28,17 @@ $color4: #009245
         font-size: 16px
 
   .ui.cards > .card
-    display: flex
-    align-items: stretch
-    overflow: hidden
     box-shadow: none !important
     border: 1px solid #eaeeed !important
     color: #596770
     border-radius: 6px !important
     margin: 0
     > div
+      display: flex
+      flex-direction: column
+      align-items: stretch
+      height: 100%
+      overflow: hidden
       .header, h1, h2, h3, h4
         color: $grey
       > .ui.top.menu
@@ -68,6 +63,9 @@ $color4: #009245
           font-weight: normal
           margin: 0
           min-width: calc( 100% - 60px )
+      > div:nth-child(2)
+        flex-grow: 1
+        position: relative
       .content
         padding: 5px
 
@@ -90,50 +88,3 @@ $color4: #009245
         visibility: visible
 
 $cellsize: 20px
-
-.ui.heatmap
-  display: flex
-  flex-wrap: wrap
-  .header
-    font-size: 10pt
-    color: #666 !important
-  .row.header
-    text-align: right
-  .column.header
-    max-width: $cellsize
-    max-height: $cellsize
-    overflow: visible
-    word-wrap: break-word
-    white-space: nowrap
-  td
-    text-align: center
-    line-height: $cellsize
-
-  .cell
-    margin: auto
-    width: $cellsize
-    max-width: $cellsize
-    min-width: $cellsize
-    height: $cellsize
-    background: $color0
-    text-align: center
-    overflow: hidden
-    margin: 1px
-    display: inline-block
-    border-radius: 3px
-    padding: 1px
-
-  .cell.color0
-    background: $color0
-
-  .cell.color1
-    background: $color1
-
-  .cell.color2
-    background: $color2
-
-  .cell.color3
-    background: $color3
-
-  .cell.color4
-    background: $color4

@@ -8,6 +8,8 @@ import plugin from 'app/utils/plugin'
 import Command from 'app/utils/command'
 import {pretty_ago} from 'app/utils'
 import moment from 'moment'
+import * as d3 from 'd3'
+import graphs from 'app/graphs'
 require('moment-range');
 
 require("sass/serverboards.sass")
@@ -42,6 +44,8 @@ window.Serverboards = {
   pretty_ago,
   plugin,
   moment,
+  d3,
+  graphs
 }
 
 ReactDOM.render(

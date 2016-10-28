@@ -88,7 +88,7 @@ const SidebarSections = React.createClass({
       <div className="ui vertical menu sections">
         <div>
           <h3 className="ui item header">{props.serverboard.name}</h3>
-          <MenuItem section="overview">Overview</MenuItem>
+          <MenuItem section="dashboard">Dashboard</MenuItem>
           <MenuItem section="services">Services</MenuItem>
           <MenuItem section="rules">Rules</MenuItem>
           <MenuItem section="settings">Settings</MenuItem>

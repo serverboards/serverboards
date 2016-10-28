@@ -5,8 +5,24 @@ import {merge} from 'app/utils'
 
 const Widget = React.createClass({
   umount: undefined,
+  find_service(uuid){
+    console.log("Find service %o in %o", uuid, this.props.services.map( (s) => s.uuid ))
+    let service = this.props.services.find( (s) => s.uuid == uuid )
+    console.log("Got %o", service)
+    if (!service)
+      return {uuid: uuid, error: "Not at current serverboard, cant load full data."}
+    return service
+  },
   decorate_config(config){
-    return merge(config, {serverboard: this.props.serverboard})
+    config = merge(config, {serverboard: this.props.serverboard})
+    const params = this.props.template.params || []
+    for(let p of params){
+      if (p.type=="service" && config[p.name]){
+        const service = this.find_service(config[p.name])
+        config[p.name]=service
+      }
+    }
+    return config
   },
   do_widget(props){
     return plugin.do_widget(
@@ -52,7 +68,7 @@ const Widget = React.createClass({
             <i className="icon expand"/>
           </a>
         </div>
-        <div style={{flexGrow:1}} ref="el"/>
+        <div ref="el"/>
       </div>
     )
   }
