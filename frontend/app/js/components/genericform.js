@@ -94,49 +94,49 @@ let GenericField=React.createClass({
       case 'text':
         return (
           <div className="field">
-          <label>{props.label}</label>
-          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
-          <input type="text"
-            name={props.name}
-            placeholder={props.placeholder || props.description}
-            defaultValue={props.value}
-            onChange={this.handleChange}/>
+            <label>{props.label}</label>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <input type="text"
+              name={props.name}
+              placeholder={props.placeholder || props.description}
+              defaultValue={props.value}
+              onChange={this.handleChange}/>
           </div>
         )
       case 'url':
         return (
           <div className="field">
-          <label>{props.label}</label>
-          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
-          <input type="url"
-            name={props.name}
-            placeholder={props.placeholder || props.description}
-            defaultValue={props.value}
-            onChange={this.handleChange}/>
+            <label>{props.label}</label>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <input type="url"
+              name={props.name}
+              placeholder={props.placeholder || props.description}
+              defaultValue={props.value}
+              onChange={this.handleChange}/>
           </div>
         )
       case 'textarea':
         return (
           <div className="field">
-          <label>{props.label}</label>
-          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
-          <textarea
-            name={props.name}
-            placeholder={props.placeholder || props.description}
-            defaultValue={props.value}
-            onChange={this.handleChange}/>
+            <label>{props.label}</label>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <textarea
+              name={props.name}
+              placeholder={props.placeholder || props.description}
+              defaultValue={props.value}
+              onChange={this.handleChange}/>
           </div>
         )
       case 'password':
         return (
           <div className="field">
-          <label>{props.label}</label>
-          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
-          <input type="password"
-            name={props.name}
-            placeholder={props.placeholder || props.description}
-            defaultValue={props.value}
-            onChange={this.handleChange}/>
+            <label>{props.label}</label>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <input type="password"
+              name={props.name}
+              placeholder={props.placeholder || props.description}
+              defaultValue={props.value}
+              onChange={this.handleChange}/>
           </div>
         )
       case 'description':
