@@ -1,13 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import OverviewView from 'app/components/serverboard/overview'
+import View from 'app/components/serverboard/dashboard'
 
-var Overview=connect(
+var Controller=connect(
   (state) => ({
     serverboard: state.serverboard.serverboards.find( (s) => s.shortname == state.serverboard.current )
   }),
   (dispatch) => ({
   })
-)(OverviewView)
+)(View)
 
-export default Overview
+export default Controller

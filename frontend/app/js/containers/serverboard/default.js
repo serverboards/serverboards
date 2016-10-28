@@ -1,3 +1,3 @@
-import Default from './overview'
+import Default from './dashboard'
 
 export default Default
