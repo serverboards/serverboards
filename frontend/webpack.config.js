@@ -47,6 +47,7 @@ module.exports = {
                         'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
                     ]
                   },
+            { test: /\.json$/, loader: "json" },
         ]
     },
     plugins: [

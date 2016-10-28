@@ -1,0 +1,46 @@
+.ui.heatmap
+  display: flex
+  flex-wrap: wrap
+  .header
+    font-size: 10pt
+    color: #666 !important
+  .row.header
+    text-align: right
+  .column.header
+    max-width: $cellsize
+    max-height: $cellsize
+    overflow: visible
+    word-wrap: break-word
+    white-space: nowrap
+  td
+    text-align: center
+    line-height: $cellsize
+
+  .cell
+    margin: auto
+    width: $cellsize
+    max-width: $cellsize
+    min-width: $cellsize
+    height: $cellsize
+    background: $color0
+    text-align: center
+    overflow: hidden
+    margin: 1px
+    display: inline-block
+    border-radius: 3px
+    padding: 1px
+
+  .cell.color0
+    background: $color0
+
+  .cell.color1
+    background: $color1
+
+  .cell.color2
+    background: $color2
+
+  .cell.color3
+    background: $color3
+
+  .cell.color4
+    background: $color4
