@@ -36,7 +36,7 @@ defmodule Serverboards.Logger.Console do
   def split_blocks(msg, start, size) do
     String.split(to_string(msg),"\n")
       |> Enum.map(&to_string(split_blocks_splitter(&1, start, size)))
-      |> Enum.join(white(start))
+      |> Enum.join("\n" <> white(start))
   end
   def split_blocks_splitter(msg, start, size) do
     if String.length(msg) > size do
