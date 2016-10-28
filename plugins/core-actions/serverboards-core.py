@@ -68,7 +68,7 @@ def send_notification(email, subject, body, service=None):
         if service["serverboards"]:
             serverboard=service["serverboards"][0]
             service["url"] = "%s/#/serverboard/%s/services"%(base_url(), serverboard)
-        extra["service"] = service_data
+        extra["service"] = service
 
     serverboards.rpc.call("notifications.notify", email=email, subject=subject, body=body, extra=extra)
 
