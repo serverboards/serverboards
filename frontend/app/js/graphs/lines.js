@@ -68,9 +68,6 @@ class LineGraph{
     }
 
     Plotly.newPlot(this.plot, pldata, layout, config)
-    this.plot.on("plotly_hover", (data) => {
-      console.log(data)
-    })
     this.$el.html(this.plot)
   }
   resize(){
