@@ -13,6 +13,7 @@ const CommandSearch = React.createClass({
   getContext(){
     const state = store.getState()
     return {
+      is_open: false,
       path: state.routing.locationBeforeTransitions.pathname,
       state: state,
       goto: (path) => store.dispatch(push(path))
@@ -22,6 +23,8 @@ const CommandSearch = React.createClass({
     let $search=$(this.refs.search)
     let self=this
     $("body").on('keypress', function(ev){
+      if (!this.state.is_open)
+        return
       if (skip_nodes[ev.target.nodeName])
         return
       $search.find('input').focus()
@@ -68,15 +71,26 @@ const CommandSearch = React.createClass({
       }
     })
   },
+  handleToggleOpen(){
+    this.setState({is_open: !this.state.is_open})
+  },
   render(){
     return (
-      <div ref="search" className="ui search">
-        <div className="ui icon input">
-          <input className="prompt" type="text" placeholder="Search and execute commands..."/>
-          <i className="terminal icon"></i>
-        </div>
-        <div className="results">
-        </div>
+      <div>
+        {this.state.is_open ? (
+          <div ref="search" className="ui search">
+            <div className="ui icon input">
+              <input className="prompt" type="text" placeholder="Search and execute commands..."/>
+              <i className="terminal icon" onClick={this.handleToggleOpen}></i>
+            </div>
+            <div className="results">
+            </div>
+          </div>
+        ) : (
+          <a className="ui button" onClick={this.handleToggleOpen}>
+            <i className="ui icon terminal"/>
+          </a>
+        )}
       </div>
     )
   }
