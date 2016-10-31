@@ -64,14 +64,17 @@ const Widget = React.createClass({
           <a className="item right" onClick={this.props.onEdit}>
             <i className="icon configure"/>
           </a>
-          <a className="item right" onClick={this.props.onEdit}>
-            <i className="icon expand"/>
-          </a>
         </div>
         <div ref="el"/>
       </div>
     )
   }
 })
+
+
+/*          <a className="item right" onClick={this.props.onEdit}>
+              <i className="icon expand"/>
+            </a>
+*/
 
 export default Widget
