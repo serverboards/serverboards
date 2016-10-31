@@ -10,6 +10,11 @@ const skip_nodes={
 }
 
 const CommandSearch = React.createClass({
+  getInitialState(){
+    return {
+      is_open: false,
+    }
+  },
   getContext(){
     const state = store.getState()
     return {
@@ -21,16 +26,14 @@ const CommandSearch = React.createClass({
   componentDidMount(){
     let $search=$(this.refs.search)
     let self=this
-    $("body").on('keypress', function(ev){
+    $(window).on('keyup', function(ev){
+      if (ev.keyCode==27)
+        self.handleToggleOpen()
+      if (!self.state.is_open)
+        return
       if (skip_nodes[ev.target.nodeName])
         return
       $search.find('input').focus()
-    })
-    $search.find('input').on('keyup',function(ev){
-      if (ev.keyCode==27){
-        $search.search("set value", "")
-        $search.search('hide results')
-      }
     })
     $search.search({
       cache: false,
@@ -62,20 +65,38 @@ const CommandSearch = React.createClass({
           store.dispatch(push(result.path))
         }
 
-        $search.search("set value", "")
-        $search.search("hide results")
+        $search
+          .search("set value", "")
+          .search("hide results")
         return false
       }
     })
   },
+  handleToggleOpen(set_open){
+    if (set_open == undefined)
+      set_open=!this.state.is_open
+    if (set_open){
+      setTimeout(() =>
+        $(this.refs.search).find('input').focus().select()
+        , 20
+      )
+    }
+    this.setState({is_open: set_open})
+  },
   render(){
+    const is_open=this.state.is_open
     return (
-      <div ref="search" className="ui search">
-        <div className="ui icon input">
-          <input className="prompt" type="text" placeholder="Search and execute commands..."/>
-          <i className="terminal icon"></i>
-        </div>
-        <div className="results">
+      <div className="menu">
+        <a className={`ui circular icon basic button ${ is_open ? "hidden" : ""}`} onClick={() => this.handleToggleOpen(true)}>
+          <i className="ui icon terminal"/>
+        </a>
+        <div ref="search" className={`ui search ${ is_open ? "" : "hidden"}`}>
+          <div className="ui icon input">
+            <input className="prompt" type="text" placeholder="Search and execute commands..."/>
+            <i className="terminal icon" onClick={() => this.handleToggleOpen(false)}></i>
+          </div>
+          <div className="results">
+          </div>
         </div>
       </div>
     )

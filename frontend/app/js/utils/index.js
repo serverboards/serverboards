@@ -131,8 +131,7 @@ const timeunits={
 }
 
 export function pretty_ago(t, now, minres){
-  if (!now)
-    now = moment()
+  now = moment(now)
   let other = moment(t)
 
   let timediff = now.diff(other)

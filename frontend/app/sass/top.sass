@@ -12,8 +12,15 @@
 
   > .item.search
     flex-grow: 1
-    width: 350px
+    > div.menu
+      display: flex
+      flex-direction: row
+      width: 100%
+      .hidden
+        display: none
+
     .icon.input, input, .ui.search
+      flex-grow: 1
       width: 100%
 
   #notifications_menu
