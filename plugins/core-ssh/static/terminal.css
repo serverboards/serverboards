@@ -1,0 +1,26 @@
+.ui.tool.terminal{
+  background: #2a2a2a;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.ui.tool.terminal div.ui.container pre{
+  flex-grow: 1;
+  box-shadow: 0px 0px 5px rgba(0,0,0,1.0);
+  border: 0px;
+  margin: 2em auto;
+  width: calc( 100% - 4em);
+  overflow: hidden;
+}
+.ui.tool.terminal .ui.header{
+  color: #ddd;
+}
+.ui.tool.terminal div.ui.container{
+  flex-grow: 1;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}

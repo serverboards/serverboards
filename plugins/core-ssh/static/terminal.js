@@ -1,16 +1,16 @@
 'strict mode'
 var rpc = Serverboards.rpc
 var Flash = Serverboards.Flash
+var plugin = Serverboards.plugin
+var plugin_id = "serverboards.core.ssh"
 
 function main(element, config){
   var term={}
   term.$el= $(element)
-  term.$el.find('h2.ui.header').text(config.service.name)
+  term.$el.find('#name').text(config.service.name)
 
   term.$el.find('pre.terminal').text('')
-  term.term = new Terminal()
-  term.term.open(term.$el.find('pre.terminal')[0])
-
+  term.term = undefined
   term.interval_id=undefined
   term.send_timeout_id=undefined
   term.send_buffer=''
@@ -57,11 +57,26 @@ function main(element, config){
     })
   }
 
-  rpc.call("plugin.start", ["serverboards.core.ssh/daemon"]).then(function(ssh){
+  Promise.all([
+    plugin.load(plugin_id+"/xterm.js"),
+    plugin.load(plugin_id+"/xterm.css"),
+    plugin.load(plugin_id+"/terminal.css")
+  ]).then( () =>
+    plugin.load(plugin_id+"/fit.js")
+  ).then( () => {
+    term.term = new Terminal()
+    term.term.open(term.$el.find('pre.terminal')[0])
+    term.term.fit()
+    return rpc.call("plugin.start", ["serverboards.core.ssh/daemon"])
+  }).then(function(ssh){
     term.ssh=ssh
     return rpc.call(ssh+".list")
   }).then(function(list){
     //console.log(list)
+    term.$el.on("keyup", function(ev){
+      ev.preventDefault()
+      ev.stopPropagation()
+    })
     var new_term=true
     for (var i in list){
       if (list[i][1]==config.service.config.url){
@@ -93,8 +108,4 @@ function main(element, config){
   }
 }
 
-// I wait until the xterm.js is loaded, then register this. Could be using r.js or similar too
-setTimeout(function(){
-  Serverboards.add_screen("serverboards.core.ssh/terminal", main)
-}, 1000)
-// function(el,co){ setTimeout(function(){ main(el,co) }, 1000) })
+Serverboards.add_screen("serverboards.core.ssh/terminal", main)
