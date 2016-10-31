@@ -5,14 +5,15 @@ import store from 'app/utils/store'
 require('sass/modal.sass')
 
 const Modal=React.createClass({
+  handleMaybeClose(ev){
+    if (ev.keyCode==27)
+      this.onClose()
+  },
   componentDidMount(){
-    $(window).on("keyup", (ev) => {
-      if (ev.keyCode==27)
-        this.onClose()
-    })
+    $(window).on("keyup", this.handleMaybeClose)
   },
   componentWillUnmount(){
-    $(window).off("keyup")
+    $(window).off("keyup", this.handleMaybeClose)
   },
   onClose(){
     if (this.props.onClose)

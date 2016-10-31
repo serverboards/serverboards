@@ -26,20 +26,14 @@ const CommandSearch = React.createClass({
   componentDidMount(){
     let $search=$(this.refs.search)
     let self=this
-    /*
-    $("body").on('keypress', function(ev){
+    $(window).on('keyup', function(ev){
+      if (ev.keyCode==27)
+        self.handleToggleOpen()
       if (!self.state.is_open)
         return
       if (skip_nodes[ev.target.nodeName])
         return
       $search.find('input').focus()
-    })
-    */
-    $search.find('input').on('keyup',function(ev){
-      if (ev.keyCode==27){
-        $search.search("set value", "")
-        $search.search('hide results')
-      }
     })
     $search.search({
       cache: false,
@@ -77,15 +71,14 @@ const CommandSearch = React.createClass({
         return false
       }
     })
-    $search.find("input").on("focusout", () => self.handleToggleOpen(false))
   },
   handleToggleOpen(set_open){
     if (set_open == undefined)
       set_open=!this.state.is_open
     if (set_open){
       setTimeout(() =>
-        $(this.refs.search).find('input').focus()
-        , 200
+        $(this.refs.search).find('input').focus().select()
+        , 20
       )
     }
     this.setState({is_open: set_open})
