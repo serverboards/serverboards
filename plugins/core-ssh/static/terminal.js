@@ -14,12 +14,73 @@ function main(element, config){
   term.interval_id=undefined
   term.send_timeout_id=undefined
   term.send_buffer=''
-  term.ssh='undefined'
-  term.host='undefined'
+  term.ssh=undefined
+  term.host=undefined
   term.end=0
+  term.tabs=[]
+
+  window.term=term
+
+  function add_tab(name, host){
+    term.tabs.push({
+      name: name,
+      host: host
+    })
+    update_tabs()
+  }
+  function add_new_tab(){
+    console.log("Add new tab")
+    rpc.call(term.ssh+".open", [config.service.config.url]).then(function(host){
+      console.log("Added %o", host)
+      add_tab(
+        config.service.config.url + " " + term.tabs.length,
+        host
+      )
+      open_host(host)
+    })
+  }
+  function update_tabs(){
+    var tabs=[]
+    term.tabs.map(function(t){
+      var a_clone=$('<div>',{"class":"item link"}).append('<i class="ui icon clone"/>')
+      var a_close=$('<div>',{"class":"item link"}).append('<i class="ui icon close"/>')
+      var links=$('<div>',{"class": "right options"})
+        .append(a_clone).append(a_close)
+      var tab=$('<div>',{"class": "item link"})
+        .append(t.name)
+        .append(links)
+      if (term.host==t.host)
+        tab.addClass("active")
+      tab.on("click", function(){ open_host(t.host) })
+      tabs.push(tab)
+    })
+    var add=$('<div class="item"><i class="ui icon add"></div>')
+    add.on("click", add_new_tab)
+    tabs.push(add)
+
+    term.$el.find('#tabs')
+      .html(tabs)
+      .on('mousewheel', function(ev){
+        var delta=ev.originalEvent.wheelDelta/50
+        console.log("Wheel %o %o", delta, ev)
+        var scrollLeft=$(this).scrollLeft()
+        $(this).scrollLeft(scrollLeft-Math.round(delta))
+      })
+  }
+
+  function open_host(host){
+    unsetup_host(term.host)
+    setup_host(host)
+    update_tabs()
+  }
 
   function poll_data(){
+    if (!term.host){
+      console.error("No host defined")
+      return
+    }
     rpc.call(term.ssh+".recv",{uuid: term.host, start: term.end, encoding:'b64'}).then(function(data){
+      //console.log("Got data %o", atob(data.data))
       term.end=data.end
       data=data.data
       if (data){
@@ -30,6 +91,7 @@ function main(element, config){
     })
   }
   function send_data(data){
+    //console.log("Send data %o", data)
     term.send_buffer+=data
     if (term.send_timeout_id)
       clearTimeout(term.send_timeout_id)
@@ -40,7 +102,13 @@ function main(element, config){
   }
   function setup_host(host){
     term.host=host
+    term.term = new Terminal({
+      cursorBlink: true,
+    })
+    term.term.open(term.$el.find('pre.terminal')[0])
+    term.term.fit()
     term.term.on('data', send_data)
+    term.end=undefined
 
     // subscribe to new data at terminal
     var evname='terminal.data.received.'+host
@@ -49,12 +117,24 @@ function main(element, config){
       if (data.eof)
         return
       var newdata=atob(data.data64)
+      //console.log("Got async data: %o", newdata)
       term.term.write(newdata)
       if (data.end != (term.end + newdata.length)){
         console.warn("Data end do not match. Maybe some data lost.")
       }
       term.end=data.end
     })
+    update_tabs()
+    poll_data()
+  }
+  function unsetup_host(){
+    if (term.host){
+      var evname='terminal.data.received.'+term.host
+      rpc.call("event.unsubscribe", [evname])
+      rpc.off(evname)
+      term.term.destroy()
+      term.host=undefined
+    }
   }
 
   Promise.all([
@@ -64,9 +144,6 @@ function main(element, config){
   ]).then( () =>
     plugin.load(plugin_id+"/fit.js")
   ).then( () => {
-    term.term = new Terminal()
-    term.term.open(term.$el.find('pre.terminal')[0])
-    term.term.fit()
     return rpc.call("plugin.start", ["serverboards.core.ssh/daemon"])
   }).then(function(ssh){
     term.ssh=ssh
@@ -81,29 +158,22 @@ function main(element, config){
     for (var i in list){
       if (list[i][1]==config.service.config.url){
         new_term=false
-        host=list[i][0]
-        setup_host(host)
-        rpc.call(term.ssh+".recv", { uuid: host, encoding: "b64" }).then(function(data){
-          term.term.write( atob( data.data ) )
-        })
-        break;
+        add_tab(config.service.config.url + " " + i, list[i][0])
       }
     }
-    if (new_term)
-      rpc.call(term.ssh+".open", [config.service.config.url]).then(setup_host)
+    if (new_term){
+      add_new_tab()
+    }
+    else{
+      setup_host(term.tabs[0].host)
+    }
   }).catch(function(e){
     Flash.error("Could not start SSH session\n\n"+e)
   })
+  console.log(term)
 
   return function(){
-    if (term.host){
-      var evname='terminal.data.received.'+term.host
-      rpc.call("event.unsubscribe", [evname])
-      rpc.off(evname)
-    }
-    if (term.term){
-      term.term.destroy()
-    }
+    unsetup_host()
     term.$el.html('')
   }
 }

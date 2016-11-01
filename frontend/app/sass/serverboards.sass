@@ -67,6 +67,20 @@ div.ui.main
       padding: 10px 5px 10px 20px
       overflow: hidden
       max-width: 99%
+      div.tabs.menu
+        padding-left: 4em
+        .item
+          cursor: pointer
+        .right.options
+          padding-left: 2em
+          display: flex
+          flex-direction: row
+          visibility: hidden
+          .item
+            padding: 0
+        .item.active, .item:hover
+          .right.options
+            visibility: visible
 
   > .ui.central.with.menu
     display: flex

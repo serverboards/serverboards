@@ -1,6 +1,6 @@
 /**
  * xterm.js: xterm, in the browser
- * Copyright (c) 2014, sourceLair Limited (www.sourcelair.com (MIT License)
+ * Copyright (c) 2014-2016, SourceLair Private Company (www.sourcelair.com (MIT License)
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
  * https://github.com/chjj/term.js
  *
@@ -43,7 +43,8 @@
     position: relative;
 }
 
-.terminal.focus {
+.terminal.focus,
+.terminal:focus {
     outline: none;
 }
 
@@ -53,13 +54,13 @@
 }
 
 .terminal .xterm-helper-textarea {
-    position: absolute;
     /*
      * HACK: to fix IE's blinking cursor
      * Move textarea out of the screen to the far left, so that the cursor is not visible.
      */
-    left: -9999em;
+    position: absolute;
     opacity: 0;
+    left: -9999em;
     width: 0;
     height: 0;
     z-index: -10;
@@ -97,10 +98,34 @@
     display: none;
     position: absolute;
     white-space: nowrap;
+    z-index: 1;
 }
 
 .terminal .composition-view.active {
     display: block;
+}
+
+.terminal .xterm-viewport {
+    /* On OS X this is required in order for the scroll bar to appear fully opaque */
+    background-color: #000;
+    overflow-y: scroll;
+}
+
+.terminal .xterm-rows {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.terminal .xterm-scroll-area {
+    visibility: hidden;
+}
+
+.terminal .xterm-char-measure-element {
+    display: inline-block;
+    visibility: hidden;
+    position: absolute;
+    left: -9999em;
 }
 
 /*
@@ -2168,12 +2193,4 @@
 
 .terminal .xterm-bg-color-255 {
     background-color: #eeeeee;
-}
-
-/**
- * All terminal rows should have explicitly declared height,
- * in order to allow child elements to adjust.
- */
-.terminal .xterm-rows > div {
-    line-height: normal;
 }
