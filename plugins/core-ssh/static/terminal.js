@@ -51,6 +51,8 @@ function main(element, config){
         .append(links)
       if (term.host==t.host)
         tab.addClass("active")
+      a_close.on("click", function(){ close_host(t.host) })
+
       tab.on("click", function(){ open_host(t.host) })
       tabs.push(tab)
     })
@@ -62,7 +64,6 @@ function main(element, config){
       .html(tabs)
       .on('mousewheel', function(ev){
         var delta=ev.originalEvent.wheelDelta/50
-        console.log("Wheel %o %o", delta, ev)
         var scrollLeft=$(this).scrollLeft()
         $(this).scrollLeft(scrollLeft-Math.round(delta))
       })
@@ -72,6 +73,25 @@ function main(element, config){
     unsetup_host(term.host)
     setup_host(host)
     update_tabs()
+  }
+
+  function close_host(host){
+    term.tabs=term.tabs.filter( function(t){
+      return (t.host != host)
+    })
+    if (host==term.host)
+      unsetup_host(term.host)
+    if (term.tabs.length>0){
+      open_host(term.tabs[0].host)
+    }
+    else{
+      add_new_tab()
+    }
+    rpc.call(term.ssh+".close", [host]).then(function(){
+      console.log("Closed tab")
+    }).catch(function(e){
+      console.error(e)
+    })
   }
 
   function poll_data(){
