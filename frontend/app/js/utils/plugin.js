@@ -1,3 +1,5 @@
+import {merge} from 'app/utils'
+
 var screens = {}
 var widgets = {}
 var already_loaded = {}
@@ -9,7 +11,7 @@ export function join_path(url){
   return full_url
 }
 
-export function load(url, options){
+export function load_js(url, options){
   if (already_loaded[url]){
     return Promise.resolve()
   }
@@ -29,6 +31,28 @@ export function load(url, options){
     console.log("Loaded JS %o", url)
   })
   return promise
+}
+
+export function load_css(url, options={}){
+  if (already_loaded[url]){
+    return Promise.resolve()
+  }
+  let full_url=join_path(url)
+
+  options = merge(options, { type: "text/css", rel: "stylesheet", href: full_url })
+  $('<link>')
+    .appendTo("head")
+    .attr(options)
+  console.log("Loaded CSS %o", url)
+  already_loaded[url]=true
+}
+
+export function load(url, options={}){
+  if (url.endsWith(".css"))
+    return load_css(url, options)
+  if (url.endsWith(".js"))
+    return load_js(url, options)
+  throw ("Dont know how to load based on URL extension: "+url)
 }
 
 let waiting_for_screen={}
