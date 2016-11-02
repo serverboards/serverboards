@@ -41,9 +41,17 @@
     width: calc( 100vw - 300px ) !important
     border-top: 1px solid #ddd
     overflow-x: hidden
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    padding: 0
     > .content
+      flex-grow: 1
+      display: flex
+      flex-direction: column
       max-width: 600px
       margin: auto
+      width: 100%
 
       .header
         color: black
@@ -56,8 +64,8 @@
         > .button
           margin-left: 0
       .top.menu
-        margin: -20px calc( ( 100vw - 300px - 600px ) / -2 ) 10px calc( ( 100vw - 300px - 600px  ) / -2 )
-
+        margin: 0
+        padding-left: 10px
         border: 0
         border-bottom: 1px solid #ddd
       .side
@@ -70,6 +78,11 @@
           width: 80px
           .header
             margin-top: 0
+      > .ui.central
+        flex-grow: 1
+        display: flex
+        flex-direction: column
+
 
     @media screen and (max-width: 1150px)
       > .content
@@ -117,4 +130,5 @@
   top: 25%
 
 .ui.modal.wide > .content > .content
-  max-width: 2000px
+  width: 100%
+  max-width: inherit
