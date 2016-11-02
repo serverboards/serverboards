@@ -42,10 +42,11 @@ function main(element, config){
   function update_tabs(){
     var tabs=[]
     term.tabs.map(function(t){
-      var a_clone=$('<div>',{"class":"item link"}).append('<i class="ui icon clone"/>')
+      //var a_clone=$('<div>',{"class":"item link"}).append('<i class="ui icon clone"/>')
       var a_close=$('<div>',{"class":"item link"}).append('<i class="ui icon close"/>')
       var links=$('<div>',{"class": "right options"})
-        .append(a_clone).append(a_close)
+        .append(a_close)
+      //  .append(a_clone)
       var tab=$('<div>',{"class": "item link"})
         .append(t.name)
         .append(links)
