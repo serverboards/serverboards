@@ -1,25 +1,12 @@
 import React from 'react'
 import {merge, is_empty} from 'app/utils'
 import {set_modal} from 'app/utils/store'
+import {match_traits} from './utils'
 
 function by_name(a,b){
   return a.name.localeCompare( b.name )
 }
 
-function match_traits(s1, s2){
-  if (is_empty(s1) && is_empty(s2)) // both empty, ok
-    return true
-  if (is_empty(s1) || is_empty(s2)) // only one empty, nok
-    return false
-
-  // Search for coincidences, if just one, ok
-  for (let s of s1){
-    if (s2.indexOf(s)>=0)
-      return true
-  }
-  // eoc: nok
-  return false
-}
 
 function MenuItem(props){
   const candidates=props.candidates

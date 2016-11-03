@@ -163,7 +163,7 @@ const SetupComponent=React.createClass({
       fields=this.get_fields()
     let servicedef=service_definition(this.props.service.type, this.props.service_catalog)
     return (
-      <div className="ui text container">
+      <div className="ui text container" style={{paddingTop: 20}}>
         <div className="content" ref="content">
           <div className="ui form">
             <div className="field">

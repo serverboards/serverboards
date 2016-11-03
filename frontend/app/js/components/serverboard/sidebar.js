@@ -2,29 +2,11 @@ import React from 'react'
 import {merge} from 'app/utils'
 import rpc from 'app/rpc'
 import ScreensMenu from 'app/components/service/screensmenu'
+import {get_service_data} from 'app/components/service/utils'
 
 const SidebarSections = React.createClass({
   get_screen_data(screen_id){
     return this.props.serverboard.screens.find( (s) => s.id == screen_id )
-  },
-  get_service_data(uuid){
-    // Gets service data, maybe including sub services (via/proxy)
-    return rpc.call("service.info", [uuid]).then((service) => {
-      let req=service.fields.filter( (f) => f.type == 'service' && service.config[f.name] )
-      if (req.length > 0){
-        return Promise.all(
-            req.map( (f) => rpc.call("service.info", [service.config[f.name]]) )
-          ).then( (subservices) => {
-            subservices.map( (s, i) => {
-              service.config[ req[i].name ]=s
-            })
-          return service
-        } )
-      }
-      else{
-        return service
-      }
-    })
   },
   handleSectionChange(section, data){
     const serverboard = this.props.serverboard.shortname
@@ -32,7 +14,7 @@ const SidebarSections = React.createClass({
       const screen=this.get_screen_data(section)
       if (!screen.traits || screen.traits.length==0 || (data && data.service)){
         if (data.service){
-          this.get_service_data(data.service.uuid).then( (service) => { // May need full info
+          get_service_data(data.service.uuid).then( (service) => { // May need full info
             this.props.goto({pathname: `/serverboard/${serverboard}/${section}/`, state: merge(data, {service}) })
           })
         }
