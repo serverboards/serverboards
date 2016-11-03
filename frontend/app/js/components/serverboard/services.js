@@ -9,6 +9,11 @@ function service_sort(a,b){
 }
 
 let Services=React.createClass({
+  getInitialState(){
+    return {
+      mode: localStorage.service_view_mode || "grid"
+    }
+  },
   handleAttachService(service){
     this.props.onAttachService(this.props.serverboard.shortname, service.uuid)
     this.setModal(false)
@@ -16,6 +21,10 @@ let Services=React.createClass({
   handleAddService(service){
     this.props.onAddService(this.props.serverboard.shortname, service)
     this.setModal(false)
+  },
+  setListMode(mode){
+    localStorage.service_view_mode=mode
+    this.setState({mode})
   },
   openAddServiceModal(ev){
     ev && ev.preventDefault()
@@ -48,6 +57,7 @@ let Services=React.createClass({
   },
   render(){
     let props=this.props
+    let state=this.state
     if (!props.services)
       return (
         <Loading>Services</Loading>
@@ -64,23 +74,38 @@ let Services=React.createClass({
         break;
     }
     return (
-      <div className="ui container">
-        <h1>Services at {props.serverboard.name}</h1>
-        <ServicesView services={props.services.sort(service_sort)} serverboard={this.props.serverboard}/>
+      <div>
+        <div className="ui top secondary header menu">
+          <div className="right menu">
+            <div className="ui secondary pointing menu">
+              <a className={`${state.mode == "list" ? "active" : ""} item`} onClick={() => this.setListMode("list")}>
+                <i className="ui icon list"/>
+              </a>
+              <a className={`${state.mode == "grid" ? "active" : ""} item`} onClick={() => this.setListMode("grid")}>
+                <i className="ui icon grid layout"/>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div style={{padding: 20}}>
+          <ServicesView mode={state.mode} services={props.services.sort(service_sort)} serverboard={this.props.serverboard}/>
+        </div>
 
-        <a href="#"
-            onClick={this.openAddServiceModal}
-            className="ui massive button _add icon floating blue"
-            title="Add a service"
-            >
-          <i className="add icon"></i>
-        </a>
-        {popup}
-        <div className="ui fixed bottom">
-          <a href={`#/serverboard/${props.serverboard.shortname}/services`}
-          className="ui header medium link">
-          View all services <i className="ui icon angle right"/>
+        <div className="ui container">
+          <a href="#"
+              onClick={this.openAddServiceModal}
+              className="ui massive button _add icon floating blue"
+              title="Add a service"
+              >
+            <i className="add icon"></i>
           </a>
+          {popup}
+          <div className="ui fixed bottom">
+            <a href={`#/serverboard/${props.serverboard.shortname}/services`}
+            className="ui header medium link">
+            View all services <i className="ui icon angle right"/>
+            </a>
+          </div>
         </div>
       </div>
     )
