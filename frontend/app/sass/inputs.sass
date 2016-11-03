@@ -16,11 +16,13 @@ body .ui.form
   .ui.dropdown
     > .text
       color: #eee !important
-    > .menu > .item
+    > .menu
       background: #555 !important
-      color: white !important
-      border: 0
-      &:focus, &.selected, &:hover
-        background: #777 !important
+      > .item
+        background: #555 !important
         color: white !important
         border: 0
+        &:focus, &.selected, &:hover
+          background: #777 !important
+          color: white !important
+          border: 0

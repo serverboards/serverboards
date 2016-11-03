@@ -47,6 +47,7 @@ const Rules=React.createClass({
     return (
       <div>
         <div className="ui top secondary header menu">
+        <div className="right menu">
           <div className="ui inline form fields">
             <label>Filter by trigger type: </label>
             <select ref="filter" className="ui search dropdown">
@@ -56,6 +57,7 @@ const Rules=React.createClass({
               ))}
             </select>
           </div>
+        </div>
         </div>
         <div className="ui container">
           <div className="ui cards" style={{paddingTop: 20}}>
