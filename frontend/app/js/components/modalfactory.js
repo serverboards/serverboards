@@ -1,7 +1,7 @@
 export function get_modal(name){
   switch(name){
     case "service.settings":
-      return require('app/containers/service/settings').default
+      return require('app/containers/service/settingsmodal').default
     case "service.virtual":
       return require('app/components/service/virtual').default
     case "auth.group.edit_perms":
