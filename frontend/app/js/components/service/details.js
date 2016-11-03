@@ -7,6 +7,10 @@ import store from 'app/utils/store'
 const icon = require("../../../imgs/services.svg")
 import {MarkdownPreview} from 'react-marked-markdown';
 
+import Empty from 'app/components/empty'
+import Settings from 'app/containers/service/settings'
+
+
 function serverboard_name(shortname){
   return (store.getState().serverboard.serverboards.find( (s) => s.shortname == shortname) || {}).name
 }
@@ -16,7 +20,7 @@ function is_current_serverboard(shortname){
 
 function DetailsTab(props){
   return (
-    <div className="ui grid" style={{flexGrow:1, margin: 0}}>
+    <div className="ui grid" style={{flexGrow:1, margin: 0, marginTop: -50}}>
       <div className="six wide column" style={{borderRight:"1px solid #ddd", paddingLeft: 20}}>
         <h3 className="ui header">Service Type</h3>
         {props.service_template.name}
@@ -53,9 +57,23 @@ function DetailsTab(props){
   )
 }
 
+const tab_options={
+  details: DetailsTab,
+  settings: Settings
+}
 function Details(props){
+  let current_tab = props.tab
+  let CurrentTab = tab_options[current_tab] || Empty
+  console.log(props)
+
+  const sections=[
+    { name: "Details", id: "details" },
+    { name: "Settings", id: "settings" },
+  ]
+  const handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
+
   return (
-    <Modal className="wide">
+    <Modal className="wide" onClose={handleClose}>
       <div className="ui top secondary pointing menu" style={{paddingBottom: 0}}>
         {props.service.icon ? (
           <IconIcon src={icon} icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
@@ -63,13 +81,18 @@ function Details(props){
           <ImageIcon src={icon}  name={props.service.name}/>
         )}
 
-        <h3 className="ui header" style={{paddingRight: 50}}>{props.service.name}</h3>
-        <a className="active item">
-          Details
-        </a>
+        <div style={{display: "inline-block"}}>
+          <h3 className="ui header" style={{paddingRight: 50, marginBottom: 0}}>{props.service.name}</h3>
+          <span className="ui meta">{props.service_template.name}</span>
+        </div>
+        {sections.map( (s) => (
+          <a key={s.id} className={`item ${(s.id == current_tab) ? "active" : ""}`} onClick={() => goto(null, {tab: s.id})}>
+            {s.name}
+          </a>
+        ))}
       </div>
-      <div className="ui full height">
-        <DetailsTab {...props}/>
+      <div className="ui full height" style={{paddingTop: 50}}>
+        <CurrentTab {...props} onClose={handleClose} />
       </div>
     </Modal>
   )

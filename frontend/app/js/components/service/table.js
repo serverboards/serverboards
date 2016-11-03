@@ -4,6 +4,7 @@ import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
 import ActionMenu from 'app/containers/service/actionmenu'
 import Loading from '../loading'
+import {goto} from 'app/utils/store'
 
 const icon = require("../../../imgs/services.svg")
 
@@ -13,13 +14,18 @@ export function service_definition(service_type, service_catalog){
   return service_catalog.find( (c) => c.type == service_type )
 }
 
+
+
 const ServiceTableLine = React.createClass({
+  handleOpenDetails(){
+    goto(`/serverboard/${this.props.serverboard.shortname}/services/${this.props.service.uuid}`)
+  },
   render(){
     const props=this.props
     const s=props.service
     const d=props.definition || {}
     return (
-      <tr ref="el">
+      <tr ref="el" onClick={this.handleOpenDetails} style={{cursor: "pointer"}}>
         <td>
           {d.icon ? (
             <IconIcon src={icon} icon={d.icon} plugin={d.type.split('/',1)[0]}/>

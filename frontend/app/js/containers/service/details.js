@@ -6,10 +6,11 @@ var Container = event.subscribe_connect(
   (state, props) => {
     const service = state.serverboard.serverboard.services.find( (s) => s.uuid == props.subsection )
     const service_template = (state.serverboard.catalog || []).find( (s) => s.type == service.type ) || { name: service.type }
-    console.log(state, props, service, service_template)
+    const tab = props.location.state.tab || 'details'
     return {
       service,
-      service_template
+      service_template,
+      tab
     }
   },
   (dispatch) => ({}),

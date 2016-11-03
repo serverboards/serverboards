@@ -93,7 +93,7 @@ const SelectService=React.createClass({
           <div className="default text" style={{display:"block"}}>{props.value || props.placeholder}</div>
           <div className="menu">
             {(this.state.items || []).map( (ac) => (
-              <div key={ac.id} className="item" data-value={ac.value}>{ac.name}<span className="ui meta" style={{float:"right"}}>{ac.description}</span></div>
+              <div key={ac.value} className="item" data-value={ac.value}>{ac.name}<span className="ui meta" style={{float:"right"}}>{ac.description}</span></div>
             ))}
           </div>
         </div>

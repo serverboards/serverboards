@@ -113,6 +113,8 @@ export function set_modal(modal, data={}){
 }
 
 export function goto(url, extradata={}){
+  if (!url || url == ".")
+    url=store.getState().routing.locationBeforeTransitions.pathname
   store.dispatch( push( {
     pathname: url,
     state: extradata
