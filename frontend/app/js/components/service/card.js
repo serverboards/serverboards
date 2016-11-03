@@ -8,6 +8,7 @@ import {colorize} from 'app/utils'
 import ActionMenu from 'app/containers/service/actionmenu'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {trigger_action} from './action'
+import {goto} from 'app/utils/store'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -152,6 +153,9 @@ const Card=React.createClass({
     }
     return undefined;
   },
+  handleOpenDetails(){
+    goto(`/serverboard/${this.props.serverboard.shortname}/services/${this.props.service.uuid}`)
+  },
   get_field(k){
     var fields = (this.props.service_description || {}).fields
     if (!fields)
@@ -179,7 +183,7 @@ const Card=React.createClass({
           ))}&nbsp;
         </div>
 
-        <div className="content">
+        <div className="content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           <div className="right floated">
             {props.icon ? (
               <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
