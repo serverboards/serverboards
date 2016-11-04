@@ -36,7 +36,7 @@ function DetailsTab(props){
         <MarkdownPreview className="ui meta" value={props.service.description || "No description set"}/>
         <h3 className="ui header">Config Details</h3>
         <div className="ui grid">
-          {props.service_template.fields.map( (f) => (
+          {((props.service_template || {}).fields || []).map( (f) => (
             <div key={f.name} className="row">
               <label className="four wide column" style={{fontWeight:"bold"}}>{f.label || f.name}</label>
               <div className="twelve wide column">

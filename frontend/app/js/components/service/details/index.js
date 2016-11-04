@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from '../../modal'
+import Loading from '../../loading'
 import ImageIcon from '../../imageicon'
 import IconIcon from '../../iconicon'
 import {goto} from 'app/utils/store'
@@ -11,34 +12,78 @@ import PluginScreen from 'app/components/plugin/screen'
 import Empty from 'app/components/empty'
 import Settings from 'app/containers/service/settings'
 import DetailsTab from './detailstab'
+import ExternalUrl from './externalurl'
 
 const tab_options={
   details: DetailsTab,
   settings: Settings
 }
-function get_plugin_component(current_tab){
-  if (current_tab.indexOf('/')>=0){
-    let sp=current_tab.split('/')
-    return (props) => (
-      <PluginScreen data={{service: props.service, serverboard: props.serverboard}} plugin={sp[0]} component={sp[1]}/>
-    )
+function get_plugin_component(props){
+  const {tab, type} = props
+  if (type!="screen")
+    return null
+  let sp=tab.split('/')
+  return (props) => (
+    <PluginScreen data={{service: props.service, serverboard: props.serverboard}} plugin={sp[0]} component={sp[1]}/>
+  )
+}
+function get_external_url_component(props){
+  const {tab, type} = props
+  if (type!="external url")
+    return null
+  const url = get_external_url(tab, props)
+  return (props) => (
+    <ExternalUrl url={url}/>
+  )
+}
+
+function get_external_url_template(id, props){
+  for(let eu of (props.external_urls || [])){
+    if (eu.id==id){
+      return eu
+    }
   }
   return null
+}
+function get_external_url(id, props){
+  const eu=get_external_url_template(id, props)
+  if (!eu)
+    return null
+
+  let url = eu.extra.url
+  const config = props.service.config
+  Object.keys(config).map((k) => {
+    url = url.replace(`{config.${k}}`, config[k])
+  })
+  return url
 }
 
 const Details = React.createClass({
   getInitialState(){
     return { service: this.props.service }
   },
-  handleTabChange(id){
+  handleTabChange(id, type){
     // Changes the state.service, to require deep info(plugins) or shallow (settings)
     let self=this
-    if (id.indexOf('/')>=0){
+    if (type=="screen"){
       get_service_data(this.props.service.uuid).then( (service) => {
         //console.log("Got deep service: %o", service)
         self.setState({service})
-        goto(null, {tab: id})
+        goto(null, {tab: id, type: "screen"})
       })
+    }
+    else if (type=="external url"){
+      const euc = get_external_url_template(id, this.props)
+      if (!euc.extra.iframe){
+        const url = get_external_url(id, this.props)
+        if (!url)
+          console.warn("Invalid URL from %o", id)
+        else
+          window.open(url)
+      }
+      else{
+        goto(null, {tab: id, type: "external url"})
+      }
     }
     else{
       //console.log("Set shallow service: %o", this.props.service)
@@ -47,7 +92,7 @@ const Details = React.createClass({
     }
   },
   componentDidMount(){
-    this.handleTabChange(this.props.tab)
+    goto(null, {tab: "details"})
   },
   render(){
     const props = this.props
@@ -56,16 +101,35 @@ const Details = React.createClass({
     let sections=[
       { name: "Details", id: "details" },
       { name: "Settings", id: "settings" },
-    ]
-    props.serverboard.screens.map( (s) => {
+    ];
+
+    (props.serverboard.screens || []).map( (s) => {
       if (match_traits(s.traits, props.service.traits)){
         sections.push({
           name: s.name,
-          id: s.id
+          id: s.id,
+          description: s.description,
+          type: "screen"
         })
       }
+    });
+
+    (props.external_urls || []).map( (u) => {
+      sections.push({
+        name: u.name,
+        id: u.id,
+        description: u.description,
+        type: "external url",
+        icon: !u.extra.iframe ? "external" : null
+      })
     })
-    let CurrentTab = tab_options[current_tab] || get_plugin_component(current_tab) || Empty
+    console.log(props)
+    let CurrentTab = (
+      tab_options[current_tab] ||
+      get_plugin_component(props) ||
+      get_external_url_component(props) ||
+      Empty
+    )
 
     const handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
 
@@ -83,8 +147,16 @@ const Details = React.createClass({
             <span className="ui meta">{props.service_template.name}</span>
           </div>
           {sections.map( (s) => (
-            <a key={s.id} className={`item ${(s.id == current_tab) ? "active" : ""}`} onClick={() => this.handleTabChange(s.id)}>
-              {s.name}
+            <a
+              key={s.id}
+              className={`item ${(s.id == current_tab) ? "active" : ""}`}
+              onClick={() => this.handleTabChange(s.id, s.type)}
+              title={s.description}
+              >
+                {s.name}
+                {s.icon ? (
+                  <i className={`ui icon ${s.icon}`}/>
+                ) : null}
             </a>
           ))}
         </div>

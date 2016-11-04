@@ -43,7 +43,7 @@ export function get_service_data(uuid){
     console.warn("Please, ask me a uuid, not a service. Returning as is.")
     return Promise.resolve(uuid)
   }
-  console.log(uuid)
+  //console.log(uuid)
   // Gets service data, maybe including sub services (via/proxy)
   return rpc.call("service.info", [uuid]).then((service) => {
     let req=service.fields.filter( (f) => f.type == 'service' && service.config[f.name] )

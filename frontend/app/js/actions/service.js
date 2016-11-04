@@ -61,3 +61,16 @@ export function service_add(sbds, service){
     })
   }
 }
+
+export function update_external_url_components(traits=[]){
+  return function(dispatch){
+    rpc.call("plugin.list_components",{type:"external url", traits})
+       .then( (components) => dispatch({type:"UPDATE_EXTERNAL_URL_COMPONENTS", components}))
+  }
+}
+export function clear_external_url_components(){
+  return {
+    type: "UPDATE_EXTERNAL_URL_COMPONENTS",
+    components: undefined
+  }
+}

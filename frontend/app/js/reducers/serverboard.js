@@ -8,6 +8,7 @@ var default_state={
   catalog: undefined,
   widgets: undefined,
   widget_catalog: undefined,
+  external_urls: undefined,
   daterange: {
     start: (moment().subtract(7,"days")),
     end: moment(),
@@ -83,6 +84,8 @@ function serverboard(state=default_state, action){
       return merge(state, {serverboard: action.info})
     case "UPDATE_DATERANGE":
       return merge(state, {daterange: merge(state.daterange, action.daterange)})
+    case "UPDATE_EXTERNAL_URL_COMPONENTS":
+      return merge(state, {external_urls: action.components})
   }
   return state
 }
