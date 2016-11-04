@@ -74,11 +74,13 @@ const SelectService=React.createClass({
         description: s.fields.filter( (p) => p.card ).map( (p) => p.value ).join(',')
       }))
       self.setState({items: results})
-      $(self.refs.select).dropdown({
-        onChange(value){
-          self.props.setValue(self.props.name, value)
-        }
-      })
+      $(self.refs.select)
+        .dropdown({
+          onChange(value){
+            self.props.setValue(self.props.name, value)
+          }
+        })
+        .dropdown('set value', this.props.value)
     })
   },
   render(){
@@ -90,10 +92,10 @@ const SelectService=React.createClass({
         <div ref="select" className={`ui fluid ${props.search ? "search" : ""} selection dropdown`}>
           <input type="hidden" name={props.name} defaultValue={props.value} onChange={props.onChange}/>
           <i className="dropdown icon"></i>
-          <div className="default text" style={{display:"block"}}>{props.value || props.placeholder}</div>
+          <div className="default text" style={{display:"block"}}>{(props.value || {}).uuid || props.value || props.placeholder}</div>
           <div className="menu">
             {(this.state.items || []).map( (ac) => (
-              <div key={ac.id} className="item" data-value={ac.value}>{ac.name}<span className="ui meta" style={{float:"right"}}>{ac.description}</span></div>
+              <div key={ac.value} className="item" data-value={ac.value}>{ac.name}<span className="ui meta" style={{float:"right"}}>{ac.description}</span></div>
             ))}
           </div>
         </div>

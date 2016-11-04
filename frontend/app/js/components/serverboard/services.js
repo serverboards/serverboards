@@ -3,6 +3,7 @@ import Loading from '../loading'
 import AddServiceModal from 'app/containers/serverboard/addservice'
 import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
+import ServiceDetails from 'app/containers/service/details'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -112,4 +113,15 @@ let Services=React.createClass({
   }
 })
 
-export default Services
+function ServicesSection(props){
+  if (props.subsection){
+    return (
+      <ServiceDetails {...props}/>
+    )
+  }
+  return (
+    <Services {...props}/>
+  )
+}
+
+export default ServicesSection

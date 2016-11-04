@@ -5,7 +5,6 @@ import { setup_fields, service_definition } from '../service/utils'
 import Loading from '../loading'
 import rpc from 'app/rpc'
 import { merge } from 'app/utils'
-import {MarkdownPreview} from 'react-marked-markdown';
 
 const RuleList = React.createClass({
   componentDidMount(){
@@ -164,13 +163,7 @@ const SetupComponent=React.createClass({
       fields=this.get_fields()
     let servicedef=service_definition(this.props.service.type, this.props.service_catalog)
     return (
-      <Modal onClose={props.onClose}>
-        <h2 className="ui header">
-          Update settings for {props.service.name}
-        </h2>
-        <div className="ui meta" style={{paddingBottom: 20}}>
-          <MarkdownPreview value={servicedef.description || "No description at service definition"}/>
-        </div>
+      <div className="ui text container" style={{paddingTop: 20}}>
         <div className="content" ref="content">
           <div className="ui form">
             <div className="field">
@@ -193,10 +186,12 @@ const SetupComponent=React.createClass({
             </div>
           </div>
         </div>
-        <div className="actions">
-          <button className="ui ok yellow button" onClick={this.handleAccept}>Accept</button>
+        <div className="actions" style={{margin: "20px 0 0 0"}}>
+          <button className="ui ok yellow button" onClick={this.handleAccept} style={{margin: 0}}>
+            Update service settings
+          </button>
         </div>
-      </Modal>
+      </div>
     )
   }
 })

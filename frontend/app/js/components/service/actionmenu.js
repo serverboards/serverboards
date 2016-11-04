@@ -42,7 +42,7 @@ const ActionMenu=React.createClass({
     const props=this.props
     const state=this.state
     return (
-      <div className="ui dropdown" ref="dropdown" style={{minWidth: "4em"}}>
+      <div className="ui dropdown" ref="dropdown" style={{minWidth: "4em"}} onClick={ (ev) => ev.stopPropagation() }>
         {props.children}
         <i className="ui dropdown icon"/>
         <div className="ui vertical menu">

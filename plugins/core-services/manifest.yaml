@@ -13,7 +13,7 @@ description: >
 components:
   - name: Web Server
     type: service
-    traits: url
+    traits: url web
     id: web_server
     icon: world
     fields:
@@ -53,3 +53,27 @@ components:
         name: ip
         card: true
         type: text
+
+
+  - id: pagespeed
+    name: Google PageSpeed
+    description: |
+      Various tests and checks on the web site performance as seen by Google.
+    type: external url
+    url: "https://developers.google.com/speed/pagespeed/insights/?url={config.url}"
+    traits: web
+    iframe: true
+  - id: ssllabs
+    type: external url
+    name: SSL Labs
+    description: Check the SSL quality of a given web page.
+    url: "https://www.ssllabs.com/ssltest/analyze.html?d={config.url}&hideResults=on&latest"
+    traits: web
+    iframe: false
+  - id: open
+    type: external url
+    name: Open
+    description: Opens the URL page in a tab
+    url: "{config.url}"
+    traits: web
+    iframe: false

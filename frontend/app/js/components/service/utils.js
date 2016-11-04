@@ -1,3 +1,5 @@
+import {merge, is_empty} from 'app/utils'
+import rpc from 'app/rpc'
 
 // Two services refer to the same, used for replacing and deleting
 export function is_same_service(c1, c2){
@@ -19,4 +21,44 @@ export function setup_fields(service, service_catalog){
       { value: service.config[f.name] || f.value }
     ) )
   return fields
+}
+
+export function match_traits(s1, s2){
+  if (is_empty(s1) && is_empty(s2)) // both empty, ok
+    return true
+  if (is_empty(s1) || is_empty(s2)) // only one empty, nok
+    return false
+
+  // Search for coincidences, if just one, ok
+  for (let s of s1){
+    if (s2.indexOf(s)>=0)
+      return true
+  }
+  // eoc: nok
+  return false
+}
+
+export function get_service_data(uuid){
+  if (uuid.uuid){ // Maybe asking already a service
+    console.warn("Please, ask me a uuid, not a service. Returning as is.")
+    return Promise.resolve(uuid)
+  }
+  //console.log(uuid)
+  // Gets service data, maybe including sub services (via/proxy)
+  return rpc.call("service.info", [uuid]).then((service) => {
+    let req=service.fields.filter( (f) => f.type == 'service' && service.config[f.name] )
+    if (req.length > 0){
+      return Promise.all(
+          req.map( (f) => get_service_data( service.config[f.name] ) ) // Recursive get data
+        ).then( (subservices) => {
+          subservices.map( (s, i) => {
+            service.config[ req[i].name ]=s
+          })
+        return service
+      } )
+    }
+    else{
+      return service
+    }
+  })
 }
