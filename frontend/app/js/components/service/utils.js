@@ -39,12 +39,17 @@ export function match_traits(s1, s2){
 }
 
 export function get_service_data(uuid){
+  if (uuid.uuid){ // Maybe asking already a service
+    console.warn("Please, ask me a uuid, not a service. Returning as is.")
+    return Promise.resolve(uuid)
+  }
+  console.log(uuid)
   // Gets service data, maybe including sub services (via/proxy)
   return rpc.call("service.info", [uuid]).then((service) => {
     let req=service.fields.filter( (f) => f.type == 'service' && service.config[f.name] )
     if (req.length > 0){
       return Promise.all(
-          req.map( (f) => rpc.call("service.info", [service.config[f.name]]) )
+          req.map( (f) => get_service_data( service.config[f.name] ) ) // Recursive get data
         ).then( (subservices) => {
           subservices.map( (s, i) => {
             service.config[ req[i].name ]=s

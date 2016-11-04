@@ -22,8 +22,8 @@ function MenuItem(props){
         <div className="menu">
           {candidates.map( (s) => (
             <MenuItem
-              key={s.id}
-              section={s.id}
+              key={s.uuid}
+              section={s.uuid}
               screen={props.screen}
               data={merge(props.data, {service: s})}
               onSectionChange={props.onSectionChange}

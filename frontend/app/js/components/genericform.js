@@ -74,11 +74,13 @@ const SelectService=React.createClass({
         description: s.fields.filter( (p) => p.card ).map( (p) => p.value ).join(',')
       }))
       self.setState({items: results})
-      $(self.refs.select).dropdown({
-        onChange(value){
-          self.props.setValue(self.props.name, value)
-        }
-      })
+      $(self.refs.select)
+        .dropdown({
+          onChange(value){
+            self.props.setValue(self.props.name, value)
+          }
+        })
+        .dropdown('set value', this.props.value)
     })
   },
   render(){

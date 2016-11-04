@@ -27,7 +27,9 @@ function DetailsTab(props){
         <h3 className="ui header">Service Type</h3>
         {props.service_template.name}
         <h3 className="ui header">Description</h3>
-        <MarkdownPreview className="ui meta" value={props.service_template.description}/>
+        {props.service_template.description ? (
+          <MarkdownPreview className="ui meta" value={props.service_template.description}/>
+        ) : null}
         <h3 className="ui header">Used on Serverboards</h3>
         <div className="ui vertical secondary menu">
           {props.service.serverboards.map( (s) => (
@@ -77,15 +79,28 @@ const Details = React.createClass({
   getInitialState(){
     return { service: this.props.service }
   },
+  handleTabChange(id){
+    // Changes the state.service, to require deep info(plugins) or shallow (settings)
+    let self=this
+    if (id.indexOf('/')>=0){
+      get_service_data(this.props.service.uuid).then( (service) => {
+        //console.log("Got deep service: %o", service)
+        self.setState({service})
+        goto(null, {tab: id})
+      })
+    }
+    else{
+      //console.log("Set shallow service: %o", this.props.service)
+      self.setState({service: this.props.service})
+      goto(null, {tab: id})
+    }
+  },
   componentDidMount(){
-    get_service_data( this.props.service.uuid ).then( (service) => {
-      this.setState({service})
-    })
+    this.handleTabChange(this.props.tab)
   },
   render(){
     const props = this.props
     let current_tab = props.tab
-    console.log(props)
 
     let sections=[
       { name: "Details", id: "details" },
@@ -117,7 +132,7 @@ const Details = React.createClass({
             <span className="ui meta">{props.service_template.name}</span>
           </div>
           {sections.map( (s) => (
-            <a key={s.id} className={`item ${(s.id == current_tab) ? "active" : ""}`} onClick={() => goto(null, {tab: s.id})}>
+            <a key={s.id} className={`item ${(s.id == current_tab) ? "active" : ""}`} onClick={() => this.handleTabChange(s.id)}>
               {s.name}
             </a>
           ))}
