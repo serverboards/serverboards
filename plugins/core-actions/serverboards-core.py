@@ -14,7 +14,10 @@ def ping(ip=None, url=None):
     It calls the system ping command.
     """
     if ip:
-        output = subprocess.check_output(["ping", ip, "-c", "1", "-W", "1"])
+        try:
+            output = subprocess.check_output(["ping", ip, "-c", "1", "-W", "1"])
+        except:
+            return False
         ms = re.findall(r" time=(\d+\.\d+) ms", output)
         if ms:
             return { "ms" : float(ms[0]) }
