@@ -3,12 +3,14 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import ActionEdit from 'app/components/rules/actionedit'
 import Loading from './loading'
 import Modal from './modal'
+import HoldButton from './holdbutton'
 
 const components = {
   Modal,
   Loading,
   MarkdownPreview,
-  ActionEdit
+  ActionEdit,
+  HoldButton
 }
 
 export default components

@@ -17,6 +17,12 @@ let ProgressBar=function(props){
 }
 
 let HoldButton = React.createClass({
+  propTypes:{
+    onHoldClick: React.PropTypes.func.isRequired,
+    className: React.PropTypes.string,
+    children: React.PropTypes.string.isRequired,
+    type: React.PropTypes.string
+  },
   getInitialState(){
     return {
       count: 0
@@ -60,17 +66,18 @@ let HoldButton = React.createClass({
     this.timer=undefined
   },
   render(){
-    if (this.props.className.includes("item"))
+    const className=this.props.className || ""
+    if (className.includes("item"))
       return (
         <div ref="button" className={`hold ${this.props.className}`}>
           {this.props.children}
           <ProgressBar fill={this.state.count}/>
         </div>
       )
-    if (this.props.className.includes("icon"))
+    if (className.includes("icon"))
       return (
         <a ref="button" className="hold icon">
-          <i className={this.props.className}  {...map_drop(this.props, ["onHoldClick"])}/>
+          <i className={className}  {...map_drop(this.props, ["onHoldClick"])}/>
           {this.props.children}
           <ProgressBar fill={this.state.count}/>
         </a>
@@ -78,7 +85,7 @@ let HoldButton = React.createClass({
 
     return (
       <div className="hold button">
-        <button ref="button" className={this.props.className} type={this.props.type}>
+        <button ref="button" className={className} type={this.props.type}>
           {this.props.children}
         </button>
         <ProgressBar fill={this.state.count}/>
