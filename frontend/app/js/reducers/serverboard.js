@@ -21,7 +21,9 @@ function serverboard(state=default_state, action){
     case '@@router/LOCATION_CHANGE':
     {
       let current=action.payload.pathname.replace(RegExp("^/serverboard/([^/]*)/.*"), "$1")
-      return merge(state, {current} )
+      if (current!=state.current)
+        return merge(state, {current, serverboard: undefined} )
+      return state
     }
     case 'UPDATE_ALL_SERVERBOARDS':
       return merge(state, {serverboards: action.serverboards} )
@@ -81,7 +83,9 @@ function serverboard(state=default_state, action){
     case "@RPC_EVENT/serverboard.widget.removed":
       return merge(state, {widgets: state.widgets.filter( (w) => (w.uuid != action.uuid ) )} )
     case "UPDATE_SERVERBOARD_INFO":
-      return merge(state, {serverboard: action.info})
+      if (action.serverboard == state.current)
+        return merge(state, {serverboard: action.info})
+      return state
     case "UPDATE_DATERANGE":
       return merge(state, {daterange: merge(state.daterange, action.daterange)})
     case "UPDATE_EXTERNAL_URL_COMPONENTS":

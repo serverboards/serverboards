@@ -4,7 +4,7 @@ import View from 'app/components/serverboard/dashboard'
 
 var Controller=connect(
   (state) => ({
-    serverboard: state.serverboard.serverboards.find( (s) => s.shortname == state.serverboard.current )
+    serverboard: state.serverboard.serverboard
   }),
   (dispatch) => ({
   })
