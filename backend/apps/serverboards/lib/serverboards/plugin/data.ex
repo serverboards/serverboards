@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.Plugin.Data do
   @moduledoc ~S"""
   Stores data related to plugins or components in a KV store.
@@ -14,6 +16,10 @@ defmodule Serverboards.Plugin.Data do
       data_set_real(plugin, key, value)
     end
 
+    EventSourcing.subscribe es, :data_remove, fn %{ plugin: plugin, key: key}, _me ->
+      data_remove_real(plugin, key)
+    end
+
     {:ok, es}
   end
 
@@ -27,11 +33,10 @@ defmodule Serverboards.Plugin.Data do
     :ok
   end
 
-  def data_set_real(pluginid, key, value) do
+  def data_set_real(pluginid, key, value) when is_map(value) do
     import Ecto.Query
     changes = %{ plugin: pluginid, key: key, value: value }
-
-    case Repo.all(from d in Model.Data,
+    ret = case Repo.all(from d in Model.Data,
               where: d.plugin == ^pluginid and d.key == ^key )
       do
         [] ->
@@ -39,15 +44,56 @@ defmodule Serverboards.Plugin.Data do
         [prev] ->
           Repo.update(Model.Data.changeset( prev, changes ))
     end
+    Logger.debug("Data set: #{pluginid}/#{key}: #{inspect value} -> #{inspect ret}")
+    ret
+  end
+  def data_set_real(pluginid, key, value) do
+    # if not a straigth map, pack it inside one
+    data_set_real(pluginid, key, %{ __value__: value })
   end
 
   def data_get(pluginid, key) do
     import Ecto.Query
-    case Repo.one(from d in Model.Data,
+    value = case Repo.one(from d in Model.Data,
             where: d.plugin == ^pluginid and d.key == ^key,
             select: d.value ) do
       nil -> %{}
       other -> other
     end
+    # unpack from object with key __value__
+    case value do
+      %{ "__value__" => value } -> value
+      value -> value
+    end
+  end
+
+  def data_remove(pluginid, key, me) do
+    EventSourcing.dispatch(:plugin_data, :data_remove, %{ plugin: pluginid, key: key}, me.email)
+    Serverboards.Event.emit(
+      "plugin.data_changed",
+      %{ plugin: pluginid, key: key, value: nil},
+      ["plugin.data[#{pluginid}]"]
+      )
+    :ok
+  end
+
+  def data_remove_real(pluginid, key) do
+    import Ecto.Query
+    Repo.delete_all(
+      from d in Model.Data,
+      where: d.plugin == ^pluginid and d.key == ^key
+      )
+  end
+
+  @doc ~S"""
+  Returns the keys of some plugin data, filtered by prefix.
+  """
+  def data_keys(pluginid, keyprefix) do
+    import Ecto.Query
+    Repo.all(
+      from d in Model.Data,
+        where: d.plugin == ^pluginid and like(d.key, ^"#{keyprefix}%"),
+        select: d.key
+    )
   end
 end

@@ -267,6 +267,15 @@ plugins.data_get("serverboards.core.notifications/telegram", "user_to_map")
 }
 ```
 
+## plugin.data_keys(id, key_prefix)
+
+Returns all the keys for that plugin id that have the given prefix. This allows
+to have some list of elements configurations, and group them.
+
+## plugin.data_remove(id, key)
+
+Removes permanently a key from the plugin data. 
+
 ## plugin.list()
 
 Lists all the installed plugins and componentes

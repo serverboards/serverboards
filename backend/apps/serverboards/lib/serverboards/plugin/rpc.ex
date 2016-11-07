@@ -92,6 +92,38 @@ defmodule Serverboards.Plugin.RPC do
       end
     end, context: true
 
+    RPC.MethodCaller.add_method method_caller, "plugin.data_keys",
+        fn [ plugin, keyprefix ], context ->
+      perms = (RPC.Context.get context, :user).perms
+      can_data = (
+        ("plugin.data" in perms) or
+        ("plugin.data[#{plugin}]" in perms)
+        )
+      if can_data do
+        {:ok, Plugin.Data.data_keys(plugin, keyprefix)}
+      else
+        Logger.debug("Perms #{inspect perms}, not plugin.data, nor plugin.data[#{plugin}]")
+        {:error, :not_allowed}
+      end
+    end, context: true
+
+    RPC.MethodCaller.add_method method_caller, "plugin.data_remove",
+        fn [ plugin, key ], context ->
+      user = RPC.Context.get context, :user
+      perms = user.perms
+      can_data = (
+        ("plugin.data" in perms) or
+        ("plugin.data[#{plugin}]" in perms)
+        )
+      if can_data do
+        {:ok, Plugin.Data.data_remove(plugin, key, user)}
+      else
+        Logger.debug("Perms #{inspect perms}, not plugin.data, nor plugin.data[#{plugin}]")
+        {:error, :not_allowed}
+      end
+    end, context: true
+
+
     RPC.MethodCaller.add_method method_caller, "plugin.list_components", fn
       [] ->
         []

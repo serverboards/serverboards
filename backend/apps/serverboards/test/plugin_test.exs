@@ -181,8 +181,16 @@ defmodule Serverboards.PluginTest do
     :ok = Serverboards.Plugin.Data.data_set "test.plugin.data", "key", %{ data: "data"}, Test.User.system
 
     data = Serverboards.Plugin.Data.data_get "test.plugin.data", "key"
-
     assert data["data"] == "data"
+
+    # get by prefix
+    keys = Serverboards.Plugin.Data.data_keys "test.plugin.data", "k"
+    assert keys == ["key"]
+
+    # remove
+    Serverboards.Plugin.Data.data_remove "test.plugin.data", "key", Test.User.system
+    data = Serverboards.Plugin.Data.data_get "test.plugin.data", "key"
+    assert %{} == data
   end
 
   test "Plugin data from plugin" do
