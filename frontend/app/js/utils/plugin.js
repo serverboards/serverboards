@@ -47,11 +47,27 @@ export function load_css(url, options={}){
   already_loaded[url]=true
 }
 
+export function load_html(url, options={}){
+  let p = new Promise((accept, reject) => {
+    url = join_path(url)
+    $.get(url, function(html){
+      if (options.base_url)
+        html = html.replace(/(src=")([^/])/g, `$1${join_path(options.base_url)}/$2`)
+      accept(html)
+    }).error( (e) => {
+      reject(e)
+    })
+  })
+  return p
+}
+
 export function load(url, options={}){
   if (url.endsWith(".css"))
     return load_css(url, options)
   if (url.endsWith(".js"))
     return load_js(url, options)
+  if (url.endsWith(".html"))
+    return load_html(url, options)
   throw ("Dont know how to load based on URL extension: "+url)
 }
 
@@ -76,7 +92,6 @@ export function add_screen(id, fn){
 }
 
 export function do_screen(id, el, data){
-
   if (id in screens){
     let cleanf=screens[id](el, data)
     return Promise.resolve(cleanf)

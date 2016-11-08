@@ -25,6 +25,9 @@ const Widget = React.createClass({
     return config
   },
   do_widget(props){
+    $(this.refs.el)
+      .attr('data-pluginid', props.widget.split('/')[0])
+      .attr('data-widgetid', props.widget)
     return plugin.do_widget(
       props.widget,
       this.refs.el,
