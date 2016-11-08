@@ -1,4 +1,5 @@
 import {merge} from 'app/utils'
+import rpc from 'app/rpc'
 
 var screens = {}
 var widgets = {}
@@ -127,4 +128,18 @@ export function do_widget(id, el, data){
   return Promise.resolve(widgets[id](el, data))
 }
 
-export default {load, add_screen, do_screen, add_widget, do_widget, join_path}
+function PluginCaller(uuid){
+  this.uuid = uuid
+  this.call=function(method, params){
+    return rpc.call(`${this.uuid}.${method}`, params)
+  }
+  this.close=function(){
+    return rpc.call("plugin.stop", [this.uuid])
+  }
+}
+
+export function start(pluginid){
+  return rpc.call("plugin.start", [pluginid]).then( (uuid) => new PluginCaller(uuid) )
+}
+
+export default {load, add_screen, do_screen, add_widget, do_widget, join_path, start}
