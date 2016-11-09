@@ -14,9 +14,9 @@ const Widget = React.createClass({
     this.setState({title})
   },
   find_service(uuid){
-    console.log("Find service %o in %o", uuid, this.props.services.map( (s) => s.uuid ))
+    //console.log("Find service %o in %o", uuid, this.props.services.map( (s) => s.uuid ))
     let service = this.props.services.find( (s) => s.uuid == uuid )
-    console.log("Got %o", service)
+    //console.log("Got %o", service)
     if (!service)
       return {uuid: uuid, error: "Not at current serverboard, cant load full data."}
     return service
@@ -34,8 +34,12 @@ const Widget = React.createClass({
   },
   do_widget(props){
     let self=this
+    let plugin_component=this.props.template.id.split('/')
     const context={
       setTitle: self.setTitle,
+      plugin_id: plugin_component[0],
+      component_id: plugin_component[1],
+      widget_id: this.props.template.id
     }
     $(this.refs.el)
       .attr('data-pluginid', props.widget.split('/')[0])

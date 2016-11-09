@@ -31,6 +31,11 @@ const ExternalScreen = React.createClass({
     console.log(props)
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
+    const context = {
+      plugin_id: plugin,
+      component_id: component,
+      screen_id: `${plugin}/${component}`
+    }
 
     const load_js = () => {
       const plugin_js=`${plugin}/${component}.js`
@@ -38,7 +43,8 @@ const ExternalScreen = React.createClass({
         plugin_do_screen(
           `${plugin}/${component}`,
           this.refs.el,
-          props.data || this.props.location.state
+          props.data || this.props.location.state,
+          context
         )
       ).then( (cleanupf) =>
         this.setState({cleanupf})
