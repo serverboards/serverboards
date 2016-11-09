@@ -3,8 +3,17 @@ import {merge} from 'app/utils'
 import rpc from 'app/rpc'
 import ScreensMenu from 'app/components/service/screensmenu'
 import {get_service_data} from 'app/components/service/utils'
+import ServerboardSelector from 'app/containers/serverboard/serverboardselector'
 
 const SidebarSections = React.createClass({
+  getInitialState(){
+    return {
+      show_serverboard_selector: false
+    }
+  },
+  toggleShowServerboardSelector(){
+    this.setState({show_serverboard_selector: !this.state.show_serverboard_selector})
+  },
   get_screen_data(screen_id){
     return this.props.serverboard.screens.find( (s) => s.id == screen_id )
   },
@@ -75,7 +84,7 @@ const SidebarSections = React.createClass({
                 <h3 className="ui header" style={{margin: 0}}>Serverboards ({69})</h3>
               </div>
               <div className="five wide column right aligned">
-                <a><i className="icons">
+                <a onClick={this.toggleShowServerboardSelector}><i className="icons">
                   <i className="icon content yellow"/>
                   <i className="icon inverted corner search yellow"/>
                 </i></a>
@@ -96,6 +105,9 @@ const SidebarSections = React.createClass({
           current={props.section}
           onSectionChange={this.handleSectionChange}
           />
+        {this.state.show_serverboard_selector ? (
+          <ServerboardSelector onClose={this.toggleShowServerboardSelector}/>
+        ) : null }
       </div>
     )
     //<MenuItem section="permissions">Permissions</MenuItem>

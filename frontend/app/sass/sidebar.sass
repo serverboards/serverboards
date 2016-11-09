@@ -68,3 +68,25 @@ div.ui.main
 
   .header .grid .column
     padding: 20px 5px 10px 5px !important
+
+.ui.vertical.menu.serverboard.selector
+  position: fixed
+  top: 45px
+  left: 340px
+  height: calc( 100vh - 45px )
+  width: 260px
+  background: #313f3e
+  z-index: 100
+  border-radius: 0
+  .ui.search
+    padding: 20px
+    .ui.icon.input
+      width: 100%
+  .menu
+    max-height: calc( 100vh - 125px )
+    overflow: auto
+    .item
+      color: white
+      font-size: 14px
+      &.active
+        background: #6e8887
