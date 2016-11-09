@@ -1,6 +1,7 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import moment from 'moment'
+import { push } from 'react-router-redux'
 
 function serverboard_update_all(){
   return function(dispatch){
@@ -15,6 +16,7 @@ function serverboard_add(data){
     rpc.call("serverboard.add",
         [ data.shortname, {name: data.name, tags: data.tags, description: data.description}]
       ).then(function(){
+        dispatch( push({pathname: `/serverboard/${data.shortname}/`}) )
         Flash.info(`Added serverboard ${data.name}`)
       })
   }
@@ -54,7 +56,7 @@ function serverboards_widget_list(serverboard){
 
 function serverboards_update_info(serverboard){
   return function(dispatch){
-    dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, undefined})
+    dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, info: undefined})
     rpc.call("serverboard.info", [serverboard]).then( (info) => {
       dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, info})
     })

@@ -2,7 +2,6 @@ import React from 'react'
 import Loading from '../loading'
 import {object_is_equal} from 'app/utils'
 import PluginScreen from 'app/components/plugin/screen'
-import Sidebar from 'app/containers/sidebar'
 import SidebarSections from './sidebar'
 
 const Serverboard=React.createClass({
@@ -48,7 +47,6 @@ const Serverboard=React.createClass({
 
     return (
       <div className="ui central with menu white background">
-        <Sidebar/>
         <SidebarSections
           section={props.params.section}
           serverboard={props.serverboard}

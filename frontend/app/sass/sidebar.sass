@@ -1,0 +1,63 @@
+.ui.vertical.menu.sections
+  background: #4f6362
+  width: 260px !important
+  min-width: 260px !important
+  max-width: 260px !important
+  margin: 0
+  border-radius: 0
+  border-top: 0
+  border-left: 0
+  .item
+    color: #acb5b5
+  .item.active
+    background: none
+    color: #00B5AD
+    &:hover
+      color: #00B5AD
+  .item:before
+    height: 0
+  .ui.header
+    color: white
+    border-radius: 0
+    margin-right: -1px
+  .menu
+    .item
+      &:hover
+        background: #f5f5f5
+        color: #00B5AD !important
+
+  .corner.decorator
+    border: none
+    border-left: 1px dashed #888
+    border-bottom: 1px dashed #888
+    position: absolute
+    height: 20px
+    width: 10px
+
+  .header .grid .column
+    padding: 20px 5px 10px 5px !important
+
+.ui.vertical.menu.sections .ui.vertical.menu.serverboard.selector
+  left: 260px
+
+.ui.vertical.menu.serverboard.selector
+  position: fixed
+  top: 45px
+  left: 0px
+  height: calc( 100vh - 45px )
+  width: 260px
+  background: #313f3e
+  z-index: 100
+  border-radius: 0
+  .ui.search
+    padding: 20px
+    .ui.icon.input
+      width: 100%
+  .menu
+    max-height: calc( 100vh - 125px )
+    overflow: auto
+    .item
+      color: white
+      font-size: 14px
+      &.active
+        background: #6e8887

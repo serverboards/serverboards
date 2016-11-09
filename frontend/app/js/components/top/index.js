@@ -58,7 +58,7 @@ const Top = React.createClass({
           {menu}
         </div>
       )
-    let logo=require("../../../imgs/logo.svg")
+    let logo=require("../../../imgs/white-horizontal-logo.svg")
     const gravatar_url=gravatar.url(props.user.email, {s: 32})
 
     return (

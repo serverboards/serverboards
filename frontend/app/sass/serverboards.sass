@@ -2,6 +2,7 @@
 @import gradients
 @import inputs
 @import fixes
+@import sidebar
 
 .serverboards.background.diagonal
   background: #22a397 /* Old browsers */
@@ -12,6 +13,17 @@
   background: -ms-linear-gradient(top,  #22a397 0%,#eac442 100%) /* IE10+ */
   background: linear-gradient(to bottom left,  #22a397 0%,#eac442 100%) /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#22a397', endColorstr='#eac442',GradientType=0 ) /* IE6-9 */
+
+.serverboards.background.horizontal
+  background: #22a397 /* Old browsers */
+  background: -moz-linear-gradient(left,  #22a397 0%, #eac442 100%) /* FF3.6+ */
+  background: -webkit-gradient(linear, left, right, color-stop(0%,#22a397), color-stop(100%,#eac442)) /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left,  #22a397 0%,#eac442 100%) /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left,  #22a397 0%,#eac442 100%) /* Opera 11.10+ */
+  background: -ms-linear-gradient(left,  #22a397 0%,#eac442 100%) /* IE10+ */
+  background: linear-gradient(to right,  #22a397 0%,#eac442 100%) /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eac442', endColorstr='#22a397',GradientType=0 ) /* IE6-9 */
+
 
 .ui.background.white
   background: white
@@ -107,61 +119,7 @@ div.ui.main
         padding: 20px 2em 80px 2em
         margin-top: 20px
 
-  .ui.vertical.menu.sidebar
-    max-width: 85px !important
-    min-width: 85px !important
-    width: 85px
-    height: calc( 100vh - 47px ) !important
-    border-radius: 0
-    overflow: visible
-    margin: 0 !important
-    border: 0
-    visibility: visible
-    position: relative
-    padding: 0
-    overflow-y: visible !important
 
-    -webkit-transform: none
-    transform: none
-
-    +serverboards-vertical-gradient
-
-    .item
-      max-width: 100px
-      overflow: hidden
-      text-overflow: ellipsis
-      color: white
-
-      &.active
-        &:hover
-          color: white
-
-      &:hover
-        color: white
-
-.ui.vertical.menu.sections
-  width: 220px !important
-  min-width: 220px !important
-  max-width: 220px !important
-  margin: 0
-  border-radius: 0
-  border-top: 0
-  border-left: 0
-  .item.active
-      background: none
-      color: #00B5AD
-  .item:before
-    height: 0
-  .ui.header
-    background: #555
-    color: white
-    border-radius: 0
-    margin-right: -1px
-  .menu
-    .item
-      &:hover
-        background: #f5f5f5
-        color: #00B5AD !important
 
 .ui.scroll
   overflow: auto
@@ -243,15 +201,6 @@ code
 .ui.description
   color: #555
   text-align: justify
-
-.ui.serverboards.logo
-  display: block
-  margin: 7% auto 0
-  max-width: 100vw
-  width: 500px
-  @media (max-width: 600px)
-    margin: 8% 0 0
-    width: 100vw
 
 .serverboards .ui.button.positive
   background: $yellow
