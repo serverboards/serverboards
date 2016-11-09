@@ -1,35 +1,3 @@
-div.ui.main
-  .ui.vertical.menu.sidebar
-    max-width: 85px !important
-    min-width: 85px !important
-    width: 85px
-    height: calc( 100vh - 47px ) !important
-    border-radius: 0
-    overflow: visible
-    margin: 0 !important
-    border: 0
-    visibility: visible
-    position: relative
-    padding: 0 !important
-    overflow-y: visible !important
-
-    -webkit-transform: none
-    transform: none
-
-    +serverboards-vertical-gradient
-
-    .item
-      max-width: 100px
-      overflow: hidden
-      text-overflow: ellipsis
-      color: white
-
-      &.active
-        &:hover
-          color: white
-
-      &:hover
-        color: white
 .ui.vertical.menu.sections
   background: #4f6362
   width: 260px !important
@@ -69,10 +37,13 @@ div.ui.main
   .header .grid .column
     padding: 20px 5px 10px 5px !important
 
+.ui.vertical.menu.sections .ui.vertical.menu.serverboard.selector
+  left: 260px
+
 .ui.vertical.menu.serverboard.selector
   position: fixed
   top: 45px
-  left: 340px
+  left: 0px
   height: calc( 100vh - 45px )
   width: 260px
   background: #313f3e

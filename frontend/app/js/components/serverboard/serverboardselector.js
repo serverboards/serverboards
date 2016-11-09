@@ -13,10 +13,11 @@ const Selector=React.createClass({
   componentDidMount(){
     $(this.refs.search)
       .focus()
-      .on('keypress', (ev) => {
+      .on('keyup', (ev) => {
         console.log(ev)
-        if (ev.code==27){
+        if (ev.keyCode==27){
           ev.preventDefault()
+          ev.stopPropagation()
           this.props.onClose()
         }
       })

@@ -1,10 +1,9 @@
 import React from 'react'
-import Sidebar from 'app/containers/sidebar'
-
+import ServerboardSelector from 'app/containers/serverboard/serverboardselector'
 function DashBoard(props){
   return (
-    <div>
-      <Sidebar/>
+    <div className="ui serverboards diagonal background" style={{width: "100%", height: "calc( 100vh - 45px )"}}>
+      <ServerboardSelector/>
       <a href="#/serverboard/add" className="ui massive button _add icon floating violet">
         <i className="add icon"></i>
       </a>
