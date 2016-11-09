@@ -4,7 +4,7 @@
  *
  * Example of use:
  * ```
- * var lg=new LineGraph(el)
+ * var lg=new BarGraph(el)
  * lg.set_data([{"Test": [now-1, 0], [now, 1]}])
  * ```
  *
@@ -27,12 +27,12 @@ const config = {
   showLink: false
 }
 
-class LineGraph{
+class BarGraph{
   constructor(el){
     this.plot=document.createElement("div")
     this.$el=$(el)
     this.$el
-      .addClass("ui graph lines")
+      .addClass("ui graph bars")
     this.data=[]
     $(window).on('resize', () => this.resize())
     this.set_loading()
@@ -55,7 +55,7 @@ class LineGraph{
       pldata.push({
         name,
         x: vx, y: vy,
-        type: "line"
+        type: "bar"
       })
     })
 
@@ -76,4 +76,4 @@ class LineGraph{
 }
 
 
-export default LineGraph
+export default BarGraph

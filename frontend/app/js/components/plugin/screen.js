@@ -28,28 +28,41 @@ const ExternalScreen = React.createClass({
     let self=this
     //const service=this.props.location.state.service
     //console.log(service)
+    console.log(props)
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
+    const context = {
+      plugin_id: plugin,
+      component_id: component,
+      screen_id: `${plugin}/${component}`
+    }
 
     const load_js = () => {
-      plugin_load(`${plugin}/${component}.js`).then(() =>
+      const plugin_js=`${plugin}/${component}.js`
+      plugin_load(plugin_js).then(() =>
         plugin_do_screen(
           `${plugin}/${component}`,
           this.refs.el,
-          props.data || this.props.location.state
+          props.data || this.props.location.state,
+          context
         )
       ).then( (cleanupf) =>
         this.setState({cleanupf})
-      ).catch((e) => {
-        console.error("Error loading plugin data: %o", e)
+      ).catch( (e) => {
+        console.warn("Could not load JS %o: %o", plugin_js, e)
       })
     }
+    $(this.refs.el)
+      .attr('data-pluginid', plugin)
+      .attr('data-screenid', `${plugin}/${component}`)
 
-    $.get(`${servername}/static/${props.plugin}/${props.component}.html`, (html) => {
+    const plugin_html = `${plugin}/${component}.html`
+    plugin_load(plugin_html,  {base_url: plugin})
+    .then( (html) => {
       $(this.refs.el).html(html)
       load_js()
-    }).fail( (ev, text) => {
-      console.log("Could not load HTML, loading JS anyway.")
+    }).catch( (e) => {
+      console.warn("Could not load HTML %o: %o", plugin_html, e)
       $(this.refs.el).html('')
       load_js()
     })

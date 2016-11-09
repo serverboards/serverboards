@@ -3,6 +3,7 @@ import rpc from 'app/rpc'
 import {MarkdownPreview} from 'react-marked-markdown'
 import {to_list} from 'app/utils'
 import Flash from 'app/flash'
+import plugin from 'app/utils/plugin'
 
 const RichDescription=React.createClass({
   process_description(vars){
@@ -104,6 +105,49 @@ const SelectService=React.createClass({
   }
 })
 
+const SelectCall = React.createClass({
+  getInitialState(){
+    return {
+      items: []
+    }
+  },
+  componentDidMount(){
+    const props = this.props
+    let self = this
+    plugin.start(props.options.command).then( (pl) => {
+      pl.call(props.options.call,[]).then( (items) => {
+        console.log(items)
+        self.setState({items})
+        pl.close()
+        $(self.refs.select).dropdown({
+          onChange(value){
+            self.props.setValue(self.props.name, value)
+          }
+        }).dropdown('set value',self.props.value)
+      })
+    })
+  },
+  render(){
+    const props = this.props
+    return (
+      <div className="field">
+        <label>{props.label}</label>
+        <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+        <div ref="select" className={`ui fluid ${props.search ? "search" : ""} selection dropdown`}>
+          <input type="hidden" name={props.name} defaultValue={props.value} onChange={props.onChange}/>
+          <i className="dropdown icon"></i>
+          <div className="default text" style={{display:"block"}}>{(props.value || {}).uuid || props.value || props.placeholder}</div>
+          <div className="menu">
+            {(this.state.items || []).map( (ac) => (
+              <div key={ac.value} className="item" data-value={ac.value}>{ac.name}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+})
+
 let GenericField=React.createClass({
   getInitialState(){
     return { items: [] }
@@ -197,6 +241,10 @@ let GenericField=React.createClass({
               ))}
             </select>
           </div>
+        )
+      case 'select call':
+        return (
+          <SelectCall {...props} onChange={this.handleChange}/>
         )
       case 'service':
         return (

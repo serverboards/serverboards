@@ -1,4 +1,5 @@
 import {merge} from 'app/utils'
+import rpc from 'app/rpc'
 
 var screens = {}
 var widgets = {}
@@ -47,11 +48,27 @@ export function load_css(url, options={}){
   already_loaded[url]=true
 }
 
+export function load_html(url, options={}){
+  let p = new Promise((accept, reject) => {
+    url = join_path(url)
+    $.get(url, function(html){
+      if (options.base_url)
+        html = html.replace(/(src=")([^/])/g, `$1${join_path(options.base_url)}/$2`)
+      accept(html)
+    }).error( (e) => {
+      reject(e)
+    })
+  })
+  return p
+}
+
 export function load(url, options={}){
   if (url.endsWith(".css"))
     return load_css(url, options)
   if (url.endsWith(".js"))
     return load_js(url, options)
+  if (url.endsWith(".html"))
+    return load_html(url, options)
   throw ("Dont know how to load based on URL extension: "+url)
 }
 
@@ -75,10 +92,9 @@ export function add_screen(id, fn){
   delete waiting_for_screen[id]
 }
 
-export function do_screen(id, el, data){
-
+export function do_screen(id, el, data, context){
   if (id in screens){
-    let cleanf=screens[id](el, data)
+    let cleanf=screens[id](el, data, context)
     return Promise.resolve(cleanf)
   }
   return when_screen_added(id).then( (screen) => {
@@ -92,15 +108,15 @@ let waiting_for_widgets={}
 export function add_widget(id, fn){
   widgets[id]=fn
   if (id in waiting_for_widgets)
-    for (let {accept, el, data} of waiting_for_widgets[id])
-      accept(fn(el, data))
+    for (let {accept, el, data, context} of waiting_for_widgets[id])
+      accept(fn(el, data, context))
   delete waiting_for_widgets[id]
 }
 
-export function do_widget(id, el, data){
+export function do_widget(id, el, data, context){
   if (!(id in widgets)){
     let p = new Promise(function(accept, reject){
-      waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data})
+      waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data, context})
       setTimeout(function(){
         console.error("timeout waiting for widget %o", id)
         if (id in waiting_for_widgets)
@@ -109,7 +125,21 @@ export function do_widget(id, el, data){
     })
     return p
   }
-  return Promise.resolve(widgets[id](el, data))
+  return Promise.resolve(widgets[id](el, data, context))
 }
 
-export default {load, add_screen, do_screen, add_widget, do_widget, join_path}
+function PluginCaller(uuid){
+  this.uuid = uuid
+  this.call=function(method, params){
+    return rpc.call(`${this.uuid}.${method}`, params)
+  }
+  this.close=function(){
+    return rpc.call("plugin.stop", [this.uuid])
+  }
+}
+
+export function start(pluginid){
+  return rpc.call("plugin.start", [pluginid]).then( (uuid) => new PluginCaller(uuid) )
+}
+
+export default {load, add_screen, do_screen, add_widget, do_widget, join_path, start}
