@@ -13,6 +13,17 @@
   background: linear-gradient(to bottom left,  #22a397 0%,#eac442 100%) /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#22a397', endColorstr='#eac442',GradientType=0 ) /* IE6-9 */
 
+.serverboards.background.horizontal
+  background: #22a397 /* Old browsers */
+  background: -moz-linear-gradient(left,  #22a397 0%, #eac442 100%) /* FF3.6+ */
+  background: -webkit-gradient(linear, left, right, color-stop(0%,#22a397), color-stop(100%,#eac442)) /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left,  #22a397 0%,#eac442 100%) /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left,  #22a397 0%,#eac442 100%) /* Opera 11.10+ */
+  background: -ms-linear-gradient(left,  #22a397 0%,#eac442 100%) /* IE10+ */
+  background: linear-gradient(to right,  #22a397 0%,#eac442 100%) /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eac442', endColorstr='#22a397',GradientType=0 ) /* IE6-9 */
+
+
 .ui.background.white
   background: white
   color: black
@@ -243,15 +254,6 @@ code
 .ui.description
   color: #555
   text-align: justify
-
-.ui.serverboards.logo
-  display: block
-  margin: 7% auto 0
-  max-width: 100vw
-  width: 500px
-  @media (max-width: 600px)
-    margin: 8% 0 0
-    width: 100vw
 
 .serverboards .ui.button.positive
   background: $yellow

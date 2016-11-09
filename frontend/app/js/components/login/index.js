@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react';
 import ResetPassword from './reset_password'
 import SetPassword from './set_password'
 import rpc from 'app/rpc'
+import 'sass/login.sass'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
@@ -64,6 +65,7 @@ var LoginView = React.createClass({
       )
 
     return (
+      <div className="ui login serverboards background diagonal">
       <form ref="el" className="ui form" method="POST">
         <img src={white_logo} className="ui serverboards logo"/>
 
@@ -103,6 +105,7 @@ var LoginView = React.createClass({
           </div>
         </div>
       </form>
+      </div>
     )
   },
   propTypes: {
