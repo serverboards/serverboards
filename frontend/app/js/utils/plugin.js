@@ -92,9 +92,9 @@ export function add_screen(id, fn){
   delete waiting_for_screen[id]
 }
 
-export function do_screen(id, el, data){
+export function do_screen(id, el, data, context){
   if (id in screens){
-    let cleanf=screens[id](el, data)
+    let cleanf=screens[id](el, data, context)
     return Promise.resolve(cleanf)
   }
   return when_screen_added(id).then( (screen) => {
@@ -108,15 +108,15 @@ let waiting_for_widgets={}
 export function add_widget(id, fn){
   widgets[id]=fn
   if (id in waiting_for_widgets)
-    for (let {accept, el, data} of waiting_for_widgets[id])
-      accept(fn(el, data))
+    for (let {accept, el, data, context} of waiting_for_widgets[id])
+      accept(fn(el, data, context))
   delete waiting_for_widgets[id]
 }
 
-export function do_widget(id, el, data){
+export function do_widget(id, el, data, context){
   if (!(id in widgets)){
     let p = new Promise(function(accept, reject){
-      waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data})
+      waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data, context})
       setTimeout(function(){
         console.error("timeout waiting for widget %o", id)
         if (id in waiting_for_widgets)
@@ -125,7 +125,7 @@ export function do_widget(id, el, data){
     })
     return p
   }
-  return Promise.resolve(widgets[id](el, data))
+  return Promise.resolve(widgets[id](el, data, context))
 }
 
 function PluginCaller(uuid){
