@@ -1,0 +1,70 @@
+div.ui.main
+  .ui.vertical.menu.sidebar
+    max-width: 85px !important
+    min-width: 85px !important
+    width: 85px
+    height: calc( 100vh - 47px ) !important
+    border-radius: 0
+    overflow: visible
+    margin: 0 !important
+    border: 0
+    visibility: visible
+    position: relative
+    padding: 0 !important
+    overflow-y: visible !important
+
+    -webkit-transform: none
+    transform: none
+
+    +serverboards-vertical-gradient
+
+    .item
+      max-width: 100px
+      overflow: hidden
+      text-overflow: ellipsis
+      color: white
+
+      &.active
+        &:hover
+          color: white
+
+      &:hover
+        color: white
+.ui.vertical.menu.sections
+  background: #4f6362
+  width: 260px !important
+  min-width: 260px !important
+  max-width: 260px !important
+  margin: 0
+  border-radius: 0
+  border-top: 0
+  border-left: 0
+  .item
+    color: #acb5b5
+  .item.active
+    background: none
+    color: #00B5AD
+    &:hover
+      color: #00B5AD
+  .item:before
+    height: 0
+  .ui.header
+    color: white
+    border-radius: 0
+    margin-right: -1px
+  .menu
+    .item
+      &:hover
+        background: #f5f5f5
+        color: #00B5AD !important
+
+  .corner.decorator
+    border: none
+    border-left: 1px dashed #888
+    border-bottom: 1px dashed #888
+    position: absolute
+    height: 20px
+    width: 10px
+
+  .header .grid .column
+    padding: 20px 5px 10px 5px !important

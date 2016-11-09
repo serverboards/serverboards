@@ -2,6 +2,7 @@
 @import gradients
 @import inputs
 @import fixes
+@import sidebar
 
 .serverboards.background.diagonal
   background: #22a397 /* Old browsers */
@@ -118,61 +119,7 @@ div.ui.main
         padding: 20px 2em 80px 2em
         margin-top: 20px
 
-  .ui.vertical.menu.sidebar
-    max-width: 85px !important
-    min-width: 85px !important
-    width: 85px
-    height: calc( 100vh - 47px ) !important
-    border-radius: 0
-    overflow: visible
-    margin: 0 !important
-    border: 0
-    visibility: visible
-    position: relative
-    padding: 0
-    overflow-y: visible !important
 
-    -webkit-transform: none
-    transform: none
-
-    +serverboards-vertical-gradient
-
-    .item
-      max-width: 100px
-      overflow: hidden
-      text-overflow: ellipsis
-      color: white
-
-      &.active
-        &:hover
-          color: white
-
-      &:hover
-        color: white
-
-.ui.vertical.menu.sections
-  width: 220px !important
-  min-width: 220px !important
-  max-width: 220px !important
-  margin: 0
-  border-radius: 0
-  border-top: 0
-  border-left: 0
-  .item.active
-      background: none
-      color: #00B5AD
-  .item:before
-    height: 0
-  .ui.header
-    background: #555
-    color: white
-    border-radius: 0
-    margin-right: -1px
-  .menu
-    .item
-      &:hover
-        background: #f5f5f5
-        color: #00B5AD !important
 
 .ui.scroll
   overflow: auto

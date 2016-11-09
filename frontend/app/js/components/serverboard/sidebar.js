@@ -69,7 +69,21 @@ const SidebarSections = React.createClass({
     return (
       <div className="ui vertical menu sections">
         <div>
-          <h3 className="ui item header">{props.serverboard.name}</h3>
+          <div className="ui item header">
+            <div className="ui grid">
+              <div className="eleven wide column">
+                <h3 className="ui header" style={{margin: 0}}>Serverboards ({69})</h3>
+              </div>
+              <div className="five wide column right aligned">
+                <a><i className="icons">
+                  <i className="icon content yellow"/>
+                  <i className="icon inverted corner search yellow"/>
+                </i></a>
+              </div>
+            </div>
+            <span className="corner decorator"/>
+            <h4 className="ui header teal dividing" style={{margin: "10px 0 0 15px"}}>{props.serverboard.name}</h4>
+          </div>
           <MenuItem section="dashboard">Dashboard</MenuItem>
           <MenuItem section="services">Services</MenuItem>
           <MenuItem section="rules">Rules</MenuItem>
