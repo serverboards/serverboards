@@ -5,7 +5,6 @@ defmodule Serverboards.Plugin.RPC do
   alias Serverboards.Plugin
 
   def has_perm_for_plugin(context, plugin) do
-    Logger.debug(inspect context)
     perms = RPC.Context.get(context, :user).perms
     cond do
       plugin == :any -> Enum.any?(perms, &(String.starts_with?(&1, "plugin[") or &1 == "plugin"))
