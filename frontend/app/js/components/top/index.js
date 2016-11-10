@@ -87,12 +87,10 @@ const Top = React.createClass({
               className={`ui mini label floating circular ${props.actions.length==0 ? "" : "teal"}`}
               style={{top: 3, left: 43}}
               >{props.actions.length}</span>
-            <i className="dropdown icon"></i>
           </a>
           <a className="item" onClick={() => props.toggleMenu('user')}>
           <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
             data-tooltip={props.user.email}/>
-            <i className="dropdown icon"></i>
           </a>
         </div>
         {menu}

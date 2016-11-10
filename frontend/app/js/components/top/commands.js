@@ -87,9 +87,6 @@ const CommandSearch = React.createClass({
     const is_open=this.state.is_open
     return (
       <div className="menu">
-        <a className={ is_open ? "hidden" : "right aligned"} onClick={() => this.handleToggleOpen(true)}>
-          <i className="ui icon terminal"/>
-        </a>
         <div ref="search" className={`ui search ${ is_open ? "" : "hidden"}`}>
           <div className="ui icon input">
             <input className="prompt" type="text" placeholder="Search and execute commands..."/>
@@ -98,6 +95,9 @@ const CommandSearch = React.createClass({
           <div className="results">
           </div>
         </div>
+        <a className={`item right aligned ${is_open ? "hidden" : ""}`} onClick={() => this.handleToggleOpen()}>
+          <i className="ui icon terminal"/>
+        </a>
       </div>
     )
   }

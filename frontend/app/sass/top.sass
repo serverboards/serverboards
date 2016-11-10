@@ -10,6 +10,10 @@
       width: 0
       height: 0
 
+  .item:before
+    width: 0
+    height: 0
+
   > .item.logo
     padding: 0 20px
     img
@@ -17,6 +21,14 @@
 
   > .item.search
     flex-grow: 1
+    padding-right: 0
+    .ui.input
+      .prompt
+        background: #555
+      .icon
+        pointer-events: auto
+        &:hover
+          cursor: pointer
     > div.menu
       display: flex
       flex-direction: row
@@ -36,9 +48,6 @@
       align-items: flex-start
       border: 0
       border-bottom: 1px solid #eee
-      &:before
-        width: 0
-        height: 0
       h5
         margin: 3px 0
       .ui.basic.plain.label
