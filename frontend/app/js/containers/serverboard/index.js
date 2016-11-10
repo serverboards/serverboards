@@ -8,6 +8,7 @@ var Serverboard=event.subscribe_connect(
     return {
       shortname: state.serverboard.current,
       serverboard: state.serverboard.serverboard,
+      serverboards_count: (state.serverboard.serverboards || []).length
     }
   },
   (dispatch, props) => ({

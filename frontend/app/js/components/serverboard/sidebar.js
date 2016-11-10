@@ -73,7 +73,7 @@ const SidebarSections = React.createClass({
       )
     }
 
-    const serverboard=this.props.serverboard
+    const serverboard=props.serverboard
 
     return (
       <div className="ui vertical menu sections">
@@ -81,7 +81,7 @@ const SidebarSections = React.createClass({
           <div className="ui item header">
             <div className="ui grid">
               <div className="eleven wide column">
-                <h3 className="ui header" style={{margin: 0}}>Serverboards ({69})</h3>
+                <h3 className="ui header" style={{margin: 0}}>Serverboards ({props.serverboards_count})</h3>
               </div>
               <div className="five wide column right aligned">
                 <a onClick={this.toggleShowServerboardSelector}><i className="icons">

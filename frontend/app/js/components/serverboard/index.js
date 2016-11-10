@@ -50,6 +50,7 @@ const Serverboard=React.createClass({
         <SidebarSections
           section={props.params.section}
           serverboard={props.serverboard}
+          serverboards_count={props.serverboards_count}
           goto={props.goto}
           />
         <div className="ui central">
