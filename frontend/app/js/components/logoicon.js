@@ -18,7 +18,7 @@ function LogoIcon(props){
   }
 
   return (
-    <div className={`ui logoicon ${color}`}><span>{logo(props.name)}</span></div>
+    <div className={`ui logoicon ${color} ${props.className}`}><span>{logo(props.name)}</span></div>
   )
 }
 

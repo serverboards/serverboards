@@ -5,6 +5,26 @@ import ScreensMenu from 'app/components/service/screensmenu'
 import {get_service_data} from 'app/components/service/utils'
 import ServerboardSelector from 'app/containers/serverboard/serverboardselector'
 
+function ServerboardsHeader(props){
+  return (
+    <div className="ui item header">
+      <div className="ui grid">
+        <div className="eleven wide column">
+          <h3 className="ui header" style={{margin: 0}}>Serverboards <span style={{fontSize:"0.8em", color: "#acb5b5"}}>({props.serverboards_count})</span></h3>
+        </div>
+        <div className="five wide column right aligned">
+          <a onClick={props.toggleShowServerboardSelector} className="item"><i className="icons">
+            <i className="icon content yellow"/>
+            <i className="icon inverted corner search yellow"/>
+          </i></a>
+        </div>
+      </div>
+      <span className="corner decorator"/>
+      <h4 className="ui header teal dividing" style={{margin: "10px 0 0 15px"}}>{props.serverboard.name}</h4>
+    </div>
+  )
+}
+
 const SidebarSections = React.createClass({
   getInitialState(){
     return {
@@ -76,37 +96,25 @@ const SidebarSections = React.createClass({
     const serverboard=props.serverboard
 
     return (
-      <div className="ui vertical menu sections">
-        <div>
-          <div className="ui item header">
-            <div className="ui grid">
-              <div className="eleven wide column">
-                <h3 className="ui header" style={{margin: 0}}>Serverboards <span style={{fontSize:"0.8em", color: "#acb5b5"}}>({props.serverboards_count})</span></h3>
-              </div>
-              <div className="five wide column right aligned">
-                <a onClick={this.toggleShowServerboardSelector}><i className="icons">
-                  <i className="icon content yellow"/>
-                  <i className="icon inverted corner search yellow"/>
-                </i></a>
-              </div>
-            </div>
-            <span className="corner decorator"/>
-            <h4 className="ui header teal dividing" style={{margin: "10px 0 0 15px"}}>{props.serverboard.name}</h4>
+      <div>
+        <div className="ui vertical menu sections">
+          <div>
+            <ServerboardsHeader {...props} toggleShowServerboardSelector={this.toggleShowServerboardSelector}/>
+            <MenuItem section="dashboard">Dashboard</MenuItem>
+            <MenuItem section="services">Services</MenuItem>
+            <MenuItem section="rules">Rules</MenuItem>
+            <MenuItem section="settings">Settings</MenuItem>
           </div>
-          <MenuItem section="dashboard">Dashboard</MenuItem>
-          <MenuItem section="services">Services</MenuItem>
-          <MenuItem section="rules">Rules</MenuItem>
-          <MenuItem section="settings">Settings</MenuItem>
+          <ScreensMenu
+            services={props.serverboard.services}
+            screens={props.serverboard.screens}
+            serverboard={props.serverboard}
+            current={props.section}
+            onSectionChange={this.handleSectionChange}
+            />
         </div>
-        <ScreensMenu
-          services={props.serverboard.services}
-          screens={props.serverboard.screens}
-          serverboard={props.serverboard}
-          current={props.section}
-          onSectionChange={this.handleSectionChange}
-          />
         {this.state.show_serverboard_selector ? (
-          <ServerboardSelector onClose={this.toggleShowServerboardSelector}/>
+          <ServerboardSelector onClose={this.toggleShowServerboardSelector} className="center"/>
         ) : null }
       </div>
     )

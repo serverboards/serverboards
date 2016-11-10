@@ -45,7 +45,7 @@ const Selector=React.createClass({
 
     return (
       <div style={{position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh", background: "none"}} onClick={() => props.onClose()}>
-        <div className="ui vertical menu serverboard selector">
+        <div className={`ui vertical menu serverboard selector ${props.className}`}>
           <div className="ui search">
             <div className="ui icon input">
               <input ref="search" className="prompt" type="text" placeholder="Search by name" onChange={(ev) => this.setSearch(ev.target.value)}/>
@@ -56,7 +56,7 @@ const Selector=React.createClass({
             {serverboards.map( (s) => (
               <a className={`item ${ s.shortname == selected ? "active" : ""}`} onClick={() => {props.onServiceSelect(s.shortname); props.onClose()}}>
                 <div style={{display:"inline-block", paddingRight: 10}}>
-                  <LogoIcon name={s.shortname}/>
+                  <LogoIcon className="small" name={s.shortname}/>
                 </div>
                 {s.name}
               </a>

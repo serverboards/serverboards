@@ -1,6 +1,7 @@
 .ui.vertical.menu.sections
   background: #4f6362
   width: 260px !important
+  height: calc( 100vh - 45px )
   min-width: 260px !important
   max-width: 260px !important
   margin: 0
@@ -30,6 +31,16 @@
         background: #4d605f
       &.active
         color: #00B5AD
+  .item.header .item
+    cursor: pointer
+    padding: 10px
+    margin-right: -10px
+    display: inline-block
+    &:hover
+        background: #4d605f
+    .icon.inverted.corner
+      text-shadow: -1px -1px 0 #4f6362,1px -1px 0 #4f6362,-1px 1px 0 #4f6362,1px 1px 0 #4f6362
+      font-size: 11px
 
   .corner.decorator
     border: none
@@ -42,7 +53,7 @@
   .header .grid .column
     padding: 20px 5px 10px 5px !important
 
-.ui.vertical.menu.sections .ui.vertical.menu.serverboard.selector
+.ui.vertical.menu.serverboard.selector.center
   left: 260px
 
 .ui.vertical.menu.serverboard.selector
