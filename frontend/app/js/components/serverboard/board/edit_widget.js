@@ -48,12 +48,12 @@ const AddWidget = React.createClass({
     return (
       <Modal>
         <div className="ui top secondary menu">
+          <h3 className="ui header">{widget.name}</h3>
           <div className="right menu">
             <HoldButton className="item" onHoldClick={this.removeWidget}>Remove <i className="ui icon trash"/></HoldButton>
           </div>
         </div>
         <div className="ui form" ref="form">
-          <h2 className="ui header">{widget.name}</h2>
           {this.state.error ? (
             <div className="ui message visible error">
               <div className="header">Error</div>

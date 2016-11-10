@@ -4,7 +4,7 @@ import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
 import {to_list} from 'app/utils'
 
-const icon = require("../../../../imgs/services.svg")
+const icon = require("../../../../imgs/plugins.svg")
 
 function ComponentDetails({component: c}){
   console.log(c)
@@ -20,6 +20,7 @@ function ComponentDetails({component: c}){
 }
 
 const left_pane_style={
+  paddingLeft: 20,
   borderRight: "1px solid #ddd",
   height: "calc( 100vh - 60px )",
   background: "white",
@@ -40,12 +41,18 @@ function PluginDetails({plugin}){
 
   return (
     <Modal className="wide">
-      <div className="ui grid stackable">
-        <div className="six wide column" style={left_pane_style}>
-          <span style={{float: "right"}}><i className="ui icon circle green"/> Installed</span>
-          <ImageIcon src={icon} className="left floated" name={plugin.name}/>
-          <h1 className="ui small header" style={{marginBottom:0, textTransform:"none"}}>{plugin.name}</h1>
+      <div className="ui top secondary menu">
+        <ImageIcon src={icon} name={plugin.name}/>
+        <div style={{display:"inline-block"}}>
+          <h3 className="ui header" style={{marginBottom:0, textTransform:"none"}}>{plugin.name}</h3>
           <div className="ui meta bold">by {author}</div>
+        </div>
+        <div className="right menu">
+          <span><i className="ui icon circle green"/> Installed</span>
+        </div>
+      </div>
+      <div className="ui grid stackable" style={{margin: 0}}>
+        <div className="six wide column" style={left_pane_style}>
           <div className="ui fields" style={{clear:"both"}}>
             <div className="field">
               <label>Version</label>
@@ -53,23 +60,21 @@ function PluginDetails({plugin}){
             </div>
             {plugin.url ? (
               <div className="field">
-              <label>URL</label>
-              <div className="ui meta"><a href={plugin.url} target="_blank" rel="external">{plugin.url}</a></div>
+                <label>URL</label>
+                <div className="ui meta"><a href={plugin.url} target="_blank" rel="external">{plugin.url}</a></div>
               </div>
             ) : []}
           </div>
           <div style={{paddingTop: 20, overflow: "auto", maxHeight:"calc( 100vh - 195px )"}}>
-            <h2>Components</h2>
+            <h3>Components</h3>
             {to_list(plugin.components).map( (nc) => (
               <ComponentDetails component={nc[1]}/>
             ))}
           </div>
         </div>
         <div className="ten wide column">
-          <div className="ui top menu">
-          </div>
           <div>
-            <h2 className="ui medium header" style={{textTransform:"none"}}>Description</h2>
+            <h3 className="ui medium header" style={{textTransform:"none"}}>Description</h3>
             <div className="ui description">
               <MarkdownPreview value={plugin.description}/>
             </div>

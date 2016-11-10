@@ -51,7 +51,6 @@ var Settings=React.createClass({
         </div>
         <div className="ui text container" style={{marginTop:20}}>
           <form className="ui form" ref="form">
-            <h1 className="ui header">{this.props.title}</h1>
             <div className="field">
               <label>Shortname</label>
               <div className="ui meta">This name is used as a Serverboard identifier and has a maximum lenght of 5 characters.</div>

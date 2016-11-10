@@ -8,10 +8,12 @@ function SettingsModal(props){
   let servicedef=service_definition(props.service.type, props.service_catalog)
   return (
     <Modal>
-      <div style={{paddingTop: 40}}>
-        <h2 className="ui header">
-          Update settings for {props.service.name}
-        </h2>
+      <div>
+        <div className="ui top secondary menu">
+          <h3 className="ui header">
+            Settings for {props.service.name}
+          </h3>
+        </div>
         <div className="ui meta" style={{paddingBottom: 20}}>
           <MarkdownPreview value={servicedef.description || "No description at service definition"}/>
         </div>
