@@ -81,7 +81,7 @@ const SidebarSections = React.createClass({
           <div className="ui item header">
             <div className="ui grid">
               <div className="eleven wide column">
-                <h3 className="ui header" style={{margin: 0}}>Serverboards ({props.serverboards_count})</h3>
+                <h3 className="ui header" style={{margin: 0}}>Serverboards <span style={{fontSize:"0.8em", color: "#acb5b5"}}>({props.serverboards_count})</span></h3>
               </div>
               <div className="five wide column right aligned">
                 <a onClick={this.toggleShowServerboardSelector}><i className="icons">
