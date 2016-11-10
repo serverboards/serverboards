@@ -20,11 +20,16 @@
     color: white
     border-radius: 0
     margin-right: -1px
+  a.item
+    padding-left: 35px
   .menu
     .item
+      padding-left: 55px
+      color: #acb5b5
       &:hover
-        background: #f5f5f5
-        color: #00B5AD !important
+        background: #4d605f
+      &.active
+        color: #00B5AD
 
   .corner.decorator
     border: none
@@ -49,6 +54,9 @@
   background: #313f3e
   z-index: 100
   border-radius: 0
+  .item:hover
+    background: #4d605f
+    color: white
   .ui.search
     padding: 20px
     .ui.icon.input
