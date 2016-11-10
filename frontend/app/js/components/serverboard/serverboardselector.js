@@ -44,22 +44,24 @@ const Selector=React.createClass({
     serverboards = serverboards.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })
 
     return (
-      <div className="ui vertical menu serverboard selector">
-        <div className="ui search">
-          <div className="ui icon input">
-            <input ref="search" className="prompt" type="text" placeholder="Search by name" onChange={(ev) => this.setSearch(ev.target.value)}/>
-            <i className="search icon"/>
+      <div style={{position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh", background: "none"}} onClick={() => props.onClose()}>
+        <div className="ui vertical menu serverboard selector">
+          <div className="ui search">
+            <div className="ui icon input">
+              <input ref="search" className="prompt" type="text" placeholder="Search by name" onChange={(ev) => this.setSearch(ev.target.value)}/>
+              <i className="search icon"/>
+            </div>
           </div>
-        </div>
-        <div className="menu">
-          {serverboards.map( (s) => (
-            <a className={`item ${ s.shortname == selected ? "active" : ""}`} onClick={() => {props.onServiceSelect(s.shortname); props.onClose()}}>
-              <div style={{display:"inline-block", paddingRight: 10}}>
-                <LogoIcon name={s.shortname}/>
-              </div>
-              {s.name}
-            </a>
-          ))}
+          <div className="menu">
+            {serverboards.map( (s) => (
+              <a className={`item ${ s.shortname == selected ? "active" : ""}`} onClick={() => {props.onServiceSelect(s.shortname); props.onClose()}}>
+                <div style={{display:"inline-block", paddingRight: 10}}>
+                  <LogoIcon name={s.shortname}/>
+                </div>
+                {s.name}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     )
