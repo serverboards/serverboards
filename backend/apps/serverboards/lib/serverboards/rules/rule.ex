@@ -146,7 +146,7 @@ defmodule Serverboards.Rules.Rule do
       {:ok, plugin_id} -> plugin_id
       {:error, desc} ->
         Logger.error("Could not start trigger", description: desc)
-        raise {:cant_start_trigger, desc}
+        raise :cant_start_trigger, desc
     end
 
     self_ = self
