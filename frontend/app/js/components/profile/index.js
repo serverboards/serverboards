@@ -47,7 +47,7 @@ let Profile = React.createClass({
     const gravatar_url=gravatar.url(props.user.email, {s: 300})
 
     return (
-      <div className="ui central area white background">
+      <div className="ui central area white background" style={{flexDirection: "column"}}>
         <div className="ui top secondary menu">
          <div className="right menu">
             <a className="item" href="#" onClick={this.openPersonalData}><i className="ui icon user"/>Personal data</a>
