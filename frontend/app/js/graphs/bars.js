@@ -16,7 +16,7 @@
  * compatibility.
  */
 
-import Plotly from 'plotly.js'
+import Plotly from './plotly'
 import 'sass/graphs/index.sass'
 import moment from 'moment'
 
