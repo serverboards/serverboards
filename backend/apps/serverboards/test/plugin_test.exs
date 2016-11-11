@@ -82,10 +82,15 @@ defmodule Serverboards.PluginTest do
   test "Can start/call/stop plugins" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
+    assert Client.call(client, "plugin.is_running", ["garbage"]) == {:ok, false}
+
     {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     :timer.sleep 300
     assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:ok, "pong"}
+
+    assert Client.call(client, "plugin.is_running", [test_cmd]) == {:ok, true}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+    assert Client.call(client, "plugin.is_running", [test_cmd]) == {:ok, false}
 
     assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:error, :unknown_method}
 
@@ -125,8 +130,7 @@ defmodule Serverboards.PluginTest do
 
     {:ok, list} = Client.call(client, "plugin.list_components", [ type: "action template" ])
     Logger.debug("Got #{Enum.count list} action template components")
-    assert (Enum.count(list)) == 0
-
+    assert (Enum.count(list)) >= 0
   end
 
   test "Dir after login at plugins" do

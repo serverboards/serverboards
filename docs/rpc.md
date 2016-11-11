@@ -233,6 +233,9 @@ Performs the call on that uuid or allias
 
 Stops the plugin.
 
+## plugin.is_running(uuid)
+
+Returns true if the plugin is running, false if not.
 
 ## plugin.data_set(id, key, value)
 
@@ -274,7 +277,7 @@ to have some list of elements configurations, and group them.
 
 ## plugin.data_remove(id, key)
 
-Removes permanently a key from the plugin data. 
+Removes permanently a key from the plugin data.
 
 ## plugin.list()
 

@@ -128,18 +128,41 @@ export function do_widget(id, el, data, context){
   return Promise.resolve(widgets[id](el, data, context))
 }
 
-function PluginCaller(uuid){
-  this.uuid = uuid
-  this.call=function(method, params){
-    return rpc.call(`${this.uuid}.${method}`, params)
+class PluginCaller{
+  constructor(pluginid){
+    this.pluginid = pluginid
+    this.uuid = undefined
   }
-  this.close=function(){
+  start(method, params){
+    return rpc.call("plugin.start", [this.pluginid]).then( (uuid_) => {
+      this.uuid = uuid_
+      return this
+    })
+  }
+  call(method, params){
+    return rpc.call(`${this.uuid}.${method}`, params).catch( (e) => {
+      if (e=='unknown_method')
+        return this.maybe_reconnect(e).then( () => this.call(method, params) )
+      throw(e)
+    })
+  }
+  maybe_reconnect(e){
+    return rpc.call("plugin.is_running", [this.uuid]).then( (is_running) => {
+      if (is_running)
+        throw(e)
+      else{
+        return this.start()
+      }
+    })
+  }
+  stop(){
     return rpc.call("plugin.stop", [this.uuid])
   }
 }
 
-export function start(pluginid){
-  return rpc.call("plugin.start", [pluginid]).then( (uuid) => new PluginCaller(uuid) )
+export function start(pluginid, options={}){
+  const pc = new PluginCaller(pluginid)
+  return pc.start()
 }
 
 export default {load, add_screen, do_screen, add_widget, do_widget, join_path, start}

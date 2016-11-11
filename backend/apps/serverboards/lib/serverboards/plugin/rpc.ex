@@ -52,6 +52,15 @@ defmodule Serverboards.Plugin.RPC do
           end
     end, [required_perm: "plugin", context: true]
 
+    RPC.MethodCaller.add_method method_caller, "plugin.is_running", fn
+      [id], context ->
+        if has_perm_for_plugin(context, :any) do
+          Plugin.Runner.status(id) == :running
+        else
+          {:error, :unknown_method}
+        end
+    end, [required_perm: "plugin", context: true]
+
     RPC.MethodCaller.add_method method_caller, "plugin.list", fn
       [] ->
         Serverboards.Plugin.Registry.list
