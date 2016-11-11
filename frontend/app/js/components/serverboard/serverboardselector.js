@@ -60,6 +60,9 @@ const Selector=React.createClass({
         }
       })
   },
+  componentWillReceiveProps(newprops){
+    this.setState({serverboards: newprops.serverboards.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })})
+  },
   componentDidUpdate(){
     $(this.refs.el).find('.menu').animate({
       scrollTop: Math.max(0, (this.state.selected * 59) - 200)
@@ -77,7 +80,7 @@ const Selector=React.createClass({
     const serverboards = state.serverboards
     return (
       <div>
-        <div style={{position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh", background: "none"}} onClick={() => props.onClose()}/>
+        <div style={{position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh", background: "none"}} onClick={() => props.onClose && props.onClose()}/>
         <div ref="el" className={`ui vertical menu serverboard selector ${props.className}`}>
           <div className="ui search">
             <div className="ui icon input">
