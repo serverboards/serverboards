@@ -1,8 +1,15 @@
 import React from 'react'
 import {random_color} from 'app/utils'
 import Board from 'app/containers/serverboard/board'
+import Loading from '../loading'
 
 function Overview(props){
+  if (!props.serverboard)
+    return (
+      <Loading>
+        Serverboard data
+      </Loading>
+    )
   function tag(tagname){
     return (
       <span key={tagname} className={`ui label ${random_color(tagname)}`}>
