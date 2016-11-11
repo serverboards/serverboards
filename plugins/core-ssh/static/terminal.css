@@ -1,5 +1,7 @@
-.ui .terminal {
+.ui.container > .terminal {
   background: #191919; }
+  .ui.container > .terminal .terminal {
+    background: #191919; }
 
 .ui.tool.terminal > .ui.top.secondary.header.menu {
   border-bottom: 1px solid #666;
