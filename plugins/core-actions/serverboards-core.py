@@ -22,13 +22,17 @@ def ping(ip=None, url=None):
         if ms:
             return { "ms" : float(ms[0]) }
         return False
-    elif url:
+    elif url.startswith("http://") or url.startswith("https://") or url.startswith("ftp://") :
         return { "ms": http_get(url)["ms"] }
     raise Exception("Invalid ping type")
 
 @serverboards.rpc_method
 def http_get(url=None):
-    ret = requests.get(url)
+    try:
+        ret = requests.get(url)
+    except:
+        import traceback; traceback.print_exc()
+        raise Exception("Cant get resource")
     return {
         #"text": ret.text,
         "code": ret.status_code,
