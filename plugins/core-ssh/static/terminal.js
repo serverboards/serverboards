@@ -125,6 +125,7 @@ function main(element, config){
     term.host=host
     term.term = new Terminal({
       cursorBlink: true,
+      theme: 'serverboards',
     })
     term.term.open(term.$el.find('pre.terminal')[0])
     term.term.fit()
