@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, os
+import sys, os, pty
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
@@ -67,12 +67,12 @@ def _open(url, uidesc=None):
 
     (opts, url) = url_to_opts(url)
     opts += ['--', '/bin/bash']
-    serverboards.rpc.debug(repr(opts))
-    #sp=pexpect.spawn("/usr/bin/ssh",opts)
+    (ptymaster, ptyslave) = pty.openpty()
+
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _uuid = str(uuid.uuid4())
-    sessions[_uuid]=dict(process=sp, buffer=b"", end=0, uidesc=uidesc)
+    sessions[_uuid]=dict(process=sp, buffer=b"", end=0, uidesc=uidesc, ptymaster=ptymaster)
 
     serverboards.rpc.add_event(sp.stdout, lambda :new_data_event(_uuid) )
 
@@ -102,14 +102,33 @@ def send(uuid, data=None, data64=None):
     data64 is needed as control charaters as Crtl+L are not utf8 encodable and
     can not be transmited via json.
     """
-    sp=sessions[uuid]['process']
+    sp=sessions[uuid]
     if not data:
         data=base64.decodestring(bytes(data64,'ascii'))
     else:
         data=bytes(data, 'ascii')
     #ret = sp.send(data)
-    ret = os.write( sp.stdin.fileno(), data )
+    ret = os.write( sp["ptymaster"], data )
     return ret
+
+@serverboards.rpc_method
+def send_control(uuid, type, data):
+    """
+    Sends control data to the terminal, as for example resize events
+    """
+    sp=sessions[uuid]
+    if type=='resize':
+        import termios
+        import struct
+        import fcntl
+
+        winsize = struct.pack("HHHH", data['rows'], data['cols'], 0, 0)
+        fcntl.ioctl(sp['ptymaster'], termios.TIOCSWINSZ, winsize)
+
+        return True
+    else:
+        serverboards.warning("Unknown control type: %s"%(type))
+        return False
 
 @serverboards.rpc_method
 def sendline(uuid, data):
@@ -147,7 +166,6 @@ def recv(uuid, start=None, encoding='utf8'):
     most situations may suffice to restore current view. Also can be used to do
     polling, although events are recomended.
     """
-    serverboards.rpc.debug(repr(sessions))
     sp = sessions[uuid]
     raw_data = sp['buffer']
     bend = sp['end']
@@ -238,4 +256,4 @@ if __name__=='__main__':
         print(recv(localhost))
         print()
     else:
-        serverboards.loop( debug = False )
+        serverboards.loop()

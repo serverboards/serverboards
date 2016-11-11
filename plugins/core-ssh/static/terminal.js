@@ -121,6 +121,20 @@ function main(element, config){
       term.send_buffer=''
     }, 20)
   }
+  function send_resize(data){
+    console.log("Resize terminal to %ox%o", data.cols, data.rows)
+    rpc.call(term.ssh+".send_control", {
+      uuid: term.host,
+      type: "resize",
+      data: {
+        cols: data.cols,
+        rows: data.rows
+      }
+    })
+  }
+  function viewport_resize(){
+    term.term.fit()
+  }
   function setup_host(host){
     term.host=host
     term.term = new Terminal({
@@ -128,9 +142,10 @@ function main(element, config){
       theme: 'serverboards',
     })
     term.term.open(term.$el.find('pre.terminal')[0])
-    term.term.fit()
     term.term.on('data', send_data)
+    term.term.on('resize', send_resize)
     term.end=undefined
+    term.term.fit()
 
     // subscribe to new data at terminal
     var evname='terminal.data.received.'+host
@@ -193,9 +208,11 @@ function main(element, config){
     Flash.error("Could not start SSH session\n\n"+e)
   })
   console.log(term)
+  $(window).on('resize', viewport_resize)
 
   return function(){
     unsetup_host()
+    $(window).off('resize', viewport_resize)
     term.$el.html('')
   }
 }
