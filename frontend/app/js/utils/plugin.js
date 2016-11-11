@@ -129,9 +129,10 @@ export function do_widget(id, el, data, context){
 }
 
 class PluginCaller{
-  constructor(pluginid){
+  constructor(pluginid, options = {}){
     this.pluginid = pluginid
     this.uuid = undefined
+    this.options = { restart: true }
   }
   start(method, params){
     return rpc.call("plugin.start", [this.pluginid]).then( (uuid_) => {
@@ -147,6 +148,8 @@ class PluginCaller{
     })
   }
   maybe_reconnect(e){
+    if (!this.options.restart)
+      throw(e)
     return rpc.call("plugin.is_running", [this.uuid]).then( (is_running) => {
       if (is_running)
         throw(e)
@@ -161,7 +164,7 @@ class PluginCaller{
 }
 
 export function start(pluginid, options={}){
-  const pc = new PluginCaller(pluginid)
+  const pc = new PluginCaller(pluginid, options)
   return pc.start()
 }
 
