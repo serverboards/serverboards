@@ -118,7 +118,7 @@ const SelectCall = React.createClass({
       pl.call(props.options.call,[]).then( (items) => {
         console.log(items)
         self.setState({items})
-        pl.close()
+        pl.stop()
         $(self.refs.select).dropdown({
           onChange(value){
             self.props.setValue(self.props.name, value)
