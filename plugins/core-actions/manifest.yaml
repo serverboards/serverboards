@@ -105,6 +105,6 @@ components:
   - name: Core actions.
     type: cmd
     id: cmd
-    timeout: 5s
+    timeout: 20s
     command: serverboards-core.py
     perms: service.info service.update notifications.notify notifications.notify_all settings.view[serverboards.core.settings/base]

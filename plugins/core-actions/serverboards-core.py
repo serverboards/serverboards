@@ -3,8 +3,7 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-import requests
-import subprocess, re
+import requests, subprocess, re, socket, urlparse, time
 
 @serverboards.rpc_method
 def ping(ip=None, url=None):
@@ -23,8 +22,37 @@ def ping(ip=None, url=None):
             return { "ms" : float(ms[0]) }
         return False
     elif url.startswith("http://") or url.startswith("https://") or url.startswith("ftp://") :
-        return { "ms": http_get(url)["ms"] }
+        res = http_get(url)
+        return { "ms": res["ms"], "description" :  "Response code: %s"%(res["code"]) }
+    elif '://' in url:
+        res = socket_connect(url)
+        return { "ms": res["ms"], "description" :  "Socket connection time." }
+
     raise Exception("Invalid ping type")
+
+@serverboards.rpc_method
+def socket_connect(url=None):
+    purl=urlparse.urlparse(url)
+    host=purl.hostname
+    port=purl.port or str(purl.scheme)
+    #serverboards.rpc.debug("<%s> <%s> %s"%(host, type(port), repr(purl)))
+
+    initt=time.time()
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except:
+        return False
+    sock.settimeout(5)
+    for address in socket.getaddrinfo(host, port):
+        #serverboards.rpc.debug("<%s>"%(repr(address)))
+        try:
+            result = sock.connect_ex( address[4] )
+            if result == 0:
+                return { "ms" : 1000.0 * (time.time() - initt) }
+        except (IOError, TypeError):
+            pass # as it tries all resolutions, normally is no IPv6 supported
+
+    raise Exception("Could not connect")
 
 @serverboards.rpc_method
 def http_get(url=None):
