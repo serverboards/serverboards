@@ -103,7 +103,6 @@ const SidebarSections = React.createClass({
             <MenuItem section="dashboard">Dashboard</MenuItem>
             <MenuItem section="services">Services</MenuItem>
             <MenuItem section="rules">Rules</MenuItem>
-            <MenuItem section="settings">Settings</MenuItem>
           </div>
           <ScreensMenu
             services={props.serverboard.services}
@@ -112,6 +111,10 @@ const SidebarSections = React.createClass({
             current={props.section}
             onSectionChange={this.handleSectionChange}
             />
+          <div>
+            <MenuItem section="settings">Settings</MenuItem>
+          </div>
+
         </div>
         {this.state.show_serverboard_selector ? (
           <ServerboardSelector onClose={this.toggleShowServerboardSelector} className="center"/>
