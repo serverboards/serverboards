@@ -25,8 +25,6 @@ var Top=Event.subscribe_connect(
 rpc.on("action.stopped", function(data){
   if (data.result=="error")
     Flash.error(`Error running "${data.name}": ${data.reason}`)
-  else
-    Flash.info(`Running "${data.name}" finished succesfully`)
 })
 
 export default Top
