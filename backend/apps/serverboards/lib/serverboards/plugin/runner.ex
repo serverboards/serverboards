@@ -236,7 +236,7 @@ defmodule Serverboards.Plugin.Runner do
   @doc ~S"""
   Simple call to do the full cycle of start a plugin, call a method and stop it.
   """
-  def start_call_stop(command_id, method, params) do
+  def start_call_stop(command_id, method, params \\ []) do
     case start(command_id) do
       {:error, e} -> {:error, e}
       {:ok, uuid} ->
@@ -333,6 +333,8 @@ defmodule Serverboards.Plugin.Runner do
     entry = state.running[uuid]
     cond do
       entry == nil ->
+        {:reply, {:error, :not_running}, state }
+      :exit ->
         {:reply, {:error, :not_running}, state }
       entry.strategy == :one_for_one ->
         # Maybe remove from timeouts

@@ -166,7 +166,7 @@ defmodule Serverboards.Auth do
 
 
 	defp try_login_default_plugins(params) do
-		Logger.debug("Try login with params #{inspect params}")
+		#Logger.debug("Try login with params #{inspect params}")
 		auths = auth_components
 			|> Enum.filter(&(&1.login.params == "default"))
 			|> try_login_by_plugins(params)
@@ -183,7 +183,7 @@ defmodule Serverboards.Auth do
 	end
 
 	defp try_login_by_auth(%{ command: command, login: %{ call: call }, id: id } = auth, params) when is_binary(command) and is_binary(call) do
-		Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
+		#Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
 		 case Serverboards.Plugin.Runner.start_call_stop(command, call, params) do
 		  {:ok, email} when is_binary(email) ->
 				Logger.info("Login via #{inspect id} for user #{inspect email}", user: email, auth: auth)
@@ -201,6 +201,7 @@ defmodule Serverboards.Auth do
 					is_active: true
 				}
 			o ->
+				Logger.debug("Could not load at #{inspect id} because of #{inspect o}")
 				false
 		 end
 	end
@@ -289,17 +290,23 @@ defmodule Serverboards.Auth do
 	def auth_components do
 		Serverboards.Plugin.Registry.filter_component(type: "auth")
 		 |> Enum.map(fn c ->
-			 Logger.debug(inspect c)
-			 %{
-				 id: c.id,
-				 name: c.name,
-				 description: c.description,
-				 command: c.extra["command"],
-				 login: %{
-					 call: c.extra["login"]["call"],
-					 params: c.extra["login"]["params"]
+			 try do
+				 %{
+					 id: c.id,
+					 name: c.name,
+					 description: c.description,
+					 command: c.extra["command"],
+					 login: %{
+						 call: c.extra["login"]["call"],
+						 params: c.extra["login"]["params"]
+					 }
 				 }
-			 }
+			 catch
+				 _, _ ->
+				 	Logger.error("Bad formed auth component #{c.id}")
+				 	nil
+			 end
 		 end)
+		 |> Enum.filter(&(&1!=nil))
 	end
 end
