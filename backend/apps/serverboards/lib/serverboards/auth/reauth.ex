@@ -15,7 +15,7 @@ defmodule Serverboards.Auth.Reauth do
     :needs_reauth
     iex> "token" in msg.available
     true
-    iex> reauth r, msg.uuid, %{ "type" => "freepass", "data" => %{} }
+    iex> reauth r, msg.uuid, %{ "type" => "serverboards.test.auth/freepass", "data" => %{} }
     :reauth_success
 
   """
@@ -70,8 +70,8 @@ defmodule Serverboards.Auth.Reauth do
       nil -> {:error, :unknown_reauth}
       cont ->
         case Auth.auth(data) do
-          false -> {:error, needs_reauth_map(uuid)}
-          _email -> cont
+          {:ok, email} -> cont
+          {:error, :unknown_user} -> {:error, needs_reauth_map(uuid)}
         end
     end
     {:reply, ret, status}

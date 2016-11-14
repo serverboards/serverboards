@@ -5,10 +5,27 @@ import serverboards, sys, time, json
 PLUGIN_ID="serverboards.test.auth"
 
 @serverboards.rpc_method
-def auth(type="fake", token=None):
+def auth_token(type="fake", token=None):
+    serverboards.debug("Try auth by token: %s"%token)
     if token=="XXX":
         return 'dmoreno@serverboards.io'
     return False
+
+@serverboards.rpc_method
+def freepass(type="freepass", email="dmoreno@serverboards.io", **kwargs):
+    # use existing one, or fail
+    serverboards.debug("Freepass for %s"%email)
+    return email
+
+@serverboards.rpc_method
+def new_user(type="newuser", username=None, **kwargs):
+    assert username
+    # create if does not exist, update groups
+    return {
+        "username": username,
+        "groups": ["user", "admin"],
+        "name": username
+    }
 
 @serverboards.rpc_method
 def ping(*args):

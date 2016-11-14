@@ -233,6 +233,19 @@ defmodule Serverboards.Plugin.Runner do
     call(id, method, %{})
   end
 
+  @doc ~S"""
+  Simple call to do the full cycle of start a plugin, call a method and stop it.
+  """
+  def start_call_stop(command_id, method, params) do
+    case start(command_id) do
+      {:error, e} -> {:error, e}
+      {:ok, uuid} ->
+        res = call(uuid, method, params)
+        stop(uuid)
+        res
+    end
+  end
+
   #def cast(id, method, params, cont) do
   #  runner = Serverboards.Plugin.Runner
   #  case GenServer.call(runner, {:get, id}) do

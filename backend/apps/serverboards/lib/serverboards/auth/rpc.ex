@@ -15,13 +15,14 @@ defmodule Serverboards.Auth.RPC do
     ## My own user management
     add_method mc, "auth.set_password", fn [current, password], context ->
       user = RPC.Context.get(context, :user)
-      if (Serverboards.Auth.auth(%{"type" => "basic", "email" => user.email, "password" => current})) do
-        Logger.info("#{user.email} changes password.", user: user.email)
+      case (Serverboards.Auth.auth(%{"type" => "basic", "email" => user.email, "password" => current})) do
+        {:ok, user} ->
+          Logger.info("#{user.email} changes password.", user: user.email)
 
-        Serverboards.Auth.User.Password.password_set(user, password, user)
-      else
-        Logger.error("#{user.email} try to change password, no match previous.", user: user.email)
-        {:error, :invalid_password}
+          Serverboards.Auth.User.Password.password_set(user, password, user)
+        {:error, other} ->
+          Logger.error("#{user.email} try to change password, no match previous.", user: user.email)
+          {:error, :invalid_password}
       end
     end, [required_perm: "auth.modify_self", context: true]
 
@@ -59,8 +60,6 @@ defmodule Serverboards.Auth.RPC do
       me = RPC.Context.get(context, :user)
       Auth.User.user_update email, operations, me
     end, [required_perm: "auth.modify_self", context: true]
-
-
 
     ## Group management
     add_method mc, "group.list", fn [] ->
