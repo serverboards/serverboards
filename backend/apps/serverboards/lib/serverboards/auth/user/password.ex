@@ -15,7 +15,8 @@ defmodule Serverboards.Auth.User.Password do
 	 end
 	 if user do
 		 if password_check(user, password, user) do
-			 Serverboards.Auth.User.user_info(user)
+			 {:ok, user} = Serverboards.Auth.User.user_info(user)
+			 user
 		 else
 			 {:error, :invalid_user_or_password}
 		 end

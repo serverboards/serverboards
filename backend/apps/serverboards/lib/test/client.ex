@@ -30,14 +30,14 @@ defmodule Test.Client do
       Serverboards.Auth.authenticate(client)
 
       Client.expect( client, method: "auth.required" )
-      user = Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] }
-      if user do
-        token = Serverboards.Auth.User.Token.create(user)
-        user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
-        :ok
-      else
-        Logger.warn("Test client cant log as user #{inspect maybe_user}")
-        :cant_log_in
+      case Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] } do
+        {:ok, user} ->
+          token = Serverboards.Auth.User.Token.create(user)
+          user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+          :ok
+        {:error, _} ->
+          Logger.warn("Test client cant log as user #{inspect maybe_user}")
+          :cant_log_in
       end
     else
       :ok

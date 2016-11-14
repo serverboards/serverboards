@@ -132,7 +132,7 @@ defmodule Serverboards.Auth.RPC do
             user = RPC.Client.get client, :user
             %{ group: group } = data
             if group in user.groups do
-              user = Auth.User.user_info user.email, user
+              {:ok, user} = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
@@ -141,7 +141,7 @@ defmodule Serverboards.Auth.RPC do
           type in ["group.user_added","group.user_removed"] ->
             user = RPC.Client.get client, :user
             if data.email == user.email do
-              user = Auth.User.user_info user.email, user
+              {:ok, user} = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])

@@ -31,6 +31,17 @@ components:
       call: freepass
       params: []
 
+  - name: New User
+    id: new_user
+    type: auth
+    command: serverboards.test.auth/fake
+    login:
+      call: new_user
+      params:
+        - name: username
+          type: text
+
+
   - name: generic component
     type: service
     traits: generic

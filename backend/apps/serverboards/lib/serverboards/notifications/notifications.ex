@@ -97,7 +97,7 @@ defmodule Serverboards.Notifications do
   end
 
   def notify_real_one(email, subject, body, extra) do
-    user = Auth.User.user_info(email, %{ email: email})
+    {:ok, user} = Auth.User.user_info(email, %{ email: email})
     extra = extra
       |> Map.merge(%{ "email" => email, "user" => user })
 
@@ -150,7 +150,7 @@ defmodule Serverboards.Notifications do
   end
 
   defp config_update_real(email, channel, config, is_active) do
-    user = Auth.User.user_info(email, %{ email: email})
+    {:ok, user} = Auth.User.user_info(email, %{ email: email})
     changes = %{ user_id: user.id, config: config, is_active: is_active, channel: channel }
     import Ecto.Query
 

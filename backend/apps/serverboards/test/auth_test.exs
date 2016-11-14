@@ -32,7 +32,7 @@ defmodule Serverboards.AuthTest do
 		Client.expect( client, method: "auth.required" )
 		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }) == {:ok, false}
 
-    user = Serverboards.Auth.User.user_info "dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" }
+    {:ok, user} = Serverboards.Auth.User.user_info "dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" }
     token = Serverboards.Auth.User.Token.create(user)
 
 		{:ok, user} = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
@@ -225,5 +225,19 @@ defmodule Serverboards.AuthTest do
 
     # fail if do not exist
     {:error, :unknown_user} = Serverboards.Auth.auth(%{ "type" => @freepass, "email" => "dmoreno--XX@serverboards.io"})
+  end
+
+  test "Login new user, has to be created at db" do
+    assert {:error, :unknown_user} == Serverboards.Auth.User.user_info "dmoreno+e@serverboards.io"
+
+    {:ok, user} = Serverboards.Auth.auth(%{ "type" => "serverboards.test.auth/new_user", "username" => "dmoreno+e@serverboards.io"})
+    assert "admin" in user.groups
+    assert "user" in user.groups
+    assert "plugin" in user.perms
+
+    {:ok, %{ email: "dmoreno+e@serverboards.io", groups: groups }} = Serverboards.Auth.User.user_info "dmoreno+e@serverboards.io"
+    assert "admin" in groups
+    assert "user" in groups
+    assert "plugin" in user.perms
   end
 end

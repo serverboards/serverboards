@@ -22,7 +22,7 @@ def new_user(type="newuser", username=None, **kwargs):
     assert username
     # create if does not exist, update groups
     return {
-        "username": username,
+        "email": username,
         "groups": ["user", "admin"],
         "name": username
     }

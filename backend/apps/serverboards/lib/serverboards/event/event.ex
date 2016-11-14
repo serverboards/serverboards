@@ -17,7 +17,7 @@ defmodule Serverboards.Event do
         if event_type in subscriptions do
           guards = Map.get(payload, :guards, [])
           user = MOM.RPC.Client.get client, :user
-          #user = Serverboards.Auth.User.user_info user.email, user
+          #{:ok, user} = Serverboards.Auth.User.user_info user.email, user
           #Logger.debug("Perms: #{inspect user} / #{inspect guards}")
           if check_guards(guards, user) do
             # If it was an event with context, remove it. Was used only for guards.

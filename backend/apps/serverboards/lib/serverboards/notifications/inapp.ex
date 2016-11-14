@@ -45,7 +45,7 @@ defmodule Serverboards.Notifications.InApp do
   end
 
   def update_real(id, what, email) do
-    me = Serverboards.Auth.User.user_info email, %{email: email}
+    {:ok, me} = Serverboards.Auth.User.user_info email
     model = %Serverboards.Notifications.Model.Notification{}
       |> Map.merge(details(id, me))
       |> Map.put(:user_id, me.id)

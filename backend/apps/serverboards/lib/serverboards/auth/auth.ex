@@ -58,7 +58,9 @@ defmodule Serverboards.Auth do
 	def auth(%{ "type" => type } = params) do
 		user = case type do
 			"basic" ->
-				try_login_default_plugins(params) || email_auth(params)
+				(try_login_default_plugins(params)
+					|> ensure_exists_in_db(type) # requires update db
+				) || email_auth(params)
 			"token" ->
 				token_auth(params)
 			other ->
@@ -67,6 +69,7 @@ defmodule Serverboards.Auth do
 
 				if auth do
 					try_login_by_auth(auth, params)
+						|> ensure_exists_in_db(type) # requires update db
 				else
 					Logger.warn("Unknown auth method #{inspect type}", type: type)
 					false
@@ -77,7 +80,6 @@ defmodule Serverboards.Auth do
 		if user do
 			{:ok,
 				user
-					|> ensure_exists_in_db
 					|> decorate
 				}
 		else
@@ -101,20 +103,59 @@ defmodule Serverboards.Auth do
 	# all perms from the given groups
 	defp perms_from_groups(groups) do
 		import Ecto.Query
-		Repo.all(
+		Serverboards.Repo.all(
 			from perms in Serverboards.Auth.Model.Permission,
 			join: pg in Serverboards.Auth.Model.GroupPerms,
 			  on: pg.perm_id == perms.id,
 			join: group in Serverboards.Auth.Model.Group,
 			  on: pg.group_id == group.id,
 			where: group.name in ^groups,
-			select: perms.name,
+			select: perms.code,
 			distinct: true
 			)
 	end
 
-	defp ensure_exists_in_db(user) do
-		user
+	defp ensure_exists_in_db(false, _creator), do: false
+	defp ensure_exists_in_db(user, creator) do
+		Logger.debug("Ensure in db #{inspect user}")
+		# check if exists, or create
+		nuser = case Serverboards.Repo.get_by(Serverboards.Auth.Model.User, email: user.email) do
+			nil ->
+				Logger.info("Automatically creating the user #{inspect user.email}", user: user)
+				Serverboards.Auth.User.user_add(user, %{ email: creator, perms: ["auth.create_user"]})
+				%{ user | groups: [] }
+			nuser ->
+				# If exists, check it is active, nuser here only for test
+				if nuser.is_active do
+					user
+				else
+					nil
+				end
+		end
+
+		# update groups
+		nuser = if nuser do
+			newgroups = MapSet.new user.groups
+			oldgroups = MapSet.new nuser.groups
+			if not MapSet.equal?(newgroups, oldgroups)  do
+				group_list = Serverboards.Auth.Group.group_list(nuser)
+				for g <- MapSet.difference(newgroups, oldgroups) do
+					if g in group_list do
+						Logger.debug("Add #{inspect nuser.email} to group #{inspect g}")
+						:ok = Serverboards.Auth.Group.user_add( g, nuser.email, %{ email: creator, perms: ["auth.manage_groups"]})
+					end
+				end
+				for g <- MapSet.difference(oldgroups, newgroups) do
+					Logger.debug("Remove #{inspect nuser.email} from group #{inspect g}")
+					:ok = Serverboards.Auth.Group.user_remove( g, nuser.email, %{ email: creator, perms: ["auth.manage_groups"]})
+				end
+			end
+			%{ nuser | groups: user.groups }
+		end
+
+		Logger.debug("Ready user #{inspect nuser}")
+
+		nuser
 	end
 
 	def client_set_user(client, user) do
@@ -144,16 +185,20 @@ defmodule Serverboards.Auth do
 	defp try_login_by_auth(%{ command: command, login: %{ call: call }, id: id } = auth, params) when is_binary(command) and is_binary(call) do
 		Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
 		 case Serverboards.Plugin.Runner.start_call_stop(command, call, params) do
-		  {:ok, username} when is_binary(username) ->
-				Logger.info("Login via #{inspect id} for user #{inspect username}", user: username, auth: auth)
-				Serverboards.Auth.User.user_info(username)
+		  {:ok, email} when is_binary(email) ->
+				Logger.info("Login via #{inspect id} for user #{inspect email}", user: email, auth: auth)
+				case Serverboards.Auth.User.user_info(email) do
+					{:ok, user}  -> user
+					_ -> false
+				end
 		 	{:ok, %{} = user} ->
-				Logger.info("Login via #{inspect id} for user #{inspect user.username}", user: user, auth: auth)
+				Logger.info("Login via #{inspect id} for user #{inspect user["email"]}", user: user, auth: auth)
 				%{
-					username: user["username"],
+					email: user["email"],
 					name: user["name"],
 					perms: user["perms"],
-					groups: user["groups"]
+					groups: user["groups"],
+					is_active: true
 				}
 			o ->
 				false

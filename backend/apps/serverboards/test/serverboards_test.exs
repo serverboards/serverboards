@@ -60,7 +60,7 @@ defmodule ServerboardsTest do
   test "Serverboard lifecycle", %{ agent: agent, system: system } do
     import Serverboards.Serverboard
 
-    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = serverboard_add "SBDS-TST3", %{ "name" => "serverboards" }, user
     assert check_if_event_on_serverboard(agent, "serverboard.added", "SBDS-TST3")
 
@@ -128,7 +128,7 @@ defmodule ServerboardsTest do
   test "Update serverboards tags", %{ system: system } do
     import Serverboards.Serverboard
 
-    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:error, :not_found } = serverboard_info "SBDS-TST5", user
 
     {:ok, "SBDS-TST5"} = serverboard_add "SBDS-TST5", %{ "name" => "serverboards" }, user
@@ -244,7 +244,7 @@ defmodule ServerboardsTest do
   test "Screens on serverboard", %{ system: system } do
     import Serverboards.Serverboard
     import Serverboards.Service
-    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     serverboard_add "SBDS-TST13", %{ "name" => "Test 13" }, user
 
     {:ok, info} = serverboard_info "SBDS-TST13", user
