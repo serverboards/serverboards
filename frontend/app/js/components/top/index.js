@@ -13,7 +13,7 @@ function notifications_color(notifications){
     return ""
   for(let n of notifications){
     if (n.tags.indexOf("new")>=0)
-      return "green"
+      return "blue"
   }
   return "yellow"
 }
@@ -75,18 +75,22 @@ const Top = React.createClass({
         <div className="right menu">
           <a className="item" ref="notifications_item">
             <i className="announcement icon"></i>
-            <span
-              className={`ui mini label floating circular ${notifications_color(props.notifications)}`}
-              style={{top: 3, left: 43}}
-              >{(props.notifications || []).length}</span>
+            {((props.notifications||[]).length > 0) ? (
+              <span
+                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
+                style={{top: 8, left: 38}}
+                />
+              ) : null}
           </a>
           <NotificationsMenu open_time={this.state.open_time}/>
           <a className="item" onClick={() => props.toggleMenu('processes')}>
             <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
-            <span
-              className={`ui mini label floating circular ${props.actions.length==0 ? "" : "teal"}`}
-              style={{top: 3, left: 43}}
-              >{props.actions.length}</span>
+            {(props.actions.length>0) ? (
+              <span
+                className="ui micro label floating circular blue"
+                style={{top: 8, left: 38}}
+                />
+            ) : null}
           </a>
           <a className="item" onClick={() => props.toggleMenu('user')}>
           <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
