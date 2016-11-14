@@ -11,6 +11,7 @@ components:
     id: fake
     perms: plugin.data[serverboards.test.auth]
     command: auth.py
+    traits: auth
 
   - name: Token auth test
     id: auth

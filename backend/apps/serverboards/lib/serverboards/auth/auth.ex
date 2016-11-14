@@ -232,10 +232,10 @@ defmodule Serverboards.Auth do
 				Logger.debug("Reset password for #{email}")
 				# Check user exists, and is active
 				case Serverboards.Auth.User.user_info(email, [require_active: true], %{email: email}) do
-					false ->
+					{:error, :unknown_user} ->
 						Logger.error("Denied password reset link requested for #{email}")
 						{:error, :not_allowed}
-					me ->
+					{:ok, me} ->
 						Logger.info("Password reset link requested for #{email}")
 						token = Serverboards.Auth.User.Token.create(me, ["auth.reset_password"])
 						link="http://localhost:3000/#?pr=#{token}"
