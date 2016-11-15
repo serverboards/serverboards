@@ -15,13 +15,14 @@ defmodule Serverboards.Auth.RPC do
     ## My own user management
     add_method mc, "auth.set_password", fn [current, password], context ->
       user = RPC.Context.get(context, :user)
-      if (Serverboards.Auth.auth(%{"type" => "basic", "email" => user.email, "password" => current})) do
-        Logger.info("#{user.email} changes password.", user: user.email)
+      case (Serverboards.Auth.auth(%{"type" => "basic", "email" => user.email, "password" => current})) do
+        {:ok, user} ->
+          Logger.info("#{user.email} changes password.", user: user.email)
 
-        Serverboards.Auth.User.Password.password_set(user, password, user)
-      else
-        Logger.error("#{user.email} try to change password, no match previous.", user: user.email)
-        {:error, :invalid_password}
+          Serverboards.Auth.User.Password.password_set(user, password, user)
+        {:error, other} ->
+          Logger.error("#{user.email} try to change password, no match previous.", user: user.email)
+          {:error, :invalid_password}
       end
     end, [required_perm: "auth.modify_self", context: true]
 
@@ -59,8 +60,6 @@ defmodule Serverboards.Auth.RPC do
       me = RPC.Context.get(context, :user)
       Auth.User.user_update email, operations, me
     end, [required_perm: "auth.modify_self", context: true]
-
-
 
     ## Group management
     add_method mc, "group.list", fn [] ->
@@ -133,7 +132,7 @@ defmodule Serverboards.Auth.RPC do
             user = RPC.Client.get client, :user
             %{ group: group } = data
             if group in user.groups do
-              user = Auth.User.user_info user.email, user
+              {:ok, user} = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
@@ -142,7 +141,7 @@ defmodule Serverboards.Auth.RPC do
           type in ["group.user_added","group.user_removed"] ->
             user = RPC.Client.get client, :user
             if data.email == user.email do
-              user = Auth.User.user_info user.email, user
+              {:ok, user} = Auth.User.user_info user.email, user
               RPC.Client.set client, :user, user
 
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])

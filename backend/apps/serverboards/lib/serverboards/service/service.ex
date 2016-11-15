@@ -140,7 +140,7 @@ defmodule Serverboards.Service do
   end
 
   defp service_add_real( uuid, attributes, me) do
-    user = Serverboards.Auth.User.user_info( me, %{ email: me } )
+    {:ok, user} = Serverboards.Auth.User.user_info( me, %{ email: me } )
     {:ok, service} = Repo.insert( %ServiceModel{
       uuid: uuid,
       name: attributes.name,

@@ -1,0 +1,33 @@
+id: serverboards.core.auth.pam
+name: PAM Authentication
+description: |
+  Allows to access serverboards using PAM, enabling use of many technologies
+  to be used for login.
+
+  Users try to log in the `serverboards` service.
+
+  When new users try to login and htey do not exist a proper user is created
+  with the user name.
+
+  If any of the groups of the user matches the name of a group in Serverboards,
+  it is added to such group. This is checked and modified on every login.
+
+  If any group starts with `serverboards-`, it will be added as well, without
+  the initial `serverboards-`. For example `serverboards-admin` will be added as
+  `admin`.
+
+components:
+  - id: cmd
+    name: PAM Authenticator Daemon
+    type: cmd
+    command: serverboards-pam.py
+    #type: singleton
+    # timeout: 1m
+
+  - id: pam
+    name: PAM Auth
+    type: auth
+    command: serverboards.core.auth.pam/cmd
+    login:
+      call: auth
+      params: default

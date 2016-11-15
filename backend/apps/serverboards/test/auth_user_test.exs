@@ -17,22 +17,22 @@ defmodule Serverboards.AuthUserTest do
     # Setting the shared mode must be done only after checkout
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
 
-    me = User.user_info("dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" })
+    {:ok, me} = User.user_info("dmoreno@serverboards.io")
     #Ecto.Adapters.SQL.restart_test_transaction(Serverboards.Repo, [])
     :ok = User.user_add(%{
       email: "dmoreno+a@serverboards.io",
       name: "David Moreno",
       is_active: true,
       }, me)
-    user = User.user_info("dmoreno+a@serverboards.io", me)
+    {:ok, user} = User.user_info("dmoreno+a@serverboards.io", me)
 
     :ok = User.user_add(%{
       email: "dmoreno+b@serverboards.io",
       name: "David Moreno",
       is_active: true,
       }, me)
-    userb = User.user_info("dmoreno+b@serverboards.io", me)
-    admin = User.user_info("dmoreno@serverboards.io", me)
+    {:ok, userb} = User.user_info("dmoreno+b@serverboards.io", me)
+    {:ok, admin} = User.user_info("dmoreno@serverboards.io", me)
 
     #{:ok, group} = Repo.insert(%Group{ name: "admin" })
     :ok = Group.group_add("admin+a", me)
@@ -149,7 +149,8 @@ defmodule Serverboards.AuthUserTest do
     Group.perm_add("admin+a", "auth.modify_self", admin)
     Group.perm_add("admin+a", "debug", admin)
 
-    perms = (User.user_info (user)).perms
+    {:ok, user} = User.user_info (user)
+    perms = user.perms
     assert "auth.modify_self" in perms
   end
 

@@ -6,12 +6,42 @@ id: serverboards.test.auth
 version: 0.0.1
 
 components:
-  - name: fake auth
+  - name: daemon
     type: cmd
-    traits: auth
     id: fake
     perms: plugin.data[serverboards.test.auth]
     command: auth.py
+    traits: auth
+
+  - name: Token auth test
+    id: auth
+    type: auth
+    command: serverboards.test.auth/fake
+    login:
+      call: auth_token
+      params:
+        - name: token
+          label: Token
+          type: text
+
+  - name: Freepass
+    id: freepass
+    type: auth
+    command: serverboards.test.auth/fake
+    login:
+      call: freepass
+      params: []
+
+  - name: New User
+    id: new_user
+    type: auth
+    command: serverboards.test.auth/fake
+    login:
+      call: new_user
+      params:
+        - name: username
+          type: text
+
 
   - name: generic component
     type: service

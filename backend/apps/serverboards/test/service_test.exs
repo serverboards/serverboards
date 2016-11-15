@@ -61,7 +61,7 @@ defmodule ServerboardTest do
     import Serverboards.Serverboard
     import Serverboards.Service
 
-    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => email_type }, user
     {:ok, info } = service_info service, user
     assert info.tags == ["tag1", "tag2", "tag3"]
@@ -92,7 +92,7 @@ defmodule ServerboardTest do
     import Serverboards.Serverboard
     import Serverboards.Service
 
-    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
 
     # delete all
     serverboard_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => email_type, "name" => "email", "config" => %{} }] }, user
@@ -119,7 +119,7 @@ defmodule ServerboardTest do
     import Serverboards.Serverboard
     import Serverboards.Service
 
-    user = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", user)
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", user)
 
     serverboard_add "SBDS-TST11", %{ "name" => "Test 1", "services" => [%{ "type" => email_type, "name" => "email", "config" => %{} }] }, user
     {:ok, uuid} = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => email_type }, user

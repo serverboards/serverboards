@@ -4,6 +4,7 @@ defmodule Serverboards.AuthTest do
   use ExUnit.Case, async: false
 	alias Test.Client
 	@moduletag :capture_log
+  @freepass "serverboards.test.auth/freepass"
 
   doctest Serverboards.Auth, import: true
   doctest Serverboards.Auth.Reauth, import: true
@@ -31,7 +32,7 @@ defmodule Serverboards.AuthTest do
 		Client.expect( client, method: "auth.required" )
 		assert Client.call( client, "auth.auth", %{ "type" => "token", "token" => "xxx" }) == {:ok, false}
 
-    user = Serverboards.Auth.User.user_info "dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" }
+    {:ok, user} = Serverboards.Auth.User.user_info "dmoreno@serverboards.io", %{ email: "dmoreno@serverboards.io" }
     token = Serverboards.Auth.User.Token.create(user)
 
 		{:ok, user} = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
@@ -88,7 +89,7 @@ defmodule Serverboards.AuthTest do
         "name" => "test", "is_active" => true
       })
 
-    {:ok, client2} = Client.start_link as: "dmoreno+c@serverboards.io"
+    {:ok, _client2} = Client.start_link as: "dmoreno+c@serverboards.io"
 
     {:ok, :ok} = Client.call(client, "user.update", ["dmoreno+c@serverboards.io", %{ "is_active" => false }])
 
@@ -148,9 +149,9 @@ defmodule Serverboards.AuthTest do
     } = ret
 
     Logger.debug("UUID #{uuid}")
-    assert "freepass" in available
+    assert @freepass in available
 
-    ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: "freepass" }})
+    ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: @freepass }})
     assert ret == {:ok, "reauth_success"}
 
     Client.stop(client)
@@ -170,13 +171,13 @@ defmodule Serverboards.AuthTest do
     } = ret
 
     Logger.debug("UUID #{uuid}")
-    assert "freepass" in available
+    assert @freepass in available
 
     ret = Client.call(client, "auth.reauth", %{ uuid: uuid, data: %{ type: "nopass" }})
     {:error, %{
       "type" => "needs_reauth",
       "uuid" => ^uuid,
-      "available" => available
+      "available" => _available
       }
     } = ret
 
@@ -191,7 +192,7 @@ defmodule Serverboards.AuthTest do
     msg = request_reauth r, fn -> :reauth_success end
     assert msg.type == :needs_reauth
     assert "token" in msg.available
-    res = reauth r, msg.uuid, %{ "type" => "freepass", "data" => %{} }
+    res = reauth r, msg.uuid, %{ "type" => @freepass, "data" => %{} }
     assert res == :reauth_success
   end
 
@@ -210,6 +211,33 @@ defmodule Serverboards.AuthTest do
     assert false == Serverboards.Auth.User.Password.password_check(user, "fdsafdsa", user)
     assert true == Serverboards.Auth.User.Password.password_check(user, "asdfasdf", user)
 
+
+    Logger.warn("Should fail")
     assert {:error, "invalid_password"} == Client.call(client, "auth.set_password", ["fdsafdsa", "asdfasdf"])
+  end
+
+  test "Use custom login, only email; reuse of fail" do
+    {:ok, user} = Serverboards.Auth.auth(%{ "type" => @freepass, "email" => "dmoreno@serverboards.io"})
+    assert user.email == "dmoreno@serverboards.io"
+    assert "user" in user.groups
+    assert "admin" in user.groups
+    assert "plugin" in user.perms
+
+    # fail if do not exist
+    {:error, :unknown_user} = Serverboards.Auth.auth(%{ "type" => @freepass, "email" => "dmoreno--XX@serverboards.io"})
+  end
+
+  test "Login new user, has to be created at db" do
+    assert {:error, :unknown_user} == Serverboards.Auth.User.user_info "dmoreno+e@serverboards.io"
+
+    {:ok, user} = Serverboards.Auth.auth(%{ "type" => "serverboards.test.auth/new_user", "username" => "dmoreno+e@serverboards.io"})
+    assert "admin" in user.groups
+    assert "user" in user.groups
+    assert "plugin" in user.perms
+
+    {:ok, %{ email: "dmoreno+e@serverboards.io", groups: groups }} = Serverboards.Auth.User.user_info "dmoreno+e@serverboards.io"
+    assert "admin" in groups
+    assert "user" in groups
+    assert "plugin" in user.perms
   end
 end

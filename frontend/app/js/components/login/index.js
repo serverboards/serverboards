@@ -30,7 +30,7 @@ var LoginView = React.createClass({
     $(this.refs.el).form({
       on: 'blur',
       fields: {
-        email: 'email',
+        email: 'minLength[1]',
         password: 'minLength[6]'
       }
     }).on('submit', self.handleSubmit)
@@ -77,7 +77,7 @@ var LoginView = React.createClass({
           <div className="content">
             <div className="field">
               <label>Email</label>
-              <input type="email" name="email" placeholder="user@company.com"
+              <input type="text" name="email" placeholder="user@company.com"
                 onChange={(ev) => {this.setState({email: ev.target.value})}}
                 />
             </div>

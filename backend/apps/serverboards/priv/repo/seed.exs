@@ -109,7 +109,7 @@ defmodule Seeds do
   end
 
   def import_password({email, password}) do
-    user = Auth.User.user_info(email, system_user)
+    {:ok, user} = Auth.User.user_info(email, system_user)
     :ok = Auth.User.Password.password_set(user, password, user)
   end
 end

@@ -14,7 +14,7 @@ defmodule Serverboards.Auth.User do
         name: attributes.name,
         is_active: Map.get(attributes, :is_active, true)
 				})
-      user = user_info user
+      {:ok, user} = user_info user
       Serverboards.Event.emit("user.added", %{ user: user}, ["auth.create_user"])
     end
     EventSourcing.subscribe es, :update_user, fn %{ user: email, operations: operations }, _me ->
@@ -22,7 +22,7 @@ defmodule Serverboards.Auth.User do
       {:ok, user} = Repo.update(
         Model.User.changeset(user, operations)
       )
-      user = user_info user
+      {:ok, user} = user_info user
       Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
       Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user.email} )
     end
@@ -59,6 +59,9 @@ defmodule Serverboards.Auth.User do
   Gets an user by email, and updates permissions. Its for other auth modes,
   as token, or external.
   """
+  def user_info(email) when is_binary(email) do
+    user_info(email, %{ email: email })
+  end
   def user_info(email, me) when is_binary(email) do
     user_info(email, [], me)
   end
@@ -69,10 +72,10 @@ defmodule Serverboards.Auth.User do
       cond do
         user == nil ->
           Logger.debug("No such user #{email}")
-          false
+          {:error, :unknown_user}
         Keyword.get(options, :require_active, true) and not user.is_active ->
-          Logger.warn("Try to get non available user by email: #{email}")
-          false
+          Logger.warn("Trying to get non available user by email: #{email}", email: email, me: me)
+          {:error, :unknown_user}
         true ->
           user_info(user)
       end
@@ -81,21 +84,18 @@ defmodule Serverboards.Auth.User do
       {:error, :not_allowed}
     end
   end
-
+  # final decorator, if everything ok on the other, if finishes here
   def user_info(%{} = user) do
-    %{
+    {:ok, %{
       id: user.id,
       email: user.email,
       name: user.name,
       is_active: user.is_active,
       perms: get_perms(user),
       groups: get_groups(user)
-    }
+    }}
   end
 
-  def user_info(email) when is_binary(email) do
-    user_info(email, %{ email: email })
-  end
 
   def user_list(_me) do
     Repo.all( from u in Model.User, select: [u.id, u.email, u.is_active, u.name] )

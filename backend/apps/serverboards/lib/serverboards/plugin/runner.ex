@@ -233,6 +233,19 @@ defmodule Serverboards.Plugin.Runner do
     call(id, method, %{})
   end
 
+  @doc ~S"""
+  Simple call to do the full cycle of start a plugin, call a method and stop it.
+  """
+  def start_call_stop(command_id, method, params \\ []) do
+    case start(command_id) do
+      {:error, e} -> {:error, e}
+      {:ok, uuid} ->
+        res = call(uuid, method, params)
+        stop(uuid)
+        res
+    end
+  end
+
   #def cast(id, method, params, cont) do
   #  runner = Serverboards.Plugin.Runner
   #  case GenServer.call(runner, {:get, id}) do
@@ -315,25 +328,30 @@ defmodule Serverboards.Plugin.Runner do
     # all systems go
     {:reply, :ok, state}
   end
-  def handle_call({:stop, uuid}, _from, state) do
-    #Logger.debug("Stop plugin #{uuid}")
-    entry = state.running[uuid]
-    cond do
-      entry == nil ->
-        {:reply, {:error, :not_running}, state }
-      entry.strategy == :one_for_one ->
-        # Maybe remove from timeouts
-        :timer.cancel(state.timeouts[uuid])
-        running = Map.drop(state.running, [uuid])
+  # only applicable to one_for_one
+  defp drop_uuid(state, uuid) do
+    :timer.cancel(state.timeouts[uuid])
 
-        # only applicable to one_for_one
-        state = %{ state |
-          running: running,
-          timeouts: Map.drop(state.timeouts, [uuid])
-        }
+    %{ state |
+      running: Map.drop(state.running, [uuid]),
+      timeouts: Map.drop(state.timeouts, [uuid])
+    }
+  end
+  def handle_call({:stop, uuid}, _from, state) do
+    entry = state.running[uuid]
+    #Logger.debug("Stop plugin #{uuid}: #{inspect entry}")
+    case entry do
+      nil ->
+        {:reply, {:error, :not_running}, state }
+      :exit ->
+        state = drop_uuid(state, uuid)
+        {:reply, {:error, :exit}, state }
+      %{ strategy: :one_for_one } ->
+        # Maybe remove from timeouts
+        state = drop_uuid(state, uuid)
 
         {:reply, {:ok, entry.pid}, state }
-      true ->
+      _ ->
         #Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
         {:reply, {:error, :cant_stop}, state}
     end

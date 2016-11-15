@@ -259,4 +259,11 @@ defmodule Serverboards.PluginTest do
     res = Serverboards.Plugin.Runner.call cmd2, "ping", "ping"
     assert res == {:ok, "pong"}
   end
+
+  test "Start call stop, various scenarios" do
+    assert {:ok, "pong"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "ping")
+    assert {:error, :exit} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "abort")
+    assert {:error, "Exception requested"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "exception")
+    assert {:error, :not_found} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake--XX", "anything")
+  end
 end
