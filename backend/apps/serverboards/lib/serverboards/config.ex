@@ -37,6 +37,11 @@ defmodule Serverboards.Config do
     * When geting from environment, the environment may have any capitalization,
       and everything will be lowercased.
   """
+  def get(section, keyword, default) do
+    ret = get(section)[keyword] || default
+    Logger.debug("got #{inspect ret}")
+    ret
+  end
   def get(section, default \\ []) when is_atom(section) do
     # It merges from least important to more important, so that later is always
     # what stays.
@@ -53,11 +58,16 @@ defmodule Serverboards.Config do
     case v do
       "true" -> true
       "false" -> false
+      "" -> nil
+      "nil" -> nil
+      "null" -> nil
+      "none" -> nil
       "\""<>s -> if String.ends_with?(s, "\"") do String.slice(s, 0, String.length(s)-1) else v end
       "\'"<>s -> if String.ends_with?(s, "\'") do String.slice(s, 0, String.length(s)-1) else v end
       n -> case Integer.parse(v) do
         :error -> v
-        n -> n
+        {n, ""} -> n
+        o -> o
       end
     end
   end
@@ -82,6 +92,10 @@ defmodule Serverboards.Config do
         end)
   end
 
+  defp remove_comments(text) do
+    {:ok, Regex.replace(~r/#.*?$/, text, "")}
+  end
+
   def get_ini(section) do
     Application.get_env(:serverboards, :ini_files, [])
       |> Enum.map(&get_ini(&1, section))
@@ -89,13 +103,14 @@ defmodule Serverboards.Config do
   end
   def get_ini(tfilename, section) do
     {:ok, filename} = Serverboards.Utils.Template.render(tfilename, System.get_env)
-    with {:ok, data} <- File.read(filename),
+    with {:ok, data_with_comments} <- File.read(filename),
+      {:ok, data} <- remove_comments(data_with_comments),
       {:ok, kwlist} <- :eini.parse(data),
       l when is_list(l) <- kwlist[section] do
         l |> Enum.map(fn {k,v} -> {k, parse_val(v)} end)
     else
-      _ ->
-        Logger.debug("Could not read from #{filename}")
+      error ->
+        Logger.debug("Could not read from #{filename}: #{inspect error}")
         []
     end
   end
@@ -105,10 +120,16 @@ defmodule Serverboards.Config do
     []
   end
   def get_db(section) do
-    case Serverboards.Settings.get(to_string(section)) do
-      {:ok, val} ->
-        val |> Map.to_list |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end )
-      {:error, _} -> []
+    try do
+      case Serverboards.Settings.get(to_string(section)) do
+        {:ok, val} ->
+          val |> Map.to_list |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end )
+        {:error, _} -> []
+      end
+    catch
+      :error, _ ->
+        Logger.error("Error DB not ready getting info for section #{inspect section}")
+        []
     end
   end
 

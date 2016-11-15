@@ -3,7 +3,7 @@ require Logger
 
 defmodule Serverboards.IO.HTTP do
   def start_link(_, [port]) do
-    frontend_path = Application.get_env(:serverboards, :frontend_path, "../frontend/dist")
+    frontend_path = Serverboards.Config.get(:http, :root, "../frontend/dist")
     dispatch = :cowboy_router.compile([
       {:_, # all host names
         [

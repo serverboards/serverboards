@@ -7,10 +7,7 @@ config :serverboards,
     "../serverboards/test/data/plugins/",
   ]
 
-dburl=case System.get_env("SERVERBOARDS_DBTEST") do
-  nil -> "ecto://serverboards:serverboards@localhost/serverboards_test"
-  url -> url
-end
+dburl="ecto://serverboards:serverboards@localhost/serverboards_test"
 
 config :serverboards, Serverboards.Repo,
   adapter: Ecto.Adapters.Postgres,
@@ -41,5 +38,5 @@ config :serverboards, test:
 config :serverboards, ini_files:
   [ # two possible relative paths
     "{{PWD}}/apps/serverboards/test/data/serverboards.ini",
-    "{{PWD}}/../serverboards/test/data/serverboards.ini",
+    "{{PWD}}/test/data/serverboards.ini",
   ]

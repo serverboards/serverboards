@@ -17,17 +17,6 @@ config :logger, :backends,
     #:console,
   ]
 
-config :serverboards, Serverboards.HTTP.Endpoint,
-  server: (System.get_env("SERVERBOARDS_SERVER") || "true") == "true",
-  servername: "localhost",
-  http: 8080,
-  tcp: 4040,
-  root: Path.dirname(__DIR__),
-  secret_key_base: "z/AByyR5GKLMJjrMpW/a/pbenQxIYoa3Pa27Ibxs6LLPK1zev45A3zuGShA8aXoH",
-  render_errors: [accepts: ~w(html json)]
-  #pubsub: [name: Backend.PubSub,
-  #         adapter: Phoenix.PubSub.PG2]
-
 config :serverboards, ecto_repos: [Serverboards.Repo]
 
 config :serverboards, Serverboards.Repo,
@@ -35,15 +24,6 @@ config :serverboards, Serverboards.Repo,
     adapter: Ecto.Adapters.Postgres,
     url: "ecto://serverboards:serverboards@localhost/serverboards"
   ]
-
-config :eventsourcing, Eventsourcing.Repo,
-  [
-    adapter: Ecto.Adapters.Postgres,
-    pool: Ecto.Adapters.SQL.Sandbox,
-    url: "ecto://serverboards:serverboards@localhost/serverboards"
-  ]
-config :eventsourcing, ecto_repos: []
-
 
 config :serverboards,
   plugin_paths: [
