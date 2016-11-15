@@ -88,16 +88,10 @@ defmodule Serverboards.Auth do
 		end
 	end
 
-	# Sets the proper permissions from the groups, if proper
+	# Regets the full user, with perms, id and so on
 	defp decorate(user) do
-		if user.perms do
-			user
-		else
-			%{
-				user |
-				perms: perms_from_groups(user.groups || [])
-			}
-		end
+		{:ok, user} = Serverboards.Auth.User.user_info(user.email)
+		user
 	end
 
 	# all perms from the given groups
