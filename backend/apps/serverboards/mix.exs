@@ -70,6 +70,7 @@ defmodule Serverboards.Mixfile do
       {:cowboy, "~> 1.0"},
       {:exrm, ">= 1.0.8"},
       {:uuid, "~> 1.1" },
+      {:eini, "~> 1.2"},
     ]
   end
 end

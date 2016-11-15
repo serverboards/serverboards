@@ -27,3 +27,19 @@ config :logger, :backends,
     #{Serverboards.Logger, :serverboards_logs},
     :console,
   ]
+
+# for config_test
+config :serverboards, test:
+  [
+   at: :config_file,
+   test: true,
+   config_file: true,
+   at: :econfig, # to check priorities, only at3 should get at test
+   at2: :econfig,
+   at3: :econfig,
+  ]
+config :serverboards, ini_files:
+  [ # two possible relative paths
+    "{{PWD}}/apps/serverboards/test/data/serverboards.ini",
+    "{{PWD}}/../serverboards/test/data/serverboards.ini",
+  ]

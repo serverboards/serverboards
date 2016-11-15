@@ -11,7 +11,7 @@ defmodule Serverboards.Supervisor do
     Logger.info("Starting Serverboards supervisor")
 
     children = [
-      supervisor(Serverboards.Repo, []),
+      supervisor(Serverboards.Repo, [Serverboards.Config.get( :database )]),
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
       supervisor(Serverboards.Auth.Supervisor, []),

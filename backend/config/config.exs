@@ -30,22 +30,17 @@ config :serverboards, Serverboards.HTTP.Endpoint,
 
 config :serverboards, ecto_repos: [Serverboards.Repo]
 
-dburl=case System.get_env("SERVERBOARDS_DB") do
-  nil -> "ecto://serverboards:serverboards@localhost/serverboards"
-  url -> url
-end
-
 config :serverboards, Serverboards.Repo,
   [
     adapter: Ecto.Adapters.Postgres,
-    url: dburl
+    url: "ecto://serverboards:serverboards@localhost/serverboards"
   ]
 
 config :eventsourcing, Eventsourcing.Repo,
   [
     adapter: Ecto.Adapters.Postgres,
     pool: Ecto.Adapters.SQL.Sandbox,
-    url: dburl
+    url: "ecto://serverboards:serverboards@localhost/serverboards"
   ]
 config :eventsourcing, ecto_repos: []
 
@@ -55,7 +50,12 @@ config :serverboards,
     "../plugins/",
   ],
   frontend_path: "../frontend/dist",
-  debug: false
+  debug: false,
+  ini_files: [
+    "/etc/serverboards.ini",
+    "{{SERVERBOARDS_PATH}}/serverboards.ini",
+    "{{HOME}}/.local/serverboards/serverboards.ini"
+  ]
 
 
 # Import environment specific config. This must remain at the bottom
