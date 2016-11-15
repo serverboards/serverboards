@@ -202,8 +202,6 @@ defmodule Serverboards.Plugin.Registry do
       %MOM.Message{ payload: %{ type: :update, section: "plugins" }} ->
         Logger.debug("Reloading plugins, settings has changed")
         GenServer.cast(Serverboards.Plugin.Registry, {:reload})
-      other ->
-        Logger.debug(inspect other)
     end)
 
     GenServer.cast(self, {:reload})
