@@ -328,27 +328,30 @@ defmodule Serverboards.Plugin.Runner do
     # all systems go
     {:reply, :ok, state}
   end
+  # only applicable to one_for_one
+  defp drop_uuid(state, uuid) do
+    :timer.cancel(state.timeouts[uuid])
+
+    %{ state |
+      running: Map.drop(state.running, [uuid]),
+      timeouts: Map.drop(state.timeouts, [uuid])
+    }
+  end
   def handle_call({:stop, uuid}, _from, state) do
-    #Logger.debug("Stop plugin #{uuid}")
     entry = state.running[uuid]
-    cond do
-      entry == nil ->
+    #Logger.debug("Stop plugin #{uuid}: #{inspect entry}")
+    case entry do
+      nil ->
         {:reply, {:error, :not_running}, state }
       :exit ->
-        {:reply, {:error, :not_running}, state }
-      entry.strategy == :one_for_one ->
+        state = drop_uuid(state, uuid)
+        {:reply, {:error, :exit}, state }
+      %{ strategy: :one_for_one } ->
         # Maybe remove from timeouts
-        :timer.cancel(state.timeouts[uuid])
-        running = Map.drop(state.running, [uuid])
-
-        # only applicable to one_for_one
-        state = %{ state |
-          running: running,
-          timeouts: Map.drop(state.timeouts, [uuid])
-        }
+        state = drop_uuid(state, uuid)
 
         {:reply, {:ok, entry.pid}, state }
-      true ->
+      _ ->
         #Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
         {:reply, {:error, :cant_stop}, state}
     end
