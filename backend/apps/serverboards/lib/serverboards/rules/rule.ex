@@ -1,8 +1,6 @@
 require Logger
 
 defmodule Serverboards.Rules.Rule do
-  alias Serverboards.Rules.Model
-  alias Serverboards.Repo
   alias Serverboards.Plugin
 
   defstruct [
@@ -41,7 +39,7 @@ defmodule Serverboards.Rules.Rule do
     end
   end
 
-  def setup_client_for_rules(pid, %MOM.RPC.Client{} = client) do
+  def setup_client_for_rules(_pid, %MOM.RPC.Client{} = client) do
     MOM.RPC.Client.add_method client, "trigger", fn
       [params] ->
         trigger_real(params)
@@ -68,7 +66,7 @@ defmodule Serverboards.Rules.Rule do
     {:ok, {}}
   end
 
-  def terminate(reason, {}) do
+  def terminate(_reason, {}) do
     # stopped before starting, on :init
     :ok
   end
@@ -83,7 +81,7 @@ defmodule Serverboards.Rules.Rule do
     end
     :ok
   end
-  def terminate(reason, %{ plugin_id: plugin_id} = state) do
+  def terminate(_reason, %{ plugin_id: plugin_id} = state) do
     Logger.error("Terminate, stop plugin if possible.", state: state)
     case Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, plugin_id) do
       nil -> :ok
@@ -92,7 +90,7 @@ defmodule Serverboards.Rules.Rule do
     end
     :ok
   end
-  def terminate(reason, _) do
+  def terminate(_reason, _) do
     :ok
   end
 
@@ -146,10 +144,9 @@ defmodule Serverboards.Rules.Rule do
       {:ok, plugin_id} -> plugin_id
       {:error, desc} ->
         Logger.error("Could not start trigger", description: desc)
-        raise :cant_start_trigger, desc
+        raise {:cant_start_trigger, desc}
     end
 
-    self_ = self
     #MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{uuid: ^plugin_id}} ->
     #  Process.exit(self_, :plugin_down) # sort of suicide if the cmd finishes
     #  :autoremove
@@ -165,7 +162,7 @@ defmodule Serverboards.Rules.Rule do
       :exit, _ -> {:error, :exit}
     end
 
-    {res, uuid, triggerdata} = case call_response do
+    {res, _uuid, triggerdata} = case call_response do
       {:ok, stop_id} ->
         stop_id = if stop_id do stop_id else uuid end
 
@@ -193,7 +190,7 @@ defmodule Serverboards.Rules.Rule do
   end
 
   def handle_call({:trigger, params}, _from, state) do
-    %{ id: id, state: rule_state } = params
+    %{ id: _id, state: rule_state } = params
 
     %{
       plugin_id: plugin_id,
