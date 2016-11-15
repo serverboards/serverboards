@@ -26,27 +26,12 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
+      worker(Task, [Serverboards.IO.TCP, :start_accept, []]),
+      worker(Serverboards.IO.HTTP, [ [name: Serverboards.IO.HTTP] ]),
 
       # this should be the last, as it may use others
       worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
     ]
-
-    children = ( children ++
-        (case Serverboards.Config.get(:tcp, :port, 4040) do
-          nil -> []
-          false -> []
-          port ->
-            Logger.info("Starting HTTP listener at http://localhost:#{port}")
-            [ worker(Task, [Serverboards.IO.TCP, :start_accept, [port]]) ]
-        end) ++
-        (case Serverboards.Config.get(:http, :port, 8080) do
-          nil -> []
-          false -> []
-          port ->
-            Logger.info("Starting TCP listener at http://localhost:#{port}")
-            [ worker(Serverboards.IO.HTTP, [:start_link, [port]]) ]
-        end)
-        )
 
     opts = [strategy: :one_for_one]
 
