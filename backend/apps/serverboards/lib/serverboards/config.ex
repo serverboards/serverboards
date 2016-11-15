@@ -38,9 +38,7 @@ defmodule Serverboards.Config do
       and everything will be lowercased.
   """
   def get(section, keyword, default) do
-    ret = get(section)[keyword] || default
-    Logger.debug("got #{inspect ret}")
-    ret
+    get(section)[keyword] || default
   end
   def get(section, default \\ []) when is_atom(section) do
     # It merges from least important to more important, so that later is always

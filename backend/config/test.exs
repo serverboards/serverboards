@@ -14,11 +14,6 @@ config :serverboards, Serverboards.Repo,
   url: dburl,
   pool: Ecto.Adapters.SQL.Sandbox
 
-config :eventsourcing, Eventsourcing.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  url: dburl,
-  pool: Ecto.Adapters.SQL.Sandbox
-
 config :logger, :backends,
   [
     #{Serverboards.Logger, :serverboards_logs},
