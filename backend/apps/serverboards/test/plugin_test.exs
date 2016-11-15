@@ -166,6 +166,21 @@ defmodule Serverboards.PluginTest do
     assert Map.get list, "serverboards.test.auth", false
   end
 
+  test "Plugin is_active" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert list["serverboards.test.auth"]["is_active"] != nil
+
+    Client.call(client, "plugin.data_set", ["serverboards.test.auth", "is_active", false])
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert list["serverboards.test.auth"]["is_active"] == false
+
+    Client.call(client, "plugin.data_set", ["serverboards.test.auth", "is_active", true])
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert list["serverboards.test.auth"]["is_active"] == true
+  end
+
   test "Bad protocol" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 

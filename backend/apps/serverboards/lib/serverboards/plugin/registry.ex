@@ -73,7 +73,7 @@ defmodule Serverboards.Plugin.Registry do
     []
 
   """
-  def filter_component(registry, q) do
+  def filter_component(q) do
     import Enum
     alias Serverboards.Plugin.Component
 
@@ -109,11 +109,6 @@ defmodule Serverboards.Plugin.Registry do
     components
   end
 
-  # use application wide one
-  def filter_component(q) do
-    filter_component(Serverboards.Plugin.Registry, q)
-  end
-
   @doc ~S"""
   Looks for a specific component or plugin.
 
@@ -121,8 +116,7 @@ defmodule Serverboards.Plugin.Registry do
 
   Find it.
 
-    iex> {:ok, rg} = start_link # Using custom registry
-    iex> c = find(rg, "serverboards.test.auth/fake")
+    iex> c = find("serverboards.test.auth/fake")
     iex> c.id
     "serverboards.test.auth/fake"
     iex> c.type
@@ -144,7 +138,7 @@ defmodule Serverboards.Plugin.Registry do
     true
 
   """
-  def find(registry, id) do
+  def find(id) do
     alias Serverboards.Plugin
 
     # on the form .*/.*
@@ -167,12 +161,14 @@ defmodule Serverboards.Plugin.Registry do
     end
   end
 
-  # use application wide one
-  def find(id) do
-    find(Serverboards.Plugin.Registry, id)
+  def is_plugin_active( id ) do
+    (
+      String.starts_with?(id, "serverboards.core") ||
+      Serverboards.Plugin.Data.data_get(id, "is_active", true)
+    )
   end
 
-  def list(registry) do
+  def list() do
     Logger.warn("No permission checking for list of plugins. FIXME.")
     Enum.reduce(all_plugins, %{}, fn plugin, acc ->
       components = Enum.reduce(plugin.components, %{}, fn component, acc ->
@@ -191,13 +187,10 @@ defmodule Serverboards.Plugin.Registry do
         author: plugin.author,
         description: plugin.description,
         url: plugin.url,
+        is_active: plugin.is_active,
         components: components
         })
     end)
-  end
-
-  def list do
-    list(Serverboards.Plugin.Registry)
   end
 
 
@@ -210,8 +203,10 @@ defmodule Serverboards.Plugin.Registry do
   end
 
   def decorate_plugin(p) do
-    Logger.debug("#{inspect p}")
-    p
+    %{
+      p |
+      is_active: is_plugin_active(p.id)
+    }
   end
 
   def handle_cast({:reload}, _status) do
@@ -220,7 +215,7 @@ defmodule Serverboards.Plugin.Registry do
 
     {:noreply, %{
       all: all_plugins,
-      active: all_plugins
+      active: Enum.filter(all_plugins, &(&1.is_active))
       }}
   end
 
