@@ -28,3 +28,8 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :eventsourcing, Eventsourcing.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: "postgres://serverboards:serverboards@localhost/serverboards_test",
+  pool: Ecto.Adapters.SQL.Sandbox

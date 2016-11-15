@@ -2,8 +2,19 @@
 require Logger
 
 defmodule Serverboards.IO.HTTP do
-  def start_link(_, [port]) do
-    frontend_path = Application.get_env(:serverboards, :frontend_path, "../frontend/dist")
+  def start_link(options) do
+    port = Serverboards.Config.get(:http, :port, 8080)
+    if port do
+      start_link(port, options)
+    else
+      Logger.warn("Not listening HTTP")
+      :ignore # do not start
+    end
+  end
+
+  def start_link(port, _options) do
+    frontend_path = Serverboards.Config.get(:http, :root, "../frontend/dist")
+    Logger.debug("Index should be at #{frontend_path}/index.html")
     dispatch = :cowboy_router.compile([
       {:_, # all host names
         [

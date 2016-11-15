@@ -11,7 +11,7 @@ defmodule Serverboards.Supervisor do
     Logger.info("Starting Serverboards supervisor")
 
     children = [
-      supervisor(Serverboards.Repo, []),
+      supervisor(Serverboards.Repo, [Serverboards.Config.get( :database )]),
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
       supervisor(Serverboards.Auth.Supervisor, []),
@@ -27,22 +27,12 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
 
+      worker(Task, [Serverboards.IO.TCP, :start_accept, []], restart: :transient),
+      worker(Serverboards.IO.HTTP, [ [name: Serverboards.IO.HTTP] ], restart: :transient),
+
       # this should be the last, as it may use others
       worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
     ]
-
-    run_servers = (System.get_env("SERVERBOARDS_SERVER") || "true") == "true"
-
-    children = if run_servers do
-      tcp = Application.get_env(:serverboards, :tcp, 4040)
-      http = Application.get_env(:serverboards, :http, 8080)
-      children ++ [
-        worker(Serverboards.IO.HTTP, [:start_link, [http]]),
-        worker(Task, [Serverboards.IO.TCP, :accept, [tcp]])
-      ]
-    else
-      children
-    end
 
     opts = [strategy: :one_for_one]
 

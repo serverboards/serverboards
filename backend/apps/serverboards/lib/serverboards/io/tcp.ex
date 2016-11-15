@@ -4,7 +4,17 @@ require JSON
 defmodule Serverboards.IO.TCP do
 	alias MOM.RPC
 
-	def accept(port) do
+	def start_accept() do
+		port = Serverboards.Config.get(:tcp, :port, 4040)
+		if port  do
+			start_accept(port)
+		else
+			Logger.warn("Not listening TCP")
+			:ok
+		end
+	end
+
+	def start_accept(port) do
 		{:ok, socket} = :gen_tcp.listen(port,
 		 	[:binary, packet: :line, active: false, reuseaddr: true])
 		Logger.info("Accepting TCP connections at #{port}")
