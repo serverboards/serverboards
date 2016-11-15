@@ -35,6 +35,8 @@ defmodule Serverboards.Settings do
           Logger.debug("#{inspect sec}")
           Repo.update( Model.Settings.changeset(sec, %{data: data}) )
       end
+      MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
+
       :ok
     end
 
@@ -104,6 +106,12 @@ defmodule Serverboards.Settings do
         {:error, :not_found}
       [other] ->
         {:ok, other.data}
+    end
+  end
+  def get(id, default) do
+    case get(id) do
+      {:error, :not_found} -> default
+      {:ok, o} -> o
     end
   end
 end

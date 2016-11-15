@@ -37,9 +37,13 @@ defmodule Serverboards.Config do
     * When geting from environment, the environment may have any capitalization,
       and everything will be lowercased.
   """
-  def get(section, keyword, default) do
+  def get(section, keyword, default) when is_atom(section) and is_atom(keyword) do
     Keyword.get( get(section), keyword, default)
   end
+  def get(section, keyword, default) when is_atom(section) and is_binary(keyword) do
+    get(section, String.to_atom(keyword), default)
+  end
+
   def get(section, default \\ []) when is_atom(section) do
     # It merges from least important to more important, so that later is always
     # what stays.
@@ -109,7 +113,7 @@ defmodule Serverboards.Config do
         l
     else
       error ->
-        Logger.debug("Could not read from #{filename}: #{inspect error}")
+        #Logger.debug("Could not read from #{filename}: #{inspect error}")
         []
     end
   end

@@ -164,7 +164,7 @@ defmodule Serverboards.Plugin.Registry do
   def is_plugin_active( id ) do
     (
       String.starts_with?(id, "serverboards.core") ||
-      Serverboards.Plugin.Data.data_get(id, "is_active", true)
+      Serverboards.Config.get(:plugins, id, true)
     )
   end
 
@@ -197,6 +197,14 @@ defmodule Serverboards.Plugin.Registry do
   ## server impl, jsut stores state
   def init([]) do
     Serverboards.Plugin.Monitor.start_link
+
+    MOM.Channel.subscribe(:settings, fn
+      %MOM.Message{ payload: %{ type: :update, section: "plugins" }} ->
+        Logger.debug("Reloading plugins, settings has changed")
+        GenServer.cast(Serverboards.Plugin.Registry, {:reload})
+      other ->
+        Logger.debug(inspect other)
+    end)
 
     GenServer.cast(self, {:reload})
     {:ok, %{ active: [], all: []}}

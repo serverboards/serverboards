@@ -24,7 +24,7 @@ const Plugins=React.createClass({
   },
   handleSetActive(plugin_id, is_active){
     rpc
-      .call("plugin.data_set", [plugin_id, "is_active", is_active])
+      .call("settings.update", ["plugins", plugin_id, is_active])
       .then( () => this.componentDidMount() )
   },
   setModal(modal, data){
