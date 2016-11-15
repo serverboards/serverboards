@@ -1,12 +1,10 @@
 require Logger
 
 defmodule Serverboards.Plugin.Registry do
-  def start_link(options \\ []) do
-    {:ok, pid} = Agent.start_link(&load_plugins/0, options)
+  use GenServer
 
-    Serverboards.Plugin.Monitor.start_link
-    plugins = Agent.get pid, &(&1)
-    Logger.info("Starting plugin registry #{inspect pid}, got #{Enum.count plugins}")
+  def start_link(options \\ []) do
+    {:ok, pid} = GenServer.start_link(__MODULE__, [], [name: Serverboards.Plugin.Registry] ++ options)
 
     {:ok, pid}
   end
@@ -38,10 +36,16 @@ defmodule Serverboards.Plugin.Registry do
   @doc ~S"""
   Reload all plugin data. Normally called from the inotify watcher
   """
-  def reload_plugins(pid) do
-    Agent.update(pid, fn _ -> load_plugins() end)
-    plugins = Agent.get pid, &(&1)
-    Logger.info("Reloaded plugin registry #{inspect pid}, got #{Enum.count plugins}")
+  def reload_plugins do
+    GenServer.cast(Serverboards.Plugin.Registry, {:reload})
+  end
+
+  def active_plugins do
+    GenServer.call(Serverboards.Plugin.Registry, {:get_active})
+  end
+
+  def all_plugins do
+    GenServer.call(Serverboards.Plugin.Registry, {:get_all})
   end
 
   @doc ~S"""
@@ -73,12 +77,7 @@ defmodule Serverboards.Plugin.Registry do
     import Enum
     alias Serverboards.Plugin.Component
 
-    plugins = Agent.get registry, &(&1)
-    #Logger.debug("Known plugins: #{inspect plugins}")
-    #Logger.debug("filter Q #{inspect q}")
-    #fields = q |> map(fn {k,_} -> k end)
-
-    components = plugins |>
+    components = active_plugins |>
       flat_map(fn p -> # maps plugins to list of components that fit, or []
         p.components
           |> filter(fn c ->
@@ -155,13 +154,10 @@ defmodule Serverboards.Plugin.Registry do
           nil ->
             nil
           [plugin_id] ->
-            plugins = Agent.get registry, &(&1)
-            Enum.find(plugins, &(&1.id == plugin_id) )
+            Enum.find(active_plugins, &(&1.id == plugin_id) )
         end
       [_, plugin_id, component_id] ->
-        plugins = Agent.get registry, &(&1)
-
-        with %Plugin{} = plugin <- Enum.find(plugins, &(&1.id == plugin_id) ),
+        with %Plugin{} = plugin <- Enum.find(active_plugins, &(&1.id == plugin_id) ),
              %Plugin.Component{} = component <- Enum.find(plugin.components, &(&1.id == component_id) )
         do
            %Plugin.Component{ component | plugin: plugin, id: "#{plugin.id}/#{component.id}" }
@@ -178,8 +174,7 @@ defmodule Serverboards.Plugin.Registry do
 
   def list(registry) do
     Logger.warn("No permission checking for list of plugins. FIXME.")
-    plugins = Agent.get registry, &(&1)
-    Enum.reduce(plugins, %{}, fn plugin, acc ->
+    Enum.reduce(all_plugins, %{}, fn plugin, acc ->
       components = Enum.reduce(plugin.components, %{}, fn component, acc ->
         Map.put(acc, component.id, %{
           id: component.id,
@@ -203,6 +198,37 @@ defmodule Serverboards.Plugin.Registry do
 
   def list do
     list(Serverboards.Plugin.Registry)
+  end
+
+
+  ## server impl, jsut stores state
+  def init([]) do
+    Serverboards.Plugin.Monitor.start_link
+
+    GenServer.cast(self, {:reload})
+    {:ok, %{ active: [], all: []}}
+  end
+
+  def decorate_plugin(p) do
+    Logger.debug("#{inspect p}")
+    p
+  end
+
+  def handle_cast({:reload}, _status) do
+    all_plugins = load_plugins
+      |> Enum.map(&decorate_plugin/1)
+
+    {:noreply, %{
+      all: all_plugins,
+      active: all_plugins
+      }}
+  end
+
+  def handle_call({:get_all}, _from, state) do
+    {:reply, state.all, state}
+  end
+  def handle_call({:get_active}, _from, state) do
+    {:reply, state.active, state}
   end
 
 end
