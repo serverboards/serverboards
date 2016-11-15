@@ -38,7 +38,7 @@ defmodule Serverboards.Config do
       and everything will be lowercased.
   """
   def get(section, keyword, default) do
-    get(section)[keyword] || default
+    Keyword.get( get(section), keyword, default)
   end
   def get(section, default \\ []) when is_atom(section) do
     # It merges from least important to more important, so that later is always
@@ -50,6 +50,7 @@ defmodule Serverboards.Config do
       get_econfig(section),
       default,
     ] |> Enum.reduce([], &Keyword.merge/2)
+      |> Enum.map(fn {k,v} -> {k, parse_val(v)} end) # use proper vals. Here at the end to allow null values
   end
 
   def parse_val(v) do
@@ -62,11 +63,12 @@ defmodule Serverboards.Config do
       "none" -> nil
       "\""<>s -> if String.ends_with?(s, "\"") do String.slice(s, 0, String.length(s)-1) else v end
       "\'"<>s -> if String.ends_with?(s, "\'") do String.slice(s, 0, String.length(s)-1) else v end
-      n -> case Integer.parse(v) do
+      n when is_binary(n)-> case Integer.parse(v) do
         :error -> v
         {n, ""} -> n
         o -> o
       end
+      o -> o # normally for default values
     end
   end
 
@@ -85,8 +87,7 @@ defmodule Serverboards.Config do
             |> slice(head_length, 10000)
             |> downcase
             |> to_atom
-          nv = parse_val(v)
-          {nk, nv}
+          {nk, v}
         end)
   end
 
@@ -105,7 +106,7 @@ defmodule Serverboards.Config do
       {:ok, data} <- remove_comments(data_with_comments),
       {:ok, kwlist} <- :eini.parse(data),
       l when is_list(l) <- kwlist[section] do
-        l |> Enum.map(fn {k,v} -> {k, parse_val(v)} end)
+        l
     else
       error ->
         Logger.debug("Could not read from #{filename}: #{inspect error}")

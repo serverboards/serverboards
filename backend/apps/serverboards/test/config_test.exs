@@ -52,4 +52,10 @@ defmodule Serverboards.ConfigTest do
     assert Serverboards.Config.get(:test, [at3: :default])[:at3] == :econfig
     assert Serverboards.Config.get(:test, [at4: :default])[:at4] == :default
   end
+
+  test "NULL values and simple get" do
+    System.put_env("SERVERBOARDS_TEST_AT", "null")
+    assert Serverboards.Config.get(:test, :at, :default) == nil
+    assert Serverboards.Config.get(:test, :atx, :default) == :default  # there was a bug for atom defaults when reached
+  end
 end
