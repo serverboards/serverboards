@@ -91,7 +91,7 @@ defmodule Serverboards.Config do
   end
 
   defp remove_comments(text) do
-    {:ok, Regex.replace(~r/#.*?$/, text, "")}
+    {:ok, Regex.replace(~r/#.*/, text, "")}
   end
 
   def get_ini(section) do
