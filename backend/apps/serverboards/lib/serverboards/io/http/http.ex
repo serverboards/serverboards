@@ -7,6 +7,7 @@ defmodule Serverboards.IO.HTTP do
     if port do
       start_link(port, options)
     else
+      Logger.warn("Not listening HTTP")
       :ignore # do not start
     end
   end

@@ -26,8 +26,9 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
-      worker(Task, [Serverboards.IO.TCP, :start_accept, []]),
-      worker(Serverboards.IO.HTTP, [ [name: Serverboards.IO.HTTP] ]),
+
+      worker(Task, [Serverboards.IO.TCP, :start_accept, []], restart: :transient),
+      worker(Serverboards.IO.HTTP, [ [name: Serverboards.IO.HTTP] ], restart: :transient),
 
       # this should be the last, as it may use others
       worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),

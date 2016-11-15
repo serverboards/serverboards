@@ -9,6 +9,7 @@ defmodule Serverboards.IO.TCP do
 		if port  do
 			start_accept(port)
 		else
+			Logger.warn("Not listening TCP")
 			:ok
 		end
 	end
