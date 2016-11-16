@@ -9,9 +9,10 @@ defmodule Serverboards.Supervisor do
 
   def init(:ok) do
     Logger.info("Starting Serverboards supervisor")
+    database = Serverboards.Config.get( :database )
 
     children = [
-      supervisor(Serverboards.Repo, [Serverboards.Config.get( :database )]),
+      supervisor(Serverboards.Repo, [database]),
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
       supervisor(Serverboards.Auth.Supervisor, []),

@@ -1,7 +1,7 @@
 {
   "name": "frontend",
-  "version": "0.0.1",
-  "description": "Serverboard frontend",
+  "version": "0.6.0",
+  "description": "Serverboards Frontend",
   "main": "index.js",
   "dependencies": {
     "marked": "^0.3.5",
