@@ -161,10 +161,10 @@ defmodule Serverboards.Plugin.Registry do
     end
   end
 
-  def is_plugin_active( id ) do
+  def is_plugin_active( id, context ) do
     (
       String.starts_with?(id, "serverboards.core") ||
-      Serverboards.Config.get(:plugins, id, true)
+      Keyword.get(context, String.to_atom(id), true)
     )
   end
 
@@ -201,30 +201,46 @@ defmodule Serverboards.Plugin.Registry do
     MOM.Channel.subscribe(:settings, fn
       %MOM.Message{ payload: %{ type: :update, section: "plugins" }} ->
         Logger.debug("Reloading plugins, settings has changed")
-        GenServer.cast(Serverboards.Plugin.Registry, {:reload})
+        GenServer.call(Serverboards.Plugin.Registry, {:reload})
     end)
 
     GenServer.cast(self, {:reload})
     {:ok, %{ active: [], all: []}}
   end
 
-  def decorate_plugin(p) do
+  def decorate_plugin(p, context) do
     %{
       p |
-      is_active: is_plugin_active(p.id)
+      is_active: is_plugin_active(p.id, context)
     }
   end
 
+
   def handle_cast({:reload}, _status) do
+    :timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
+    context = Serverboards.Config.get(:plugins) # need full reload, to ensure ini and environment is in use.
+    
+    Logger.debug("Context: #{inspect context}")
+
     all_plugins = load_plugins
-      |> Enum.map(&decorate_plugin/1)
+      |> Enum.map(&decorate_plugin(&1, context))
+    active = Enum.filter(all_plugins, &(&1.is_active))
+
+    st = for i <- all_plugins do
+      {i.id, i.is_active}
+    end
+    Logger.debug("Reload plugins done: #{inspect st}")
 
     {:noreply, %{
       all: all_plugins,
-      active: Enum.filter(all_plugins, &(&1.is_active))
+      active: active
       }}
   end
 
+  def handle_call({:reload}, _from, status) do
+    {:noreply, status} = handle_cast({:reload}, status)
+    {:reply, :ok, status}
+  end
   def handle_call({:get_all}, _from, state) do
     {:reply, state.all, state}
   end

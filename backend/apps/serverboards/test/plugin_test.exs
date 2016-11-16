@@ -172,11 +172,14 @@ defmodule Serverboards.PluginTest do
     {:ok, list} = Client.call(client, "plugin.list", [])
     assert list["serverboards.test.auth"]["is_active"] != nil
 
-    Client.call(client, "plugin.data_set", ["serverboards.test.auth", "is_active", false])
+    Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", false])
+    context = Serverboards.Config.get(:plugins)
+    Logger.debug("At exs: #{inspect context}")
+
     {:ok, list} = Client.call(client, "plugin.list", [])
     assert list["serverboards.test.auth"]["is_active"] == false
 
-    Client.call(client, "plugin.data_set", ["serverboards.test.auth", "is_active", true])
+    Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", true])
     {:ok, list} = Client.call(client, "plugin.list", [])
     assert list["serverboards.test.auth"]["is_active"] == true
   end

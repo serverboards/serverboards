@@ -123,7 +123,7 @@ defmodule Serverboards.Config do
     []
   end
   def get_db(section) do
-    try do
+    ret = try do
       case Serverboards.Settings.get(to_string(section)) do
         {:ok, val} ->
           val |> Map.to_list |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end )
@@ -134,6 +134,8 @@ defmodule Serverboards.Config do
         Logger.error("Error DB not ready getting info for section #{inspect section}")
         []
     end
+    Logger.debug("#{inspect section}: #{inspect ret}")
+    ret
   end
 
   def get_econfig(section) do
