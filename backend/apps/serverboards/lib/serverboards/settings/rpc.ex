@@ -17,8 +17,17 @@ defmodule Serverboards.Settings.RPC do
       all_settings Context.get(context, :user)
     end, [required_perm: "settings.view", context: true]
 
-    RPC.MethodCaller.add_method mc, "settings.update", fn [section, changes], context ->
-      update section, changes, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "settings.update", fn
+      [section, changes], context ->
+        update section, changes, Context.get(context, :user)
+      [section, key, nil], context ->
+        changes = Serverboards.Settings.get(section, %{})
+          |> Map.drop([key])
+        update section, changes, Context.get(context, :user)
+      [section, key, value], context ->
+        changes = Serverboards.Settings.get(section, %{})
+          |> Map.put(key, value)
+        update section, changes, Context.get(context, :user)
     end, [required_perm: "settings.update", context: true]
 
     RPC.MethodCaller.add_method mc, "settings.get", fn [section], context ->

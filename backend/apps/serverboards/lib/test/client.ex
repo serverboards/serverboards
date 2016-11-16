@@ -130,12 +130,12 @@ defmodule Test.Client do
     pid = self()
     {:ok, client} = RPC.Client.start_link [
       writef: fn line ->
-        Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
+        #Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
         {:ok, rpc_call} = JSON.decode( line )
         GenServer.cast(pid, {:call, rpc_call } )
       end,
       name: "TestClient",
-      tap: true
+      #tap: true
       ]
 
     RPC.Client.set client, :pid, pid

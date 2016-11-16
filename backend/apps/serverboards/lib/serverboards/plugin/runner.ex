@@ -127,11 +127,8 @@ defmodule Serverboards.Plugin.Runner do
     {:ok, true}
 
   """
-  def method_caller(runner) do
+  def method_caller() do
     GenServer.call(Serverboards.Plugin.Runner, {:method_caller})
-  end
-  def method_caller do
-    method_caller(Serverboards.Plugin.Runner)
   end
 
   @doc ~S"""
@@ -276,6 +273,16 @@ defmodule Serverboards.Plugin.Runner do
       }}
   end
 
+  # only applicable to one_for_one
+  defp drop_uuid(state, uuid) do
+    :timer.cancel(state.timeouts[uuid])
+
+    %{ state |
+      running: Map.drop(state.running, [uuid]),
+      timeouts: Map.drop(state.timeouts, [uuid])
+    }
+  end
+
   def handle_call({:get_by_component_id, component_id}, _from, state) do
     ret = case Map.get(state.by_component_id, component_id, false) do
       false -> {:error, :not_found}
@@ -327,15 +334,6 @@ defmodule Serverboards.Plugin.Runner do
 
     # all systems go
     {:reply, :ok, state}
-  end
-  # only applicable to one_for_one
-  defp drop_uuid(state, uuid) do
-    :timer.cancel(state.timeouts[uuid])
-
-    %{ state |
-      running: Map.drop(state.running, [uuid]),
-      timeouts: Map.drop(state.timeouts, [uuid])
-    }
   end
   def handle_call({:stop, uuid}, _from, state) do
     entry = state.running[uuid]

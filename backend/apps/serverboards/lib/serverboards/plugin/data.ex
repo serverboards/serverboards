@@ -50,14 +50,18 @@ defmodule Serverboards.Plugin.Data do
   def data_set_real(pluginid, key, value) do
     # if not a straigth map, pack it inside one
     data_set_real(pluginid, key, %{ __value__: value })
+    if (key == "is_active") do
+      Serverboards.Plugin.Registry.reload_plugins()
+    end
+    :ok
   end
 
-  def data_get(pluginid, key) do
+  def data_get(pluginid, key, default \\ %{}) do
     import Ecto.Query
     value = case Repo.one(from d in Model.Data,
             where: d.plugin == ^pluginid and d.key == ^key,
             select: d.value ) do
-      nil -> %{}
+      nil -> default
       other -> other
     end
     # unpack from object with key __value__

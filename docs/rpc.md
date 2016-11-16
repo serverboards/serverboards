@@ -407,7 +407,11 @@ Returns all settings this user can see
 
 ## settings.update(section, data)
 
-Updates one sections data.
+Updates one section data, replacing all old data
+
+## settings.update(section, key, value)
+
+Updates one key of data on the given section.
 
 # Action
 

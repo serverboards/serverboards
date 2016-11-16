@@ -166,6 +166,24 @@ defmodule Serverboards.PluginTest do
     assert Map.get list, "serverboards.test.auth", false
   end
 
+  test "Plugin is_active" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert list["serverboards.test.auth"]["is_active"] != nil
+
+    Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", false])
+    context = Serverboards.Config.get(:plugins)
+    Logger.debug("At exs: #{inspect context}")
+
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert list["serverboards.test.auth"]["is_active"] == false
+
+    Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", true])
+    {:ok, list} = Client.call(client, "plugin.list", [])
+    assert list["serverboards.test.auth"]["is_active"] == true
+  end
+
   test "Bad protocol" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 

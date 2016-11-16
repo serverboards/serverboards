@@ -1,4 +1,4 @@
-id: serverboards.core.auth.pam
+id: serverboards.optional.auth.pam
 name: PAM Authentication
 description: |
   Allows to access serverboards using PAM, enabling use of many technologies
@@ -6,7 +6,7 @@ description: |
 
   Users try to log in the `serverboards` service.
 
-  When new users try to login and htey do not exist a proper user is created
+  When new users try to login and they do not exist a proper user is created
   with the user name.
 
   If any of the groups of the user matches the name of a group in Serverboards,
@@ -27,7 +27,7 @@ components:
   - id: pam
     name: PAM Auth
     type: auth
-    command: serverboards.core.auth.pam/cmd
+    command: serverboards.optional.auth.pam/cmd
     login:
       call: auth
       params: default

@@ -23,7 +23,7 @@ defmodule Serverboards.Rules do
       supervisor(Serverboards.Rules.Supervisor,[])
     ]
 
-    {:ok, pid} = Supervisor.start_link(children, strategy: :one_for_one, name: Serverboards.Rules.Supervisor)
+    Supervisor.start_link(children, strategy: :one_for_one, name: Serverboards.Rules.Supervisor)
   end
 
   def start_eventsourcing(options \\ []) do
@@ -298,7 +298,7 @@ defmodule Serverboards.Rules do
     )
     actions_to_update = actions
       |> Map.to_list
-      |> Enum.filter(fn {state, action} ->
+      |> Enum.filter(fn {_state, action} ->
         is_binary(action.action) and (action.action != "")
         end)
     actions_to_update
