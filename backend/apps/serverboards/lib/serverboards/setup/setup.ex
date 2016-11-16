@@ -41,7 +41,9 @@ defmodule Serverboards.Setup do
     if Process.whereis(Serverboards.Repo) != nil do
       {:ok, nil} # already running
     else
-      {:ok, pid} = Serverboards.Repo.start_link
+      database = Serverboards.Config.get( :database )
+
+      {:ok, pid} = Serverboards.Repo.start_link(database)
     end
   end
 
