@@ -238,6 +238,52 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
   end
 
+  test "Plugin data from plugin, simplified" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    assert Client.call(client, "plugin.call",
+      [
+        test_cmd,
+        "data_sets",
+        ["k", %{test: true} ]
+       ]) == {:ok, true}
+    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+
+    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    assert Client.call(client, "plugin.call",
+      [
+        test_cmd,
+        "data_gets",
+        ["k"]
+      ]
+    ) == {:ok, %{ "test" => true }}
+    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+  end
+
+  test "Plugin data from plugin, wrong plugin" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    assert Client.call(client, "plugin.call",
+      [
+        test_cmd,
+        "data_sete",
+        ["k", %{test: true} ]
+       ]) == {:error, "not_allowed"}
+    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+
+    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+    assert Client.call(client, "plugin.call",
+      [
+        test_cmd,
+        "data_gete",
+        ["k"]
+      ]
+    ) == {:error, "not_allowed"}
+    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
+  end
+
   test "Plugin call with full method definition and fitlering" do
     {:ok, cmd} = Serverboards.Plugin.Runner.start "serverboards.test.auth/fake"
     res = Serverboards.Plugin.Runner.call cmd, %{ "method" => "pingm", "params" => [ %{ "name" => "message" } ] }, %{ "message" => "Pong!", "ingored" => "ignore me"}

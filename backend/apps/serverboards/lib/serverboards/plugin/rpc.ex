@@ -13,6 +13,36 @@ defmodule Serverboards.Plugin.RPC do
       true -> false
     end
   end
+  def check_perm_for_plugin_data(context) do
+    user = RPC.Context.get(context, :user)
+    context_plugin = RPC.Context.get(context, :plugin)
+    #Logger.debug("Plugin dataA #{inspect context_plugin}")
+    case context_plugin do
+      nil -> # not called from plugin, error
+        false
+      %{ plugin_id: plugin } -> # called from plugin, allow only to myself
+        {plugin, user}
+    end
+  end
+  def check_perm_for_plugin_data(context, plugin) do
+    user = RPC.Context.get(context, :user)
+    context_plugin = RPC.Context.get(context, :plugin)
+    #Logger.debug("Plugin dataB #{inspect context_plugin}")
+    case context_plugin do
+      nil -> # not called from plugin, check permissions
+        perms = user.perms
+        cond do
+          "plugin.data" in perms -> {plugin, user}
+          "plugin.data[#{plugin}]" in perms -> {plugin, user}
+          true -> false
+        end
+      %{ plugin_id: ^plugin } -> # called from plugin, allow only to myself
+        {plugin, user}
+      %{ plugin_id: plugin_id } -> # error on others
+        Logger.error("Plugin #{inspect plugin_id} does not have access to plugin data from #{inspect plugin}")
+        false
+    end
+  end
 
   def start_link do
     {:ok, method_caller} = RPC.MethodCaller.start_link name: Serverboards.Plugin.RPC
@@ -69,36 +99,41 @@ defmodule Serverboards.Plugin.RPC do
     end, [required_perm: "plugin"]
 
 
-    RPC.MethodCaller.add_method method_caller, "plugin.data_set",
-        fn [ plugin, key, value ], context ->
-      user = RPC.Context.get context, :user
-      perms = user.perms
-      can_data = (
-        ("plugin.data" in perms) or
-        ("plugin.data[#{plugin}]" in perms)
-        )
-      if can_data do
-        Plugin.Data.data_set(plugin, key, value, user)
-      else
-        Logger.debug("Perms #{inspect perms}, not plugin.data, nor plugin.data[#{plugin}]")
-        {:error, :not_allowed}
-      end
-    end, context: true
+    RPC.MethodCaller.add_method(method_caller, "plugin.data_set", fn
+      [ key, value ], context ->
+        case check_perm_for_plugin_data( context ) do
+          {plugin, user} ->
+            Plugin.Data.data_set(plugin, key, value, user)
+          _ ->
+            {:error, :not_allowed}
+        end
+      [ plugin, key, value ], context ->
+        case check_perm_for_plugin_data( context, plugin ) do
+          {plugin, user} ->
+            Plugin.Data.data_set(plugin, key, value, user)
+          _ ->
+            {:error, :not_allowed}
+        end
+      end,
+      context: true)
 
-    RPC.MethodCaller.add_method method_caller, "plugin.data_get",
-        fn [ plugin, key ], context ->
-      perms = (RPC.Context.get context, :user).perms
-      can_data = (
-        ("plugin.data" in perms) or
-        ("plugin.data[#{plugin}]" in perms)
-        )
-      if can_data do
-        {:ok, Plugin.Data.data_get(plugin, key)}
-      else
-        Logger.debug("Perms #{inspect perms}, not plugin.data, nor plugin.data[#{plugin}]")
-        {:error, :not_allowed}
-      end
-    end, context: true
+    RPC.MethodCaller.add_method(method_caller, "plugin.data_get", fn
+      [ key ], context ->
+        case check_perm_for_plugin_data( context ) do
+          {plugin, user} ->
+            {:ok, Plugin.Data.data_get(plugin, key)}
+          _ ->
+            {:error, :not_allowed}
+        end
+      [ plugin, key ], context ->
+        case check_perm_for_plugin_data( context, plugin ) do
+          {plugin, user} ->
+            {:ok, Plugin.Data.data_get(plugin, key)}
+          _ ->
+            {:error, :not_allowed}
+        end
+      end,
+      context: true)
 
     RPC.MethodCaller.add_method method_caller, "plugin.data_keys",
         fn [ plugin, keyprefix ], context ->
