@@ -26,18 +26,7 @@ defmodule Serverboards.Settings do
     import EventSourcing
 
     subscribe es, :update_settings, fn [section, data], _me ->
-      Logger.info("Update settings, #{section}: #{inspect data}")
-
-      case Repo.get_by(Model.Settings, section: section) do
-        nil ->
-          Repo.insert( %Model.Settings{section: section, data: data} )
-        sec ->
-          Logger.debug("#{inspect sec}")
-          Repo.update( Model.Settings.changeset(sec, %{data: data}) )
-      end
-      MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
-
-      :ok
+      update_real(section, data)
     end
 
     EventSourcing.Model.subscribe :settings, :settings, Serverboards.Repo
@@ -50,6 +39,19 @@ defmodule Serverboards.Settings do
     else
       {:error, :permission_denied}
     end
+  end
+
+  def update_real(section, data) do
+    #Logger.info("Update settings, #{section}: #{inspect data}")
+    case Repo.get_by(Model.Settings, section: section) do
+      nil ->
+        Repo.insert( %Model.Settings{section: section, data: data} )
+      sec ->
+        #Logger.debug("#{inspect sec}")
+        Repo.update( Model.Settings.changeset(sec, %{data: data}) )
+    end
+    MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
+    :ok
   end
 
   @doc ~S"""
