@@ -238,6 +238,7 @@ Stops the plugin.
 Returns true if the plugin is running, false if not.
 
 ## plugin.data_set(id, key, value)
+## plugin.data_set(key, value)
 
 Sets some data for some plugin id in a given key. Value must be a map.
 
@@ -249,12 +250,14 @@ plugin.data_set("serverboards.core.notifications/telegram", "user_to_map",{
 })
 ```
 
-NOTE: It does not currently check the plugin name is vlid and can be used thus
-to store data unrelated to plugins or shared between plugins, but anyway the
-name should be scoped to avoid collissions, and explanatory. *It is highly
-encouraged to use the plugin or plugin/component id.*
+When called from a plugin it can avoid the use of `id` and just store data on
+the plugin itself. If id is provided it is asserted against the current plugin
+name.
+
+If called from other channels (UI, TCP) it requires the id.
 
 ## plugin.data_get(id, key)
+## plugin.data_get(key)
 
 Returns the data of the given section
 
@@ -269,6 +272,9 @@ plugins.data_get("serverboards.core.notifications/telegram", "user_to_map")
   "dmoreno@serverboards.io": 12312312312
 }
 ```
+
+As with `plugin.data.set` the `id` is optional but checked against the current
+plugin, if called froma plugin cmd.
 
 ## plugin.data_keys(id, key_prefix)
 

@@ -72,6 +72,24 @@ def data_set(k, v):
 def data_get(k):
     return serverboards.rpc.call("plugin.data_get", PLUGIN_ID, k)
 
+@serverboards.rpc_method
+def data_sets(k, v):
+    serverboards.rpc.call("plugin.data_set", k, v)
+    return True
+
+@serverboards.rpc_method
+def data_gets(k):
+    return serverboards.rpc.call("plugin.data_get", k)
+
+@serverboards.rpc_method
+def data_sete(k, v):
+    serverboards.rpc.call("plugin.data_set", "bad_plugin_id", k, v)
+    return True
+
+@serverboards.rpc_method
+def data_gete(k):
+    return serverboards.rpc.call("plugin.data_get", "bad_plugin_id", k)
+
 
 @serverboards.rpc_method
 def periodic_timer(id, period=10):

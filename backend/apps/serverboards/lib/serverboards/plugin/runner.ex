@@ -53,6 +53,13 @@ defmodule Serverboards.Plugin.Runner do
 
   """
   def start(%Serverboards.Plugin.Component{} = component) do
+
+    # it may come from partial or full component, just get the id
+    plugin_id = case component.plugin do
+      plugin when is_binary(plugin) -> plugin
+      %{ id: id } -> id
+    end
+
     case GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component.id}) do
       {:ok, uuid} ->
         #Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
@@ -64,6 +71,7 @@ defmodule Serverboards.Plugin.Runner do
           require UUID
           uuid = UUID.uuid4
           Logger.debug("Adding runner #{uuid} #{inspect component.id}")
+          MOM.RPC.Client.set(Serverboards.IO.Cmd.client(pid), :plugin, %{ plugin_id: plugin_id, component_id: component.id })
           :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component})
           {:ok, uuid}
         {:error, {:timeout, _where}} ->
