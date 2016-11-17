@@ -1,9 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, time, subprocess, re, requests
-import socket, urlparse
+import socket
+from urllib.parse import urlparse
 
 td_to_s_multiplier=[
     ("ms", 0.001),
@@ -82,7 +83,7 @@ def real_http(url=None):
 
 @serverboards.rpc_method
 def real_socket_up(url=None):
-    purl=urlparse.urlparse(url)
+    purl=urlparse(url)
     host=purl.hostname
     port=purl.port or str(purl.scheme)
     #serverboards.rpc.debug("<%s> <%s> %s"%(host, type(port), repr(purl)))

@@ -28,12 +28,9 @@ watch:
 setup: yarn.lock
 	yarn
 
-mrproper: clean
-	rm -rf node_modules
-
 .PHONY: test
 test: all
 
-
 clean:
 	rm -rf dist
+	rm -rf node_modules

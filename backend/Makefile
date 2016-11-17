@@ -27,11 +27,8 @@ compile: apps/serverboards/rel/serverboards/bin/serverboards
 
 clean:
 	rm apps/serverboards/rel apps/eventsourcing/rel -rf
-	rm build -rf
 	rm -f erl_crash.dump
-
-mrproper:
-	rm -rf deps
+	rm -rf deps _build
 
 apps/serverboards/rel/serverboards/bin/serverboards:
 	$(MAKE) setup

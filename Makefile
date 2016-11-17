@@ -1,3 +1,5 @@
+prefix = /opt/
+
 help:
 	@echo "Serverboards Development Helper"
 	@echo
@@ -57,7 +59,11 @@ docker-run:
 
 release: serverboards.tar.gz
 
-serverboards.tar.gz: compile-frontend compile-backend
+serverboards.tar.gz: prepare-release
+	cd rel && tar cfz ../serverboards.tar.gz serverboards
+
+.PHONY: prepare-release
+prepare-release: compile-frontend compile-backend
 	cp backend/apps/serverboards/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
 
@@ -77,4 +83,11 @@ serverboards.tar.gz: compile-frontend compile-backend
 
 	cp -a serverboards.sh rel/serverboards/
 
-	cd rel && tar cfz ../serverboards.tar.gz serverboards
+
+install: prepare-release
+	mkdir -p $(DESTDIR)$(prefix)/serverboards/  
+	cp rel/serverboards $(DESTDIR)$(prefix) -a
+
+deb:
+	fakeroot dpkg-buildpackage -nc
+
