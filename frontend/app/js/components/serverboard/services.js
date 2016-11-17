@@ -101,12 +101,6 @@ let Services=React.createClass({
             <i className="add icon"></i>
           </a>
           {popup}
-          <div className="ui fixed bottom">
-            <a href={`#/serverboard/${props.serverboard.shortname}/services`}
-            className="ui header medium link">
-            View all services <i className="ui icon angle right"/>
-            </a>
-          </div>
         </div>
       </div>
     )
