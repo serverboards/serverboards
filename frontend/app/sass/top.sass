@@ -1,10 +1,17 @@
-@import  serverboards
+@import serverboards
+@import colors
+$top-height: 70px
 
 .ui.top.fixed.menu
   @extend .serverboards.background.horizontal
+  height: $top-height
 
   .micro.label
     font-size: 6px
+  .menu
+    align-items: center
+    height: $top-height
+    max-height: $top-height
 
   > .item, > .menu > .item
     color: white
@@ -18,30 +25,55 @@
     height: 0
 
   > .item.logo
-    padding: 0 20px
+    margin-top: 12px
     img
       height: 40px
+  .icon
+    //margin-top: 15px
+    font-size: 22px
 
-  > .item.search
+  .item.search
     flex-grow: 1
     padding-right: 0
+    align-items: center
+    width: 550px
+    max-width: 550px
+    max-height: 50px
+    .menu
+      height: 50px
+      max-height: 50px
+      .ui.search
+        height: 50px
     .ui.input
+      margin-top: 5px
       .prompt
         background: #555
       .icon
         pointer-events: auto
         &:hover
           cursor: pointer
+      input
+        color: white
+      input::selection
+        color: $teal
+
     > div.menu
       display: flex
       flex-direction: row
       width: 100%
       .hidden
         display: none
+    .results
+      width: 510px
+      max-width: 520px
+      margin-top: -9px
+      margin-left: 10px
 
     .icon.input, input, .ui.search
       flex-grow: 1
       width: 100%
+      font-size: 14px
+
 
   #notifications_menu
     width: 600px

@@ -4,6 +4,8 @@
 @import fixes
 @import sidebar
 
+$top-height: 70px
+
 .serverboards.background.diagonal
   background: #22a397 /* Old browsers */
   background: -moz-linear-gradient(top right,  #22a397 0%, #eac442 100%) /* FF3.6+ */
@@ -54,12 +56,12 @@ h2.ui.header, h3.ui.header, h3.ui.item.header
 
 body
   height: auto !important
-  padding-top: 45px
+  padding-top: $top-height
 
 div.ui.main
-  max-height: calc( 100vh - 46px )
+  max-height: calc( 100vh - $top-height - 1 )
   overflow: hidden
-  margin: 46px 0 0 0
+  margin: ($top-height - 1) 0 0 0
 
   display: flex
   overflow: hidden
@@ -70,12 +72,12 @@ div.ui.main
   > .ui.menu
     flex-grow: 0
     width: 300px
-    max-height: calc( 100vh - 45px )
+    max-height: calc( 100vh - $top-height )
 
   > .ui.central
     flex-grow: 1
     margin: 0
-    height: calc( 100vh - 45px )
+    height: calc( 100vh - $top-height )
     overflow: auto
     display: flex
     flex-direction: row
@@ -211,12 +213,12 @@ code
 
 .ui.main.area
   .ui.dimmer
-    top: 45px !important
+    top: $top-height !important
   .ui.central .ui.dimmer
-    top: 45px !important
+    top: $top-height !important
     left: 85px !important
   .ui.central.with.menu .ui.dimmer
-    top: 45px !important
+    top: $top-height !important
     left: 305px !important
     width: calc( 100vw - 305px )
 

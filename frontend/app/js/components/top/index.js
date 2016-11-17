@@ -68,17 +68,17 @@ const Top = React.createClass({
             <img src={logo}/>
           </a>
         </div>
-        <div className="item search">
-          <CommandSearh/>
-        </div>
 
         <div className="right menu">
+          <div className="item search">
+            <CommandSearh/>
+          </div>
           <a className="item" ref="notifications_item">
             <i className="announcement icon"></i>
             {((props.notifications||[]).length > 0) ? (
               <span
                 className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                style={{top: 8, left: 38}}
+                style={{top: 8, left: 43}}
                 />
               ) : null}
           </a>
@@ -88,7 +88,7 @@ const Top = React.createClass({
             {(props.actions.length>0) ? (
               <span
                 className="ui micro label floating circular blue"
-                style={{top: 8, left: 38}}
+                style={{top: 8, left: 43}}
                 />
             ) : null}
           </a>
