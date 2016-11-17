@@ -95,7 +95,7 @@ let Services=React.createClass({
         <div className="ui container">
           <a href="#"
               onClick={this.openAddServiceModal}
-              className="ui massive button _add icon floating blue"
+              className="ui massive button _add icon floating yellow"
               title="Add a service"
               >
             <i className="add icon"></i>
