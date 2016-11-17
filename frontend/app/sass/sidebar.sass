@@ -1,7 +1,9 @@
+$top-height: 70px
+
 .ui.vertical.menu.sections
   background: #4f6362
   width: 260px !important
-  height: calc( 100vh - 45px )
+  height: calc( 100vh - $top-height )
   min-width: 260px !important
   max-width: 260px !important
   margin: 0
@@ -61,9 +63,9 @@
 .ui.vertical.menu.serverboard.selector
   margin: 0
   position: fixed
-  top: 45px
+  top: $top-height
   left: 0px
-  height: calc( 100vh - 45px )
+  height: calc( 100vh - $top-height )
   width: 260px
   background: #313f3e
   z-index: 100
@@ -76,7 +78,7 @@
     .ui.icon.input
       width: 100%
   .menu
-    max-height: calc( 100vh - 125px )
+    max-height: calc( 100vh - 149px )
     overflow: auto
     .item
       color: white
