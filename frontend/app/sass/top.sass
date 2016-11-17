@@ -29,6 +29,8 @@ $top-height: 70px
   .icon
     //margin-top: 15px
     font-size: 22px
+  .dropdown .icon
+    font-size: 14px
 
   .item.search
     flex-grow: 1
@@ -72,6 +74,36 @@ $top-height: 70px
       width: 100%
       font-size: 14px
 
+  .item.grey
+    color: #aaa
+  .item.divider
+    border-bottom: 1px solid #eee
+  .item.centered
+    text-align: center
+  .item.inverted.yellow
+    text-align: right
+    color: white !important
+    display: block
+    background: $yellow !important
+    border-bottom: 0
+    border-radius: 0 0 3px 3px !important
+    &:hover
+      background: lighten($yellow, $hover-lighten) !important
+      color: white !important
+    .icon
+      font-size: 14px
+
+  #processes_menu
+    .menu
+      width: 300px
+      position: fixed
+      left: calc( 100vw - 320px)
+      top: $top-height - 15px
+      div
+        min-height: 200px
+      &:after
+        right: 92px !important
+        left: auto !important
 
   #notifications_menu
     width: 600px
@@ -86,14 +118,18 @@ $top-height: 70px
       .ui.basic.plain.label
         background: rgba(0, 0, 0, 0) !important
         box-shadow: none
-    .item.inverted.yellow
-      text-align: right
-      color: white
-      display: block
-      background: $yellow
-      border-bottom: 0
-      border-radius: 0 0 3px 3px !important
-      &:hover
-        background: lighten($yellow, $hover-lighten)
-      .icon
-        font-size: 14px
+
+  #profile_menu
+    .menu
+      position: fixed
+      left: calc( 100vw - 220px )
+      top: $top-height - 15px
+      width: 200px
+      &:after
+        right: 22px !important
+        left: auto !important
+      a
+        min-width: 200px
+        display: flex
+        span
+          flex-grow: 1
