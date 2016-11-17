@@ -3,7 +3,7 @@ $top-height: 70px
 .ui.vertical.menu.sections
   background: #4f6362
   width: 260px !important
-  height: calc( 100vh - 70px )
+  height: calc( 100vh - #{$top-height} )
   min-width: 260px !important
   max-width: 260px !important
   margin: 0
@@ -65,7 +65,7 @@ $top-height: 70px
   position: fixed
   top: $top-height
   left: 0px
-  height: calc( 100vh - $top-height )
+  height: calc( 100vh - #{$top-height} )
   width: 260px
   background: #313f3e
   z-index: 100
