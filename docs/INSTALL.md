@@ -2,10 +2,13 @@
 
 ## Database creation
 
-Serverboards get the initial database setup from `SERVERBOARDS_DB` environment
+Serverboards get the initial database setup from `database.url` config
 variable.
 
-First the datbase has to exist and provide access to the user:
+It can be set as an environmental variable (`SERVERBOARDS_DATABASE_URL`) or at 
+`/etc/serverboards.ini`.
+
+First the database has to exist and provide access to the user:
 
 ```bash
 $ su postgres
@@ -16,29 +19,35 @@ GRANT ALL ON DATABASE serverboards TO serverboards;
 \q
 ```
 
-It needs the environment variable:
-
-```
-$ export SERVERBOARDS_DB=ecto://serverboards:serverboards@localhost/serverboards
-```
-
-## First run to setup environment
+## Run 
 
 And run it:
 
-```
-./serverboards.sh start
+```bash
+$ /opt/serverboards/bin/serverboards foreground
 ```
 
-If `SERVERBOARDS_DB` does not exist, it uses `ecto://serverboards:serverboards@localhost/serverboards`
+If `database.url` does not exist, it uses `ecto://serverboards:serverboards@localhost/serverboards`
 as default value.
 
 On first run generates the required directories and database tables. It uses
 `SERVERBOARDS_PATH` as path to use for current installation. This directory must
 be in a non ephemeral storage.
 
-## Known Environmental variables
 
-* `SERVERBOARDS_PATH` -- Path where to install/is installed serverboards installation data.
-  Default is ~/.serverboards/
-* `SERVERBOARDS_DB` -- Database URL: `ecto://USERNAME:PASSWORD@HOSTNAME/DATABASE`
+Default configuration allows users on the PAM service `serverboards` which will allow any user on 
+the current system to log in by default. Users on `admin` group will be granted admin priviledges.
+
+
+## Configuration
+
+Check `/etc/serverboards.ini` and `${SERVERBOARDS_PATH}/serverboards.ini` for information on 
+all configuration options. 
+
+Any value in that file can be used in an environmental variable `SERVERBOARDS_section_key`, for
+example to enable the TCP listening for the CLI, use:
+
+```bash
+$ export SERVERBOARDS_TCP_PORT=4040
+```
+
