@@ -14,8 +14,8 @@ function NotificationsMenu(props){
           And {unread.length - 5} more...
           </div>
         ) : null}
-        <a href="#/notifications/list" className="item" style={{flexDirection: "row"}}>
-          View all <i className="ui chevron right icon" style={{paddingLeft: 10}}/>
+        <a href="#/notifications/list" className="item inverted yellow" style={{flexDirection: "row"}}>
+          View all <i className="ui caret right icon" style={{paddingLeft: 5}}/>
         </a>
       </div>
     </div>

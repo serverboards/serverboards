@@ -85,12 +85,6 @@ const Top = React.createClass({
           <NotificationsMenu open_time={this.state.open_time}/>
           <a className="item" onClick={() => props.toggleMenu('processes')}>
             <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
-            {(props.actions.length>0) ? (
-              <span
-                className="ui micro label floating circular blue"
-                style={{top: 8, left: 43}}
-                />
-            ) : null}
           </a>
           <a className="item" onClick={() => props.toggleMenu('user')}>
           <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
