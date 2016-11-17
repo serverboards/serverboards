@@ -3,22 +3,25 @@ import {Link} from 'app/router'
 
 function UserMenu(props){
   return (
-    <div className="ui dropdown vertical menu" style={{position: "fixed", right: 0, top: 45}}>
-      <a className="item" href="#/user/profile">
-          {props.user.name}
-        <i className="ui icon right user"></i>
-      </a>
-      <a className="item" href="#/settings/">
-          Settings
-        <i className="ui icon right settings"></i>
-      </a>
-      <a className="item" href="#/logs/">
-          Logs
-        <i className="ui icon right book"></i>
-      </a>
-      <a href="#!" className="item" onClick={props.onLogout}>
-        Logout
-      </a>
+    <div className="ui dropdown pointing" id="profile_menu">
+      <div className="menu transition visible">
+        <a className="item" href="#/user/profile">
+          <span>{props.user.name}</span>
+          <i className="ui icon user"></i>
+        </a>
+        <a className="item" href="#/settings/">
+          <span>Settings</span>
+          <i className="ui icon settings"></i>
+        </a>
+        <a className="item" href="#/logs/">
+            <span>Logs</span>
+            <i className="ui icon book"></i>
+        </a>
+        <a href="#!" className="item" onClick={props.onLogout}>
+          <span>Logout</span>
+          <i className="ui icon power"></i>
+        </a>
+      </div>
     </div>
   )
 }

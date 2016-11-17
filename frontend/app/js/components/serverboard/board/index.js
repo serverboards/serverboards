@@ -101,7 +101,7 @@ const Board = React.createClass({
               </div>
             ))}
         </ReactGridLayout>
-        <a onClick={this.handleAddWidget} className="ui massive button _add icon floating orange">
+        <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
           <i className="add icon"></i>
         </a>
       </div>

@@ -95,18 +95,12 @@ let Services=React.createClass({
         <div className="ui container">
           <a href="#"
               onClick={this.openAddServiceModal}
-              className="ui massive button _add icon floating blue"
+              className="ui massive button _add icon floating yellow"
               title="Add a service"
               >
             <i className="add icon"></i>
           </a>
           {popup}
-          <div className="ui fixed bottom">
-            <a href={`#/serverboard/${props.serverboard.shortname}/services`}
-            className="ui header medium link">
-            View all services <i className="ui icon angle right"/>
-            </a>
-          </div>
         </div>
       </div>
     )
