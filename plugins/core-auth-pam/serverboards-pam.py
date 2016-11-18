@@ -1,19 +1,24 @@
 #!/usr/bin/python3
 
-import sys, pam, grp, pwd, os
+import sys, grp, pwd, os, subprocess
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 
-p = pam.pam()
+
+def authenticate(username, password): 
+    sp = subprocess.Popen(os.path.join(os.path.dirname(__file__),"./serverboards-auth-helper"), stdin=subprocess.PIPE)
+    sp.stdin.write(bytes("%s\n%s\n"%(username,password), 'utf8'))
+    sp.stdin.flush()
+    sp.stdin.close()
+    return sp.wait() == 0
 
 @serverboards.rpc_method
 def auth(type="pam", email=None, password=None, **kwargs):
-    serverboards.debug("Params: %s"%repr(kwargs))
-    password_ok = p.authenticate(email, password, "serverboards")
+    password_ok = authenticate(email, password)
     if not password_ok:
         serverboards.debug("Login NOK")
         return False
-    serverboards.debug("Login OK, getting data")
+    serverboards.debug("PAM login OK for %s, getting data"%(username))
     groups = [g.gr_name for g in grp.getgrall() if email in g.gr_mem]
     groups = [ g[13:] if g.startswith('serverboards-') else g for g in groups ]
 

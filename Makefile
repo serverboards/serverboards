@@ -14,13 +14,16 @@ help:
 	@echo "  deb     -- Prepares a .deb package."
 	@echo
 
-compile: compile-backend compile-frontend
+compile: compile-backend compile-frontend compile-plugins
 
 compile-backend:
 	(cd backend; $(MAKE) compile)
 
 compile-frontend:
 	(cd frontend; $(MAKE) compile)
+
+compile-plugins:
+	(cd plugins; $(MAKE))
 
 setup: setup-backend setup-frontend
 

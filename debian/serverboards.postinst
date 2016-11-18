@@ -22,3 +22,6 @@ done
 
 chown serverboards:serverboards /var/log/serverboards
 
+chown root:serverboards $INSTALL/share/serverboards/plugins/core-auth-pam/serverboards-auth-helper
+chmod 4050 $INSTALL/share/serverboards/plugins/core-auth-pam/serverboards-auth-helper
+
