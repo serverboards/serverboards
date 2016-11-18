@@ -10,7 +10,8 @@ help:
 	@echo "  clean   -- Cleans all development data."
 	@echo "  test    -- Runs all tests."
 	@echo "  docker  -- Creates a docker image. Compiles all beforehand."
-	@echo "  release  -- Prepares a release tarball."
+	@echo "  release -- Prepares a release tarball."
+	@echo "  deb     -- Prepares a .deb package."
 	@echo
 
 compile: compile-backend compile-frontend
@@ -81,13 +82,20 @@ prepare-release: compile-frontend compile-backend
 	find rel -name node_modules | xargs rm -rf
 	rm rel/serverboards/share/serverboards/plugins/.git -rf
 
-	cp -a serverboards.sh rel/serverboards/
+	#cp -a serverboards.sh rel/serverboards/
+	cp cli/serverboards.py rel/serverboards/bin/serverboards-cli -a
 
-
+INSTALL=$(DESTDIR)$(prefix)
 install: prepare-release
-	mkdir -p $(DESTDIR)$(prefix)/serverboards/  
-	cp rel/serverboards $(DESTDIR)$(prefix) -a
+	mkdir -p $(INSTALL)/serverboards/  
+	cp rel/serverboards $(INSTALL) -a
+	mkdir $(INSTALL)/../etc/
+	cp etc/serverboards.ini $(INSTALL)/../etc/
+	mkdir -p $(INSTALL)/../lib/systemd/system/
+	cp etc/serverboards.service $(INSTALL)/../lib/systemd/system/
+
 
 deb:
-	fakeroot dpkg-buildpackage -nc
+	fakeroot dpkg-buildpackage
+
 

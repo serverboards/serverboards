@@ -335,7 +335,7 @@ class Completer:
         self.client=client
         self.options=None
 
-        histfile = os.path.join(os.path.expanduser("~/.config/serverboards/"), "cmd_history")
+        histfile = os.path.join(os.path.expanduser("~/.local/serverboards/"), "cmd_history")
         try:
             os.makedirs(os.path.dirname(histfile))
         except FileExistsError:

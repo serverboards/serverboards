@@ -37,7 +37,8 @@ defmodule Serverboards.Mixfile do
             :cowboy, :ranch,
             :eventsourcing,
             :json,
-            :uuid
+            :uuid,
+            :eini
             ],
       mod: {Serverboards, []},
     ]

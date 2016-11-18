@@ -1,0 +1,13 @@
+[Unit]
+Description=Serverboards
+Requires=postgresql.service
+
+[Service]
+type=simple
+ExecStart=/opt/serverboards/bin/serverboards foreground
+ExecStop=/opt/serverboards/bin/serverboards stop
+Environment=SERVERBOARDS_PATH=/opt/serverboards/local/
+Environment=HOME=/opt/serverboards/local/
+User=serverboards
+Restart=true
+

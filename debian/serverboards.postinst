@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -ex
+
+export INSTALL=/opt/serverboards
+
+adduser -q --system serverboards --home $INSTALL --no-create-home 
+addgroup -q --system serverboards
+addgroup -q serverboards serverboards
+
+[ -d /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
+# created here, to persist after reinstalls and such. 
+[ -d $INSTALL/local ] || mkdir -p $INSTALL/local
+
+
+INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/"
+
+for p in $INTERNAL_PATHS; do 
+	chown serverboards:serverboards $p -R
+	chmod 0770 $p -R
+done
+
+chown serverboards:serverboards /var/log/serverboards
+

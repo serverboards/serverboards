@@ -34,10 +34,8 @@ On first run generates the required directories and database tables. It uses
 `SERVERBOARDS_PATH` as path to use for current installation. This directory must
 be in a non ephemeral storage.
 
-
 Default configuration allows users on the PAM service `serverboards` which will allow any user on 
 the current system to log in by default. Users on `admin` group will be granted admin priviledges.
-
 
 ## Configuration
 
@@ -50,4 +48,13 @@ example to enable the TCP listening for the CLI, use:
 ```bash
 $ export SERVERBOARDS_TCP_PORT=4040
 ```
+
+## Debian packages
+
+Serverboards is provided via debian packages (https://serverboards.io/download/deb/). 
+When using this package, please ensure you execute serverboards as `serverboards` 
+user, for example with `sudo -u serverboards /opt/serverboards/bin/serverboards 
+foreground`. Systemd service file is provided.
+
+Check the README.Debian file for more instrucions.
 
