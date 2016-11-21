@@ -5,13 +5,18 @@ import store from 'app/utils/store'
 let EditUser = React.createClass({
   handleEditUser : function(ev){
     ev.preventDefault()
+    const props=this.props
+    const show_is_active = props.user.email != store.getState().auth.user.email
+    let is_active = props.user.is_active
+    if (show_is_active)
+      is_active = $(this.refs.is_active).find('input').is(':checked')  ? true : false
 
     let $form = $(this.refs.form)
-    this.props.onUpdateUser( this.props.user.email, {
+    props.onUpdateUser( props.user.email, {
       name: $form.find('[name=name]').val(),
-      is_active: $(this.refs.is_active).find('input').is(':checked')  ? true : false,
+      is_active,
     } )
-    this.props.setModal(false)
+    props.setModal(false)
   },
   componentDidMount(){
     let $form = $(this.refs.form)
@@ -32,9 +37,10 @@ let EditUser = React.createClass({
     return (
       <Modal onClose={props.onClose}>
         <div className="ui top secondary menu">
-          <div className="right menu">
+          <h3 className="header">Edit {props.user.name}</h3>
+          <div className="right menu" style={{alignItems: "center"}}>
             {show_is_active ? (
-              <div className="ui field">
+              <div className="field">
                 <div ref="is_active" className="ui toggle checkbox">
                   <label>Is active</label>
                   <input type="checkbox" name="is_active" defaultChecked={props.user.is_active}/>
@@ -42,9 +48,6 @@ let EditUser = React.createClass({
               </div>
             ) : []}
           </div>
-        </div>
-        <div className="header" style={{paddingBottom: 30, paddingTop: 20}}>
-          <h2 className="header">Edit {props.user.name}</h2>
         </div>
         <div className="content">
           <form ref="form" className="ui form" onSubmit={this.handleEditUser}>
