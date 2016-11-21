@@ -10,12 +10,7 @@ defmodule Serverboards.Plugin.Monitor do
 
   def start_link(options \\ []) do
     paths = Application.fetch_env! :serverboards, :plugin_paths
-    paths = case System.get_env("SERVERBOARDS_PATH") do
-      nil ->
-        paths ++ [Path.join(System.get_env("HOME"), ".local/serverboards/plugins")]
-      serverboards_path ->
-        paths ++ [Path.join(serverboards_path, "plugins")]
-    end
+    paths = paths ++ [Path.join(Serverboards.Config.serverboards_path, "plugins")]
     GenServer.start_link __MODULE__, paths, options
   end
 

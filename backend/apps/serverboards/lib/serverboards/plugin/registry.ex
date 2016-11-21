@@ -14,12 +14,7 @@ defmodule Serverboards.Plugin.Registry do
   """
   def load_plugins() do
     paths = Application.fetch_env! :serverboards, :plugin_paths
-    paths = case System.get_env("SERVERBOARDS_PATH") do
-      nil ->
-        paths ++ [Path.join(System.get_env("HOME"), ".local/serverboards/plugins")]
-      serverboards_path ->
-        paths ++ [Path.join(serverboards_path, "plugins")]
-    end
+    paths = paths ++ [Path.join(Serverboards.Config.serverboards_path, "plugins")]
     plugins = Enum.flat_map paths, fn path ->
       path = Path.expand path
       Logger.debug("Loading plugins from #{inspect path}")
@@ -219,7 +214,7 @@ defmodule Serverboards.Plugin.Registry do
   def handle_cast({:reload}, _status) do
     :timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
     context = Serverboards.Config.get(:plugins) # need full reload, to ensure ini and environment is in use.
-    
+
     Logger.debug("Context: #{inspect context}")
 
     all_plugins = load_plugins

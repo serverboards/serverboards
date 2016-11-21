@@ -57,6 +57,23 @@ defmodule Serverboards.Config do
       |> Enum.map(fn {k,v} -> {k, parse_val(v)} end) # use proper vals. Here at the end to allow null values
   end
 
+  @doc ~S"""
+  Returns the configured serverboards path.
+
+  This can be set at environment, at .ini or calculated from home
+  """
+  def serverboards_path do
+    case System.get_env("SERVERBOARDS_PATH") do
+      nil ->
+        case get(:global, "home", nil) do
+          nil ->
+            Path.join(System.get_env("HOME"), ".local/serverboards/")
+          path -> path
+        end
+      path -> path
+    end
+  end
+
   def parse_val(v) do
     case v do
       "true" -> true

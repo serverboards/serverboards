@@ -1,6 +1,10 @@
 require Logger
 
 defmodule Serverboards.Rules.Rule do
+  defmodule CantStartRule do
+    defexception message: "Cant start rule"
+  end
+
   alias Serverboards.Plugin
 
   defstruct [
@@ -144,7 +148,7 @@ defmodule Serverboards.Rules.Rule do
       {:ok, plugin_id} -> plugin_id
       {:error, desc} ->
         Logger.error("Could not start trigger", description: desc)
-        raise {:cant_start_trigger, desc}
+        raise CantStartRule, message: desc
     end
 
     #MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{uuid: ^plugin_id}} ->

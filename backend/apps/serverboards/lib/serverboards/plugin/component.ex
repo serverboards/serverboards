@@ -49,7 +49,11 @@ defmodule Serverboards.Plugin.Component do
         nil -> []
       end
       #Logger.info("Running command #{fullcmd} // #{inspect perms}")
-      Cmd.Supervisor.start_command fullcmd, [], [], [perms: perms]
+      cmdopts = [
+        env: get_env(component),
+        cd: plugin.path
+      ]
+      Cmd.Supervisor.start_command fullcmd, [], cmdopts, [perms: perms]
     end
   end
 
@@ -67,4 +71,22 @@ defmodule Serverboards.Plugin.Component do
     raise "Cant run this type of component, needs to be of type cmd, is #{inspect component.type}"
   end
 
+  @doc ~S"""
+  Returns the environment that this component will use.
+
+  Useful to pass the new home directory, the serveboards path and so on.
+  """
+  def get_env(%{ plugin: %{ id: id }}) do
+    serverboards_path = Serverboards.Config.serverboards_path
+    home = "#{serverboards_path}/data/#{id}/"
+    case File.mkdir_p(home) do
+      {:error, err} ->
+        Logger.error("Error creating directory for plugin #{id} at #{home}: #{inspect err}")
+      _ -> :ok
+    end
+    [
+      {'HOME', to_charlist home},
+      {'SERVERBOARDS_PATH', to_charlist serverboards_path},
+    ]
+  end
 end
