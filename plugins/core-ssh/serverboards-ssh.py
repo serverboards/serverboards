@@ -6,17 +6,19 @@ import urllib.parse as urlparse
 import base64
 
 ID_RSA=os.path.expanduser("~/id_rsa")
-CONFIG_FILE=os.path.expanduser("~/ssh_config")
+CONFIG_FILE=os.path.expanduser("~/config")
 ID_RSA_PUB=ID_RSA+'.pub'
 
 def ensure_ID_RSA():
     if not os.path.exists(ID_RSA):
         serverboards.info("Generating new SSH key pair")
         os.system('ssh-keygen -f "%s" -N "" >&2'%(ID_RSA,))
+        os.chmod(ID_RSA, 0600)
     if not os.path.exists(CONFIG_FILE):
         serverboards.info("Creating the ssh config file")
         with open(CONFIG_FILE,"w+") as fd:
             fd.write("# Write here your custom configuration\n")
+        os.chmod(CONFIG_FILE, 0600)
 
 def url_to_opts(url):
     """
@@ -28,7 +30,7 @@ def url_to_opts(url):
     u = urlparse.urlparse(url)
     assert u.scheme == 'ssh'
 
-    ret= [ u.hostname, '-t','-t', '-i', ID_RSA, '-F', CONFIG_FILE ]
+    ret= [ u.hostname, '-i', ID_RSA, '-F', CONFIG_FILE ]
     if u.port:
         ret +=["-p", str(u.port)]
     if u.username:
@@ -73,7 +75,7 @@ def _open(url, uidesc=None):
         uidesc=url
 
     (opts, url) = url_to_opts(url)
-    opts += ['--', '/bin/bash']
+    opts += ['-t','-t', '--', '/bin/bash']
     (ptymaster, ptyslave) = pty.openpty()
 
     print(' '.join(opts))

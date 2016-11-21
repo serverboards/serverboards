@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 export INSTALL=/opt/serverboards
 
@@ -8,7 +8,8 @@ adduser -q --system serverboards --home $INSTALL --no-create-home
 addgroup -q --system serverboards
 addgroup -q serverboards serverboards
 
-INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/ $INSTALL/log $INSTALL/running_config"
+INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/ $INSTALL/log $INSTALL/running_config \
+	$INSTALL/.ssh"
 [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
 for p in $INTERNAL_PATHS; do 
@@ -22,4 +23,8 @@ chown serverboards:serverboards /var/log/serverboards
 
 chown root:serverboards $INSTALL/share/serverboards/plugins/core-auth-pam/serverboards-auth-helper
 chmod 4050 $INSTALL/share/serverboards/plugins/core-auth-pam/serverboards-auth-helper
+
+[ -e $INSTALL/local/data/serverboards.core.ssh ] || ln -s $INSTALL/.ssh $INSTALL/local/data/serverboards.core.ssh/ 
+chown -h serverboards:serverboards $INSTALL/local/data/serverboards.core.ssh 
+chmod 0700 $INSTALL/.ssh
 
