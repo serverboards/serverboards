@@ -55,29 +55,35 @@ let AddService=React.createClass({
 
     function WrappedService(props){
       return (
-        <a key={props.uuid || props.type} className="column center aligned svg" onClick={(ev) => self.handleAdd(ev, props)} href="#">
-          {props.icon ? (
-            <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
-          ) : (
-            <ImageIcon src={icon}  name={props.name}/>
-          )}
-          <span className="ui header small">{props.name}</span>
-        </a>
+        <div key={props.uuid || props.type} className="column center aligned">
+          <a onClick={(ev) => self.handleAdd(ev, props)}  className="ui button invisible">
+            {props.icon ? (
+              <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
+            ) : (
+              <ImageIcon src={icon}  name={props.name}/>
+            )}
+            <div className="ui header small" style={{marginTop: 0}}>{props.name}</div>
+          </a>
+        </div>
       )
     }
 
     return (
-      <Modal onClose={props.onClose}>
-        <h2 className="ui header">
-          Select a service to add
-        </h2>
-        <h3 className="ui header" style={{paddingTop:30}}>Already configured in your system</h3>
-        <div className="ui five column grid stackable">
-          {props.all_services.map((c) => WrappedService(c))}
+      <Modal onClose={props.onClose} className="wide">
+        <div className="ui top secondary pointing menu">
+          <h3 className="ui header">
+            Select a service to add
+          </h3>
         </div>
-        <h3 className="ui header" style={{paddingTop:30}}>New services</h3>
-        <div className="ui five column grid stackable">
-          {props.catalog.map((c) => WrappedService(c))}
+        <div className="ui text container">
+          <h3 className="ui header" style={{paddingTop:30}}>Already configured in your system</h3>
+          <div className="ui five column grid stackable svg">
+            {props.all_services.map((c) => WrappedService(c))}
+          </div>
+          <h3 className="ui header" style={{paddingTop:30}}>New services</h3>
+          <div className="ui five column grid stackable">
+            {props.catalog.map((c) => WrappedService(c))}
+          </div>
         </div>
       </Modal>
     )
