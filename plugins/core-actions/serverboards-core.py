@@ -3,7 +3,8 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-import requests, subprocess, re, socket, urlparse, time
+import requests, subprocess, re, socket, time
+from urllib.parse import urlparse
 
 @serverboards.rpc_method
 def ping(ip=None, url=None):

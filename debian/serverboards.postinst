@@ -13,7 +13,7 @@ addgroup -q serverboards serverboards
 [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
 
-INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/"
+INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/ $INSTALL/log $INSTALL/running_config"
 
 for p in $INTERNAL_PATHS; do 
 	chown serverboards:serverboards $p -R
