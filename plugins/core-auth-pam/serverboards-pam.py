@@ -18,7 +18,7 @@ def auth(type="pam", email=None, password=None, **kwargs):
     if not password_ok:
         serverboards.debug("Login NOK")
         return False
-    serverboards.debug("PAM login OK for %s, getting data"%(username))
+    serverboards.debug("PAM login OK for %s, getting data"%(email))
     groups = [g.gr_name for g in grp.getgrall() if email in g.gr_mem]
     groups = [ g[13:] if g.startswith('serverboards-') else g for g in groups ]
 

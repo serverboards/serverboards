@@ -8,18 +8,16 @@ adduser -q --system serverboards --home $INSTALL --no-create-home
 addgroup -q --system serverboards
 addgroup -q serverboards serverboards
 
-[ -d /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
-# created here, to persist after reinstalls and such. 
+INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/ $INSTALL/log $INSTALL/running_config"
 [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
-
-INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/ $INSTALL/log $INSTALL/running_config"
-
 for p in $INTERNAL_PATHS; do 
+	mkdir -p $p
 	chown serverboards:serverboards $p -R
 	chmod 0770 $p -R
 done
 
+[ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
 chown serverboards:serverboards /var/log/serverboards
 
 chown root:serverboards $INSTALL/share/serverboards/plugins/core-auth-pam/serverboards-auth-helper
