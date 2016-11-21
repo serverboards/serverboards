@@ -13,7 +13,7 @@ import_config "../apps/*/config/config.exs"
 config :logger, :backends,
   [
     {Serverboards.Logger, :serverboards_logs},
-    {Serverboards.Logger.Console, :serverboards_logs_console},
+    #{Serverboards.Logger.Console, :serverboards_logs_console},
     #:console,
   ]
 

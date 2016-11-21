@@ -38,7 +38,8 @@ defmodule Serverboards.Mixfile do
             :eventsourcing,
             :json,
             :uuid,
-            :eini
+            :eini,
+            :logger_journald_backend,
             ],
       mod: {Serverboards, []},
     ]
@@ -60,6 +61,7 @@ defmodule Serverboards.Mixfile do
   defp deps do
     [
       {:mom, git: "git://github.com/serverboards/elixir-mom"},
+      {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 2.0"},
       {:postgrex, ">= 0.0.0"},

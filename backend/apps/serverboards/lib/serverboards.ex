@@ -11,10 +11,22 @@ defmodule Serverboards do
     Serverboards.Setup.exit(pid)
     wait_pid(pid)
 
-    Logger.debug("And now the rest")
+    setup_logger()
 
     res = Serverboards.Supervisor.start_link name: Serverboards.Supervisor
     res
+  end
+
+  def setup_logger() do
+    if Serverboards.Config.get(:logs, "systemd", false) do
+      Logger.add_backend(Logger.Backend.Journald, [])
+    end
+    if Serverboards.Config.get(:logs, "console", true) do
+      Logger.add_backend(Serverboards.Logger.Console, [])
+    end
+    if Serverboards.Config.get(:logs, "classic", false) do
+      Logger.add_backend(:console, [])
+    end
   end
 
   defp wait_pid(nil), do: :ok
