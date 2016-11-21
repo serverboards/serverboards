@@ -5,13 +5,18 @@ import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
 import base64
 
-ID_RSA=os.path.expanduser("~/.ssh/id_rsa")
+ID_RSA=os.path.expanduser("~/id_rsa")
+CONFIG_FILE=os.path.expanduser("~/ssh_config")
 ID_RSA_PUB=ID_RSA+'.pub'
 
 def ensure_ID_RSA():
     if not os.path.exists(ID_RSA):
-        os.system('ssh-keygen -f "%s" -N ""'%(ID_RSA,))
-
+        serverboards.info("Generating new SSH key pair")
+        os.system('ssh-keygen -f "%s" -N "" >&2'%(ID_RSA,))
+    if not os.path.exists(CONFIG_FILE):
+        serverboards.info("Creating the ssh config file")
+        with open(CONFIG_FILE,"w+") as fd:
+            fd.write("# Write here your custom configuration\n")
 
 def url_to_opts(url):
     """
@@ -23,7 +28,7 @@ def url_to_opts(url):
     u = urlparse.urlparse(url)
     assert u.scheme == 'ssh'
 
-    ret= [ u.hostname, '-t','-t' ]
+    ret= [ u.hostname, '-t','-t', '-i', ID_RSA, '-F', CONFIG_FILE ]
     if u.port:
         ret +=["-p", str(u.port)]
     if u.username:
@@ -32,6 +37,7 @@ def url_to_opts(url):
 
 @serverboards.rpc_method
 def ssh_exec(url, command="uname -a"):
+    ensure_ID_RSA()
     if not command:
         raise Exception("Need a command to run")
     (opts, url) = url_to_opts(url)
@@ -62,6 +68,7 @@ import uuid
 
 @serverboards.rpc_method("open")
 def _open(url, uidesc=None):
+    ensure_ID_RSA()
     if not uidesc:
         uidesc=url
 
@@ -69,6 +76,7 @@ def _open(url, uidesc=None):
     opts += ['--', '/bin/bash']
     (ptymaster, ptyslave) = pty.openpty()
 
+    print(' '.join(opts))
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
         stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _uuid = str(uuid.uuid4())
@@ -206,6 +214,7 @@ def open_port(url, hostname="localhost", port="22"):
     Returns:
      localport -- Port id on Serverboards side to connect to.
     """
+    ensure_ID_RSA()
     (opts, url) = url_to_opts(url)
     keep_trying=True
     while keep_trying:

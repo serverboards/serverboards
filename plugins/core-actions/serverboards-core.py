@@ -33,7 +33,7 @@ def ping(ip=None, url=None):
 
 @serverboards.rpc_method
 def socket_connect(url=None):
-    purl=urlparse.urlparse(url)
+    purl=urlparse(url)
     host=purl.hostname
     port=purl.port or str(purl.scheme)
     #serverboards.rpc.debug("<%s> <%s> %s"%(host, type(port), repr(purl)))
