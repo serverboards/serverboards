@@ -58,6 +58,7 @@ module.exports = {
         {from:'app/css', to:'css'},
         {from:'app/js/jquery-2.2.3.min.js', to:'js'},
         {from:'app/js/semantic.min.js', to:'js'},
+        {from:'app/imgs/favicon.png', to:'imgs'},
       ]),
       new webpack.DefinePlugin({
         __DEV__: JSON.stringify(__DEV__)
