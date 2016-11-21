@@ -1,5 +1,12 @@
+serverboards (0.6.0) unstable; urgency=medium
+
+  * Many fixes for a deb package release
+  * Support for .ini config file
+
+ -- David Moreno <dmoreno@serverboards.io>  Mon, 21 Nov 2016 18:15:28 +0100
+
 serverboards (0.5.0) unstable; urgency=medium
 
   * Initial Release.
 
- -- dmoreno <dmoreno@unknown>  Sat, 05 Nov 2016 16:43:13 +0000
+ -- David Moreno <dmoreno@serverboards.io>  Sat, 05 Nov 2016 16:43:13 +0000
