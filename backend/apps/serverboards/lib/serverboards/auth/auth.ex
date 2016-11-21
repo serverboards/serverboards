@@ -180,9 +180,10 @@ defmodule Serverboards.Auth do
 		#Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
 		 case Serverboards.Plugin.Runner.start_call_stop(command, call, params) do
 		  {:ok, email} when is_binary(email) ->
-				Logger.info("Login via #{inspect id} for user #{inspect email}", user: email, auth: auth)
 				case Serverboards.Auth.User.user_info(email) do
-					{:ok, user}  -> user
+					{:ok, user}  ->
+						Logger.info("Login via #{inspect id} for user #{inspect email}", user: email, auth: auth)
+						user
 					_ -> false
 				end
 		 	{:ok, %{} = user} ->
