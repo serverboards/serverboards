@@ -61,6 +61,7 @@ defmodule Serverboards.Mixfile do
   defp deps do
     [
       {:mom, git: "git://github.com/serverboards/elixir-mom"},
+      {:ejournald, git: "git://github.com/serverboards/ejournald", override: true},
       {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 2.0"},
