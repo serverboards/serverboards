@@ -76,7 +76,9 @@ defmodule Serverboards.Plugin.Component do
 
   Useful to pass the new home directory, the serveboards path and so on.
   """
-  def get_env(%{ plugin: %{ id: id }}) do
+  def get_env(%{ plugin: %{ id: id }}), do: get_env(id)
+  def get_env(%{ plugin: id }) when is_binary(id), do: get_env(id)
+  def get_env(id) when is_binary(id) do
     serverboards_path = Serverboards.Config.serverboards_path
     home = "#{serverboards_path}/data/#{id}/"
     case File.mkdir_p(home) do
