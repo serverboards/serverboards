@@ -5,7 +5,7 @@ function Default(props){
     <div className="ui text container">
       <h1>Settings</h1>
 
-      Not yet.
+      Please use section menu.
     </div>
   )
 }
