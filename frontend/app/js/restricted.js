@@ -13,5 +13,16 @@ const Restricted = React.createClass({
   }
 })
 
-export {has_perm, perms, Restricted}
+function has_perm_guard(perm, F){
+  return function(props){
+    return (
+      <Restricted perm={perm}>
+        <F {...props}/>
+      </Restricted>
+    )
+  }
+}
+
+
+export {has_perm, perms, has_perm_guard, Restricted}
 export default Restricted

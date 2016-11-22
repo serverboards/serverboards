@@ -1,5 +1,6 @@
 import React from 'react'
 import {Link} from 'app/router'
+import Restricted from 'app/restricted'
 
 function UserMenu(props){
   return (
@@ -13,10 +14,12 @@ function UserMenu(props){
           <span>Settings</span>
           <i className="ui icon settings"></i>
         </a>
-        <a className="item" href="#/logs/">
-            <span>Logs</span>
-            <i className="ui icon book"></i>
-        </a>
+        <Restricted perm="logs.view">
+          <a className="item" href="#/logs/">
+              <span>Logs</span>
+              <i className="ui icon book"></i>
+          </a>
+        </Restricted>
         <a href="#!" className="item" onClick={props.onLogout}>
           <span>Logout</span>
           <i className="ui icon power"></i>

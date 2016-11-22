@@ -2,6 +2,7 @@ import React from 'react'
 import plugin from 'app/utils/plugin'
 import {object_is_equal} from 'app/utils'
 import {merge} from 'app/utils'
+import Restricted from 'app/restricted'
 
 const Widget = React.createClass({
   umount: undefined,
@@ -82,9 +83,11 @@ const Widget = React.createClass({
           <span className="ui header oneline">
             {state.title || config.name || widget.name}
           </span>
-          <a className="item right" onClick={this.props.onEdit}>
-            <i className="icon configure"/>
-          </a>
+          <Restricted perm="serverboard.widget.update">
+            <a className="item right" onClick={this.props.onEdit}>
+              <i className="icon configure"/>
+            </a>
+          </Restricted>
         </div>
         <div ref="el"/>
       </div>

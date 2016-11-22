@@ -1,7 +1,10 @@
 import store from './store'
 
 export function perms(){
-  return store.getState().auth.user.perms
+  const state=store.getState()
+  if (state.auth.user)
+    return store.getState().auth.user.perms
+  return []
 }
 
 export function has_perm(perm){
