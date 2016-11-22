@@ -13,6 +13,8 @@ export function rules_list(serverboard){
   return function(dispatch){
     rpc.call("rules.list",{serverboard: serverboard}).then( (rules) => {
       dispatch({type: "UPDATE_RULES_LIST", serverboard, rules})
+    }).catch( (e) => {
+      console.error("Error getting rules: %o", e)
     })
   }
 }
