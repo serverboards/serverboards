@@ -20,7 +20,7 @@ components:
         type: text
         validation: empty
         card: true
-      - label: Comments
+      - label: SSH Public Key
         type: description
         description: |
           To connect via SSH please ensure that the following SSH public key is
@@ -33,8 +33,27 @@ components:
           ```
         vars:
           - id: ssh_key
-            command: serverboards.core.ssh/daemon
+            command: serverboards.core.ssh/mgmt
             call: ssh_public_key
+      - label: Remote SSH Fingerprint
+        type: button
+        description: |
+          The remote fingerprints are:
+
+          ```
+          {{status.fingerprint}}
+          ```
+          Click on "Enable host" to add to your known_hosts. This is required to access this server.
+        value: "{{status.toggle}}"
+        className: "{{status.className}}"
+        onclick:
+            command: serverboards.core.ssh/mgmt
+            call: toggle_remote_fingerprint
+
+        vars:
+          - id: status
+            command: serverboards.core.ssh/mgmt
+            call: remote_fingerprint
 
   - name: SSH Management
     id: management
@@ -76,3 +95,11 @@ components:
     strategy: singleton
     perms: event.emit
     command: serverboards-ssh.py
+
+  - name: SSH Management
+    id: mgmt
+    type: cmd
+    timeout: 10s
+    strategy: singleton
+    perms: event.emit
+    command: serverboards-ssh-mgmt.py

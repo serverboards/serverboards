@@ -168,4 +168,15 @@ export function start(pluginid, options={}){
   return pc.start()
 }
 
-export default {load, add_screen, do_screen, add_widget, do_widget, join_path, start}
+export function start_call_stop(pluginid, method, args){
+  return start(pluginid).then( (pl) => (
+    pl
+      .call(method, args)
+      .then( (res) => {pl.stop(); return res; })
+      .catch( (e) => {pl.stop(); throw e; })
+      .catch( (e) => { if (e!="cant_stop") throw e; })
+  ))
+}
+
+
+export default {load, add_screen, do_screen, add_widget, do_widget, join_path, start, start_call_stop}
