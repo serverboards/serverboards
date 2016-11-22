@@ -17,7 +17,7 @@ def ssh_urlparse(url):
     u = urlparse.urlparse(url)
     assert u.scheme == 'ssh'
     port = u.port or '22'
-    return (u.hostname, port)
+    return (u.hostname, str(port))
 
 
 def get_fingerprint(url):
