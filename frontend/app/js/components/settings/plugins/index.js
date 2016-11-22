@@ -46,7 +46,17 @@ const Plugins=React.createClass({
   contextTypes: {
     router: React.PropTypes.object
   },
-
+  handleInstallPlugin(){
+    const plugin_url=this.refs.plugin_url.value
+    if (!plugin_url){
+      Flash.error("Please set a valid URL")
+      return;
+    }
+    rpc.call("plugin.install", [plugin_url]).then( () => {
+      Flash.info(`Plugin from ${plugin_url} installed and ready.`)
+      this.componentDidMount() // reload plugin list
+    }).catch( (e) => Flash.error(e) )
+  },
   render(){
     const plugins=this.state.plugins
     let popup=[]
@@ -63,15 +73,33 @@ const Plugins=React.createClass({
     }
 
     return (
-      <div className="ui container">
-        <h1 className="ui header">Plugins</h1>
-
-        <div className="ui cards">
-          {plugins.map((p) => (
-            <PluginCard key={p.id} plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
-          ))}
+      <div>
+        <div className="ui top secondary header menu">
+          <h3 className="ui header">Plugins</h3>
+          <div className="right menu">
+            <div className="item">
+              <div className="ui form">
+                <div className="inline fields">
+                  <div className="field">
+                    <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder="Enter plugin git repository URL"/>
+                  </div>
+                  <div className="field">
+                    <button className="ui button yellow" onClick={this.handleInstallPlugin}>Install</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        {popup}
+
+        <div className="ui container">
+          <div className="ui cards">
+            {plugins.map((p) => (
+              <PluginCard key={p.id} plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
+            ))}
+          </div>
+          {popup}
+        </div>
       </div>
     )
   }

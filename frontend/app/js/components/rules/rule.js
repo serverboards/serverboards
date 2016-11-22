@@ -22,7 +22,7 @@ function find_by_uuid(uuid, catalog){
 }
 
 function TriggerDetails({trigger, trigger_template}){
-  const params=trigger_template.start.params.filter( (p) => p.card )
+  const params=((((trigger_template || {}).start || {}).params) || []).filter( (p) => p.card )
   return (
     <div>
       <h5 className="ui header" style={{marginBottom: 0}}>{(trigger_template || {name: trigger.trigger }).name}</h5>
