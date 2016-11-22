@@ -4,19 +4,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
 import base64
-
-ID_RSA=os.path.expanduser("~/id_rsa")
-CONFIG_FILE=os.path.expanduser("~/ssh_config")
-ID_RSA_PUB=ID_RSA+'.pub'
-
-def ensure_ID_RSA():
-    if not os.path.exists(ID_RSA):
-        serverboards.info("Generating new SSH key pair")
-        os.system('ssh-keygen -f "%s" -N "" >&2'%(ID_RSA,))
-    if not os.path.exists(CONFIG_FILE):
-        serverboards.info("Creating the ssh config file")
-        with open(CONFIG_FILE,"w+") as fd:
-            fd.write("# Write here your custom configuration\n")
+from common import *
 
 def url_to_opts(url):
     """
@@ -56,12 +44,6 @@ def ssh_exec(url, command="uname -a"):
             sp.sendline(url.password)
     sp.wait()
     return {"stdout": data.decode('utf8'), "exit": sp.exitstatus}
-
-@serverboards.rpc_method
-def ssh_public_key():
-    ensure_ID_RSA()
-    with open(ID_RSA_PUB, 'r') as fd:
-        return fd.read()
 
 sessions={}
 import uuid
