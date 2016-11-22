@@ -237,6 +237,10 @@ Stops the plugin.
 
 Returns true if the plugin is running, false if not.
 
+## plugin.install(git_url)
+
+Installs the plugin at the given URL.
+
 ## plugin.data_set(id, key, value)
 ## plugin.data_set(key, value)
 

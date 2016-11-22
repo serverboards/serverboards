@@ -15,7 +15,7 @@ defmodule Serverboards.Setup do
     "auth.create_user", "auth.create_token",
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
-    "plugin", "plugin.data",
+    "plugin", "plugin.data", "plugin.install",
     "serverboard.add", "serverboard.update",
     "serverboard.delete", "serverboard.info",
     "serverboard.widget.add", "serverboard.widget.update",
