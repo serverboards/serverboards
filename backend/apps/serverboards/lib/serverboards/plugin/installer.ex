@@ -6,6 +6,8 @@ defmodule Serverboards.Plugin.Installer do
     plugindir = "#{Serverboards.Config.serverboards_path}/plugins/"
     finalpath = "#{plugindir}/#{plname}"
 
+    File.mkdir_p(plugindir)
+
     {output, exitcode} = System.cmd(
       "git", ["clone", url, finalpath],
       cd: plugindir, stderr_to_stdout: true
