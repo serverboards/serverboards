@@ -4,6 +4,7 @@ import AddServiceModal from 'app/containers/serverboard/addservice'
 import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
 import ServiceDetails from 'app/containers/service/details'
+import Restricted from 'app/restricted'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -92,7 +93,7 @@ let Services=React.createClass({
           <ServicesView mode={state.mode} services={props.services.sort(service_sort)} serverboard={this.props.serverboard}/>
         </div>
 
-        <div className="ui container">
+        <Restricted perm="service.add">
           <a href="#"
               onClick={this.openAddServiceModal}
               className="ui massive button _add icon floating yellow"
@@ -100,8 +101,8 @@ let Services=React.createClass({
               >
             <i className="add icon"></i>
           </a>
-          {popup}
-        </div>
+        </Restricted>
+        {popup}
       </div>
     )
   }

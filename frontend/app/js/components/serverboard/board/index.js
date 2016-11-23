@@ -5,6 +5,7 @@ import EditWidget from 'app/containers/serverboard/board/edit_widget'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import BoardHeader from './header'
+import Restricted from 'app/restricted'
 import ReactGridLayout from 'react-grid-layout'
 import {object_is_equal} from 'app/utils'
 import {set_modal} from 'app/utils/store'
@@ -101,9 +102,11 @@ const Board = React.createClass({
               </div>
             ))}
         </ReactGridLayout>
-        <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
-          <i className="add icon"></i>
-        </a>
+        <Restricted perm="serverboard.widget.add">
+          <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
+            <i className="add icon"></i>
+          </a>
+        </Restricted>
       </div>
     )
   }

@@ -5,6 +5,7 @@ import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import CommandSearh from './commands'
 import gravatar from 'gravatar'
+import Restricted from 'app/restricted'
 
 require("sass/top.sass")
 
@@ -73,22 +74,26 @@ const Top = React.createClass({
           <div className="item search">
             <CommandSearh/>
           </div>
-          <a className="item" ref="notifications_item">
-            <i className="announcement icon"></i>
-            {((props.notifications||[]).length > 0) ? (
-              <span
-                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                style={{top: 8, left: 43}}
-                />
-              ) : null}
-          </a>
+          <Restricted perm="notifications.list">
+            <a className="item" ref="notifications_item">
+              <i className="announcement icon"></i>
+              {((props.notifications||[]).length > 0) ? (
+                <span
+                  className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
+                  style={{top: 8, left: 43}}
+                  />
+                ) : null}
+            </a>
+          </Restricted>
           <NotificationsMenu open_time={this.state.open_time}/>
-          <a className="item" onClick={() => props.toggleMenu('processes')}>
-            <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
-          </a>
+          <Restricted perm="action.watch">
+            <a className="item" onClick={() => props.toggleMenu('processes')}>
+              <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
+            </a>
+          </Restricted>
           <a className="item" onClick={() => props.toggleMenu('user')}>
-          <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
-            data-tooltip={props.user.email}/>
+            <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
+              data-tooltip={props.user.email}/>
           </a>
         </div>
         {menu}
