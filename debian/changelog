@@ -1,6 +1,6 @@
 serverboards (0.6.0-1-gc9b41) unstable; urgency=medium
 
- * Added version update script v1
+  * Added version update script v1
 
   -- David Moreno <dmoreno@coralbits.com>  Wed, 23 Nov 2016 11:56:46 +0100
 

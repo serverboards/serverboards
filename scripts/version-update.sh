@@ -28,7 +28,7 @@ function update_version_debian(){
 		cat - debian/changelog > debian/changelog.bak <<EOF
 serverboards ($2) unstable; urgency=medium
 
-$( git log --pretty=format:' * %s' --abbrev-commit v$1..HEAD )
+$( git log --pretty=format:'  * %s' --abbrev-commit v$1..HEAD )
 
   -- $( git config --get user.name ) <$( git config --get user.email )>  $( date -R )
 
