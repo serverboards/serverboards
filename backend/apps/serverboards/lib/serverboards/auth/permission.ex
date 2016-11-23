@@ -23,6 +23,6 @@ defmodule Serverboards.Auth.Permission do
 
 	def perm_list() do
 		import Ecto.Query
-		Repo.all(from p in Model.Permission, select: p.code)
+		Repo.all(from p in Model.Permission, select: p.code, order_by: p.code )
 	end
 end
