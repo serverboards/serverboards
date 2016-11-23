@@ -1,12 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 
-import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEBase import MIMEBase
+import smtplib, email
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
 
 settings=None
 
@@ -17,6 +17,7 @@ def find_var_rec(context, var):
 
 def template_var_match(context):
     def replace(match):
+        from functools import reduce
         ret = reduce(find_var_rec, match.group(1).split('.'), context)
         return ret
     return replace
@@ -57,9 +58,10 @@ def send_email(user=None, config=None, message=None, extra={}, test=False):
     msg.attach(MIMEText(body_html,"html",'UTF-8'))
     msg.attach(MIMEText(body,"plain",'UTF-8'))
 
-    msg["From"]=settings["from"]
+    msg["From"]="Serverboards <%s>"%settings["from"]
     msg["To"]=_to
     msg["Subject"]=message["subject"]
+    msg["Date"]=email.utils.formatdate()
 
     if test:
         with open("/tmp/lastmail.html","w") as fd:
@@ -70,6 +72,8 @@ def send_email(user=None, config=None, message=None, extra={}, test=False):
         smtp.login(settings["username"], settings["password_pw"])
     smtp.sendmail(settings["from"], _to, msg.as_string())
     smtp.close()
+
+    serverboards.info("Sent email to %s, with subject '%s'"%(user["email"], message["subject"]))
 
     return True
 
@@ -83,18 +87,20 @@ if len(sys.argv)==2 and sys.argv[1]=="test":
         "username" : "",
         "password_pw" : ""
     }
-    print send_email(
+    print(send_email(
         user={ "email": "dmoreno@serverboards.io" },
         config={},
         message={
             "subject":"This is a test message",
             "body":"Body of the test message\n\nAnother line",
             "extra":[]
-        }, test=True)
+        }, test=True))
 else:
     try:
         settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
     except:
+        import traceback
+        traceback.print_exc()
         settings=None
 
     serverboards.loop()

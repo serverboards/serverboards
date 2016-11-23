@@ -51,3 +51,6 @@ components:
     traits: email
     perms: settings.view[serverboards.core.notifications/settings.email]
     command: serverboards_email.py
+    type: singleton
+    timeout: 1m
+    
