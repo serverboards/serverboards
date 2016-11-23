@@ -12,11 +12,7 @@ require("sass/top.sass")
 function notifications_color(notifications){
   if (!notifications || notifications.length==0)
     return ""
-  for(let n of notifications){
-    if (n.tags.indexOf("new")>=0)
-      return "blue"
-  }
-  return "yellow"
+  return "blue"
 }
 
 const Top = React.createClass({
