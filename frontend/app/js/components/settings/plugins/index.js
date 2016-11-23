@@ -16,7 +16,7 @@ const Plugins=React.createClass({
       for (let k in pluginsd){
         plugins.push(pluginsd[k])
       }
-      plugins = plugins.sort( function(a,b){ return a.name.localeCompare(b.name) })
+      plugins = plugins.sort( function(a,b){ return (a.name || "").localeCompare(b.name || "") })
       this.setState({plugins})
     }).catch((e) => {
       Flash.error(`Could not load plugin list.\n ${e}`)
