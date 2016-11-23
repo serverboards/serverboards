@@ -6,7 +6,7 @@ const default_state={
 export const settings = (state = default_state , action) => {
   switch(action.type){
     case "SETTINGS_ALL":
-      return {settings: action.settings}
+      return {settings: action.settings.sort((a,b) => ((a.order || 0) - (b.order || 0) ))}
   }
   return state
 }

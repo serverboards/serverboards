@@ -14,30 +14,12 @@ components:
     id: base
     perms: settings
     type: settings
+    order: -1
     fields:
       - label: Base URL
+        description: |
+          This settings is used for remote services to connect to self,
+          for example on Oauth2 auth flows.
         placeholder: eg. https://test.serverboards.io
         name: base_url
         validation: url
-
-  - name: Database settings
-    description: >
-      Connection data to database. Any error here may render the
-      application unusable. Make sure you know what you are doing.
-    perms: settings.database
-    type: settings
-    id: database
-    fields:
-      - label: Database Address
-        placeholder: "eg: localhost, 192.186.1.200, /var/run/postgresql/, ..."
-        validation: empty
-        name: address
-      - label: Username
-        placeholder: serverboards
-        validation: empty
-        name: username
-      - label: Password
-        placeholder: "*********"
-        type: password
-        validation: empty
-        name: password_pw

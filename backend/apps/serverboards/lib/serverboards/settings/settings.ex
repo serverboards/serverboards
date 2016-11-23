@@ -69,7 +69,7 @@ defmodule Serverboards.Settings do
     if "settings.view" in me.perms do
       all_values = Repo.all(Model.Settings) |> Enum.map(fn s -> {s.section,s.data} end)
       all_values = Map.new( all_values )
-      Logger.info("all_values #{inspect all_values}")
+      #Logger.info("all_values #{inspect all_values}")
 
       # Foe each component and field, gets stored values and put them at "value"
       Serverboards.Plugin.Registry.filter_component(type: "settings")
@@ -89,7 +89,8 @@ defmodule Serverboards.Settings do
             name: settings.name,
             id: id,
             fields: fields,
-            description: Map.get(settings.extra, "description", "")
+            description: Map.get(settings.extra, "description", ""),
+            order: settings.extra["order"] || 0
            }
         end)
     else
