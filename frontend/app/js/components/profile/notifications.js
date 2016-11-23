@@ -7,7 +7,7 @@ import {MarkdownPreview} from 'react-marked-markdown';
 let Channel=React.createClass({
   getInitialState(){
     let config = this.props.config || {}
-    return { config: config.config, is_active: config.is_active }
+    return { config: config.config, is_active: config.is_active || false }
   },
   componentWillReceiveProps(props){
     const config=props.config || {}

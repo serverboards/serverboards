@@ -151,7 +151,7 @@ defmodule Serverboards.Config do
         Logger.error("Error DB not ready getting info for section #{inspect section}")
         []
     end
-    Logger.debug("#{inspect section}: #{inspect ret}")
+    #Logger.debug("#{inspect section}: #{inspect ret}")
     ret
   end
 

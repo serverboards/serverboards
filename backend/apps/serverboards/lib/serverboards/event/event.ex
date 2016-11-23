@@ -32,7 +32,7 @@ defmodule Serverboards.Event do
                 Logger.error("Error sending event: #{inspect e}\n#{Exception.format_stacktrace}")
             end
           else
-            Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
+            #Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
           end
         else
           #Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")

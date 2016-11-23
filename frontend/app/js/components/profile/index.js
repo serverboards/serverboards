@@ -3,6 +3,7 @@ import Notifications from 'app/containers/profile/notifications'
 import PasswordChange from './password_change'
 import gravatar from 'gravatar'
 import EditUser from 'app/components/settings/user/edit'
+import Restricted from 'app/restricted'
 
 let Profile = React.createClass({
   getInitialState(){
@@ -70,7 +71,9 @@ let Profile = React.createClass({
             onUpdate={(data) => this.handleUpdate("notifications", data)}/>
 
           <br/>
-          <button className="ui yellow button" onClick={this.handleSubmit}>Update profile</button>
+          <Restricted perm="settings.user.update">
+            <button className="ui yellow button" onClick={this.handleSubmit}>Update profile</button>
+          </Restricted>
         </div>
         {popup}
       </div>
