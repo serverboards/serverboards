@@ -30,7 +30,7 @@ serverboards ($2) unstable; urgency=medium
 
 $( git log --pretty=format:'  * %s' --abbrev-commit v$1..HEAD )
 
-  -- $( git config --get user.name ) <$( git config --get user.email )>  $( date -R )
+ -- $( git config --get user.name ) <$( git config --get user.email )>  $( date -R )
 
 EOF
 		mv debian/changelog.bak debian/changelog
