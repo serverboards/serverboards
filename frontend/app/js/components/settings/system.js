@@ -4,6 +4,7 @@ import Loading from '../loading'
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
 import {MarkdownPreview} from 'react-marked-markdown';
+import Restricted from 'app/restricted'
 
 function Section(props){
   console.log(props.fields)
@@ -44,21 +45,28 @@ let System=React.createClass({
       )
 
     return (
-      <div className="ui text container settings">
-        <h1 className="ui header">System</h1>
+      <div>
+        <div className="ui secondary header top menu">
+          <h3 className="ui header">System Settings</h3>
+        </div>
+        <div className="ui text container settings">
 
-        {props.settings.map( (section) => (
-            <div key={section.id} ref={section.id}>
-              <Section {...section} />
-            </div>
-          )) }
-        <button
-            type="button"
-            className="ui button approve floating right yellow"
-            onClick={this.handleSubmit}
-            >
-          Save all changes
-        </button>
+
+          {props.settings.map( (section) => (
+              <div key={section.id} ref={section.id}>
+                <Section {...section} />
+              </div>
+            )) }
+          <Restricted perm="settings.update">
+            <button
+                type="button"
+                className="ui button approve floating right yellow"
+                onClick={this.handleSubmit}
+                >
+              Save all changes
+            </button>
+          </Restricted>
+        </div>
       </div>
     )
   }

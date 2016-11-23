@@ -5,6 +5,7 @@ import Users from 'app/containers/settings/users'
 import Groups from 'app/containers/settings/groups'
 import Plugins from 'app/components/settings/plugins'
 import System from 'app/containers/settings/system'
+import Restricted from 'app/restricted'
 
 const sections={
   overview: Overview,
@@ -36,10 +37,18 @@ var SidebarSections = function(props){
     <div className="ui vertical menu sections">
       <h3 className="ui item header">Settings</h3>
       <MenuItem section="overview">Overview</MenuItem>
-      <MenuItem section="users">Users</MenuItem>
-      <MenuItem section="groups">Groups and permissions</MenuItem>
-      <MenuItem section="plugins">Plugins</MenuItem>
-      <MenuItem section="system">System</MenuItem>
+      <Restricted perm="auth.list">
+        <MenuItem section="users">Users</MenuItem>
+      </Restricted>
+      <Restricted perm="auth.list AND auth.manage_groups">
+        <MenuItem section="groups">Groups and permissions</MenuItem>
+      </Restricted>
+      <Restricted perm="plugin.list">
+        <MenuItem section="plugins">Plugins</MenuItem>
+      </Restricted>
+      <Restricted perm="settings.view">
+        <MenuItem section="system">System</MenuItem>
+      </Restricted>
     </div>
   )
 }

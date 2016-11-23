@@ -1,6 +1,7 @@
 import React from 'react'
 import Loading from '../loading'
 import HoldButton from '../holdbutton'
+import Restricted from 'app/restricted'
 
 const UserRow = React.createClass({
   componentDidMount(){
@@ -15,36 +16,43 @@ const UserRow = React.createClass({
         <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.is_active ? "true" : "false"}</td>
         <td className="ui">
-          <div className="ui item">
-            <div ref="dropdown" className="ui dropdown">
-              More
-              <i className="dropdown icon"></i>
-              <div className="menu" style={{marginLeft: "-6em"}}>
-                <a href="#" className="item"
-                  onClick={(ev) => { ev.preventDefault(); this.props.onOpenEditUser()}}>
-                  Edit user
-                  <i className="ui icon edit" style={{float:"right"}}/>
-                </a>
-                <a href="#" className="item"
-                  onClick={(ev) => { ev.preventDefault(); this.props.onOpenSendNotification()}}>
-                  Send notification
-                  <i className="ui icon mail" style={{float:"right"}}/>
-                </a>
-                {u.is_active ? (
-                  <HoldButton className="item" onHoldClick={this.props.onDisableUser}>
-                  Hold to disable
-                  <i className="ui icon trash user" style={{paddingLeft: 10}}/>
-                  </HoldButton>
-                ) : (
-                  <HoldButton className="item" onHoldClick={this.props.onEnableUser}>
-                  Hold to enable
-                  <i className="ui icon enable user" style={{paddingLeft: 10}}/>
-                  </HoldButton>
-                )}
+          <Restricted perm="auth.modify_any OR notifications.notify_all">
+            <div className="ui item">
+              <div ref="dropdown" className="ui dropdown">
+                More
+                <i className="dropdown icon"></i>
+                <div className="menu" style={{marginLeft: "-6em"}}>
+                  <Restricted perm="auth.modify_any">
+                    <a href="#" className="item"
+                      onClick={(ev) => { ev.preventDefault(); this.props.onOpenEditUser()}}>
+                      Edit user
+                      <i className="ui icon edit" style={{float:"right"}}/>
+                    </a>
+                  </Restricted>
+                  <Restricted perm="notifications.notify_all">
+                    <a href="#" className="item"
+                      onClick={(ev) => { ev.preventDefault(); this.props.onOpenSendNotification()}}>
+                      Send notification
+                      <i className="ui icon mail" style={{float:"right"}}/>
+                    </a>
+                  </Restricted>
+                  <Restricted perm="auth.modify_any">
+                    {u.is_active ? (
+                      <HoldButton className="item" onHoldClick={this.props.onDisableUser}>
+                      Hold to disable
+                      <i className="ui icon trash user" style={{paddingLeft: 10}}/>
+                      </HoldButton>
+                    ) : (
+                      <HoldButton className="item" onHoldClick={this.props.onEnableUser}>
+                      Hold to enable
+                      <i className="ui icon enable user" style={{paddingLeft: 10}}/>
+                      </HoldButton>
+                    )}
+                  </Restricted>
+                </div>
               </div>
             </div>
-          </div>
-
+          </Restricted>
         </td>
       </tr>
     )
@@ -99,7 +107,9 @@ const Users=React.createClass({
           ))}
           </tbody>
         </table>
-        <a onClick={this.handleOpenAddUser}><i className="ui massive button add icon floating olive"></i></a>
+        <Restricted perm="auth.create_user">
+          <a onClick={this.handleOpenAddUser}><i className="ui massive button add icon floating olive"></i></a>
+        </Restricted>
       </div>
     )
   }

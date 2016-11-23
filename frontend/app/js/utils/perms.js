@@ -7,7 +7,15 @@ export function perms(){
   return []
 }
 
+/**
+ * Can be a perm expression, with AND and OR. And has higher priority.
+ * It is very limited by design as there are no ()
+ */
 export function has_perm(perm){
+  if (perm.indexOf(' AND ')>0)
+    return perm.split(' AND ').every( (p) => has_perm(p) )
+  if (perm.indexOf(' OR ')>0)
+    return perm.split(' OR ').some( (p) => has_perm(p) )
   return perms().indexOf(perm)>=0
 }
 
