@@ -15,7 +15,7 @@ defmodule Serverboards.Setup do
     "auth.create_user", "auth.create_token",
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
-    "plugin", "plugin.data", "plugin.install",
+    "plugin", "plugin.data", "plugin.install", "plugin.list",
     "serverboard.add", "serverboard.update",
     "serverboard.delete", "serverboard.info",
     "serverboard.widget.add", "serverboard.widget.update",
@@ -116,19 +116,22 @@ defmodule Serverboards.Setup do
       %{name: group.name}
       )
     perms = group.perms # perms I want by name
-    #Logger.debug("#{inspect status} #{inspect perms}")
+    #IO.puts("#{inspect Enum.sort(perms)}")
+    #IO.puts("#{inspect Enum.sort(group.perms)}")
     group_perms = Repo.all( # perms I have by id
       from gp in Model.GroupPerms,
         where: gp.group_id == ^groupm.id,
         select: gp.perm_id
       )
-    Enum.map perms, fn p ->
+    for p <- perms do
+      # get from cache, or db
       perm_id = case status.perms[p] do
         nil ->
           Repo.get_or_create_and_update(Model.Permission, [code: p], %{ code: p }).id
         perm_id -> perm_id
       end
       if not perm_id in group_perms do
+        #IO.puts("Add perm #{p} to group #{group.name}")
         Repo.get_or_create_and_update(
           Model.GroupPerms,
           [ group_id: groupm.id, perm_id: perm_id ],
