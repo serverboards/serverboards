@@ -61,9 +61,8 @@ module.exports = {
         {from:'app/imgs/favicon.png', to:'imgs'},
       ]),
       new webpack.DefinePlugin({
-        __DEV__: JSON.stringify(__DEV__)
-      }),
-      new webpack.DefinePlugin({
+        __DEV__: JSON.stringify(__DEV__),
+        SERVERBOARDS_VERSION: JSON.stringify(require("./package.json").version),
         'process.env': {
           'NODE_ENV': __DEV__ ? JSON.stringify("development") : JSON.stringify("production")
         }
