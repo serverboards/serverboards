@@ -7,7 +7,6 @@ import {MarkdownPreview} from 'react-marked-markdown';
 import Restricted from 'app/restricted'
 
 function Section(props){
-  console.log(props.fields)
   return (
     <section key={props.id}>
       <h2 className="ui header">{props.name}</h2>
@@ -19,7 +18,7 @@ function Section(props){
 
 let System=React.createClass({
   handleSubmit(){
-    console.log(this.refs)
+    //console.log(this.refs)
     var all_updates=[]
     for(let section of this.props.settings){
       section=section.id
