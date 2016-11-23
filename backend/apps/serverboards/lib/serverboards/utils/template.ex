@@ -29,6 +29,9 @@ defmodule Serverboards.Utils.Template do
   def re_find_and_replace_leaf(var, nil) do
     "[UNKNOWN #{var}]"
   end
+  def re_find_and_replace_leaf(var, s) when is_binary(s) do
+    s
+  end
   def re_find_and_replace_leaf(var, context) when is_map(context) do
     if Map.has_key?(context, var) do
       context[var]
