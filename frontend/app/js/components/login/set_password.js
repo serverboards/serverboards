@@ -31,46 +31,48 @@ const SetPassword=React.createClass({
   render(){
     const props=this.props
     return (
-      <form ref="el" className="ui form" method="POST">
-        <div className="ui small modal active" id="login">
-          <div className="header">
-            Set new password
-          </div>
-
-          <div className="content">
-            <div className="field">
-              <label>Reset token</label>
-              <input type="text" name="token" defaultValue={props.token} placeholder="As received on the email"
-                />
-            </div>
-            <div className="field">
-              <label>Email address</label>
-              <input type="text" name="email" defaultValue={props.email} placeholder="Account email address"
-                />
-            </div>
-            <div className="field">
-              <label>New password</label>
-              <input type="password" name="password" placeholder="*********"
-                />
-            </div>
-            <div className="field">
-              <label>Repeat password</label>
-              <input type="password" name="repeat_password" placeholder="*********"
-                />
-            </div>
-          </div>
-
-          <div className="actions">
-            <button type="button" className="ui right button" onClick={props.closeReset}>
-              Cancel
-            </button>
-            <button type="button" className="ui positive right labeled icon button" onClick={this.setPassword}>
+      <div className="ui login serverboards background diagonal">
+        <form ref="el" className="ui form" method="POST">
+          <div className="ui small modal active" id="login">
+            <div className="header">
               Set new password
-              <i className="caret right icon"></i>
-            </button>
+            </div>
+
+            <div className="content">
+              <div className="field">
+                <label>Reset token</label>
+                <input type="text" name="token" defaultValue={props.token} placeholder="As received on the email"
+                  />
+              </div>
+              <div className="field">
+                <label>Email address</label>
+                <input type="text" name="email" defaultValue={props.email} placeholder="Account email address"
+                  />
+              </div>
+              <div className="field">
+                <label>New password</label>
+                <input type="password" name="password" placeholder="*********"
+                  />
+              </div>
+              <div className="field">
+                <label>Repeat password</label>
+                <input type="password" name="repeat_password" placeholder="*********"
+                  />
+              </div>
+            </div>
+
+            <div className="actions">
+              <button type="button" className="ui right button" onClick={props.closeReset}>
+                Cancel
+              </button>
+              <button type="button" className="ui positive right labeled icon button" onClick={this.setPassword}>
+                Set new password
+                <i className="caret right icon"></i>
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     )
   }
 })

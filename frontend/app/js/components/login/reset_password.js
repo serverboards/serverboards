@@ -31,33 +31,35 @@ const ResetPassword=React.createClass({
   render(){
     const props=this.props
     return (
-      <form ref="el" className="ui form" method="POST">
-        <div className="ui small modal active" id="login">
-          <div className="header">
-            Request email with reset password link
-          </div>
+      <div className="ui login serverboards background diagonal">
+        <form ref="el" className="ui form" method="POST">
+          <div className="ui small modal active" id="login">
+            <div className="header">
+              Request email with reset password link
+            </div>
 
-          <div className="content">
-            <div className="field">
-              <label>Email</label>
-              <input type="email" name="email" placeholder="user@company.com"
-                defaultValue={props.email}
-                />
+            <div className="content">
+              <div className="field">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="user@company.com"
+                  defaultValue={props.email}
+                  />
+              </div>
+            </div>
+
+            <div className="actions">
+              <a href="#" onClick={this.setPassword}>I already have a password change token</a>
+              <button type="button" className="ui right button" onClick={props.closeReset}>
+                Cancel
+              </button>
+              <button type="button" className="ui positive right labeled icon button" onClick={this.sendEmail}>
+                Request email
+                <i className="caret right icon"></i>
+              </button>
             </div>
           </div>
-
-          <div className="actions">
-            <a href="#" onClick={this.setPassword}>I already have a password change token</a>
-            <button type="button" className="ui right button" onClick={props.closeReset}>
-              Cancel
-            </button>
-            <button type="button" className="ui positive right labeled icon button" onClick={this.sendEmail}>
-              Request email
-              <i className="caret right icon"></i>
-            </button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     )
   }
 })
