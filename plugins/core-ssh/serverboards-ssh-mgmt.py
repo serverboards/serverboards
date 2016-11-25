@@ -21,16 +21,28 @@ def ssh_urlparse(url):
 
 
 def get_fingerprint(url):
+    if not url:
+        return None
     (hostname, port) = ssh_urlparse(url)
-    output = str(subprocess.check_output(["ssh-keyscan", "-p", port, hostname]), 'utf8')
-    output=output.strip().split('\n')
-    output.sort()
-    serverboards.debug(repr(output))
-    return '\n'.join(output)
+    try:
+        output = str(subprocess.check_output(["ssh-keyscan", "-p", port, hostname]), 'utf8')
+        output=output.strip().split('\n')
+        output.sort()
+        serverboards.debug(repr(output))
+        return '\n'.join(output)
+    except:
+        import traceback; traceback.print_exc()
+        return None
 
 @serverboards.rpc_method
 def remote_fingerprint(url="192.168.1.200", **kwargs):
     fingerprint=get_fingerprint(url)
+    if not fingerprint:
+        return {
+            "fingerprint":"Cant connect to server at <%s>. Set a valid SSH address."%url,
+            "className":"grey disabled",
+            "toggle":"Select a valid SSH address"
+        }
     fingerprintb = bytes(fingerprint, 'utf8')
 
     sp=subprocess.Popen(["ssh-keygen", "-lf", "/dev/stdin", "-E", "md5"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)

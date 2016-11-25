@@ -14,7 +14,8 @@ const GenericButton= React.createClass({
       className: props.className || "",
       extraClass: "",
       vars: {},
-      loading: true
+      loading: true,
+      dependant: []
     }
   },
   componentDidMount(){
@@ -33,6 +34,19 @@ const GenericButton= React.createClass({
       this.setError(100)
       Flash.error("Error loading dynamic data. Contact plugin author.",{error: 100})
     })
+    if (props.depends_on){
+      this.setState({dependant: props.form_data[props.depends_on]})
+    }
+  },
+  componentWillReceiveProps(newprops){
+    const props=this.props
+    if (props.depends_on && this.state.dependant != props.form_data[props.depends_on]){
+      if (this.state.waitforupdate){
+        clearTimeout(this.state.waitforupdate)
+      }
+      const to = setTimeout(() => this.componentDidMount(), 1000)
+      this.setState({waitforupdate: to})
+    }
   },
   setError(code){
     this.setState({description: `Error loading dynamic data. Contact plugin author. [Error #${code}]`, extraClass: "error"})

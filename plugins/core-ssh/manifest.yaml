@@ -37,6 +37,8 @@ components:
             call: ssh_public_key
       - label: Remote SSH Fingerprint
         type: button
+        show_if: url
+        depends_on: url
         description: |
           The remote fingerprints are:
 
@@ -49,7 +51,6 @@ components:
         onclick:
             command: serverboards.core.ssh/mgmt
             call: toggle_remote_fingerprint
-
         vars:
           - id: status
             command: serverboards.core.ssh/mgmt

@@ -7,7 +7,10 @@ import GenericButton from './genericbutton'
 
 const GenericField=React.createClass({
   getInitialState(){
-    return { items: [] }
+    return {
+      items: [],
+      show: this.check_if_show(this.props)
+    }
   },
   handleChange: function(ev){
     this.props.setValue(this.props.name, ev.target.value)
@@ -23,7 +26,22 @@ const GenericField=React.createClass({
       break;
     }
   },
+  componentWillReceiveProps(newprops){
+    const should_show=this.check_if_show(newprops)
+    if (this.state.show!=should_show)
+      this.setState({show:should_show})
+  },
+  check_if_show(props){
+    if (props.show_if){
+      const value = props.form_data[props.show_if]
+      if (value==undefined || value=="")
+        return false
+    }
+    return true;
+  },
   render(){
+    if (!this.state.show)
+      return null;
     let props=this.props
     switch (props.type){
       case undefined:
