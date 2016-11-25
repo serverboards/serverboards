@@ -208,7 +208,7 @@ defmodule Serverboards.Plugin.Runner do
         {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
         GenServer.cast(Serverboards.Plugin.Runner, {:ping, id})
-        Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
+        #Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
             GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
@@ -226,7 +226,7 @@ defmodule Serverboards.Plugin.Runner do
   end
   def call(id, %{ "method" => method } = defcall, defparams) when is_binary(id) do
     # This version (no extra) filters which parameters to pass to the method.
-    Logger.debug("Call using map version: #{inspect defcall} // #{inspect defparams}")
+    #Logger.debug("Call using map version: #{inspect defcall} // #{inspect defparams}")
     defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k,v} -> {to_string(k), v} end))
     params = Map.get(defcall,"params",[]) |> Enum.map( fn %{ "name" => name } = param ->
       # this with is just to try to fetch in order or nil
