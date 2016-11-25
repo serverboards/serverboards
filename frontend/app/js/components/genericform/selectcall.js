@@ -1,5 +1,6 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
+import RichDescription from './richdescription'
 
 const SelectCall = React.createClass({
   getInitialState(){
