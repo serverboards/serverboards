@@ -98,8 +98,7 @@ def base_url():
     return url
 
 @serverboards.rpc_method
-def send_notification(email, subject, body, service=None):
-    extra={}
+def send_notification(email, subject, body, service=None, **extra):
     if service:
         if service["serverboards"]:
             serverboard=service["serverboards"][0]

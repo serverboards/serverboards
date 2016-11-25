@@ -64,6 +64,7 @@ components:
     icon: mail
     call:
       method: send_notification
+      extra: true
       params:
         - name: email
           type: text
