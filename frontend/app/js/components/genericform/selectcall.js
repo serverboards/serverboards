@@ -11,8 +11,8 @@ const SelectCall = React.createClass({
     const props = this.props
     let self = this
     plugin.start(props.options.command).then( (pl) => {
-      pl.call(props.options.call,[]).then( (items) => {
-        console.log(items)
+      pl.call(props.options.call,props.form_data).then( (items) => {
+        //console.log(items)
         self.setState({items})
         pl.stop()
         $(self.refs.select).dropdown({

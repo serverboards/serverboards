@@ -25,7 +25,7 @@ const RichDescription=React.createClass({
     }
   },
   componentDidMount(){
-    resolve_form_vars(this.props.vars).then( (vars) => { // Then set it into the state, update content
+    resolve_form_vars(this.props.vars, this.props.form_data).then( (vars) => { // Then set it into the state, update content
       this.setState({content: this.process_description(vars), loading: false, extraClass: ""})
     }).catch((e) => {
       console.error(e)
