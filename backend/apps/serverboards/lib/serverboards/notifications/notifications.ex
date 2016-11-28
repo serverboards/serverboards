@@ -24,7 +24,9 @@ defmodule Serverboards.Notifications do
     end
     EventSourcing.subscribe es, :notify, fn
       %{ email: email, subject: subject, body: body, extra: extra}, _me ->
-        notify_real(email, subject, body, extra)
+        Task.start(fn -> 
+          notify_real(email, subject, body, extra)
+        end)
     end
 
     Serverboards.Notifications.InApp.setup_eventsourcing(es)
