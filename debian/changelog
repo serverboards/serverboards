@@ -1,3 +1,27 @@
+serverboards (0.6.20-g905a2) unstable; urgency=medium
+
+  * Send notifications in a task, to avoid timeouts
+  * Fix missing include for `select call` form fields.
+  * Select call rich description send current form data as param
+  * Added `show_if` and `depends_on` for generic forms
+  * Cleanup. Removed some log output.
+  * Can send notifications from rules with template
+  * Fixes to send email. Use python3.
+  * Cleanup comments
+  * Fix case of plugins without name, made all fail
+  * Return sorted list of permissions
+  * Small cleanup of setup and add "plugin.list" permission
+  * Fix on bad formed templates, give some answer
+  * Telegram selarated to itw own non core plugin
+  * Message notification icon always blue
+  * Fix background at password reset modals
+  * Fixes to update user notification channels.
+  * Fix author line at generated changelog
+  * Fix changelog for debian bad format
+  * Updated version to proper full version id.
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 28 Nov 2016 10:45:41 +0100
+
 serverboards (0.6.0-1-gc9b41) unstable; urgency=medium
 
   * Added version update script v1
