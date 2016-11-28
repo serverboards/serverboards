@@ -5,6 +5,8 @@ import Flash from 'app/flash'
 import rpc from 'app/rpc'
 import {MarkdownPreview} from 'react-marked-markdown';
 import Restricted from 'app/restricted'
+import store from 'app/utils/store'
+import {settings_all} from 'app/actions/settings'
 
 function Section(props){
   return (
@@ -34,7 +36,7 @@ let System=React.createClass({
     }
     Promise.all(all_updates).then(function(){
       Flash.success("Updated settings!")
-    })
+    }).then( () => store.dispatch(settings_all()) )
   },
   render(){
     let props=this.props
