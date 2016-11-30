@@ -5,32 +5,45 @@ import ConnectionBanner from 'app/containers/connectionbanner'
 require("sass/messages.sass")
 
 const level_to_class = {
-  error: 'negative',
+  error: 'error',
   success: 'success',
-  debug: 'olive'
+  info: 'info',
+  warning: 'warning',
+  debug: 'debug'
 }
 
-var FlashMessage=React.createClass({
-  render(){
-    let color=level_to_class[this.props.level] || ''
-    let message = this.props.message
-    if (typeof message == 'object'){
-      console.log("Flash message object: %o", message)
-      message=message.message || String(message)
-    }
+const level_to_title = {
+    error: "Error",
+    info: "Information",
+    success: "Success",
+    debug: "Debug",
+    warning: "Warning"
+}
 
-    return (
-      <div className={"ui message "+color}>
-        <i className="close icon" onClick={() => this.props.onClose(this.props.message)}></i>
+function FlashMessage(props){
+  const level = props.level
+  let color=level_to_class[level] || ''
+  let message = props.message
+  if (typeof message == 'object'){
+    console.log("Flash message object: %o", message)
+    message=message.message || String(message)
+  }
+
+  return (
+    <div className={"ui message "+color}>
+      <i className={`ui label rectangular ${color}`}/>
+      <div className="content">
+        <h3 className="ui header">{props.title || level_to_title[level]}</h3>
         <MarkdownPreview value={message}/>
       </div>
-    )
-  }
-})
+      <i className="close icon" onClick={() => props.onClose(props.message)}></i>
+    </div>
+  )
+}
 
 function FlashMessageList({messages, handleClose}){
   return (
-    <div className="ui top messages">
+    <div className="ui messages flash">
       {messages.map(msg =>
         <FlashMessage key={msg.id} {...msg} onClose={handleClose}/>
       )}
