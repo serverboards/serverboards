@@ -9,6 +9,7 @@ import Flash from 'app/flash'
 var Top=Event.subscribe_connect(
   (state) => ({
       user: state.auth.user,
+      avatar: state.auth.avatar,
       menu: state.top.menu,
       actions: state.action.actions,
       notifications: state.notifications.unread

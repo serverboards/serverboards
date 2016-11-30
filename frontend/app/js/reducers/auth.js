@@ -1,10 +1,13 @@
 // Default status, put over current
+const default_avatar=require('../../imgs/square-favicon.svg')
+
 const default_state={
   logged_in: false,
   user: undefined,
   users: undefined,
   groups: undefined,
   all_perms: undefined,
+  avatar: default_avatar
 }
 
 // http://stackoverflow.com/questions/1179366/is-there-a-javascript-strcmp#1179377
@@ -29,8 +32,11 @@ function sort_groups(groups){
 }
 
 export const auth = (state = default_state , action) => {
+  const type=action.type
+  if (!type.startsWith("AUTH_") && !type.startsWith("@RPC_EVENT/"))
+    return state
   var state=Object.assign({}, state) // copy state
-  switch(action.type){
+  switch(type){
     case "AUTH_LOGIN":
       state.logged_in=true
       state.user=action.user
@@ -38,6 +44,7 @@ export const auth = (state = default_state , action) => {
     case 'AUTH_LOGOUT':
       state.logged_in=false
       state.user=undefined
+      state.avatar=default_avatar
       break;
     case 'AUTH_USER_LIST':
       state.users=sort_users( action.users )
@@ -47,6 +54,9 @@ export const auth = (state = default_state , action) => {
       break;
     case 'AUTH_PERMS_LIST':
       state.all_perms=action.perms
+      break;
+    case 'AUTH_PROFILE_AVATAR':
+      state.avatar=action.avatar
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {

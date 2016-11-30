@@ -3,7 +3,6 @@ import Notifications from 'app/containers/profile/notifications'
 import PasswordChange from './password_change'
 import EditUser from 'app/components/settings/user/edit'
 import Restricted from 'app/restricted'
-const default_avatar=require('../../../imgs/square-favicon.svg')
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
 
@@ -11,7 +10,7 @@ let Profile = React.createClass({
   getInitialState(){
     return {
       modal: undefined,
-      avatar: default_avatar
+      avatar: this.props.avatar
     }
   },
   handleSubmit(){
@@ -29,18 +28,21 @@ let Profile = React.createClass({
     ev.preventDefault()
     this.setState({ modal: "personal_data" })
   },
+  /*
   componentDidMount(){
     rpc.call("settings.user.get", ["profile_avatar"]).then( (d) => {
       if (d && d.avatar)
         this.setState({avatar: d.avatar})
     } ).error( (e) => console.log(e) )
   },
+  */
   uploadAvatar(ev){
     let fr = new FileReader()
     fr.onload = (ev) => {
       this.setState({avatar: ev.target.result})
       rpc.call("settings.user.set", ["profile_avatar", {avatar: ev.target.result}]).then( () => {
         Flash.info("Avatar image saved")
+        this.props.onUpdateAvatar(ev.target.result)
       })
     }
     fr.readAsDataURL(ev.target.files[0])
