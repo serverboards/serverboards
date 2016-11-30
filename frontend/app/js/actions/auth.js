@@ -14,23 +14,36 @@ export function login(params){
     rpc
       .call("auth.auth",{email:params.email, password:params.password, type:"basic"})
       .then(function(user){
-        if (user){
-          Flash.log("Logged in as "+user.email)
-
-          event.subscribe(["user.updated"])
-
-          dispatch({type:"AUTH_LOGIN", user: user})
-        }
-        else{
-          Flash.error("Invalid email/password")
-          dispatch({type:"AUTH_FAIL_LOGIN"})
-        }
+        logged_in_as(dipatch, user)
       })
       .catch(function(msg){
         console.error(msg)
         Flash.error("Cant login "+msg)
         dispatch({type:"AUTH_FAIL_LOGIN"})
       })
+  }
+}
+
+export function logged_in_as(dispatch, user){
+  if (user){
+    Flash.log("Logged in as "+user.email)
+    event.subscribe(["user.updated"])
+    dispatch({type:"AUTH_LOGIN", user: user})
+    rpc.call("settings.user.get", ["profile_avatar"]).then( (d) => {
+      if (d.avatar)
+        dispatch( user_update_avatar(d.avatar) )
+    })
+  }
+  else{
+    Flash.error("Invalid email/password")
+    dispatch({type:"AUTH_FAIL_LOGIN"})
+  }
+}
+
+export function user_update_avatar(avatar){
+  return {
+    type:"AUTH_PROFILE_AVATAR",
+    avatar
   }
 }
 

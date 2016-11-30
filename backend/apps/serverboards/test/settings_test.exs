@@ -51,4 +51,17 @@ defmodule Serverboards.SettingsTest do
       %{ test_pw: "https://test.serverboards.io"}]
       )
   end
+
+  test "User data" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    assert {:ok, nil} == Test.Client.call(client, "settings.user.get", ["notifications"])
+    assert {:ok, :ok} == Test.Client.call(client, "settings.user.set", ["notifications", %{ email: "dmoreno@serverboards.io"}] )
+    :timer.sleep(200)
+    assert {:ok, %{ "email" => "dmoreno@serverboards.io"}} == Test.Client.call(client, "settings.user.get", ["notifications"])
+
+    assert {:ok, :ok} == Test.Client.call(client, "settings.user.set", ["notifications", nil] )
+    :timer.sleep(200)
+    assert {:ok, nil} == Test.Client.call(client, "settings.user.get", ["notifications"])
+  end
 end

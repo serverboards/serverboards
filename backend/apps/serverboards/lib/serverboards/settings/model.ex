@@ -18,4 +18,23 @@ defmodule Serverboards.Settings.Model do
 			 |> cast(changes, @required_fields, @optional_fields)
 	 end
   end
+	defmodule UserSettings do
+		use Ecto.Schema
+
+    schema "settings_user_settings" do
+			field :section, :string
+			belongs_to :user, User
+      field :data, :map
+
+      timestamps
+    end
+
+		@required_fields ~w(section data user_id)
+		@optional_fields ~w()
+		def changeset(settings, changes \\ :empty) do
+		 import Ecto.Changeset
+		 settings
+			 |> cast(changes, @required_fields, @optional_fields)
+	 end
+  end
 end

@@ -28,6 +28,9 @@ defmodule Serverboards.Settings do
     subscribe es, :update_settings, fn [section, data], _me ->
       update_real(section, data)
     end
+    subscribe es, :update_user_settings, fn [email, section, data], _me ->
+      update_user_real(email, section, data)
+    end
 
     EventSourcing.Model.subscribe :settings, :settings, Serverboards.Repo
   end
@@ -53,6 +56,38 @@ defmodule Serverboards.Settings do
     MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
     :ok
   end
+
+  def user_update(email, section, data, me) do
+    EventSourcing.dispatch(:settings, :update_user_settings, [email, section, data], me)
+    :ok
+  end
+  def update_user_real(email, section, nil) do
+    import Ecto.Query
+
+    query = from s in Model.UserSettings,
+            join: u in Serverboards.Auth.Model.User,
+              on: u.id == s.user_id,
+           where: u.email == ^email and s.section == ^section
+
+    Repo.delete_all( query )
+  end
+  def update_user_real(email, section, data) do
+    import Ecto.Query
+    [user] = Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^email)
+    user_id = user.id
+    #Logger.info("Update settings, #{section}: #{inspect data}")
+    case Repo.get_by(Model.UserSettings, section: section, user_id: user_id) do
+      nil ->
+        Repo.insert( %Model.UserSettings{section: section, data: data, user_id: user_id} )
+      sec ->
+        #Logger.debug("#{inspect sec}")
+        Repo.update( Model.UserSettings.changeset(sec, %{data: data}) )
+    end
+    MOM.Channel.send(:user_settings, %MOM.Message{payload: %{ type: :update, user: user, section: section, data: data }})
+    :ok
+  end
+
+
 
   @doc ~S"""
     Returns a list with all settings sections, with the fields and current values.
@@ -115,6 +150,22 @@ defmodule Serverboards.Settings do
     case get(id) do
       {:error, :not_found} -> default
       {:ok, o} -> o
+    end
+  end
+
+  @doc ~S"""
+  Gets data from a given user, or nil if not
+  """
+  def user_get(email, section) do
+    import Ecto.Query
+    query = from s in Model.UserSettings,
+            join: u in Serverboards.Auth.Model.User,
+              on: u.id == s.user_id,
+           where: u.email == ^email and s.section == ^section,
+           select: s.data
+    case Repo.all(query) do
+      [] -> nil
+      [other] -> other
     end
   end
 end

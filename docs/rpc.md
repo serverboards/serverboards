@@ -415,6 +415,10 @@ Requires `event.emit` permission.
 
 Returns all settings this user can see
 
+## settings.get(section)
+
+Gets all data from a section
+
 ## settings.update(section, data)
 
 Updates one section data, replacing all old data
@@ -422,6 +426,22 @@ Updates one section data, replacing all old data
 ## settings.update(section, key, value)
 
 Updates one key of data on the given section.
+
+## settings.user.get(section)
+## settings.user.get(email, section)
+
+Gets some data from the user.
+
+`email` is optional and is used only by admin with permission
+`settings.user.view_all`
+
+## settings.user.update(section, data)
+## settings.user.update(email, section, data)
+
+Updates one key of data on the given user data section.
+
+`email` is optional and is used only by admin with permission
+`settings.user.update_all`
 
 # Action
 

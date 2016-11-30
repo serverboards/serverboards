@@ -30,7 +30,7 @@ export default function(state=default_state, action){
     case "@RPC_EVENT/action.stopped":
       {
         try{
-          return { processes: state.processes.map( (p) => {
+          return { processes: (state.processes || []).map( (p) => {
             if (p.uuid==action.uuid){
               let clean_action = $.extend( {},
                 p,
