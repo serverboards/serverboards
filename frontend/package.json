@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "0.6.20-g905a2",
+  "version": "0.6.22-gcdfab",
   "description": "Serverboards Frontend",
   "main": "index.js",
   "dependencies": {
