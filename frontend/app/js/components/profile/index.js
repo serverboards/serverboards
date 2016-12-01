@@ -1,14 +1,16 @@
 import React from 'react'
 import Notifications from 'app/containers/profile/notifications'
 import PasswordChange from './password_change'
-import gravatar from 'gravatar'
 import EditUser from 'app/components/settings/user/edit'
 import Restricted from 'app/restricted'
+import Flash from 'app/flash'
+import rpc from 'app/rpc'
 
 let Profile = React.createClass({
   getInitialState(){
     return {
-      modal: undefined
+      modal: undefined,
+      avatar: this.props.avatar
     }
   },
   handleSubmit(){
@@ -25,6 +27,25 @@ let Profile = React.createClass({
   openPersonalData(ev){
     ev.preventDefault()
     this.setState({ modal: "personal_data" })
+  },
+  /*
+  componentDidMount(){
+    rpc.call("settings.user.get", ["profile_avatar"]).then( (d) => {
+      if (d && d.avatar)
+        this.setState({avatar: d.avatar})
+    } ).error( (e) => console.log(e) )
+  },
+  */
+  uploadAvatar(ev){
+    let fr = new FileReader()
+    fr.onload = (ev) => {
+      this.setState({avatar: ev.target.result})
+      rpc.call("settings.user.set", ["profile_avatar", {avatar: ev.target.result}]).then( () => {
+        Flash.info("Avatar image saved")
+        this.props.onUpdateAvatar(ev.target.result)
+      })
+    }
+    fr.readAsDataURL(ev.target.files[0])
   },
   render(){
     let popup=[]
@@ -44,8 +65,7 @@ let Profile = React.createClass({
         )
       break;
     }
-    let props = this.props
-    const gravatar_url=gravatar.url(props.user.email, {s: 300})
+    let {props, state} = this
 
     return (
       <div className="ui central area white background" style={{flexDirection: "column"}}>
@@ -57,8 +77,8 @@ let Profile = React.createClass({
         </div>
         <div className="ui text container">
           <div style={{float:"left", margin: "0px 30px 30px 0"}}>
-            <img src={gravatar_url} className="ui bordered image medium" style={{width: 300, height: 300}}/>
-            <div className="ui meta">Image from <a href="https://gravatar.com" target="_blank" rel="noreferrer">Gravatar</a>.</div>
+            <img src={state.avatar} className="ui bordered image medium" style={{width: 300, height: 300}}/>
+            <div className="ui meta blue text"><label style={{cursor:"pointer"}}>Upload new image<input onChange={this.uploadAvatar} style={{display:"none"}} type="file"/></label>.</div>
           </div>
           <h1 className="ui header">{props.user.name}</h1>
           <h2 className="ui header">Basic user data</h2>

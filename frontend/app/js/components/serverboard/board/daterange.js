@@ -92,9 +92,6 @@ const DatetimePicker=React.createClass({
     this.props.onSelect(moment())
     this.props.onClose()
   },
-  timePicker: (
-    <TimePicker />
-  ),
   render(){
     const props=this.props
     return (

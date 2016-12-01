@@ -4,7 +4,6 @@ import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import CommandSearh from './commands'
-import gravatar from 'gravatar'
 import Restricted from 'app/restricted'
 
 require("sass/top.sass")
@@ -56,7 +55,6 @@ const Top = React.createClass({
         </div>
       )
     let logo=require("../../../imgs/white-horizontal-logo.svg")
-    const gravatar_url=gravatar.url(props.user.email, {s: 32})
 
     return (
       <nav className="ui top fixed menu" ref="el">
@@ -88,7 +86,7 @@ const Top = React.createClass({
             </a>
           </Restricted>
           <a className="item" onClick={() => props.toggleMenu('user')}>
-            <img src={gravatar_url} className="ui circular image small" style={{width: 32, height: 32}}
+            <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
               data-tooltip={props.user.email}/>
           </a>
         </div>

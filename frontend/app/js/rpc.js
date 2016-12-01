@@ -76,7 +76,7 @@ var RPC = function(options={}){
         //Flash.success("Reconnection succeded.")
         event.subscribe(["user.updated"])
 
-        rpc.store.dispatch({ type: 'AUTH_LOGIN', user })
+        require('app/actions/auth').logged_in_as(rpc.store.dispatch, user)
 
         // Send pending messages
         for (let msg of rpc.reconnection_message_queue){
@@ -266,7 +266,7 @@ var RPC = function(options={}){
     if (!sessionStorage.reconnect_token){
       rpc.clear_refresh_token()
     }
-    
+
     rpc.call("auth.refresh_token",[sessionStorage.reconnect_token]).catch( (e) => {
       console.error("Error refreshing the connection token")
       rpc.clear_refresh_token()
