@@ -22,9 +22,15 @@ override_dh_auto_test:
 %:
 	dh $@  --with=systemd
 
+override_dh_installinit:
+	dh_systemd_enable -pserverboards --name=serverboards serverboards.service
+	dh_installinit -pserverboards --no-start --noscripts
+	dh_systemd_start -pserverboards --no-restart-on-upgrade
+
+override_dh_systemd_start:
+	echo "Not running dh_systemd_start"
 
 # dh_make generated override targets
 # This is example for Cmake (See https://bugs.debian.org/641051 )
 #override_dh_auto_configure:
 #	dh_auto_configure -- #	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
-

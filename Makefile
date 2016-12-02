@@ -96,9 +96,9 @@ install: prepare-release
 	cp etc/serverboards.ini $(INSTALL)/../etc/
 	mkdir -p $(INSTALL)/../lib/systemd/system/
 	cp etc/serverboards.service $(INSTALL)/../lib/systemd/system/
-	mkdir -p $(INSTALL)/../etc/sudoers.d/serverboards
+	mkdir -p $(INSTALL)/../etc/sudoers.d/
 	cp etc/serverboards.sudoers $(INSTALL)/../etc/sudoers.d/serverboards
-	chown 0440 $(INSTALL)/../etc/sudoers/serverboards$(INSTALL)/../etc/sudoers/serverboards
+	chmod 0440 $(INSTALL)/../etc/sudoers.d/serverboards
 
 
 deb:

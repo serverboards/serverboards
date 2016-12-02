@@ -1,38 +1,46 @@
-#!/bin/sh
+#!/bin/dash
 
 # This script is idempotent, running several times results n the same state
 set -e
+case "$1" in
+  "configure")
 
-export INSTALL=/opt/serverboards
+    export INSTALL=/opt/serverboards
 
-# Create users and groups
-adduser -q --system serverboards --home $INSTALL --no-create-home
-addgroup -q --system serverboards
-addgroup -q serverboards serverboards
+    # Create users and groups
+    adduser -q --system serverboards --home $INSTALL --no-create-home
+    addgroup -q --system serverboards
+    addgroup -q serverboards serverboards
 
-# Create necesary directories and set permissions
-INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/data/ $INSTALL/log $INSTALL/running_config \
-	$INSTALL/.ssh"
-[ -d $INSTALL/local ] || mkdir -p $INSTALL/local
+    # Create necesary directories and set permissions
+    INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/data/ $INSTALL/log $INSTALL/running_config \
+      $INSTALL/.ssh"
+    [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
-for p in $INTERNAL_PATHS; do
-	mkdir -p $p
-	chown serverboards:serverboards $p -R
-	chmod 0770 $p -R
-done
+    for p in $INTERNAL_PATHS; do
+      mkdir -p $p
+      chown serverboards:serverboards $p -R
+      chmod 0770 $p -R
+    done
 
-[ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
-chown serverboards:serverboards /var/log/serverboards
+    [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
+    chown serverboards:serverboards /var/log/serverboards
 
-# Create basic SSH directories
-[ -e $INSTALL/local/data/serverboards.core.ssh ] || ln -s $INSTALL/.ssh $INSTALL/local/data/serverboards.core.ssh
-chown -h serverboards:serverboards $INSTALL/local/data/serverboards.core.ssh
-chmod 0700 $INSTALL/.ssh
-[ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
+    # Create basic SSH directories
+    [ -e $INSTALL/local/data/serverboards.core.ssh ] || ln -s $INSTALL/.ssh $INSTALL/local/data/serverboards.core.ssh
+    chown -h serverboards:serverboards $INSTALL/local/data/serverboards.core.ssh
+    chmod 0700 $INSTALL/.ssh
+    [ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
 
-# Restart if running
-if [ systemctl is-active serverboards > /dev/null ]; then
-	service serverboards restart
-fi
+    if [ "$( systemctl is-active serverboards )" = "active" ]; then
+      systemctl restart serverboards
+    fi
 
-exit 0
+    ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac

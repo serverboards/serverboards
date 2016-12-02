@@ -11,3 +11,6 @@ Environment=HOME=/opt/serverboards/local/
 User=serverboards
 Restart=true
 
+[Install]
+WantedBy=multi-user.target
+Alias=serverboards.service

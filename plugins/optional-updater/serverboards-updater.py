@@ -15,7 +15,7 @@ def latest_version(**args):
 @serverboards.rpc_method
 def update_now(**args):
     serverboards.rpc.reply({"level": "warning", "message": "Serverboards is restarting and should reconnect shortly.\nPage reload is highly encouraged."})
-    os.system("sudo apt-get install serverboards")
+    os.system("sudo ./serverboards-updater.sh 1>&2")
 
 def test():
     print(repr( latest_version() ))
