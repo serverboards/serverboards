@@ -1,3 +1,13 @@
+serverboards (0.6.40-g8dc47) unstable; urgency=medium
+
+  * More fixes debian packaging
+  * Fix path to install sudoers file
+  * Initial version of the updater plugin.
+  * Use of sudoers to set root permissions at install
+  * Renamed core-auth-pam to optional-auth-pam. Use sudo helper
+
+ -- David Moreno <dmoreno@coralbits.com>  Fri, 02 Dec 2016 19:47:30 +0100
+
 serverboards (0.6.45-gea008) unstable; urgency=medium
 
   * Auth PAM uses a singleton strategy
