@@ -90,15 +90,15 @@ prepare-release: compile-frontend compile-backend
 
 INSTALL=$(DESTDIR)$(prefix)
 install: prepare-release
-	mkdir -p $(INSTALL)/serverboards/  
+	mkdir -p $(INSTALL)/serverboards/
 	cp rel/serverboards $(INSTALL) -a
 	mkdir $(INSTALL)/../etc/
 	cp etc/serverboards.ini $(INSTALL)/../etc/
 	mkdir -p $(INSTALL)/../lib/systemd/system/
 	cp etc/serverboards.service $(INSTALL)/../lib/systemd/system/
+	cp etc/serverboards.sudoers $(INSTALL)/../etc/sudoers/serverboards
+	chown 0440 $(INSTALL)/../etc/sudoers/serverboards$(INSTALL)/../etc/sudoers/serverboards
 
 
 deb:
 	fakeroot dpkg-buildpackage
-
-
