@@ -21,8 +21,8 @@ components:
     name: PAM Authenticator Daemon
     type: cmd
     command: serverboards-pam.py
-    #type: singleton
-    # timeout: 1m
+    type: singleton
+    timeout: 1m
 
   - id: pam
     name: PAM Auth
