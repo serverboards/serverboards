@@ -1,3 +1,21 @@
+serverboards (0.6.45-gea008) unstable; urgency=medium
+
+  * Auth PAM uses a singleton strategy
+  * Fix serverboards reload and updater permissions and path
+  * Another fix for sudoers install
+  * Another fix to sudoers installation
+  * Another fix to sudoers installation
+  * More fixes to sudoers installation
+  * Fix path to install sudoers file
+  * Initial version of the updater plugin.
+  * Use of sudoers to set root permissions at install
+  * Renamed core-auth-pam to optional-auth-pam. Use sudo helper
+  * Overview can now use "settings overview" components
+  * Added initdb.sql and nginx.conf sample initial config
+  * Fix login fn call typo. Updated version.
+
+ -- David Moreno <dmoreno@coralbits.com>  Fri, 02 Dec 2016 18:42:58 +0100
+
 serverboards (0.6.32-gffbfc) unstable; urgency=medium
 
   * Merge branch 'master' of ssh://git.coralbits.com:10022/serverboards/serverboards

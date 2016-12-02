@@ -1,0 +1,38 @@
+id: serverboards.optional.update
+name: Serverboards Update Checker
+description: |
+  Shows at serverboards setting oerview whether serverboards needs an update,
+  and allows to trigger the update of the system.
+author: David Moreno <dmoreno@serverboards.io>
+version: 0.1.0
+
+components:
+  - id: settings.overview
+    type: settings overview
+    name: Update
+    order: -1
+    requires: perms[update]
+    fields:
+      - id: version
+        label: Latest version available
+        description: "{{latest_version.version}}"
+        type: description
+        vars:
+          - id: latest_version
+            call: latest_version
+            command: serverboards.optional.update/updater
+      - id: update
+        type: button
+        value: Update now
+        className: yellow
+        onclick:
+          command: serverboards.optional.update/updater
+          call: update_now
+
+  - id: updater
+    type: cmd
+    name: Updater
+    command: ./serverboards-updater.py
+    requires: perms[update]
+    strategy: singleton
+    timeout: 5s

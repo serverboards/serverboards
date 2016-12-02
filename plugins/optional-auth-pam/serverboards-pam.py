@@ -5,8 +5,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 
 
-def authenticate(username, password): 
-    sp = subprocess.Popen(os.path.join(os.path.dirname(__file__),"./serverboards-auth-helper"), stdin=subprocess.PIPE)
+def authenticate(username, password):
+    sp = subprocess.Popen(["sudo", os.path.join(os.path.dirname(__file__),"./serverboards-auth-helper")], stdin=subprocess.PIPE)
     sp.stdin.write(bytes("%s\n%s\n"%(username,password), 'utf8'))
     sp.stdin.flush()
     sp.stdin.close()

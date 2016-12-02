@@ -1,9 +1,8 @@
-.PHONY: core-auth-pam
-all: core-auth-pam
+.PHONY: optional-auth-pam
+all: optional-auth-pam
 
-core-auth-pam:
-	cd core-auth-pam && make
+optional-auth-pam:
+	cd optional-auth-pam && make
 
 clean:
-	cd core-auth-pam && make clean
-
+	cd optional-auth-pam && make clean

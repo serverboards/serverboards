@@ -1,24 +1,66 @@
 import React from 'react'
+import GenericForm from 'app/components/genericform'
+import rpc from 'app/rpc'
+import {merge} from 'app/utils'
 
-function Default(props){
-  return (
-    <div>
-      <div className="ui top header secondary menu">
-        <h2 className="ui header">General information</h2>
-      </div>
-      <div className="ui text container">
-        <div className="field">
-          <label>Version: </label>
-          <span className="ui meta">{SERVERBOARDS_VERSION}</span>
-        </div>
-        <div className="field">
-          <label>Connected to server: </label>
-          <span className="ui meta">{localStorage.servername || window.location.origin}</span>
-        </div>
-      </div>
+const Default=React.createClass({
+  getInitialState(){
+    return {
+      pre: [],
+      post: [],
+      buttons: []
+    }
+  },
+  componentDidMount(){
+    console.log("Get components.")
+    rpc.call("plugin.list_components", {type:"settings overview"}).then( (l) => {
+      console.log("Get components. %o", l)
+      // Get only the fields, with the order
+      let fields = l.map(
+        (o) => (o.extra.fields || []).map(
+          (f) => merge(f, {order:o.extra.order})
+        )
+      ) // get only fields, with the order
+      // do flatmap
+      fields = [].concat.apply([], fields )
+      fields = fields.sort((a,b) => a.order - b.order )
 
-    </div>
-  )
-}
+      const desc = fields.filter( (o) => o.type == "description" );
+      const buttons = fields.filter( (o) => o.type == "button" )
+      const pre = desc.filter( (o) => o.order<=0 )
+      const post = desc.filter( (o) => !o.order || o.order>0 )
+      this.setState({pre, post, buttons})
+    })
+  },
+  render(){
+    const props = this.props
+    const state = this.state
+    return (
+      <div>
+        <div className="ui top header secondary menu">
+          <h2 className="ui header">General information</h2>
+          <div className="right menu">
+            <GenericForm fields={state.buttons}/>
+          </div>
+        </div>
+        <div className="ui text container">
+          <GenericForm fields={state.pre}/>
+          <div className="ui form">
+            <div className="field">
+              <label>Current version: </label>
+              <div className="ui meta">{SERVERBOARDS_VERSION}</div>
+            </div>
+            <div className="field">
+              <label>Connected to server: </label>
+              <div className="ui meta">{localStorage.servername || window.location.origin}</div>
+            </div>
+          </div>
+          <GenericForm fields={state.post}/>
+        </div>
+
+      </div>
+    )
+  }
+})
 
 export default Default

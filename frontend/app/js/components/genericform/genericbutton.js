@@ -57,7 +57,12 @@ const GenericButton= React.createClass({
     console.log(args)
     plugin
       .start_call_stop(this.props.onclick.command, this.props.onclick.call, args)
-      .then( (msg) => { console.info(msg); Flash.info(msg) } )
+      .then( (msg) => { console.info(msg);
+        if (msg.level)
+          Flash.log(msg.message, {level: msg.level}) 
+        else
+          Flash.info(msg)
+      } )
       .catch( (e) => { console.error(e); Flash.error(e) } )
   },
   render(){
