@@ -30,7 +30,8 @@ function main(element, config){
   }
   function add_new_tab(){
     console.log("Add new tab")
-    rpc.call(term.ssh+".open", [config.service.config.url]).then(function(host){
+    rpc.call(term.ssh+".open", [config.service.config.url, config.service.config.url, config.service.config.options || ""])
+       .then(function(host){
       console.log("Added %o", host)
       add_tab(
         config.service.config.url + " " + term.tabs.length,

@@ -49,16 +49,24 @@ sessions={}
 import uuid
 
 @serverboards.rpc_method("open")
-def _open(url, uidesc=None):
+def _open(url, uidesc=None, options=""):
     ensure_ID_RSA()
     if not uidesc:
         uidesc=url
 
     (opts, url) = url_to_opts(url)
+    global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","")
+    print(repr(global_options))
+    options =global_options+"\n"+options
+    opts += [
+        arg.strip()
+        for option in options.split('\n') if option
+        for arg in ['-o',option]
+        ]
     opts += ['-t','-t', '--', '/bin/bash']
     (ptymaster, ptyslave) = pty.openpty()
 
-    print(' '.join(opts))
+    print(repr(opts))
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
         stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _uuid = str(uuid.uuid4())

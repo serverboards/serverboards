@@ -20,6 +20,20 @@ components:
         type: text
         validation: empty
         card: true
+      - label: SSH `Host` Options
+        description: |
+          This settings will be applied to all SSH connections. Please check the
+          [ssh documentation](https://linux.die.net/man/5/ssh_config) for all
+          options.
+
+          Enter one option per line.
+        placeholder: |
+          eg:
+          User remoteuser
+          ProxyCommand ssh real.host.com -qW  192.168.1.2:22
+          LocalCommand sudo bash
+        type: textarea
+        name: options
       - label: SSH Public Key
         type: description
         description: |
@@ -94,7 +108,7 @@ components:
     type: cmd
     timeout: 24h
     strategy: singleton
-    perms: event.emit
+    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings]
     command: serverboards-ssh.py
 
   - name: SSH Management
@@ -104,3 +118,23 @@ components:
     strategy: singleton
     perms: event.emit
     command: serverboards-ssh-mgmt.py
+
+  - name: General SSH Settings
+    id: ssh.settings
+    type: settings
+    perms: settings
+    fields:
+      - label: SSH `Host *` Options
+        description: |
+          This settings will be applied to all SSH connections. Please check the
+          [ssh documentation](https://linux.die.net/man/5/ssh_config) for all
+          options.
+
+          Enter one option per line.
+        placeholder: |
+          eg:
+          ControlMaster auto
+          ControlPath /tmp/ssh-%h%p%r
+          ControlPersist 600
+        type: textarea
+        name: options
