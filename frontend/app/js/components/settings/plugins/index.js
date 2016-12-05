@@ -2,6 +2,8 @@ import React from 'react'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import PluginDetails from './details'
+import plugin from 'app/utils/plugin'
+import {merge} from 'app/utils'
 
 require('sass/cards.sass')
 import PluginCard from './card'
@@ -20,7 +22,28 @@ const Plugins=React.createClass({
       this.setState({plugins})
     }).catch((e) => {
       Flash.error(`Could not load plugin list.\n ${e}`)
+    }).then( () =>
+      rpc.call("event.subscribe",["plugin.update.required"])
+    ).then( () =>
+      plugin.start_call_stop("serverboards.optional.update/updater","check_plugin_updates",[])
+    ).then( (msg) => {
+      rpc.on("plugin.update.required", this.updateRequired)
+      Flash.log(msg)
+    } )
+  },
+  componentWillUnmount(){
+    rpc.call("event.unsubscribe",["plugin.update.required"])
+    rpc.off("plugin.update.required", this.updateRequired)
+  },
+  updateRequired({plugin_id, changelog}){
+    const plugins = this.state.plugins.map( (pl) => {
+      if (pl.id==plugin_id)
+        return merge(pl, {require_update: changelog})
+      else
+        return pl
     })
+    console.log("Require update: %o", plugins)
+    this.setState({plugins})
   },
   handleSetActive(plugin_id, is_active){
     rpc
@@ -67,7 +90,7 @@ const Plugins=React.createClass({
     switch(modal){
       case "details":
       popup=(
-        <PluginDetails {...this.props.location.state.data} setActive={this.handleSetActive}/>
+        <PluginDetails {...this.props.location.state.data} setActive={this.handleSetActive} updateAll={() => this.componentDidMount()}/>
       )
       break;
     }

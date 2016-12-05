@@ -25,6 +25,9 @@ function PluginCard(props){
         ) : (
           <span><i className="ui icon circle grey"/> Not Active</span>
         )}
+        {p.require_update ? (
+          <span style={{paddingLeft: 10}} title={p.require_update}>  <i className="ui icon circle yellow"/> Requires Update</span>
+        ) : null }
       </div>
       <div className="content">
         <ImageIcon src={icon} className="right floated" name={p.name}/>

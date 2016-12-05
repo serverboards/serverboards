@@ -3,6 +3,8 @@ import {MarkdownPreview} from 'react-marked-markdown';
 import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
 import {to_list} from 'app/utils'
+import plugin from 'app/utils/plugin'
+import Flash from 'app/flash'
 
 const icon = require("../../../../imgs/plugins.svg")
 
@@ -43,6 +45,14 @@ const PluginDetails=React.createClass({
       }
     })
   },
+  handleUpdate(){
+    plugin.start_call_stop("serverboards.optional.update/updater","update_plugin",[this.props.plugin.id]).then( () => {
+      Flash.info("Plugin updated.")
+      this.props.updateAll()
+    }).catch( (e) => {
+      Flash.error("Error updating plugin: "+e)
+    })
+  },
   render(){
     const {plugin} = this.props
     let author=plugin.author
@@ -78,6 +88,9 @@ const PluginDetails=React.createClass({
                 </div>
               </div>
             ) : null }
+            {plugin.require_update ? (
+              <button className="ui yellow button" onClick={this.handleUpdate}>Update now</button>
+            ) : null }
           </div>
         </div>
         <div className="ui grid stackable" style={{margin: 0}}>
@@ -108,6 +121,16 @@ const PluginDetails=React.createClass({
                 <MarkdownPreview value={plugin.description}/>
               </div>
             </div>
+            {plugin.require_update ? (
+              <div>
+                <h3 className="ui medium header">Update changelog</h3>
+                <ul>
+                  {plugin.require_update.split('\n').map( (l) => (
+                    <li>{l}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null }
           </div>
         </div>
       </Modal>
