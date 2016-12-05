@@ -36,3 +36,4 @@ components:
     requires: perms[update]
     strategy: singleton
     timeout: 5s
+    perms: event.emit

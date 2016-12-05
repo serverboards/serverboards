@@ -26,6 +26,7 @@ class RPC:
         self.subscriptions={}
         self.subscriptions_ids={}
         self.subscription_id=1
+        self.last_rpc_id=0
 
         class WriteToLog:
           def __init__(self, rpc):
@@ -58,9 +59,6 @@ class RPC:
     def debug(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
         return self.event("log.debug", str(msg), self.__decorate_log(extra, level=2+level))
-    def info(self, msg, extra={}, level=0):
-        self.debug_stdout(msg)
-        return self.event("log.info", str(msg), self.__decorate_log(extra, level=2+level))
     def error(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
         return self.event("log.error", str(msg), self.__decorate_log(extra, level=2+level))
