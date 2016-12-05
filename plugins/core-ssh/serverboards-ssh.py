@@ -24,14 +24,22 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url, command="uname -a"):
+def ssh_exec(url, command="uname -a", options=""):
     ensure_ID_RSA()
     if not command:
         raise Exception("Need a command to run")
-    (opts, url) = url_to_opts(url)
+    (args, url) = url_to_opts(url)
+    global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","")
+    options =global_options+"\n"+options
+    args += [
+        arg.strip()
+        for option in options.split('\n') if option
+        for arg in ['-o',option]
+        ]
+    args += ['--', command]
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
-    sp=pexpect.spawn("/usr/bin/ssh",opts + ['--', command])
+    sp=pexpect.spawn("/usr/bin/ssh", args)
     running=True
     while running:
         ret=sp.expect([re.compile(b'^(.*)\'s password:'), pexpect.EOF])
@@ -56,7 +64,6 @@ def _open(url, uidesc=None, options=""):
 
     (opts, url) = url_to_opts(url)
     global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","")
-    print(repr(global_options))
     options =global_options+"\n"+options
     opts += [
         arg.strip()
@@ -66,7 +73,6 @@ def _open(url, uidesc=None, options=""):
     opts += ['-t','-t', '--', '/bin/bash']
     (ptymaster, ptyslave) = pty.openpty()
 
-    print(repr(opts))
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
         stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _uuid = str(uuid.uuid4())

@@ -99,6 +99,10 @@ components:
           type: url
           label: Connection url
           placeholder: eg. ssh://username:password@hostname:port/
+        - name: options
+          type: textarea
+          label: SSH Connection options
+          placeholder: eg. ProxyCommand ssh proxyserver -qW destserver:22
         - name: command
           type: text
           label: Command to execute
