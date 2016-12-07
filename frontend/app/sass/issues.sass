@@ -1,0 +1,63 @@
+#issues
+  > .ui.container
+    display: flex
+    flex-direction: row
+  .issues
+    flex-grow: 6
+    .day
+      .item
+        position: relative
+        display: flex
+        flex-direction: row
+        align-items: center
+        hr
+          width: 20px
+          background: #eee
+          height: 2px
+          border: 0
+        hr.vertical
+          width: 2px
+          height: 45px
+          position: absolute
+          top: -30px
+          left: 89px
+        &:first-child hr.vertical
+          display: none
+        .time
+          padding-right: 20px
+        .ui.image
+          width: auto
+          img
+            border: 2px solid #eee
+        .card
+          color: black
+          padding: 10px 15px
+          flex-grow: 1
+  .filters
+    margin-left: 100px
+    flex-grow: 1
+    > div
+      display: flex
+      flex-direction: column
+      > *
+        margin-bottom: 40px
+    .ui.search .ui.icon.input
+      width: 100%
+    .ui.labels
+      > .header
+        padding-top: 20px
+        margin: 0
+        color: #aaa
+      > .divider
+        margin-top: 5px
+      > .label
+        display: flex
+        flex-direction: row
+        .name
+          flex-grow: 1
+        .ui.tag.label
+          height: 5px
+          padding-left: 5px
+          &:before
+            width: 10px
+            height: 10px
