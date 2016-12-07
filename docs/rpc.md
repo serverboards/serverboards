@@ -597,3 +597,17 @@ Event.
 
 ## log.debug(msg, extra \\ [])
 Event.
+
+# Issues
+
+## issues.add({title, description}) -> id
+
+## issues.update(id, {type, title, data})
+
+type:
+
+ * comment, with data: {comment}
+
+## issues.list
+
+## issues.get(id)

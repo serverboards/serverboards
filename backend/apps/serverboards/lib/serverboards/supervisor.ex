@@ -16,6 +16,7 @@ defmodule Serverboards.Supervisor do
       supervisor(Task.Supervisor, [[name: Serverboards.IO.TaskSupervisor]]),
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
       supervisor(Serverboards.Auth.Supervisor, []),
+      supervisor(Serverboards.Issues, [ [name: Serverboards.Issues] ]),
 
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
       worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),

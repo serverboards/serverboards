@@ -145,4 +145,15 @@ defmodule Serverboards.Auth.User do
     )
   end
 
+  def get_id_by_email(email) do
+    case Repo.all(
+      from u in Model.User,
+      where: u.email == ^email,
+      select: u.id
+    ) do
+      [id] -> {:ok, id}
+      [] -> {:error, :not_found}
+    end
+  end
+
 end
