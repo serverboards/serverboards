@@ -1,7 +1,15 @@
 import React from 'react'
 import Modal from 'app/components/modal'
+import rpc from 'app/rpc'
+import {goto} from 'app/utils/store'
 
 const Add = React.createClass({
+  handleAdd(){
+    const title=this.refs.title.value
+    const description=this.refs.description.value
+    rpc.call("issues.add", {title, description})
+      .then( (id) => goto(`/issues/${id}`) )
+  },
   render(){
     const props = this.props
 
@@ -14,13 +22,13 @@ const Add = React.createClass({
           <div className="ui form">
             <div className="ui field">
               <label>Title</label>
-              <input type="text" placeholder="Short issue description"/>
+              <input type="text" ref="title" placeholder="Short issue description"/>
             </div>
             <div className="ui field">
               <label>Description</label>
-              <textarea placeholder="Short issue description"></textarea>
+              <textarea ref="description" placeholder="Short issue description"></textarea>
             </div>
-            <button className="ui button yellow">
+            <button className="ui button yellow" onClick={this.handleAdd}>
             Add Issue
             </button>
           </div>

@@ -133,6 +133,8 @@ const timeunits={
 export function pretty_ago(t, now, minres){
   now = moment(now)
   let other = moment(t)
+  if (minres && typeof(minres)=="string")
+    minres=timeunits[minres]
 
   let timediff = now.diff(other)
 
@@ -145,8 +147,11 @@ export function pretty_ago(t, now, minres){
     if (timediff > timeunits[d])
       lastunit=d
   }
-  if (timeunits[lastunit] < minres)
+  if (timeunits[lastunit] < minres){
+    if (minres >= (timeunits["day"]))
+      return "today"
     return "now"
+  }
   const units=Math.round(timediff / timeunits[lastunit])
   const s=units > 1 ? 's' : ''
   let expr=String(units)+' '+lastunit+s+' ago'

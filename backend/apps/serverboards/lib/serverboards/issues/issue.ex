@@ -47,6 +47,12 @@ defmodule Serverboards.Issues.Issue do
       type: type,
       data: data
       } )
+    if type == "change_status" do
+      Repo.update_all(
+        (from i in Model.Issue, where: i.id == ^issue_id),
+        set: [status: data["status"] ]
+      )
+    end
   end
 
   def decorate_user(user) do
@@ -76,7 +82,9 @@ defmodule Serverboards.Issues.Issue do
           id: issue.id,
           title: issue.title,
           creator: decorate_user(issue.creator),
-          events: Enum.map(issue.events, &decorate_event/1 )
+          inserted_at: Ecto.DateTime.to_iso8601(issue.inserted_at),
+          status: issue.status,
+          events: Enum.map(issue.events, &decorate_event/1 ),
         }}
     end
   end

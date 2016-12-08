@@ -1,6 +1,9 @@
 import React from 'react'
 import Restricted from 'app/restricted'
 import {goto} from 'app/utils/store'
+import rpc from 'app/rpc'
+import {pretty_ago} from 'app/utils'
+import moment from 'moment'
 
 import 'sass/issues.sass'
 
@@ -9,13 +12,11 @@ const default_avatar=require('../../../imgs/square-favicon.svg')
 function IssueCard(props){
   return (
     <a className="ui card" onClick={() => goto(`/issues/${props.id}`)}>
-      <div className="ui oneline text">Wrong data_ready_len value being passed to websocket callback causing segfault, Wrong data_ready_len value being passed to websocket callback causing segfault</div>
+      <div className="ui oneline text">{props.title}</div>
       <div>
-        <span>#1</span>
+        <span>#{props.id}</span>
         <b className="ui text yellow"> OPEN </b>
-        by
-        Admin
-        |
+        by {props.creator.name} |
         <span>
           <b className="ui text blue"> TAG 1 </b>
           <b className="ui text purple"> TAG 2 </b>
@@ -28,7 +29,7 @@ function IssueCard(props){
 function IssueRow(props){
   return (
     <div className="item">
-      <span className="time">9:32 am</span>
+      <span className="time">{moment(props.date).format("h:mm a")}</span>
       <span className="ui circular image small"><img src={default_avatar}/></span>
       <hr/>
       <IssueCard {...props}/>
@@ -40,11 +41,11 @@ function IssueRow(props){
 function IssueDay(props){
   return (
     <div className="day">
-      <h3>{props.label}</h3>
+      <h3 data-tooltip={props.label}>{pretty_ago(props.label,undefined,"day")}</h3>
       <div className="data">
-        <IssueRow id="1"/>
-        <IssueRow id="2"/>
-        <IssueRow id="3"/>
+        {props.issues.map( (i) => (
+          <IssueRow key={i.id} {...i}/>
+        ))}
       </div>
     </div>
   )
@@ -123,26 +124,46 @@ const Issues = React.createClass({
     return {
       open_count: 0,
       closed_count: 0,
-      all_count: 0
+      all_count: 0,
+      issues: []
     }
+  },
+  componentDidMount(){
+    rpc.call("issues.list").then( (all_issues) => {
+      let issues=[]
+      let last_date_issues=[]
+      let last_date=undefined
+      for(let i of all_issues){
+        const cdate=i.date.slice(0,10)
+        if (cdate != last_date){
+          last_date=cdate
+          last_date_issues=[]
+          issues.push([last_date, last_date_issues])
+        }
+        last_date_issues.push(i)
+      }
+      console.log("Issues: %o", issues)
+
+      this.setState({issues})
+    } )
   },
   render(){
     const {props, state} = this
     return (
       <div className="ui central area white background" style={{flexDirection:"column"}} id="issues">
-        <div className="ui top secondary menu">
+        <div className="ui top secondary menu" style={{paddingBottom: 0}}>
           <h3 className="ui header">Issues</h3>
-          <div className="ui tabs secondary pointing menu">
+          <div className="ui tabs secondary pointing menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
             <a className="item">Open <span className="ui meta">({state.open_count})</span></a>
             <a className="item">Closed <span className="ui meta">({state.closed_count})</span></a>
-            <a className="item">All <span className="ui meta">({state.all_count})</span></a>
+            <a className="active item">All <span className="ui meta">({state.all_count})</span></a>
           </div>
         </div>
         <div className="ui container">
           <div className="issues">
-            <IssueDay label="Today"/>
-            <IssueDay label="Yesterday"/>
-            <IssueDay label="01 Dec"/>
+            {state.issues.map( ([date, issues]) => (
+              <IssueDay key={date} label={date} issues={issues}/>
+            ))}
           </div>
           <div className="filters">
             <Filters/>

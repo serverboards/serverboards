@@ -26,7 +26,7 @@ const Modal=React.createClass({
 
     const logo=require("../../imgs/logo.svg")
     return (
-      <div className={`ui modal background ${props.className}`}>
+      <div className={`ui modal background ${props.className}`} id={props.id}>
         <div className="ui top menu">
           <a href="#/">
             <img className="logo" src={logo}/>
