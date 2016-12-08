@@ -105,7 +105,7 @@ const Details = React.createClass({
     const issue = state.issue
     if (!issue)
       return (
-        <Loading>Issue #{this.state.id}</Loading>
+        <Loading>Issue #{this.props.params.id}</Loading>
       )
 
     return (

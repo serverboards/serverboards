@@ -9,13 +9,21 @@ import 'sass/issues.sass'
 
 const default_avatar=require('../../../imgs/square-favicon.svg')
 
+function tag_color(status){
+  if (status=="open")
+    return "yellow"
+  if (status=="closed")
+    return "green"
+  return "grey"
+}
+
 function IssueCard(props){
   return (
     <a className="ui card" onClick={() => goto(`/issues/${props.id}`)}>
       <div className="ui oneline text">{props.title}</div>
       <div>
         <span>#{props.id}</span>
-        <b className="ui text yellow"> OPEN </b>
+        <b className={`ui text ${tag_color(props.status)}`}> {props.status} </b>
         by {props.creator.name} |
         <span>
           <b className="ui text blue"> TAG 1 </b>
