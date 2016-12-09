@@ -101,7 +101,7 @@ defmodule Serverboards.NotificationTest do
     alias Test.Client
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, [ch]} = Client.call client, "notifications.catalog", []
+    {:ok, [ch | _]} = Client.call client, "notifications.catalog", []
 
     {:ok, :ok} = Client.call client, "notifications.config_update",
       %{ email: "dmoreno@serverboards.io", channel: ch["channel"],
