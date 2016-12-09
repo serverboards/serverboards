@@ -92,9 +92,14 @@ const Details = React.createClass({
       .then( () => Flash.info("Added new comment") )
   },
   handleAddCommentAndClose(){
-    this.addComment()
-      .then( () => rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Closed issue", data: {status: "closed"}}]) )
-      .then( () => Flash.info("Added new comment and closed issue") )
+    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Closed issue", data: {status: "closed"}}])
+      .then( () =>  this.addComment())
+      .then( () => Flash.info("Added new comment and reopened issue") )
+  },
+  handleAddCommentAndReopen(){
+    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Reopened issue", data: {status: "open"}}])
+      .then( () =>  this.addComment())
+      .then( () => Flash.info("Added new comment and reopened issue") )
   },
   handleFocusComment(){
     $("#issues > .content").scrollTop($("#issues > .content").height())
@@ -137,18 +142,22 @@ const Details = React.createClass({
               ))}
             </div>
             <div className="filters">
-              <Filters issue={issue}/>
+              {/* <Filters issue={issue}/> */}
             </div>
           </div>
           <div className="ui divider"></div>
-          <div className="ui form">
+          <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
             <div className="field">
               <label>New comment</label>
               <textarea ref="new_comment" placeholder="Write your comment here..."></textarea>
             </div>
             <div className="ui field" style={{marginBottom: 30}}>
               <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
-              <button className="ui button green" onClick={this.handleAddCommentAndClose}>Add comment and Close Issue</button>
+              {issue.status == "open" ? (
+                <button className="ui button green" onClick={this.handleAddCommentAndClose}>Add comment and Close Issue</button>
+              ) : (
+                <button className="ui button red" onClick={this.handleAddCommentAndReopen}>Add comment and Reopen Issue</button>
+              )}
             </div>
           </div>
         </div>

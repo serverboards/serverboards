@@ -161,11 +161,13 @@ const Issues = React.createClass({
       <div className="ui central area white background" style={{flexDirection:"column"}} id="issues">
         <div className="ui top secondary menu" style={{paddingBottom: 0}}>
           <h3 className="ui header">Issues</h3>
+          {/*
           <div className="ui tabs secondary pointing menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
             <a className="item">Open <span className="ui meta">({state.open_count})</span></a>
             <a className="item">Closed <span className="ui meta">({state.closed_count})</span></a>
             <a className="active item">All <span className="ui meta">({state.all_count})</span></a>
           </div>
+          */}
         </div>
         <div className="ui container">
           <div className="issues">
@@ -174,7 +176,7 @@ const Issues = React.createClass({
             ))}
           </div>
           <div className="filters">
-            <Filters/>
+            {/* <Filters/> */}
           </div>
         </div>
         <Restricted perm="issues.add">
