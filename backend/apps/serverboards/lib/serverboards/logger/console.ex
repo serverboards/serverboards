@@ -71,15 +71,15 @@ defmodule Serverboards.Logger.Console do
       |> color_event(metadata[:level], colors)
     header = ["\r", String.pad_trailing(to_string(header), 75)]
 
-    columns = case :io.columns do
-      {:ok, columns} -> columns
-      _ -> 120
-    end
-    msg = if String.length(msg) > (columns - 75) do
-      split_blocks(msg, 67, (columns - 75))
-    else
-      msg
-    end
+    #columns = case :io.columns do
+    #  {:ok, columns} -> columns
+    #  _ -> 120
+    #end
+    #msg = if String.length(msg) > (columns - 75) do
+    #  split_blocks(msg, 67, (columns - 75))
+    #else
+    #  msg
+    #end
 
     if is_pid(metadata[:pid]) do
       [

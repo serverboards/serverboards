@@ -81,6 +81,12 @@ notifications.list -- List notifications for current user.
 rules.update -- Can create/update/delete rules
 rules.view -- View rules
 
+## Issues
+
+issues.view -- Can view issues
+issues.add -- Can add issues
+issues.update -- Can add updates to issues
+
 ## Other
 
 debug -- Debug when in debug mode

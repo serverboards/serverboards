@@ -3,6 +3,7 @@ import UserMenu from 'app/containers/top/usermenu'
 import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
+import {goto} from 'app/utils/store'
 import CommandSearh from './commands'
 import Restricted from 'app/restricted'
 
@@ -68,6 +69,15 @@ const Top = React.createClass({
           <div className="item search">
             <CommandSearh/>
           </div>
+          <Restricted perm="issues.view">
+            <a className="item" onClick={() => goto("/issues/")}>
+              <i className="warning sign icon"/>
+              <span
+                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
+                style={{top: 8, left: 43}}
+                />
+            </a>
+          </Restricted>
           <Restricted perm="notifications.list">
             <a className="item" ref="notifications_item">
               <i className="announcement icon"></i>

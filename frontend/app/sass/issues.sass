@@ -1,0 +1,115 @@
+#issues
+  .ui.image
+    width: auto
+    img
+      border: 2px solid #eee
+
+  > .ui.container
+    display: flex
+    flex-direction: row
+  .issues
+    flex-grow: 6
+    .day
+      .item
+        position: relative
+        display: flex
+        flex-direction: row
+        align-items: center
+        hr
+          width: 20px
+          background: #eee
+          height: 2px
+          border: 0
+        hr.vertical
+          width: 2px
+          height: 45px
+          position: absolute
+          top: -30px
+          left: 89px
+        &:first-child hr.vertical
+          display: none
+        .time
+          padding-right: 20px
+        .card
+          color: black
+          padding: 10px 15px
+          flex-grow: 1
+  .filters
+    margin-left: 100px
+    flex-grow: 1
+    > div
+      display: flex
+      flex-direction: column
+      > *
+        margin-bottom: 40px
+    .ui.search .ui.icon.input
+      width: 100%
+    .ui.labels
+      > .header
+        padding-top: 20px
+        margin: 0
+        color: #aaa
+      > .divider
+        margin-top: 5px
+      > .label
+        display: flex
+        flex-direction: row
+        .name
+          flex-grow: 1
+        .ui.tag.label
+          height: 5px
+          padding-left: 5px
+          &:before
+            width: 10px
+            height: 10px
+
+  .ui.issue.details
+    padding: 0 20px
+    .ui.header
+      margin: 10px 20px
+      .ui.header
+        font-size: 20px
+      > div
+        display: flex
+        flex-direction: row
+        align-items: center
+        padding-bottom: 10px
+        > *
+          margin: 0 10px 0 0
+    .ui.container
+      display: flex
+      flex-direction: row
+      .details
+        flex-grow: 5
+        position: relative
+        > *
+          margin-left: 100px
+          width: 100%
+          &.connected:before
+            border: 1px solid #ddd
+            width: 2px
+            height: 13px
+            top: -13px
+            left: 10px
+            position: absolute
+            content: " "
+        > .ui.tag
+          margin-left: 0
+          position: absolute
+          width: auto
+          left: 10px
+          margin-top: 0px
+        > .ui.tag:first-child
+          margin-top: 13px
+      .filters
+        flex-grow: 1
+
+      .ui.card
+        position: relative
+        padding: 5px 10px 5px 60px
+        .ui.circular.image
+          position: absolute
+          top: 5px
+          left: 5px
+        .ui.header
+          margin-left: 0

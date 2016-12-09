@@ -16,6 +16,9 @@ import PluginScreen from 'app/components/plugin/screen'
 import Logs from 'app/containers/logs'
 import Notification from 'app/components/notifications/notification'
 import NotificationList from 'app/components/notifications/list'
+import Issues from 'app/components/issues'
+import IssuesAdd from 'app/components/issues/add'
+import IssuesView from 'app/components/issues/details'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -45,10 +48,16 @@ var ServerboardsRouter = React.createClass({
             <Route path=":id" component={Notification}/>
           </Route>
           <Route path="/logs/" component={Logs}/>
+
+          <Route path="/issues/" component={Issues}/>
+          <Route path="/issues/">
+            <Route path="add" component={IssuesAdd}/>
+            <Route path=":id" component={IssuesView}/>
+          </Route>
+          
           <Route path="/s/">
             <Route path=":plugin/:component" component={PluginScreen}/>
           </Route>
-
         </Router>
       )
     }
