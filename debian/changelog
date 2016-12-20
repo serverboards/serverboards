@@ -1,3 +1,25 @@
+serverboards (0.6.57-g41d24) unstable; urgency=medium
+
+  * Added python3-yaml dependency.
+  * Merge branch 'T149-issues' into 'master'
+  * Fixes to notification test, and to use of logging in tests
+  * Merge branch 'T149-issues' into 'master'
+  * Commented out half worked sections for issues. Can close issues.
+  * [WIP] Small improvements on data shown
+  * [WIP] Improved visualization of issues
+  * [WIP] Initial frontend issues implementation: layout
+  * Added backend support for issues
+  * Merge branch 'T391-update-plugins' into 'master'
+  * Show plugin updatable and update button works on plugins
+  * Merge branch 'T353-ssh-options' into 'master'
+  * Also use options on ssh_exec command
+  * Added options to ssh connection (global and per conn)
+  * Merge branch 'T338-onelick-update' into 'master'
+  * Merge branch 'T338-onelick-update' into 'master'
+  * Fixed version.
+
+ -- David Moreno <dmoreno@coralbits.com>  Tue, 20 Dec 2016 12:43:43 +0100
+
 serverboards (0.6.40-g8dc47) unstable; urgency=medium
 
   * More fixes debian packaging

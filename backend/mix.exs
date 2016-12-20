@@ -6,7 +6,7 @@ defmodule Backend.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps,
-     version: "0.6.40-g8dc47",
+     version: "0.6.57-g41d24",
      name: "Serverboards",
      homepage_url: "https://serverboards.io",
      docs: [
