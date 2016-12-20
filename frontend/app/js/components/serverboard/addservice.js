@@ -7,6 +7,11 @@ import Modal from '../modal'
 const icon = require("../../../imgs/services.svg")
 
 let AddService=React.createClass({
+  getInitialState(){
+    return {
+      tab: "new"
+    }
+  },
   componentDidMount(){
     if (!this.props.catalog){
       this.props.updateServiceCatalog()
@@ -40,6 +45,9 @@ let AddService=React.createClass({
       this.props.onAdd( current_service )
     }
   },
+  setTab(tab){
+    this.setState({tab})
+  },
   render(){
     let props=this.props
     if (!this.props.catalog || !this.props.all_services){
@@ -68,21 +76,40 @@ let AddService=React.createClass({
       )
     }
 
+    let services
+    let desc
+    //if (this.state.tab=="new"){ // default
+      services=props.catalog
+      desc="Add a new service to this serverboard"
+    //}
+    if (this.state.tab=="existing"){
+      services=props.all_services
+      desc="Add an existing service from another serverboard into this one. This service will be shared between the serverboards."
+    }
+
     return (
       <Modal onClose={props.onClose} className="wide">
         <div className="ui top secondary pointing menu">
           <h3 className="ui header">
-            Select a service to add
+            Add a service
           </h3>
+          <div className="ui tabs secondary pointing menu">
+            <a
+              className={`item ${this.state.tab=="new" ? "active" : ""}`}
+              onClick={() => this.setTab("new")}>
+                New services
+            </a>
+            <a
+              className={`item ${this.state.tab=="existing" ? "active" : ""}`}
+              onClick={() => this.setTab("existing")}>
+                Existing services
+            </a>
+          </div>
         </div>
         <div className="ui text container">
-          <h3 className="ui header" style={{paddingTop:30}}>Already configured in your system</h3>
+          <h4 className="ui header" style={{paddingTop:30}}>{desc}</h4>
           <div className="ui five column grid stackable svg">
-            {props.all_services.map((c) => WrappedService(c))}
-          </div>
-          <h3 className="ui header" style={{paddingTop:30}}>New services</h3>
-          <div className="ui five column grid stackable">
-            {props.catalog.map((c) => WrappedService(c))}
+            {services.map((c) => WrappedService(c))}
           </div>
         </div>
       </Modal>

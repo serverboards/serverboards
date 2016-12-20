@@ -47,17 +47,20 @@ const Rules=React.createClass({
     return (
       <div>
         <div className="ui top secondary header menu">
-        <div className="right menu">
-          <div className="ui inline form fields">
-            <label>Filter by trigger type: </label>
-            <select ref="filter" className="ui search dropdown">
-              <option value="all">Show all</option>
-              {trigger_catalog_in_use.map( (t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
+          <h3 className="ui header">
+            Rules
+          </h3>
+          <div className="right menu">
+            <div className="ui inline form fields">
+              <label>Filter by trigger type: </label>
+              <select ref="filter" className="ui search dropdown">
+                <option value="all">Show all</option>
+                {trigger_catalog_in_use.map( (t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
         </div>
         <div className="ui container">
           <div className="ui cards" style={{paddingTop: 20}}>

@@ -53,9 +53,11 @@ const AddWidget = React.createClass({
     const widget=this.state.widget
 
     return (
-      <Modal>
-        <div className="ui header">Add widget</div>
-        <div className="ui form" ref="form">
+      <Modal className="wide">
+        <div className="ui top secondary header menu">
+          <h3 className="ui header">Add widget</h3>
+        </div>
+        <div className="ui form text container" ref="form">
           <div className="ui field">
             <label>Widget type</label>
             <select name="widget">
