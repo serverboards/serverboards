@@ -11,7 +11,8 @@ Vcs-Browser: https://github.com/serverboards/serverboards
 
 Package: serverboards
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python3, python3-requests, python3-pexpect,
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3,
+  python3-requests, python3-pexpect, python3-yaml,
   postgresql, postgresql-client, inotify-tools, git
 Recommends: inotify-tools
 Description: Serverboards is a single platform to integrate all the services of your organizaion
