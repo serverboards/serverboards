@@ -24,6 +24,8 @@ export function get_modal(name){
       return require('app/containers/serverboard/board/edit_widget').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default
+    case "service.add":
+      return require('app/containers/serverboard/addservice').default
   }
 }
 

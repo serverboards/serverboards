@@ -5,6 +5,7 @@ import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
 import ServiceDetails from 'app/containers/service/details'
 import Restricted from 'app/restricted'
+import { set_modal } from 'app/utils/store'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -30,17 +31,9 @@ let Services=React.createClass({
   },
   openAddServiceModal(ev){
     ev && ev.preventDefault()
-    this.setModal('add_service')
+    this.setModal('service.add')
   },
-  setModal(modal){
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: { modal }
-    } )
-  },
-  closeModal(){
-    this.setModal(false)
-  },
+  setModal: (modal, data) => set_modal(modal, data),
   contextTypes: {
     router: React.PropTypes.object
   },
@@ -64,17 +57,6 @@ let Services=React.createClass({
       return (
         <Loading>Services</Loading>
       )
-    let popup=[]
-    switch(this.props.location.state && this.props.location.state.modal){
-      case 'add_service':
-        popup=(
-          <AddServiceModal
-            onAdd={this.handleAddService}
-            onAttach={this.handleAttachService}
-            onClose={this.closeModal}/>
-        )
-        break;
-    }
     return (
       <div>
         <div className="ui top secondary header menu">
@@ -102,7 +84,6 @@ let Services=React.createClass({
             <i className="add icon"></i>
           </a>
         </Restricted>
-        {popup}
       </div>
     )
   }
