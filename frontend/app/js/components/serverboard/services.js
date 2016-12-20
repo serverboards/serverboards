@@ -60,6 +60,9 @@ let Services=React.createClass({
     return (
       <div>
         <div className="ui top secondary header menu">
+          <h3 className="ui header">
+            Services
+          </h3>
           <div className="right menu">
             <div className="ui secondary pointing menu">
               <a className={`${state.mode == "list" ? "active" : ""} item`} onClick={() => this.setListMode("list")}>

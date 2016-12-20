@@ -92,25 +92,6 @@ div.ui.main
     > .ui.container
       padding-top: 20px
       padding: 0 2em
-    .top.secondary.menu
-      min-height: 60px
-      border-bottom: 1px solid #ddd
-      padding: 10px 5px 10px 20px
-      max-width: 99%
-      div.tabs.menu
-        padding-left: 4em
-        .item
-          cursor: pointer
-        .right.options
-          padding-left: 2em
-          display: flex
-          flex-direction: row
-          visibility: hidden
-          .item
-            padding: 0
-        .item.active, .item:hover
-          .right.options
-            visibility: visible
 
   > .ui.central.with.menu
     display: flex
@@ -124,6 +105,37 @@ div.ui.main
         padding: 20px 2em 80px 2em
         margin-top: 20px
 
+
+.top.secondary.menu
+  padding: 0
+  padding-right: 10px
+  margin: 0 !important
+  border: 0
+  border-bottom: 1px solid #ddd !important
+  min-height: 70px
+  position: relative
+  display: flex
+  align-items: center
+  flex-direction: row
+  .ui.iconicon, ui.imageicon
+    margin: -10px 15px 0 0
+  > h3.header
+    margin: 10px 20px auto 10px !important
+    min-width: 100px
+  div.tabs.menu
+    align-self: flex-end
+    .item
+      cursor: pointer
+    .right.options
+      padding-left: 2em
+      display: flex
+      flex-direction: row
+      visibility: hidden
+      .item
+        padding: 0
+    .item.active, .item:hover
+      .right.options
+        visibility: visible
 
 
 .ui.scroll
