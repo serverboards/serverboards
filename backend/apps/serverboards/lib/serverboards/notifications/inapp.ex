@@ -62,17 +62,12 @@ defmodule Serverboards.Notifications.InApp do
        select: %{ subject: m.subject, tags: m.tags, inserted_at: m.inserted_at, id: m.id, body: m.body }
 
     # default values
-    filter = Map.merge(%{"count" => 50}, filter)
+    filter = Map.merge(%{count: 50}, filter)
 
-    Logger.debug("#{inspect filter} #{inspect Map.to_list(filter)}")
     q = Enum.reduce(Map.to_list(filter), q, fn
-      {"tags", tags}, q -> where(q, [m], fragment("tags @> ?", ^tags))
-      {"count", count}, q -> limit(q, ^count)
-      {"start", start}, q -> where(q, [m], m.start < ^start )
-
       {:tags, tags}, q -> where(q, [m], fragment("tags @> ?", ^tags))
       {:count, count}, q -> limit(q, ^count)
-      {:start, start}, q -> where(q, [m], m.start < ^start )
+      {:start, start}, q -> where(q, [m], m.id < ^start )
     end)
 
     ret = Repo.all( q )

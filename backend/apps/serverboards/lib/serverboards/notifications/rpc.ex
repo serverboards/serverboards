@@ -55,6 +55,7 @@ defmodule Serverboards.Notifications.RPC do
 
     add_method mc, "notifications.list", fn filter, context ->
       me = RPC.Context.get(context, :user)
+      filter=Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"count start")
       Notifications.InApp.list(filter, me)
     end, context: true, required_perm: "notifications.list"
 
