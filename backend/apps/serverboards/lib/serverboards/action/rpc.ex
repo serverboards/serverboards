@@ -50,8 +50,12 @@ defmodule Serverboards.Action.RPC do
       [uuid], context ->
         user = RPC.Context.get context, :user
         Serverboards.Action.details uuid, user
+      [], context ->
+        user = RPC.Context.get context, :user
+        Serverboards.Action.history %{}, user
       options, context ->
         user = RPC.Context.get context, :user
+        options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"start count")
         Serverboards.Action.history options, user
     end, [required_perm: "action.watch", context: true]
 

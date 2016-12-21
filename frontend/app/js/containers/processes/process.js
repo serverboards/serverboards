@@ -1,5 +1,5 @@
 import event from 'app/utils/event'
-import {update_process} from 'app/actions/processes'
+//import {update_process} from 'app/actions/processes'
 import ProcessView from 'app/components/processes/process'
 
 const Process = event.subscribe_connect(
@@ -10,7 +10,7 @@ const Process = event.subscribe_connect(
 
   }),
   (props) => [`action.stopped[${props.params.uuid}]`],
-  (props) => [ () => update_process(props.params.uuid) ]
+  //(props) => [ () => update_process(props.params.uuid) ]
 )(ProcessView)
 
 export default Process
