@@ -59,4 +59,21 @@ defmodule Serverboards.IssuesTest do
     Logger.info(inspect issues)
 
   end
+
+  test "Create issue with alias" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From alias", description: "This is a new issue", aliases: ["test/1111"] })
+    {:ok, issue} = Test.Client.call(client, "issues.get", ["test/1111"])
+
+    assert issue["id"] == issue_id
+
+    {:ok, issue} = Test.Client.call(client, "issues.update", ["test/1111", %{ type: :comment, title: "A comment", data: %{ comment: "A comment.\n\nFull."}}])
+    {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
+
+    Logger.info(inspect issue)
+
+    assert issue["title"] == "From alias"
+
+  end
 end

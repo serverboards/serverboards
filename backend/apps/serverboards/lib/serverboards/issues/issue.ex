@@ -19,7 +19,10 @@ defmodule Serverboards.Issues.Issue do
 
   def add_real(data, me) do
     import Ecto.Query
-    {:ok, creator_id} = Serverboards.Auth.User.get_id_by_email( me )
+    creator_id = case Serverboards.Auth.User.get_id_by_email( me ) do
+      {:ok, creator_id} -> creator_id
+      _ -> nil
+    end
     {:ok, issue} = Repo.insert( %Model.Issue{
       creator_id: creator_id,
       title: data.title,
@@ -35,11 +38,21 @@ defmodule Serverboards.Issues.Issue do
         comment: data.description
       } } )
 
+    (data[:aliases] || []) |> Enum.map(fn alias_ ->
+      {:ok, _description} = Repo.insert( %Model.Alias{
+        issue_id: issue.id,
+        alias: alias_,
+        } )
+    end)
+
     issue.id
   end
-  def update_real(issue_id, %{ title: title, type: type, data: data }, me) do
+  def update_real(issue_id, %{ title: title, type: type, data: data }, me) when is_number(issue_id) do
     import Ecto.Query
-    {:ok, creator_id} = Serverboards.Auth.User.get_id_by_email( me )
+    creator_id = case Serverboards.Auth.User.get_id_by_email( me ) do
+      {:ok, creator_id} -> creator_id
+      _ -> nil
+    end
     {:ok, _description} = Repo.insert( %Model.Event{
       creator_id: creator_id,
       issue_id: issue_id,
@@ -54,7 +67,15 @@ defmodule Serverboards.Issues.Issue do
       )
     end
   end
+  def update_real(alias_id, data, me) do
+    alias_to_ids(alias_id) |> Enum.map(fn issue_id ->
+      update_real(issue_id, data, me)
+    end)
+  end
 
+  def decorate_user(nil) do
+    nil
+  end
   def decorate_user(user) do
     %{
       email: user.email,
@@ -73,7 +94,7 @@ defmodule Serverboards.Issues.Issue do
     }
   end
 
-  def get(id) do
+  def get(id) when is_number(id) do
     import Ecto.Query
     case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator] ) do
       [] -> {:error, :not_found}
@@ -86,6 +107,23 @@ defmodule Serverboards.Issues.Issue do
           status: issue.status,
           events: Enum.map(issue.events, &decorate_event/1 ),
         }}
+    end
+  end
+  def get(id) do
+    [issue_id | _ ] = alias_to_ids(id)
+    get(issue_id)
+  end
+  def alias_to_ids(alias_id) do
+    import Ecto.Query
+    case Integer.parse(alias_id) do
+      { id, "" } ->
+        [id]
+      _ ->
+        Repo.all(
+          from a in Model.Alias,
+          join: i in Model.Issue, on: i.id == a.issue_id,
+          where: a.alias == ^alias_id and i.status=="open",
+          select: a.issue_id )
     end
   end
 end

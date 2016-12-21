@@ -24,7 +24,7 @@ function IssueCard(props){
       <div>
         <span>#{props.id}</span>
         <b className={`ui text ${tag_color(props.status)}`}> {props.status} </b>
-        by {props.creator.name}
+        by {(props.creator || {name: "System"}).name}
         {/* |
         <span>
           <b className="ui text blue"> TAG 1 </b>

@@ -27,6 +27,17 @@ defmodule Serverboards.Issues.Model do
     end
   end
 
+  defmodule Alias do
+    use Ecto.Schema
+
+    schema "issues_aliases" do
+      field :issue_id, :id
+      field :alias, :string
+
+      has_one :issue, Serverboards.Issues.Models.Issue, references: :issue_id, foreign_key: :id
+    end
+  end
+
   defmodule Label do
     use Ecto.Schema
 

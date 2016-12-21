@@ -79,6 +79,49 @@ components:
           lable: Body
         - name: service
 
+  - name: Issue Open
+    type: action
+    id: open-issue
+    command: cmd
+    icon: issue
+    call:
+      method: open_issue
+      extra: true
+      params:
+        - name: title
+          type: text
+          label: Issue title
+          card: true
+        - name: description
+          type: textarea
+          label: Issue description
+        - name: aliases
+          type: text
+          label: Issue aliases
+          description: |
+            Issue may be referenced by this alias. Useful to allow closing issue
+            using the rule.id, or any other identifier for the problem.
+
+            Aliases are separated by spaces.
+          placeholder: "eg. rule/\{rule.uuid\}"
+
+  - name: Issue Close
+    type: action
+    id: close-issue
+    command: cmd
+    icon: issue
+    call:
+      method: close_issue
+      extra: true
+      params:
+        - name: issue
+          type: text
+          label: Issue id or alias
+          placeholder: "eg. rule/\{rule.uuid\}"
+        - name: comment
+          type: textarea
+          label: Issue comment
+
   - name: Notify all users
     type: action template
     id: action.notify_user_template
@@ -108,4 +151,7 @@ components:
     id: cmd
     timeout: 20s
     command: serverboards-core.py
-    perms: service.info service.update notifications.notify notifications.notify_all settings.view[serverboards.core.settings/base]
+    perms: |
+      service.info service.update notifications.notify notifications.notify_all
+      issues.add issues.update
+      settings.view[serverboards.core.settings/base]

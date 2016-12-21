@@ -19,7 +19,7 @@ function IssueEventComment({event, connected}){
     <div className={`ui card ${ connected ? "connected" : ""}`}>
       <div className="ui header normal text regular">
         <span className="ui circular image small"><img src={default_avatar}/></span>
-        <span><b>{event.creator.name}</b> on {event.inserted_at}</span>
+        <span><b>{(event.creator || {name:"System"}).name}</b> on {event.inserted_at}</span>
       </div>
       <MarkdownPreview value={event.data.comment}/>
     </div>
@@ -130,7 +130,7 @@ const Details = React.createClass({
             </div>
             <div className="ui text normal regular">
               <span className={`ui tag label ${tag_color(issue.status)} big`}>{issue.status}</span>
-              <span><b>{issue.creator.name}</b> created this issue on {issue.inserted_at}</span>
+              <span><b>{(issue.creator || {name: "System"}).name}</b> created this issue on {issue.inserted_at}</span>
             </div>
           </div>
           <div className="ui divider"></div>
