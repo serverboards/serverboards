@@ -1,6 +1,7 @@
 import React from 'react'
 import Loading from '../loading'
 import rpc from 'app/rpc'
+import {goto} from 'app/utils/store'
 
 let ProcessView=React.createClass({
   render(){
@@ -37,19 +38,30 @@ let ProcessView=React.createClass({
         <ul>
           <li>Date: {process.date}</li>
           <li>User: {process.user}</li>
-          {process.params ? (
-            <li>Action params:
-              <pre className="ui code json">{JSON.stringify(process.params, null, 2)}</pre>
-            </li>
-          ) : []}
           {process.elapsed ? (
               <li>Elapsed: {process.elapsed} ms</li>
-            ) : []}
+            ) : null}
+          {process.params.rule ? (
+              <li>Related rule:
+                {process.params.rule.serverboard ? (
+                  <a onClick={() => goto(`/serverboard/${process.params.rule.serverboard}/rules/${process.params.rule.uuid}`)} style={{cursor:"pointer"}}>
+                    <span> {process.params.rule.name || process.params.rule.trigger.trigger}</span>
+                  </a>
+                ) : (
+                  <span> {process.params.rule.name || process.params.rule.trigger.trigger}</span>
+                ) }
+              </li>
+            ) : null}
+          {process.params ? (
+              <li>Action params:
+                <pre className="ui code json">{JSON.stringify(process.params, null, 2)}</pre>
+              </li>
+            ) : null}
           {process.result ? (
-            <li>Action result:
-            <pre className="ui code json">{JSON.stringify(process.result, null, 2)}</pre>
-            </li>
-          ) : []}
+              <li>Action result:
+                <pre className="ui code json">{JSON.stringify(process.result, null, 2)}</pre>
+              </li>
+            ) : null}
         </ul>
 
         <div className="ui fixed bottom">
