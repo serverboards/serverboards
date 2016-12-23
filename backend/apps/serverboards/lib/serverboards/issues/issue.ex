@@ -12,7 +12,7 @@ defmodule Serverboards.Issues.Issue do
     #  [] -> {:error, :unknown_issue}
     #end
   end
-  def update(issue_id, %{ type: _, data: _, title: _} = data, me) do
+  def update(issue_id, %{ type: _, data: _} = data, me) do
     EventSourcing.dispatch(:issues, :issue_update, %{ id: issue_id, data: data}, me.email)
     {:ok, :ok}
   end
@@ -28,15 +28,12 @@ defmodule Serverboards.Issues.Issue do
       title: data.title,
       status: "open"
       } )
-    first_line = Enum.at(String.split(data.description, "\n", parts: 2), 0)
     {:ok, _description} = Repo.insert( %Model.Event{
       creator_id: creator_id,
       issue_id: issue.id,
-      title: first_line,
-      type: "comment",
-      data: %{
-        comment: data.description
-      } } )
+      type: "new_issue",
+      data: data
+    } )
 
     (data[:aliases] || []) |> Enum.map(fn alias_ ->
       {:ok, _description} = Repo.insert( %Model.Alias{
@@ -47,7 +44,10 @@ defmodule Serverboards.Issues.Issue do
 
     issue.id
   end
-  def update_real(issue_id, %{ title: title, type: type, data: data }, me) when is_number(issue_id) do
+  def update_real(issue_id, %{ data: data } = update, me) when not is_map(data) do
+    update_real(issue_id, %{ update | data: %{ "__data__" => data }}, me)
+  end
+  def update_real(issue_id, %{ type: type, data: data }, me) when is_number(issue_id) do
     import Ecto.Query
     creator_id = case Serverboards.Auth.User.get_id_by_email( me ) do
       {:ok, creator_id} -> creator_id
@@ -56,14 +56,13 @@ defmodule Serverboards.Issues.Issue do
     {:ok, _description} = Repo.insert( %Model.Event{
       creator_id: creator_id,
       issue_id: issue_id,
-      title: title,
       type: type,
       data: data
       } )
     if type == "change_status" do
       Repo.update_all(
         (from i in Model.Issue, where: i.id == ^issue_id),
-        set: [status: data["status"] ]
+        set: [status: data["__data__"] ]
       )
     end
   end
@@ -85,11 +84,11 @@ defmodule Serverboards.Issues.Issue do
   end
   def decorate_event(event) do
     event = event |> Repo.preload(:creator)
+    data = Map.get(event.data, "__data__", event.data)
     %{
       type: event.type,
       creator: decorate_user( event.creator ),
-      data: event.data,
-      title: event.title,
+      data: data,
       inserted_at: Ecto.DateTime.to_iso8601(event.inserted_at)
     }
   end

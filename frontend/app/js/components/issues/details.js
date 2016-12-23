@@ -22,18 +22,22 @@ function IssueEventComment({event, connected}){
         <span className="ui circular image small"><img src={default_avatar}/></span>
         <span><b>{(event.creator || {name:"System"}).name}</b> on {event.inserted_at}</span>
       </div>
-      <MarkdownPreview value={event.data.comment}/>
+      <MarkdownPreview value={event.data}/>
     </div>
   )
 }
 
 function IssueEventChangeStatus({event}){
   return (
-    <span className={`ui label tag ${tag_color(event.data.status)}`}>{event.data.status}</span>
+    <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
   )
 }
 
 function IssueEvent(props){
+  if (props.event.type=="new_issue")
+    return (
+      <IssueEventComment event={merge(props.event, {data: props.event.data.description})} />
+    )
   if (props.event.type=="comment")
     return (
       <IssueEventComment {...props}/>
@@ -84,7 +88,7 @@ const Details = React.createClass({
   addComment(){
     const comment=this.refs.new_comment.value
     const title=comment.split('\n')[0].slice(0,64)
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", title, data: {comment}}])
+    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", title, data: comment}])
       .then( () => this.componentDidMount() )
       .then( () => { this.refs.new_comment.value="" })
   },
@@ -97,7 +101,7 @@ const Details = React.createClass({
       .then( () => Flash.info("Added new comment") )
   },
   handleAddCommentAndClose(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Closed issue", data: {status: "closed"}}])
+    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "closed"}])
       .then( () =>  this.addComment())
       .then( () => {
         Flash.info("Added new comment and reopened issue")
@@ -105,7 +109,7 @@ const Details = React.createClass({
       })
   },
   handleAddCommentAndReopen(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Reopened issue", data: {status: "open"}}])
+    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "open"}])
       .then( () =>  this.addComment())
       .then( () => {
         Flash.info("Added new comment and reopened issue")

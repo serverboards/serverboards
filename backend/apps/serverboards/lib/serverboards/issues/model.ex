@@ -63,7 +63,6 @@ defmodule Serverboards.Issues.Model do
     schema "issues_event" do
       field :issue_id, :id
       field :creator_id, :id
-      field :title, :string
       field :type, :string
       field :data, :map
 

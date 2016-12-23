@@ -129,12 +129,12 @@ def close_issue(issue=None, **data):
     if not issue:
         serverboards.error("Error trying to close issue, none given")
 
-    title=comment.split("\n")[0]
     try:
-        serverboards.rpc.call("issues.update", issue, {"type": "comment", "title": title, "data": {"comment": comment}})
-        serverboards.rpc.call("issues.update", issue, {"type": "change_status", "title": "Closed issue", "data": {"status": "closed"}})
+        serverboards.rpc.call("issues.update", issue, {"type": "comment", "data": comment})
+        serverboards.rpc.call("issues.update", issue, {"type": "change_status", "data": "closed"})
     except:
-        serverboards.error("Error trying to close issue, cant update issue")
+        import traceback; traceback.print_exc()
+        serverboards.error("Error trying to close issue, cant update issue %s"%(issue))
 
 @serverboards.rpc_method
 def comment_issue(issue=None, **data):
@@ -146,11 +146,10 @@ def comment_issue(issue=None, **data):
     if not issue:
         serverboards.error("Error trying to close issue, none given")
 
-    title=comment.split("\n")[0]
     try:
-        serverboards.rpc.call("issues.update", issue, {"type": "comment", "title": title, "data": {"comment": comment}})
+        serverboards.rpc.call("issues.update", issue, {"type": "comment", "data": comment})
     except:
-        serverboards.error("Error trying to close issue, cant update issue")
+        serverboards.error("Error trying to comment on issue, cant update issue %s"%(issue))
 
 
 

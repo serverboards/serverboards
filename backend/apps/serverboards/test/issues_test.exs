@@ -23,15 +23,14 @@ defmodule Serverboards.IssuesTest do
     assert issue.id == id
     assert issue.creator.email == "dmoreno@serverboards.io"
     assert Enum.count(issue.events) == 1
-    assert Enum.at(issue.events,0).type == "comment"
-    assert Enum.at(issue.events,0).data == %{ "comment" => "This is the description of the issue." }
+    assert Enum.at(issue.events,0).type == "new_issue"
+    assert Enum.at(issue.events,0).data == %{ "description" => "This is the description of the issue.", "title" => "Issue test" }
 
-    {:ok, _} = Issue.update id, %{ type: "comment", title: "Good remark.", data: %{ :comment => "Good remark.\n\nThanks for the issue report." } }, user
+    {:ok, _} = Issue.update id, %{ type: "comment", data: "Good remark.\n\nThanks for the issue report." }, user
     {:ok, issue} = Issue.get(id)
     assert Enum.count(issue.events) == 2
     assert Enum.at(issue.events,1).type == "comment"
-    assert Enum.at(issue.events,1).title == "Good remark."
-    assert Enum.at(issue.events,1).data == %{ "comment" => "Good remark.\n\nThanks for the issue report." }
+    assert Enum.at(issue.events,1).data == "Good remark.\n\nThanks for the issue report."
 
     issues = Issues.list
     assert Enum.count(issues) > 0
@@ -47,7 +46,7 @@ defmodule Serverboards.IssuesTest do
     assert issue["title"] == "From RPC"
     assert issue["events"] != []
 
-    {:ok, issue} = Test.Client.call(client, "issues.update", [issue_id, %{ type: :comment, title: "A comment", data: %{ comment: "A comment.\n\nFull."}}])
+    {:ok, issue} = Test.Client.call(client, "issues.update", [issue_id, %{ type: :comment, data: %{ comment: "A comment.\n\nFull."}}])
     {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
     Logger.info(inspect issue)
 
@@ -68,12 +67,24 @@ defmodule Serverboards.IssuesTest do
 
     assert issue["id"] == issue_id
 
-    {:ok, issue} = Test.Client.call(client, "issues.update", ["test/1111", %{ type: :comment, title: "A comment", data: %{ comment: "A comment.\n\nFull."}}])
+    {:ok, issue} = Test.Client.call(client, "issues.update", ["test/1111", %{ type: :comment, data: "A comment.\n\nFull."}])
     {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
 
     Logger.info(inspect issue)
 
     assert issue["title"] == "From alias"
+  end
 
+  test "Status changes" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
+    {:ok, issue} = Test.Client.call(client, "issues.update", [issue_id, %{ type: :change_status, data: "closed"}])
+
+    {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
+
+    Logger.info(inspect issue)
+
+    assert issue["status"] == "closed"
   end
 end
