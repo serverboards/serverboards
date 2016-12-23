@@ -54,25 +54,34 @@ defmodule Serverboards.Plugin.Installer do
         if exitcode == 0 do
           Logger.info(log, plugin: data, exitcode: 0, file: cmd, line: "--")
 
-          changes = Serverboards.Settings.get("broken_plugins", %{})
-            |> Map.drop([plugin_id])
-          Serverboards.Settings.update "broken_plugins", changes, %{ email: "system", perms: ["settings.update"]}
+          mark_as_ok(plugin_id)
 
           :ok
         else
           Logger.error(log, plugin: data, exitcode: exitcode, file: cmd, line: "--")
 
-          changes = Serverboards.Settings.get("broken_plugins", %{})
-            |> Map.put(plugin_id, true)
-          Serverboards.Settings.update "broken_plugins", changes, %{ email: "system", perms: ["settings.update"]}
+          mark_as_broken(plugin_id)
 
           {:error, :broken_postinst}
         end
       else
+        mark_as_ok(plugin_id)
         :ok
       end
     else
-      :ok
+      {:error, "Plugin has no manifest.yaml"}
     end
+  end
+
+  def mark_as_ok(plugin_id) do
+    changes = Serverboards.Settings.get("broken_plugins", %{})
+      |> Map.drop([plugin_id])
+    Serverboards.Settings.update "broken_plugins", changes, %{ email: "system", perms: ["settings.update"]}
+  end
+
+  def mark_as_broken(plugin_id) do
+    changes = Serverboards.Settings.get("broken_plugins", %{})
+      |> Map.put(plugin_id, true)
+    Serverboards.Settings.update "broken_plugins", changes, %{ email: "system", perms: ["settings.update"]}
   end
 end
