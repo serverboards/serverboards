@@ -79,7 +79,10 @@ defmodule Serverboards.IssuesTest do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
-    {:ok, issue} = Test.Client.call(client, "issues.update", [issue_id, %{ type: :change_status, data: "closed"}])
+    {:ok, issue} = Test.Client.call(client, "issues.update", [issue_id, [
+        %{ type: :comment, data: "Closing issue"},
+        %{ type: :change_status, data: "closed"}
+      ]])
 
     {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
 

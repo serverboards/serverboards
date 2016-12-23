@@ -130,8 +130,11 @@ def close_issue(issue=None, **data):
         serverboards.error("Error trying to close issue, none given")
 
     try:
-        serverboards.rpc.call("issues.update", issue, {"type": "comment", "data": comment})
-        serverboards.rpc.call("issues.update", issue, {"type": "change_status", "data": "closed"})
+        serverboards.rpc.call("issues.update", issue,
+            [
+                {"type": "comment", "data": comment},
+                {"type": "change_status", "data": "closed"}
+            ])
     except:
         import traceback; traceback.print_exc()
         serverboards.error("Error trying to close issue, cant update issue %s"%(issue))

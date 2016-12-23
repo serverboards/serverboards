@@ -21,9 +21,15 @@ defmodule Serverboards.Issues.RPC do
       attributes = Serverboards.Utils.keys_to_atoms_from_list(attributes, ~w"title description aliases")
       Serverboards.Issues.Issue.add attributes, Context.get(context, :user)
     end, [required_perm: "issues.add", context: true]
-    RPC.MethodCaller.add_method mc, "issues.update", fn [id, data] , context ->
-      data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
-      Serverboards.Issues.Issue.update id, data, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "issues.update", fn
+      [id, updates], context when is_list(updates) ->
+        for data <- updates do
+          data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
+          Serverboards.Issues.Issue.update id, data, Context.get(context, :user)
+        end
+      [id, data] , context ->
+        data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
+        Serverboards.Issues.Issue.update id, data, Context.get(context, :user)
     end, [required_perm: "issues.update", context: true]
 
 
