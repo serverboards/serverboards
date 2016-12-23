@@ -115,7 +115,7 @@ def open_issue(**data):
     title=render(data.get("title"), data)
     description=render(data.get("description"), data)
     aliases=render(data.get("aliases"), data).split()
-    serverboards.rpc.info(json.dumps(data, indent=2))
+    #serverboards.rpc.info(json.dumps(data, indent=2))
 
     serverboards.rpc.call("issues.add", title=title, description=description, aliases=aliases)
 
