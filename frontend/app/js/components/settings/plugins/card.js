@@ -27,7 +27,7 @@ function PluginCard(props){
     <div key={p.id} className="card">
       <div>
         {p.status.map( (s) => (
-          <span style={{paddingRight: 15}}><i className={`ui icon circle ${ colorize(s) }`}/> {capitalize(s)}</span>
+          <span key={s} style={{paddingRight: 15}}><i className={`ui icon circle ${ colorize(s) }`}/> {capitalize(s)}</span>
         )) }
       </div>
       <div className="content">

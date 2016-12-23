@@ -78,7 +78,10 @@ const Plugins=React.createClass({
     rpc.call("plugin.install", [plugin_url]).then( () => {
       Flash.info(`Plugin from ${plugin_url} installed and ready.`)
       this.componentDidMount() // reload plugin list
-    }).catch( (e) => Flash.error(e) )
+    }).catch( (e) => {
+      Flash.error(e)
+      this.componentDidMount() // reload plugin list
+    })
   },
   render(){
     const plugins=this.state.plugins

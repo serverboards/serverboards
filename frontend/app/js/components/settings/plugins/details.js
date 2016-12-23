@@ -31,7 +31,7 @@ const left_pane_style={
 const PluginDetails=React.createClass({
   getInitialState(){
     return {
-      is_active: this.props.plugin.is_active
+      is_active: this.props.plugin.status.includes("active")
     }
   },
   componentDidMount(){
