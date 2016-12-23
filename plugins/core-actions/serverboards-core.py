@@ -111,27 +111,47 @@ def send_notification(email, subject, body, service=None, **extra):
 @serverboards.rpc_method
 def open_issue(**data):
     from templating import render
+    import json
     title=render(data.get("title"), data)
     description=render(data.get("description"), data)
     aliases=render(data.get("aliases"), data).split()
+    serverboards.rpc.info(json.dumps(data, indent=2))
 
     serverboards.rpc.call("issues.add", title=title, description=description, aliases=aliases)
 
 @serverboards.rpc_method
 def close_issue(issue=None, **data):
     from templating import render
+    import json
     issue=render(issue, data)
     comment=render(data.get("comment"), data)
-    print(issue, comment)
+    #serverboards.rpc.info(json.dumps(data, indent=2))
     if not issue:
         serverboards.error("Error trying to close issue, none given")
 
     title=comment.split("\n")[0]
     try:
+        serverboards.rpc.call("issues.update", issue, {"type": "comment", "title": title, "data": {"comment": comment}})
         serverboards.rpc.call("issues.update", issue, {"type": "change_status", "title": "Closed issue", "data": {"status": "closed"}})
+    except:
+        serverboards.error("Error trying to close issue, cant update issue")
+
+@serverboards.rpc_method
+def comment_issue(issue=None, **data):
+    from templating import render
+    import json
+    issue=render(issue, data)
+    comment=render(data.get("comment"), data)
+    #serverboards.rpc.info(json.dumps(data, indent=2))
+    if not issue:
+        serverboards.error("Error trying to close issue, none given")
+
+    title=comment.split("\n")[0]
+    try:
         serverboards.rpc.call("issues.update", issue, {"type": "comment", "title": title, "data": {"comment": comment}})
     except:
         serverboards.error("Error trying to close issue, cant update issue")
+
 
 
 serverboards.loop() #debug=sys.stderr)

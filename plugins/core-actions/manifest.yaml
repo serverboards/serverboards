@@ -146,6 +146,22 @@ components:
         params:
           tags: "-DOWN +UP"
 
+  - name: Open issue
+    type: action template
+    id: action.issue-open-close
+    actions:
+      down:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{rule.name} // {rule.status}"
+          description: "{rule.description}"
+          aliases: "rule/{rule.uuid}"
+      up:
+        action: serverboards.core.actions/close-issue
+        params:
+          issue: "rule/{rule.uuid}"
+          comment: "{rule.status}"
+
   - name: Core actions.
     type: cmd
     id: cmd
