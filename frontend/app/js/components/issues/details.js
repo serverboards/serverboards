@@ -88,6 +88,10 @@ const Details = React.createClass({
       .then( () => { this.refs.new_comment.value="" })
   },
   handleAddComment(){
+    if (this.refs.close_issue.checked)
+      return this.handleAddCommentAndClose()
+    if (this.refs.reopen_issue.checked)
+      return this.handleAddCommentAndClose()
     this.addComment()
       .then( () => Flash.info("Added new comment") )
   },
@@ -151,13 +155,23 @@ const Details = React.createClass({
               <label>New comment</label>
               <textarea ref="new_comment" placeholder="Write your comment here..."></textarea>
             </div>
-            <div className="ui field" style={{marginBottom: 30}}>
-              <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
-              {issue.status == "open" ? (
-                <button className="ui button green" onClick={this.handleAddCommentAndClose}>Add comment and Close Issue</button>
-              ) : (
-                <button className="ui button red" onClick={this.handleAddCommentAndReopen}>Add comment and Reopen Issue</button>
-              )}
+            <div className="ui inline fields form" style={{marginBottom: 30}}>
+              <div className="field">
+                <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
+              </div>
+              <div className="field">
+                {issue.status == "open" ? (
+                  <div className="ui checkbox">
+                    <input type="checkbox" ref="close_issue" id="close_issue"/>
+                    <label htmlFor="close_issue"> Close issue</label>
+                  </div>
+                ) : (
+                  <div className="ui checkbox">
+                    <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
+                    <label htmlFor="reopen_issue"> Reopen issue</label>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
