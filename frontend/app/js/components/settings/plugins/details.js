@@ -110,7 +110,7 @@ const PluginDetails=React.createClass({
             <div style={{paddingTop: 20, overflow: "auto", maxHeight:"calc( 100vh - 195px )"}}>
               <h3>Components</h3>
               {to_list(plugin.components).map( (nc) => (
-                <ComponentDetails component={nc[1]}/>
+                <ComponentDetails key={nc[1].id} component={nc[1]}/>
               ))}
             </div>
           </div>
@@ -126,7 +126,7 @@ const PluginDetails=React.createClass({
                 <h3 className="ui medium header">Update changelog</h3>
                 <ul>
                   {plugin.require_update.split('\n').map( (l) => (
-                    <li>{l}</li>
+                    <li key={l}>{l}</li>
                   ))}
                 </ul>
               </div>

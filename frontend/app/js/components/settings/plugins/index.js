@@ -38,7 +38,7 @@ const Plugins=React.createClass({
   updateRequired({plugin_id, changelog}){
     const plugins = this.state.plugins.map( (pl) => {
       if (pl.id==plugin_id)
-        return merge(pl, {require_update: changelog})
+        return merge(pl, {changelog: changelog, status: pl.status.concat("updatable")})
       else
         return pl
     })
