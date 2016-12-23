@@ -89,6 +89,7 @@ class RPC:
         if method in self.rpc_registry:
             f=self.rpc_registry[method]
             try:
+                #print(method, params, args, kwargs)
                 res=f(*args, **kwargs)
                 return {
                     'result' : res,

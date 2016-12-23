@@ -1,7 +1,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import AddServiceView from 'app/components/serverboard/addservice'
-import { services_update_catalog, services_update_all } from 'app/actions/service'
+import { services_update_catalog, services_update_all, service_add } from 'app/actions/service'
+import { serverboard_attach_service } from 'app/actions/serverboard'
 
 var AddService=connect(
   (state) => {
@@ -13,7 +14,9 @@ var AddService=connect(
   },
   (dispatch) => ({
     updateServiceCatalog: () => dispatch( services_update_catalog() ),
-    updateAllServiceCatalog: () => dispatch( services_update_all() )
+    updateAllServiceCatalog: () => dispatch( services_update_all() ),
+    onAttachService: (a,b) => dispatch( serverboard_attach_service(a,b) ),
+    onAddService: (a,b) => dispatch( service_add(a,b) ),
   })
 )(AddServiceView)
 

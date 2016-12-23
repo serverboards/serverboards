@@ -4,6 +4,7 @@ import {goto} from 'app/utils/store'
 import rpc from 'app/rpc'
 import {pretty_ago} from 'app/utils'
 import moment from 'moment'
+import Loading from 'app/components/loading'
 
 import 'sass/issues.sass'
 
@@ -24,7 +25,7 @@ function IssueCard(props){
       <div>
         <span>#{props.id}</span>
         <b className={`ui text ${tag_color(props.status)}`}> {props.status} </b>
-        by {props.creator.name}
+        by {(props.creator || {name: "System"}).name}
         {/* |
         <span>
           <b className="ui text blue"> TAG 1 </b>
@@ -134,45 +135,89 @@ const Issues = React.createClass({
       open_count: 0,
       closed_count: 0,
       all_count: 0,
-      issues: []
+      issues: [],
+      show_issues: [],
+      filter: "status:open",
+      loading: true,
     }
   },
   componentDidMount(){
-    rpc.call("issues.list").then( (all_issues) => {
-      let issues=[]
-      let last_date_issues=[]
-      let last_date=undefined
-      for(let i of all_issues){
-        const cdate=i.date.slice(0,10)
-        if (cdate != last_date){
-          last_date=cdate
-          last_date_issues=[]
-          issues.push([last_date, last_date_issues])
-        }
-        last_date_issues.push(i)
-      }
-      console.log("Issues: %o", issues)
+    this.setState({loading: true})
 
-      this.setState({issues})
+    rpc.call("issues.list").then( (issues) => {
+      this.setState({
+        loading: false,
+        issues,
+        show_issues: this.applyFilter(issues, this.state.filter),
+        open_count: issues.filter( (i) => i.status=='open' ).length,
+        closed_count: issues.filter( (i) => i.status=='closed' ).length,
+        all_count: issues.length,
+      })
     } )
+  },
+  setFilter(filter){
+    this.setState({
+      filter,
+      show_issues: this.applyFilter(this.state.issues, filter)
+    })
+  },
+  applyFilter(issues, filter){
+    let show_issues=issues
+    if (filter.indexOf("status:open")>=0){
+      show_issues=show_issues.filter( (i) => i.status=="open" )
+    }
+    if (filter.indexOf("status:closed")>=0){
+      show_issues=show_issues.filter( (i) => i.status=="closed" )
+    }
+    return show_issues
+  },
+  groupByDay(issues){
+    let days=[]
+    let last_date_issues=[]
+    let last_date=undefined
+    for(let i of issues){
+      const cdate=i.date.slice(0,10)
+      if (cdate != last_date){
+        last_date=cdate
+        last_date_issues=[]
+        days.push([last_date, last_date_issues])
+      }
+      last_date_issues.push(i)
+    }
+    return days
   },
   render(){
     const {props, state} = this
+    if (state.loading)
+      return (
+        <Loading>Issues</Loading>
+      )
+    const issues_by_day = this.groupByDay(state.show_issues)
     return (
       <div className="ui central area white background" style={{flexDirection:"column"}} id="issues">
         <div className="ui top secondary menu" style={{paddingBottom: 0}}>
           <h3 className="ui header">Issues</h3>
-          {/*
           <div className="ui tabs secondary pointing menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
-            <a className="item">Open <span className="ui meta">({state.open_count})</span></a>
-            <a className="item">Closed <span className="ui meta">({state.closed_count})</span></a>
-            <a className="active item">All <span className="ui meta">({state.all_count})</span></a>
+            <a
+              className={`item ${ state.filter.indexOf("status:open")>=0 ? "active" : ""}`}
+              onClick={() => this.setFilter("status:open")}>
+                Open&nbsp;<span className="ui meta"> ({state.open_count})</span>
+            </a>
+            <a
+              className={`item ${ state.filter.indexOf("status:closed")>=0 ? "active" : ""}`}
+              onClick={() => this.setFilter("status:closed")}>
+                Closed&nbsp;<span className="ui meta"> ({state.closed_count})</span>
+            </a>
+            <a
+              className={`item ${ state.filter.indexOf("status:*")>=0 ? "active" : ""}`}
+              onClick={() => this.setFilter("status:*")}>
+                All&nbsp;<span className="ui meta">({state.all_count})</span>
+            </a>
           </div>
-          */}
         </div>
         <div className="ui container">
           <div className="issues">
-            {state.issues.map( ([date, issues]) => (
+            {issues_by_day.map( ([date, issues]) => (
               <IssueDay key={date} label={date} issues={issues}/>
             ))}
           </div>

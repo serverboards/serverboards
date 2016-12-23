@@ -139,9 +139,9 @@ components:
         params:
           tags: -UP DOWN
 
-  - name: Service is DOWN
+  - name: Open issue if down
     description: Monitors server tags to know when a server is DOWN or UP and notifies all users
-    id: rule.server.DOWN
+    id: rule.server.open-issue
     type: rule template
     traits: url
     trigger:
@@ -150,25 +150,16 @@ components:
         tag: DOWN
     actions:
       added:
-        action: serverboards.core.actions/send-notification
+        action: serverboards.core.actions/open-issue
         params:
-          email: "@user"
-          subject: "{{service.name}} is DOWN"
-          body: |
-              The service {{service.name}} is DOWN.
-
-              Please check ASAP.
-
-              {{service.url}}
+          title: "{rule.name} // {rule.status}"
+          description: "{rule.description}"
+          aliases: "rule/{rule.uuid}"
       removed:
-        action: serverboards.core.actions/send-notification
+        action: serverboards.core.actions/close-issue
         params:
-          email: "@user"
-          subject: "{{service.name}} is back UP"
-          body: |
-            The service {{service.name}} is UP.
-
-            {{service.url}}
+          issue: "rule/{rule.uuid}"
+          comment: "{rule.status}"
 
   - name: Core triggers daemon
     id: daemon

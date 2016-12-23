@@ -12,49 +12,69 @@ defmodule Serverboards.Issues.Issue do
     #  [] -> {:error, :unknown_issue}
     #end
   end
-  def update(issue_id, %{ type: _, data: _, title: _} = data, me) do
+  def update(issue_id, %{ type: _, data: _} = data, me) do
     EventSourcing.dispatch(:issues, :issue_update, %{ id: issue_id, data: data}, me.email)
     {:ok, :ok}
   end
 
   def add_real(data, me) do
     import Ecto.Query
-    {:ok, creator_id} = Serverboards.Auth.User.get_id_by_email( me )
+    creator_id = case Serverboards.Auth.User.get_id_by_email( me ) do
+      {:ok, creator_id} -> creator_id
+      _ -> nil
+    end
     {:ok, issue} = Repo.insert( %Model.Issue{
       creator_id: creator_id,
       title: data.title,
       status: "open"
       } )
-    first_line = Enum.at(String.split(data.description, "\n", parts: 2), 0)
     {:ok, _description} = Repo.insert( %Model.Event{
       creator_id: creator_id,
       issue_id: issue.id,
-      title: first_line,
-      type: "comment",
-      data: %{
-        comment: data.description
-      } } )
+      type: "new_issue",
+      data: data
+    } )
+
+    (data[:aliases] || []) |> Enum.map(fn alias_ ->
+      {:ok, _description} = Repo.insert( %Model.Alias{
+        issue_id: issue.id,
+        alias: alias_,
+        } )
+    end)
 
     issue.id
   end
-  def update_real(issue_id, %{ title: title, type: type, data: data }, me) do
+  def update_real(issue_id, %{ data: data } = update, me) when not is_map(data) do
+    update_real(issue_id, %{ update | data: %{ "__data__" => data }}, me)
+  end
+  def update_real(issue_id, %{ type: type, data: data }, me) when is_number(issue_id) do
     import Ecto.Query
-    {:ok, creator_id} = Serverboards.Auth.User.get_id_by_email( me )
+    creator_id = case Serverboards.Auth.User.get_id_by_email( me ) do
+      {:ok, creator_id} -> creator_id
+      _ -> nil
+    end
     {:ok, _description} = Repo.insert( %Model.Event{
       creator_id: creator_id,
       issue_id: issue_id,
-      title: title,
       type: type,
       data: data
       } )
     if type == "change_status" do
       Repo.update_all(
         (from i in Model.Issue, where: i.id == ^issue_id),
-        set: [status: data["status"] ]
+        set: [status: data["__data__"] ]
       )
     end
   end
+  def update_real(alias_id, data, me) do
+    alias_to_ids(alias_id) |> Enum.map(fn issue_id ->
+      update_real(issue_id, data, me)
+    end)
+  end
 
+  def decorate_user(nil) do
+    nil
+  end
   def decorate_user(user) do
     %{
       email: user.email,
@@ -64,16 +84,16 @@ defmodule Serverboards.Issues.Issue do
   end
   def decorate_event(event) do
     event = event |> Repo.preload(:creator)
+    data = Map.get(event.data, "__data__", event.data)
     %{
       type: event.type,
       creator: decorate_user( event.creator ),
-      data: event.data,
-      title: event.title,
+      data: data,
       inserted_at: Ecto.DateTime.to_iso8601(event.inserted_at)
     }
   end
 
-  def get(id) do
+  def get(id) when is_number(id) do
     import Ecto.Query
     case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator] ) do
       [] -> {:error, :not_found}
@@ -86,6 +106,23 @@ defmodule Serverboards.Issues.Issue do
           status: issue.status,
           events: Enum.map(issue.events, &decorate_event/1 ),
         }}
+    end
+  end
+  def get(id) do
+    [issue_id | _ ] = alias_to_ids(id)
+    get(issue_id)
+  end
+  def alias_to_ids(alias_id) do
+    import Ecto.Query
+    case Integer.parse(alias_id) do
+      { id, "" } ->
+        [id]
+      _ ->
+        Repo.all(
+          from a in Model.Alias,
+          join: i in Model.Issue, on: i.id == a.issue_id,
+          where: a.alias == ^alias_id and i.status=="open",
+          select: a.issue_id )
     end
   end
 end

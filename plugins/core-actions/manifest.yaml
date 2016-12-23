@@ -79,6 +79,49 @@ components:
           lable: Body
         - name: service
 
+  - name: Issue Open
+    type: action
+    id: open-issue
+    command: cmd
+    icon: issue
+    call:
+      method: open_issue
+      extra: true
+      params:
+        - name: title
+          type: text
+          label: Issue title
+          card: true
+        - name: description
+          type: textarea
+          label: Issue description
+        - name: aliases
+          type: text
+          label: Issue aliases
+          description: |
+            Issue may be referenced by this alias. Useful to allow closing issue
+            using the rule.id, or any other identifier for the problem.
+
+            Aliases are separated by spaces.
+          placeholder: "eg. rule/\{rule.uuid\}"
+
+  - name: Issue Close
+    type: action
+    id: close-issue
+    command: cmd
+    icon: issue
+    call:
+      method: close_issue
+      extra: true
+      params:
+        - name: issue
+          type: text
+          label: Issue id or alias
+          placeholder: "eg. rule/\{rule.uuid\}"
+        - name: comment
+          type: textarea
+          label: Issue comment
+
   - name: Notify all users
     type: action template
     id: action.notify_user_template
@@ -89,6 +132,44 @@ components:
           email: @user
           subject: "{{rule.name}}: {{rule.last_state}}"
           body: "{{rule.description}}"
+
+  - name: Open issue
+    type: action template
+    id: action.openclose-issue
+    actions:
+      added:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{{rule.name}}: {{rule.last_state}}"
+          description: "{{rule.description}}"
+          alias: "rule/{{rule.uuid}}"
+      down:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{{rule.name}}: {{rule.last_state}}"
+          description: "{{rule.description}}"
+          alias: "rule/{{rule.uuid}}"
+      not-exists:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{{rule.name}}: {{rule.last_state}}"
+          description: "{{rule.description}}"
+          alias: "rule/{{rule.uuid}}"
+      removed:
+        action: serverboards.core.actions/close-issue
+        params:
+          comment: "Status back to {{rule.last_state}}"
+          alias: "rule/{{rule.uuid}}"
+      up:
+        action: serverboards.core.actions/close-issue
+        params:
+          comment: "Status back to {{rule.last_state}}"
+          alias: "rule/{{rule.uuid}}"
+      exists:
+        action: serverboards.core.actions/close-issue
+        params:
+          comment: "Status back to {{rule.last_state}}"
+          alias: "rule/{{rule.uuid}}"
 
   - name: Mark service up/down
     type: action template
@@ -103,9 +184,28 @@ components:
         params:
           tags: "-DOWN +UP"
 
+  - name: Open issue
+    type: action template
+    id: action.issue-open-close
+    actions:
+      down:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{{rule.name}} // {{rule.status}}"
+          description: "{{rule.description}}"
+          aliases: "rule/{{rule.uuid}}"
+      up:
+        action: serverboards.core.actions/close-issue
+        params:
+          issue: "rule/{{rule.uuid}}"
+          comment: "{{rule.status}}"
+
   - name: Core actions.
     type: cmd
     id: cmd
     timeout: 20s
     command: serverboards-core.py
-    perms: service.info service.update notifications.notify notifications.notify_all settings.view[serverboards.core.settings/base]
+    perms: |
+      service.info service.update notifications.notify notifications.notify_all
+      issues.add issues.update
+      settings.view[serverboards.core.settings/base]

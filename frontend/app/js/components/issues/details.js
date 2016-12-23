@@ -5,6 +5,7 @@ import rpc from 'app/rpc'
 const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
+import {merge} from 'app/utils'
 
 function tag_color(status){
   if (status=="open")
@@ -19,20 +20,24 @@ function IssueEventComment({event, connected}){
     <div className={`ui card ${ connected ? "connected" : ""}`}>
       <div className="ui header normal text regular">
         <span className="ui circular image small"><img src={default_avatar}/></span>
-        <span><b>{event.creator.name}</b> on {event.inserted_at}</span>
+        <span><b>{(event.creator || {name:"System"}).name}</b> on {event.inserted_at}</span>
       </div>
-      <MarkdownPreview value={event.data.comment}/>
+      <MarkdownPreview value={event.data}/>
     </div>
   )
 }
 
 function IssueEventChangeStatus({event}){
   return (
-    <span className={`ui label tag ${tag_color(event.data.status)}`}>{event.data.status}</span>
+    <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
   )
 }
 
 function IssueEvent(props){
+  if (props.event.type=="new_issue")
+    return (
+      <IssueEventComment event={merge(props.event, {data: props.event.data.description})} />
+    )
   if (props.event.type=="comment")
     return (
       <IssueEventComment {...props}/>
@@ -83,23 +88,33 @@ const Details = React.createClass({
   addComment(){
     const comment=this.refs.new_comment.value
     const title=comment.split('\n')[0].slice(0,64)
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", title, data: {comment}}])
+    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", title, data: comment}])
       .then( () => this.componentDidMount() )
       .then( () => { this.refs.new_comment.value="" })
   },
   handleAddComment(){
+    if (this.refs.close_issue && this.refs.close_issue.checked)
+      return this.handleAddCommentAndClose()
+    if (this.refs.reopen_issue && this.refs.reopen_issue.checked)
+      return this.handleAddCommentAndReopen()
     this.addComment()
       .then( () => Flash.info("Added new comment") )
   },
   handleAddCommentAndClose(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Closed issue", data: {status: "closed"}}])
+    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "closed"}])
       .then( () =>  this.addComment())
-      .then( () => Flash.info("Added new comment and reopened issue") )
+      .then( () => {
+        Flash.info("Added new comment and reopened issue")
+        this.setState({issue: merge(this.state.issue, {status: "closed"})})
+      })
   },
   handleAddCommentAndReopen(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Reopened issue", data: {status: "open"}}])
+    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "open"}])
       .then( () =>  this.addComment())
-      .then( () => Flash.info("Added new comment and reopened issue") )
+      .then( () => {
+        Flash.info("Added new comment and reopened issue")
+        this.setState({issue: merge(this.state.issue, {status: "open"})})
+      })
   },
   handleFocusComment(){
     $("#issues > .content").scrollTop($("#issues > .content").height())
@@ -130,7 +145,7 @@ const Details = React.createClass({
             </div>
             <div className="ui text normal regular">
               <span className={`ui tag label ${tag_color(issue.status)} big`}>{issue.status}</span>
-              <span><b>{issue.creator.name}</b> created this issue on {issue.inserted_at}</span>
+              <span><b>{(issue.creator || {name: "System"}).name}</b> created this issue on {issue.inserted_at}</span>
             </div>
           </div>
           <div className="ui divider"></div>
@@ -151,13 +166,23 @@ const Details = React.createClass({
               <label>New comment</label>
               <textarea ref="new_comment" placeholder="Write your comment here..."></textarea>
             </div>
-            <div className="ui field" style={{marginBottom: 30}}>
-              <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
-              {issue.status == "open" ? (
-                <button className="ui button green" onClick={this.handleAddCommentAndClose}>Add comment and Close Issue</button>
-              ) : (
-                <button className="ui button red" onClick={this.handleAddCommentAndReopen}>Add comment and Reopen Issue</button>
-              )}
+            <div className="ui inline fields form" style={{marginBottom: 30}}>
+              <div className="field">
+                <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
+              </div>
+              <div className="field">
+                {issue.status == "open" ? (
+                  <div className="ui checkbox close">
+                    <input type="checkbox" ref="close_issue" id="close_issue"/>
+                    <label htmlFor="close_issue" style={{cursor:"pointer"}}> Close issue</label>
+                  </div>
+                ) : (
+                  <div className="ui checkbox reopen">
+                    <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
+                    <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> Reopen issue</label>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
