@@ -6,6 +6,13 @@ defmodule Serverboards.Plugin.Installer do
     plugindir = "#{Serverboards.Config.serverboards_path}/plugins/"
     finalpath = "#{plugindir}/#{plname}"
 
+    with :ok <- install_from_git(url, plugindir, finalpath),
+      :ok <- execute_postinst(finalpath)
+    do
+      :ok
+    end
+  end
+  def install_from_git(url, plugindir, finalpath) do
     File.mkdir_p(plugindir)
 
     {output, exitcode} = System.cmd(
@@ -19,6 +26,53 @@ defmodule Serverboards.Plugin.Installer do
     else
       Logger.error("Error installing plugin from #{url} at #{finalpath}", output: output, url: url, path: finalpath)
       {:error, output}
+    end
+  end
+  def execute_postinst(finalpath) do
+
+    if File.exists?("#{finalpath}/manifest.yaml") do
+      {:ok, yaml} = File.read("#{finalpath}/manifest.yaml")
+      data = YamlElixir.read_from_string(yaml)
+
+      plugin_id=data["id"]
+      if data["postinst"] do
+        cmd = "#{finalpath}/#{data["postinst"]}"
+
+        env = Serverboards.Plugin.Component.get_env(plugin_id) |> Enum.map(fn {k,v} ->
+          {to_string(k), to_string(v)}
+        end) # Port requires binary as in '' and System.cmd strings as "". WTF!
+
+        cmdopts = [
+          env: env,
+          cd: finalpath
+        ]
+
+        Logger.info("Executing postinst for #{cmd}", plugin: data, path: finalpath)
+        {log, exitcode} = System.cmd cmd, [], cmdopts
+
+
+        if exitcode == 0 do
+          Logger.info(log, plugin: data, exitcode: 0, file: cmd, line: "--")
+
+          changes = Serverboards.Settings.get("broken_plugins", %{})
+            |> Map.drop([plugin_id])
+          Serverboards.Settings.update "broken_plugins", changes, %{ email: "system", perms: ["settings.update"]}
+
+          :ok
+        else
+          Logger.error(log, plugin: data, exitcode: exitcode, file: cmd, line: "--")
+
+          changes = Serverboards.Settings.get("broken_plugins", %{})
+            |> Map.put(plugin_id, true)
+          Serverboards.Settings.update "broken_plugins", changes, %{ email: "system", perms: ["settings.update"]}
+
+          {:error, :broken_postinst}
+        end
+      else
+        :ok
+      end
+    else
+      :ok
     end
   end
 end

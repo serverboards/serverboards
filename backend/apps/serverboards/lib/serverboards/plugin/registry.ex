@@ -32,7 +32,7 @@ defmodule Serverboards.Plugin.Registry do
   Reload all plugin data. Normally called from the inotify watcher
   """
   def reload_plugins do
-    GenServer.cast(Serverboards.Plugin.Registry, {:reload})
+    GenServer.call(Serverboards.Plugin.Registry, {:reload})
   end
 
   def active_plugins do
@@ -159,7 +159,9 @@ defmodule Serverboards.Plugin.Registry do
   def is_plugin_active( id, context ) do
     (
       String.starts_with?(id, "serverboards.core") ||
-      Keyword.get(context, String.to_atom(id), true)
+      Keyword.get(context.active, String.to_atom(id), true)
+    ) && (
+      not Keyword.get(context.broken, String.to_atom(id), false)
     )
   end
 
@@ -194,9 +196,12 @@ defmodule Serverboards.Plugin.Registry do
     Serverboards.Plugin.Monitor.start_link
 
     MOM.Channel.subscribe(:settings, fn
-      %MOM.Message{ payload: %{ type: :update, section: "plugins" }} ->
-        Logger.debug("Reloading plugins, settings has changed")
-        GenServer.call(Serverboards.Plugin.Registry, {:reload})
+      %MOM.Message{ payload: %{ type: :update, section: section }} ->
+        if section in ["plugins", "broken_plugins"] do
+          Logger.debug("Reloading plugins, settings has changed")
+          reload_plugins
+        end
+      _ -> :ignore
     end)
 
     GenServer.cast(self, {:reload})
@@ -211,10 +216,17 @@ defmodule Serverboards.Plugin.Registry do
   end
 
 
+  def handle_call({:reload}, _from, _status) do
+    #:timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
+    # It may be because in tests this process is in a another transaction??
+    {:noreply, status} = handle_cast({:reload}, %{})
+    {:reply, :ok, status}
+  end
   def handle_cast({:reload}, _status) do
-    :timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
-    context = Serverboards.Config.get(:plugins) # need full reload, to ensure ini and environment is in use.
-
+    context = %{
+      active: Serverboards.Config.get(:plugins),
+      broken: Serverboards.Config.get(:broken_plugins)
+    }
     Logger.debug("Context: #{inspect context}")
 
     all_plugins = load_plugins

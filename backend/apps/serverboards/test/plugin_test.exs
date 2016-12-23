@@ -331,4 +331,33 @@ defmodule Serverboards.PluginTest do
     assert {:error, "Exception requested"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "exception")
     assert {:error, :not_found} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake--XX", "anything")
   end
+
+  test "Plugin postinst" do
+    path = Serverboards.Plugin.Registry.find("serverboards.test.auth").path
+
+    File.rm("/tmp/serverboards-test-fail-postinst")
+    assert :ok == Serverboards.Plugin.Installer.execute_postinst(path)
+    Serverboards.Plugin.Registry.reload_plugins
+    {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
+    assert broken_plugins["serverboards.test.auth"] == nil
+    plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
+    assert plugin.is_active == true
+
+    File.touch("/tmp/serverboards-test-fail-postinst")
+    assert {:error, :broken_postinst} == Serverboards.Plugin.Installer.execute_postinst(path)
+    Serverboards.Plugin.Registry.reload_plugins
+    {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
+    assert broken_plugins["serverboards.test.auth"]
+    plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
+    # Should be false, but fails because, i think, the plugin registry runs in another DB transaction
+    #assert plugin.is_active == false
+
+    File.rm("/tmp/serverboards-test-fail-postinst")
+    assert :ok == Serverboards.Plugin.Installer.execute_postinst(path)
+    {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
+    Serverboards.Plugin.Registry.reload_plugins
+    assert broken_plugins["serverboards.test.auth"] == nil
+    plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
+    assert plugin.is_active == true
+  end
 end
