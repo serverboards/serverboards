@@ -17,21 +17,13 @@ let Services=React.createClass({
       mode: localStorage.service_view_mode || "grid"
     }
   },
-  handleAttachService(service){
-    this.props.onAttachService(this.props.serverboard.shortname, service.uuid)
-    this.setModal(false)
-  },
-  handleAddService(service){
-    this.props.onAddService(this.props.serverboard.shortname, service)
-    this.setModal(false)
-  },
   setListMode(mode){
     localStorage.service_view_mode=mode
     this.setState({mode})
   },
   openAddServiceModal(ev){
     ev && ev.preventDefault()
-    this.setModal('service.add')
+    this.setModal('service.add', {serverboard: this.props.serverboard.shortname})
   },
   setModal: (modal, data) => set_modal(modal, data),
   contextTypes: {
