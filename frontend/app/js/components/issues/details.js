@@ -5,6 +5,7 @@ import rpc from 'app/rpc'
 const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
+import {merge} from 'app/utils'
 
 function tag_color(status){
   if (status=="open")
@@ -88,22 +89,28 @@ const Details = React.createClass({
       .then( () => { this.refs.new_comment.value="" })
   },
   handleAddComment(){
-    if (this.refs.close_issue.checked)
+    if (this.refs.close_issue && this.refs.close_issue.checked)
       return this.handleAddCommentAndClose()
-    if (this.refs.reopen_issue.checked)
-      return this.handleAddCommentAndClose()
+    if (this.refs.reopen_issue && this.refs.reopen_issue.checked)
+      return this.handleAddCommentAndReopen()
     this.addComment()
       .then( () => Flash.info("Added new comment") )
   },
   handleAddCommentAndClose(){
     rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Closed issue", data: {status: "closed"}}])
       .then( () =>  this.addComment())
-      .then( () => Flash.info("Added new comment and reopened issue") )
+      .then( () => {
+        Flash.info("Added new comment and reopened issue")
+        this.setState({issue: merge(this.state.issue, {status: "closed"})})
+      })
   },
   handleAddCommentAndReopen(){
     rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", title: "Reopened issue", data: {status: "open"}}])
       .then( () =>  this.addComment())
-      .then( () => Flash.info("Added new comment and reopened issue") )
+      .then( () => {
+        Flash.info("Added new comment and reopened issue")
+        this.setState({issue: merge(this.state.issue, {status: "open"})})
+      })
   },
   handleFocusComment(){
     $("#issues > .content").scrollTop($("#issues > .content").height())
@@ -161,14 +168,14 @@ const Details = React.createClass({
               </div>
               <div className="field">
                 {issue.status == "open" ? (
-                  <div className="ui checkbox">
+                  <div className="ui checkbox close">
                     <input type="checkbox" ref="close_issue" id="close_issue"/>
-                    <label htmlFor="close_issue"> Close issue</label>
+                    <label htmlFor="close_issue" style={{cursor:"pointer"}}> Close issue</label>
                   </div>
                 ) : (
-                  <div className="ui checkbox">
+                  <div className="ui checkbox reopen">
                     <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
-                    <label htmlFor="reopen_issue"> Reopen issue</label>
+                    <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> Reopen issue</label>
                   </div>
                 )}
               </div>
