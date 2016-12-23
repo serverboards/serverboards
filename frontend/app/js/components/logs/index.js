@@ -63,16 +63,22 @@ function Details(props){
 
   return (
     <Modal>
-      <h2 className="ui header">Log line details</h2>
-      <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
+      <div className="ui top secondary header menu">
+        <h3 className="ui header">Log line details</h3>
+        <div className="right menu">
+          <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
+        </div>
+      </div>
       <h3 className="ui header uppercase">Date</h3>
       <div className="meta">{line.timestamp.replace('T',' ')}</div>
 
 
       <h3 className="ui header uppercase">Full Message</h3>
-      <pre className="ui code">
-        {reformatMessage(line.message)}
-      </pre>
+      <div>
+        <pre className="ui code">
+          {reformatMessage(line.message)}
+        </pre>
+      </div>
 
       <h3 className="ui header uppercase">Metadata</h3>
       <div>
