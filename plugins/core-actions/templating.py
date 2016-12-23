@@ -1,6 +1,6 @@
 import re
 
-TAG=re.compile('{(.*?)}')
+TAG=re.compile('{{(.*?)}}')
 def render(txt, data):
     if not txt:
         return ""
