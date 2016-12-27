@@ -1,3 +1,32 @@
+serverboards (0.6.81-gd3c6d) unstable; urgency=medium
+
+  * Use make test
+  * Simplified backend test/compile
+  * Removed stages from CI
+  * Merge branch 'T405-issue-openclose-action' into 'master'
+  * Allow several issue updates in bulk.
+  * Fix #7. Issues do not store title.
+  * Improved preset actions and rules for issues
+  * Cleanup: Removed some debugs
+  * Templates now use {{}} instead of {}
+  * Fixes to issue open/close and template
+  * Fixes to close/reopen issues.
+  * Close issues is now a checkbox.
+  * Fix add/attach service to serverboards.
+  * Can filter by open/closed/all issues
+  * Can open/close issues from rules
+  * Add direct link to rule from action history
+  * Merge branch 'mixed-fixes' into 'master'
+  * Add widget uses proper header
+  * Improvements to top secondary header menu on all sections
+  * Add a service now uses tabs for new/existing
+  * Fix add services use normal modal flow
+  * Commented tags on issues, as not working yet
+  * Save bundle.js with hash, to prevent caching when changes
+  * Version update.
+
+ -- David Moreno <dmoreno@coralbits.com>  Tue, 27 Dec 2016 16:41:35 +0100
+
 serverboards (0.6.57-g41d24) unstable; urgency=medium
 
   * Added python3-yaml dependency.

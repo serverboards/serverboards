@@ -17,6 +17,7 @@ function get_prev_version(){
 
 function update_version_backend(){
 	sed -i 's/version: ".*"/version: "'$1'"/g' backend/mix.exs
+	sed -i 's/version: ".*"/version: "'$1'"/g' backend/apps/serverboards/mix.exs
 }
 
 function update_version_frontend(){

@@ -69,7 +69,7 @@ defmodule Serverboards.TriggersTest do
     }
 
     File.rm("/tmp/sbds-rule-test")
-    {:ok, rule} = Rules.Rule.start_link rule_description
+    {:ok, _rule} = Rules.Rule.start_link rule_description
 
     :timer.sleep 1500
 
@@ -152,7 +152,7 @@ defmodule Serverboards.TriggersTest do
     # The full list
     l = Rules.list
     l |> Enum.map(fn r ->
-      Logger.debug("Rule: #{inspect rule}")
+      Logger.debug("Rule: #{inspect r}")
     end)
     assert Enum.count(l) >= 2
 
@@ -171,7 +171,7 @@ defmodule Serverboards.TriggersTest do
   test "Basic RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, l} = Test.Client.call(client, "rules.list", [])
+    {:ok, _l} = Test.Client.call(client, "rules.list", [])
     {:ok, []} = Test.Client.call(client, "rules.list", [uuid: UUID.uuid4 ])
 
     {:ok, :ok} = Test.Client.call(client, "rules.update", rule)
@@ -254,7 +254,6 @@ defmodule Serverboards.TriggersTest do
   end
 
   test "Fail rule start / Exception" do
-    alias Serverboards.Rules.Rule
     me = Test.User.system
     uuid = UUID.uuid4
 
@@ -276,7 +275,6 @@ defmodule Serverboards.TriggersTest do
   end
 
   test "Abort rule start / Exception" do
-    alias Serverboards.Rules.Rule
     me = Test.User.system
     uuid = UUID.uuid4
 
@@ -298,7 +296,6 @@ defmodule Serverboards.TriggersTest do
   end
 
   test "No fail start non existant trigger" do
-    alias Serverboards.Rules.Rule
     me = Test.User.system
     uuid = UUID.uuid4
 
