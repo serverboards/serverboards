@@ -37,3 +37,5 @@ release:
     paths:
       - serverboards.tar.gz
     expire_in: 1 week
+  only:
+    - master
