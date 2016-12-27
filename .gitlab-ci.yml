@@ -31,6 +31,7 @@ backend-test:
 release:
   stage: release
   script:
+    - cd $CI_PROJECT_DIR
     - make release
   artifacts:
     paths:
