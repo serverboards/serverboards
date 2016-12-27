@@ -132,7 +132,7 @@ const timeunits={
 
 export function pretty_ago(t, now, minres){
   now = moment(now)
-  let other = moment(t)
+  let other = moment.utc(t)
   if (minres && typeof(minres)=="string")
     minres=timeunits[minres]
 

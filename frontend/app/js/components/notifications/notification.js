@@ -51,7 +51,7 @@ const Notification=React.createClass({
               ><i className="ui icon chevron right"/></a>
           </div>
         </div>
-      <div className="ui meta">{pretty_ago(n.inserted_at)}</div>
+      <div className="ui meta" title={n.inserted_at}>{pretty_ago(n.inserted_at)}</div>
         <h1 className="ui header" style={{margin: 0}}>{n.subject}</h1>
         <div className="ui labels">
           {n.tags.map( (t) => (
