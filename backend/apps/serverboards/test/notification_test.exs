@@ -48,7 +48,7 @@ defmodule Serverboards.NotificationTest do
     data = IO.read(fd, :all)
     File.close(fd)
 
-    {:ok, data} = JSON.decode(data)
+    {:ok, _data} = JSON.decode(data)
   end
 
   test "Configure for user" do
