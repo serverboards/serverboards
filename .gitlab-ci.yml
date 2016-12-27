@@ -25,7 +25,7 @@ backend-test:
       - backend/deps
 
   script:
-    - cd backend && mix test
+    - mix test
 
 
 release:
