@@ -167,22 +167,25 @@ defmodule Serverboards.PluginTest do
   end
 
   @tag skip: "There is some race condition that makes this difficult to test. Skipping to do not block progress. FIXME"
-  test "Plugin is_active" do
+  test "Plugin is active" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, list} = Client.call(client, "plugin.list", [])
-    assert list["serverboards.test.auth"]["is_active"] != nil
+    assert "active" in list["serverboards.test.auth"]["status"]
+    assert not "disabled" in list["serverboards.test.auth"]["status"]
 
     Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", false])
     context = Serverboards.Config.get(:plugins)
     Logger.debug("At exs: #{inspect context}")
 
     {:ok, list} = Client.call(client, "plugin.list", [])
-    assert list["serverboards.test.auth"]["is_active"] == false
+    assert not "active" in list["serverboards.test.auth"]["status"]
+    assert "disabled" in list["serverboards.test.auth"]["status"]
 
     Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", true])
     {:ok, list} = Client.call(client, "plugin.list", [])
-    assert list["serverboards.test.auth"]["is_active"] == true
+    assert "active" in list["serverboards.test.auth"]["status"]
+    assert not "disabled" in list["serverboards.test.auth"]["status"]
   end
 
   test "Bad protocol" do
@@ -341,7 +344,7 @@ defmodule Serverboards.PluginTest do
     {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
     assert broken_plugins["serverboards.test.auth"] == nil
     plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
-    assert plugin.is_active == true
+    assert "active" in plugin.status
 
     File.touch("/tmp/serverboards-test-fail-postinst")
     assert {:error, :broken_postinst} == Serverboards.Plugin.Installer.execute_postinst(path)
@@ -350,6 +353,7 @@ defmodule Serverboards.PluginTest do
     assert broken_plugins["serverboards.test.auth"]
     plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
     # Should be false, but fails because, i think, the plugin registry runs in another DB transaction
+    #assert "disabled" in plugin.status
     #assert plugin.is_active == false
 
     File.rm("/tmp/serverboards-test-fail-postinst")
@@ -358,6 +362,6 @@ defmodule Serverboards.PluginTest do
     Serverboards.Plugin.Registry.reload_plugins
     assert broken_plugins["serverboards.test.auth"] == nil
     plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
-    assert plugin.is_active == true
+    assert "active" in plugin.status
   end
 end
