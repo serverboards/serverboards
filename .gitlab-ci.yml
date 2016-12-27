@@ -1,5 +1,4 @@
 stages:
-  - build
   - test
   - release
 
@@ -17,12 +16,6 @@ cache:
     - backend/mix.lock
     - backend/_build
 
-backend-build:
-  stage: build
-  script:
-    - cd backend; make test-compile
-  stage: build
-
 backend-test:
   stage: test
   cache:
@@ -30,20 +23,7 @@ backend-test:
       - backend/deps
   script:
     - cd backend; make test-do
-  dependencies:
-    - backend-build
 
-frontend-build:
-  stage: build
-  script:
-    - cd frontend; make compile
-
-#frontend-test:
-#  stage: test
-#  script:
-#    - cd frontend; make test
-#  dependencies:
-#    - frontend-build
 
 release:
   stage: release
@@ -53,5 +33,3 @@ release:
     paths:
       - serverboards.tar.gz
     expire_in: 1 week
-  dependencies:
-    - frontend-build
