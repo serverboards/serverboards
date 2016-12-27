@@ -6,7 +6,8 @@ deps: mix.exs
 	mix deps.get > /dev/null
 	touch deps
 
-test: deps
+test:
+	make clean deps
 	MIX_ENV=test mix test
 
 clean:
