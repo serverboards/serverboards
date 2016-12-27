@@ -64,7 +64,8 @@ defmodule Serverboards.TriggersTest do
             filename: "/tmp/sbds-rule-test"
           }
         }
-      }
+      },
+      last_state: nil
     }
 
     File.rm("/tmp/sbds-rule-test")
@@ -109,7 +110,8 @@ defmodule Serverboards.TriggersTest do
             filename: nil,
           }
         }
-      }
+      },
+      last_state: nil
     }
 
 
