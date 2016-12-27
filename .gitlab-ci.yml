@@ -7,14 +7,9 @@ variables:
   GIT_DEPTH: "3"
 
 cache:
-  key: "$CI_PROJECT_NAME"
-  untracked: true
+  key: "$CI_PROJECT_NAME-CI_BUILD_REF_NAME"
   paths:
-    - frontend/dist
     - frontend/node_modules
-    - backend/deps
-    - backend/mix.lock
-    - backend/_build
 
 backend-test:
   stage: test
