@@ -22,7 +22,7 @@ backend-test:
     paths:
       - backend/deps
   script:
-    - cd backend; make test-do
+    - cd backend; make test
 
 
 release:
