@@ -12,9 +12,10 @@ cache:
     - frontend/node_modules
 
 before_script:
-  - cd backend && mix local.rebar --force
-  - cd backend && mix local.hex --force
-  - cd backend && mix deps.get
+  - cd backend
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.get
 
 backend-test:
   stage: test
