@@ -11,13 +11,20 @@ cache:
   paths:
     - frontend/node_modules
 
+before_script:
+  - cd backend && mix local.rebar --force
+  - cd backend && mix local.hex --force
+  - cd backend && mix deps.get
+
 backend-test:
   stage: test
   cache:
     paths:
+      - backend/_build
       - backend/deps
+
   script:
-    - cd backend; make test
+    - cd backend && mix test
 
 
 release:
