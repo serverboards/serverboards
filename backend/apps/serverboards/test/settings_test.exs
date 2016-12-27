@@ -30,7 +30,7 @@ defmodule Serverboards.SettingsTest do
   test "Cant recover password" do
     user = Test.User.system
 
-    settings = Serverboards.Settings.all_settings(user)
+    _settings = Serverboards.Settings.all_settings(user)
     :ok = Serverboards.Settings.update(
       "serverboards.test.auth/settings",
       %{ test_pw: "https://test.serverboards.io"},

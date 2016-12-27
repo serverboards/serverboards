@@ -7,7 +7,7 @@ defmodule Serverboards.AuthUserTest do
   doctest Serverboards.Auth.Permission
   doctest Serverboards.Auth.User.Password
 
-  alias Serverboards.Auth.{User, Group, UserGroup, GroupPerms, Permission}
+  alias Serverboards.Auth.{User, Group}
   alias Serverboards.Repo
   import Ecto.Query
 

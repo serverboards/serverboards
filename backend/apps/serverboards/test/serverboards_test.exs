@@ -160,7 +160,7 @@ defmodule ServerboardsTest do
     :ok = serverboard_delete "SBDS-TST5", user
   end
 
-  test "Serverboards as a client", %{ agent: agent } do
+  test "Serverboards as a client", %{ } do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, dir} = Test.Client.call client, "dir", []

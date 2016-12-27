@@ -1,4 +1,4 @@
-require Logger
+#require Logger
 
 defmodule Serverboards.Utils.Decorators do
   @moduledoc ~S"""
