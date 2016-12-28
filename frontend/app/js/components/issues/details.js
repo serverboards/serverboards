@@ -1,7 +1,6 @@
 import React from 'react'
 import Modal from 'app/components/modal'
 import Loading from 'app/components/loading'
-import rpc from 'app/rpc'
 const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
@@ -76,56 +75,31 @@ function Filters(props){
 }
 
 const Details = React.createClass({
-  getInitialState(){
-    return {issue: undefined}
-  },
-  componentDidMount(){
-    console.log(this.props)
-    rpc.call("issues.get", [this.props.params.id]).then( (issue) => {
-      this.setState({issue})
-    })
-  },
-  addComment(){
-    const comment=this.refs.new_comment.value
-    const title=comment.split('\n')[0].slice(0,64)
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", title, data: comment}])
-      .then( () => this.componentDidMount() )
-      .then( () => { this.refs.new_comment.value="" })
-  },
   handleAddComment(){
+    const comment=this.refs.new_comment.value
+
+    let addfuture
     if (this.refs.close_issue && this.refs.close_issue.checked)
-      return this.handleAddCommentAndClose()
-    if (this.refs.reopen_issue && this.refs.reopen_issue.checked)
-      return this.handleAddCommentAndReopen()
-    this.addComment()
-      .then( () => Flash.info("Added new comment") )
-  },
-  handleAddCommentAndClose(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "closed"}])
-      .then( () =>  this.addComment())
-      .then( () => {
-        Flash.info("Added new comment and reopened issue")
-        this.setState({issue: merge(this.state.issue, {status: "closed"})})
-      })
-  },
-  handleAddCommentAndReopen(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "open"}])
-      .then( () =>  this.addComment())
-      .then( () => {
-        Flash.info("Added new comment and reopened issue")
-        this.setState({issue: merge(this.state.issue, {status: "open"})})
-      })
+      addfuture=this.props.handleAddCommentAndClose(comment)
+    else if (this.refs.reopen_issue && this.refs.reopen_issue.checked)
+      addfuture=this.props.handleAddCommentAndReopen(comment)
+    else{
+      addfuture=this.props.addComment(comment)
+        .then( () => Flash.info("Added new comment") )
+    }
+    addfuture
+      .then( () => { this.refs.new_comment.value="" })
   },
   handleFocusComment(){
     $("#issues > .content").scrollTop($("#issues > .content").height())
     $(this.refs.new_comment).focus()
   },
   render(){
-    const {state} = this
-    const issue = state.issue
+    const {props} = this
+    const issue = props.issue
     if (!issue)
       return (
-        <Loading>Issue #{this.props.params.id}</Loading>
+        <Loading>Issue #{props.params.id}</Loading>
       )
 
     return (
