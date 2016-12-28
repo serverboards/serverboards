@@ -34,6 +34,7 @@ frontend-test:
     - cd $CI_PROJECT_DIR
     - cd frontend
     - pwd
+    - yarn
     - npm test
 
 release:
