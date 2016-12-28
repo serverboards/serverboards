@@ -1,5 +1,4 @@
 stages:
-  - build
   - test
   - release
 
@@ -8,50 +7,33 @@ variables:
   GIT_DEPTH: "3"
 
 cache:
-  key: "$CI_PROJECT_NAME"
-  untracked: true
+  key: "$CI_PROJECT_NAME-$CI_BUILD_REF_NAME"
   paths:
-    - frontend/dist
     - frontend/node_modules
-    - backend/deps
-    - backend/mix.lock
-    - backend/_build
 
-backend-build:
-  stage: build
-  script:
-    - cd backend; make test-compile
-  stage: build
+before_script:
+  - cd backend
+  - pwd
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.clean --all
+  - mix deps.get
+  - MIX_ENV=test mix deps.compile
 
 backend-test:
   stage: test
-  cache:
-    paths:
-      - backend/deps
   script:
-    - cd backend; make test-do
-  dependencies:
-    - backend-build
+    - mix test
 
-frontend-build:
-  stage: build
-  script:
-    - cd frontend; make compile
-
-#frontend-test:
-#  stage: test
-#  script:
-#    - cd frontend; make test
-#  dependencies:
-#    - frontend-build
 
 release:
   stage: release
   script:
+    - cd $CI_PROJECT_DIR
     - make release
   artifacts:
     paths:
       - serverboards.tar.gz
     expire_in: 1 week
-  dependencies:
-    - frontend-build
+  only:
+    - master

@@ -541,19 +541,16 @@ defmodule Serverboards.Service do
 
   ## Example
 
-    iex> me = Test.User.system
     iex> service_def_list = service_catalog([])
     iex> Enum.count(service_def_list) >= 1
     true
 
-    iex> me = Test.User.system
     iex> [specific_service_type] = service_catalog([type: "serverboards.test.auth/server" ])
     iex> specific_service_type.type
     "serverboards.test.auth/server"
     iex> specific_service_type.traits
     ["generic"]
 
-    iex> me = Test.User.system
     iex> [] = service_catalog([traits: ["wrong", "traits"]])
     iex> service_def_list = service_catalog([traits: ["wrong", "traits", "next_matches", "generic"]])
     iex> Enum.count(service_def_list) >= 1
