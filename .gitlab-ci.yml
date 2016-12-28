@@ -13,9 +13,12 @@ cache:
 
 before_script:
   - cd backend
+  - pwd
   - mix local.rebar --force
   - mix local.hex --force
+  - mix deps.clean
   - mix deps.get
+  - mix deps.compile
 
 backend-test:
   stage: test
