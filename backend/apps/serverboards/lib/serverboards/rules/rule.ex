@@ -177,7 +177,8 @@ defmodule Serverboards.Rules.Rule do
           actions: actions,
           plugin_id: plugin_id,
           stop_id: stop_id,
-          rule: rule
+          rule: rule,
+          last_state: rule.last_state,
         }
 
         {:ok, uuid, state}
@@ -213,14 +214,19 @@ defmodule Serverboards.Rules.Rule do
     EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: rule_state }, "rule/#{rule.uuid}")
 
     if action do
+      # only trigger if state change or only one state (ticks)
+      if (state.last_state != rule_state) or (Enum.count(state.actions) == 1) do
         full_params = Map.merge( Map.merge(action.params, default_params), full_params )
         Logger.info("Trigger action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
         Serverboards.Action.trigger(action.action, full_params, %{ email: "rule/#{rule.uuid}", perms: []})
+      else
+        Logger.info("NOT triggering action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}. State did not change.", rule: rule, params: full_params, action: action)
+      end
     else
         Logger.info("Trigger empty action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], action: action)
         {:ok, :empty}
     end
-
+    state = %{ state | last_state: rule_state }
 
     {:reply, :ok, state}
   end
