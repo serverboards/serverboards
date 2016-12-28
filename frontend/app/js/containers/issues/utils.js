@@ -4,6 +4,10 @@ import slash from 'app/utils/slash'
 const slashf=slash.factory({
   tag: (tags, context) => {context.tags=(context.tags || []).concat(tags)},
   tags: (tags, context) => {context.tags=(context.tags || []).concat(tags)},
+  label: (tags, context) => {context.tags=(context.tags || []).concat(tags)},
+  labels: (tags, context) => {context.tags=(context.tags || []).concat(tags)},
+  untag: (tags, context) => {context.untag=(context.untag || []).concat(tags)},
+  unlabel: (tags, context) => {context.untag=(context.untag || []).concat(tags)},
   close: (tags, context) => {context.close=true},
   closed: (tags, context) => {context.close=true},
   open: (tags, context) => {context.open=true},
@@ -17,7 +21,10 @@ export function parse_comment(comment_raw){
   let updates=[{ type: "comment", data: comment }]
 
   if (context.tags){
-    updates.push({ type: "set_tags", data: context.tags})
+    updates.push({ type: "set_labels", data: context.tags})
+  }
+  if (context.untag){
+    updates.push({ type: "unset_labels", data: context.untag})
   }
   if (context.open){
     updates.push({ type: "change_status", data: "open"})

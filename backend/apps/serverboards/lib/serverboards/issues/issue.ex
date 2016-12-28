@@ -59,17 +59,35 @@ defmodule Serverboards.Issues.Issue do
       type: type,
       data: data
       } )
-    if type == "change_status" do
-      Repo.update_all(
-        (from i in Model.Issue, where: i.id == ^issue_id),
-        set: [status: data["__data__"] ]
-      )
+    case type do
+      "change_status" ->
+        Repo.update_all(
+          (from i in Model.Issue, where: i.id == ^issue_id),
+          set: [status: data["__data__"] ]
+        )
+      "set_labels" ->
+        set_labels(issue_id, data["__data__"])
+      _ -> :ok
     end
   end
   def update_real(alias_id, data, me) do
     alias_to_ids(alias_id) |> Enum.map(fn issue_id ->
       update_real(issue_id, data, me)
     end)
+  end
+
+  def set_labels(issue_id, labels) do
+    for label <- labels do
+      set_label(issue_id, label)
+    end
+    nil
+  end
+
+  @colors ~w(red orange yellow olive green teal blue violet purple pink brown grey black)
+  def set_label(issue_id, label) do
+    labelm = Repo.get_or_create(Model.Label, [name: label], %{ color: Enum.random(@colors) })
+    {:ok, _} = Repo.insert( %Model.IssueLabel{ issue_id: issue_id, label_id: labelm.id } )
+    :ok
   end
 
   def decorate_user(nil) do
@@ -92,10 +110,16 @@ defmodule Serverboards.Issues.Issue do
       inserted_at: Ecto.DateTime.to_iso8601(event.inserted_at)
     }
   end
+  def decorate_label(label) do
+    %{
+      color: label.color,
+      name: label.name
+    }
+  end
 
   def get(id) when is_number(id) do
     import Ecto.Query
-    case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator] ) do
+    case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator, :labels] ) do
       [] -> {:error, :not_found}
       [issue] ->
         {:ok, %{
@@ -105,6 +129,7 @@ defmodule Serverboards.Issues.Issue do
           inserted_at: Ecto.DateTime.to_iso8601(issue.inserted_at),
           status: issue.status,
           events: Enum.map(issue.events, &decorate_event/1 ),
+          labels: Enum.map(issue.labels, &decorate_label/1 )
         }}
     end
   end

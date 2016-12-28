@@ -25,11 +25,11 @@ function IssueCard(props){
         <span>#{props.id}</span>
         <b className={`ui text ${tag_color(props.status)}`}> {props.status} </b>
         by {(props.creator || {name: "System"}).name}
-        {/* |
         <span>
-          <b className="ui text blue"> TAG 1 </b>
-          <b className="ui text purple"> TAG 2 </b>
-        </span>*/}
+          { props.labels.length == 0 ? null : [" | ", props.labels.map( (t) => (
+            <b className={`ui text ${t.color}`}> {t.name} </b>
+          ))] }
+        </span>
       </div>
     </a>
   )

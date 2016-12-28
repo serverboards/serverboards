@@ -90,4 +90,26 @@ defmodule Serverboards.IssuesTest do
 
     assert issue["status"] == "closed"
   end
+
+  test "Set labels" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
+    {:ok, _issue} = Test.Client.call(client, "issues.update", [issue_id, [
+        %{ type: :comment, data: "Closing issue"},
+        %{ type: :set_labels, data: ["one", "two"]}
+      ]])
+
+    {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
+
+    Logger.info(inspect issue)
+    assert Enum.map(issue["labels"], &(&1["name"])) == ["one","two"]
+
+    # Now list, get labels
+    {:ok, issues} = Test.Client.call(client, "issues.list", [])
+    Logger.info(inspect issues)
+
+    assert Enum.find(issues, &(&1["id"]==issue["id"]))["labels"]==issue["labels"]
+  end
+
 end
