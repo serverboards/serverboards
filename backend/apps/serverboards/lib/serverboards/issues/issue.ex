@@ -112,6 +112,9 @@ defmodule Serverboards.Issues.Issue do
     [issue_id | _ ] = alias_to_ids(id)
     get(issue_id)
   end
+  def alias_to_ids(alias_id) when is_integer(alias_id) do
+    [alias_id]
+  end
   def alias_to_ids(alias_id) do
     import Ecto.Query
     case Integer.parse(alias_id) do
