@@ -86,13 +86,26 @@ defmodule Serverboards.Action do
   @doc ~S"""
   Returns the action history with some filtering
   """
-  def history(_filter, _user) do
+  def history(filter, _user) do
     import Ecto.Query
-    Repo.all(from h in Model.History,
+    count = Map.get(filter,:count, 100)
+    start = Map.get(filter,:start)
+    query = from h in Model.History,
     left_join: u in Serverboards.Auth.Model.User,
            on: u.id == h.user_id,
       order_by: [desc: h.inserted_at],
-      select: {h, u.email} )
+      limit: ^count,
+      select: {h, u.email}
+
+    query = if start do
+      [id] = Repo.all( from h in Model.History, where: h.uuid == ^start, select: h.id )
+
+      where(query, [l], l.id < ^id )
+    else
+      query
+    end
+
+    list = Repo.all( query )
       |> Enum.map(fn {h, user_email} ->
         action = Plugin.Registry.find(h.type)
         %{
@@ -105,6 +118,11 @@ defmodule Serverboards.Action do
           type: h.type
         }
       end)
+    count = Repo.one( from h in Model.History, select: count("*"))
+    %{
+      list: list,
+      count: count
+    }
   end
 
   @doc ~S"""

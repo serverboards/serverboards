@@ -1,16 +1,44 @@
 import event from 'app/utils/event'
-import {update_process_list} from 'app/actions/processes'
 import ProcessesView from 'app/components/processes'
+import React from 'react'
+import rpc from 'app/rpc'
+import Flash from 'app/flash'
 
-const Processes = event.subscribe_connect(
-  (state) => ({
-    processes: state.processes.processes
-  }),
-  (dispatch, props) => ({
-
-  }),
-  ["action.started","action.stopped"],
-  [ update_process_list ]
-)(ProcessesView)
+const Processes = React.createClass({
+  getInitialState(){
+    return {
+      processes: [],
+      loading: true,
+      start: null,
+      startn: 0,
+      count: 0
+    }
+  },
+  componentDidMount(){
+    this.update_processes(this.state.start)
+  },
+  update_processes(start){
+    this.setState({loading: true, start})
+    rpc.call("action.history", {start: start}).then( ({count,list}) => {
+      this.setState({processes: list, count: count, loading: false})
+    }).catch( (e) => {
+      Flash.error("Error loading action history: "+e)
+    })
+  },
+  handleNextPage(){
+    let last_id=this.state.processes[this.state.processes.length-1].uuid
+    this.setState({startn:this.state.startn+this.state.processes.length})
+    this.update_processes(last_id)
+  },
+  handleFirstPage(){
+    this.setState({startn:0})
+    this.update_processes(null)
+  },
+  render(){
+    return (
+      <ProcessesView {...this.state} {...this.props} handleNextPage={this.handleNextPage} handleFirstPage={this.handleFirstPage}/>
+    )
+  }
+})
 
 export default Processes

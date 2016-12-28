@@ -482,9 +482,14 @@ action.trigger_wait("core.actions/ping", {ip: "192.168.1.1"})
 
 Lists all running processes with running info.
 
-## action.history()
+## action.history(filter)
 
 Returns all the action history: past and current
+
+The filter may be:
+
+  * count -- Default 100
+  * start -- Last uuid from previous listing (which is the smallest id number)
 
 # Notifications
 

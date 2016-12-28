@@ -15,7 +15,7 @@ import ProcessView from 'app/containers/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
 import Logs from 'app/containers/logs'
 import Notification from 'app/components/notifications/notification'
-import NotificationList from 'app/components/notifications/list'
+import NotificationList from 'app/containers/notifications/list'
 import Issues from 'app/components/issues'
 import IssuesAdd from 'app/components/issues/add'
 import IssuesView from 'app/components/issues/details'
@@ -54,7 +54,7 @@ var ServerboardsRouter = React.createClass({
             <Route path="add" component={IssuesAdd}/>
             <Route path=":id" component={IssuesView}/>
           </Route>
-          
+
           <Route path="/s/">
             <Route path=":plugin/:component" component={PluginScreen}/>
           </Route>
