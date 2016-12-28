@@ -7,7 +7,7 @@ variables:
   GIT_DEPTH: "3"
 
 cache:
-  key: "$CI_PROJECT_NAME-CI_BUILD_REF_NAME"
+  key: "$CI_PROJECT_NAME-$CI_BUILD_REF_NAME"
   paths:
     - frontend/node_modules
 
@@ -16,17 +16,12 @@ before_script:
   - pwd
   - mix local.rebar --force
   - mix local.hex --force
-  - mix deps.clean
+  - mix deps.clean --all
   - mix deps.get
-  - mix deps.compile
+  - MIX_ENV=test mix deps.compile
 
 backend-test:
   stage: test
-  cache:
-    paths:
-      - backend/_build
-      - backend/deps
-
   script:
     - mix test
 
