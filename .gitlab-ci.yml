@@ -16,7 +16,7 @@ before_script:
   - pwd
   - mix local.rebar --force
   - mix local.hex --force
-  - mix deps.clean
+  - mix deps.clean --all
   - mix deps.get
   - mix deps.compile
 
