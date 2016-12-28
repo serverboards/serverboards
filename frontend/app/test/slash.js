@@ -32,7 +32,8 @@ describe("Parse comment", () => {
     assert.deepEqual( parse_comment("Hello world"), [{type: "comment", data: "Hello world"}])
   })
   it("Parses tag slash command", () => {
-    assert.deepEqual( parse_comment("Hello world\n/tags one two"), [{type: "comment", data: "Hello world"}, {type: "set_tags", data: ["one","two"]}])
+    assert.deepEqual( parse_comment("Hello world\n/tags one two"), [{type: "comment", data: "Hello world"}, {type: "set_labels", data: ["one","two"]}])
+    assert.deepEqual( parse_comment("Hello world\n/untag one two"), [{type: "comment", data: "Hello world"}, {type: "unset_labels", data: ["one","two"]}])
   })
   it("Parses tag open/close command", () => {
     assert.deepEqual( parse_comment("Hello world\n/open"), [{type: "comment", data: "Hello world"}, {type: "change_status", data: "open"}])
