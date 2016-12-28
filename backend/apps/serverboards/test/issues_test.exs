@@ -96,13 +96,11 @@ defmodule Serverboards.IssuesTest do
 
     {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
     {:ok, _issue} = Test.Client.call(client, "issues.update", [issue_id, [
-        %{ type: :comment, data: "Closing issue"},
+        %{ type: :comment, data: "Set labels"},
         %{ type: :set_labels, data: ["one", "two"]}
       ]])
 
     {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
-
-    Logger.info(inspect issue)
     assert Enum.map(issue["labels"], &(&1["name"])) == ["one","two"]
 
     # Now list, get labels
@@ -110,6 +108,14 @@ defmodule Serverboards.IssuesTest do
     Logger.info(inspect issues)
 
     assert Enum.find(issues, &(&1["id"]==issue["id"]))["labels"]==issue["labels"]
+
+    # unset
+    {:ok, _issue} = Test.Client.call(client, "issues.update", [issue_id, [
+        %{ type: :comment, data: "Unset labels"},
+        %{ type: :unset_labels, data: ["one"]}
+      ]])
+    {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
+    assert Enum.map(issue["labels"], &(&1["name"])) == ["two"]
   end
 
 end

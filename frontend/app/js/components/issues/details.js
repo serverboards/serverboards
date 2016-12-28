@@ -53,15 +53,20 @@ function IssueEvent(props){
   )
 }
 
-function Filters(props){
+function Filters({issue}){
   return (
     <div>
       <div>
-        <h4 className="ui header">Asignees</h4>
-        <a><i className="ui add yellow"/></a>
-      </div>
-      <div>
         <h4 className="ui header">Labels</h4>
+        {(issue.labels || []).map( (l) => (
+          <div style={{paddingBottom: 10}}>
+            <span className={`ui tag label ${l.color}`}>{l.name}</span>
+          </div>
+        ))}
+      </div>
+      {/*
+      <div>
+        <h4 className="ui header">Asignees</h4>
         <a><i className="ui add yellow"/></a>
       </div>
       <div>
@@ -70,6 +75,7 @@ function Filters(props){
       <div>
         <h4 className="ui header">Files</h4>
       </div>
+      */}
     </div>
   )
 }
@@ -131,7 +137,7 @@ const Details = React.createClass({
               ))}
             </div>
             <div className="filters">
-              {/* <Filters issue={issue}/> */}
+              <Filters issue={issue}/>
             </div>
           </div>
           <div className="ui divider"></div>

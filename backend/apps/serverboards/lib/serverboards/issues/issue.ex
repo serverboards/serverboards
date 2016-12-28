@@ -67,6 +67,8 @@ defmodule Serverboards.Issues.Issue do
         )
       "set_labels" ->
         set_labels(issue_id, data["__data__"])
+      "unset_labels" ->
+        unset_labels(issue_id, data["__data__"])
       _ -> :ok
     end
   end
@@ -81,6 +83,15 @@ defmodule Serverboards.Issues.Issue do
       set_label(issue_id, label)
     end
     nil
+  end
+  def unset_labels(issue_id, labels) do
+    import Ecto.Query
+    Repo.delete_all(
+       from il in Model.IssueLabel,
+       join: l in Model.Label,
+         on: l.id == il.label_id,
+      where: l.name in ^labels
+      )
   end
 
   @colors ~w(red orange yellow olive green teal blue violet purple pink brown grey black)

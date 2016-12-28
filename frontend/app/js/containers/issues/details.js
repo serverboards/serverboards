@@ -3,6 +3,7 @@ import DetailsView from 'app/components/issues/details'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {parse_comment, update_issue_multi} from './utils'
+import {merge} from 'app/utils'
 
 const Details = React.createClass({
   getInitialState(){

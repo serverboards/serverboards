@@ -18,8 +18,9 @@ const slashf=slash.factory({
 export function parse_comment(comment_raw){
   let context = {}
   const comment = slash.parse( comment_raw, slashf, context)
-  let updates=[{ type: "comment", data: comment }]
-
+  let updates=[]
+  if (comment.trim().length>0)
+    updates.push({ type: "comment", data: comment })
   if (context.tags){
     updates.push({ type: "set_labels", data: context.tags})
   }
