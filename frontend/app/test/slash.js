@@ -17,6 +17,26 @@ describe("Parse", () => {
     const slashc=slash.factory({test: (args, context) => { context.push(args); return null }})
     let context=[]
     assert.equal(slash.parse("Hello world.\n/test hola mundo\n", [slashc], context), "Hello world.\n")
-      assert.deepEqual(context, [["hola","mundo"]])
+    assert.deepEqual(context, [["hola","mundo"]])
+  })
+})
+
+describe("Parse comment", () => {
+  global.localStorage={}
+  global.sessionStorage={}
+  global.window={ location: {origin: ""}}
+  global.WebSocket=function(){ }
+  let {parse_comment} = require('app/containers/issues/utils')
+
+  it("Parses a simple comment to a issue command", () => {
+    assert.deepEqual( parse_comment("Hello world"), [{type: "comment", data: "Hello world"}])
+  })
+  it("Parses tag slash command", () => {
+    assert.deepEqual( parse_comment("Hello world\n/tags one two"), [{type: "comment", data: "Hello world"}, {type: "set_tags", data: ["one","two"]}])
+  })
+  it("Parses tag open/close command", () => {
+    assert.deepEqual( parse_comment("Hello world\n/open"), [{type: "comment", data: "Hello world"}, {type: "change_status", data: "open"}])
+    assert.deepEqual( parse_comment("Hello world\n/close"), [{type: "comment", data: "Hello world"}, {type: "change_status", data: "closed"}])
+    assert.deepEqual( parse_comment("Hello world\n/closed"), [{type: "comment", data: "Hello world"}, {type: "change_status", data: "closed"}])
   })
 })

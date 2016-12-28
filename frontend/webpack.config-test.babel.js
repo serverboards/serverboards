@@ -12,6 +12,7 @@ export default {
       }
     ]
   },
+  devtool: "cheap-module-source-map",
   resolve: {
     alias:{
       app : path.resolve("./app/js"),

@@ -55,8 +55,8 @@
     "start": "webpack-dev-server --hot --progress --colors --port=3000",
     "build": "webpack --progress --colors",
     "watch": "webpack --watch --progress --colors",
-    "test": "mocha-webpack --webpack-config webpack.config-test.babel.js \"app/test/*.js\"",
-    "test:watch": "mocha-webpack --webpack-config webpack.config-test.babel.js --watch \"app/test/*.js\""
+    "test": "mocha-webpack --webpack-config webpack.config-test.babel.js --require source-map-support/register \"app/test/*.js\"",
+    "test:watch": "mocha-webpack --webpack-config webpack.config-test.babel.js --require source-map-support/register --watch \"app/test/*.js\""
   },
   "author": "David Moreno",
   "license": "Apache-2.0"

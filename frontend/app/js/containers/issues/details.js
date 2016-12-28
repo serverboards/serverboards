@@ -2,6 +2,7 @@ import React from 'react'
 import DetailsView from 'app/components/issues/details'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import {parse_comment, update_issue_multi} from './utils'
 
 const Details = React.createClass({
   getInitialState(){
@@ -14,20 +15,18 @@ const Details = React.createClass({
     })
   },
   addComment(comment){
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", data: comment}])
+    return update_issue_multi(this.props.params.id, parse_comment(comment))
       .then( () => this.componentDidMount() )
   },
   handleAddCommentAndClose(comment){
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "closed"}])
-      .then( () =>  this.addComment(comment))
+    return update_issue_multi(this.props.params.id, parse_comment(comment).concat( {type: "change_status", data: "closed"} ))
       .then( () => {
         Flash.info("Added new comment and reopened issue")
         this.setState({issue: merge(this.state.issue, {status: "closed"})})
       })
   },
   handleAddCommentAndReopen(comment){
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "open"}])
-      .then( () =>  this.addComment(comment))
+    return update_issue_multi(this.props.params.id, parse_comment(comment).concat( {type: "change_status", data: "open"} ))
       .then( () => {
         Flash.info("Added new comment and reopened issue")
         this.setState({issue: merge(this.state.issue, {status: "open"})})
