@@ -25,6 +25,13 @@ export function dedup(l){
   return ret
 }
 
+export function flatmap( arr, fn ){
+  let ret=[]
+  for(let el of arr.map( fn ))
+    ret = ret.concat(el)
+  return ret
+}
+
 export function is_empty(l){
   return !l || (l.length==0)
 }

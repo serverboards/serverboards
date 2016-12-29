@@ -62,7 +62,10 @@ function IssueDay(props){
 
 const IssueTag = React.createClass({
   componentDidMount(){
-    $(this.refs.el).checkbox()
+    $(this.refs.el).checkbox({
+      onChecked: this.props.onEnable,
+      onUnchecked: this.props.onDisable
+    })
   },
   render(){
     const props = this.props
@@ -83,8 +86,13 @@ const IssueTag = React.createClass({
 
 const Filters = React.createClass({
   componentDidMount(){
-    $(this.refs.el).find('.search').search()
+    $(this.refs.el).find('.search')
     $(this.refs.el).find('.dropdown').dropdown()
+  },
+  handleFilterChange(ev){
+    const value=ev.target.value
+    console.log("New filter: %o", value)
+    this.props.setFilter(value)
   },
   render(){
     const props = this.props
@@ -92,12 +100,13 @@ const Filters = React.createClass({
       <div className="" ref="el">
         <div className="ui search">
           <div className="ui icon input">
-            <input className="prompt" type="text" placeholder="Search..."/>
+            <input className="prompt" type="text" placeholder="Search..." value={props.filter}/>
             <i className="search icon"></i>
           </div>
           <div className="results"></div>
         </div>
         <div className="ui form">
+          {/*
           <div className="field" style={{marginBottom: 40}}>
             <select className="ui dropdown">
               <option value="order:-open">Show recents first</option>
@@ -106,20 +115,23 @@ const Filters = React.createClass({
               <option value="order:+modified">Show more time not modified first</option>
             </select>
           </div>
+          */}
           <div className="field">
-            <select className="ui dropdown">
+            <select className="ui dropdown" onChange={this.handleFilterChange} placeholder="Preset filters">
+              <option value="">Preset filters</option>
               <option value="status:open">Show open</option>
               <option value="status:closed">Show closed</option>
-              <option value="assigned:null">Show not assigned</option>
             </select>
           </div>
           <div className="ui labels">
-            <h4 className="ui header">Filter by tags</h4>
+            <h4 className="ui header">Filter by labels</h4>
             <div className="ui divider"/>
-            <IssueTag value="Tag 1" color="red"/>
-            <IssueTag value="Tag 2" color="blue"/>
-            <IssueTag value="Tag 3" color="orange"/>
-            <IssueTag value="Tag 4" color="teal"/>
+            {props.labels.map( (t) => (
+              <IssueTag key={t.name} value={t.name} color={t.color}
+                onEnable={() => props.setFilter(`+tag:${t.name}`)}
+                onDisable={() => props.setFilter(`-tag:${t.name}`)}
+              />
+            ))}
             <div className="ui divider"/>
           </div>
         </div>
@@ -179,7 +191,7 @@ function Issues(props){
           ))}
         </div>
         <div className="filters">
-          {/* <Filters/> */}
+          <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter}/>
         </div>
       </div>
       <Restricted perm="issues.add">
