@@ -6,6 +6,8 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
 import {merge} from 'app/utils'
 
+import Filters from './filters'
+
 function tag_color(status){
   if (status=="open")
     return "yellow"
@@ -49,33 +51,6 @@ function IssueEvent(props){
   return (
     <div className="ui message error">
       Unknown event type: {props.event.type}
-    </div>
-  )
-}
-
-function Filters({issue}){
-  return (
-    <div>
-      <div>
-        <h4 className="ui header">Labels</h4>
-        {(issue.labels || []).map( (l) => (
-          <div style={{paddingBottom: 10}}>
-            <span className={`ui tag label ${l.color}`}>{l.name}</span>
-          </div>
-        ))}
-      </div>
-      {/*
-      <div>
-        <h4 className="ui header">Asignees</h4>
-        <a><i className="ui add yellow"/></a>
-      </div>
-      <div>
-        <h4 className="ui header">Participants</h4>
-      </div>
-      <div>
-        <h4 className="ui header">Files</h4>
-      </div>
-      */}
     </div>
   )
 }
@@ -137,7 +112,7 @@ const Details = React.createClass({
               ))}
             </div>
             <div className="filters">
-              <Filters issue={issue}/>
+              <Filters issue={issue} onRemoveLabel={this.props.onRemoveLabel} onAddLabel={this.props.onAddLabel}/>
             </div>
           </div>
           <div className="ui divider"></div>
