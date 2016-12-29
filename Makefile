@@ -103,3 +103,4 @@ install: prepare-release
 
 deb:
 	fakeroot dpkg-buildpackage
+	mv ../serverboards_*.deb serverboards.deb
