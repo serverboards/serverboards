@@ -16,9 +16,9 @@ import PluginScreen from 'app/components/plugin/screen'
 import Logs from 'app/containers/logs'
 import Notification from 'app/components/notifications/notification'
 import NotificationList from 'app/containers/notifications/list'
-import Issues from 'app/components/issues'
-import IssuesAdd from 'app/components/issues/add'
-import IssuesView from 'app/components/issues/details'
+import Issues from 'app/containers/issues'
+import IssuesAdd from 'app/containers/issues/add'
+import IssuesView from 'app/containers/issues/details'
 
 const history = syncHistoryWithStore(hashHistory, store)
 

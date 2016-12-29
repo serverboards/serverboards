@@ -1,5 +1,26 @@
 require Logger
 
+defmodule Serverboards.Notifications.EventSourcing do
+  def start_link(options \\ [name: :notifications]) do
+    {:ok, es} = EventSourcing.start_link options
+
+    EventSourcing.Model.subscribe es, :notifications, Serverboards.Repo
+    EventSourcing.subscribe es, :config_update, fn
+      %{ email: email, channel: channel, is_active: is_active, config: config}, _me ->
+        Serverboards.Notifications.config_update_real(email, channel, config, is_active)
+    end
+    EventSourcing.subscribe es, :notify, fn
+      %{ email: email, subject: subject, body: body, extra: extra}, _me ->
+        Task.start(fn ->
+          Serverboards.Notifications.notify_real(email, subject, body, extra)
+        end)
+    end
+    Serverboards.Notifications.InApp.setup_eventsourcing(es)
+
+    {:ok, es}
+  end
+end
+
 defmodule Serverboards.Notifications do
   @moduledoc ~S"""
   Notifications is a way to comunicate some events to the user. There is no
@@ -16,24 +37,13 @@ defmodule Serverboards.Notifications do
   alias Serverboards.Notifications.Model.ChannelConfig
 
   def start_link(_options \\ []) do
-    {:ok, es} = EventSourcing.start_link name: :notifications
-    EventSourcing.Model.subscribe es, :notifications, Serverboards.Repo
-    EventSourcing.subscribe es, :config_update, fn
-      %{ email: email, channel: channel, is_active: is_active, config: config}, _me ->
-        config_update_real(email, channel, config, is_active)
-    end
-    EventSourcing.subscribe es, :notify, fn
-      %{ email: email, subject: subject, body: body, extra: extra}, _me ->
-        Task.start(fn -> 
-          notify_real(email, subject, body, extra)
-        end)
-    end
+    import Supervisor.Spec
+    children = [
+      worker(Serverboards.Notifications.EventSourcing, [[name: :notifications]]),
+      worker(Serverboards.Notifications.RPC, [[name: Serverboards.Notifications.RPC]])
+    ]
 
-    Serverboards.Notifications.InApp.setup_eventsourcing(es)
-
-    Serverboards.Notifications.RPC.start_link []
-
-    {:ok, es}
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 
   @doc ~S"""
@@ -151,7 +161,7 @@ defmodule Serverboards.Notifications do
     :ok
   end
 
-  defp config_update_real(email, channel, config, is_active) do
+  def config_update_real(email, channel, config, is_active) do
     {:ok, user} = Auth.User.user_info(email, %{ email: email})
     changes = %{ user_id: user.id, config: config, is_active: is_active, channel: channel }
     import Ecto.Query

@@ -23,8 +23,19 @@ before_script:
 backend-test:
   stage: test
   script:
+    - cd $CI_PROJECT_DIR
+    - cd backend
+    - pwd
     - mix test
 
+frontend-test:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - cd frontend
+    - pwd
+    - yarn
+    - npm test
 
 release:
   stage: release

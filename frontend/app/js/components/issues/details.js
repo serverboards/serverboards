@@ -1,11 +1,12 @@
 import React from 'react'
 import Modal from 'app/components/modal'
 import Loading from 'app/components/loading'
-import rpc from 'app/rpc'
 const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
-import {merge} from 'app/utils'
+import {merge, colorize, pretty_ago} from 'app/utils'
+
+import Filters from './filters'
 
 function tag_color(status){
   if (status=="open")
@@ -15,13 +16,21 @@ function tag_color(status){
   return "grey"
 }
 
+function CardHeader({event, label}){
+  return (
+    <div className="ui header normal text regular">
+      <span className="ui circular image small"><img src={default_avatar}/></span>
+      <b>{(event.creator || {name:"System"}).name} </b>
+      {pretty_ago(event.inserted_at)}
+      <span className="ui meta"> {label}: </span>
+    </div>
+  )
+}
+
 function IssueEventComment({event, connected}){
   return (
     <div className={`ui card ${ connected ? "connected" : ""}`}>
-      <div className="ui header normal text regular">
-        <span className="ui circular image small"><img src={default_avatar}/></span>
-        <span><b>{(event.creator || {name:"System"}).name}</b> on {event.inserted_at}</span>
-      </div>
+      <CardHeader event={event} label="commented"/>
       <MarkdownPreview value={event.data}/>
     </div>
   )
@@ -30,6 +39,31 @@ function IssueEventComment({event, connected}){
 function IssueEventChangeStatus({event}){
   return (
     <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
+  )
+}
+
+function IssueEventSetLabels({event}){
+  return (
+    <div className="ui card connected">
+      <CardHeader event={event} label="added tags"/>
+      <div style={{display:"flex", flexDirection:"row"}}>
+        {event.data.map( (l) => (
+          <span className={`ui label tag green`}>{l}</span>
+        ))}
+      </div>
+    </div>
+  )
+}
+function IssueEventUnsetLabels({event}){
+  return (
+    <div className="ui card connected">
+      <CardHeader event={event} label="removed tag"/>
+      <div style={{display:"flex", flexDirection:"row"}}>
+        {event.data.map( (l) => (
+          <span className={`ui label tag red`}>{l}</span>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -46,6 +80,14 @@ function IssueEvent(props){
     return (
       <IssueEventChangeStatus {...props}/>
     )
+  if (props.event.type=="set_labels")
+    return (
+      <IssueEventSetLabels {...props}/>
+    )
+  if (props.event.type=="unset_labels")
+    return (
+      <IssueEventUnsetLabels {...props}/>
+    )
 
   return (
     <div className="ui message error">
@@ -54,78 +96,32 @@ function IssueEvent(props){
   )
 }
 
-function Filters(props){
-  return (
-    <div>
-      <div>
-        <h4 className="ui header">Asignees</h4>
-        <a><i className="ui add yellow"/></a>
-      </div>
-      <div>
-        <h4 className="ui header">Labels</h4>
-        <a><i className="ui add yellow"/></a>
-      </div>
-      <div>
-        <h4 className="ui header">Participants</h4>
-      </div>
-      <div>
-        <h4 className="ui header">Files</h4>
-      </div>
-    </div>
-  )
-}
-
 const Details = React.createClass({
-  getInitialState(){
-    return {issue: undefined}
-  },
-  componentDidMount(){
-    console.log(this.props)
-    rpc.call("issues.get", [this.props.params.id]).then( (issue) => {
-      this.setState({issue})
-    })
-  },
-  addComment(){
-    const comment=this.refs.new_comment.value
-    const title=comment.split('\n')[0].slice(0,64)
-    return rpc.call("issues.update", [Number(this.props.params.id), {type: "comment", title, data: comment}])
-      .then( () => this.componentDidMount() )
-      .then( () => { this.refs.new_comment.value="" })
-  },
   handleAddComment(){
+    const comment=this.refs.new_comment.value
+
+    let addfuture
     if (this.refs.close_issue && this.refs.close_issue.checked)
-      return this.handleAddCommentAndClose()
-    if (this.refs.reopen_issue && this.refs.reopen_issue.checked)
-      return this.handleAddCommentAndReopen()
-    this.addComment()
-      .then( () => Flash.info("Added new comment") )
-  },
-  handleAddCommentAndClose(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "closed"}])
-      .then( () =>  this.addComment())
-      .then( () => {
-        Flash.info("Added new comment and reopened issue")
-        this.setState({issue: merge(this.state.issue, {status: "closed"})})
-      })
-  },
-  handleAddCommentAndReopen(){
-    rpc.call("issues.update", [Number(this.props.params.id), {type: "change_status", data: "open"}])
-      .then( () =>  this.addComment())
-      .then( () => {
-        Flash.info("Added new comment and reopened issue")
-        this.setState({issue: merge(this.state.issue, {status: "open"})})
-      })
+      addfuture=this.props.handleAddCommentAndClose(comment)
+    else if (this.refs.reopen_issue && this.refs.reopen_issue.checked)
+      addfuture=this.props.handleAddCommentAndReopen(comment)
+    else{
+      addfuture=this.props.addComment(comment)
+        .then( () => Flash.info("Added new comment") )
+    }
+    addfuture
+      .then( () => { this.refs.new_comment.value="" })
   },
   handleFocusComment(){
     $("#issues > .content").scrollTop($("#issues > .content").height())
     $(this.refs.new_comment).focus()
   },
   render(){
-    const {state} = this
-    const issue = state.issue
+    const {props} = this
+    const issue = props.issue
     if (!issue)
       return (
-        <Loading>Issue #{this.props.params.id}</Loading>
+        <Loading>Issue #{props.params.id}</Loading>
       )
 
     return (
@@ -157,7 +153,7 @@ const Details = React.createClass({
               ))}
             </div>
             <div className="filters">
-              {/* <Filters issue={issue}/> */}
+              <Filters issue={issue} onRemoveLabel={this.props.onRemoveLabel} onAddLabel={this.props.onAddLabel}/>
             </div>
           </div>
           <div className="ui divider"></div>

@@ -25,6 +25,13 @@ export function dedup(l){
   return ret
 }
 
+export function flatmap( arr, fn ){
+  let ret=[]
+  for(let el of arr.map( fn ))
+    ret = ret.concat(el)
+  return ret
+}
+
 export function is_empty(l){
   return !l || (l.length==0)
 }
@@ -129,9 +136,10 @@ const timeunits={
   day: 1000 * 60 * 60 * 24,
   MAX: 1000 * 60 * 60 * 24 * 14
 }
+const one_day=(24*60*60)
 
-export function pretty_ago(t, now, minres){
-  now = moment(now)
+export function pretty_ago(t, now, minres="second"){
+  now = moment.utc(now)
   let other = moment.utc(t)
   if (minres && typeof(minres)=="string")
     minres=timeunits[minres]
@@ -144,7 +152,7 @@ export function pretty_ago(t, now, minres){
 
   let lastunit='millisecond'
   for (let d in timeunits){
-    if (timediff > timeunits[d])
+    if (timediff >= timeunits[d])
       lastunit=d
   }
   if (timeunits[lastunit] < minres){
@@ -152,11 +160,22 @@ export function pretty_ago(t, now, minres){
       return "today"
     return "now"
   }
-  const units=Math.round(timediff / timeunits[lastunit])
+  let units
+  if (lastunit=="day"){
+    // if days, must check on day boundaries, not 24h chunks;
+    // 24h+1m ago could be 2 days ago, not yesterday
+    units = Math.floor(now.unix() / one_day) - Math.floor(other.unix() / one_day)
+
+    if (units==0)
+      return 'today'
+    if (units==1)
+      return 'yesterday'
+  }
+  else{
+    units=Math.floor(timediff / timeunits[lastunit])
+  }
   const s=units > 1 ? 's' : ''
   let expr=String(units)+' '+lastunit+s+' ago'
-  if (expr=="1 day ago")
-    expr="yesterday"
   return expr
 }
 

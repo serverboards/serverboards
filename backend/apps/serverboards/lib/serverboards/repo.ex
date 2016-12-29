@@ -15,4 +15,14 @@ defmodule Serverboards.Repo do
         g
     end
   end
+  def get_or_create(model, get_by, defaults) do
+    case get_by(model, get_by) do
+      %{__struct__: model} = g ->
+        g
+      _ ->
+        #Logger.debug("Create struct #{inspect [struct(model), update]}")
+        {:ok, g} = insert(apply(model, :changeset, [struct(model), Map.merge(defaults, Map.new(get_by))] ))
+        g
+    end
+  end
 end

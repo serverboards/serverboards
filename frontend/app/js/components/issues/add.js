@@ -1,14 +1,11 @@
 import React from 'react'
 import Modal from 'app/components/modal'
-import rpc from 'app/rpc'
-import {goto} from 'app/utils/store'
 
 const Add = React.createClass({
   handleAdd(){
     const title=this.refs.title.value
     const description=this.refs.description.value
-    rpc.call("issues.add", {title, description})
-      .then( (id) => goto(`/issues/${id}`) )
+    this.props.onAdd(title, description)
   },
   render(){
     const props = this.props
