@@ -4,7 +4,7 @@ import Loading from 'app/components/loading'
 const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
-import {merge} from 'app/utils'
+import {merge, colorize, pretty_ago} from 'app/utils'
 
 import Filters from './filters'
 
@@ -16,13 +16,21 @@ function tag_color(status){
   return "grey"
 }
 
+function CardHeader({event, label}){
+  return (
+    <div className="ui header normal text regular">
+      <span className="ui circular image small"><img src={default_avatar}/></span>
+      <b>{(event.creator || {name:"System"}).name} </b>
+      {pretty_ago(event.inserted_at)}
+      <span className="ui meta"> {label}: </span>
+    </div>
+  )
+}
+
 function IssueEventComment({event, connected}){
   return (
     <div className={`ui card ${ connected ? "connected" : ""}`}>
-      <div className="ui header normal text regular">
-        <span className="ui circular image small"><img src={default_avatar}/></span>
-        <span><b>{(event.creator || {name:"System"}).name}</b> on {event.inserted_at}</span>
-      </div>
+      <CardHeader event={event} label="commented"/>
       <MarkdownPreview value={event.data}/>
     </div>
   )
@@ -31,6 +39,31 @@ function IssueEventComment({event, connected}){
 function IssueEventChangeStatus({event}){
   return (
     <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
+  )
+}
+
+function IssueEventSetLabels({event}){
+  return (
+    <div className="ui card connected">
+      <CardHeader event={event} label="added tags"/>
+      <div style={{display:"flex", flexDirection:"row"}}>
+        {event.data.map( (l) => (
+          <span className={`ui label tag green`}>{l}</span>
+        ))}
+      </div>
+    </div>
+  )
+}
+function IssueEventUnsetLabels({event}){
+  return (
+    <div className="ui card connected">
+      <CardHeader event={event} label="removed tag"/>
+      <div style={{display:"flex", flexDirection:"row"}}>
+        {event.data.map( (l) => (
+          <span className={`ui label tag red`}>{l}</span>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -46,6 +79,14 @@ function IssueEvent(props){
   if (props.event.type=="change_status")
     return (
       <IssueEventChangeStatus {...props}/>
+    )
+  if (props.event.type=="set_labels")
+    return (
+      <IssueEventSetLabels {...props}/>
+    )
+  if (props.event.type=="unset_labels")
+    return (
+      <IssueEventUnsetLabels {...props}/>
     )
 
   return (
