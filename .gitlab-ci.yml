@@ -47,5 +47,5 @@ release-debian:
     paths:
       - serverboards.deb
     expire_in: 1 week
-  only:
-    - master
+#  only:
+#    - master
