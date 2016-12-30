@@ -24,6 +24,14 @@ backend-test:
     - MIX_ENV=test mix deps.compile
     - mix test
 
+frontend-test:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - cd frontend
+    - pwd
+    - yarn
+    - npm test
 
 release:
   stage: release

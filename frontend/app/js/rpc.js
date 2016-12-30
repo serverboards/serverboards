@@ -52,6 +52,7 @@ var RPC = function(options={}){
     }
     catch(e){
       console.error(e)
+      rpc.rpc={}
     }
     rpc.rpc.onopen=rpc.onopen
     rpc.rpc.onclose=rpc.onclose
