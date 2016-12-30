@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/python3 -u
 
 import sys, json, os
 
@@ -31,7 +31,7 @@ def run_line(s):
 log=open("/tmp/log","w")
 if __name__=='__main__':
     l='{"method":"ready", "params":[]}'
-    print l
+    print(l)
     log.write(l+'\n')
     sys.stdout.flush()
     while True:
@@ -42,6 +42,6 @@ if __name__=='__main__':
         log.write(l+'\n')
         res=run_line(l.strip())
         log.write(res+'\n')
-        print res
+        print(res)
         sys.stdout.flush()
         log.write('--\n')
