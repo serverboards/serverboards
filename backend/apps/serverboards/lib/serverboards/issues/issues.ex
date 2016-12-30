@@ -17,14 +17,15 @@ defmodule Serverboards.Issues do
       title: i.title,
       creator: Serverboards.Issues.Issue.decorate_user(i.creator),
       status: i.status,
-      date: Ecto.DateTime.to_iso8601(i.inserted_at)
+      date: Ecto.DateTime.to_iso8601(i.inserted_at),
+      labels: Enum.map(i.labels, &Serverboards.Issues.Issue.decorate_label/1 )
     }
   end
 
   def list() do
     import Ecto.Query
 
-    Serverboards.Repo.all(from i in Model.Issue, order_by: [desc: i.id], preload: [:creator])
+    Serverboards.Repo.all(from i in Model.Issue, order_by: [desc: i.id], preload: [:creator, :labels])
      |> Enum.map(&decorate_issues_list/1)
   end
 
