@@ -29,7 +29,7 @@ defmodule Serverboards.Auth.User.Token do
 			|> Repo.update_all(
 				set: [time_limit: now_1s_ago]
 				)
-		Logger.debug(res) # Fails at CI, should not.
+		Logger.debug(inspect res) # Fails at CI, should not.
 		:ok
 	end
 
