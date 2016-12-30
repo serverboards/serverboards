@@ -24,10 +24,12 @@ defmodule Serverboards.Auth.User.Token do
   end
 
 	def invalidate(token) do
+		now_1s_ago = Timex.to_erlang_datetime(Timex.shift(Timex.DateTime.now, seconds: -1))
 		(from t in Model.Token, where: t.token == ^token)
 			|> Repo.update_all(
-				set: [time_limit: Timex.to_erlang_datetime(Timex.DateTime.now)]
+				set: [time_limit: now_1s_ago]
 				)
+		:ok
 	end
 
 	@doc ~S"""
@@ -53,7 +55,7 @@ defmodule Serverboards.Auth.User.Token do
 			from u in User,
 			join: t in Model.Token,
 			  on: t.user_id == u.id,
-			where: t.token == ^token_uuid and t.time_limit > fragment("NOW()"),
+			where: t.token == ^token_uuid and t.time_limit > ^Timex.to_erlang_datetime(Timex.DateTime.now),
 			select: %{ user: u, perms: t.perms }
 		)
 		case token do

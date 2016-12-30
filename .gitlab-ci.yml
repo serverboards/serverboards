@@ -11,21 +11,17 @@ cache:
   paths:
     - frontend/node_modules
 
-before_script:
-  - cd backend
-  - pwd
-  - mix local.rebar --force
-  - mix local.hex --force
-  - mix deps.clean --all
-  - mix deps.get
-  - MIX_ENV=test mix deps.compile
 
 backend-test:
   stage: test
   script:
-    - cd $CI_PROJECT_DIR
     - cd backend
     - pwd
+    - mix local.rebar --force
+    - mix local.hex --force
+    - mix deps.clean --all
+    - mix deps.get
+    - MIX_ENV=test mix deps.compile
     - mix test
 
 frontend-test:
@@ -40,11 +36,12 @@ frontend-test:
 release:
   stage: release
   script:
-    - cd $CI_PROJECT_DIR
-    - make release
+    - make deb
+  tags:
+    - ubuntu1604
   artifacts:
     paths:
-      - serverboards.tar.gz
+      - serverboards.deb
     expire_in: 1 week
-  only:
-    - master
+#  only:
+#    - master
