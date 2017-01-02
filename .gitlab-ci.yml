@@ -1,6 +1,7 @@
 stages:
   - test
   - release
+  - publish
 
 variables:
   GIT_STRATEGY: fetch
@@ -45,3 +46,14 @@ release:
     expire_in: 1 week
 #  only:
 #    - master
+#
+
+publish:
+  stage: publish 
+  script:
+    - scripts/publish-deb.sh
+  dependencies:
+    - release
+  when: manual
+  tags: ubuntu1604
+
