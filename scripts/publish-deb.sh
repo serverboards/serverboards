@@ -1,4 +1,3 @@
 #!/bin/sh
 
-rsync -avz serverboards.deb -e ssh www.serverboards.io/downloads/
-
+rsync -avz serverboards.deb -e ssh www.serverboards.io:/downloads/
