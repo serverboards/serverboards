@@ -46,7 +46,7 @@ release:
     expire_in: 1 week
   only:
     - master
-    - deb
+    - T404-gen-deb
 
 publish:
   stage: publish
@@ -60,4 +60,4 @@ publish:
     - rsync-www
   only:
     - master
-    - deb
+    - T404-gen-deb
