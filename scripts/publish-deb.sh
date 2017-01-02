@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function get_version(){
 	local VERSION=$( head -1 debian/changelog | grep -oh '(\([^)]*\)' | cut -b2- )
