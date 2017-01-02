@@ -49,11 +49,12 @@ release:
 #
 
 publish:
-  stage: publish 
+  stage: publish
   script:
     - scripts/publish-deb.sh
   dependencies:
     - release
   when: manual
-  tags: ubuntu1604
-
+  tags:
+    - ubuntu1604
+    - rsync-www
