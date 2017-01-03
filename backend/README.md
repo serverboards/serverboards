@@ -1,6 +1,6 @@
 # Serverboards Backend
 
-Serverboads is composed on a backend and a frontend. This module is the backend.
+Serverboards is composed on a backend and a frontend. This module is the backend.
 
 It is developed using the Elixir Programming Language 1.2.
 

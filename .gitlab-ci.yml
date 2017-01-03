@@ -37,6 +37,7 @@ frontend-test:
 release:
   stage: release
   script:
+    - scripts/version-update.sh
     - make deb
   tags:
     - ubuntu1604
