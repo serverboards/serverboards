@@ -1,3 +1,86 @@
+serverboards (0.6.159-gd6f98) unstable; urgency=medium
+
+  * Fix git describe does not work for CI
+  * Fix some possible error on older installations with issue comments
+  * Fix alignement on some elements on firefox
+  * Update version before release
+  * Merge branch 'T404-gen-deb' into 'master'
+  * Merge branch 'T358-postinst' into 'master'
+  * Use bash for publish deb script
+  * deb get last version from changelog
+  * Gen debs on current branch
+  * Update version.json and remote last version deb file too
+  * Merge branch 'T404-gen-deb' into 'master'
+  * Fix publish deb
+  * Fixes to CI yaml
+  * Publish deb to www
+  * Merge branch 'T404-gen-deb' into 'master'
+  * If cant guess version, use previous, and do not update anything
+  * Use bash to update serverbaords version
+  * Do token validation using same mechanisms for date as setting
+  * [WIP] More debug log fixes
+  * [WIP] Improved log debug
+  * Password token change expiry data at use to 1s ago
+  * Merge branch 'T404-gen-deb' of ssh://git.coralbits.com/serverboards/serverboards into T404-gen-deb
+  * Use python3 on tests
+  * Merge branch 'master' into 'T404-gen-deb'
+  * Update version when creating deb. Build only on ubuntu1604
+  * Do not precompile backend to test frontend nor release.
+  * Merge branch 'T406-issue-tags' into 'master'
+  * Generate in this branch, to test.
+  * Generate debian package
+  * Fix notifications use proper supervisor
+  * Filter by tags in issues.
+  * Some display of set/unset labels
+  * Can add issue labels ad details using UI
+  * Added slash commands to add issues as well.
+  * Fix slash fe test
+  * Can untag issues, and show tags at details and list
+  * [WIP] Can add tags using slash commands at issue comments
+  * Added slash commands to open/close/set tags on issues
+  * Fixes to dte calculations and tests
+  * Improved separation of view/controller on issues
+  * Ensure yarn is executed before frontend tests
+  * [WIP] Initial slash parser, and frontend tests
+  * Fix comment on issues by integer id
+  * Merge branch 'T406-issues-notifications' into 'master'
+  * Merge branch 'T407-improved-paging' into 'master'
+  * Merge branch 'T405-issue-openclose-action' into 'master'
+  * Merge branch 'master' into T406-issues-notifications
+  * Merge branch 'master' into T405-issue-openclose-action
+  * Merge branch 'faster-ci' into 'master'
+  * No cache at backend test. Improved compilation and cache name
+  * Fix mix deps.clean --all
+  * Do mix test from zero
+  * Merge branch 'master' into T405-issue-openclose-action
+  * Merge branch 'faster-ci' into 'master'
+  * Fixed warnings in tests.
+  * Only release on master
+  * cd to proper dir to make release
+  * No need cd in CI script
+  * cd is required only once
+  * Use recommended way for backend testing on gitlab ci
+  * Fix release compile.
+  * Always clean environment for test
+  * Updated version also in serverboards app
+  * Fix tests that require last_state.
+  * [WIP] Send notifications when issues change
+  * Fix plugin test.
+  * Mark as not broken on some corner conditions
+  * Improvements to plugin card layout and errors
+  * Improved log line visualization
+  * Plugin status is now an array, not just is_active.
+  * [WIP] Initial postinst support
+  * Improved logging of exceptions, now use only one registry.
+  * Fix proper status info on issue presets.
+  * Fix #6. Trigger only if status change or one state
+  * Fixed action/notification tests
+  * Adding pagination to notifications
+  * Fix show specific process information
+  * Processes list do not use the store, can paginate
+
+ -- David Moreno <dmoreno@coralbits.com>  Tue, 03 Jan 2017 19:04:55 +0100
+
 serverboards (0.6.81-gd3c6d) unstable; urgency=medium
 
   * Use make test
