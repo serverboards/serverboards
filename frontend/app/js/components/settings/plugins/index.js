@@ -38,7 +38,7 @@ const Plugins=React.createClass({
   updateRequired({plugin_id, changelog}){
     const plugins = this.state.plugins.map( (pl) => {
       if (pl.id==plugin_id)
-        return merge(pl, {require_update: changelog})
+        return merge(pl, {changelog: changelog, status: pl.status.concat("updatable")})
       else
         return pl
     })
@@ -78,7 +78,10 @@ const Plugins=React.createClass({
     rpc.call("plugin.install", [plugin_url]).then( () => {
       Flash.info(`Plugin from ${plugin_url} installed and ready.`)
       this.componentDidMount() // reload plugin list
-    }).catch( (e) => Flash.error(e) )
+    }).catch( (e) => {
+      Flash.error(e)
+      this.componentDidMount() // reload plugin list
+    })
   },
   render(){
     const plugins=this.state.plugins

@@ -4,6 +4,7 @@ description: >
 author: David Moreno <dmoreno@serverboards.io>
 id: serverboards.test.auth
 version: 0.0.1
+postinst: postinst.sh
 
 components:
   - name: daemon

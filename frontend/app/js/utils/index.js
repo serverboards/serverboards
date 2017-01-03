@@ -70,7 +70,11 @@ const fixed_colors={
   "down" : "red",
   "important" : "red",
   "new" : "green",
-  "unread" : "yellow"
+  "unread" : "yellow",
+  "disabled" : "grey",
+  "active" : "green",
+  "broken" : "red",
+  "updatable" : "yellow"
 }
 
 export function colorize(str){

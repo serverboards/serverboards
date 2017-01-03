@@ -31,8 +31,27 @@ class RPC:
         class WriteToLog:
           def __init__(self, rpc):
             self.rpc=rpc
+            self.buffer=[]
           def write(self, txt, *args, **kwargs):
-            self.rpc.error(txt.rstrip())
+              """
+              Sends the error to the Serverboards core.
+
+              If a line starts with traceback, it buffers all until the end of
+              the traceback, to send it all in one go.
+              """
+              if not txt:
+                  return
+              if txt.startswith("Traceback"):
+                  self.buffer.append(txt)
+              elif self.buffer:
+                  if txt.startswith(" "):
+                      self.buffer.append(txt)
+                  else:
+                      self.buffer.append(txt)
+                      self.rpc.error('\n'.join(self.buffer), extra=dict(file="EXCEPTION", line="--"))
+                      self.buffer=[]
+              else:
+                  self.rpc.error(txt.rstrip())
 
         self.write_to_log=WriteToLog(self)
 

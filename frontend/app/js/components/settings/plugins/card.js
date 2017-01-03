@@ -1,8 +1,14 @@
 import React from 'react'
 import ImageIcon from 'app/components/imageicon'
 import {MarkdownPreview} from 'react-marked-markdown';
+import {colorize} from 'app/utils'
 
 const icon = require("../../../../imgs/plugins.svg")
+
+// http://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 
 function PluginCard(props){
@@ -20,14 +26,9 @@ function PluginCard(props){
   return (
     <div key={p.id} className="card">
       <div>
-        {p.is_active ? (
-          <span><i className="ui icon circle green"/> Active</span>
-        ) : (
-          <span><i className="ui icon circle grey"/> Not Active</span>
-        )}
-        {p.require_update ? (
-          <span style={{paddingLeft: 10}} title={p.require_update}>  <i className="ui icon circle yellow"/> Requires Update</span>
-        ) : null }
+        {p.status.map( (s) => (
+          <span key={s} style={{paddingRight: 15}}><i className={`ui icon circle ${ colorize(s) }`}/> {capitalize(s)}</span>
+        )) }
       </div>
       <div className="content">
         <ImageIcon src={icon} className="right floated" name={p.name}/>
