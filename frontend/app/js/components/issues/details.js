@@ -28,6 +28,14 @@ function CardHeader({event, label}){
 }
 
 function IssueEventComment({event, connected}){
+  if (typeof(event.data)!="string"){
+    return (
+      <div className={`ui red card ${ connected ? "connected" : ""}`}>
+        <CardHeader event={event} label="commented"/>
+        <div className="ui red text">Invalid event data: {JSON.stringify(event.data)}</div>
+      </div>
+    )
+  }
   return (
     <div className={`ui card ${ connected ? "connected" : ""}`}>
       <CardHeader event={event} label="commented"/>
