@@ -96,7 +96,7 @@ const Top = React.createClass({
             </a>
           </Restricted>
           <a className="item" onClick={() => props.toggleMenu('user')}>
-            <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
+            <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32, marginTop: -6}}
               data-tooltip={props.user.email}/>
           </a>
         </div>

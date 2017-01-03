@@ -91,10 +91,10 @@ const Selector=React.createClass({
           <div className="menu">
             {serverboards.map( (s, i) => (
               <a className={`item ${ s.shortname == current ? "active" : ""} ${ i == selected ? "hover" : ""}`} onClick={() => this.handleSelectServerboard(s.shortname)}>
-                <div style={{display:"inline-block", paddingRight: 10}}>
+                <div style={{paddingRight: 10}}>
                   <LogoIcon className="small" name={s.shortname}/>
                 </div>
-                {s.name}
+                <div>{s.name}</div>
               </a>
             ))}
           </div>
