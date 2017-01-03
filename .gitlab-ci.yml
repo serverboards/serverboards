@@ -44,9 +44,9 @@ release:
     paths:
       - serverboards.deb
     expire_in: 1 week
-#  only:
-#    - master
-#
+  only:
+    - master
+    - T404-gen-deb
 
 publish:
   stage: publish
@@ -58,3 +58,6 @@ publish:
   tags:
     - ubuntu1604
     - rsync-www
+  only:
+    - master
+    - T404-gen-deb
