@@ -1,14 +1,11 @@
 #!/bin/bash
 
-function get_version(){
-	local VERSION=$( head -1 debian/changelog | grep -oh '(\([^)]*\)' | cut -b2- )
-	echo $VERSION
-}
-
 
 rsync -avz serverboards.deb -e ssh www.serverboards.io:/downloads/
 
-VERSION=$( get_version )
+VERSION=$( dpkg-deb --info serverboards.deb | grep Version | awk '{ print $2 }' )
+echo "Current version is $VERSION"
+
 cat > latest.json << EOF
 {"version": "$VERSION"}
 EOF
