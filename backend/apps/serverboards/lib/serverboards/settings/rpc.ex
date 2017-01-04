@@ -30,18 +30,31 @@ defmodule Serverboards.Settings.RPC do
         update section, changes, Context.get(context, :user)
     end, [required_perm: "settings.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "settings.get", fn [section], context ->
-      perms = (RPC.Context.get context, :user).perms
-      can_view = (
-        ("settings.view" in perms) or
-        ("settings.view[#{section}]" in perms)
-        )
-      if can_view do
-        Serverboards.Settings.get section
-      else
-        Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
-        {:error, :not_allowed}
-      end
+    RPC.MethodCaller.add_method mc, "settings.get", fn
+      [section], context ->
+        perms = (RPC.Context.get context, :user).perms
+        can_view = (
+          ("settings.view" in perms) or
+          ("settings.view[#{section}]" in perms)
+          )
+        if can_view do
+          Serverboards.Settings.get section
+        else
+          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
+          {:error, :not_allowed}
+        end
+      [section, defval], context ->
+        perms = (RPC.Context.get context, :user).perms
+        can_view = (
+          ("settings.view" in perms) or
+          ("settings.view[#{section}]" in perms)
+          )
+        if can_view do
+          Serverboards.Settings.get section, defval
+        else
+          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
+          {:error, :not_allowed}
+        end
     end, [context: true]
 
     RPC.MethodCaller.add_method mc, "settings.user.get", fn
