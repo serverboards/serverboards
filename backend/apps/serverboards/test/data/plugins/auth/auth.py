@@ -100,8 +100,29 @@ def periodic_timer(id, period=10):
 
 @serverboards.rpc_method
 def periodic_timer_stop(timer_id):
+    serverboards.info("Stopping periodic timer %s"%(timer_id))
     serverboards.rpc.remove_timer(timer_id)
     return True
+
+
+start_triggers=set([])
+@serverboards.rpc_method
+def trigger_at_start(id):
+    serverboards.debug(repr(("add",start_triggers, id)))
+    assert not id in start_triggers
+    start_triggers.add(id)
+    serverboards.info("Just triggers a tick at start: %s"%id)
+    serverboards.rpc.event("trigger", state="tick", id=id)
+    return id
+
+@serverboards.rpc_method
+def stop_trigger_at_start(id):
+    serverboards.debug(repr(("del",start_triggers, id)))
+    assert id in start_triggers
+    start_triggers.remove(id)
+    serverboards.info("Stop start trigger: %s"%id)
+    return True
+
 
 @serverboards.rpc_method
 def touchfile(filename="/tmp/auth-py-touched", **_kwargs):

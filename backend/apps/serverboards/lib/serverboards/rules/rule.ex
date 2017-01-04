@@ -67,10 +67,12 @@ defmodule Serverboards.Rules.Rule do
   ## server impl
   def init({}) do
     # 2 phase implementation, to get better error reporting, and handling.
+    Process.flag(:trap_exit, true)
     {:ok, {}}
   end
 
   def terminate(_reason, {}) do
+    #Logger.error("Stopping before properly started. Error at setting up.")
     # stopped before starting, on :init
     :ok
   end
@@ -85,11 +87,21 @@ defmodule Serverboards.Rules.Rule do
     end
     :ok
   end
-  def terminate(_reason, %{ plugin_id: plugin_id} = state) do
-    Logger.error("Terminate, stop plugin if possible.", state: state)
+  def terminate(_reason, %{ plugin_id: plugin_id, rule: rule} = state) do
     case Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, plugin_id) do
-      nil -> :ok
+      nil ->
+        if state.trigger.stop do
+          Logger.info("Calling stop: #{plugin_id}.#{inspect state.trigger.stop}(#{inspect state.stop_id})", rule: rule)
+          case Plugin.Runner.call( plugin_id, state.trigger.stop, [state.stop_id] ) do
+            {:ok, true} -> :ok
+            res ->
+              Logger.error("Error stopping rule #{inspect rule.uuid} when calling stop: #{inspect res}", rule: rule, res: res)
+          end
+        else
+          Logger.warning("Rule #{inspect rule.uuid} stop is not handled in any way. May need a stop method, or not be a singleton.", rule: rule)
+        end
       pid ->
+        Logger.info("Terminate rule, stopping plugin.", rule: rule)
         Serverboards.Plugin.Runner.stop(pid)
     end
     :ok
@@ -148,7 +160,7 @@ defmodule Serverboards.Rules.Rule do
       {:ok, plugin_id} -> plugin_id
       {:error, desc} ->
         Logger.error("Could not start trigger", description: desc)
-        raise CantStartRule, message: desc
+        raise CantStartRule, message: to_string(desc)
     end
 
     #MOM.Channel.subscribe(:plugin_down, fn %{ payload: %{uuid: ^plugin_id}} ->
@@ -229,5 +241,11 @@ defmodule Serverboards.Rules.Rule do
     state = %{ state | last_state: rule_state }
 
     {:reply, :ok, state}
+  end
+
+  def handle_info({:EXIT, _pid, :normal}, status) do
+    #Logger.info("Got EXIT normal")
+    terminate(:normal, status)
+    {:noreply, status}
   end
 end

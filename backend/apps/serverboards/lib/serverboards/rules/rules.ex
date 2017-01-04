@@ -342,7 +342,11 @@ defmodule Serverboards.Rules do
   def restart_rules_for_service(service) do
     Logger.debug("Service updated, check rules to restart #{service}", service: service)
     list(service: service)
-      |> Enum.map( &restart_rule/1 )
+      |> Enum.map( fn rule ->
+        if rule.is_active do # only restart if active. Bug #13.
+          restart_rule(rule)
+        end
+      end )
     :ok
   end
 

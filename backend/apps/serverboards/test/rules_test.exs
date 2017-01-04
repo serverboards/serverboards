@@ -315,4 +315,56 @@ defmodule Serverboards.TriggersTest do
     [rule] = Rules.list uuid: uuid
     assert rule.is_active == false
   end
+
+  test "Modify service resets the rules" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, service} = Test.Client.call(client, "service.add", %{ name: "test service", type: "test", config: %{ x: 1 }} )
+    trigger = %{
+      trigger: "serverboards.test.auth/start.trigger",
+      params: %{}
+    }
+    actions = %{
+      "tick" => %{
+        action: "serverboards.test.auth/touchfile",
+        params: %{
+          filename: "/tmp/sbds-rule-test",
+        }
+      }
+    }
+    waitt = 100
+    uuid = UUID.uuid4
+    File.rm("/tmp/sbds-rule-test")
+    {:ok, _ } = Test.Client.call(client, "rules.update", %{ uuid: uuid, is_active: true, service: service, trigger: trigger, actions:  actions} )
+    :timer.sleep(waitt)
+    Logger.info("Should have triggered, all ok")
+    {:ok, _ } = File.stat("/tmp/sbds-rule-test")
+
+
+    File.rm("/tmp/sbds-rule-test")
+    {:ok, _ } = Test.Client.call(client, "rules.update", %{ uuid: uuid, is_active: false, service: service, trigger: trigger, actions:  actions} )
+    :timer.sleep(waitt)
+    Logger.info("Should NOT have triggered, all ok")
+    assert {:error, :enoent} == File.stat("/tmp/sbds-rule-test")
+
+    # modifing the service do not restart a stopped rule
+    {:ok, _} = Test.Client.call(client, "service.update", [service, %{config: %{ x: 2 }}] )
+    :timer.sleep(waitt)
+    Logger.info("Should NOT have triggered, all ok")
+    assert {:error, :enoent} == File.stat("/tmp/sbds-rule-test"), "Modifying the service restarted the rule. Bug #13."
+
+
+    # activate again
+    File.rm("/tmp/sbds-rule-test")
+    {:ok, _ } = Test.Client.call(client, "rules.update", %{ uuid: uuid, is_active: true, service: service, trigger: trigger, actions:  actions} )
+    :timer.sleep(waitt)
+    Logger.info("Should have triggered, all ok")
+    {:ok, _} = File.stat("/tmp/sbds-rule-test")
+
+    # modifing the service restarts a started rule, use config overwrite
+    File.rm("/tmp/sbds-rule-test2")
+    {:ok, _} = Test.Client.call(client, "service.update", [service, %{config: %{ filename: "/tmp/sbds-rule-test2" }}] )
+    :timer.sleep(waitt)
+    Logger.info("Should have triggered, all ok")
+    {:ok, _} = File.stat("/tmp/sbds-rule-test2")
+  end
 end

@@ -27,7 +27,7 @@ def time_description_to_seconds(td):
 class TimerCheck:
     def __init__(self, id, check, type, frequency, grace):
         if id in uuid_to_timer:
-            raise Exception("Trigger id already registered")
+            raise Exception("Trigger id '%s' already registered: %s"%(id, repr(uuid_to_timer.keys())))
         self.id=id
         self.check=check
         self.type=type
@@ -128,9 +128,11 @@ def socket_is_up(id, url=None, frequency=30, grace=60):
 
 @serverboards.rpc_method
 def stop_trigger(id):
+    serverboards.debug("Stop trigger %s"%id)
     timer=uuid_to_timer[id]
     serverboards.rpc.remove_timer(timer.timer_id)
     del uuid_to_timer[id]
+    serverboards.debug("Stop trigger %s Done, remaining keys: %s"%(id, repr(uuid_to_timer.keys())))
     return True
 
 @serverboards.rpc_method
@@ -150,9 +152,9 @@ def tag_change(id, service, tag):
             self.is_in=False
             self.service_id=service["uuid"]
         def check(self, service):
-            serverboards.debug("Check if service changed status %s %s %s %s"%(self.is_in, tag, service["tags"], tag in service["tags"]))
+            #serverboards.debug("Check if service changed status %s %s %s %s"%(self.is_in, tag, service["tags"], tag in service["tags"]))
             if service["uuid"]!=self.service_id:
-                serverboards.debug("Not for me")
+                #serverboards.debug("Not for me")
                 return
             if self.is_in:
                 if not tag in service["tags"]:
