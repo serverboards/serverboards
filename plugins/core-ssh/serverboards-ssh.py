@@ -30,7 +30,7 @@ def ssh_exec(url, command="uname -a", options=""):
         raise Exception("Need a command to run")
     (args, url) = url_to_opts(url)
     global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","")
-    options =global_options+"\n"+options
+    options =global_options+"\n"+(options or "")
     args += [
         arg.strip()
         for option in options.split('\n') if option
