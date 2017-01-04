@@ -331,25 +331,25 @@ defmodule Serverboards.TriggersTest do
         }
       }
     }
-    waitt = 100
+    waitt = 500
     uuid = UUID.uuid4
     File.rm("/tmp/sbds-rule-test")
     {:ok, _ } = Test.Client.call(client, "rules.update", %{ uuid: uuid, is_active: true, service: service, trigger: trigger, actions:  actions} )
     :timer.sleep(waitt)
-    Logger.info("Should have triggered, all ok")
+    Logger.info("Should have triggered")
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
 
     File.rm("/tmp/sbds-rule-test")
     {:ok, _ } = Test.Client.call(client, "rules.update", %{ uuid: uuid, is_active: false, service: service, trigger: trigger, actions:  actions} )
     :timer.sleep(waitt)
-    Logger.info("Should NOT have triggered, all ok")
+    Logger.info("Should NOT have triggered")
     assert {:error, :enoent} == File.stat("/tmp/sbds-rule-test")
 
     # modifing the service do not restart a stopped rule
     {:ok, _} = Test.Client.call(client, "service.update", [service, %{config: %{ x: 2 }}] )
     :timer.sleep(waitt)
-    Logger.info("Should NOT have triggered, all ok")
+    Logger.info("Should NOT have triggered")
     assert {:error, :enoent} == File.stat("/tmp/sbds-rule-test"), "Modifying the service restarted the rule. Bug #13."
 
 
@@ -357,14 +357,14 @@ defmodule Serverboards.TriggersTest do
     File.rm("/tmp/sbds-rule-test")
     {:ok, _ } = Test.Client.call(client, "rules.update", %{ uuid: uuid, is_active: true, service: service, trigger: trigger, actions:  actions} )
     :timer.sleep(waitt)
-    Logger.info("Should have triggered, all ok")
+    Logger.info("Should have triggered")
     {:ok, _} = File.stat("/tmp/sbds-rule-test")
 
     # modifing the service restarts a started rule, use config overwrite
     File.rm("/tmp/sbds-rule-test2")
     {:ok, _} = Test.Client.call(client, "service.update", [service, %{config: %{ filename: "/tmp/sbds-rule-test2" }}] )
     :timer.sleep(waitt)
-    Logger.info("Should have triggered, all ok")
+    Logger.info("Should have triggered")
     {:ok, _} = File.stat("/tmp/sbds-rule-test2")
   end
 end
