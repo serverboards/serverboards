@@ -15,7 +15,13 @@ def latest_version(**args):
 @serverboards.rpc_method
 def update_now(**args):
     serverboards.rpc.reply({"level": "warning", "message": "Serverboards is restarting and should reconnect shortly.\nPage reload is highly encouraged."})
-    os.system("sudo ./serverboards-updater.sh 1>&2")
+    res = os.system("sudo ./serverboards-updater.sh 1>&2")
+    with open("/tmp/serverboards-update.log") as fd:
+        data=fd.read()
+        if res == 0:
+            serverboards.log("Update Serverboards result\n%s"%data)
+        else:
+            serverboards.error("Error updating Serverboards\n%s"data)
 
 @serverboards.rpc_method
 def check_plugin_updates(**args):

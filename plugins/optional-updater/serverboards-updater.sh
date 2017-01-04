@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -xe
+set -e
 
 # Write log to /tmp/serverboards-update.log
 exec 1<&-
@@ -8,6 +8,7 @@ exec 2<&-
 exec 1<>/tmp/serverboards-update.log
 exec 2>&1
 
+dpkg --configure -a
 DURL=https://serverboards.io/downloads/
 TMPDIR=$( mktemp -d )
 cd $TMPDIR
