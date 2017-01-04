@@ -84,6 +84,8 @@ components:
           description: Seconds that connectivity can be lost without triggering
           placeholder: 60s
           default: 60
+    stop:
+      method: stop_trigger
     traits: url
 
   - name: Periodic trigger

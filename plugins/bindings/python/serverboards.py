@@ -120,7 +120,7 @@ class RPC:
                     'error': str(e),
                     'id' : call_id
                 }
-        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions)))
+        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         if method in self.subscriptions:
             assert call_id is None
             for f in self.subscriptions[method]:

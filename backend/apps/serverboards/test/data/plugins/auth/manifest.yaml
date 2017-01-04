@@ -149,6 +149,16 @@ components:
         - name: period
           default: 0.1
 
+  - name: Start timer
+    type: trigger
+    states: tick
+    id: start.trigger
+    command: fake_singleton
+    stop: stop_trigger_at_start
+    start:
+      method: trigger_at_start
+      params: []
+
   - name: Touch a file
     type: action
     id: touchfile
