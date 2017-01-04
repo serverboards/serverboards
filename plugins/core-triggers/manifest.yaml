@@ -154,14 +154,14 @@ components:
       added:
         action: serverboards.core.actions/open-issue
         params:
-          title: "{rule.name} // {rule.status}"
-          description: "{rule.description}"
-          aliases: "rule/{rule.uuid}"
+          title: "{{rule.name}} // {{state}}"
+          description: "{{rule.description}}"
+          aliases: "rule/{{rule.uuid}}"
       removed:
         action: serverboards.core.actions/close-issue
         params:
-          issue: "rule/{rule.uuid}"
-          comment: "{rule.status}"
+          issue: "rule/{{rule.uuid}}"
+          comment: "{{state}}"
 
   - name: Core triggers daemon
     id: daemon
