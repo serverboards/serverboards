@@ -43,7 +43,7 @@ defmodule Serverboards.NotificationTest do
 
   test "Simple notification to group" do
     {:ok, true} = Serverboards.Notifications.notify_real("@admin", "Test message", "This is the body", %{})
-
+    :timer.sleep(500)
     {:ok, fd} = File.open("/tmp/lastmail.json")
     data = IO.read(fd, :all)
     File.close(fd)
