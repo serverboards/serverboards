@@ -1,4 +1,46 @@
 import React from 'react'
+import {goto} from 'app/utils/store'
+import rpc from 'app/rpc'
+
+const RelatedElement=React.createClass({
+  getInitialState(){
+    return {
+      url: undefined,
+      name: undefined
+    }
+  },
+  componentDidMount(){
+    const al=this.props.alias
+    if (al.startsWith("rule/")){
+      rpc.call("rules.list", {uuid: al.slice(5,1000)}).then( rl => {
+        const rule=rl[0]
+        this.setState({
+          url: `/serverboard/${rule.serverboard || "_"}/rules/${rule.uuid}`,
+          name: rule.name || (rule.trigger || {}).name || "Rule"
+        })
+      })
+    }
+    if (al.startsWith("service/")){
+      rpc.call("service.info", [al.slice(8,1000)]).then( s => {
+        this.setState({
+          url: `/serverboard/${s.serverboards.length>0 ? s.serverboards[0] : "_"}/services/${s.uuid}`,
+          name: s.name || "Service"
+        })
+      })
+    }
+  },
+  render(){
+    const {url, name} = this.state
+    if (url){
+      return (
+        <a onClick={() => goto(url)} style={{cursor:"pointer", display: "block"}}>{name}</a>
+      )
+    }
+    return (
+      <div>{this.props.alias}</div>
+    )
+  }
+})
 
 const Filters=React.createClass({
   componentDidMount(){
@@ -30,6 +72,14 @@ const Filters=React.createClass({
             </div>
           ))}
         </div>
+        {issue.aliases.length>0 ? (
+          <div>
+            <h4 className="ui header">Related</h4>
+              {issue.aliases.map( (a) => (
+                <RelatedElement key={a} alias={a}/>
+              ))}
+          </div>
+        ) : null }
         {/*
         <div>
           <h4 className="ui header">Asignees</h4>
