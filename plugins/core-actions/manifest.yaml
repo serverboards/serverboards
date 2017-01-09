@@ -88,6 +88,16 @@ components:
       method: open_issue
       extra: true
       params:
+        - label: Description
+          type: description
+          description: |
+            Opens a new issue with the given parameters.
+
+            Depending on where the action is invoked it may use one or several
+            placeholders with context sensitive data, as rule name, id, description,
+            related service and so on.
+
+            Check at [Serverboards documentation](https://serverboards.io/docs/templating#issue-open).
         - name: title
           type: text
           label: Issue title
@@ -142,19 +152,19 @@ components:
         params:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
       down:
         action: serverboards.core.actions/open-issue
         params:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
       not-exists:
         action: serverboards.core.actions/open-issue
         params:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
 
       removed:
         action: serverboards.core.actions/close-issue
@@ -194,7 +204,7 @@ components:
         params:
           title: "{{rule.name}} // {{rule.status}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
       up:
         action: serverboards.core.actions/close-issue
         params:

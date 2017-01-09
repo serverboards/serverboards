@@ -12,28 +12,41 @@ const RelatedElement=React.createClass({
   componentDidMount(){
     const al=this.props.alias
     if (al.startsWith("rule/")){
-      rpc.call("rules.list", {uuid: al.slice(5,1000)}).then( rl => {
+      rpc.call("rules.list", {uuid: al.slice(5)}).then( rl => {
         const rule=rl[0]
         this.setState({
           url: `/serverboard/${rule.serverboard || "_"}/rules/${rule.uuid}`,
-          name: rule.name || (rule.trigger || {}).name || "Rule"
+          name: rule.name || (rule.trigger || {}).name || "This rule has no name",
+          type: "Rule"
         })
       })
     }
     if (al.startsWith("service/")){
-      rpc.call("service.info", [al.slice(8,1000)]).then( s => {
+      rpc.call("service.info", [al.slice(8)]).then( s => {
         this.setState({
           url: `/serverboard/${s.serverboards.length>0 ? s.serverboards[0] : "_"}/services/${s.uuid}`,
-          name: s.name || "Service"
+          name: s.name || "This service has no name",
+          type: "Service"
         })
+      })
+    }
+    if (al.startsWith("serverboard/")){
+      const serverboard=al.slice(12)
+      this.setState({
+        url: `/serverboard/${serverboard}/`,
+        name: serverboard || "Serverboard",
+        type: "Serverboard"
       })
     }
   },
   render(){
-    const {url, name} = this.state
+    const {url, name, type} = this.state
     if (url){
       return (
-        <a onClick={() => goto(url)} style={{cursor:"pointer", display: "block"}}>{name}</a>
+        <div>
+          {type}:&nbsp;
+          <a onClick={() => goto(url)} style={{cursor:"pointer"}}>{name}</a>
+        </div>
       )
     }
     return (
