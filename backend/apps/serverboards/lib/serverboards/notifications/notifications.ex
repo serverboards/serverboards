@@ -99,7 +99,7 @@ defmodule Serverboards.Notifications do
     if String.starts_with?(who,"@") do
       Logger.debug("Notifying group #{inspect who}", subject: subject, body: body, extra: extra)
       me = %{ email: "system", perms: ["auth.info_any_user"]}
-      for email <- Serverboards.Auth.Group.user_list(String.slice(who, 1, 1000), me) do
+      for email <- Serverboards.Auth.Group.active_user_list(String.slice(who, 1, 1000), me) do
         notify_real_one(email, subject, body, extra)
       end
       {:ok, true}
