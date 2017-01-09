@@ -36,6 +36,7 @@ def ssh_exec(url, command="uname -a", options=""):
         for option in options.split('\n') if option
         for arg in ['-o',option]
         ]
+    args = [x for x in args if x] # remove empty
     args += ['--', command]
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
