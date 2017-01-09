@@ -14,6 +14,7 @@ defmodule Serverboards.Issues.Model do
       has_many :events, Serverboards.Issues.Model.Event
       has_many :issue_assignees, Serverboards.Issues.Model.Assignees
       has_many :assignees, through: [:issue_assignees, :assignee]
+      has_many :aliases, Serverboards.Issues.Model.Alias
 
       timestamps
     end
