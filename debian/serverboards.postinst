@@ -13,8 +13,9 @@ case "$1" in
     addgroup -q serverboards serverboards
 
     # Create necesary directories and set permissions
-    INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ $INSTALL/local/data/ $INSTALL/log $INSTALL/running_config \
-      $INSTALL/.ssh"
+    INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
+      $INSTALL/local/data/ $INSTALL/local/plugins/ $INSTALL/log \
+      $INSTALL/running_config $INSTALL/.ssh"
     [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
     for p in $INTERNAL_PATHS; do
