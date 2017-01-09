@@ -552,8 +552,9 @@ rules.update( {
 
 Returns a list of rules, in the rule format. Applies the given filter:
 
-* id
+* uuid -- Only this rule
 * traits -- any of the given traits
+* serverboard -- Only rules at that serverboard
 
 ## rules.catalog(filter)
 
