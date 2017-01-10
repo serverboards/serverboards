@@ -11,7 +11,7 @@ const Issues = React.createClass({
       all_count: 0,
       issues: [],
       show_issues: [],
-      filter: "status:open",
+      filter: this.props.filter || "status:open",
       loading: true,
       labels: []
     }
@@ -19,7 +19,11 @@ const Issues = React.createClass({
   componentDidMount(){
     this.setState({loading: true})
 
-    rpc.call("issues.list").then( this.updateIssueList )
+    // Preselect serverboard
+    if (this.props.serverboard)
+      this.setFilter(`serverboard:${this.props.serverboard}`)
+    else
+      rpc.call("issues.list").then( this.updateIssueList )
   },
   updateIssueList(issues){
     const labels = dedup(flatmap(issues, (i) => i.labels )).sort( (a,b) => (a.name.localeCompare(b.name)) )

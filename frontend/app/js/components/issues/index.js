@@ -112,11 +112,11 @@ function Issues(props){
           ))}
         </div>
         <div className="filters">
-          <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter}/>
+          <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} serverboard={props.serverboard}/>
         </div>
       </div>
       <Restricted perm="issues.add">
-        <a onClick={() => goto("/issues/add")} className="ui massive button _add icon floating yellow">
+        <a onClick={() => goto("/issues/add",{serverboard:props.serverboard})} className="ui massive button _add icon floating yellow">
           <i className="add icon"></i>
         </a>
       </Restricted>

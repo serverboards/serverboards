@@ -82,16 +82,18 @@ const Filters = React.createClass({
             ))}
             <div className="ui divider"/>
           </div>
-          <div className="field">
-            <h4 className="ui grey header">At serverboard</h4>
-            <div className="ui divider"/>
-            <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder="All serverboards">
-              <option value="none">All serverboards</option>
-              {sorted_serverboards(props.serverboards).map((s) => (
-                <option key={s.shortname} value={s.shortname}>{s.name}</option>
-              ))}
-            </select>
-          </div>
+          {props.serverboard ? null : (
+            <div className="field">
+              <h4 className="ui grey header">At serverboard</h4>
+              <div className="ui divider"/>
+              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder="All serverboards">
+                <option value="none">All serverboards</option>
+                {sorted_serverboards(props.serverboards).map((s) => (
+                  <option key={s.shortname} value={s.shortname}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
     )

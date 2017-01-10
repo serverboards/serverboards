@@ -606,13 +606,23 @@ Event.
 
 # Issues
 
-## issues.add({title, description}) -> id
+## issues.add({title, description, aliases}) -> id
 
-## issues.update(id, {type, title, data})
+Adds an issue with the given title and description.
+
+Aliases is an optional list with known aliases. Aliases may be
+serverboard/[Serverboard name], rule/[ruleid] or any user value.
+
+## issues.update(id, {type, data})
 
 type:
 
- * comment, with data: {comment}
+ * comment: text
+ * set_label: list of labels to set
+ * unset_labels: list of labels to unset
+ * change_status: new status
+ * alias: list of alias to add
+ * unalias: list of alias to remove
 
 ## issues.list(filter \\ {})
 

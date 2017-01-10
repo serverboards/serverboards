@@ -103,6 +103,7 @@ const SidebarSections = React.createClass({
             <MenuItem section="dashboard">Dashboard</MenuItem>
             <MenuItem section="services">Services</MenuItem>
             <MenuItem section="rules">Rules</MenuItem>
+            <MenuItem section="issues">Issues</MenuItem>
           </div>
           <ScreensMenu
             services={props.serverboard.services}
