@@ -28,5 +28,17 @@ defmodule Serverboards.Issues do
     Serverboards.Repo.all(from i in Model.Issue, order_by: [desc: i.id], preload: [:creator, :labels])
      |> Enum.map(&decorate_issues_list/1)
   end
+  def list(%{alias: alias_}) do
+    import Ecto.Query
+
+    Serverboards.Repo.all(
+      from i in Model.Issue,
+        join: a in Model.Alias, on: i.id == a.issue_id,
+        where: a.alias == ^alias_,
+        order_by: [desc: i.id],
+        preload: [:creator, :labels]
+        )
+     |> Enum.map(&decorate_issues_list/1)
+  end
 
 end

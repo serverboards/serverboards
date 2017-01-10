@@ -11,7 +11,7 @@ const Issues = React.createClass({
       all_count: 0,
       issues: [],
       show_issues: [],
-      filter: "status:open",
+      filter: this.props.filter || "status:open",
       loading: true,
       labels: []
     }
@@ -19,38 +19,58 @@ const Issues = React.createClass({
   componentDidMount(){
     this.setState({loading: true})
 
-    rpc.call("issues.list").then( (issues) => {
-      const labels = dedup(flatmap(issues, (i) => i.labels )).sort( (a,b) => (a.name.localeCompare(b.name)) )
-      this.setState({
-        loading: false,
-        issues,
-        show_issues: this.applyFilter(issues, this.state.filter),
-        open_count: issues.filter( (i) => i.status=='open' ).length,
-        closed_count: issues.filter( (i) => i.status=='closed' ).length,
-        all_count: issues.length,
-        labels: labels
-      })
-    } )
+    // Preselect serverboard
+    if (this.props.serverboard)
+      this.setFilter(`serverboard:${this.props.serverboard}`)
+    else
+      rpc.call("issues.list").then( this.updateIssueList )
+  },
+  updateIssueList(issues){
+    const labels = dedup(flatmap(issues, (i) => i.labels )).sort( (a,b) => (a.name.localeCompare(b.name)) )
+    this.setState({
+      loading: false,
+      issues,
+      show_issues: this.applyFilter(issues, this.state.filter),
+      open_count: issues.filter( (i) => i.status=='open' ).length,
+      closed_count: issues.filter( (i) => i.status=='closed' ).length,
+      all_count: issues.length,
+      labels: labels
+    })
   },
   setFilter(update){
     let filter = this.state.filter
     if (update[0]=="+")
       filter=filter+" "+update.slice(1)
-    if (update[0]=="-"){
+    else if (update[0]=="-"){
       const tag=update.slice(1)
       filter=filter.split(' ').filter( (f) => f!=tag).join(' ')
       console.log(tag, filter)
     }
-    if (update.startsWith("status:")){
-      const pfilter=filter.split(' ').filter( (f) => !f.startsWith("status:") ).join(' ')
-      filter=update+' '+pfilter
+    else if (update.indexOf(':')>0){ // for change status: serverboards: ...
+      const prefix=update.split(':')[0]+':'
+      const postfix=update.slice(prefix.length)
+      filter = filter.split(' ').filter( (s) => !s.startsWith(prefix)).join(' ')
+      console.log(postfix)
+      if (postfix!="none"){
+        filter += " " + update
+      }
     }
     filter=filter.trim()
 
-    this.setState({
-      filter,
-      show_issues: this.applyFilter(this.state.issues, filter)
-    })
+    if (update.startsWith("serverboard:")){ // filters with server reload
+      this.setState({filter})
+      const serverboard=update.slice(12)
+      if (serverboard!="none")
+        rpc.call("issues.list",{alias:`serverboard/${serverboard}`}).then( this.updateIssueList )
+      else
+        rpc.call("issues.list",[]).then( this.updateIssueList )
+    }
+    else{ // Filters with only local filtering
+      this.setState({
+        filter,
+        show_issues: this.applyFilter(this.state.issues, filter)
+      })
+    }
   },
   applyFilter(issues, filter){
     let show_issues=issues

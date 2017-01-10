@@ -36,10 +36,7 @@ defmodule Serverboards.Issues.Issue do
     } )
 
     (data[:aliases] || []) |> Enum.map(fn alias_ ->
-      {:ok, _description} = Repo.insert( %Model.Alias{
-        issue_id: issue.id,
-        alias: alias_,
-        } )
+      set_alias(issue.id, alias_)
     end)
 
     issue.id
@@ -69,6 +66,10 @@ defmodule Serverboards.Issues.Issue do
         set_labels(issue_id, data["__data__"])
       "unset_labels" ->
         unset_labels(issue_id, data["__data__"])
+      "alias" ->
+        set_alias(issue_id, data["__data__"])
+      "unalias" ->
+        unset_alias(issue_id, data["__data__"])
       _ -> :ok
     end
   end
@@ -94,6 +95,25 @@ defmodule Serverboards.Issues.Issue do
       )
   end
 
+  def set_alias(issue_id, aliases) when is_list(aliases) do
+    Enum.map(aliases, &set_alias(issue_id, &1))
+  end
+  def set_alias(issue_id, alias_) do
+    {:ok, _description} = Repo.insert( %Model.Alias{
+      issue_id: issue_id,
+      alias: alias_,
+      } )
+  end
+  def unset_alias(issue_id, aliases) when is_list(aliases) do
+    Enum.map(aliases, &unset_alias(issue_id, &1))
+  end
+  def unset_alias(issue_id, alias_) do
+    import Ecto.Query
+    Repo.delete_all(
+       from al in Model.Alias,
+      where: al.alias == ^alias_ and al.issue_id == ^issue_id
+      )
+  end
   @colors ~w(red orange yellow olive green teal blue violet purple pink brown grey black)
   def set_label(issue_id, label) do
     labelm = Repo.get_or_create(Model.Label, [name: label], %{ color: Enum.random(@colors) })
@@ -130,7 +150,7 @@ defmodule Serverboards.Issues.Issue do
 
   def get(id) when is_number(id) do
     import Ecto.Query
-    case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator, :labels] ) do
+    case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator, :labels, :aliases] ) do
       [] -> {:error, :not_found}
       [issue] ->
         {:ok, %{
@@ -140,7 +160,8 @@ defmodule Serverboards.Issues.Issue do
           inserted_at: Ecto.DateTime.to_iso8601(issue.inserted_at),
           status: issue.status,
           events: Enum.map(issue.events, &decorate_event/1 ),
-          labels: Enum.map(issue.labels, &decorate_label/1 )
+          labels: Enum.map(issue.labels, &decorate_label/1 ),
+          aliases: Enum.map(issue.aliases, &(&1.alias))
         }}
     end
   end

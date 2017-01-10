@@ -552,8 +552,9 @@ rules.update( {
 
 Returns a list of rules, in the rule format. Applies the given filter:
 
-* id
+* uuid -- Only this rule
 * traits -- any of the given traits
+* serverboard -- Only rules at that serverboard
 
 ## rules.catalog(filter)
 
@@ -605,14 +606,30 @@ Event.
 
 # Issues
 
-## issues.add({title, description}) -> id
+## issues.add({title, description, aliases}) -> id
 
-## issues.update(id, {type, title, data})
+Adds an issue with the given title and description.
+
+Aliases is an optional list with known aliases. Aliases may be
+serverboard/[Serverboard name], rule/[ruleid] or any user value.
+
+## issues.update(id, {type, data})
 
 type:
 
- * comment, with data: {comment}
+ * comment: text
+ * set_label: list of labels to set
+ * unset_labels: list of labels to unset
+ * change_status: new status
+ * alias: list of alias to add
+ * unalias: list of alias to remove
 
-## issues.list
+## issues.list(filter \\ {})
+
+Returns the list of issues that comply with the given filter. It may be ommited.
+
+Filter accepts:
+
+* serverboard: Only filters at that serverboard
 
 ## issues.get(id)

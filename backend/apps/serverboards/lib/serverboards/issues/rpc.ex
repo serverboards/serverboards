@@ -9,8 +9,11 @@ defmodule Serverboards.Issues.RPC do
     {:ok, mc} = RPC.MethodCaller.start_link options
     Serverboards.Utils.Decorators.permission_method_caller mc
 
-    RPC.MethodCaller.add_method mc, "issues.list", fn [] ->
-      Serverboards.Issues.list
+    RPC.MethodCaller.add_method mc, "issues.list", fn
+      [] -> Serverboards.Issues.list
+      filter when is_map(filter) ->
+        filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"alias")
+        Serverboards.Issues.list filter
     end, [required_perm: "issues.view"]
     RPC.MethodCaller.add_method mc, "issues.get", fn [issue_id] ->
       Serverboards.Issues.Issue.get issue_id

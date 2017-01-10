@@ -21,7 +21,7 @@ def update_now(**args):
         if res == 0:
             serverboards.log("Update Serverboards result\n%s"%data)
         else:
-            serverboards.error("Error updating Serverboards\n%s"data)
+            serverboards.error("Error updating Serverboards\n%s"%data)
 
 @serverboards.rpc_method
 def check_plugin_updates(**args):

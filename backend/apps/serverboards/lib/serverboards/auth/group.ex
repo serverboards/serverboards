@@ -168,6 +168,20 @@ defmodule Serverboards.Auth.Group do
      select: u.email
     )
   end
+  @doc ~S"""
+  Retuns a list of user (by email) that belong to that group.
+  """
+  def active_user_list(group, _me) do
+    Repo.all(
+       from u in Model.User,
+      join: ug in Model.UserGroup,
+        on: u.id == ug.user_id,
+      join: g in Model.Group,
+        on: g.id == ug.group_id,
+     where: g.name == ^group and u.is_active,
+     select: u.email
+    )
+  end
 
   @doc ~S"""
   List permissions at that group

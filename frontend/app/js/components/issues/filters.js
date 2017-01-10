@@ -1,4 +1,59 @@
 import React from 'react'
+import {goto} from 'app/utils/store'
+import rpc from 'app/rpc'
+
+const RelatedElement=React.createClass({
+  getInitialState(){
+    return {
+      url: undefined,
+      name: undefined
+    }
+  },
+  componentDidMount(){
+    const al=this.props.alias
+    if (al.startsWith("rule/")){
+      rpc.call("rules.list", {uuid: al.slice(5)}).then( rl => {
+        const rule=rl[0]
+        this.setState({
+          url: `/serverboard/${rule.serverboard || "_"}/rules/${rule.uuid}`,
+          name: rule.name || (rule.trigger || {}).name || "This rule has no name",
+          type: "Rule"
+        })
+      })
+    }
+    if (al.startsWith("service/")){
+      rpc.call("service.info", [al.slice(8)]).then( s => {
+        this.setState({
+          url: `/serverboard/${s.serverboards.length>0 ? s.serverboards[0] : "_"}/services/${s.uuid}`,
+          name: s.name || "This service has no name",
+          type: "Service"
+        })
+      })
+    }
+    if (al.startsWith("serverboard/")){
+      const serverboard=al.slice(12)
+      this.setState({
+        url: `/serverboard/${serverboard}/`,
+        name: serverboard || "Serverboard",
+        type: "Serverboard"
+      })
+    }
+  },
+  render(){
+    const {url, name, type} = this.state
+    if (url){
+      return (
+        <div>
+          {type}:&nbsp;
+          <a onClick={() => goto(url)} style={{cursor:"pointer"}}>{name}</a>
+        </div>
+      )
+    }
+    return (
+      <div>{this.props.alias}</div>
+    )
+  }
+})
 
 const Filters=React.createClass({
   componentDidMount(){
@@ -30,6 +85,14 @@ const Filters=React.createClass({
             </div>
           ))}
         </div>
+        {issue.aliases.length>0 ? (
+          <div>
+            <h4 className="ui header">Related</h4>
+              {issue.aliases.map( (a) => (
+                <RelatedElement key={a} alias={a}/>
+              ))}
+          </div>
+        ) : null }
         {/*
         <div>
           <h4 className="ui header">Asignees</h4>

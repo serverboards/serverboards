@@ -73,6 +73,12 @@ defmodule Serverboards.IssuesTest do
     Logger.info(inspect issue)
 
     assert issue["title"] == "From alias"
+
+    # can be listed by alias
+    {:ok, issues} = Test.Client.call(client, "issues.list", %{ alias: "test/1111"})
+    Logger.info(inspect issues)
+
+    assert Enum.count(issues) > 0
   end
 
   test "Status changes" do

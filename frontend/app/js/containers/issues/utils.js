@@ -12,6 +12,8 @@ const slashf=slash.factory({
   closed: (tags, context) => {context.close=true},
   open: (tags, context) => {context.open=true},
   reopen: (tags, context) => {context.open=true},
+  alias: (alias, context) => {context.alias=(context.alias || []).concat(alias)},
+  unalias: (alias, context) => {context.unalias=(context.alias || []).concat(alias)},
 })
 
 // Adds a comment, parses slash commands
@@ -32,6 +34,12 @@ export function parse_comment(comment_raw){
   }
   if (context.close){
     updates.push({ type: "change_status", data: "closed"})
+  }
+  if (context.alias){
+    updates.push({ type: "alias", data: context.alias})
+  }
+  if (context.unalias){
+    updates.push({ type: "unalias", data: context.unalias})
   }
   return updates
 }

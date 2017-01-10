@@ -12,7 +12,14 @@ const Add = React.createClass({
     description=updates[0].data
     updates=updates.slice(1)
 
-    rpc.call("issues.add", {title, description})
+    let data = {title, description}
+
+    let serverboard=this.props.location.state.serverboard
+    if (serverboard){
+      data.aliases=[`serverboard/${serverboard}`]
+    }
+
+    rpc.call("issues.add", data)
       .then( (id) => {
         if (updates.length>0)
           return update_issue_multi(id, updates).then( () => id )
