@@ -614,6 +614,12 @@ type:
 
  * comment, with data: {comment}
 
-## issues.list
+## issues.list(filter \\ {})
+
+Returns the list of issues that comply with the given filter. It may be ommited.
+
+Filter accepts:
+
+* serverboard: Only filters at that serverboard
 
 ## issues.get(id)
