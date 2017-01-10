@@ -66,4 +66,4 @@ cd frontend
 npm start
 ```
 
-Alternatively you can create the release with `make release` and run it as `rel/bin/serverboards start`
+Alternatively you can create the release with `make release` and run it as `rel/serverboards/bin/serverboards foreground`.
