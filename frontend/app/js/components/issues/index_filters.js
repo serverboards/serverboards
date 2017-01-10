@@ -72,7 +72,7 @@ const Filters = React.createClass({
             </select>
           </div>
           <div className="ui labels">
-            <h4 className="ui header">Filter by labels</h4>
+            <h4 className="ui grey header">Filter by labels</h4>
             <div className="ui divider"/>
             {props.labels.map( (t) => (
               <IssueTag key={t.name} value={t.name} color={t.color}
@@ -83,7 +83,8 @@ const Filters = React.createClass({
             <div className="ui divider"/>
           </div>
           <div className="field">
-            <h4 className="ui header">Only at serverboard</h4>
+            <h4 className="ui grey header">At serverboard</h4>
+            <div className="ui divider"/>
             <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder="All serverboards">
               <option value="none">All serverboards</option>
               {sorted_serverboards(props.serverboards).map((s) => (
