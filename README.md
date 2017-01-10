@@ -31,12 +31,39 @@ There are forums in place at https://disqus.com/home/channel/serverboards/
 
 Subscribe to our newsletter https://serverboards.io
 
-## Running the server
+## Download
 
-The main shell script understands basic start/stop commands.
+Serverboards can be downloaded to be used on Ubuntu 16.04 (and maybe others) at
+https://serverboards.io
+
+Once downloaded install it with `dpkg -i serverboards.deb` and do a `apt -f
+install` to ensure all dependencies are downloaded.
+
+Access it at http://localhost:8080, and enter with your user and password. If
+your user is in the adm group it will have admin access, and can add other users
+and disable PAM access.
+
+## Compiling and running the server
+
+If you plan to develop Serverboards core itself, first compile it once to ensure
+you have all the required dependencies:
 
 ```shell
-$ ./serverboards.sh start
-...
-$ ./serverboards.sh stop
+make
 ```
+
+And then you may run it executing these commands in two different terminals:
+
+Terminal 1:
+```shell
+cd backend
+iex -S mix
+```
+
+Terminal 2:
+```shell
+cd frontend
+npm start
+```
+
+Alternatively you can create the release with `make release` and run it as `rel/bin/serverboards start`
