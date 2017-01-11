@@ -1,6 +1,7 @@
 import React from 'react'
 import { goBack } from 'react-router-redux'
 import store from 'app/utils/store'
+const logo=require("../../imgs/logo.svg")
 
 require('sass/modal.sass')
 
@@ -24,9 +25,8 @@ const Modal=React.createClass({
   render(){
     const props=this.props
 
-    const logo=require("../../imgs/logo.svg")
     return (
-      <div className={`ui modal background ${props.className}`} id={props.id}>
+      <div className={`ui modal background ${props.className || ""}`} id={props.id}>
         <div className="ui top menu">
           <a href="#/">
             <img className="logo" src={logo}/>
