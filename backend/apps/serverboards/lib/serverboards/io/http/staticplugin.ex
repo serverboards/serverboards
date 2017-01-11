@@ -50,6 +50,7 @@ defmodule Serverboards.IO.HTTP.StaticPlugin do
           request
         )
       {:error, _} ->
+        Logger.debug("Could not read static file at #{requested_filename}")
         :cowboy_req.reply(
           404,
           [],
