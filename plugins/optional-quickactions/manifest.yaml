@@ -1,0 +1,12 @@
+id: serverboards.optional.quickactions
+name: Quick Actions
+author: David Moreno <dmoreno@coralbits.com>
+description: |
+  Allows to create new actions that are just actions prefilled with some data.
+
+  This is useful for fast access to common actions
+
+components:
+  - id: editor
+    type: screen
+    name: Quick Actions
