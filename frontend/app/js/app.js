@@ -11,6 +11,7 @@ import moment from 'moment'
 import * as d3 from 'd3'
 import graphs from 'app/graphs'
 import perms from 'app/utils/perms'
+import cache from 'app/utils/cache'
 require('moment-range');
 
 require("sass/serverboards.sass")
@@ -47,7 +48,8 @@ window.Serverboards = {
   moment,
   d3,
   graphs,
-  perms
+  perms,
+  cache
 }
 
 ReactDOM.render(

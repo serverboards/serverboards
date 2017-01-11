@@ -5,7 +5,7 @@ import { services_update_catalog } from 'app/actions/service'
 var Container = event.subscribe_connect(
   (state) => {
     return {
-      catalog: state.serverboard.catalog
+      catalog: state.services.catalog
     }
   },
   (dispatch) => ({

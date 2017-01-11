@@ -6,7 +6,7 @@ import { services_update_catalog, services_update_all } from 'app/actions/servic
 var SettingsAdd=connect(
   (state) => {
     return {
-      //catalog: state.serverboard.catalog,
+      //catalog: state.services.catalog,
       location: state.routing.locationBeforeTransitions
     }
   },

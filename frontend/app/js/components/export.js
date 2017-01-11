@@ -4,13 +4,15 @@ import ActionEdit from 'app/components/rules/actionedit'
 import Loading from './loading'
 import Modal from './modal'
 import HoldButton from './holdbutton'
+import GenericForm from './genericform'
 
 const components = {
   Modal,
   Loading,
   MarkdownPreview,
   ActionEdit,
-  HoldButton
+  HoldButton,
+  GenericForm
 }
 
 export default components

@@ -3,6 +3,18 @@ import React from 'react'
 import GenericField from './genericfield'
 
 const GenericForm=React.createClass({
+  propTypes:{
+    fields: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        label: React.PropTypes.string,
+        name: React.PropTypes.string,
+        description: React.PropTypes.string,
+        type: React.PropTypes.string,
+        value: React.PropTypes.string,
+        params: React.PropTypes.string,
+      }).isRequired).isRequired,
+    data: React.PropTypes.object
+  },
   getInitialState(props){
     props = props || this.props
     let state={};

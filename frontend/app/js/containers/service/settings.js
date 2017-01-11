@@ -8,7 +8,7 @@ import { set_modal } from 'app/actions/modal'
 var Settings = event.subscribe_connect(
   (state) => {
     return {
-      service_catalog: state.serverboard.catalog
+      service_catalog: state.services.catalog
     }
   },
   (dispatch) => ({
