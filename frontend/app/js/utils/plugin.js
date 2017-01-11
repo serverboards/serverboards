@@ -52,8 +52,13 @@ export function load_html(url, options={}){
   let p = new Promise((accept, reject) => {
     url = join_path(url)
     $.get(url, function(html){
-      if (options.base_url)
-        html = html.replace(/(src=")([^/])/g, `$1${join_path(options.base_url)}/$2`)
+      if (options.base_url){
+        const base_static = join_path(options.base_url)
+        html = html.replace(/(src="|href=")([^/])/g, `$1/$2`) // maybe relative, convert to absolute
+        html = html.replace(/(src="|href=")/g, `$1${base_static}/`) // Add the prefixes
+        // and undo duplicate paths, because user already had them
+        html = html.replace(RegExp(`/static/${options.base_url}//static/${options.base_url}/`,'g'), `/static/${options.base_url}/`)
+      }
       accept(html)
     }).error( (e) => {
       reject(e)
