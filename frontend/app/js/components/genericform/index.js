@@ -13,7 +13,8 @@ const GenericForm=React.createClass({
         value: React.PropTypes.string,
         params: React.PropTypes.string,
       }).isRequired).isRequired,
-    data: React.PropTypes.object
+    data: React.PropTypes.object,
+    updateForm: React.PropTypes.func.isRequired
   },
   getInitialState(props){
     props = props || this.props
