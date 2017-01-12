@@ -46,7 +46,6 @@ const ListModel=React.createClass({
   },
   render(){
     if (this.state.edit){
-      console.log(this.state.edit)
       return (
         <EditAction action={this.state.edit} onAccept={this.handleAcceptEditAction} services={this.props.services} onClose={this.handleCloseEditAction}/>
       )

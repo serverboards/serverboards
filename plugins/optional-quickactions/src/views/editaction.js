@@ -31,7 +31,7 @@ const EditAction = React.createClass({
             </div>
             <div className="field">
               <label>Service</label>
-              <select className="ui dropdown search" defaultValue={action.service}>
+              <select className="ui dropdown search" defaultValue={action.service} onChange={(ev) => props.onServiceChange(ev.target.value)}>
                 <option value=".">No service selected</option>
                 {props.services.map( (s) => (
                   <option key={s.uuid} value={s.uuid}>{s.name}</option>
@@ -47,7 +47,7 @@ const EditAction = React.createClass({
                 ))}
               </select>
             </div>
-            <GenericForm fields={props.form_fields} data={action.params}/>
+            <GenericForm fields={props.form_fields} data={action.params} updateForm={props.onUpdateActionParams}/>
           </div>
 
           <div className="ui buttons" style={{marginTop: 30}}>
