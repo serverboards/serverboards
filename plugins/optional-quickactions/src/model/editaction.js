@@ -5,32 +5,29 @@ const merge = Serverboards.utils.merge
 
 const EditActionModel = React.createClass({
   getInitialState(){
+    console.log(this)
+    const services = this.props.services
+    const service_id = this.props.action.service
+    const service = services.find( (s) => s.uuid == service_id )
+
     return {
       actions: undefined,
-      services: undefined,
+      services,
       action: merge(this.props.action, {}),
       action_template: undefined,
-      service: undefined,
+      service,
       form_fields: [],
     }
   },
   componentDidMount(){
     const self = this
-    Promise.all([
-      cache.action_catalog().then( actions => {
-        const action_id = self.props.action.action
-        const action_template=actions.find( ac => ac.id == action_id )
-        self.setState({ actions, action_template })
-        return action_template
-      }),
-      cache.services().then( services => {
-        const service_id = self.props.action.service
-        const service = services.find( (s) => s.uuid == service_id )
-        self.setState({ services, service })
-        return service
-      })
-    ]).then( ([action_template, service]) => {
-      self.updateFormFields(action_template, service)
+    cache.action_catalog().then( actions => {
+      const action_id = self.props.action.action
+      const action_template=actions.find( ac => ac.id == action_id )
+      self.setState({ actions, action_template })
+      return action_template
+    }).then( (action_template) => {
+      self.updateFormFields(action_template, this.state.service)
     })
   },
   handleActionChange(action_id){
