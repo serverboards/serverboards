@@ -281,9 +281,12 @@ As with `plugin.data.set` the `id` is optional but checked against the current
 plugin, if called froma plugin cmd.
 
 ## plugin.data_keys(id, key_prefix)
+## plugin.data_keys(key_prefix)
 
 Returns all the keys for that plugin id that have the given prefix. This allows
 to have some list of elements configurations, and group them.
+
+If id is not given, it uses the current plugin.
 
 ## plugin.data_remove(id, key)
 

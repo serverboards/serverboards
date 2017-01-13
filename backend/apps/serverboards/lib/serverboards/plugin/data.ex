@@ -100,4 +100,15 @@ defmodule Serverboards.Plugin.Data do
         select: d.key
     )
   end
+  @doc ~S"""
+  Returns the items {key, value} of some plugin data, filtered by prefix.
+  """
+  def data_items(pluginid, keyprefix) do
+    import Ecto.Query
+    Repo.all(
+      from d in Model.Data,
+        where: d.plugin == ^pluginid and like(d.key, ^"#{keyprefix}%"),
+        select: {d.key, d.value}
+    )
+  end
 end
