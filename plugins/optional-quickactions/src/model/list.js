@@ -5,7 +5,7 @@ const {Modal} = Serverboards.Components.Modal
 
 const extra={
   actions: [
-    { id: 1, action: "serverboards.core.actions/webhook.call", params: { url: "https://serverboards.io" }, name: "Call serverboards.io", confirmation: false },
+    { id: 1, action: "serverboards.core.actions/webhook.call", description: "This is a description", params: { url: "https://serverboards.io" }, name: "Call serverboards.io", confirmation: false },
     { id: 2, action: "serverboards.core.ssh/exec", params: { command: "service nginx restart" }, name: "Restart NGINX", service: "b3fc12ee-cecd-4cf0-b10f-760630478fd7", confirmation: true, icon: "play" },
     { id: 3, action: "serverboards.core.ssh/exec", params: { command: "reboot" }, name: "Restart", service: "fcdfdf22-1ac6-4baa-81ad-d5ac94308b72", confirmation: true, icon: "undo", description: "Reboots the server." },
     { id: 4, action: "serverboards.core.ssh/exec", params: { command: "halt" }, name: "Halt", service: "b3fc12ee-cecd-4cf0-b10f-760630478fd7", confirmation: true, icon: "stop" },
@@ -25,7 +25,8 @@ const extra={
 const ListModel=React.createClass({
   getInitialState(){
     return {
-      edit: undefined
+      edit: undefined,
+      actions: extra.actions
     }
   },
   handleRunAction(a){
@@ -39,7 +40,17 @@ const ListModel=React.createClass({
     this.setState({edit: a})
   },
   handleAcceptEditAction(a){
-    this.setState({edit: undefined})
+    console.log(this.state.actions)
+    const actions = this.state.actions.map( (ac) => {
+      console.log(ac.id, a.id)
+      if (ac.id == a.id){
+        console.log("do")
+        return a
+      }
+      return ac
+    })
+    console.log(actions)
+    this.setState({edit: undefined, actions})
   },
   handleCloseEditAction(){
     this.setState({edit: undefined})
@@ -51,7 +62,7 @@ const ListModel=React.createClass({
       )
     }
     return (
-      <View {...this.props} {...extra} onRunAction={this.handleRunAction} onConfigureAction={this.handleConfigureAction}/>
+      <View {...this.props} {...this.state} onRunAction={this.handleRunAction} onConfigureAction={this.handleConfigureAction}/>
     )
   }
 })

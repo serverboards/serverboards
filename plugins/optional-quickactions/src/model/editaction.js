@@ -51,9 +51,6 @@ const EditActionModel = React.createClass({
       this.setState({form_fields})
     }
   },
-  handleUpdateActionParams(params){
-    this.setState({action: merge(this.state.action, {params})})
-  },
   handleServiceChange(service_id){
     const service = this.findService(service_id)
     this.setState({service, action: merge(this.state.action, {service: service_id})})
@@ -67,7 +64,10 @@ const EditActionModel = React.createClass({
   },
   handleAcceptChanges(){
     console.log(this.state.action)
-    //props.onAccept(this.state.action)
+    this.props.onAccept(this.state.action)
+  },
+  updateAction(changes){
+    this.setState({action: merge(this.state.action, changes)})
   },
   render(){
     if (!this.state.actions || !this.state.services)
@@ -78,8 +78,11 @@ const EditActionModel = React.createClass({
       <View {...this.state} {...this.props}
         onActionChange={this.handleActionChange}
         onServiceChange={this.handleServiceChange}
-        onUpdateActionParams={this.handleUpdateActionParams}
+        onUpdateActionParams={(params) => this.updateAction({params})}
         onAccept={this.handleAcceptChanges}
+        onUpdateDescription={(description) => this.updateAction({description})}
+        onUpdateName={(name) => this.updateAction({name})}
+        onUpdateConfirmation={(confirmation) => this.updateAction({confirmation})}
         />
     )
   }

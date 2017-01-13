@@ -19,14 +19,14 @@ const EditAction = React.createClass({
           <div className="ui form" ref="form">
             <div className="field">
               <label>Name</label>
-              <input type="text" defaultValue={action.name}/>
+              <input type="text" defaultValue={action.name} onChange={(ev) => props.onUpdateName(ev.target.value)}/>
             </div>
             <div className="field">
               <label>Description</label>
-              <textarea>{action.description}</textarea>
+              <textarea onChange={(ev) => props.onUpdateDescription(ev.target.value)}>{action.description}</textarea>
             </div>
             <div className="field ui checkbox">
-              <input type="checkbox" defaultChecked={action.confirmation}/>
+              <input type="checkbox" defaultChecked={action.confirmation}  onChange={(ev) => props.onUpdateConfirmation(ev.target.value)}/>
               <label>Require confirmation</label>
             </div>
             <div className="field">

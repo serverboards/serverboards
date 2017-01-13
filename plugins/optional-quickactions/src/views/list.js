@@ -8,7 +8,7 @@ function find_service(service_id, services){
 function Action(props){
   const a = props.action
   return (
-    <div className="column">
+    <div className="column" data-tooltip={a.description}>
       <a onClick={() => props.onRunAction(a)} className={`ui big top attached button ${random_color(a.service || "a")} labeled icon`}>
         {a.icon ? (
           <i className={`ui icon ${a.icon}`}/>
