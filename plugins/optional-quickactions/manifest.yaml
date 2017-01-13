@@ -10,3 +10,11 @@ components:
   - id: editor
     type: screen
     name: Quick Actions
+
+  - id: command
+    type: cmd
+    name: Action executor and store
+    command: ./serverboards-quickactions.py
+    type: onetime
+    timeout: 3s
+    perms: plugin.data[serverboards.optional.quickactions]

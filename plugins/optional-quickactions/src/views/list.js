@@ -26,6 +26,7 @@ function Action(props){
 }
 
 function View(props){
+  const actions = (props.actions || []).sort( (a,b) => a.name.localeCompare(b.name) )
   return (
     <div>
       <div className="ui top header menu">
@@ -33,11 +34,14 @@ function View(props){
       </div>
       <div className="ui container" style={{paddingTop: 30}}>
         <div className="ui four column grid stackable">
-          {(props.actions || []).map( (a) => (
+          {(actions || []).map( (a) => (
             <Action key={a.id} action={a} {...props}/>
           ))}
         </div>
       </div>
+      <a onClick={props.onOpenAddAction} className="ui massive button _add icon floating yellow">
+        <i className="add icon"></i>
+      </a>
     </div>
   )
 }
