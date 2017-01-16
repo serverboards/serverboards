@@ -49,7 +49,9 @@ const ListModel=React.createClass({
       if (!confirm(a.name + "\n\n" + (a.description || a.confirm || "Are you sure?")))
         return;
     }
-    console.log(a)
+    plugin.start_call_stop(`serverboards.optional.quickactions/command`, "run_action", [a.id]).then( () => {
+      Flash.info("Sucefully run action "+a.name)
+    }).catch( e => Flash.error(e) )
   },
   handleConfigureAction(a){
     this.setState({edit: a})
