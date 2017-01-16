@@ -173,6 +173,14 @@ defmodule Serverboards.Plugin.Parser do
       end
     end
 
+    is_valid_dirname = fn (dirname) ->
+      cond do
+        String.starts_with?(dirname, "__") -> false
+        String.starts_with?(dirname, ".") -> false
+        true -> true
+      end
+    end
+
     has_manifest = fn (dirname) ->
       fullpath="#{dirname}/manifest.yaml"
       case File.stat(fullpath) do
@@ -186,6 +194,7 @@ defmodule Serverboards.Plugin.Parser do
       {:ok, allfiles} ->
         plugins = allfiles
             |> filter(&is_directory.(dirname, &1))
+            |> filter(&is_valid_dirname.(&1))
             |> filter(&has_manifest.(dirname<>"/"<>&1))
             |> map(&{read("#{dirname}/#{&1}/manifest.yaml"), &1}) # returns {{:ok, plugin}, midpath}
             |> filter(fn

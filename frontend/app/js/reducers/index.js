@@ -4,7 +4,7 @@ import flash from './flash'
 import { routerReducer } from 'react-router-redux'
 
 var reducers = [
-  'auth', 'action', 'flash', 'console', 'top', 'serverboard',
+  'auth', 'action', 'flash', 'console', 'top', 'serverboard', 'services',
   'settings', 'notifications', 'rules', 'rpc'
 ]
 

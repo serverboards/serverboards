@@ -1,0 +1,34 @@
+id: serverboards.optional.quickactions
+name: Quick Actions
+author: David Moreno <dmoreno@coralbits.com>
+description: |
+  Allows to create new actions that are just actions prefilled with some data.
+
+  This is useful for fast access to common actions
+
+components:
+  - id: editor
+    type: screen
+    name: Quick Actions
+
+  - id: action
+    type: action
+    name: Quick Action
+    command: serverboards.optional.quickactions/command
+    call:
+      method: run_action
+      params:
+        - name: actionid
+          label: Action
+          type: select call
+          options:
+            command: serverboards.optional.quickactions/command
+            call: list_actions_select
+
+  - id: command
+    type: cmd
+    name: Action executor and store
+    command: ./serverboards-quickactions.py
+    type: onetime
+    timeout: 3s
+    perms: plugin.data[serverboards.optional.quickactions] service.info action.trigger

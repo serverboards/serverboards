@@ -7,8 +7,8 @@ import { serverboard_attach_service } from 'app/actions/serverboard'
 var AddService=connect(
   (state) => {
     return {
-      catalog: state.serverboard.catalog,
-      all_services: state.serverboard.all_services,
+      catalog: state.services.catalog,
+      all_services: state.services.services,
       location: state.routing.locationBeforeTransitions
     }
   },

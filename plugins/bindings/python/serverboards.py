@@ -273,7 +273,7 @@ class RPC:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
             if 'id' in rpc and ('result' in rpc or 'error' in rpc):
-                assert rpc['id']==id
+                assert rpc['id']==id, "Expected id %s, got %s"%(id, rpc['id'])
                 if 'error' in rpc:
                     raise Exception(rpc['error'])
                 else:
@@ -287,6 +287,12 @@ class RPC:
                     self.requestq.append(rpc)
 
     def subscribe(self, event, callback):
+        """
+        Subscribes for a serverevent, calling the callback(eventdata) when it
+        happens.
+
+        Returns a subscription id, tahta can be used to unsubscribe.
+        """
         eventname=event.split('[',1)[0] # maybe event[context], we keep only event as only events are sent.
         sid=self.subscription_id
 
@@ -301,6 +307,9 @@ class RPC:
         return sid
 
     def unsubscribe(self, subscription_id):
+        """
+        Unsubscribes from an event.
+        """
         self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
         (event, callback) = self.subscriptions_ids[subscription_id]
         self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]

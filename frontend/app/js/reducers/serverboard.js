@@ -27,10 +27,6 @@ function serverboard(state=default_state, action){
     }
     case 'UPDATE_ALL_SERVERBOARDS':
       return merge(state, {serverboards: action.serverboards} )
-    case 'UPDATE_SERVICE_CATALOG':
-      return merge(state, {catalog: action.services} )
-    case 'UPDATE_ALL_SERVICES':
-      return merge(state, {all_services: action.services} )
     case 'UPDATE_SERVERBOARD_SERVICES':
       return merge(state, {current_services: action.services} )
     case '@RPC_EVENT/serverboard.added':
