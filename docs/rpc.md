@@ -346,6 +346,10 @@ Returns compatible widgets for this serverboard
 
 ## service.list(filter \\ [])
 
+Can filter by:
+
+* serverboard
+
 ## service.info(uuid)
 
 ## service.attach(serverboard_shortname, service_uuid)
