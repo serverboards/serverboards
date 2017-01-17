@@ -112,8 +112,8 @@ add_command_search('all-services', function(Q, context){
   return cache.services().then( (services) => services.map( (s) => (
     {
       id: s.uuid,
-      title: `${s.name} -- Service details`,
-      description: s.description || "",
+      title: `${s.name}`,
+      description: s.description || `Service at ${s.serverboards.join(', ') || "no"} serverboard`,
       path: `/services/${s.uuid}`
     }
   )))
