@@ -184,7 +184,7 @@ export function pretty_ago(t, now, minres="second"){
 }
 
 export function pretty_date(d){
-  return d.format("llll")
+  return moment(d).format("llll")
 }
 
 export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]

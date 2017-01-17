@@ -121,4 +121,7 @@ export function goto(url, extradata={}){
   }))
 }
 
+store.set_modal = set_modal
+store.goto = goto
+
 export default store
