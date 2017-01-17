@@ -59,6 +59,20 @@ function get_external_url(id, props){
 }
 
 const Details = React.createClass({
+  propTypes:{
+    screens: React.PropTypes.arrayOf(React.PropTypes.object),
+    service: React.PropTypes.shape({
+      id: React.PropTypes.string.isRequired,
+      name: React.PropTypes.string.isRequired,
+      description: React.PropTypes.string.isRequired,
+      config: React.PropTypes.string.isRequired,
+    }).isRequired,
+    template: React.PropTypes.shape({
+      name: React.PropTypes.string.isRequired,
+      description: React.PropTypes.string.isRequired,
+      params: React.PropTypes.string,
+    }).isRequired
+  },
   getInitialState(){
     return { service: this.props.service }
   },
@@ -103,7 +117,7 @@ const Details = React.createClass({
       { name: "Settings", id: "settings" },
     ];
 
-    (props.serverboard.screens || []).map( (s) => {
+    props.screens.map( (s) => {
       if (match_traits(s.traits, props.service.traits)){
         sections.push({
           name: s.name,
@@ -123,7 +137,6 @@ const Details = React.createClass({
         icon: !u.extra.iframe ? "external" : null
       })
     })
-    console.log(props)
     let CurrentTab = (
       tab_options[current_tab] ||
       get_plugin_component(props) ||

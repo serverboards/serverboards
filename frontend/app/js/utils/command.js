@@ -1,4 +1,5 @@
 import {merge} from './index'
+import cache from 'app/utils/cache'
 
 let command_searchs = {}
 
@@ -105,6 +106,17 @@ add_command_search('notifications-processes', function(Q, context){
     { id: 'notifications', title: 'Notifications', description: 'Alerts, notifications and messages', path: '/notifications/list' },
     { id: 'processes', title: 'Processes', description: 'View running and stopped processes history', path: '/process/history' }
   ]
+})
+
+add_command_search('all-services', function(Q, context){
+  return cache.services().then( (services) => services.map( (s) => (
+    {
+      id: s.uuid,
+      title: `${s.name} -- Service details`,
+      description: s.description || "",
+      path: `/services/${s.uuid}`
+    }
+  )))
 })
 
 export default { search, add_command_search, remove_command_search }
