@@ -144,7 +144,9 @@ const Details = React.createClass({
       Empty
     )
 
-    const handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
+    let handleClose = undefined
+    if (props.serverboard)
+      handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
 
     return (
       <Modal className="wide" onClose={handleClose}>

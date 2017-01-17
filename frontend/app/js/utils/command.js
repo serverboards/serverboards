@@ -35,7 +35,7 @@ export function search(Q, context, set_search_results){
     return Promise.resolve(v.fn(Q, context)).catch( (e) => {
       console.error("%s: %o at %o", k, e, v)
       return []
-    })
+    }).then( (results) => results.map( r => merge(r, {score: (r.order  || 0 ) + v.score*100} ) ) )
   } )
   let pall = Promise.all(promises).then( (results) => {
     let allr=[]
