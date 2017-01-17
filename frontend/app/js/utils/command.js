@@ -2,6 +2,19 @@ import {merge} from './index'
 
 let command_searchs = {}
 
+/**
+ * @short Adds a command search by name, function and score
+ *
+ * The function must return a list of {title, description, url, score} or a
+ * promise of the list.
+ *
+ * f(Q, context)
+ *
+ * f may return non filtered results; will be re filtered again later.
+ *
+ * Then name can be used to remove the sarch later, to have context sensitive
+ * searches
+ */
 export function add_command_search(name, f, score=0){
   command_searchs[name]={ fn: f, score: score }
 }
@@ -10,26 +23,27 @@ export function remove_command_search(name){
   delete command_searchs[name]
 }
 
-export function search(Q, context){
-  //console.log("Search for %o", Q)
-  return new Promise(function(resolve, reject){
-    let results = []
-
-    for(let section in command_searchs){
-      let s = command_searchs[section]
-      try{
-        results = results.concat(s.fn(Q, context).map(
-          (item) => merge(item, {score: (item.score || 0) + s.score})
-        ))
-      } catch(e) {
-        console.error("%s: %o at %o", section, e, f)
-      }
-    }
-
-    results.sort( (a,b) => b.score - a.score )
-
-    resolve(results)
+/**
+ * @short Performs the search over all the registered searches.
+ *
+ * When data is ready resolves with the search results.
+ */
+export function search(Q, context, set_search_results){
+  let promises = Object.keys(command_searchs).map( (k) => {
+    let v = command_searchs[k]
+    return Promise.resolve(v.fn(Q, context)).catch( (e) => {
+      console.error("%s: %o at %o", k, e, v)
+      return []
+    })
+  } )
+  let pall = Promise.all(promises).then( (results) => {
+    let allr=[]
+    results.map( (r) => r.map( (r) => allr.push(r) ) )
+    return allr
+  }).catch( (e) => {
+    console.error("Aggregating the search results: %o", e)
   })
+  return pall
 }
 
 add_command_search('serverboards', function(Q, context){
