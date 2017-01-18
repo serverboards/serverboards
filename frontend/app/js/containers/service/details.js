@@ -12,7 +12,7 @@ function get_screens( service ){
 
 var Container = store.connect({
   state(state, props){
-    const locstate = props.location.state || {}
+    const locstate = state.routing.locationBeforeTransitions.state || {}
     const tab = locstate.tab || 'details'
     const type = locstate.type || ''
     return {
@@ -20,11 +20,8 @@ var Container = store.connect({
       type,
     }
   },
-  promises(prevprops, nextprops){
-    const prevserviceid = prevprops.subsection
-    const serviceid = nextprops.subsection || nextprops.routeParams.id
-    if (prevserviceid == serviceid)
-      return;
+  promises(props){
+    const serviceid = props.subsection || props.routeParams.id
     const service = rpc.call("service.info", [serviceid])
     const service_template = Promise.all([service, cache.service_catalog()])
       .then(
@@ -36,9 +33,7 @@ var Container = store.connect({
     return {service, service_template, screens}
   },
   watch: [
-    "service", "service_template", "screens",
-    (prevprops, nextprops) =>
-      !prevprops || !object_is_equal(prevprops.location.state, nextprops.location.state)
+    "service", "service_template", "screens", "tab", "type"
   ]
 },View)
 

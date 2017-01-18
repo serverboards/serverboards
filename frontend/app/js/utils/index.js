@@ -188,3 +188,12 @@ export function pretty_date(d){
 }
 
 export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+export function unwrap(fn, arg1, arg2){ // If two args, use them, if one, use store.getState() and props, if none, use store.getState and this.props.
+  if (!fn) // not existant is as an empty list
+    return []
+  if (typeof(fn) == "function"){
+    return fn(arg1, arg2) || [] // May return undefined, null or falsy
+  }
+  return fn
+}

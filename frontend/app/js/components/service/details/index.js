@@ -90,6 +90,9 @@ const Details = React.createClass({
         goto(null, {tab: id, type: "external url"})
       }
     }
+    else{
+      goto(null, {tab: id})
+    }
   },
   componentDidMount(){
     goto(null, {tab: "details"})
