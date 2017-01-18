@@ -17,6 +17,10 @@ const cache={
     store_get: () => store.getState().services.services,
     store_update: require('app/actions/service').services_update_all()
   }),
+  service_catalog: cache_builder({
+    store_get: () => store.getState().services.catalog,
+    store_update: require('app/actions/service').services_update_catalog()
+  }),
   action_catalog: cache_builder({
       store_get: () => {
         const catalog = store.getState().action.catalog
@@ -36,26 +40,28 @@ const cache={
 // Generic cache get builder from redux actions and using the store
 // Returns the function to be called to update the cache and get the promise
 function cache_builder({store_get, store_update}){
+  let p // Reuses the promise if called several times before completion
   return function(){
-    let p=new Promise((accept, reject) => {
-      const data = store_get()
-      if (data)
-        accept(data)
-      else{
-        try{
-          store_update( data => {
-            try{
-              store.dispatch(data)
-              accept(store_get())
-            } catch(e){
-              reject(e)
-            }
-          })
-        } catch(e){
-          reject(e)
+    if (!p)
+      p=new Promise((accept, reject) => {
+        const data = store_get()
+        if (data)
+          accept(data)
+        else{
+          try{
+            store_update( data => {
+              try{
+                store.dispatch(data)
+                accept(store_get())
+              } catch(e){
+                reject(e)
+              }
+            })
+          } catch(e){
+            reject(e)
+          }
         }
-      }
-    })
+      })
     return p
   }
 }

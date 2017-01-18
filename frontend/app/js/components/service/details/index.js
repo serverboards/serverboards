@@ -62,29 +62,20 @@ const Details = React.createClass({
   propTypes:{
     screens: React.PropTypes.arrayOf(React.PropTypes.object),
     service: React.PropTypes.shape({
-      id: React.PropTypes.string.isRequired,
+      uuid: React.PropTypes.string.isRequired,
       name: React.PropTypes.string.isRequired,
-      description: React.PropTypes.string.isRequired,
-      config: React.PropTypes.string.isRequired,
+      description: React.PropTypes.string,
+      config: React.PropTypes.object.isRequired,
     }).isRequired,
-    template: React.PropTypes.shape({
+    service_template: React.PropTypes.shape({
       name: React.PropTypes.string.isRequired,
-      description: React.PropTypes.string.isRequired,
+      description: React.PropTypes.string,
       params: React.PropTypes.string,
     }).isRequired
   },
-  getInitialState(){
-    return { service: this.props.service }
-  },
   handleTabChange(id, type){
-    // Changes the state.service, to require deep info(plugins) or shallow (settings)
-    let self=this
     if (type=="screen"){
-      get_service_data(this.props.service.uuid).then( (service) => {
-        //console.log("Got deep service: %o", service)
-        self.setState({service})
-        goto(null, {tab: id, type: "screen"})
-      })
+      goto(null, {tab: id, type: "screen"})
     }
     else if (type=="external url"){
       const euc = get_external_url_template(id, this.props)
@@ -98,11 +89,6 @@ const Details = React.createClass({
       else{
         goto(null, {tab: id, type: "external url"})
       }
-    }
-    else{
-      //console.log("Set shallow service: %o", this.props.service)
-      self.setState({service: this.props.service})
-      goto(null, {tab: id})
     }
   },
   componentDidMount(){
@@ -176,7 +162,7 @@ const Details = React.createClass({
           ))}
         </div>
         <div className="ui full height">
-          <CurrentTab {...props} service={this.state.service} onClose={handleClose} />
+          <CurrentTab {...props} service={props.service} onClose={handleClose} />
         </div>
       </Modal>
     )
