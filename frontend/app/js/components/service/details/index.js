@@ -99,6 +99,11 @@ const Details = React.createClass({
   },
   render(){
     const props = this.props
+    if (props.loading){
+      return (
+        <Loading>Service details</Loading>
+      )
+    }
     let current_tab = props.tab
 
     let sections=[

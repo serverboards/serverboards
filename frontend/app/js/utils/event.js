@@ -107,7 +107,7 @@ export function subscribe_connect(state, handlers, subscriptions=[], updates=[],
           else
             updates_list=updates
 
-          updates_list.map( (u) => this.context.store.dispatch(u()) )
+          updates_list.map( (u) => this.context.store.dispatch(u) )
         }
       },
       _componentWillUnmount(props){ // Wrapper to allow call with specific props

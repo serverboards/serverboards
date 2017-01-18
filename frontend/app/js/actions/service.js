@@ -74,3 +74,24 @@ export function clear_external_url_components(){
     components: undefined
   }
 }
+
+export function service_load_current(uuid){
+  if (!uuid){
+    return function(dispatch){
+      dispatch({type: "SERVICE_SET_CURRENT", payload: null})
+      dispatch({type: "SERVICE_SET_CURRENT_SCREENS", payload: null })
+    }
+  }
+
+  return function(dispatch){
+    dispatch({type: "SERVICE_SET_CURRENT", payload: null})
+    rpc.call("service.info", [uuid])
+      .then( (service) => {
+        dispatch({ type: "SERVICE_SET_CURRENT", payload: service })
+        return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})
+      } )
+      .then( (screens) => {
+        dispatch({ type: "SERVICE_SET_CURRENT_SCREENS", payload: screens })
+      } )
+  }
+}
