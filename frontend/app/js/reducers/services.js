@@ -12,7 +12,20 @@ function services(state=default_state, action){
       return merge(state, {catalog: action.services} )
     case 'UPDATE_ALL_SERVICES':
       return merge(state, {services: action.services} )
+    case '@RPC_EVENT/service.updated':
+      let changed = false
+      let current_services = state.services.map( s => {
+        if (s.uuid == action.service.uuid){
+          changed = true
+          return action.service
+        }
+        return s
+      })
+      if (!changed)
+        current_services.push(action.service)
+      return merge(state, {services: current_services})
   }
+
   return state
 }
 

@@ -53,7 +53,7 @@ const CommandSearch = React.createClass({
               results = results.filter( (r) => r.search_text.indexOf(q)>=0 )
             }
             results.sort( (a,b) => b.score - a.score )
-            console.log(results)
+            console.log(results.map( (r) => r.title ))
 
             callback({results, success: true})
           }
