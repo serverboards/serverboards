@@ -4,6 +4,7 @@ import Flash from 'app/flash'
 import PluginDetails from './details'
 import plugin from 'app/utils/plugin'
 import {merge} from 'app/utils'
+import event from 'app/utils/event'
 
 require('sass/cards.sass')
 import PluginCard from './card'
@@ -23,17 +24,14 @@ const Plugins=React.createClass({
     }).catch((e) => {
       Flash.error(`Could not load plugin list.\n ${e}`)
     }).then( () =>
-      rpc.call("event.subscribe",["plugin.update.required"])
-    ).then( () =>
       plugin.start_call_stop("serverboards.optional.update/updater","check_plugin_updates",[])
     ).then( (msg) => {
-      rpc.on("plugin.update.required", this.updateRequired)
+      event.on("plugin.update.required", this.updateRequired)
       Flash.log(msg)
     } )
   },
   componentWillUnmount(){
-    rpc.call("event.unsubscribe",["plugin.update.required"])
-    rpc.off("plugin.update.required", this.updateRequired)
+    event.off("plugin.update.required", this.updateRequired)
   },
   updateRequired({plugin_id, changelog}){
     const plugins = this.state.plugins.map( (pl) => {

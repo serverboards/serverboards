@@ -26,15 +26,17 @@ var Container = store.connect({
     const service_template = Promise.all([service, cache.service_catalog()])
       .then(
         ([service, catalog]) => {
-          console.log("Find %o at %o", service, catalog)
           return catalog.find( (s) => s.type == service.type ) || { name: service.type }
       })
     const screens = service.then( service => get_screens( service ) )
     return {service, service_template, screens}
   },
-  watch: [
-    "service", "service_template", "screens", "tab", "type"
-  ]
+  subscriptions(props){
+    const serviceid = props.subsection || props.routeParams.id
+    let ret={}
+    ret[`service.updated[${serviceid}]`]=(s) => { console.log("Updated Service ", s.uuid, this); this.reload() }
+    return ret
+  }
 },View)
 
 export default Container

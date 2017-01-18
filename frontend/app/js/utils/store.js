@@ -160,14 +160,23 @@ function isPromise(p){
  *            functions to be executed as handlers.
  *   promises(props)
  *            promises for the system. Will be reloaded if the state changes.
- *   subscriptions
- *            Subscribes to serverboards events. At umount desubscribes.
+ *   subscriptions(props)
+ *            Subscribes to serverboards events. At umount desubscribes. On event
+ *            refreshes.
  */
 export function connect( options, View ){
+  function constr(){
+    this.reload = function(){
+      console.log("Reload %o", this)
+    }
+    return options
+  }
+  options=constr.bind(this)()
+
   let L1, L2, L3
   if (options.promises){
     L3 = (props) => (
-      <AsyncPromises promises={options.promises} component={View} {...props}/>
+      <AsyncPromises {...props} promises={options.promises} component={View}/>
     )
   }
   else{
@@ -177,9 +186,8 @@ export function connect( options, View ){
   L2 = react_redux_connect(options.state, options.handlers)(L3)
 
   if (options.subscriptions){
-
     L1 = (props) => (
-      <Subscribed subscriptions={options.subscriptions} {...props}/>
+      <Subscribed {...props} component={L2} subscriptions={options.subscriptions}/>
     )
   }
   else{
