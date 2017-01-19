@@ -1,32 +1,86 @@
 import View from 'app/components/service/details'
-import event from 'app/utils/event'
+import connect from 'app/containers/connect'
+import rpc from 'app/rpc'
+import cache from 'app/utils/cache'
+import { object_is_equal } from 'app/utils'
 import {
-    services_update_catalog,
-    clear_external_url_components,
-    update_external_url_components
+  service_load_current,
+  services_update_catalog,
+  service_clear_external_url_components,
+  service_load_external_url_components,
   } from 'app/actions/service'
 
-var Container = event.subscribe_connect(
-  (state, props) => {
-    const service = state.serverboard.serverboard.services.find( (s) => s.uuid == props.subsection )
-    const service_template = (state.services.catalog || []).find( (s) => s.type == service.type ) || { name: service.type }
-    const tab = props.location.state.tab || 'details'
-    const type = props.location.state.type || ''
+function get_screens( service ){
+  if (!service)
+    return []
+  return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})
+}
+
+// I need to layer it as the external url require the service traits
+var DetailsWithExternalUrls = connect({
+  state(state){
+    if (state.services){
+      return {external_urls: state.services.current.external_urls}
+    }
+    return {external_urls: undefined}
+  },
+  store_enter(state, props){
+    return [ () =>
+      service_load_external_url_components(props.service.traits)
+    ]
+  },
+  store_exit: [
+    service_clear_external_url_components
+  ],
+  loading(state){
+    if (this.state(state).external_urls == undefined)
+      return "External screens"
+    return false
+  }
+})(View)
+
+var Container = connect({
+  state(state, props){
+    const locstate = state.routing.locationBeforeTransitions.state || {}
+    const tab = locstate.tab || 'details'
+    const type = locstate.type || ''
+    let service, screens, service_template
+    if (state.services.current){
+      service=state.services.current.service
+      screens=state.services.current.screens
+      service_template = state.services.current.template
+    }
     return {
-      service,
-      service_template,
       tab,
       type,
-      external_urls: state.serverboard.external_urls
+      service,
+      screens,
+      service_template,
     }
   },
-  (dispatch) => ({}),
-  [],
-  (props) => [
-    services_update_catalog,
-    clear_external_url_components,
-    () => update_external_url_components(props.service.traits)
-  ]
-)(View)
+  subscriptions(state, props){
+    const serviceid = props.subsection || props.routeParams.id
+    return [`service.updated[${serviceid}]`]
+  },
+  store_enter(state, props){
+    const serviceid = props.subsection || props.routeParams.id
+    let updates = [
+      () => service_load_current(serviceid),
+    ]
+    if (!state.services.catalog)
+      updates.push( services_update_catalog )
+    return updates
+  },
+  store_exit: [
+      service_load_current
+  ],
+  loading(state, props){
+    console.log(this)
+    state = this.state(state, props) // Get next component props, no need to generate again
+    if (state.service && state.screens && state.service_template)
+      return false;
+    return "Service details"
+  }
+})(DetailsWithExternalUrls)
 
 export default Container

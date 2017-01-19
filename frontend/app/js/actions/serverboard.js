@@ -48,26 +48,32 @@ function serverboard_attach_service(serverboard_shortname, service_uuid){
 
 function serverboards_widget_list(serverboard){
   return function(dispatch){
-    rpc.call("serverboard.widget.list", [serverboard]).then((widgets) => {
-      dispatch({type:"UPDATE_SERVERBOARD_WIDGETS", serverboard, widgets})
-    })
+    dispatch({type:"UPDATE_SERVERBOARD_WIDGETS", serverboard, widgets: undefined})
+    if (serverboard)
+      rpc.call("serverboard.widget.list", [serverboard]).then((widgets) => {
+        dispatch({type:"UPDATE_SERVERBOARD_WIDGETS", serverboard, widgets})
+      })
   }
 }
 
 function serverboards_update_info(serverboard){
   return function(dispatch){
     dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, info: undefined})
-    rpc.call("serverboard.info", [serverboard]).then( (info) => {
-      dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, info})
-    })
+    if (serverboard){
+      rpc.call("serverboard.info", [serverboard]).then( (info) => {
+        dispatch({type:"UPDATE_SERVERBOARD_INFO", serverboard, info})
+      })
+    }
   }
 }
 
 function serverboard_update_widget_catalog(serverboard){
   return function(dispatch){
-    rpc.call("serverboard.widget.catalog", [serverboard]).then( (widget_catalog) => {
-      dispatch({type:"UPDATE_WIDGET_CATALOG", serverboard, widget_catalog})
-    })
+    dispatch({type:"UPDATE_WIDGET_CATALOG", serverboard, widget_catalog: undefined})
+    if (serverboard)
+      rpc.call("serverboard.widget.catalog", [serverboard]).then( (widget_catalog) => {
+        dispatch({type:"UPDATE_WIDGET_CATALOG", serverboard, widget_catalog})
+      })
   }
 }
 

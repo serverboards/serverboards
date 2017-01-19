@@ -1,15 +1,13 @@
 import ServicesView from 'app/components/serverboard/services'
-import event from 'app/utils/event'
+import connect from 'app/containers/connect'
 
-var Services = event.subscribe_connect(
-  (state) => ({
+var Services = connect({
+  state: (state) => ({
     services: state.serverboard.serverboard.services,
     location: state.routing.locationBeforeTransitions,
     service_catalog: state.services.catalog || []
   }),
-  (dispatch) => ({
-  }),
-  ["service.updated","serverboards.updated"]
-)(ServicesView)
+  subcriptions: ["service.updated", "serverboards.updated"]
+})(ServicesView)
 
 export default Services

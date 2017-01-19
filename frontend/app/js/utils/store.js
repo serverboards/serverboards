@@ -4,6 +4,15 @@ import rpc from '../rpc'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { hashHistory } from 'react-router'
 import { routerMiddleware, push } from 'react-router-redux'
+import { merge, object_is_equal } from 'app/utils'
+import React from 'react'
+const react_redux_connect = require('react-redux').connect
+import serverboards_connect from 'app/containers/connect'
+
+
+import AsyncPromises from 'app/containers/asyncpromises'
+import Subscribed from 'app/containers/subscribed'
+import Updaters from 'app/containers/updaters'
 
 var redux_extra=f => f
 
@@ -120,5 +129,18 @@ export function goto(url, extradata={}){
     state: extradata
   }))
 }
+
+store.set_modal = set_modal
+store.goto = goto
+
+function isPromise(p){
+  return (p && typeof(p.then) == "function")
+}
+
+export function connect( options, View ){
+  return serverboards_connect(options)(View)
+}
+
+store.connect = connect
 
 export default store

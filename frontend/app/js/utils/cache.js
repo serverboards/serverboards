@@ -1,4 +1,5 @@
 import store from './store'
+import event from './event'
 
 /**
  * @short Uses the store for caching some data.
@@ -15,7 +16,12 @@ import store from './store'
 const cache={
   services: cache_builder({
     store_get: () => store.getState().services.services,
-    store_update: require('app/actions/service').services_update_all()
+    store_update: require('app/actions/service').services_update_all(),
+    subscriptions: ["service.updated"]
+  }),
+  service_catalog: cache_builder({
+    store_get: () => store.getState().services.catalog,
+    store_update: require('app/actions/service').services_update_catalog()
   }),
   action_catalog: cache_builder({
       store_get: () => {
@@ -35,28 +41,32 @@ const cache={
 
 // Generic cache get builder from redux actions and using the store
 // Returns the function to be called to update the cache and get the promise
-function cache_builder({store_get, store_update}){
+function cache_builder(props){
+  const {store_get, store_update, subscriptions} = props
   return function(){
-    let p=new Promise((accept, reject) => {
+    let promise=new Promise((accept, reject) => {
       const data = store_get()
-      if (data)
+      if (data){
         accept(data)
+      }
       else{
         try{
           store_update( data => {
             try{
+              if (subscriptions)
+                event.subscribe(subscriptions)
               store.dispatch(data)
               accept(store_get())
             } catch(e){
               reject(e)
             }
           })
-        } catch(e){
+        } catch(e) {
           reject(e)
         }
       }
     })
-    return p
+    return promise
   }
 }
 

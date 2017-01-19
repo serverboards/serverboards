@@ -47,6 +47,8 @@ function serverboard(state=default_state, action){
       }
     case '@RPC_EVENT/service.updated':
       {
+        if (!state.serverboard || !state.serverboard.services)
+          return state
         let changed = false
         let current_services = state.serverboard.services.map( s => {
           if (s.uuid == action.service.uuid){

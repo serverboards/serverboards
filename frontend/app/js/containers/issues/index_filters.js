@@ -1,12 +1,10 @@
-import event from 'app/utils/event'
 import View from 'app/components/issues/index_filters'
+import connect from 'app/containers/connect'
 
-var Model=event.subscribe_connect(
-  (state) => ({
+var Model=connect({
+  state: (state) => ({
     serverboards: state.serverboard.serverboards,
-  }),
-  (dispatch) => ({
   })
-)(View)
+})(View)
 
 export default Model

@@ -1,5 +1,4 @@
 import Flash from 'app/flash'
-import event from 'app/utils/event'
 
 /**
  * @short Starts a new RPC connection, with the given options
@@ -75,7 +74,7 @@ var RPC = function(options={}){
           return
         }
         //Flash.success("Reconnection succeded.")
-        event.subscribe(["user.updated"])
+        rpc.event.subscribe(["user.updated"])
 
         require('app/actions/auth').logged_in_as(user)(rpc.store.dispatch)
 
@@ -166,6 +165,9 @@ var RPC = function(options={}){
     })
     rpc.store.dispatch({type: "RPC_STATUS", status: rpc.status})
   }
+  rpc.set_event=function(event){ // So that we dont require('event') which requires me. Dependency injection.
+    rpc.event=event
+  }
 
   var pending_calls={}
 
@@ -190,30 +192,9 @@ var RPC = function(options={}){
     else if (jmsg['method']){
       if (rpc.store)
         rpc.store.dispatch( Object.assign({type: `@RPC_EVENT/${jmsg.method}`}, jmsg.params) )
-      rpc.trigger(jmsg.method, jmsg.params)
+      rpc.event.trigger(jmsg.method, jmsg.params)
       if (rpc.debug)
         console.log("Event: %o %o", jmsg.method, jmsg)
-    }
-  }
-
-  rpc.subscriptions = {}
-  rpc.on = function(event, fn){
-    rpc.subscriptions[event]=(rpc.subscriptions[event] || []).concat([fn])
-  }
-  rpc.off = function(event, fn){
-    if (fn)
-      rpc.subscriptions[event]=(rpc.subscriptions[event] || []).filter( (f) => (f != fn) )
-    else
-      delete rpc.subscriptions[event]
-  }
-  rpc.trigger = function(event, data){
-    for (let fn of (rpc.subscriptions[event] || [])){
-      try{
-        fn(data)
-      }
-      catch(e){
-        console.error(`Error processing event ${event}: %o`, e)
-      }
     }
   }
 

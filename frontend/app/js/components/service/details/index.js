@@ -59,18 +59,23 @@ function get_external_url(id, props){
 }
 
 const Details = React.createClass({
-  getInitialState(){
-    return { service: this.props.service }
+  propTypes:{
+    screens: React.PropTypes.arrayOf(React.PropTypes.object),
+    service: React.PropTypes.shape({
+      uuid: React.PropTypes.string.isRequired,
+      name: React.PropTypes.string.isRequired,
+      description: React.PropTypes.string,
+      config: React.PropTypes.object.isRequired,
+    }).isRequired,
+    service_template: React.PropTypes.shape({
+      name: React.PropTypes.string.isRequired,
+      description: React.PropTypes.string,
+      params: React.PropTypes.string,
+    }).isRequired
   },
   handleTabChange(id, type){
-    // Changes the state.service, to require deep info(plugins) or shallow (settings)
-    let self=this
     if (type=="screen"){
-      get_service_data(this.props.service.uuid).then( (service) => {
-        //console.log("Got deep service: %o", service)
-        self.setState({service})
-        goto(null, {tab: id, type: "screen"})
-      })
+      goto(null, {tab: id, type: "screen"})
     }
     else if (type=="external url"){
       const euc = get_external_url_template(id, this.props)
@@ -86,8 +91,6 @@ const Details = React.createClass({
       }
     }
     else{
-      //console.log("Set shallow service: %o", this.props.service)
-      self.setState({service: this.props.service})
       goto(null, {tab: id})
     }
   },
@@ -96,6 +99,11 @@ const Details = React.createClass({
   },
   render(){
     const props = this.props
+    if (props.loading){
+      return (
+        <Loading>Service details</Loading>
+      )
+    }
     let current_tab = props.tab
 
     let sections=[
@@ -103,7 +111,7 @@ const Details = React.createClass({
       { name: "Settings", id: "settings" },
     ];
 
-    (props.serverboard.screens || []).map( (s) => {
+    props.screens.map( (s) => {
       if (match_traits(s.traits, props.service.traits)){
         sections.push({
           name: s.name,
@@ -123,7 +131,6 @@ const Details = React.createClass({
         icon: !u.extra.iframe ? "external" : null
       })
     })
-    console.log(props)
     let CurrentTab = (
       tab_options[current_tab] ||
       get_plugin_component(props) ||
@@ -131,7 +138,9 @@ const Details = React.createClass({
       Empty
     )
 
-    const handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
+    let handleClose = undefined
+    if (props.serverboard)
+      handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
 
     return (
       <Modal className="wide" onClose={handleClose}>
@@ -161,7 +170,7 @@ const Details = React.createClass({
           ))}
         </div>
         <div className="ui full height">
-          <CurrentTab {...props} service={this.state.service} onClose={handleClose} />
+          <CurrentTab {...props} service={props.service} onClose={handleClose} />
         </div>
       </Modal>
     )

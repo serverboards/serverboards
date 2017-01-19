@@ -8,6 +8,7 @@ import Flash from 'app/flash'
 import { goBack } from 'react-router-redux'
 import store from 'app/utils/store'
 import ScreensMenu from 'app/components/service/screensmenu'
+import event from 'app/utils/event'
 
 const VirtualServices=React.createClass({
   getInitialState(){
@@ -59,11 +60,10 @@ const VirtualServices=React.createClass({
         services = services.map( (s) => merge(s, {is_virtual: true}) )
         self.setState({services})
         if (subscribe){
-          rpc.call('event.subscribe',["service.updated"])
           rpc.call(`${self.connection}.${subscribe}`, parent.config)
             .then( (subscribe_id) => {
               self.subscribe_id=subscribe_id
-              rpc.on("service.updated", self.update_services)
+              event.on("service.updated", self.update_services)
             })
           }
         self.update_screens(services)
@@ -79,8 +79,7 @@ const VirtualServices=React.createClass({
     let unsubscribe=parent.virtual.unsubscribe
     if (this.subscribe_id)
       rpc.call(`${this.connection}.${unsubscribe}`, [this.subscribe_id])
-    rpc.call('event.unsubscribe',["service.updated"])
-    rpc.off("service.updated", self.update_services)
+    event.off("service.updated", self.update_services)
     this.subscribe_id=undefined
   },
   render(){

@@ -1,22 +1,22 @@
 import View from 'app/components/serverboard/serverboardselector'
 import { push } from 'react-router-redux'
-import event from 'app/utils/event'
+import connect from 'app/containers/connect'
 import {serverboard_update_all} from 'app/actions/serverboard'
 import {has_perm_guard} from 'app/restricted'
 
-var Container=has_perm_guard("serverboard.info", event.subscribe_connect(
-  (state) => {
+var Container=has_perm_guard("serverboard.info", connect({
+  state: (state) => {
     //console.log(state)
     return {
       current: state.serverboard.current,
       serverboards: state.serverboard.serverboards
     }
   },
-  (dispatch) => ({
+  handlers: (dispatch) => ({
     onServiceSelect: (shortname) => dispatch( push( `/serverboard/${shortname}/`) )
   }),
-  ["serverboard.added", "serverboard.deleted", "serverboard.updated"],
-  [serverboard_update_all]
-)(View))
+  subscriptions: ["serverboard.added", "serverboard.deleted", "serverboard.updated"],
+  store_enter: [serverboard_update_all],
+})(View))
 
 export default Container

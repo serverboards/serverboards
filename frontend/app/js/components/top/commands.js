@@ -1,6 +1,7 @@
 import React from 'react'
 import Command from 'app/utils/command'
 import store from 'app/utils/store'
+import { merge } from 'app/utils'
 import { push } from 'react-router-redux'
 
 const skip_nodes={
@@ -42,19 +43,21 @@ const CommandSearch = React.createClass({
           let Q = $search.search('get value').toLowerCase().split(" ")
           const context = self.getContext()
 
-          let results = Command.search(Q, context).then((results) => {
-            // Refilter
+          function set_search_results(results){
             results = results.map( (r) => {
-              r.search_text =`${r.description} ${r.title}`.toLowerCase()
-              return r
+              const search_text =`${r.description} ${r.title}`.toLowerCase()
+              return merge(r, {search_text})
             })
             //console.log(settings)
-            for (let q of Q){
+            for (let q of Q){ // refilter, search may not return filtered results
               results = results.filter( (r) => r.search_text.indexOf(q)>=0 )
             }
+            results.sort( (a,b) => b.score - a.score )
+            console.log(results.map( (r) => r.title ))
 
             callback({results, success: true})
-          })
+          }
+          Command.search(Q, context).then( set_search_results )
         }
       },
       onSelect(result, response){

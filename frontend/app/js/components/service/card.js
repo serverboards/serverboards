@@ -129,12 +129,14 @@ const VirtualBottomMenu=React.createClass({
 const Card=React.createClass({
   componentDidMount(){
     if (!this.props.service.is_virtual){
-      let s = this.props.service
+      const s = this.props.service
+      const serverboard = this.props.serverboard.shortname
       Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
-        {id: `service-settings-${s.uuid}`, title: `${s.name} settings`,
-         description: `Modify ${s.name} service settings`, run: () => self.handleOpenSettings()},
-        {id: `service-more-${s.uuid}`, title: `${s.name} more actions`,
-         description: `Show ${s.name} more actions menu`, run: () => dropdown.dropdown('show').focus()},
+        {
+          id: `service-details-${s.uuid}`, title: `${s.name} settings`,
+          description: `${s.name} Service Details at ${serverboard}`, run: () => goto(`/serverboard/${serverboard}/services/${s.uuid}`),
+          order: 80
+        }
       ],2 )
     }
   },
