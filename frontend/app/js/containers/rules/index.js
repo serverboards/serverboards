@@ -15,7 +15,7 @@ var Rules = connect({
     onOpenEdit: (r) => dispatch( push(`/serverboard/${props.serverboard.shortname}/rules/${r.uuid}`)),
     cleanRules: () => dispatch( rules_list_clean() )
   }),
-  subscriptions: (props) => [
+  subscriptions: (state, props) => [
     `rules.update[${props.serverboard.shortname}]`
   ],
   store_enter: (props) => [

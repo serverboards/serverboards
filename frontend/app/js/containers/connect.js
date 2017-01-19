@@ -2,6 +2,7 @@ import React from 'react'
 import {unwrap, object_is_equal} from 'app/utils'
 import event from 'app/utils/event'
 import { connect } from 'react-redux'
+import Loading from 'app/components/loading'
 
 /**
  * Expanded version of redux.connect
@@ -21,6 +22,10 @@ import { connect } from 'react-redux'
  *  2. Do subscriptions
  *  3. Get state using react redux
  *
+ * In the functions, state is always the store state, and props are received
+ * props. If your code needs the generated state from `state`, call it with
+ * `this.state(state, props)`.
+ *
  * options:
  *   state(state, props)
  *            same as redux first parameter.
@@ -28,17 +33,22 @@ import { connect } from 'react-redux'
  *            see `watch` to limit this reexcution.
  *   handlers(dispatch, props)
  *            functions to be executed as handlers.
- *   subscriptions(props)
+ *   subscriptions(state, props)
  *            Subscribes to serverboards events. At umount desubscribes. On event
  *            refreshes. Its a list of events to subscribe.
- *   store_enter(props)
+ *   store_enter(state, props)
  *            Functions to call for redux to update the state, for example load
  *            current service
- *   store_exit(props)
+ *   store_exit(state, props)
  *            Functions to call for redux to clean the state when leaving, for
  *            example unload current service.
  *   watch
- *            State elements to watch, if any changes, update the component.
+ *            Props elements to watch, if any changes, update the component data
+ *            store and resubscribe.
+ *   loading(state, props)
+ *            Returns a string to show in a loagind component or false if all
+ *            data ready. Doing it here prevents downstream component to get
+ *            undefined states
  *
  * Use as redux connect: serverboards_connect(options)(View)
  */
@@ -49,17 +59,19 @@ export function serverboards_connect(options){
         store: React.PropTypes.object
       },
       _componentDidMount(props){ // Wrapper to allow call with specific props
-        const subscriptions = unwrap(options.subscriptions, this.props)
+        const state = this.context.store.getState()
+        const subscriptions = unwrap(options.subscriptions, state, props)
         event.subscribe(subscriptions)
 
-        const updates = unwrap(options.store_enter, this.context.store.getState(), this.props)
+        const updates = unwrap(options.store_enter, state, props)
         updates.map( (u) => this.context.store.dispatch(u()) )
       },
       _componentWillUnmount(props){ // Wrapper to allow call with specific props
-        const subscriptions = unwrap(options.subscriptions, this.props)
+        const state = this.context.store.getState()
+        const subscriptions = unwrap(options.subscriptions, state, props)
         event.unsubscribe(subscriptions)
 
-        const store_clean = unwrap(options.store_exit, this.context.store.getState(), this.props)
+        const store_clean = unwrap(options.store_exit, state, props)
         store_clean.map( (u) => this.context.store.dispatch(u()) )
       },
       componentDidMount(){
@@ -82,6 +94,14 @@ export function serverboards_connect(options){
         }
       },
       render(){
+        if (options.loading){
+          const loading = options.loading(this.context.store.getState(), this.props)
+          if (loading)
+            return (
+              <Loading>{loading}</Loading>
+            )
+        }
+
         return (
           <Component {...this.props}/>
         )
