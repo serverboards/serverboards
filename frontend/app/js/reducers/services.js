@@ -3,7 +3,12 @@ import {merge} from 'app/utils'
 var default_state={
   services: undefined,
   catalog: undefined,
-  current: { service: undefined, screens: undefined, template: undefined }
+  current: {
+    service: undefined,
+    screens: undefined,
+    template: undefined,
+    external_urls: undefined
+  }
 }
 
 function get_template(catalog, type){
@@ -58,7 +63,8 @@ function services(state=default_state, action){
         } )})
     case "SERVICE_SET_CURRENT_SCREENS":
       return merge(state, {current: merge( state.current, {screens: action.payload} )})
-
+    case "SERVICE_SET_EXTERNAL_URL_COMPONENTS":
+      return merge(state, {current: merge( state.current, {external_urls: action.payload} )})
   }
 
   return state
