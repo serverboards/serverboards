@@ -2,7 +2,7 @@ import React from 'react'
 import rpc from 'app/rpc'
 import { connect } from 'react-redux'
 import { object_is_equal } from 'app/utils'
-
+import serverboards_connect from 'app/containers/connect'
 
 // Count of subscribers to one event, to subscribe again or desuscribe, or do nothing
 let subscription_count={}
@@ -84,7 +84,10 @@ export function emit(type, args){
  * * Updates is a list or a function(props) -> list that sets functions
  *   to call to update state, for example list of services in a serverboard.
  */
-export function subscribe_connect(state, handlers, subscriptions=[], updates=[], watch_props=undefined){
+export function subscribe_connect(state, handlers, subscriptions=[], updates=[], watch=undefined){
+  console.warn("event.subscribe_connect is deprecated. Please remove its usages. Use containers/connect.")
+  return serverboards_connect({state, handlers, subscriptions, updates, watch})
+  /*
   return function(Component){
     let SubscribedConnect = React.createClass({
       contextTypes: {
@@ -148,6 +151,7 @@ export function subscribe_connect(state, handlers, subscriptions=[], updates=[],
     })
     return connect(state, handlers)(SubscribedConnect)
   }
+  */
 }
 
 const event = {subscribe, unsubscribe, subscriptions, emit, subscribe_connect, on, off, trigger}

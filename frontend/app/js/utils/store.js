@@ -7,6 +7,9 @@ import { routerMiddleware, push } from 'react-router-redux'
 import { merge, object_is_equal } from 'app/utils'
 import React from 'react'
 const react_redux_connect = require('react-redux').connect
+import serverboards_connect from 'app/containers/connect'
+
+
 import AsyncPromises from 'app/containers/asyncpromises'
 import Subscribed from 'app/containers/subscribed'
 import Updaters from 'app/containers/updaters'
@@ -134,73 +137,8 @@ function isPromise(p){
   return (p && typeof(p.then) == "function")
 }
 
-/**
- * Expanded version of redux.connect
- *
- * I allow to do the same, but also some other
- * required funcionality, as request state, use promises for state, improved
- * propery change detection.
- *
- * To use it as a replacement, use state and handlers options.
- *
- * All options can be a list/map or a function(props, state). If its a function
- * it will be reexcuted for every state or props change (see watch), and the
- * result used.
- *
- * It creates a layered system where:
- *  1. Call the updaters
- *  2. Do subscriptions
- *  3. Get state using react redux
- *
- * options:
- *   state(state, props)
- *            same as redux first parameter.
- *            if the original props or state changes (from redux), its reexecuted
- *            see `watch` to limit this reexcution.
- *   handlers(props)
- *            functions to be executed as handlers.
- *   subscriptions(props)
- *            Subscribes to serverboards events. At umount desubscribes. On event
- *            refreshes.
- *   store_enter(props)
- *            Functions to call for redux to update the state, for example load
- *            current service
- *   store_exit(props)
- *            Functions to call for redux to clean the state when leaving, for
- *            example unload current service.
- */
 export function connect( options, View ){
-  function constr(){
-    this.reload = function(){
-      console.log("Reload %o", this)
-    }
-    return options
-  }
-  options=constr.bind(this)()
-
-  let L1, L2, L3
-
-  L3 = react_redux_connect(options.state, options.handlers)(View)
-
-  if (options.subscriptions){
-    L2 = (props) => (
-      <Subscribed {...props} component={L3} subscriptions={options.subscriptions}/>
-    )
-  }
-  else{
-    L2 = L3
-  }
-
-  if (options.store_enter){
-    L1 = (props) => (
-      <Updaters {...props} component={L2} store_enter={options.store_enter} store_exit={options.store_exit}/>
-    )
-  }
-  else{
-    L1 = L2
-  }
-
-  return L1
+  return serverboards_connect(options)(View)
 }
 
 store.connect = connect

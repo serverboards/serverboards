@@ -32,10 +32,7 @@ var Container = store.connect({
     }
   },
   subscriptions(props){
-    const serviceid = props.subsection || props.routeParams.id
-    let ret={}
-    ret[`service.updated[${serviceid}]`]=(s) => { console.log("Updated Service ", s.uuid, this); this.reload() }
-    return ret
+    return [`service.updated[${serviceid}]`]
   },
   store_enter(state, props){
     const serviceid = props.subsection || props.routeParams.id
