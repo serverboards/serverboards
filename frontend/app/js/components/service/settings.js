@@ -37,7 +37,7 @@ const RuleList = React.createClass({
         </h4>
         <div className="ui two column grid"  style={{paddingTop:10}}>
         {props.rules.map( (r) => (
-          <div className="field column">
+          <div key={r.id} className="field column">
             <div className="ui checkbox toggle" data-position="bottom left" data-tooltip={r.description}>
               <input type="checkbox" className="toggle" defaultChecked={r.is_active} name={r.id}/>
               <label>{r.name}</label>
