@@ -32,6 +32,7 @@ var Container = store.connect({
     }
   },
   subscriptions(props){
+    const serviceid = props.subsection || props.routeParams.id
     return [`service.updated[${serviceid}]`]
   },
   store_enter(state, props){
