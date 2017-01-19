@@ -1,24 +1,22 @@
 import EditView from 'app/components/rules/edit'
-import event from 'app/utils/event'
+import connect from 'app/containers/connect'
 import { update_trigger_catalog, rules_save } from 'app/actions/rules'
 import { action_catalog } from 'app/actions/action'
 import { push } from 'react-router-redux'
 
-var Edit = event.subscribe_connect(
-  (state) => ({
+var Edit = connect({
+  state: (state) => ({
     triggers: state.rules.trigger_catalog,
     services: state.serverboard.serverboard.services || [],
     action_catalog: state.action.catalog,
     location: state.routing.locationBeforeTransitions
   }),
-  (dispatch, props) => ({
+  handlers: (dispatch, props) => ({
     onSave: (rule) => { dispatch( rules_save(rule) ); dispatch( push(`/serverboard/${props.serverboard}/rules`) ) }
   }),
-  undefined,
-  (props) => [
+  store_enter: [
     update_trigger_catalog, action_catalog
   ]
-
-)(EditView)
+})(EditView)
 
 export default Edit
