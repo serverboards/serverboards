@@ -1,0 +1,13 @@
+id: [plugin-id]
+name: [plugin-name]
+author: [author-name] <[author-email]>
+url: [url]
+description: [description]
+
+components:
+  - id: widget
+    type: widget
+    name: [description]
+  - id: screen
+    type: screen
+    name: [description]
