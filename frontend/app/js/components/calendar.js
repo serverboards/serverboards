@@ -30,6 +30,9 @@ const Calendar = React.createClass({
   addYear(n){
     this.setState({year: this.state.year + n })
   },
+  componentWillReceiveProps(newprops){
+    this.setState({year: newprops.year, month: newprops.month})
+  },
   render(){
     const props = this.props
     const state = this.state
