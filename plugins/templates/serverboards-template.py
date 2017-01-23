@@ -35,11 +35,23 @@ def install(fromd, tod):
                 rawdata = rfd.read()
                 data = TAG_RE.sub( lambda m: tags[m.group(1)], rawdata )
                 wfd.write(data)
+        origmode = os.stat(orig).st_mode
+        os.chmod(dest, origmode)
 
+
+    if 'template.postinst' in files:
+        os.chdir(tod)
+        postinst = os.path.join(tod, 'template.postinst')
+        ok = os.system(postinst)
+        if ok != 0:
+            print("Error executing the template postinst")
+        else:
+            print("Postinst OK")
+        os.unlink(postinst)
 
 if __name__=='__main__':
     if len(sys.argv)!=3:
         print("\nRun as:\n %s [templatename] [destdir]\n"%(__file__))
         sys.exit(1)
     install(os.path.join(os.path.dirname(__file__), sys.argv[1]),sys.argv[2])
-    print("Ready at %s", os.path.abspath(sys.argv[2]))
+    print("Ready at %s"%os.path.abspath(sys.argv[2]))

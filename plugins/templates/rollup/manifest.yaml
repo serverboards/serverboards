@@ -5,9 +5,6 @@ url: [url]
 description: [description]
 
 components:
-  - id: widget
-    type: widget
-    name: [description]
-  - id: screen
-    type: screen
-    name: [description]
+  - id: [component-type]
+    type: [component-type]
+    name: [plugin-name]

@@ -2,11 +2,11 @@ import babel from 'rollup-plugin-babel';
 import nodeResolve from 'rollup-plugin-node-resolve';
 
 export default {
-  entry: 'src/screen.js',
+  entry: 'src/[component-type].js',
   format: 'umd',
   plugins: [
     babel(),
     nodeResolve({})
    ],
-  dest: 'static/screen.js',
+  dest: 'static/[component-type].js',
 };

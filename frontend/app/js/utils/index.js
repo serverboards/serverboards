@@ -74,7 +74,8 @@ const fixed_colors={
   "disabled" : "grey",
   "active" : "green",
   "broken" : "red",
-  "updatable" : "yellow"
+  "updatable" : "yellow",
+  "": "grey"
 }
 
 export function colorize(str){

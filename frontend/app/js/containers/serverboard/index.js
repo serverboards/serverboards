@@ -22,6 +22,7 @@ var Serverboard=store.connect({
   store_exit: (state, props) => [
     () => serverboards_update_info(),
   ],
+  subscriptions: ["service.updated"],
   watch: ["shortname"]
 }, ServerboardView)
 
