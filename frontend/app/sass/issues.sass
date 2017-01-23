@@ -1,3 +1,5 @@
+@import colors
+
 #issues
   .ui.image
     width: auto
@@ -93,23 +95,53 @@
             left: 10px
             position: absolute
             content: " "
-        > .ui.tag
-          margin-left: 0
-          position: absolute
-          width: auto
-          left: 10px
-          margin-top: 0px
-        > .ui.tag:first-child
-          margin-top: 13px
       .filters
         flex-grow: 1
 
       .ui.card
         position: relative
         padding: 5px 10px 5px 60px
-        .ui.circular.image
+        min-height: 64px
+        display: flex
+        flex-direction: column
+        justify-content: center
+        .ui.circular
           position: absolute
+          width: 48px
+          height: 48px
           top: 5px
           left: 5px
+          border-radius: 50%
+          border: 2px solid #aaa
+          > span
+            border-radius: 50%
+            border: 2px solid white
+            width: 44x
+            height: 44px
+            display: block
+            +background-colors
+            > .icon
+              width: 48px
+              height: 48px
+              font-size: 32px
+              top: 13px
+              left: -4px
+              color: white
+              position: relative
+          img
+            width: 48px
+            height: 48px
+
         .ui.header
           margin-left: 0
+          margin-top: 0
+
+        &.status.change
+          .ui.tag
+            margin-left: 0
+            position: absolute
+            width: auto
+            left: -80px
+            margin-top: 0px
+          .ui.tag:first-child
+            margin-top: 13px
