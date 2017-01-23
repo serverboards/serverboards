@@ -3,8 +3,24 @@ const {GenericForm} = Serverboards.Components
 
 const EditAction = React.createClass({
   componentDidMount(){
+    let self = this
+    $(this.refs.star).checkbox({
+      onChecked(){
+        self.props.onStar(true)
+      },
+      onUnchecked(){
+        self.props.onUpdateConfirmation(false)
+      }
+    })
+    $(this.refs.confirmation).checkbox({
+      onChecked(){
+        self.props.onUpdateConfirmation(true)
+      },
+      onUnchecked(){
+        self.props.onUpdateConfirmation(false)
+      }
+    })
     $(this.refs.form).find('.dropdown').dropdown()
-    $(this.refs.form).find('.checkbox').checkbox()
   },
   render(){
     const props=this.props
@@ -25,9 +41,18 @@ const EditAction = React.createClass({
               <label>Description</label>
               <textarea onChange={(ev) => props.onUpdateDescription(ev.target.value)}>{action.description}</textarea>
             </div>
-            <div className="field ui checkbox">
+            <div ref="confirmation" className="field ui checkbox">
               <input type="checkbox" defaultChecked={action.confirmation}  onChange={(ev) => props.onUpdateConfirmation(ev.target.value)}/>
               <label>Require confirmation</label>
+            </div>
+            <div ref="star" className="field ui checkbox">
+              <input type="checkbox" defaultChecked={action.star}  onChange={(ev) => props.onStar(ev.target.value)}/>
+              <label>Show at widget</label>
+            </div>
+            <div className="field">
+              <label>Icon Name</label>
+              <div className="ui meta">Check for icons at <a target="_blank" href="http://semantic-ui.com/elements/icon.html">{"http://semantic-ui.com/elements/icon.html"}</a></div>
+              <input type="text" defaultValue={action.icon} onChange={(ev) => props.onUpdateIcon(ev.target.value)}/>
             </div>
             <div className="field">
               <label>Service</label>

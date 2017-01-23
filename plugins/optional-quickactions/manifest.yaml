@@ -11,6 +11,10 @@ components:
     type: screen
     name: Quick Actions
 
+  - id: widget
+    type: widget
+    name: Quick Actions
+
   - id: action
     type: action
     name: Quick Action

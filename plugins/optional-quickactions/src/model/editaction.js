@@ -64,6 +64,7 @@ const EditActionModel = React.createClass({
     this.props.onAccept(this.state.action)
   },
   updateAction(changes){
+    console.log(changes)
     this.setState({action: merge(this.state.action, changes)})
   },
   render(){
@@ -80,6 +81,8 @@ const EditActionModel = React.createClass({
         onUpdateDescription={(description) => this.updateAction({description})}
         onUpdateName={(name) => this.updateAction({name})}
         onUpdateConfirmation={(confirmation) => this.updateAction({confirmation})}
+        onStar={(star) => this.updateAction({star})}
+        onUpdateIcon={(icon) => this.updateAction({icon})}
         />
     )
   }
