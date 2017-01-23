@@ -63,6 +63,12 @@ const Board = React.createClass({
     Command.remove_command_search('add-widget')
     clearInterval(this.state.interval_id)
   },
+  getLayout(wid){
+    const layout = this.state && (this.state.layout || []).find( l => l.i == wid )
+    if (layout)
+      return {width: layout.w, height: layout.h}
+    return undefined
+  },
   render() {
     const widgets=this.props.widgets
     if (widgets == undefined){
@@ -98,6 +104,7 @@ const Board = React.createClass({
                   uuid={w.uuid}
                   onEdit={() => this.handleEdit(w.uuid)}
                   serverboard={this.props.serverboard}
+                  layout={this.getLayout(w.uuid)}
                   />
               </div>
             ))}

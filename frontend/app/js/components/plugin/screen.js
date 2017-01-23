@@ -57,8 +57,11 @@ const ExternalScreen = React.createClass({
       .attr('data-screenid', `${plugin}/${component}`)
 
     const plugin_html = `${plugin}/${component}.html`
-    plugin_load(plugin_html,  {base_url: plugin})
-    .then( (html) => {
+    const plugin_css = `${plugin}/${component}.css`
+    Promise.all([
+      plugin_load(plugin_html,  {base_url: plugin}),
+      plugin_load(plugin_css,  {base_url: plugin})
+    ]).then( (html) => {
       $(this.refs.el).html(html)
       load_js()
     }).catch( (e) => {

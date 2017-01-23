@@ -40,11 +40,14 @@ const Widget = React.createClass({
       setTitle: self.setTitle,
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
-      widget_id: this.props.template.id
+      widget_id: this.props.template.id,
+      layout: this.props.layout
     }
     $(this.refs.el)
       .attr('data-pluginid', props.widget.split('/')[0])
       .attr('data-widgetid', props.widget)
+      .attr('data-height', this.props.layout.height)
+      .attr('data-width', this.props.layout.width)
     return plugin.do_widget(
       props.widget,
       this.refs.el,
@@ -55,7 +58,7 @@ const Widget = React.createClass({
     } )
   },
   componentDidMount(){
-    plugin.load(`${this.props.widget}.js`).then(
+    Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then(
       () => this.do_widget(this.props)
     ).catch( (e) => {
       console.error(e)
@@ -66,10 +69,12 @@ const Widget = React.createClass({
     this.umount && this.umount()
   },
   componentWillReceiveProps(nextprops){
-    if (!object_is_equal(nextprops.config, this.props.config)){
-      this.umount && this.umount()
-      $(this.refs.el).html('')
-      this.do_widget(nextprops)
+    if (!object_is_equal(nextprops.config, this.props.config) ||
+        (nextprops.layout && this.props.layout && !object_is_equal(nextprops.layout, this.props.layout))
+      ){
+        this.umount && this.umount()
+        $(this.refs.el).html('')
+        this.do_widget(nextprops)
     }
   },
   render(){
