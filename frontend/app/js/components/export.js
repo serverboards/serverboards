@@ -5,6 +5,7 @@ import Loading from './loading'
 import Modal from './modal'
 import HoldButton from './holdbutton'
 import GenericForm from './genericform'
+import Calendar from './calendar'
 
 const components = {
   Modal,
@@ -12,7 +13,8 @@ const components = {
   MarkdownPreview,
   ActionEdit,
   HoldButton,
-  GenericForm
+  GenericForm,
+  Calendar,
 }
 
 export default components

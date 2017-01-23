@@ -10,7 +10,7 @@
   z-index: 1000
   cursor: default
 
-.ui.calendar
+.ui.menu.full.background .ui.calendar
   position: fixed
   top: 45px
   left: 400px
@@ -98,3 +98,42 @@
     padding: 10px
     margin: 20px
     margin-top: -20px
+
+
+div.ui.calendar
+  display: flex
+  justify-content: space-between
+  flex-direction: column
+  .ui.week
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    .ui.day, a.ui.day
+      width: 30px
+      height: 30px
+      color: #333
+      text-align: center
+      padding: 4px
+      border-radius: 50%
+      border: 2px solid white
+      &.weekend
+        color: #777
+      &.out
+        color: #aaa
+      &.selected
+        border-color: $teal
+      &:hover
+        border-color: $green
+
+      &.background
+        +background-colors
+
+      &.text
+        +text-colors
+
+  .ui.week.header
+    margin: 0
+    font-size: 0.9rem
+    span
+      width: 30px
+      text-align: center
