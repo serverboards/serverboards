@@ -5,6 +5,7 @@ import {pretty_ago} from 'app/utils'
 import moment from 'moment'
 import Loading from 'app/components/loading'
 import Filters from 'app/containers/issues/index_filters'
+import store from 'app/utils/store'
 
 import 'sass/issues.sass'
 
@@ -17,6 +18,15 @@ function tag_color(status){
     return "green"
   return "grey"
 }
+function get_avatar(email){
+  const auth = store.getState().auth
+  console.log("Get avatar for %o, im %o", email, auth.user.email)
+  if (auth.user.email == email)
+    return auth.avatar
+
+  return default_avatar
+}
+
 
 function IssueCard(props){
   return (
@@ -40,7 +50,7 @@ function IssueRow(props){
   return (
     <div className="item">
       <span className="time">{moment(props.date).format("h:mm a")}</span>
-      <span className="ui circular image small"><img src={default_avatar}/></span>
+      <span className="ui circular image small"><img src={get_avatar((props.creator || {}).email)}/></span>
       <hr/>
       <IssueCard {...props}/>
       <hr className="vertical"/>
