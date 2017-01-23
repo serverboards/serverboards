@@ -5,6 +5,7 @@ const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
 import {merge, colorize, pretty_ago} from 'app/utils'
+import store from 'app/utils/store'
 
 import Filters from './filters'
 
@@ -16,13 +17,39 @@ function tag_color(status){
   return "grey"
 }
 
-function CardHeader({event, label}){
+function get_avatar(email){
+  const auth = store.getState().auth
+  console.log("Get avatar for %o, im %o", email, auth.user.email)
+  if (auth.user.email == email)
+    return auth.avatar
+
+  return default_avatar
+}
+
+const EVENT_DESC = {
+  alias: {
+    icon: "pin",
+    text: "created a new alias",
+    color: "blue"
+  },
+  unalias: {
+    icon: "pin",
+    text: "removed an alias",
+    color: "orange"
+  },
+}
+
+function CardHeader({event, label, icon, color, text}){
   return (
     <div className="ui header normal text regular">
-      <span className="ui circular image small"><img src={default_avatar}/></span>
+      {icon ? (
+        <span className="ui circular"><span className={color}><i className={`ui icon ${icon}`}/></span></span>
+      ) : (
+        <span className="ui circular image small"><img src={get_avatar((event.creator || {}).email)}/></span>
+      )}
       <b>{(event.creator || {name:"System"}).name} </b>
       {pretty_ago(event.inserted_at)}
-      <span className="ui meta"> {label}: </span>
+      <span className="ui meta"> {label}{text ? ":" : null} </span> {text}
     </div>
   )
 }
@@ -46,7 +73,10 @@ function IssueEventComment({event, connected}){
 
 function IssueEventChangeStatus({event}){
   return (
-    <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
+    <div className="ui status change">
+      <CardHeader event={event} label="changed status"/>
+      <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
+    </div>
   )
 }
 
@@ -56,7 +86,7 @@ function IssueEventSetLabels({event}){
       <CardHeader event={event} label="added tags"/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
-          <span className={`ui label tag green`}>{l}</span>
+          <span className={`ui text green`}>{l}&nbsp; </span>
         ))}
       </div>
     </div>
@@ -68,9 +98,16 @@ function IssueEventUnsetLabels({event}){
       <CardHeader event={event} label="removed tag"/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
-          <span className={`ui label tag red`}>{l}</span>
+          <span className={`ui text red`}>{l}</span>
         ))}
       </div>
+    </div>
+  )
+}
+function IssueEventMisc({event, desc}){
+  return (
+    <div className="ui card connected">
+      <CardHeader event={event} icon={desc.icon} label={desc.text} text={event.data} color={desc.color}/>
     </div>
   )
 }
@@ -96,10 +133,13 @@ function IssueEvent(props){
     return (
       <IssueEventUnsetLabels {...props}/>
     )
+  if (EVENT_DESC[props.event.type]){
+    return <IssueEventMisc desc={EVENT_DESC[props.event.type]} event={props.event}/>
+  }
 
   return (
-    <div className="ui message error">
-      Unknown event type: {props.event.type}
+    <div className="ui card">
+      <CardHeader event={event}/>
     </div>
   )
 }
@@ -143,7 +183,7 @@ const Details = React.createClass({
         <div className="ui issue details">
           <div className="ui header">
             <div className="">
-              <span className="ui circular image small" style={{marginLeft: -20}}><img src={default_avatar}/></span>
+              <span className="ui circular image small" style={{marginLeft: -20}}><img src={get_avatar((issue.creator || {}).email)}/></span>
               <h4 className="ui big header">{issue.title}</h4>
               <span className="ui meta big text"># {issue.id}</span>
             </div>
@@ -155,7 +195,6 @@ const Details = React.createClass({
           <div className="ui divider"></div>
           <div className="ui container">
             <div className="details">
-              <span className="ui label tag yellow">Opened</span>
               {issue.events.map( (ev, i) =>  (
                 <IssueEvent key={i} event={ev} issue={issue} connected={i!=0}/>
               ))}
