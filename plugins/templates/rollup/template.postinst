@@ -1,0 +1,3 @@
+#!/bin/sh
+
+mv src/template.js src/[component-type].js
