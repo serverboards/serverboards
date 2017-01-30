@@ -26,52 +26,74 @@ const EditAction = React.createClass({
     const props=this.props
     const action = props.action
     return (
-      <div>
-        <div className="ui header menu top">
-          <h4>Edit action</h4>
-        </div>
-
-        <div className="ui container">
-          <div className="ui form" ref="form">
-            <div className="field">
-              <label>Name</label>
-              <input type="text" defaultValue={action.name} onChange={(ev) => props.onUpdateName(ev.target.value)}/>
-            </div>
-            <div className="field">
-              <label>Description</label>
-              <textarea onChange={(ev) => props.onUpdateDescription(ev.target.value)}>{action.description}</textarea>
-            </div>
-            <div ref="confirmation" className="field ui checkbox">
+      <div ref="form">
+        <div className="ui top secondary header menu">
+          <h3>Edit {action.name || "action"}</h3>
+          <div className="right menu" style={{alignItems: "center", paddingRight: 20}}>
+            <div ref="confirmation" className="field ui toggle checkbox" style={{paddingRight: 10}}>
               <input type="checkbox" defaultChecked={action.confirmation}  onChange={(ev) => props.onUpdateConfirmation(ev.target.value)}/>
               <label>Require confirmation</label>
             </div>
-            <div ref="star" className="field ui checkbox">
+            <div ref="star" className="field ui toggle checkbox">
               <input type="checkbox" defaultChecked={action.star}  onChange={(ev) => props.onStar(ev.target.value)}/>
               <label>Show at widget</label>
             </div>
-            <div className="field">
-              <label>Icon Name</label>
-              <div className="ui meta">Check for icons at <a target="_blank" href="http://semantic-ui.com/elements/icon.html">{"http://semantic-ui.com/elements/icon.html"}</a></div>
-              <input type="text" defaultValue={action.icon} onChange={(ev) => props.onUpdateIcon(ev.target.value)}/>
+          </div>
+        </div>
+
+        <div className="ui text container">
+          <div className="ui form">
+            <div className="four fields">
+              <div className="field">
+                <label>Icon Name</label>
+
+                <div style={{padding: 40, textAlign: "center", border: "1px solid #aaa", margin: "auto", marginBottom: 10}}>
+                  <i className={`ui huge blue icon ${action.icon || "help"}`}/>
+                </div>
+
+                <input type="text" placeholder="Icon name" defaultValue={action.icon} onChange={(ev) => props.onUpdateIcon(ev.target.value)}/>
+              </div>
+              <div className="field">
+                <label style={{paddingTop: 20}}>Tip:</label>
+                <div className="ui meta">
+                  Visit <a target="_blank" href="http://semantic-ui.com/elements/icon.html">
+                  Semantic UI icon{"'"}s selection</a> and copy the name of your choice.
+                  Then paste it in the input bellow.
+                </div>
+              </div>
             </div>
-            <div className="field">
-              <label>Service</label>
-              <select className="ui dropdown search" defaultValue={action.service} onChange={(ev) => props.onServiceChange(ev.target.value)}>
-                <option value=".">No service selected</option>
-                {props.services.map( (s) => (
-                  <option key={s.uuid} value={s.uuid}>{s.name}</option>
-                ))}
-              </select>
+
+            <div className="two fields">
+              <div className="field">
+                <label>Name</label>
+                <input type="text" defaultValue={action.name} onChange={(ev) => props.onUpdateName(ev.target.value)}/>
+              </div>
+              <div className="field">
+                <label>Description</label>
+                <textarea style={{minHeight: "4em", height: "4em"}} onChange={(ev) => props.onUpdateDescription(ev.target.value)}>{action.description}</textarea>
+              </div>
             </div>
-            <div className="field">
-              <label>Action</label>
-              <select className="ui dropdown search" defaultValue={action.action} onChange={(ev) => props.onActionChange(ev.target.value)}>
-                <option value=".">No action selected</option>
-                {props.actions.map( (s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
+            <div className="two fields">
+              <div className="field">
+                <label>Service</label>
+                <select className="ui dropdown search" defaultValue={action.service} onChange={(ev) => props.onServiceChange(ev.target.value)}>
+                  <option value=".">No service selected</option>
+                  {props.services.map( (s) => (
+                    <option key={s.uuid} value={s.uuid}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label>Action</label>
+                <select className="ui dropdown search" defaultValue={action.action} onChange={(ev) => props.onActionChange(ev.target.value)}>
+                  <option value=".">No action selected</option>
+                  {props.actions.map( (s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
+
             <GenericForm fields={props.form_fields} data={action.params} updateForm={props.onUpdateActionParams}/>
           </div>
 
