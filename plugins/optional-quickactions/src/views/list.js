@@ -8,19 +8,25 @@ function find_service(service_id, services){
 function Action(props){
   const a = props.action
   return (
-    <div className="column" data-tooltip={a.description}>
-      <a onClick={() => props.onRunAction(a)} className={`ui big top attached button ${random_color(a.service || "a")} labeled icon`}>
-        {a.icon ? (
-          <i className={`ui icon ${a.icon}`}/>
-        ) : null}
-        {a.name}
+    <div className="card" style={{maxWidth: 200}} data-tooltip={a.description}>
+      <a className="content" onClick={() => props.onRunAction(a)} style={{textAlign:"center"}}>
+          <div style={{paddingTop: 20}}>
+            <i className={`ui huge blue icon ${a.icon || "hand pointer"}`}/>
+          </div>
+          <div className="ui small header">
+            {a.name}
+          </div>
+          <div>
+            {a.service ? (
+              <span className="ui meta">{find_service(a.service, props.services).name}</span>
+            ) : null}
+          </div>
       </a>
-      <a onClick={() => props.onConfigureAction(a)} className="ui bottom attached icon button" style={{maxWidth: "3em", display: "inline-block"}}>
-        <i className="ui icon settings"/>
-      </a>
-      {a.service ? (
-        <span style={{paddingLeft: 10}}>{find_service(a.service, props.services).name}</span>
-      ) : null}
+      <div className="extra content" style={{justifyContent: "flex-end", display: "flex"}}>
+        <a onClick={(ev) => {ev.preventDefault(); props.onConfigureAction(a)}}>
+          <i className="ui icon edit"/>
+        </a>
+      </div>
     </div>
   )
 }
@@ -33,7 +39,7 @@ function View(props){
         <h4>Actions</h4>
       </div>
       <div className="ui container" style={{paddingTop: 30}}>
-        <div className="ui four column grid stackable">
+        <div className="ui cards">
           {(actions || []).map( (a) => (
             <Action key={a.id} action={a} {...props}/>
           ))}

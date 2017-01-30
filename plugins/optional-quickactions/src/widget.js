@@ -10,7 +10,7 @@ const style={
     borderBottom: "1px solid #eee"
   },
   span: {
-    color: "#666"
+    color: "#666",
     paddingLeft: "10px"
   },
   list: {
