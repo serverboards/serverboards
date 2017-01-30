@@ -19,5 +19,6 @@ defmodule Serverboards.IO.HTTP.RPC do
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc
     end)
+    {:ok, mc}
   end
 end

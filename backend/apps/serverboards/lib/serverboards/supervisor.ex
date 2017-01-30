@@ -17,6 +17,7 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.IO.Cmd.Supervisor, [[name: Serverboards.IO.Cmd.Supervisor]]),
       supervisor(Serverboards.Auth.Supervisor, []),
       supervisor(Serverboards.Issues, [ [name: Serverboards.Issues] ]),
+      supervisor(Serverboards.IO.HTTP.Supervisor, [[name: Serverboards.IO.HTTP]]),
 
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
       worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
@@ -30,7 +31,6 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
 
       worker(Task, [Serverboards.IO.TCP, :start_accept, []], restart: :transient),
-      worker(Serverboards.IO.HTTP, [ [name: Serverboards.IO.HTTP] ], restart: :transient),
 
       # this should be the last, as it may use others
       worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),

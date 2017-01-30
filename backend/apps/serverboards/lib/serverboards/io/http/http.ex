@@ -36,9 +36,6 @@ defmodule Serverboards.IO.HTTP do
         {:onresponse, &postrequest/4}
       ]
     )
-    Serverboards.IO.HTTP.PortToWebsocket.start_link
-    Serverboards.IO.HTTP.RPC.start_link
-
     Logger.info("Accepting HTTP connections at http://localhost:#{port}")
 
     {:ok, res}
