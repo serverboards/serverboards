@@ -29,6 +29,11 @@ const Board = store.connect({
     () => serverboard_update_widget_catalog(null),
   ],
   watch: ['serverboard'], // Watch this prop
+  loading(state){
+    if (!state.serverboard.widget_catalog)
+      return "Widget catalog"
+    return false
+  }
 }, BoardView)
 
 export default Board
