@@ -73,7 +73,7 @@ const EditActionModel = React.createClass({
         <Loading>Actions and services</Loading>
       )
     return (
-      <View {...this.state} {...this.props}
+      <View {...this.props} {...this.state} 
         onActionChange={this.handleActionChange}
         onServiceChange={this.handleServiceChange}
         onUpdateActionParams={(params) => this.updateAction({params})}

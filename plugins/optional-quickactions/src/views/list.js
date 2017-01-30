@@ -35,8 +35,8 @@ function View(props){
   const actions = (props.actions || []).sort( (a,b) => a.name.localeCompare(b.name) )
   return (
     <div>
-      <div className="ui top header menu">
-        <h4>Actions</h4>
+      <div className="ui top secondary header menu">
+        <h3>Actions</h3>
       </div>
       <div className="ui container" style={{paddingTop: 30}}>
         <div className="ui cards">
