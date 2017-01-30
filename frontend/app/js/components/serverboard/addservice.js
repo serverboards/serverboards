@@ -3,7 +3,7 @@ import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
 import Loading from '../loading'
 import Modal from '../modal'
-import { set_modal } from 'app/utils/store'
+import { set_modal, goto } from 'app/utils/store'
 
 const icon = require("../../../imgs/services.svg")
 
@@ -38,14 +38,17 @@ let AddService=React.createClass({
 
       this.props.onAttachService(this.props.serverboard, current_service.uuid)
       set_modal(false)
+      goto(`/services/${current_service.uuid}`)
     }
     else{
       let current_service=Object.assign({}, this.props.catalog.find((c) => c.type == service.type))
 
       current_service.id=undefined
 
-      this.props.onAddService(this.props.serverboard, current_service)
-      set_modal(false)
+      this.props.onAddService(this.props.serverboard, current_service).then( (uuid) => {
+        set_modal(false)
+        goto(`/services/${uuid}`)
+      })
     }
   },
   setTab(tab){
