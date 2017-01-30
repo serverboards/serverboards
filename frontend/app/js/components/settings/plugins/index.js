@@ -111,6 +111,7 @@ const Plugins=React.createClass({
                     <button className="ui button yellow" onClick={this.handleInstallPlugin}>Install</button>
                   </div>
                 </div>
+                <div style={{marginTop: -10}}>View full plugin list at <a href="https://serverboards.io/downloads/plugins/" target="_blank">Serverboards.io Plugin List page.</a></div>
               </div>
             </div>
           </div>
