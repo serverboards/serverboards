@@ -7,7 +7,6 @@ defmodule Serverboards.IO.HTTP.Supervisor do
       worker(Serverboards.IO.HTTP.RPC, [])
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one)
-
+    Supervisor.start_link(children, [strategy: :one_for_one] ++ options)
   end
 end

@@ -198,7 +198,7 @@ defmodule Serverboards.Plugin.Registry do
   end
 
 
-  ## server impl, jsut stores state
+  ## server impl, just stores state
   def init([]) do
     Serverboards.Plugin.Monitor.start_link
 
@@ -222,7 +222,6 @@ defmodule Serverboards.Plugin.Registry do
     }
   end
 
-
   def handle_call({:reload}, _from, _status) do
     #:timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
     # It may be because in tests this process is in a another transaction??
@@ -244,6 +243,8 @@ defmodule Serverboards.Plugin.Registry do
       {i.id, i.status}
     end
     Logger.debug("Reload plugins done: #{inspect st}")
+
+    Serverboards.Event.emit("plugins_reload", nil, ["plugin"])
 
     {:noreply, %{
       all: all_plugins,
