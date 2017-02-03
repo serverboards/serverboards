@@ -25,7 +25,6 @@ const SelectCall = React.createClass({
           data[k]=form_data[k]
         }
       })
-      console.log(data)
       pl.call(props.options.call,data).then( (items) => {
         //console.log(items)
         self.setState({items})
