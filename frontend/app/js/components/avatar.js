@@ -4,28 +4,26 @@ import rpc from 'app/rpc'
 
 const default_avatar=require('../../imgs/square-favicon.svg')
 
-const Avatar = React.createClass({
-  getInitialState(){
-    return {
-      avatar: undefined
-    }
-  },
-  componentDidMount(){
-    const email = this.props.email
-    if (email){
-      const auth = store.getState().auth
-      rpc.call("settings.user.get", [email, "profile_avatar"]).then( (avatar) => {
-        this.setState({avatar: avatar.avatar})
-      })
-    }
-  },
-  render(){
-    const avatar = this.state.avatar || default_avatar
-
-    return (
-      <img src={avatar} className={this.props.className}/>
-    )
+function Avatar(props){
+  let avatar
+  switch (props.avatar){
+    case undefined:
+      avatar = default_avatar;
+      break;
+    case "unknown":
+      avatar = default_avatar;
+      break;
+    case "loading":
+      return (
+        <i className="loading spinner icon"/>
+      )
+    default:
+      avatar = props.avatar || default_avatar
+      break;
   }
-})
+  return (
+    <img src={avatar} className={props.className}/>
+  )
+}
 
 export default Avatar

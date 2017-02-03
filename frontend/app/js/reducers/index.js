@@ -5,7 +5,7 @@ import { routerReducer } from 'react-router-redux'
 
 var reducers = [
   'auth', 'action', 'flash', 'console', 'top', 'serverboard', 'services',
-  'settings', 'notifications', 'rules', 'rpc'
+  'settings', 'notifications', 'rules', 'rpc', 'avatar'
 ]
 
 reducers = reducers.reduce(function(acc, r){ acc[r]=require('./'+r).default; return acc; }, {})

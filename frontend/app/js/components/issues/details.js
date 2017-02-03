@@ -4,7 +4,7 @@ import Loading from 'app/components/loading'
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
 import {merge, colorize, pretty_ago} from 'app/utils'
-import Avatar from 'app/components/avatar'
+import Avatar from 'app/containers/avatar'
 
 import Filters from './filters'
 

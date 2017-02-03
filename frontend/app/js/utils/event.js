@@ -10,8 +10,6 @@ let subscription_count={}
 let subscription_fns={}
 
 export function subscribe(types){
-  console.log("Subscribe %o", types)
-
   let newsubs=[]
   for(let t of types){
     if (!subscription_count[t])

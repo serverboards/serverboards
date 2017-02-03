@@ -5,7 +5,7 @@ import {pretty_ago} from 'app/utils'
 import moment from 'moment'
 import Loading from 'app/components/loading'
 import Filters from 'app/containers/issues/index_filters'
-import Avatar from 'app/components/avatar'
+import Avatar from 'app/containers/avatar'
 
 import 'sass/issues.sass'
 
