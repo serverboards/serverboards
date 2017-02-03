@@ -44,12 +44,33 @@ class LineGraph{
   set_error(e){
     this.$el.addClass("error").text(e)
   }
+  /**
+   * @short Sets the data for the graph, may reload the full graph if required
+   *
+   * Data is a list of {name, values}, with values a list of pairs [x,y], where
+   * x is the unix timestamp or isodate.
+   *
+   * {
+   *   name: "myname",
+   *   values: [
+   *      [1485515929, 2.70909090909089],
+   *      [1485515989, 2.49009090909089],
+   *   ],
+   * }
+   */
   set_data(data){
     let pldata=[]
     data.map( ({name, values}) => {
       let vx=[], vy=[]
       values.map(([x,y]) => {
-        vx.push(moment.unix(x).format("YYYY-MM-DD HH:mm:ss")); vy.push(y)
+        if (typeof(x) == "number"){
+          vx.push(moment.unix(x).format("YYYY-MM-DD HH:mm:ss"));
+          vy.push(y)
+        }
+        else{
+          vx.push(x)
+          vy.push(y)
+        }
       })
 
       pldata.push({

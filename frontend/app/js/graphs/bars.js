@@ -44,6 +44,20 @@ class BarGraph{
   set_error(e){
     this.$el.addClass("error").text(e)
   }
+  /**
+   * @short Sets the data for the graph, may reload the full graph if required
+   *
+   * Data is a list of {name, values}, with values a list of pairs [x,y], where
+   * x is the unix timestamp or isodate.
+   *
+   * {
+   *   name: "myname",
+   *   values: [
+   *      [1485515929, 2.70909090909089],
+   *      [1485515989, 2.49009090909089],
+   *   ],
+   * }
+   */
   set_data(data){
     let pldata=[]
     data.map( ({name, values}) => {
@@ -70,7 +84,6 @@ class BarGraph{
     this.$el.html(this.plot)
   }
   resize(){
-    console.log("resize %o", this.plot)
     Plotly.Plots.resize(this.plot);
   }
 }
