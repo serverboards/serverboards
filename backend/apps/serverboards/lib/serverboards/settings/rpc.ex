@@ -6,6 +6,9 @@ defmodule Serverboards.Settings.RPC do
   alias MOM.RPC.Context
   alias MOM
 
+  # this sections do not need special permissions when got from other user
+  @section_whitelist ~w"profile_avatar"
+
   def start_link(options \\ []) do
     {:ok, mc} = RPC.MethodCaller.start_link options
     import Serverboards.Settings
@@ -68,7 +71,7 @@ defmodule Serverboards.Settings.RPC do
         end
       [user, section], context ->
         me = (RPC.Context.get context, :user)
-        can_view = ("settings.user.view_all" in me.perms)
+        can_view = ("settings.user.view_all" in me.perms) or (section in @section_whitelist)
         if can_view do
           Serverboards.Settings.user_get user, section
         else
