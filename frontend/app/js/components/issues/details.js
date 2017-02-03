@@ -1,11 +1,10 @@
 import React from 'react'
 import Modal from 'app/components/modal'
 import Loading from 'app/components/loading'
-const default_avatar=require('../../../imgs/square-favicon.svg')
 import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
 import {merge, colorize, pretty_ago} from 'app/utils'
-import store from 'app/utils/store'
+import Avatar from 'app/containers/avatar'
 
 import Filters from './filters'
 
@@ -15,15 +14,6 @@ function tag_color(status){
   if (status=="closed")
     return "green"
   return "grey"
-}
-
-function get_avatar(email){
-  const auth = store.getState().auth
-  console.log("Get avatar for %o, im %o", email, auth.user.email)
-  if (auth.user.email == email)
-    return auth.avatar
-
-  return default_avatar
 }
 
 const EVENT_DESC = {
@@ -45,7 +35,7 @@ function CardHeader({event, label, icon, color, text}){
       {icon ? (
         <span className="ui circular"><span className={color}><i className={`ui icon ${icon}`}/></span></span>
       ) : (
-        <span className="ui circular image small"><img src={get_avatar((event.creator || {}).email)}/></span>
+        <span className="ui circular image small"><Avatar email={(event.creator || {}).email}/></span>
       )}
       <b>{(event.creator || {name:"System"}).name} </b>
       {pretty_ago(event.inserted_at)}
@@ -183,7 +173,7 @@ const Details = React.createClass({
         <div className="ui issue details">
           <div className="ui header">
             <div className="">
-              <span className="ui circular image small" style={{marginLeft: -20}}><img src={get_avatar((issue.creator || {}).email)}/></span>
+              <span className="ui circular image small" style={{marginLeft: -20}}><Avatar email={(issue.creator || {}).email}/></span>
               <h4 className="ui big header">{issue.title}</h4>
               <span className="ui meta big text"># {issue.id}</span>
             </div>
