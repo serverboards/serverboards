@@ -14,11 +14,13 @@ const Board = store.connect({
   handlers: (dispatch, prop) => ({
     updateDaterangeNow: () => dispatch( board_update_now() )
   }),
-  subscribe: (props) => [
-    `serverboard.widget.added[${props.serverboard}]`,
-    `serverboard.widget.removed[${props.serverboard}]`,
-    `serverboard.widget.updated[${props.serverboard}]`
-  ],
+  subscriptions: (state, props) => {
+    return [
+      `serverboard.widget.added[${props.serverboard}]`,
+      `serverboard.widget.removed[${props.serverboard}]`,
+      `serverboard.widget.updated[${props.serverboard}]`
+    ]
+  },
   // Update catalog on entry
   store_enter: (props) => [
     () => serverboards_widget_list(props.serverboard.current),
