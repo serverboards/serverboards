@@ -1,6 +1,7 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import RichDescription from './richdescription'
+import store from 'app/utils/store'
 
 const SelectCall = React.createClass({
   getInitialState(){
@@ -12,7 +13,20 @@ const SelectCall = React.createClass({
     const props = this.props
     let self = this
     plugin.start(props.options.command).then( (pl) => {
-      pl.call(props.options.call,props.form_data).then( (items) => {
+      let form_data = props.form_data
+      let data = {}
+      Object.keys(form_data).map( (k) => {
+        let ff = props.fields.find( f => f.name == k)
+        if (ff.type == "service"){
+          let service_id = form_data[k]
+          data[k]=store.getState().serverboard.serverboard.services.find( s => s.uuid == service_id )
+        }
+        else{
+          data[k]=form_data[k]
+        }
+      })
+      console.log(data)
+      pl.call(props.options.call,data).then( (items) => {
         //console.log(items)
         self.setState({items})
         pl.stop()
