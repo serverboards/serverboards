@@ -8,7 +8,7 @@ defmodule Serverboards.Plugin.Model do
       timestamps
     end
 
-    @required_fields ~w(plugin key value)
+    @required_fields ~w(plugin key value)a
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data

@@ -124,7 +124,7 @@ defmodule Serverboards.TriggersTest do
 
     {:ok, _ } = File.stat("/tmp/sbds-rule-test")
 
-    Rules.Rule.stop rule.uuid
+    Rules.Rule.stop rule().uuid
     File.rm("/tmp/sbds-rule-test")
   end
 
@@ -140,17 +140,17 @@ defmodule Serverboards.TriggersTest do
     me = Test.User.system
 
     # Some upserts
-    Rules.upsert( Map.put(rule, :uuid, uuid), me )
-    Rules.upsert( Map.put(rule, :uuid, uuid), me )
+    Rules.upsert( Map.put(rule(), :uuid, uuid), me )
+    Rules.upsert( Map.put(rule(), :uuid, uuid), me )
 
-    Rules.upsert( rule, me )
+    Rules.upsert( rule(), me )
 
     # More complex with serverboard and related service
     Serverboards.Serverboard.serverboard_add "TEST-RULES-1", %{}, me
     {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
 
-    Rules.upsert( Map.merge(rule, %{ serverboard: "TEST-RULES-1" }), me )
-    Rules.upsert( Map.merge(rule, %{ service: service_uuid }), me )
+    Rules.upsert( Map.merge(rule(), %{ serverboard: "TEST-RULES-1" }), me )
+    Rules.upsert( Map.merge(rule(), %{ service: service_uuid }), me )
 
     # The full list
     l = Rules.list
@@ -165,9 +165,9 @@ defmodule Serverboards.TriggersTest do
     assert running == initial_running
 
     # update should start them
-    Rules.upsert( Map.merge(rule, %{uuid: uuid, is_active: true}), me )
+    Rules.upsert( Map.merge(rule(), %{uuid: uuid, is_active: true}), me )
     assert Rules.ps == initial_running ++ [uuid]
-    Rules.upsert( Map.merge(rule, %{uuid: uuid, is_active: false}), me )
+    Rules.upsert( Map.merge(rule(), %{uuid: uuid, is_active: false}), me )
     assert Rules.ps == initial_running
 
     assert Rules.decorate(uuid) != nil
@@ -179,7 +179,7 @@ defmodule Serverboards.TriggersTest do
     {:ok, _l} = Test.Client.call(client, "rules.list", [])
     {:ok, []} = Test.Client.call(client, "rules.list", [uuid: UUID.uuid4 ])
 
-    {:ok, :ok} = Test.Client.call(client, "rules.update", rule)
+    {:ok, :ok} = Test.Client.call(client, "rules.update", rule())
 
     :timer.sleep(500)
     {:ok, l} = Test.Client.call(client, "rules.list", [])
@@ -221,7 +221,6 @@ defmodule Serverboards.TriggersTest do
   end
 
   test "Modify rule restarts it" do
-    alias Serverboards.Rules.Rule
     uuid = UUID.uuid4
     me = Test.User.system
 

@@ -268,7 +268,7 @@ defmodule Serverboards.Action do
        uuid: uuid, name: action_component.name,
        id: action_component.id,
        user: user, params: params,
-       timer_start: Timex.Time.now
+       timer_start: DateTime.utc_now
        }
 
       action_update_started(action)
@@ -297,7 +297,7 @@ defmodule Serverboards.Action do
     #Logger.debug("Trigger stop #{inspect uuid}: #{inspect ret}")
     action = status.running[uuid]
     elapsed = round(
-      Timex.Time.to_milliseconds(Timex.Time.elapsed(action.timer_start))
+      Timex.Duration.to_milliseconds(Timex.Duration.elapsed(action.timer_start))
       )
 
     if ok == :error do

@@ -1,4 +1,4 @@
-#require Logger
+require Logger
 
 defmodule Serverboards.Utils do
   @doc ~S"""
@@ -7,7 +7,6 @@ defmodule Serverboards.Utils do
 
   ## Example
 
-    iex> import Poison
     iex> import Logger
     iex> s= %{ :__ignore__ => "to be ignored", "__ignore_too__" => "to be ignored",
     ...>      :user_pw => "same", "user_pw" => "same", "valid" => "valid",
@@ -20,6 +19,9 @@ defmodule Serverboards.Utils do
     true
 
   """
+  def clean_struct(%{ calendar: Calendar.ISO, day: _day, hour: _hour} = datetime) do
+    Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! datetime)
+  end
   def clean_struct(st) when is_map(st) do
     st = Map.to_list st
     l = Enum.flat_map st, fn {k,v} ->

@@ -24,7 +24,7 @@ defmodule Serverboards.Auth.User.Token do
   end
 
 	def invalidate(token) do
-		now_1s_ago = Timex.to_erlang_datetime(Timex.shift(Timex.DateTime.now, seconds: -1))
+		now_1s_ago = Timex.shift(DateTime.utc_now, seconds: -1)
 		(from t in Model.Token, where: t.token == ^token)
 			|> Repo.update_all(
 				set: [time_limit: now_1s_ago]
@@ -38,7 +38,7 @@ defmodule Serverboards.Auth.User.Token do
 	This allows to keep using the token for longer time.
 	"""
 	def refresh(token, email) do
-		time_limit = Timex.to_erlang_datetime( Timex.shift( Timex.DateTime.now, days: 1 ) )
+		time_limit = Timex.shift( DateTime.utc_now, days: 1 )
 		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
 
 		[user_id] = Repo.all( from u in User, where: u.email == ^email, select: u.id )
@@ -55,7 +55,7 @@ defmodule Serverboards.Auth.User.Token do
 			from u in User,
 			join: t in Model.Token,
 			  on: t.user_id == u.id,
-			where: t.token == ^token_uuid and t.time_limit > ^Timex.to_erlang_datetime(Timex.DateTime.now),
+			where: t.token == ^token_uuid and t.time_limit > ^DateTime.utc_now,
 			select: %{ user: u, perms: t.perms }
 		)
 		case token do

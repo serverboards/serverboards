@@ -124,11 +124,11 @@ defmodule Serverboards.PluginTest do
     Logger.debug("Got #{Enum.count list} components")
     assert (Enum.count(list)) > 0
 
-    {:ok, list} = Client.call(client, "plugin.list_components", [ type: "action" ])
+    {:ok, list} = Client.call(client, "plugin.list_components", %{ type: "action" })
     Logger.debug("Got #{Enum.count list} action components")
     assert (Enum.count(list)) > 0
 
-    {:ok, list} = Client.call(client, "plugin.list_components", [ type: "action template" ])
+    {:ok, list} = Client.call(client, "plugin.list_components", %{ type: "action template" })
     Logger.debug("Got #{Enum.count list} action template components")
     assert (Enum.count(list)) >= 0
   end
@@ -351,8 +351,8 @@ defmodule Serverboards.PluginTest do
     Serverboards.Plugin.Registry.reload_plugins
     {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
     assert broken_plugins["serverboards.test.auth"]
-    plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
     # Should be false, but fails because, i think, the plugin registry runs in another DB transaction
+    #plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
     #assert "disabled" in plugin.status
     #assert plugin.is_active == false
 

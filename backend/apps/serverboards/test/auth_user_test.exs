@@ -99,7 +99,7 @@ defmodule Serverboards.AuthUserTest do
 
     # manual set time_limit to 1 min ago
     tk = Repo.get_by(Serverboards.Auth.User.Model.Token, token: token)
-    tl = Timex.to_erlang_datetime( Timex.shift( Timex.DateTime.now, minutes: -1 ) )
+    tl = Timex.shift( DateTime.utc_now, minutes: -1 )
     {:ok, tl} = Ecto.DateTime.cast tl
     #cs = tk |> Ecto.Changeset.cast( %{ time_limit: tl}, [:token, :user_id], [:time_limit] )
 

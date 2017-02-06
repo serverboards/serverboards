@@ -8,7 +8,7 @@ defmodule ServerboardsTest do
   doctest Serverboards.Utils, import: true
   doctest Serverboards.Utils.Decorators, import: true
 
-  def email_type, do: "serverboards.test.auth/email"
+  @email_type "serverboards.test.auth/email"
 
   def check_if_event_on_client(client, event, shortname) do
     Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}], 500 )
@@ -170,7 +170,7 @@ defmodule ServerboardsTest do
     assert Enum.member? dir, "serverboard.delete"
     assert Enum.member? dir, "serverboard.info"
 
-    #{:ok, json} = JSON.encode(Test.Client.debug client)
+    #{:ok, json} = Poison.encode(Test.Client.debug client)
     #Logger.info("Debug information: #{json}")
 
     Test.Client.call(client, "event.subscribe", [
@@ -198,19 +198,19 @@ defmodule ServerboardsTest do
 
     {:ok, cl} = Test.Client.call client, "serverboard.info", ["SBDS-TST8"]
     Logger.info("Info from serverboard #{inspect cl}")
-    {:ok, json} = JSON.encode(cl)
+    {:ok, json} = Poison.encode(cl)
     assert not String.contains? json, "__"
     assert (hd cl["services"])["name"] == "main web"
     assert (hd (tl cl["services"]))["name"] == "blog"
 
     {:ok, cls} = Test.Client.call client, "serverboard.list", []
     Logger.info("Info from serverboard #{inspect cls}")
-    {:ok, json} = JSON.encode(cls)
+    {:ok, json} = Poison.encode(cls)
     assert not String.contains? json, "__"
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
-    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => email_type, "name" => "Email" }
+    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => @email_type, "name" => "Email" }
     Test.Client.call client, "service.attach", ["SBDS-TST8", service]
     Test.Client.call client, "service.info", [service]
     Test.Client.call client, "service.list", []

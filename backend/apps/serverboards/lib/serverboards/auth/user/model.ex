@@ -44,7 +44,7 @@ defmodule Serverboards.Auth.User.Model do
 
     def changeset(token, params \\ :empty) do
       import Ecto.Changeset
-  		time_limit = Timex.to_erlang_datetime( Timex.shift( Timex.DateTime.now, days: 1 ) )
+  		time_limit = Timex.shift( DateTime.utc_now(), days: 1 )
   		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
 
       token

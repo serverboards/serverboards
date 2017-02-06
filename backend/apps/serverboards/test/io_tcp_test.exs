@@ -16,7 +16,7 @@ defmodule Serverboards.IoTcpTest do
     # Setting the shared mode must be done only after checkout
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
   end
-  
+
   setup do
     opts = [:binary, packet: :line, active: false]
     {:ok, socket} = :gen_tcp.connect('localhost', 4040, opts)
@@ -67,7 +67,7 @@ defmodule Serverboards.IoTcpTest do
   end
 
   def call_to_json(method, params, id) do
-    {:ok, json}  = JSON.encode(%{method: method, params: params, id: id})
+    {:ok, json}  = Poison.encode(%{method: method, params: params, id: id})
     json
   end
 
@@ -76,7 +76,7 @@ defmodule Serverboards.IoTcpTest do
   end
 
   def json_to_result(json) do
-    {:ok, json}  = JSON.decode(json)
+    {:ok, json}  = Poison.decode(json)
     json
   end
 end
