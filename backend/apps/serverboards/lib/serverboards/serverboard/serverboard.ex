@@ -197,7 +197,7 @@ defmodule Serverboards.Serverboard do
 
   TODO Return only services to which the user has access
   """
-  def serverboard_info(%ServerboardModel{} = serverboard, me) do
+  def serverboard_info(%ServerboardModel{} = serverboard, _me) do
     serverboard = Repo.preload(serverboard, :tags)
 
     serverboard = %{

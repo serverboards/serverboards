@@ -95,7 +95,7 @@ defmodule Serverboards.Auth do
 	end
 
 	# all perms from the given groups
-	defp perms_from_groups(groups) do
+	def perms_from_groups(groups) do
 		import Ecto.Query
 		Serverboards.Repo.all(
 			from perms in Serverboards.Auth.Model.Permission,
@@ -161,12 +161,12 @@ defmodule Serverboards.Auth do
 
 	defp try_login_default_plugins(params) do
 		#Logger.debug("Try login with params #{inspect params}")
-		auths = auth_components
+		auth_components
 			|> Enum.filter(&(&1.login.params == "default"))
 			|> try_login_by_plugins(params)
 	end
 
-	defp try_login_by_plugins([], params), do: false
+	defp try_login_by_plugins([], _params), do: false
 	defp try_login_by_plugins([ auth | rest], params) do
 		case try_login_by_auth(auth, params) do
 			false ->

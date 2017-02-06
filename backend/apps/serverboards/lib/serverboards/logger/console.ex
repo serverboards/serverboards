@@ -27,7 +27,7 @@ defmodule Serverboards.Logger.Console do
   end
 
   def white(count) do
-    for i <- 1..count do
+    for _i <- 1..count do
       " "
     end
     |> to_string

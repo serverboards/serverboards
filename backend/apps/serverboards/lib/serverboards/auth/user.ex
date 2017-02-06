@@ -59,9 +59,6 @@ defmodule Serverboards.Auth.User do
   Gets an user by email, and updates permissions. Its for other auth modes,
   as token, or external.
   """
-  def user_info(email) when is_binary(email) do
-    user_info(email, %{ email: email })
-  end
   def user_info(email, me) when is_binary(email) do
     user_info(email, [], me)
   end
@@ -83,6 +80,9 @@ defmodule Serverboards.Auth.User do
       Logger.error("User #{me.email} can not get info about user #{email}")
       {:error, :not_allowed}
     end
+  end
+  def user_info(email) when is_binary(email) do
+    user_info(email, %{ email: email })
   end
   # final decorator, if everything ok on the other, if finishes here
   def user_info(%{} = user) do

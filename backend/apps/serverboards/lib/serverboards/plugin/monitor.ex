@@ -43,10 +43,6 @@ defmodule Serverboards.Plugin.Monitor do
 
     {:ok, %{ port: port, dirnames: dirnames, expect_exit: false, timeout: :none }}
   end
-  def terminate(_, state) do
-    Logger.debug("Terminating inotify watcher")
-    Serverboards.IO.Cmd.kill(state.port)
-  end
 
   def handle_info({_port, {:data,{:eol, data}}}, state) do
     [_, dirname, _actions, filename] = Regex.run(~r/^([^,]*),(.*),([^,]*)$/, List.to_string(data))

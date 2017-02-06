@@ -123,14 +123,14 @@ defmodule Serverboards.Plugin.RPC do
     RPC.MethodCaller.add_method(method_caller, "plugin.data_get", fn
       [ key ], context ->
         case check_perm_for_plugin_data( context ) do
-          {plugin, user} ->
+          {plugin, _user} ->
             {:ok, Plugin.Data.data_get(plugin, key)}
           _ ->
             {:error, :not_allowed}
         end
       [ plugin, key ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
-          {plugin, user} ->
+          {plugin, _user} ->
             {:ok, Plugin.Data.data_get(plugin, key)}
           _ ->
             {:error, :not_allowed}
@@ -141,14 +141,14 @@ defmodule Serverboards.Plugin.RPC do
     RPC.MethodCaller.add_method method_caller, "plugin.data_keys", fn
       [ plugin, keyprefix ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
-          {plugin, user} ->
+          {plugin, _user} ->
             {:ok, Plugin.Data.data_keys(plugin, keyprefix)}
           _ ->
             {:error, :not_allowed}
         end
       [ keyprefix ], context ->
         case check_perm_for_plugin_data( context ) do
-          {plugin, user} ->
+          {plugin, _user} ->
             {:ok, Plugin.Data.data_keys(plugin, keyprefix)}
           _ ->
             {:error, :not_allowed}
@@ -157,14 +157,14 @@ defmodule Serverboards.Plugin.RPC do
     RPC.MethodCaller.add_method method_caller, "plugin.data_items", fn
       [ plugin, keyprefix ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
-          {plugin, user} ->
+          {plugin, _user} ->
             {:ok, Plugin.Data.data_items(plugin, keyprefix)}
           _ ->
             {:error, :not_allowed}
         end
       [ keyprefix ], context ->
         case check_perm_for_plugin_data( context ) do
-          {plugin, user} ->
+          {plugin, _user} ->
             {:ok, Plugin.Data.data_items(plugin, keyprefix)}
           _ ->
             {:error, :not_allowed}

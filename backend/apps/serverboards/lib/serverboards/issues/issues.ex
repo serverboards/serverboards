@@ -8,7 +8,7 @@ defmodule Serverboards.Issues do
       worker(Serverboards.Issues.RPC, [[name: Serverboards.Issues.RPC]])
     ]
 
-    {:ok, pid} = Supervisor.start_link(children, strategy: :one_for_one)
+    Supervisor.start_link(children, [strategy: :one_for_one] ++ options)
   end
 
   def decorate_issues_list(i) do

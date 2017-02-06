@@ -477,8 +477,6 @@ defmodule Serverboards.Service do
   future (TODO) will check for permission to access this service data
   """
   def service_info(service, _me) when is_binary(service) do
-    import Ecto.Query
-
     case decorate(service) do
       nil -> {:error, :not_found}
       service -> {:ok, service}

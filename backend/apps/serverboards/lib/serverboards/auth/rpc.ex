@@ -20,7 +20,7 @@ defmodule Serverboards.Auth.RPC do
           Logger.info("#{user.email} changes password.", user: user.email)
 
           Serverboards.Auth.User.Password.password_set(user, password, user)
-        {:error, other} ->
+        {:error, _other} ->
           Logger.error("#{user.email} try to change password, no match previous.", user: user.email)
           {:error, :invalid_password}
       end

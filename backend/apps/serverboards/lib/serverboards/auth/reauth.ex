@@ -70,7 +70,7 @@ defmodule Serverboards.Auth.Reauth do
       nil -> {:error, :unknown_reauth}
       cont ->
         case Auth.auth(data) do
-          {:ok, email} -> cont
+          {:ok, _email} -> cont
           {:error, :unknown_user} -> {:error, needs_reauth_map(uuid)}
         end
     end

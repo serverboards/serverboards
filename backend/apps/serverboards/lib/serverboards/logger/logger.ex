@@ -124,8 +124,8 @@ defmodule Serverboards.Logger.Server do
 
   def handle_call({:log, msg}, from, state) do
     state = %{ state | count: state.count+1, queue: [msg | state.queue] }
-    try do
-      state = if state.count >= @max_queue_size do
+    state = try do
+      if state.count >= @max_queue_size do
         {_reply, _, state} = handle_call(:flush, from, state)
         state
       else

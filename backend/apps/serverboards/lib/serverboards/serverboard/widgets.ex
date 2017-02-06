@@ -85,7 +85,7 @@ defmodule Serverboards.Serverboard.Widget do
           where: s.uuid == ^uuid
           )
     case Repo.update( Model.Widget.changeset(prev, data) ) do
-      {:ok, update} ->
+      {:ok, _update} ->
         Serverboards.Event.emit("serverboard.widget.updated", data, ["serverboard.info"])
         serverboard = Repo.one(
           from s in Model.Serverboard,

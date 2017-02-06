@@ -91,7 +91,7 @@ defmodule Serverboards.Issues.Issue do
        from il in Model.IssueLabel,
        join: l in Model.Label,
          on: l.id == il.label_id,
-      where: l.name in ^labels
+      where: l.name in ^labels and il.issue_id == ^issue_id
       )
   end
 

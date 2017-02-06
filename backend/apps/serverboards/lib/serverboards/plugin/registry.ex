@@ -222,12 +222,17 @@ defmodule Serverboards.Plugin.Registry do
     }
   end
 
-  def handle_call({:reload}, _from, _status) do
-    #:timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
-    # It may be because in tests this process is in a another transaction??
-    {:noreply, status} = handle_cast({:reload}, %{})
+  def handle_call({:reload}, _from, status) do
+    {:noreply, status} = handle_cast({:reload}, status)
     {:reply, :ok, status}
   end
+  def handle_call({:get_all}, _from, state) do
+    {:reply, state.all, state}
+  end
+  def handle_call({:get_active}, _from, state) do
+    {:reply, state.active, state}
+  end
+
   def handle_cast({:reload}, _status) do
     context = %{
       active: Serverboards.Config.get(:plugins),
@@ -250,17 +255,6 @@ defmodule Serverboards.Plugin.Registry do
       all: all_plugins,
       active: active
       }}
-  end
-
-  def handle_call({:reload}, _from, status) do
-    {:noreply, status} = handle_cast({:reload}, status)
-    {:reply, :ok, status}
-  end
-  def handle_call({:get_all}, _from, state) do
-    {:reply, state.all, state}
-  end
-  def handle_call({:get_active}, _from, state) do
-    {:reply, state.active, state}
   end
 
 end
