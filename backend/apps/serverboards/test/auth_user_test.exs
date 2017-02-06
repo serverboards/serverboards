@@ -103,7 +103,7 @@ defmodule Serverboards.AuthUserTest do
     {:ok, tl} = Ecto.DateTime.cast tl
     #cs = tk |> Ecto.Changeset.cast( %{ time_limit: tl}, [:token, :user_id], [:time_limit] )
 
-    case Repo.update( Ecto.Changeset.cast( tk, %{time_limit: tl}, [:token, :user_id, :time_limit], [] ) ) do
+    case Repo.update( Ecto.Changeset.cast( tk, %{time_limit: tl}, [:token, :user_id, :time_limit] ) ) do
       {:ok, _} -> :ok
       msg -> flunk (inspect msg)
     end
