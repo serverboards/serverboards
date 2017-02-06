@@ -176,13 +176,13 @@ defmodule Serverboards.TriggersTest do
   test "Basic RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, _l} = Test.Client.call(client, "rules.list", [])
-    {:ok, []} = Test.Client.call(client, "rules.list", [uuid: UUID.uuid4 ])
+    {:ok, _l} = Test.Client.call(client, "rules.list", %{})
+    {:ok, []} = Test.Client.call(client, "rules.list", %{uuid: UUID.uuid4})
 
     {:ok, :ok} = Test.Client.call(client, "rules.update", rule())
 
     :timer.sleep(500)
-    {:ok, l} = Test.Client.call(client, "rules.list", [])
+    {:ok, l} = Test.Client.call(client, "rules.list", %{})
     Logger.info(inspect l)
   end
 

@@ -20,8 +20,8 @@ defmodule Serverboards.Rules.Model do
       timestamps
     end
 
-    @required_fields ~w(uuid is_active)
-    @optional_fields ~w(name description serverboard_id service_id trigger params from_template last_state)
+    @required_fields ~w(uuid is_active)a
+    @optional_fields ~w(name description serverboard_id service_id trigger params from_template last_state)a
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data
@@ -40,7 +40,7 @@ defmodule Serverboards.Rules.Model do
       field :params, :map
     end
 
-    @required_fields ~w(rule_id state action params)
+    @required_fields ~w(rule_id state action params)a
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data
