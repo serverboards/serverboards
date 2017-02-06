@@ -187,7 +187,7 @@ defmodule Serverboards.TriggersTest do
   end
 
   test "Enable, Disable, Enable rule" do
-    alias Serverboards.Rules.Rule
+    #alias Serverboards.Rules.Rule
     uuid = UUID.uuid4
     me = Test.User.system
 

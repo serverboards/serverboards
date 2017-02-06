@@ -9,7 +9,7 @@ defmodule Serverboards.ProcessRegistryTest do
   test "Start, register, deregister" do
     {:ok, registry} = Serverboards.ProcessRegistry.start_link()
 
-    assert :ok == Serverboards.ProcessRegistry.add(registry, 1, self)
+    assert :ok == Serverboards.ProcessRegistry.add(registry, 1, self())
     assert Serverboards.ProcessRegistry.get(registry, 1) == self()
 
     assert Serverboards.ProcessRegistry.pop(registry, 1) == self()

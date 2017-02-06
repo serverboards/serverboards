@@ -31,7 +31,7 @@ defmodule Serverboards.Notifications.InApp do
         %Model.Notification{}, notification
         ) )
 
-    notification = %{ notification | inserted_at: Ecto.DateTime.to_iso8601(notification.inserted_at)}
+    notification = %{ notification | inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! notification.inserted_at)}
     Serverboards.Event.emit("notifications.new", %{notification: notification}, %{ user: email, perms: ["notifications.list"] })
 
     :ok
@@ -73,7 +73,7 @@ defmodule Serverboards.Notifications.InApp do
     ret = Repo.all( q )
       |> Enum.map( fn n -> # post processing
         %{ n |
-          inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at),
+          inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! n.inserted_at),
           body: String.slice(n.body, 0, 512)
         }
       end)
@@ -113,7 +113,7 @@ defmodule Serverboards.Notifications.InApp do
 
     # post process
     Map.merge(
-      %{ n | inserted_at: Ecto.DateTime.to_iso8601(n.inserted_at)},
+      %{ n | inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! n.inserted_at)},
       %{ next_id: next_id, last_id: last_id }
       )
   end
