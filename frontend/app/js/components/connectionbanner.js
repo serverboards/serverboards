@@ -8,7 +8,7 @@ function ConnectionBanner(props){
     case "CLOSED":
       return (
         <div className="ui icon floating message">
-          <i className="notched circle loading icon"></i>
+          <i className="notched circle loading icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
               Reconnecting...
