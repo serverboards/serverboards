@@ -14,21 +14,26 @@ function filter_serverboard(s, search){
   return valid
 }
 
+function sorted_by_name(serverboards){
+  return serverboards.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })
+}
+
 const Selector=React.createClass({
   getInitialState(){
+    let serverboards = this.props.serverboards
     return {
       search: undefined,
       selected: 0,
-      serverboards: this.props.serverboards.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })
+      serverboards: sorted_by_name(serverboards)
     }
   },
   setSearch(search){
     let serverboards = this.props.serverboards
     if (search){
       search = search.toLowerCase().split(" ")
-      serverboards = this.props.serverboards.filter( (s) => filter_serverboard(s, search) )
+      serverboards = serverboards.filter( (s) => filter_serverboard(s, search) )
     }
-    serverboards = serverboards.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })
+    serverboards = sorted_by_name(serverboards)
     this.setState({
       selected: 0,
       search,
@@ -61,7 +66,7 @@ const Selector=React.createClass({
       })
   },
   componentWillReceiveProps(newprops){
-    this.setState({serverboards: newprops.serverboards.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })})
+    this.setState({serverboards: sorted_by_name(newprops.serverboards)})
   },
   componentDidUpdate(){
     $(this.refs.el).find('.menu').animate({

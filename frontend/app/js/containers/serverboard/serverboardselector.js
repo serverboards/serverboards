@@ -6,7 +6,6 @@ import {has_perm_guard} from 'app/restricted'
 
 var Container=has_perm_guard("serverboard.info", connect({
   state: (state) => {
-    //console.log(state)
     return {
       current: state.serverboard.current,
       serverboards: state.serverboard.serverboards
