@@ -10,12 +10,12 @@ defmodule Serverboards.Settings.Model do
       timestamps
     end
 
-		@required_fields ~w(section data)
-		@optional_fields ~w()
+		@fields ~w(section data)a
 		def changeset(settings, changes \\ :empty) do
 		 import Ecto.Changeset
 		 settings
-			 |> cast(changes, @required_fields, @optional_fields)
+			 |> cast(changes, @fields)
+			 |> validate_required(@fields)
 	 end
   end
 	defmodule UserSettings do
@@ -29,12 +29,12 @@ defmodule Serverboards.Settings.Model do
       timestamps
     end
 
-		@required_fields ~w(section data user_id)
-		@optional_fields ~w()
+		@fields ~w(section data user_id)a
 		def changeset(settings, changes \\ :empty) do
 		 import Ecto.Changeset
 		 settings
-			 |> cast(changes, @required_fields, @optional_fields)
+			 |> cast(changes, @fields)
+			 |> validate_required(@fields)
 	 end
   end
 end

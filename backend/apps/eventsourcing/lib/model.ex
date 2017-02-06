@@ -13,12 +13,12 @@ defmodule EventSourcing.Model do
         timestamps updated_at: false, usec: true
      end
 
-     @required_fields ~w(store type author data)
-     @optional_fields ~w()
+     @fields ~w(store type author data)a
      def changeset(event, changes \\ :empty) do
       import Ecto.Changeset
       event
-        |> cast(changes, @required_fields, @optional_fields)
+        |> cast(changes, @fields)
+        |> validate_required(@fields)
     end
   end
 

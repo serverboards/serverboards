@@ -1,5 +1,4 @@
 require Logger
-require JSON
 
 defmodule Serverboards.IO.TCP do
 	alias MOM.RPC

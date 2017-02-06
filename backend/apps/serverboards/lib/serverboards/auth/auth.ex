@@ -265,7 +265,7 @@ defmodule Serverboards.Auth do
 	@doc ~S"""
 	Returns the list of known authentications
 
-		iex> l = list_auth
+		iex> l = list_auth()
 		iex> (Enum.count l) >= 1
 		true
 		iex> "basic" in l

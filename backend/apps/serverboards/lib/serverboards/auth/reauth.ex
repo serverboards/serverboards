@@ -9,7 +9,7 @@ defmodule Serverboards.Auth.Reauth do
   Also this ensures that the original calling client is the one accepting the
   reauth.
 
-    iex> {:ok, r} = start_link
+    iex> {:ok, r} = start_link()
     iex> msg = request_reauth r, fn -> :reauth_success end
     iex> msg.type
     :needs_reauth

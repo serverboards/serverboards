@@ -8,6 +8,8 @@ defmodule Serverboards.Auth.User.Model do
 
   		timestamps
   	end
+
+    @required_fields [:password, :user_id]
     @doc ~S"""
   	Prepares changeset ensuring required data is there, proper
   	password lenth, and hashes the password.
@@ -16,7 +18,8 @@ defmodule Serverboards.Auth.User.Model do
   		import Ecto.Changeset
   		#Logger.debug("orig #{inspect password}, new #{inspect params}")
   		ret = password
-  			|> cast(params, [:password, :user_id], ~w())
+  			|> cast(params, @required_fields)
+        |> validate_required(@required_fields)
   			|> validate_length(:password, min: 8)
   			|> put_change(:password,
             Serverboards.Auth.User.Password.hash_password(params[:password]))
@@ -36,8 +39,8 @@ defmodule Serverboards.Auth.User.Model do
       timestamps
   	end
 
-  	@required_fields ~w(user_id token)
-  	@optional_fields ~w(perms)
+  	@required_fields ~w(user_id token)a
+  	@optional_fields ~w(perms)a
 
     def changeset(token, params \\ :empty) do
       import Ecto.Changeset
@@ -45,7 +48,8 @@ defmodule Serverboards.Auth.User.Model do
   		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
 
       token
-        |> cast(params, @required_fields, @optional_fields)
+        |> cast(params, @required_fields ++ @optional_fields)
+        |> validate_required(@required_fields)
         |> put_change(:time_limit, time_limit )
     end
   end

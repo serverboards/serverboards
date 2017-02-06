@@ -19,12 +19,13 @@ defmodule Serverboards.Issues.Model do
       timestamps
     end
 
-    @required_fields ~w(title status)
-    @optional_fields ~w(creator_id)
+    @required_fields ~w(title status)a
+    @optional_fields ~w(creator_id)a
     def changeset(cc, params \\ :empty) do
       import Ecto.Changeset
       cc
-        |> cast(params, @required_fields, @optional_fields)
+        |> cast(params, @required_fields ++ @optional_fields)
+        |> validate_required(@required_fields)
     end
   end
 
@@ -52,7 +53,8 @@ defmodule Serverboards.Issues.Model do
     def changeset(cc, params \\ :empty) do
       import Ecto.Changeset
       cc
-        |> cast(params, @required_fields, @optional_fields)
+        |> cast(params, @required_fields ++ @optional_fields)
+        |> validate_required(@required_fields)
     end
   end
   defmodule IssueLabel do
@@ -70,7 +72,8 @@ defmodule Serverboards.Issues.Model do
     def changeset(cc, params \\ :empty) do
       import Ecto.Changeset
       cc
-        |> cast(params, @required_fields, @optional_fields)
+        |> cast(params, @required_fields ++ @optional_fields)
+        |> validate_required(@required_fields)
     end
   end
   defmodule Event do

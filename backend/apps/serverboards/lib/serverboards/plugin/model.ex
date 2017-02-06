@@ -9,11 +9,11 @@ defmodule Serverboards.Plugin.Model do
     end
 
     @required_fields ~w(plugin key value)
-    @optional_fields ~w()
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data
-        |> cast(changes, @required_fields, @optional_fields)
+        |> cast(changes, @required_fields)
+				|> validate_required(@required_fields)
     end
   end
 end

@@ -15,12 +15,13 @@ defmodule Serverboards.Service.Model do
 				timestamps
 		 end
 
-		 @required_fields ~w(name type creator_id priority config)
-		 @optional_fields ~w(description)
+		 @required_fields ~w(name type creator_id priority config)a
+		 @optional_fields ~w(description)a
 		 def changeset(service, changes \\ :empty) do
 			import Ecto.Changeset
 			service
-				|> cast(changes, @required_fields, @optional_fields)
+				|> cast(changes, @required_fields ++ @optional_fields)
+				|> validate_required(@required_fields)
 		end
 	end
 	defmodule ServiceTag do
@@ -29,8 +30,7 @@ defmodule Serverboards.Service.Model do
 			field :service_id, :id
 			field :name, :string
 		end
-		@required_fields ~w(service_id name)
-		@optional_fields ~w()
+		@required_fields ~w(service_id name)a
 	end
 	defmodule ServiceConfig do
 		use Ecto.Schema
@@ -39,7 +39,6 @@ defmodule Serverboards.Service.Model do
 			field :key, :string
 			field :value, :string
 		end
-		@required_fields ~w(service_id key value)
-		@optional_fields ~w()
+		@required_fields ~w(service_id key value)a
 	end
 end

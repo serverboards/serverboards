@@ -7,12 +7,12 @@ defmodule Serverboards.Utils do
 
   ## Example
 
-    iex> import JSON
+    iex> import Poison
     iex> import Logger
     iex> s= %{ :__ignore__ => "to be ignored", "__ignore_too__" => "to be ignored",
     ...>      :user_pw => "same", "user_pw" => "same", "valid" => "valid",
     ...>      :valid2 => :valid }
-    iex> {:ok, json} = JSON.encode( clean_struct(s) )
+    iex> {:ok, json} = Poison.encode( clean_struct(s) )
     iex> Logger.info(json)
     iex> not String.contains? json, "__"
     true

@@ -8,7 +8,7 @@ deps: mix.exs
 
 test:
 	make clean deps
-	MIX_ENV=test mix test
+	MIX_ENV=test mix test --trace --color
 
 clean:
 	rm apps/serverboards/rel apps/eventsourcing/rel -rf
