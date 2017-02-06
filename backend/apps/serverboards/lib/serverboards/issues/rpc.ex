@@ -30,6 +30,7 @@ defmodule Serverboards.Issues.RPC do
           data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
           Serverboards.Issues.Issue.update id, data, Context.get(context, :user)
         end
+        :ok
       [id, data] , context ->
         data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
         Serverboards.Issues.Issue.update id, data, Context.get(context, :user)

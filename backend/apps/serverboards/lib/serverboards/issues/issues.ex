@@ -17,7 +17,7 @@ defmodule Serverboards.Issues do
       title: i.title,
       creator: Serverboards.Issues.Issue.decorate_user(i.creator),
       status: i.status,
-      date: Ecto.DateTime.to_iso8601(i.inserted_at),
+      date: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! i.inserted_at),
       labels: Enum.map(i.labels, &Serverboards.Issues.Issue.decorate_label/1 )
     }
   end

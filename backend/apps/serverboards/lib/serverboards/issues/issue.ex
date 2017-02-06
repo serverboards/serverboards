@@ -138,7 +138,7 @@ defmodule Serverboards.Issues.Issue do
       type: event.type,
       creator: decorate_user( event.creator ),
       data: data,
-      inserted_at: Ecto.DateTime.to_iso8601(event.inserted_at)
+      inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! event.inserted_at)
     }
   end
   def decorate_label(label) do
@@ -157,7 +157,7 @@ defmodule Serverboards.Issues.Issue do
           id: issue.id,
           title: issue.title,
           creator: decorate_user(issue.creator),
-          inserted_at: Ecto.DateTime.to_iso8601(issue.inserted_at),
+          inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! issue.inserted_at),
           status: issue.status,
           events: Enum.map(issue.events, &decorate_event/1 ),
           labels: Enum.map(issue.labels, &decorate_label/1 ),
