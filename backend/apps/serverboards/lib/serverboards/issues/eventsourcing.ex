@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.Issues.EventSourcing do
   def start_link(options \\ []) do
-    {:ok, es} = EventSourcing.start_link name: :issues
+    {:ok, es} = EventSourcing.start_link [name: :issues] ++ options
 
     EventSourcing.Model.subscribe es, :notifications, Serverboards.Repo
 

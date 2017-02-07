@@ -56,7 +56,7 @@ defmodule Serverboards.ProcessRegistry do
 
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     #Logger.debug("#{inspect pid} is down, deregister")
-    state = case Enum.find(state, fn {key, val} -> val == pid end) do
+    state = case Enum.find(state, fn {_key, val} -> val == pid end) do
       {k, _v} ->
         Map.drop(state, [k])
       nil ->

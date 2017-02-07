@@ -17,9 +17,9 @@ defmodule Serverboards.IO.CmdTest do
     import Serverboards.IO.Cmd
 
     {:ok, rl } = start_link("test/data/plugins/auth/auth.py")
-    init = Timex.Time.now
+    init = Timex.Duration.now()
     {:ok, "ok" } = call( rl, "test_rate_limiting", [150])
-    total_t = Timex.Time.elapsed(init)
+    total_t = Timex.Duration.elapsed(init)
 
     assert total_t > 1000 # depends on default timerates at cmd.ex.
   end

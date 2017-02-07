@@ -8,12 +8,12 @@ defmodule Serverboards.Plugin.Model do
       timestamps
     end
 
-    @required_fields ~w(plugin key value)
-    @optional_fields ~w()
+    @required_fields ~w(plugin key value)a
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data
-        |> cast(changes, @required_fields, @optional_fields)
+        |> cast(changes, @required_fields)
+				|> validate_required(@required_fields)
     end
   end
 end

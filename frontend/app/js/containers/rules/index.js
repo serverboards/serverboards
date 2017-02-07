@@ -18,8 +18,11 @@ var Rules = connect({
   subscriptions: (state, props) => [
     `rules.update[${props.serverboard.shortname}]`
   ],
-  store_enter: (props) => [
+  store_enter: (state, props) => [
     update_trigger_catalog, action_catalog, () => rules_list(props.serverboard.shortname)
+  ],
+  store_exit: () => [
+    rules_list_clean
   ]
 })(RulesView)
 

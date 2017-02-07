@@ -140,7 +140,7 @@ defmodule Serverboards.Notifications do
     end
     Logger.debug("Notifications config map #{inspect cm}")
 
-    for c <- catalog do
+    for c <- catalog() do
       config = cm[c.channel]
       if config do
         notify_real(user, c, config, subject, body, extra)

@@ -113,7 +113,7 @@ defmodule Test.Client do
   end
 
   def parse_map(client, map) do
-    {:ok, json} = JSON.encode(map)
+    {:ok, json} = Poison.encode(map)
     parse_line(client, json)
   end
 
@@ -131,7 +131,7 @@ defmodule Test.Client do
     {:ok, client} = RPC.Client.start_link [
       writef: fn line ->
         #Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
-        {:ok, rpc_call} = JSON.decode( line )
+        {:ok, rpc_call} = Poison.decode( line )
         GenServer.cast(pid, {:call, rpc_call } )
       end,
       name: "TestClient",
@@ -178,7 +178,7 @@ defmodule Test.Client do
   end
 
   def handle_call({:call_from_json, method, params}, from, status) do
-    {:ok, json} = JSON.encode( %{ method: method, params: params, id: status.maxid })
+    {:ok, json} = Poison.encode( %{ method: method, params: params, id: status.maxid })
     RPC.Client.parse_line(status.client, json)
     {:noreply, %{ status |
       waiting: Map.put(status.waiting, status.maxid, from),

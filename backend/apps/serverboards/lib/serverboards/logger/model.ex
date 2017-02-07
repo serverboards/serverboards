@@ -9,12 +9,12 @@ defmodule Serverboards.Logger.Model do
     end
 
     @required_fields ~w(message level timestamp meta)
-    @optional_fields ~w()
 
     def changeset(line, params \\ :empty) do
       import Ecto.Changeset
       line
-        |> cast(params, @required_fields, @optional_fields)
+        |> cast(params, @required_fields)
+        |> validate_required(@required_fields)
     end
   end
 end

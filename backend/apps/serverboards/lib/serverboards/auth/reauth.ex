@@ -9,7 +9,7 @@ defmodule Serverboards.Auth.Reauth do
   Also this ensures that the original calling client is the one accepting the
   reauth.
 
-    iex> {:ok, r} = start_link
+    iex> {:ok, r} = start_link()
     iex> msg = request_reauth r, fn -> :reauth_success end
     iex> msg.type
     :needs_reauth
@@ -70,7 +70,7 @@ defmodule Serverboards.Auth.Reauth do
       nil -> {:error, :unknown_reauth}
       cont ->
         case Auth.auth(data) do
-          {:ok, email} -> cont
+          {:ok, _email} -> cont
           {:error, :unknown_user} -> {:error, needs_reauth_map(uuid)}
         end
     end

@@ -41,9 +41,9 @@ defmodule EventSourcing.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:ecto, "~> 2.0"},
-      {:poison, "~> 1.0"},
-      {:exrm, ">= 1.0.8"},
+      {:ecto, "~> 2.1"},
+      {:poison, "~> 3.1"},
+      {:exrm, "~> 1.0"},
     ]
   end
 end

@@ -12,10 +12,10 @@ defmodule Serverboards.LoggerTest do
   end
 
   test "Simple formatting" do
-    metadata =  [file: "app/serverboards/logger/logger.ex", line: 32, level: :debug, timestamp: Logger.Utils.timestamp(true), pid: self]
+    metadata =  [file: "app/serverboards/logger/logger.ex", line: 32, level: :debug, timestamp: Logger.Utils.timestamp(true), pid: self()]
     IO.puts Serverboards.Logger.Console.format("Message", metadata, Serverboards.Logger.Console.colors, true)
 
-    metadata =  [file: "app/serverboards/logger/logger.ex", line: 32, level: :error, timestamp: Logger.Utils.timestamp(true), pid: self]
+    metadata =  [file: "app/serverboards/logger/logger.ex", line: 32, level: :error, timestamp: Logger.Utils.timestamp(true), pid: self()]
     IO.puts Serverboards.Logger.Console.format("Message", metadata, Serverboards.Logger.Console.colors, false)
   end
 

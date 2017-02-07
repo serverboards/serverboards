@@ -129,7 +129,7 @@ defmodule Serverboards.Config do
       l when is_list(l) <- kwlist[section] do
         l
     else
-      error ->
+      _error ->
         #Logger.debug("Could not read from #{filename}: #{inspect error}")
         []
     end

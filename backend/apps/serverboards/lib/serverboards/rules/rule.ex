@@ -98,7 +98,7 @@ defmodule Serverboards.Rules.Rule do
               Logger.error("Error stopping rule #{inspect rule.uuid} when calling stop: #{inspect res}", rule: rule, res: res)
           end
         else
-          Logger.warning("Rule #{inspect rule.uuid} stop is not handled in any way. May need a stop method, or not be a singleton.", rule: rule)
+          Logger.warn("Rule #{inspect rule.uuid} stop is not handled in any way. May need a stop method, or not be a singleton.", rule: rule)
         end
       pid ->
         Logger.info("Terminate rule, stopping plugin.", rule: rule)

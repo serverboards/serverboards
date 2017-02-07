@@ -30,6 +30,11 @@ defmodule Serverboards.Serverboard do
 
       Serverboards.Service.service_update_serverboard_real( serverboard.shortname, attributes, me )
 
+      serverboard = %{
+        serverboard |
+        inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! serverboard.inserted_at),
+        updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! serverboard.updated_at)
+      }
       Serverboards.Event.emit("serverboard.added", %{ serverboard: serverboard}, ["serverboard.info"])
       serverboard.shortname
     end, name: :serverboard
@@ -49,7 +54,11 @@ defmodule Serverboards.Serverboard do
       ) )
 
       {:ok, serverboard} = serverboard_info upd, me
-
+      serverboard = %{
+        serverboard |
+        inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! serverboard.inserted_at),
+        updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! serverboard.updated_at)
+      }
       Serverboards.Event.emit(
         "serverboard.updated",
         %{ shortname: shortname, serverboard: serverboard},
@@ -197,7 +206,7 @@ defmodule Serverboards.Serverboard do
 
   TODO Return only services to which the user has access
   """
-  def serverboard_info(%ServerboardModel{} = serverboard, me) do
+  def serverboard_info(%ServerboardModel{} = serverboard, _me) do
     serverboard = Repo.preload(serverboard, :tags)
 
     serverboard = %{

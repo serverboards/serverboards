@@ -36,7 +36,7 @@ defmodule Serverboards.NotificationTest do
     data = IO.read(fd, :all)
     File.close(fd)
 
-    {:ok, data} = JSON.decode(data)
+    {:ok, data} = Poison.decode(data)
 
     assert data["user"]["email"] == user.email
   end
@@ -48,7 +48,7 @@ defmodule Serverboards.NotificationTest do
     data = IO.read(fd, :all)
     File.close(fd)
 
-    {:ok, _data} = JSON.decode(data)
+    {:ok, _data} = Poison.decode(data)
   end
 
   test "Configure for user" do
@@ -91,7 +91,7 @@ defmodule Serverboards.NotificationTest do
     data = IO.read(fd, :all)
     File.close(fd)
 
-    {:ok, data} = JSON.decode(data)
+    {:ok, data} = Poison.decode(data)
 
     Logger.debug("Got #{inspect data}")
     assert data["config"]["email"] == config["email"]

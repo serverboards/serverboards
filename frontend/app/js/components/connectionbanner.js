@@ -8,7 +8,7 @@ function ConnectionBanner(props){
     case "CLOSED":
       return (
         <div className="ui icon floating message">
-          <i className="notched circle loading icon"></i>
+          <i className="notched circle loading icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
               Reconnecting...
@@ -25,7 +25,7 @@ function ConnectionBanner(props){
     case "RECONNECTING":
       return (
         <div className="ui icon floating message">
-          <i className="notched circle loading icon"></i>
+          <i className="notched circle loading icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
               Reconnecting in {props.extra/1000} seconds
@@ -40,7 +40,7 @@ function ConnectionBanner(props){
     case "WILL_NOT_RECONNECT":
       return (
         <div className="ui icon floating message red">
-          <i className="warning sign icon"></i>
+          <i className="warning sign icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
               Too many errors reconnecting
@@ -56,7 +56,7 @@ function ConnectionBanner(props){
       console.error("Unknown status at ConnectionBanner %o", props.status)
       return (
         <div className="ui icon floating message red">
-          <i className="warning sign icon"></i>
+          <i className="warning sign icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
               Unknown connection status: {props.status}

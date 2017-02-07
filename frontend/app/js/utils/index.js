@@ -103,9 +103,10 @@ export function random_color(str){
   return color_set[hash(str)%color_set.length]
 }
 
-/// Merges two dicts into a new one. Do not modify origins. B items have priority.
-export function merge(a,b){
-  return Object.assign({}, a, b)
+/// Merges two or more dicts into a new one. Do not modify origins. B items have priority.
+export function merge(){
+  let args=[{}, ...arguments]
+  return Object.assign.apply(null, args)
 }
 
 export function object_is_equal(a,b){

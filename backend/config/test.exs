@@ -1,5 +1,8 @@
 use Mix.Config
 
+config :elixir,
+  ansi_enabled: true
+
 config :serverboards,
   debug: true,
   plugin_paths: [

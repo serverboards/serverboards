@@ -72,7 +72,7 @@ defmodule Serverboards.Plugin.Registry do
     import Enum
     alias Serverboards.Plugin.Component
 
-    components = active_plugins |>
+    components = active_plugins() |>
       flat_map(fn p -> # maps plugins to list of components that fit, or []
         p.components
           |> filter(fn c ->
@@ -143,10 +143,10 @@ defmodule Serverboards.Plugin.Registry do
           nil ->
             nil
           [plugin_id] ->
-            Enum.find(active_plugins, &(&1.id == plugin_id) )
+            Enum.find(active_plugins(), &(&1.id == plugin_id) )
         end
       [_, plugin_id, component_id] ->
-        with %Plugin{} = plugin <- Enum.find(active_plugins, &(&1.id == plugin_id) ),
+        with %Plugin{} = plugin <- Enum.find(active_plugins(), &(&1.id == plugin_id) ),
              %Plugin.Component{} = component <- Enum.find(plugin.components, &(&1.id == component_id) )
         do
            %Plugin.Component{ component | plugin: plugin, id: "#{plugin.id}/#{component.id}" }
@@ -174,7 +174,7 @@ defmodule Serverboards.Plugin.Registry do
   end
 
   def list() do
-    Enum.reduce(all_plugins, %{}, fn plugin, acc ->
+    Enum.reduce(all_plugins(), %{}, fn plugin, acc ->
       components = Enum.reduce(plugin.components, %{}, fn component, acc ->
         Map.put(acc, component.id, %{
           id: component.id,
@@ -211,7 +211,7 @@ defmodule Serverboards.Plugin.Registry do
       _ -> :ignore
     end)
 
-    GenServer.cast(self, {:reload})
+    GenServer.cast(self(), {:reload})
     {:ok, %{ active: [], all: []}}
   end
 
@@ -222,12 +222,17 @@ defmodule Serverboards.Plugin.Registry do
     }
   end
 
-  def handle_call({:reload}, _from, _status) do
-    #:timer.sleep(200) # FIXME! there is some race here on updating the settings from the DB
-    # It may be because in tests this process is in a another transaction??
-    {:noreply, status} = handle_cast({:reload}, %{})
+  def handle_call({:reload}, _from, status) do
+    {:noreply, status} = handle_cast({:reload}, status)
     {:reply, :ok, status}
   end
+  def handle_call({:get_all}, _from, state) do
+    {:reply, state.all, state}
+  end
+  def handle_call({:get_active}, _from, state) do
+    {:reply, state.active, state}
+  end
+
   def handle_cast({:reload}, _status) do
     context = %{
       active: Serverboards.Config.get(:plugins),
@@ -235,7 +240,7 @@ defmodule Serverboards.Plugin.Registry do
     }
     Logger.debug("Context: #{inspect context}")
 
-    all_plugins = load_plugins
+    all_plugins = load_plugins()
       |> Enum.map(&decorate_plugin(&1, context))
     active = Enum.filter(all_plugins, &(&1.status))
 
@@ -250,17 +255,6 @@ defmodule Serverboards.Plugin.Registry do
       all: all_plugins,
       active: active
       }}
-  end
-
-  def handle_call({:reload}, _from, status) do
-    {:noreply, status} = handle_cast({:reload}, status)
-    {:reply, :ok, status}
-  end
-  def handle_call({:get_all}, _from, state) do
-    {:reply, state.all, state}
-  end
-  def handle_call({:get_active}, _from, state) do
-    {:reply, state.active, state}
   end
 
 end

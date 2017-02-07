@@ -16,6 +16,7 @@ var Container=has_perm_guard("serverboard.info", connect({
   }),
   subscriptions: ["serverboard.added", "serverboard.deleted", "serverboard.updated"],
   store_enter: [serverboard_update_all],
+  watch: ["serverboards", "current"]
 })(View))
 
 export default Container

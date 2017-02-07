@@ -143,4 +143,16 @@ export function connect( options, View ){
 
 store.connect = connect
 
+// Wraps subscribe to catch exceptions and go on.
+let subscribe_orig = store.subscribe
+store.subscribe=function( f ){
+  return subscribe_orig(() => {
+    try{
+      f()
+    } catch (e) {
+      console.error(e)
+    }
+  })
+}
+
 export default store

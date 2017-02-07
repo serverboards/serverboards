@@ -110,7 +110,7 @@ defmodule Serverboards.Action do
         action = Plugin.Registry.find(h.type)
         %{
           uuid: h.uuid,
-          date: Ecto.DateTime.to_iso8601(h.inserted_at),
+          date: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! h.inserted_at),
           elapsed: h.elapsed,
           action: if action do action.name else "Unknown Action" end,
           user: user_email,
@@ -145,7 +145,7 @@ defmodule Serverboards.Action do
 
           %{
             uuid: h.uuid,
-            date: Ecto.DateTime.to_iso8601(h.inserted_at),
+            date: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! h.inserted_at),
             params: h.params,
             elapsed: h.elapsed,
             action: action.name,
@@ -268,7 +268,7 @@ defmodule Serverboards.Action do
        uuid: uuid, name: action_component.name,
        id: action_component.id,
        user: user, params: params,
-       timer_start: Timex.Time.now
+       timer_start: DateTime.utc_now
        }
 
       action_update_started(action)
@@ -296,9 +296,7 @@ defmodule Serverboards.Action do
   def handle_call({:trigger_stop, {uuid, ok, ret} }, _from, status) do
     #Logger.debug("Trigger stop #{inspect uuid}: #{inspect ret}")
     action = status.running[uuid]
-    elapsed = round(
-      Timex.Time.to_milliseconds(Timex.Time.elapsed(action.timer_start))
-      )
+    elapsed = Timex.diff(DateTime.utc_now, action.timer_start, :milliseconds)
 
     if ok == :error do
       Logger.error("Error running #{action.id}: #{inspect ret}", action: action)

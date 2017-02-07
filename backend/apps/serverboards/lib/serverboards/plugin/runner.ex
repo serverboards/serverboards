@@ -321,7 +321,7 @@ defmodule Serverboards.Plugin.Runner do
     end
     # prepare timeout
     state = if timeout != :never do
-      {:ok, timeout_ref} = :timer.send_after( timeout, self, {:timeout, uuid})
+      {:ok, timeout_ref} = :timer.send_after( timeout, self(), {:timeout, uuid})
       #Logger.debug("new timer #{inspect timeout_ref} #{inspect timeout} #{inspect strategy}")
       %{ state |
         timeouts: Map.put(state.timeouts, uuid, timeout_ref)
@@ -343,7 +343,7 @@ defmodule Serverboards.Plugin.Runner do
 
     # if singleton or init, add to by component_id dict
     state = if strategy in [:singleton, :init] do
-      state = %{ state | by_component_id: Map.put(state.by_component_id, component.id, uuid) }
+      %{ state | by_component_id: Map.put(state.by_component_id, component.id, uuid) }
     else
       state
     end
@@ -410,7 +410,7 @@ defmodule Serverboards.Plugin.Runner do
       oldref ->
         {:ok, :cancel} = :timer.cancel(oldref)
         timeout = state.running[uuid].timeout
-        {:ok, newref} = :timer.send_after( timeout, self, {:timeout, uuid} )
+        {:ok, newref} = :timer.send_after( timeout, self(), {:timeout, uuid} )
         #Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
         {:noreply, %{ state | timeouts: Map.put(state.timeouts, uuid, newref) }}
     end

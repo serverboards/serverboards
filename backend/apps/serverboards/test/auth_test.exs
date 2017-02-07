@@ -188,7 +188,7 @@ defmodule Serverboards.AuthTest do
   test "Reauth basic" do
     import Serverboards.Auth.Reauth
 
-    {:ok, r} = start_link
+    {:ok, r} = start_link()
     msg = request_reauth r, fn -> :reauth_success end
     assert msg.type == :needs_reauth
     assert "token" in msg.available
