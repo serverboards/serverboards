@@ -81,10 +81,11 @@ export function serverboards_connect(options){
         this._componentWillUnmount(this.props)
       },
       componentWillReceiveProps(newprops){
-        if (!options.watch)
+        if (!options.watch || options.watch == Object.watch)
           return;
         let update=false
-        options.watch.map( (p) => {
+        const state = this.context.store.getState()
+        unwrap(options.watch, state, newprops).map( (p) => {
           if (!object_is_equal(this.props[p], newprops[p]))
             update=true
         })
