@@ -364,4 +364,18 @@ defmodule Serverboards.PluginTest do
     plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
     assert "active" in plugin.status
   end
+
+  test "Pluin get items via RPC" do
+    # there was a bug when changing from JSON to Poison, it does not convert tuples to lists
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, _} = Client.call(client, "plugin.data_set", ["serverboards.test.auth/fake", "test", "value"])
+    {:ok, _} = Client.call(client, "plugin.data_set", ["serverboards.test.auth/fake", "test2", "value"])
+    {:ok, keys} = Client.call(client, "plugin.data_keys", ["serverboards.test.auth/fake", ""])
+    Logger.debug(inspect keys)
+
+    {:ok, items} = Client.call(client, "plugin.data_items", ["serverboards.test.auth/fake", ""])
+    Logger.debug(inspect items)
+
+  end
 end

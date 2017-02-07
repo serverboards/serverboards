@@ -296,7 +296,6 @@ defmodule Serverboards.Action do
   def handle_call({:trigger_stop, {uuid, ok, ret} }, _from, status) do
     #Logger.debug("Trigger stop #{inspect uuid}: #{inspect ret}")
     action = status.running[uuid]
-    Logger.debug(inspect action.timer_start)
     elapsed = Timex.diff(DateTime.utc_now, action.timer_start, :milliseconds)
 
     if ok == :error do
