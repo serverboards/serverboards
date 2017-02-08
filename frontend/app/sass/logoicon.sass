@@ -28,19 +28,34 @@ div.ui.logoicon
     font-size: 20px
 
 
-.ui.imageicon object
-  max-height: 50px !important
-  max-width: 50px !important
-  height: 50px !important
-  width: 50px !important
-  overflow: hidden
+.ui.imageicon
+  position: relative
+  img
+    max-height: 50px !important
+    max-width: 50px !important
+    height: 50px !important
+    width: 50px !important
+    overflow: hidden
+  span
+    position: absolute
+    top: 22px
+    left: 0px
+    text-align: center
+    font-size: 16px
+    font-weight: bold
+    color: #666
+    width: 100%
 
-.ui.imageicon.tiny object
-  max-height: 80px !important
-  max-width: 80px !important
-  height: 80px !important
-  width: 80px !important
-  overflow: hidden
+.ui.imageicon.tiny
+  img
+    max-height: 80px !important
+    max-width: 80px !important
+    height: 80px !important
+    width: 80px !important
+    overflow: hidden
+  span
+    top: 38px
+    font-size: 22px
 
 a.svg
  position: relative
