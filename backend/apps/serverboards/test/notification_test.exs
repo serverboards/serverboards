@@ -155,4 +155,29 @@ defmodule Serverboards.NotificationTest do
     assert not "new" in fullmsg["tags"]
     assert not "unread" in fullmsg["tags"]
   end
+
+  test "Send group notification, some user is not active" do
+    alias Test.Client
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    Serverboards.Auth.User.user_update "dmoreno@serverboards.io", %{ is_active: false }, Test.User.system
+    {:ok, user} = Serverboards.Auth.User.user_info  "dmoreno@serverboards.io", [require_active: false], %{ email: "dmoreno@serverboards.io" }
+    assert user.is_active == false
+
+
+    {:ok, :ok} = Client.call client, "notifications.notify",
+      %{ email: "@admin", subject: "Notify all but me", body: "Body", extra: [] }
+    {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
+    bodies = ( for c <- coms, do: c["subject"] )
+    Logger.debug("Got coms: #{inspect bodies}")
+    assert not "Notify all but me" in bodies
+
+    # Send straigth to a disabled user should fail
+    {:ok, :ok} = Client.call client, "notifications.notify",
+      %{ email: "dmoreno@serverboards.io", subject: "Notify all but me2", body: "Body", extra: [] }
+    {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
+    bodies = ( for c <- coms, do: c["subject"] )
+    Logger.debug("Got coms: #{inspect bodies}")
+    assert not "Notify all but me" in bodies
+  end
 end

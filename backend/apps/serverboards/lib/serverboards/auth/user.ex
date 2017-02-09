@@ -45,7 +45,7 @@ defmodule Serverboards.Auth.User do
   @doc ~S"""
   Updates some fields at the user
   """
-  def user_update(email, operations, me) do
+  def user_update(email, operations, me) when is_map(operations) do
     if (Enum.member? me.perms, "auth.modify_any") or
        (email==me.email and (Enum.member? me.perms, "auth.modify_self")) do
          EventSourcing.dispatch Serverboards.Auth.EventSourcing, :update_user, %{ user: email, operations: operations }, me.email

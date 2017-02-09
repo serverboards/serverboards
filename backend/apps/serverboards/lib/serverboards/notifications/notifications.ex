@@ -97,9 +97,10 @@ defmodule Serverboards.Notifications do
 
   def notify_real(who, subject, body, extra) do
     if String.starts_with?(who,"@") do
-      Logger.debug("Notifying group #{inspect who}", subject: subject, body: body, extra: extra)
       me = %{ email: "system", perms: ["auth.info_any_user"]}
-      for email <- Serverboards.Auth.Group.active_user_list(String.slice(who, 1, 1000), me) do
+      emails = Serverboards.Auth.Group.active_user_list(String.slice(who, 1, 1000), me)
+      Logger.info("Notifying group #{inspect who}: #{inspect emails}", subject: subject, body: body, extra: extra)
+      for email <- emails do
         notify_real_one(email, subject, body, extra)
       end
       {:ok, true}
@@ -109,44 +110,49 @@ defmodule Serverboards.Notifications do
   end
 
   def notify_real_one(email, subject, body, extra) do
-    {:ok, user} = Auth.User.user_info(email, %{ email: email})
-    extra = extra
-      |> Map.merge(%{ "email" => email, "user" => user })
+    case Auth.User.user_info(email, %{ email: email}) do
+      {:ok, user} ->
+        extra = extra
+          |> Map.merge(%{ "email" => email, "user" => user })
 
-    {:ok, subject} = Serverboards.Utils.Template.render(subject, extra)
-    {:ok, body} = Serverboards.Utils.Template.render(body, extra)
+        {:ok, subject} = Serverboards.Utils.Template.render(subject, extra)
+        {:ok, body} = Serverboards.Utils.Template.render(body, extra)
 
-    Logger.debug("Extra data for notification: #{inspect extra}\n#{subject}\n#{body}")
+        Logger.debug("Extra data for notification: #{inspect extra}\n#{subject}\n#{body}")
 
-    :ok = Serverboards.Notifications.InApp.notify(
-      email,
-      String.slice(subject, 0, 255),
-      body,
-      extra
-      )
+        :ok = Serverboards.Notifications.InApp.notify(
+          email,
+          String.slice(subject, 0, 255),
+          body,
+          extra
+          )
 
-    cm = Map.new(
-      config_get(email)
-      |> Map.to_list
-      |> Enum.filter( &(elem(&1,1).is_active) )
-      |> Enum.map( &({elem(&1,0), elem(&1,1).config}) )
-    )
+        cm = Map.new(
+          config_get(email)
+          |> Map.to_list
+          |> Enum.filter( &(elem(&1,1).is_active) )
+          |> Enum.map( &({elem(&1,0), elem(&1,1).config}) )
+        )
 
-    cm = if cm == %{} do
-      Logger.debug("Sending email as no notification channels configured")
-      %{ "serverboards.core.notifications/email" => %{} }
-    else
-      cm
-    end
-    Logger.debug("Notifications config map #{inspect cm}")
+        cm = if cm == %{} do
+          Logger.debug("Sending email as no notification channels configured")
+          %{ "serverboards.core.notifications/email" => %{} }
+        else
+          cm
+        end
+        Logger.debug("Notifications config map #{inspect cm}")
 
-    for c <- catalog() do
-      config = cm[c.channel]
-      if config do
-        notify_real(user, c, config, subject, body, extra)
-      else
-        :not_enabled
-      end
+        for c <- catalog() do
+          config = cm[c.channel]
+          if config do
+            notify_real(user, c, config, subject, body, extra)
+          else
+            :not_enabled
+          end
+        end
+      {:error, :unknown_user} ->
+        Logger.error("Unknown user to send notification. Maybe disabled.")
+        {:error, :unknown_user}
     end
   end
 
