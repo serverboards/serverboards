@@ -130,7 +130,7 @@ defmodule Serverboards.TriggersTest do
 
   test "Rules DB" do
     # none should be running
-    initial_running = Rules.ps
+    initial_running = Rules.ps()
 
     l = Rules.list
     assert Enum.count(l) >= 0
@@ -160,15 +160,15 @@ defmodule Serverboards.TriggersTest do
     assert Enum.count(l) >= 2
 
     # none should be running
-    running = Rules.ps
+    running = Rules.ps()
     Logger.debug("Currently running: #{inspect running}")
-    assert running == initial_running
+    assert Enum.sort(running) == Enum.sort(initial_running)
 
     # update should start them
     Rules.upsert( Map.merge(rule(), %{uuid: uuid, is_active: true}), me )
-    assert Rules.ps == initial_running ++ [uuid]
+    assert Enum.sort(Rules.ps()) == Enum.sort(initial_running ++ [uuid])
     Rules.upsert( Map.merge(rule(), %{uuid: uuid, is_active: false}), me )
-    assert Rules.ps == initial_running
+    assert Enum.sort(Rules.ps()) == Enum.sort(initial_running)
 
     assert Rules.decorate(uuid) != nil
   end
