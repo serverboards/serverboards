@@ -9,7 +9,7 @@ ExecStop=/opt/serverboards/bin/serverboards stop
 Environment=SERVERBOARDS_PATH=/opt/serverboards/local/
 Environment=HOME=/opt/serverboards/local/
 User=serverboards
-Restart=true
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
