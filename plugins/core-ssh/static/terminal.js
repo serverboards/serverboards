@@ -2,6 +2,7 @@
 var rpc = Serverboards.rpc
 var Flash = Serverboards.Flash
 var plugin = Serverboards.plugin
+var sbds_event = Serverboards.event
 var plugin_id = "serverboards.core.ssh"
 
 function main(element, config){
@@ -150,8 +151,7 @@ function main(element, config){
 
     // subscribe to new data at terminal
     var evname='terminal.data.received.'+host
-    rpc.call("event.subscribe", [evname])
-    rpc.on(evname, function(data){
+    sbds_event.on(evname, function(data){
       if (data.eof)
         return
       var newdata=atob(data.data64)
@@ -168,8 +168,7 @@ function main(element, config){
   function unsetup_host(){
     if (term.host){
       var evname='terminal.data.received.'+term.host
-      rpc.call("event.unsubscribe", [evname])
-      rpc.off(evname)
+      sbds_event.off(evname)
       term.term.destroy()
       term.host=undefined
     }
