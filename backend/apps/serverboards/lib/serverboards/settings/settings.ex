@@ -124,7 +124,7 @@ defmodule Serverboards.Settings do
             name: settings.name,
             id: id,
             fields: fields,
-            description: Map.get(settings.extra, "description", ""),
+            description: settings.description,
             order: settings.extra["order"] || 0
            }
         end)
