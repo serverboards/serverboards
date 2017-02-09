@@ -98,7 +98,7 @@ const GenericField=React.createClass({
         return (
           <div className="field">
             <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars} form_data={props.form_data}/>
           </div>
         )
       case 'hidden':
@@ -109,7 +109,7 @@ const GenericField=React.createClass({
         return (
           <div className="field">
             <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <RichDescription className="ui meta" value={props.description} vars={props.vars} form_data={props.form_data}/>
             <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
               {props.options.map((o) => (
                 <option value={o.value}>{o.label || o.name}</option>

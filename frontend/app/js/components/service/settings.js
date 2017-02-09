@@ -174,7 +174,7 @@ const SetupComponent=React.createClass({
             </div>
 
             <RuleList rules={rules} activateRule={this.handleActivateRule} deactivateRule={this.handleDeactivateRule}/>
-            <GenericForm ref="form" fields={fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+            <GenericForm ref="form" fields={fields} data={{service: props.service}} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
 
             <div className="field">
               <label>Description</label>

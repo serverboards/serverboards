@@ -75,7 +75,6 @@ var Container = connect({
       service_load_current
   ],
   loading(state, props){
-    console.log(this)
     state = this.state(state, props) // Get next component props, no need to generate again
     if (state.service && state.screens && state.service_template)
       return false;

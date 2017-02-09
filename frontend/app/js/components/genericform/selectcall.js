@@ -2,6 +2,7 @@ import React from 'react'
 import plugin from 'app/utils/plugin'
 import RichDescription from './richdescription'
 import store from 'app/utils/store'
+import Flash from 'app/flash'
 
 const SelectCall = React.createClass({
   getInitialState(){
@@ -17,7 +18,7 @@ const SelectCall = React.createClass({
       let data = {}
       Object.keys(form_data).map( (k) => {
         let ff = props.fields.find( f => f.name == k)
-        if (ff.type == "service"){
+        if (ff && ff.type == "service"){
           let service_id = form_data[k]
           data[k]=store.getState().serverboard.serverboard.services.find( s => s.uuid == service_id )
         }
@@ -34,6 +35,9 @@ const SelectCall = React.createClass({
             self.props.setValue(self.props.name, value)
           }
         }).dropdown('set value',self.props.value)
+      }).catch( e => {
+        console.error(e)
+        Flash.error(e)
       })
     })
   },
