@@ -1,3 +1,131 @@
+serverboards (0.6.282-g1168f) unstable; urgency=medium
+
+  * Fix error when sending message to disabled users
+  * Fixes to select call form field to pass properly all data
+  * Fix SSH terminal, was using old rpc.on, now uses event.on
+  * Properly set settings description
+  * Fix blocking at ImageIcon loading
+  * Merge branch 'upgrade-elixir-1.4' into 'master'
+  * Catch widget exceptions at store.subscribe
+  * Fix bug in FF where object has a watch property always
+  * Updates to react-redux js dep and deps.
+  * Can merge anynumber of objects at utils.merge
+  * Watch for changes at serverboards and current
+  * Use poison encoder for tuples and return a tuple from data
+  * Return plugin items as list as Poison requires it
+  * Remove rules list when leaving rules list
+  * Loading dimmer under the top menus
+  * Updated cowboy and comeonin
+  * More fixes to ecto.datetime casts
+  * [WIP] More fixes to ecto.datetime and ecto cast/3 atoms
+  * [WIP] notification date to iso using new ecto
+  * [WIP] Continue migrating to ecto2 and timex
+  * [WIP] More fixes to use current elixir, many fixes about Timex
+  * Force ANSI enabled on tests terminal
+  * Removed use of json, use ecto 2.1
+  * Cleanup: Fixed all warnings on backend
+  * Conneciton banner spinner margin in all situations
+  * Spinner with proper margin at connection banner
+  * Cleanup mix.lock had double :make, :make
+  * Refactor: serverboard selector sorting
+  * Upgraded JS dependencies
+  * Merge branch 'T443-permission-avatar' into 'master'
+  * Refresh widget when config changes
+  * Properly refresh widgets at resize
+  * Avatar at UI use redux and avoid excesive loading
+  * Added missing avatar.js
+  * Can get avatar from other users
+  * Cleanup debug log
+  * Ignore plugins that start with _, to comment them
+  * Generic form `select call` now passes services not service_id
+  * Improved documentation of bars and lines set_data
+  * Added pie chart graph
+  * Merge branch 'T512-cron-component' into 'master'
+  * Added support for cron componets.
+  * Use options properly at HTTP supervisor
+  * Use supervisor at plugins
+  * Added a supervisor for the HTTP endpoint
+  * When creating service or attachm, show details of new service
+  * Fix #14, was accessing widget catalog before having it ready.
+  * Added link to serverboards plugin list page
+  * Merge branch 'T507-improved-quick-actions' into 'master'
+  * Improved design of quickaction edit
+  * Improved view quick actions list
+  * Merge branch 'T444-quick-action-widget' into 'master'
+  * Merge branch 'T395-reopen-close-at-issues' into 'master'
+  * Quick Action widget
+  * Use of current user avatar at issues
+  * Improved issues event cards
+  * Allow change year/month at calendar props
+  * Pass layout information to widgets. Load CSS at screens and widgets
+  * Calendar can change month / year
+  * Added Calendar component
+  * Improved widget header
+  * Added missing plugin template files
+  * Improved plugin template
+  * Added initial plugin templates
+  * Merge branch 'T438-all-service-command' into 'master'
+  * Load screens by service, instead of getting from serverboard
+  * Added loading method, to ensure next component is not loaded
+  * Added key to service settings preset rules
+  * Fix access to services
+  * More migrations from subscribe_connect to new connect
+  * Custom connect is now ServerboardsConnect, use it
+  * Use redux store instead of promises
+  * rpc.on/off/trigger moved to util/event
+  * Show a debug message on every event from backend
+  * Keep updated the services at the store when using cache
+  * Reworked store.connect, to use layered components
+  * Added new store.connect
+  * Improved details on all services search command
+  * Properly order by priority on commands
+  * [WIP] Can goto service by /service/[id], added command
+  * Promise based search and command
+  * Added some methods to store and fix pretty time
+  * Improved doc.
+  * Merge branch 'T148-quick-actions' into 'master'
+  * Added quickaction action, so it can be used at rules
+  * Improved doc API at python bindings
+  * Added active component on quickactions, can add and update
+  * Improved plugin data management
+  * [WIP] Only show current serverboard services
+  * [WIP] Can edit quick actions
+  * Require update function at generic form proptypes
+  * Compiles the quickactions when compiling plugins
+  * [WIP] Improved edition, changes bubble up to the action state
+  * [WIP] Added quick actions plugin
+  * Added utils/cache to ease get state, added services redux state
+  * Do not load plugins on hidden (.) or disabled (__) subdirs.
+  * Improved debug data when cant load http resource
+  * Improved parsing of HTML for relative links
+  * Improved modal use logo const, not load every time
+  * Fix release bin execution path and default sugested run method
+  * Updated main README.md
+  * Merge branch 'T440-issue-related' into 'master'
+  * Added issues at serverboards
+  * Improvements on issue serverboard filter ui
+  * Added filters to issue.list and use in UI
+  * Added more types of related to issue: serverboard and service
+  * Use aliases to show related elements to issues
+  * Allow to add and remove aliases from issues
+  * Fix syntax error on updater
+  * Fix RPC doc about rule.list by id -> uuid
+  * Send notifications only to active users
+  * Create plugins subdir at deb postinst
+  * Fixes to unconfigured options for SSH
+  * Fixes in tests.
+  * Fix preset for service down open issue
+  * Merge branch '12-socket-is-up-preset-reset-fails' into 'master'
+  * Added more timeout to rules test for service update
+  * Fix #13. Was not properly stopping rules and restarting
+  * Merge branch '12-fix-ssh-no-settings' into 'master'
+  * Added default value for ssh settings at core ssh
+  * Fix #12, cant log in if no ssh settings set
+  * Improvements to updater result reporting
+  * Version update.
+
+ -- David Moreno <dmoreno@coralbits.com>  Thu, 09 Feb 2017 16:59:45 +0100
+
 serverboards (0.6.159-gd6f98) unstable; urgency=medium
 
   * Fix git describe does not work for CI
