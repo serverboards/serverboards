@@ -38,6 +38,7 @@ defmodule Serverboards.Mixfile do
             :eventsourcing,
             :uuid,
             :eini,
+            :ejournald,
             :logger_journald_backend,
             :quantum
             ],
@@ -61,7 +62,6 @@ defmodule Serverboards.Mixfile do
   defp deps do
     [
       {:mom, "~> 0.4"},
-      {:ejournald, git: "git://github.com/serverboards/ejournald", override: true},
       {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 2.1"},
