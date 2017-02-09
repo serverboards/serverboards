@@ -1,0 +1,14 @@
+# hacks for properly compiling all. Life is not beautiful sometimes
+
+compile: journald_api
+
+journald_api: _build/prod/lib/ejournald/priv/journald_api.so
+
+
+_build/prod/lib/ejournald/priv/journald_api.so: deps/ejournald/priv/journald_api.so
+	mkdir -p $(shell dirname $@ )
+	cp $^ $@
+
+deps/ejournald/priv/journald_api.so: deps/ejournald/c_src/*
+	cd deps/ejournald/c_src/
+	make

@@ -38,7 +38,6 @@ defmodule Serverboards.Mixfile do
             :eventsourcing,
             :uuid,
             :eini,
-            :ejournald,
             :logger_journald_backend,
             :quantum
             ],
