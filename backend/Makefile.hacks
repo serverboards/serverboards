@@ -9,6 +9,5 @@ _build/prod/lib/ejournald/priv/journald_api.so: deps/ejournald/priv/journald_api
 	mkdir -p $(shell dirname $@ )
 	cp $^ $@
 
-deps/ejournald/priv/journald_api.so: deps/ejournald/c_src/*
-	cd deps/ejournald/c_src/
-	make
+deps/ejournald/priv/journald_api.so: deps/ejournald/c_src/journald_api.c
+	cd deps/ejournald/c_src/ && make

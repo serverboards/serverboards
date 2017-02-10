@@ -20,5 +20,5 @@ compile: deps
 	cd apps/serverboards/ && MIX_ENV=prod mix compile
 	cd apps/serverboards/ && MIX_ENV=prod mix release plugins
 	cd apps/serverboards/ && MIX_ENV=prod mix release
-	# sometimes reallity is not beautiful
-	make -f Makefile.hacks
+	# Run some hacks.
+	make -f Makefile.hacks compile
