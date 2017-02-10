@@ -18,7 +18,6 @@ clean:
 compile: deps
 	cd apps/serverboards/ && mix deps.get
 	cd apps/serverboards/ && MIX_ENV=prod mix compile
-	cd apps/serverboards/ && MIX_ENV=prod mix release plugins
 	cd apps/serverboards/ && MIX_ENV=prod mix release
 	# Run some hacks.
 	make -f Makefile.hacks compile
