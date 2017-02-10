@@ -22,14 +22,6 @@ let EditPerms=React.createClass({
   },
   render(){
     let props=this.props
-    if (!props.all_perms){
-      return (
-        <Loading>
-        Loading permissions
-        </Loading>
-      )
-    }
-
     let perms=[]
     for (let p of props.all_perms){
       let checked=props.group.perms.indexOf(p) >= 0
