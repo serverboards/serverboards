@@ -5,10 +5,9 @@ setup: node_modules/
 node_modules/.bin/babel: node_modules/
 
 node_modules/.bin/rollupnode_modules/.bin/rollup: node_modules/
-	yarn
 
 node_modules/: package.json
-	yarn
+	yarn --no-progress
 
 compile: static/editor.js
 
@@ -17,6 +16,7 @@ static/editor.js: src/editor.js
 	node_modules/.bin/rollup -c rollup.config.widget.js
 
 clean:
+	rm -rf node_modules
 	rm -f static/editor.js static/editor.js.map
 	rm -f static/widget.js static/widget.js.map
 

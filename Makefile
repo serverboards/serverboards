@@ -14,8 +14,7 @@ help:
 	@echo "  deb     -- Prepares a .deb package."
 	@echo
 
-compile:
-	make -j3 compile-backend compile-frontend compile-plugins
+compile: compile-backend compile-frontend compile-plugins
 
 compile-backend:
 	(cd backend; $(MAKE) compile)

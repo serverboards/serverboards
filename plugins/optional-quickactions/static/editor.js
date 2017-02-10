@@ -161,4 +161,3 @@ var plugin_id="serverboards.optional.quickactions";
 function View(a){return React.createElement(ListModel,{serverboard:a.serverboard.shortname,services:a.serverboard.services})}function main(a,b){return Serverboards.ReactDOM.render(React.createElement(View,b),a),plugin_id=b.plugin,console.log(b),function(){Serverboards.ReactDOM.unmountComponentAtNode(a)}}Serverboards.add_screen(plugin_id+"/editor",main);
 
 })));
-//# sourceMappingURL=editor.js.map

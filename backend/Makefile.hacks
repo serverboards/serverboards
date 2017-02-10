@@ -11,3 +11,7 @@ _build/prod/lib/ejournald/priv/journald_api.so: deps/ejournald/priv/journald_api
 
 deps/ejournald/priv/journald_api.so: deps/ejournald/c_src/journald_api.c
 	cd deps/ejournald/c_src/ && make
+
+clean:
+	rm -rf deps/ejournald/priv/
+	rm -f _build/prod/lib/ejournald/priv/journald_api.so_build/prod/lib/ejournald/priv/journald_api.so

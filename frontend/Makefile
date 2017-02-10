@@ -26,7 +26,7 @@ watch:
 	npm run-script watch
 
 setup: yarn.lock
-	yarn
+	yarn --no-progress
 
 .PHONY: test
 test: all

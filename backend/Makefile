@@ -14,6 +14,7 @@ clean:
 	rm apps/serverboards/rel apps/eventsourcing/rel -rf
 	rm -f erl_crash.dump
 	rm -rf deps _build
+	make -f Makefile.hacks clean
 
 compile: deps
 	cd apps/serverboards/ && mix deps.get
