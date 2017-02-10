@@ -42,8 +42,6 @@ var DetailsWithExternalUrls = connect({
 var Container = connect({
   state(state, props){
     const locstate = state.routing.locationBeforeTransitions.state || {}
-    const tab = locstate.tab || 'details'
-    const type = locstate.type || ''
     let service, screens, service_template
     if (state.services.current){
       service=state.services.current.service
@@ -51,8 +49,6 @@ var Container = connect({
       service_template = state.services.current.template
     }
     return {
-      tab,
-      type,
       service,
       screens,
       service_template,
