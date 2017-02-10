@@ -14,7 +14,7 @@ case "$1" in
 
     # Create necesary directories and set permissions
     INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
-      $INSTALL/local/data/ $INSTALL/local/plugins/ $INSTALL/log \
+      $INSTALL/local/ $INSTALL/log \
       $INSTALL/running_config $INSTALL/.ssh"
     [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
