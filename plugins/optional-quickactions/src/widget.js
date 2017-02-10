@@ -1,4 +1,4 @@
-const {rpc, React, plugin, store} = Serverboards
+const {rpc, React, plugin, store, Flash} = Serverboards
 let plugin_id="serverboards.optional.quickactions"
 const {Loading} = Serverboards.Components
 
@@ -27,7 +27,7 @@ const Widget = React.createClass({
     }
   },
   componentDidMount(){
-    plugin.start_call_stop(`serverboards.optional.quickactions/command`, "list_actions", {}).then( actions => {
+    plugin.start_call_stop(`serverboards.optional.quickactions/command`, "list_actions", {serverboard:this.props.serverboard, star: true}).then( actions => {
       this.setState({actions, loading: false})
     })
   },
@@ -45,7 +45,7 @@ const Widget = React.createClass({
       return (
         <Loading>Quick Actions</Loading>
       )
-    const actions = this.state.actions.filter( a => a.star )
+    const actions = this.state.actions
     if (actions.length == 0){
       return (
         <div>
