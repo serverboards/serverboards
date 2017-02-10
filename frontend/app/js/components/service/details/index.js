@@ -18,8 +18,7 @@ const tab_options={
   details: DetailsTab,
   settings: Settings
 }
-function get_plugin_component(props){
-  const {tab, type} = props
+function get_plugin_component({tab, type}, props){
   if (type!="screen")
     return null
   let sp=tab.split('/')
@@ -27,8 +26,7 @@ function get_plugin_component(props){
     <PluginScreen data={{service: props.service, serverboard: props.serverboard}} plugin={sp[0]} component={sp[1]}/>
   )
 }
-function get_external_url_component(props){
-  const {tab, type} = props
+function get_external_url_component({tab, type}, props){
   if (type!="external url")
     return null
   const url = get_external_url(tab, props)
@@ -73,9 +71,15 @@ const Details = React.createClass({
       params: React.PropTypes.string,
     }).isRequired
   },
+  getInitialState(){
+    return {tab: "details", type: "internal"}
+  },
+  setTab({tab, type}){
+    this.setState({tab, type})
+  },
   handleTabChange(id, type){
     if (type=="screen"){
-      goto(null, {tab: id, type: "screen"})
+      this.setTab({tab: id, type: "screen"})
     }
     else if (type=="external url"){
       const euc = get_external_url_template(id, this.props)
@@ -87,24 +91,25 @@ const Details = React.createClass({
           window.open(url)
       }
       else{
-        goto(null, {tab: id, type: "external url"})
+        this.setTab({tab: id, type: "external url"})
       }
     }
     else{
-      goto(null, {tab: id})
+      this.setTab({tab: id})
     }
   },
   componentDidMount(){
-    goto(null, {tab: "details"})
+    this.setTab({tab: "details"})
   },
   render(){
     const props = this.props
+    const state = this.state
     if (props.loading){
       return (
         <Loading>Service details</Loading>
       )
     }
-    let current_tab = props.tab
+    let current_tab = state.tab
 
     let sections=[
       { name: "Details", id: "details" },
@@ -133,8 +138,8 @@ const Details = React.createClass({
     })
     let CurrentTab = (
       tab_options[current_tab] ||
-      get_plugin_component(props) ||
-      get_external_url_component(props) ||
+      get_plugin_component(state, props) ||
+      get_external_url_component(state, props) ||
       Empty
     )
 
