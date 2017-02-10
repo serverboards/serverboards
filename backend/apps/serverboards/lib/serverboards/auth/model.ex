@@ -88,7 +88,7 @@ defmodule Serverboards.Auth.Model do
       import Ecto.Changeset
       obj
         |> cast(params, [:code])
-        |> validate_required(params, [:code])
+        |> validate_required([:code])
     end
   end
 end
