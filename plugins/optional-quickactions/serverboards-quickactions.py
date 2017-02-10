@@ -5,10 +5,30 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import rpc
 
+service_serverboards_cache={}
+def service_in_serverboard(service, serverboard):
+    if not service:
+        return True
+    serverboards = service_serverboards_cache.get(service)
+    if not serverboards:
+        try:
+            serverboards = rpc.call("service.info",service)["serverboards"]
+            service_serverboards_cache[service] = serverboards
+        except:
+            import traceback
+            traceback.print_exc()
+            serverboards = []
+    return serverboard in serverboards
+
 @serverboards.rpc_method
-def list_actions(serverboard=None, service=None):
+def list_actions(serverboard=None, service=None, star=None):
     items = rpc.call("plugin.data_items","action.")
-    return [x[1] for x in items]
+    items = [x[1] for x in items]
+    if star:
+        items = [x for x in items if x.get("star")]
+    if serverboard:
+        items = [x for x in items if service_in_serverboard(x.get("service"), serverboard)]
+    return items
 
 @serverboards.rpc_method
 def list_actions_select(**kwargs):

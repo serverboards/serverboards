@@ -22,7 +22,7 @@ const ListModel=React.createClass({
     }
   },
   componentDidMount(){
-    plugin.start_call_stop(`serverboards.optional.quickactions/command`, "list_actions", {}).then( actions => {
+    plugin.start_call_stop(`serverboards.optional.quickactions/command`, "list_actions", { serverboard: this.props.serverboard }).then( actions => {
       console.log("got actions: %o", actions)
       this.setState({actions})
     })
