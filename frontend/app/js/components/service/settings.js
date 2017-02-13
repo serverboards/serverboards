@@ -13,18 +13,16 @@ const RuleList = React.createClass({
   updateToggles(sel){
     let self=this
     $(sel).checkbox({
-      onChecked(ev){
-        console.log("Activated rule name %o", this.name)
+      onChecked(){
         self.props.activateRule(this.name)
       },
-      onUnchecked(ev){
-        console.log("Dectivated rule name %o", this.name)
+      onUnchecked(){
         self.props.deactivateRule(this.name)
       }
-    })
+    }).addClass("ready")
   },
   componentDidUpdate(newprops){
-    this.updateToggles( $(this.refs.form).find('.checkbox.toggle') )
+    this.updateToggles( $(this.refs.form).find('.checkbox.toggle:not(.ready)') )
   },
   render(){
     const props = this.props
