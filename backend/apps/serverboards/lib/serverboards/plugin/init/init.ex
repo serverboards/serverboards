@@ -96,8 +96,8 @@ defmodule Serverboards.Plugin.Init do
     state = handle_wait_run(state)
     {:noreply, state}
   end
-  def handle_info({_ref, {:error, :exit}}, state) do
-    Logger.error("Error running ini, process exit #{inspect state.init.command}")
+  def handle_info({_ref, {:error, error}}, state) do
+    Logger.error("Error running init #{inspect state.init.id}, error: #{inspect error}.", init: state.init, error: error)
     state = handle_wait_run(state)
     {:noreply, state}
   end
