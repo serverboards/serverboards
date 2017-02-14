@@ -96,6 +96,11 @@ defmodule Serverboards.Plugin.Init do
     state = handle_wait_run(state)
     {:noreply, state}
   end
+  def handle_info({_ref, {:error, :exit}}, state) do
+    Logger.error("Error running ini, process exit #{inspect state.init.command}")
+    state = handle_wait_run(state)
+    {:noreply, state}
+  end
   def handle_info({_ref, {:ok, waits}}, state) when is_number(waits) do
     %{started_at: started_at } = state
     running_for_seconds = -Timex.Duration.diff(started_at, nil, :seconds)
