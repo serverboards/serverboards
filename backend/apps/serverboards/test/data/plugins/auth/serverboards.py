@@ -26,12 +26,32 @@ class RPC:
         self.subscriptions={}
         self.subscriptions_ids={}
         self.subscription_id=1
+        self.last_rpc_id=0
 
         class WriteToLog:
           def __init__(self, rpc):
             self.rpc=rpc
+            self.buffer=[]
           def write(self, txt, *args, **kwargs):
-            self.rpc.error(txt)
+              """
+              Sends the error to the Serverboards core.
+
+              If a line starts with traceback, it buffers all until the end of
+              the traceback, to send it all in one go.
+              """
+              if not txt:
+                  return
+              if txt.startswith("Traceback"):
+                  self.buffer.append(txt)
+              elif self.buffer:
+                  if txt.startswith(" "):
+                      self.buffer.append(txt)
+                  else:
+                      self.buffer.append(txt)
+                      self.rpc.error('\n'.join(self.buffer), extra=dict(file="EXCEPTION", line="--"))
+                      self.buffer=[]
+              else:
+                  self.rpc.error(txt.rstrip())
 
         self.write_to_log=WriteToLog(self)
 
@@ -57,16 +77,13 @@ class RPC:
 
     def debug(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.event("log.debug", msg, self.__decorate_log(extra, level=2+level))
-    def info(self, msg, extra={}, level=0):
-        self.debug_stdout(msg)
-        return self.event("log.info", msg, self.__decorate_log(extra, level=2+level))
+        return self.event("log.debug", str(msg), self.__decorate_log(extra, level=2+level))
     def error(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.event("log.error", msg, self.__decorate_log(extra, level=2+level))
+        return self.event("log.error", str(msg), self.__decorate_log(extra, level=2+level))
     def info(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
-        return self.event("log.info", msg, self.__decorate_log(extra, level=2+level))
+        return self.event("log.info", str(msg), self.__decorate_log(extra, level=2+level))
 
     def debug_stdout(self, x):
         if not self.stderr:
@@ -91,6 +108,7 @@ class RPC:
         if method in self.rpc_registry:
             f=self.rpc_registry[method]
             try:
+                #print(method, params, args, kwargs)
                 res=f(*args, **kwargs)
                 return {
                     'result' : res,
@@ -102,7 +120,7 @@ class RPC:
                     'error': str(e),
                     'id' : call_id
                 }
-        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions)))
+        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         if method in self.subscriptions:
             assert call_id is None
             for f in self.subscriptions[method]:
@@ -143,7 +161,10 @@ class RPC:
                     self.events[ready]()
             else: # timeout
                 self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
-                timeout_cont()
+                try:
+                    timeout_cont()
+                except:
+                    import traceback; traceback.print_exc(file=self.write_to_log)
 
         self.loop_status=prev_status
 
@@ -200,7 +221,7 @@ class RPC:
           self.stdout.flush()
         except IOError:
           if self.loop_status=='EXIT':
-            os.exit(1)
+            sys.exit(1)
           self.loop_stop(debug=False)
 
 
@@ -252,7 +273,7 @@ class RPC:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
             if 'id' in rpc and ('result' in rpc or 'error' in rpc):
-                assert rpc['id']==id
+                assert rpc['id']==id, "Expected id %s, got %s"%(id, rpc['id'])
                 if 'error' in rpc:
                     raise Exception(rpc['error'])
                 else:
@@ -266,6 +287,12 @@ class RPC:
                     self.requestq.append(rpc)
 
     def subscribe(self, event, callback):
+        """
+        Subscribes for a serverevent, calling the callback(eventdata) when it
+        happens.
+
+        Returns a subscription id, tahta can be used to unsubscribe.
+        """
         eventname=event.split('[',1)[0] # maybe event[context], we keep only event as only events are sent.
         sid=self.subscription_id
 
@@ -276,10 +303,13 @@ class RPC:
         self.subscription_id+=1
 
         self.debug("Subscribed to %s"%event)
-        self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
+        #self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
         return sid
 
     def unsubscribe(self, subscription_id):
+        """
+        Unsubscribes from an event.
+        """
         self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
         (event, callback) = self.subscriptions_ids[subscription_id]
         self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]

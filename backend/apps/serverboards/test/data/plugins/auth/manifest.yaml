@@ -203,12 +203,6 @@ components:
     strategy: one_for_one
     timeout: 1s
     command: auth.py
-  - name: fake auth init
-    type: cmd
-    id: fake_init
-    strategy: init
-    timeout: 200ms
-    command: auth.py
   - name: nonstop trigger one for one
     type: cmd
     id: nonstop.trigger.command
@@ -224,3 +218,29 @@ components:
     id: traits.screen
     type: screen
     traits: email
+
+  - name: init command
+    id: init.cmd2
+    type: cmd
+    command: init.py
+    strategy: singleton
+    timeout: 1s
+
+  - name: init command
+    id: init.cmd
+    type: cmd
+    command: init.py
+    strategy: singleton
+    timeout: 1d
+
+  - name: init init
+    id: init.init
+    type: init
+    command: serverboards.test.auth/init.cmd
+    call: init
+
+  - name: init fail
+    id: init.fail
+    type: init
+    command: serverboards.test.auth/init.cmd
+    call: fail
