@@ -15,7 +15,7 @@ defmodule Serverboards.Auth.Permission do
 	def ensure_exists(code) do
 		case Repo.get_by(Model.Permission, code: code) do
 			nil ->
-				{:ok, perm} = Repo.insert( Mode.Permission.changeset( %Model.Permission{}, %{ code: code} ) )
+				{:ok, perm} = Repo.insert( Model.Permission.changeset( %Model.Permission{}, %{ code: code} ) )
 				perm
 			perm -> perm
 		end

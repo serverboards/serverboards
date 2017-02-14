@@ -64,12 +64,7 @@ defmodule Serverboards.Plugin.Init do
     {:noreply, state}
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
-    # this is when already finished properly, it may close the cmd.
-    {:noreply, state}
-  end
-  def handle_info({:DOWN, ref, :process, pid, type}, %{started_at: started_at, timeout: timeout } = state) when not is_nil(started_at) do
-    Logger.debug("#{inspect self()}: Down #{inspect ref} #{inspect pid}")
+  defp handle_wait_run(%{started_at: started_at, timeout: timeout } = state) do
     running_for_seconds = -Timex.Duration.diff(started_at, nil, :seconds)
     timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
@@ -80,11 +75,26 @@ defmodule Serverboards.Plugin.Init do
       started_at: nil,
       task: nil
     }
-    Logger.info("Init \"#{state.init.id}\" down (#{inspect type}). Did run for #{running_for_seconds} seconds. Restart in #{state.timeout} seconds.", state: state)
+    Logger.info("Restart init #{state.init.id} in #{state.timeout} seconds.", state: state)
+    state
+  end
+
+  def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
+    # this is when already finished properly, it may close the cmd.
+    {:noreply, state}
+  end
+  def handle_info({:DOWN, ref, :process, pid, type}, state) do
+    Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    state = handle_wait_run(state)
     {:noreply, state}
   end
   def handle_info({:restart}, state) do
     handle_cast({:start}, state)
+  end
+  def handle_info({_ref, {:error, :unknown_method}}, state) do
+    Logger.error("Cant run init, unknown method #{inspect state.init.call}")
+    state = handle_wait_run(state)
+    {:noreply, state}
   end
   def handle_info({_ref, {:ok, waits}}, state) when is_number(waits) do
     %{started_at: started_at } = state
@@ -102,7 +112,7 @@ defmodule Serverboards.Plugin.Init do
     {:noreply, state}
   end
   def handle_info(any, state) do
-    Logger.info("#{inspect self} Got info: #{inspect any}")
+    Logger.warn("#{inspect self} Got info: #{inspect any}")
     {:noreply, state}
   end
 end

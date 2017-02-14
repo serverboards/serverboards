@@ -14,6 +14,13 @@ defmodule Serverboards.Plugin.Init.Supervisor do
       start_init(c)
     end
 
+    MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
+      if payload.type == "plugins_reload" do
+        Logger.debug("New client event: #{inspect payload}")
+        Logger.debug Process.exit(pid, :kill) # Force reload of all inits
+      end
+    end)
+
     {:ok, pid}
   end
 
