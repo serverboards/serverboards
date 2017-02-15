@@ -49,11 +49,21 @@ defmodule Serverboards.Settings do
     case Repo.get_by(Model.Settings, section: section) do
       nil ->
         Repo.insert( %Model.Settings{section: section, data: data} )
+        MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
+        Serverboards.Event.emit("settings_updated", %{ section: section, data: data}, ["settings.view"])
+        Serverboards.Event.emit("settings_updated[#{section}]", %{ section: section, data: data}, ["settings.view[#{section}]"])
       sec ->
         #Logger.debug("#{inspect sec}")
-        Repo.update( Model.Settings.changeset(sec, %{data: data}) )
+        if data != sec.data do
+          Repo.update( Model.Settings.changeset(sec, %{data: data}) )
+          MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
+          Serverboards.Event.emit("settings.updated", %{ section: section, data: data}, ["settings.view"])
+          Serverboards.Event.emit("settings.updated[#{section}]", %{ section: section, data: data}, ["settings.view[#{section}]"])
+        else
+          #Logger.debug("Do not update #{section} settings, as it has the same data")
+          nil
+        end
     end
-    MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
     :ok
   end
 

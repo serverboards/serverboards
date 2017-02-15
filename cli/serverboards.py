@@ -185,7 +185,7 @@ class Client:
             file=os.path.basename(params.get('file','--'))[-20:]
             line=params.get('line','--')
             for m in msg.split('\n'):
-                printc("%20s:%d %s"%(file, line, m), color=color)
+                printc("%20s:%s %s"%(file, line, m), color=color)
         return real_log
 
     def builtin_set(self, varname, expr=None):

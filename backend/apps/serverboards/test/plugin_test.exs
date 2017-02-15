@@ -52,17 +52,6 @@ defmodule Serverboards.PluginTest do
     :timer.sleep(1500)
     assert :not_running == Serverboards.Plugin.Runner.status uuid2
   end
-  test "Plugin test no RPC, init is already running" do
-    component = "serverboards.test.auth/fake_init"
-    {:ok, uuid} = Serverboards.Plugin.Runner.start component
-    {:ok, ^uuid} = Serverboards.Plugin.Runner.start component
-    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
-    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
-    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
-    :timer.sleep(800)
-    assert {:error, :cant_stop} == Serverboards.Plugin.Runner.stop uuid
-    assert {:ok, uuid} == Serverboards.Plugin.Runner.start component
-  end
 
   test "Plugin test no RPC, singleton, keep using" do
     component = "serverboards.test.auth/fake_singleton"

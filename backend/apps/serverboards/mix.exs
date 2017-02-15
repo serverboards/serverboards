@@ -66,7 +66,7 @@ defmodule Serverboards.Mixfile do
       {:ecto, "~> 2.1"},
       {:postgrex, "~> 0.13"},
       {:comeonin, "~> 3.0"},
-      {:timex, "~> 3.0"},
+      {:timex, "~> 3.1"},
       {:poison,  "~> 3.1"},
       {:yaml_elixir, "~> 1.3" },
       {:yamerl, "~> 0.3" },

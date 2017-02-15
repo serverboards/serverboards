@@ -376,8 +376,17 @@ defmodule Serverboards.Plugin.Runner do
   def handle_call({:get, id}, _from, state) do
     {:reply, Map.get(state.running, id, :not_found), state}
   end
-  def handle_call({:status, uuid}, _from, state) do
-    status = if Map.has_key?(state.running, uuid) do :running else :not_running end
+  def handle_call({:status, id}, _from, state) do
+    uuid = case Map.get(state.by_component_id, id, false) do
+      false -> id
+      uuid -> uuid
+    end
+    Logger.debug("Running #{inspect id} #{inspect uuid} // #{inspect state.by_component_id}")
+    status = if Map.has_key?(state.running, uuid) do
+      :running
+    else
+      :not_running
+    end
     {:reply, status, state}
   end
   def handle_call({:exit, uuid}, _from, state) do
