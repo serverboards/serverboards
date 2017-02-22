@@ -42,7 +42,7 @@ const AddWidget = React.createClass({
     this.setState({config})
   },
   render(){
-    const catalog=this.state.catalog
+    let catalog=this.state.catalog
     if (!catalog){
       return (
         <Modal>
@@ -50,6 +50,7 @@ const AddWidget = React.createClass({
         </Modal>
       )
     }
+    catalog = catalog.sort( function(a,b){ return a.name.localeCompare(b.name) } )
     const widget=this.state.widget
 
     return (
