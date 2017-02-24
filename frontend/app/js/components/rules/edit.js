@@ -82,7 +82,6 @@ const Details=React.createClass({
     this.setState({trigger_config})
   },
   handleActionConfig(state, action_id, params){
-    console.log(state, action_id, params)
     const actions = this.state.actions.map( (ac) => {
       if (ac.state == state)
         return { state: state, action: action_id, params: params }
