@@ -48,9 +48,12 @@ defmodule Serverboards.PluginTest do
     true = Serverboards.Plugin.Runner.stop uuid1
     assert :not_running == Serverboards.Plugin.Runner.status uuid1
     assert :running == Serverboards.Plugin.Runner.status uuid2
-    # If start again, same uuid
+    # timeout, not running
     :timer.sleep(1500)
     assert :not_running == Serverboards.Plugin.Runner.status uuid2
+    psux = :os.cmd('ps ux | grep -v grep | grep auth.py')
+    Logger.debug("#{inspect psux}")
+    assert psux == []
   end
 
   test "Plugin test no RPC, singleton, keep using" do

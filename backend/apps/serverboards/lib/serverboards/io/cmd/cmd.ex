@@ -38,6 +38,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def stop(cmd) do
+    Logger.debug("Stop CMD")
     GenServer.stop(cmd)
   end
 
@@ -91,7 +92,7 @@ defmodule Serverboards.IO.Cmd do
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Port.connect(port, server)
-    #Logger.debug("Starting command #{cmd} at port")
+    #Logger.debug("Starting command #{cmd} at port. pid #{inspect self()}")
 
     {:ok, client} = RPC.Client.start_link [
         writef: fn line ->

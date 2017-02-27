@@ -428,9 +428,9 @@ defmodule Serverboards.Plugin.Runner do
   def handle_info({:timeout, uuid}, state) do
     {entry, running} = Map.pop(state.running, uuid, nil)
     if entry do
-      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id}",
+      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id} #{inspect entry.pid}",
         uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.component.id)
-      Process.exit(entry.pid, :timeout)
+      Serverboards.IO.Cmd.stop(entry.pid)
       by_component_id = Map.drop(state.by_component_id, [entry.component.id])
 
       timeouts = Map.drop(state.timeouts, [uuid])
