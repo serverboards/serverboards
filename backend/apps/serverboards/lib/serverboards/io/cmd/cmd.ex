@@ -38,7 +38,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def stop(cmd) do
-    Logger.debug("Stop CMD")
+    #Logger.debug("Stopping CMD #{inspect cmd}")
     GenServer.stop(cmd)
   end
 
@@ -131,6 +131,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def terminate(:normal, state) do
+    Logger.info("Stop #{inspect state.cmd}")
     kill(state.port)
     :timer.cancel(state.timer)
     {:ok}

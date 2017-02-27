@@ -30,13 +30,15 @@ defmodule Serverboards.Plugin.Init do
 
   ## impl
   def init(init) do
+    Process.flag(:trap_exit, true)
     state = %{
       running: false,
       init: init,
       task: nil,
       timeout: 1,
       timer: nil,
-      started_at: nil
+      started_at: nil,
+      cmd: nil
     }
 
     Logger.debug(inspect state)
@@ -49,17 +51,20 @@ defmodule Serverboards.Plugin.Init do
   def handle_cast({:start}, state) do
     Logger.info("Starting init service #{inspect state.init.id}", init: state.init)
     init = state.init
-    task =  Task.async(Serverboards.Plugin.Runner, :start_call_stop, [init.command, init.call, []])
-    #Process.monitor(task.pid)
+    {:ok, cmd} = Serverboards.Plugin.Runner.start(init.command)
+    Process.monitor((Serverboards.Plugin.Runner.get cmd).pid)
+    #Process.link((Serverboards.Plugin.Runner.get cmd).pid)
+    task =  Task.async(Serverboards.Plugin.Runner, :call, [cmd, init.call, []])
 
     state = %{
       state |
+      cmd: cmd,
       running: true,
       task: task,
       started_at: Timex.Duration.now()
     }
 
-    Logger.debug("It should be running: #{inspect task}, #{inspect state}")
+    #Logger.debug("It should be running: #{inspect task}, #{inspect state}")
 
     {:noreply, state}
   end
@@ -79,16 +84,20 @@ defmodule Serverboards.Plugin.Init do
     state
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
+  def handle_info({:DOWN, _ref, :process, _pid, type}, %{started_at: started_at} = state) when is_nil(started_at) do
     # this is when already finished properly, it may close the cmd.
+    Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    Serverboards.Plugin.Runner.stop(state.cmd)
     {:noreply, state}
   end
   def handle_info({:DOWN, ref, :process, pid, type}, state) do
     Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    Serverboards.Plugin.Runner.stop(state.cmd)
     state = handle_wait_run(state)
     {:noreply, state}
   end
   def handle_info({:restart}, state) do
+    Serverboards.Plugin.Runner.stop(state.cmd)
     handle_cast({:start}, state)
   end
   def handle_info({_ref, {:error, :unknown_method}}, state) do
@@ -115,6 +124,16 @@ defmodule Serverboards.Plugin.Init do
     }
     Logger.info("Init \"#{state.init.id}\" finished properly. Did run for #{running_for_seconds} seconds. Restart in #{state.timeout} seconds.", state: state)
     {:noreply, state}
+  end
+  def handle_info({:EXIT, _from, :normal}, state) do
+    Logger.debug("Stop the external process #{inspect state}")
+    Serverboards.Plugin.Runner.stop(state.cmd)
+    {:stop, :normal, state}
+  end
+  def handle_info({:EXIT, _from, :force_stop}, state) do
+    Logger.info("Kill the external process #{inspect state.init.command}")
+    Serverboards.Plugin.Runner.kill(state.cmd)
+    {:stop, :normal, state}
   end
   def handle_info(any, state) do
     Logger.warn("#{inspect self} Got info: #{inspect any}")

@@ -2,7 +2,7 @@ require Logger
 
 defmodule InitTest do
   use ExUnit.Case, async: false
-  @moduletag :capture_log
+  #@moduletag :capture_log
 
   alias Test.Client
 
@@ -17,7 +17,7 @@ defmodule InitTest do
     init = %Serverboards.Plugin.Init{
       command: "serverboards.test.auth/init.cmd2",
       call: "init",
-      id: "test"
+      id: "test init"
     }
 
     # WARNING may fail as timers are a bit tight
@@ -34,12 +34,33 @@ defmodule InitTest do
     init = %Serverboards.Plugin.Init{
       command: "serverboards.test.auth/init.cmd2",
       call: "fail",
-      id: "test"
+      id: "test fail"
     }
     Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
     assert Serverboards.Plugin.Runner.status(init.command) == :running
     :timer.sleep(1500)
     assert Serverboards.Plugin.Runner.status(init.command) == :not_running
+  end
+
+  test "Init reloads when plugins are modified" do
+    init = %Serverboards.Plugin.Init{
+      command: "serverboards.test.auth/init.cmd2",
+      call: "init",
+      id: "test reload"
+    }
+
+    Serverboards.Plugin.Init.Supervisor.start_init(init)
+    :timer.sleep(100)
+
+    Serverboards.Event.emit("plugins_reload", [])
+    :timer.sleep(100)
+
+    # it is not a real init, was started manually, should have been removed,
+    # and not started
+    psux = :os.cmd('ps ux | grep -v grep | grep init2.py')
+    Logger.debug("#{inspect psux}")
+    assert psux == []
+
   end
 end
