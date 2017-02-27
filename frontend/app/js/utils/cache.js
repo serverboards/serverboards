@@ -36,6 +36,13 @@ const cache={
       store_get: () => store.getState().rules.trigger_catalog,
       store_update: require('app/actions/rules').update_trigger_catalog()
   }),
+  service(service_id){
+    let services = store.getState().services.services
+    if (!services){
+      return cache.services().then( services => services.find( s => s.uuid == service_id ) )
+    }
+    return Promise.resolve( services.find( s => s.uuid == service_id ) )
+  }
 }
 
 

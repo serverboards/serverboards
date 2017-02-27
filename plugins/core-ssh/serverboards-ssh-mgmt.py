@@ -20,7 +20,7 @@ def ssh_urlparse(url):
     return (u.hostname, str(port))
 
 
-def get_fingerprint(url):
+def get_fingerprint(url, options):
     if not url:
         return None
     (hostname, port) = ssh_urlparse(url)
@@ -35,8 +35,9 @@ def get_fingerprint(url):
         return None
 
 @serverboards.rpc_method
-def remote_fingerprint(url="192.168.1.200", **kwargs):
-    fingerprint=get_fingerprint(url)
+def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
+    serverboards.info(repr(kwargs))
+    fingerprint=get_fingerprint(url, options)
     if not fingerprint:
         return {
             "fingerprint":"Cant connect to server at <%s>. Set a valid SSH address."%url,
@@ -108,5 +109,11 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
             return "Fingerprint added"
     raise Exception("Fingerprint has changed")
 
+def test():
+    print(get_fingerprint("ssh://testurl","User dmoreno\nProxyCommand ssh 192.168.1.200 -W 10.0.3.92:22 -q"))
+
 if __name__=='__main__':
+    if len(sys.argv)>1 and sys.argv[1]=="test":
+        test()
+
     serverboards.loop()
