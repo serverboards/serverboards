@@ -2,7 +2,7 @@ require Logger
 
 defmodule InitTest do
   use ExUnit.Case, async: false
-  #@moduletag :capture_log
+  @moduletag :capture_log
 
   alias Test.Client
 
@@ -21,12 +21,15 @@ defmodule InitTest do
     }
 
     # WARNING may fail as timers are a bit tight
-    Serverboards.Plugin.Init.Supervisor.start_init(init)
+    {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
     assert Serverboards.Plugin.Runner.status(init.command) == :running
     :timer.sleep(1500)
+    # timeout, plugin runner killed the command
     assert Serverboards.Plugin.Runner.status(init.command) == :not_running
     :timer.sleep(1200)
+    # and timeout to recover it (min 1s)
+    Logger.debug("Ready? normally was 2s wait")
     assert Serverboards.Plugin.Runner.status(init.command) == :running
   end
 
@@ -47,17 +50,23 @@ defmodule InitTest do
     init = %Serverboards.Plugin.Init{
       command: "serverboards.test.auth/init.cmd2",
       call: "init",
-      id: "test reload"
+      id: "test.reload"
     }
 
-    Serverboards.Plugin.Init.Supervisor.start_init(init)
+    {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
 
     Serverboards.Event.emit("plugins_reload", [])
     :timer.sleep(100)
 
-    # it is not a real init, was started manually, should have been removed,
+    # still running, it issued a stop (not kill), it will timeout anyway later
+    psux = :os.cmd('ps ux | grep -v grep | grep init2.py')
+    Logger.debug("#{inspect psux}")
+    assert psux != []
+
+    # as it is not a real init, was started manually, should have been removed,
     # and not started
+    :timer.sleep(900)
     psux = :os.cmd('ps ux | grep -v grep | grep init2.py')
     Logger.debug("#{inspect psux}")
     assert psux == []

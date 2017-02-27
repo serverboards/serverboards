@@ -17,6 +17,10 @@ defmodule Serverboards.Plugin.Init do
     GenServer.start_link(__MODULE__, init, options)
   end
 
+  def stop(init) do
+    GenServer.stop(init)
+  end
+
   def from_component(c) do
     %Serverboards.Plugin.Init{
       id: c.id,
@@ -30,7 +34,6 @@ defmodule Serverboards.Plugin.Init do
 
   ## impl
   def init(init) do
-    Process.flag(:trap_exit, true)
     state = %{
       running: false,
       init: init,
@@ -41,11 +44,15 @@ defmodule Serverboards.Plugin.Init do
       cmd: nil
     }
 
-    Logger.debug(inspect state)
-
     GenServer.cast(self(),{:start})
 
     {:ok, state}
+  end
+
+  def terminate(reason, state) do
+    Serverboards.Plugin.Runner.stop(state.cmd)
+    Logger.info("Terminated init #{ state.init.id } #{inspect reason}", init: state.init)
+    :shutdown
   end
 
   def handle_cast({:start}, state) do
@@ -86,12 +93,12 @@ defmodule Serverboards.Plugin.Init do
 
   def handle_info({:DOWN, _ref, :process, _pid, type}, %{started_at: started_at} = state) when is_nil(started_at) do
     # this is when already finished properly, it may close the cmd.
-    Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    #Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
     Serverboards.Plugin.Runner.stop(state.cmd)
     {:noreply, state}
   end
   def handle_info({:DOWN, ref, :process, pid, type}, state) do
-    Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    #Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
     Serverboards.Plugin.Runner.stop(state.cmd)
     state = handle_wait_run(state)
     {:noreply, state}

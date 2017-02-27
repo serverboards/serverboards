@@ -131,7 +131,7 @@ defmodule Serverboards.IO.Cmd do
   end
 
   def terminate(:normal, state) do
-    Logger.info("Stop #{inspect state.cmd}")
+    Logger.info("Stop #{inspect state.cmd} #{inspect self()}", cmd: state.cmd)
     kill(state.port)
     :timer.cancel(state.timer)
     {:ok}
