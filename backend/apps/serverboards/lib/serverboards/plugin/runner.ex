@@ -110,6 +110,21 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   @doc ~S"""
+  Forces stop of the command, even for init and singleton commands
+
+  This is required in some situations, as reloading of plugin code.
+  """
+  def kill(uuid) do
+    case get(uuid) do
+      %{ pid: pid } = data when is_pid(pid) ->
+        Logger.info("Kill process #{uuid} / #{ inspect data.component.id }")
+        Serverboards.IO.Cmd.stop pid
+      other ->
+        {:error, other}
+    end
+  end
+
+  @doc ~S"""
   Marks that this plugin has been used, for timeout pourposes
   """
   def ping(uuid) do
@@ -381,7 +396,7 @@ defmodule Serverboards.Plugin.Runner do
       false -> id
       uuid -> uuid
     end
-    Logger.debug("Running #{inspect id} #{inspect uuid} // #{inspect state.by_component_id}")
+    #Logger.debug("Running #{inspect id} #{inspect uuid}? // #{inspect state.by_component_id}")
     status = if Map.has_key?(state.running, uuid) do
       :running
     else
@@ -430,7 +445,9 @@ defmodule Serverboards.Plugin.Runner do
     if entry do
       Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id} #{inspect entry.pid}",
         uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.component.id)
-      Serverboards.IO.Cmd.stop(entry.pid)
+      if Process.alive?(entry.pid) do
+        Serverboards.IO.Cmd.stop(entry.pid)
+      end
       by_component_id = Map.drop(state.by_component_id, [entry.component.id])
 
       timeouts = Map.drop(state.timeouts, [uuid])

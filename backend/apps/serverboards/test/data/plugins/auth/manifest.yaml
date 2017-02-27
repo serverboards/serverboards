@@ -222,7 +222,7 @@ components:
   - name: init command
     id: init.cmd2
     type: cmd
-    command: init.py
+    command: init2.py
     strategy: singleton
     timeout: 1s
 
