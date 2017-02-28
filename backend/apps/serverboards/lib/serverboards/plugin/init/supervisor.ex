@@ -23,6 +23,7 @@ defmodule Serverboards.Plugin.Init.Supervisor do
           Serverboards.Plugin.Init.stop(pid) # Stop all pids, normally
         end
         Process.exit(pid, :kill) # Force reload of all inits
+        :unsubscribe
       end
     end)
 
