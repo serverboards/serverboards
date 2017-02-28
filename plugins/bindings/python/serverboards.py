@@ -448,6 +448,7 @@ class RPC:
         self.debug("Removed subscription %s id %s"%(event, subscription_id))
         del self.subscriptions_ids[subscription_id]
 
+# RPC singleton
 rpc=RPC(sys.stdin, sys.stdout)
 sys.stdout=sys.stderr # allow debugging by print
 
@@ -484,28 +485,63 @@ def rpc_method(f):
 
 @rpc_method("dir")
 def __dir():
+    """
+    Returns the list of all registered methods.
+    
+    Normally used by the other endpoint.
+    """
     return list( rpc.rpc_registry.keys() )
 
 def loop(debug=None):
+    """
+    Wrapper to easily start rpc loop 
+
+    It allows setting the debug flag/file here.
+
+    # Parameter
+    debug : bool|file
+      Whether to debug to stderr, or to another file object
+    
+    """
     if debug:
         rpc.set_debug(debug)
     rpc.loop()
 
 def debug(s):
+    """
+    Logs a debug into the other endpoint
+    """
     rpc.debug(s, level=1)
 def info(s):
-    rpc.debug(s, level=1)
+    """
+    Logs an info line into the other endpoint
+    """
+    rpc.info(s, level=1)
 def warning(s):
-    rpc.debug(s, level=1)
+    """
+    Logs a warning into the other endpoint
+    """
+    rpc.warning(s, level=1)
 def error(s):
-    rpc.debug(s, level=1)
+    """
+    Logs an error into the other endpoint
+    """
+    rpc.error(s, level=1)
 
 class Config:
+    """
+    Easy access some configuration data for this plugin
+    """
     def __init__(self):
         self.path=os.path.expanduser( os.environ.get('SERVERBOARDS_PATH','~/.local/serverboards/') )
         Config.__ensure_path_exists(self.path)
 
     def file(self, filename):
+        """
+        Gets the absolute path of a local file for this plugin.
+
+        This uses the serverboards configured local storage for the current plugin 
+        """
         p=os.path.join(self.path, filename)
         if not p.startswith(self.path):
             raise Exception("Trying to escape from config directory.")
@@ -519,5 +555,5 @@ class Config:
         except OSError as e:
             if 'File exists' not in str(e):
                 raise
-
+# config singleton
 config=Config()
