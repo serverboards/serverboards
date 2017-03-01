@@ -15,8 +15,8 @@ const SelectService=React.createClass({
     let store_state = this.context.store.getState()
     if (self.props.traits)
       filter.traits=self.props.traits
-    if (store_state.serverboard.current)
-      filter.serverboard=store_state.serverboard.current
+    if (store_state.project.current)
+      filter.project=store_state.project.current
 
     rpc.call("service.list", filter).then( (services) => {
       const results=services.map( (s) => ({

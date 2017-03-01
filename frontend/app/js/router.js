@@ -8,8 +8,8 @@ import store from 'app/utils/store'
 import DashBoard from 'app/components/dashboard'
 import Profile from 'app/containers/profile'
 import Settings from 'app/components/settings'
-import Serverboard from 'app/containers/serverboard'
-import ServerboardAdd from 'app/containers/serverboard/add'
+import Serverboard from 'app/containers/project'
+import ServerboardAdd from 'app/containers/project/add'
 import ProcessesHistory from 'app/containers/processes'
 import ProcessView from 'app/containers/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
@@ -30,11 +30,11 @@ var ServerboardsRouter = React.createClass({
         <Router history={history}>
           <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
-          <Route path="/serverboard/">
+          <Route path="/project/">
             <Route path="add" component={ServerboardAdd}/>
-            <Route path=":serverboard/" component={Serverboard}/>
-            <Route path=":serverboard/:section" component={Serverboard}/>
-            <Route path=":serverboard/:section/:subsection" component={Serverboard}/>
+            <Route path=":project/" component={Serverboard}/>
+            <Route path=":project/:section" component={Serverboard}/>
+            <Route path=":project/:section/:subsection" component={Serverboard}/>
           </Route>
           <Route path="/settings/" component={Settings}>
             <Route path=":section" component={Settings}/>

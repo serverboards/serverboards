@@ -1,7 +1,7 @@
 import React from 'react'
 
-function sorted_serverboards(serverboards){
-  return serverboards.sort( (a,b)  => a.name.localeCompare(b.name) )
+function sorted_projects(projects){
+  return projects.sort( (a,b)  => a.name.localeCompare(b.name) )
 }
 
 const IssueTag = React.createClass({
@@ -40,7 +40,7 @@ const Filters = React.createClass({
   },
   handleServerboardChange(ev){
     const value=ev.target.value
-    this.props.setFilter("serverboard:"+value)
+    this.props.setFilter("project:"+value)
   },
   render(){
     const props = this.props
@@ -82,13 +82,13 @@ const Filters = React.createClass({
             ))}
             <div className="ui divider"/>
           </div>
-          {props.serverboard ? null : (
+          {props.project ? null : (
             <div className="field">
-              <h4 className="ui grey header">At serverboard</h4>
+              <h4 className="ui grey header">At project</h4>
               <div className="ui divider"/>
-              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder="All serverboards">
-                <option value="none">All serverboards</option>
-                {sorted_serverboards(props.serverboards).map((s) => (
+              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder="All projects">
+                <option value="none">All projects</option>
+                {sorted_projects(props.projects).map((s) => (
                   <option key={s.shortname} value={s.shortname}>{s.name}</option>
                 ))}
               </select>

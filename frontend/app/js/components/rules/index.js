@@ -18,16 +18,16 @@ const empty_rule={
 const Index=React.createClass({
   componentDidMount(){
     let self=this
-    let serverboard=this.props.serverboard.shortname
+    let project=this.props.project.shortname
 
     Command.add_command_search('sbds-rules',function(Q,context){
       let ret = [
-        {id: 'add-rules', title: 'Add Rule', description: 'Add a new rule', path: `/serverboard/${serverboard}/rules/add` }
+        {id: 'add-rules', title: 'Add Rule', description: 'Add a new rule', path: `/project/${project}/rules/add` }
       ]
       self.props.rules.map( (r) => {
         ret.push(
           {id: `rule-${r.uuid}`, title: `Rule ${r.name}`, description: `Edit *${r.name}* configuration`,
-           path: `/serverboard/${serverboard}/rules/${r.uuid}` }
+           path: `/project/${project}/rules/${r.uuid}` }
         )
       } )
       return ret
@@ -49,13 +49,13 @@ const Index=React.createClass({
       if (props.subsection == "add")
         return (
           <div className="ui text container">
-            <RuleEdit rule={empty_rule} serverboard={props.serverboard.shortname}/>
+            <RuleEdit rule={empty_rule} project={props.project.shortname}/>
           </div>
         )
       const rule = props.rules.find( (r) => r.uuid == props.subsection )
       return (
         <div className="ui text container">
-          <RuleEdit rule={rule} serverboard={props.serverboard.shortname}/>
+          <RuleEdit rule={rule} project={props.project.shortname}/>
         </div>
       )
     }

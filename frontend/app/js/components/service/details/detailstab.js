@@ -3,12 +3,12 @@ import store from 'app/utils/store'
 import {goto} from 'app/utils/store'
 import {MarkdownPreview} from 'react-marked-markdown';
 
-function serverboard_name(shortname){
-  return (store.getState().serverboard.serverboards.find( (s) => s.shortname == shortname) || {}).name
+function project_name(shortname){
+  return (store.getState().project.projects.find( (s) => s.shortname == shortname) || {}).name
 }
 
-function is_current_serverboard(shortname){
-  return (store.getState().serverboard.current ==  shortname)
+function is_current_project(shortname){
+  return (store.getState().project.current ==  shortname)
 }
 
 function DetailsTab(props){
@@ -23,9 +23,9 @@ function DetailsTab(props){
         ) : null}
         <h3 className="ui header">Used on Serverboards</h3>
         <div className="ui vertical secondary menu">
-          {props.service.serverboards.map( (s) => (
-            <div key={s} className={`item ${is_current_serverboard(s) ? "active" : ""}`} onClick={() => goto(`/serverboard/${s}/`)} style={{cursor: "pointer"}}>
-              {s} - {serverboard_name(s)}
+          {props.service.projects.map( (s) => (
+            <div key={s} className={`item ${is_current_project(s) ? "active" : ""}`} onClick={() => goto(`/project/${s}/`)} style={{cursor: "pointer"}}>
+              {s} - {project_name(s)}
               <i className="ui chevron right icon"/>
             </div>
           ))}

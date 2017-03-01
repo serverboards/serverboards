@@ -19,9 +19,9 @@ const Issues = React.createClass({
   componentDidMount(){
     this.setState({loading: true})
 
-    // Preselect serverboard
-    if (this.props.serverboard)
-      this.setFilter(`serverboard:${this.props.serverboard}`)
+    // Preselect project
+    if (this.props.project)
+      this.setFilter(`project:${this.props.project}`)
     else
       rpc.call("issues.list").then( this.updateIssueList )
   },
@@ -46,7 +46,7 @@ const Issues = React.createClass({
       filter=filter.split(' ').filter( (f) => f!=tag).join(' ')
       console.log(tag, filter)
     }
-    else if (update.indexOf(':')>0){ // for change status: serverboards: ...
+    else if (update.indexOf(':')>0){ // for change status: projects: ...
       const prefix=update.split(':')[0]+':'
       const postfix=update.slice(prefix.length)
       filter = filter.split(' ').filter( (s) => !s.startsWith(prefix)).join(' ')
@@ -57,11 +57,11 @@ const Issues = React.createClass({
     }
     filter=filter.trim()
 
-    if (update.startsWith("serverboard:")){ // filters with server reload
+    if (update.startsWith("project:")){ // filters with server reload
       this.setState({filter})
-      const serverboard=update.slice(12)
-      if (serverboard!="none")
-        rpc.call("issues.list",{alias:`serverboard/${serverboard}`}).then( this.updateIssueList )
+      const project=update.slice(12)
+      if (project!="none")
+        rpc.call("issues.list",{alias:`project/${project}`}).then( this.updateIssueList )
       else
         rpc.call("issues.list",[]).then( this.updateIssueList )
     }

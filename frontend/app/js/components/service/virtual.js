@@ -106,7 +106,7 @@ const VirtualServices=React.createClass({
           <h1 className="ui header">Virtual services for {props.parent.name}</h1>
           <div className="ui cards">
             {state.services.map((p) => (
-              <Card key={p.id} service={p} serverboards={props.serverboards} location={props.location}/>
+              <Card key={p.id} service={p} projects={props.projects} location={props.location}/>
             ))}
           </div>
         </div>

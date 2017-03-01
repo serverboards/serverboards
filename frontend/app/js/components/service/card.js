@@ -130,11 +130,11 @@ const Card=React.createClass({
   componentDidMount(){
     if (!this.props.service.is_virtual){
       const s = this.props.service
-      const serverboard = this.props.serverboard.shortname
+      const project = this.props.project.shortname
       Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
         {
           id: `service-details-${s.uuid}`, title: `${s.name} settings`,
-          description: `${s.name} Service Details at ${serverboard}`, run: () => goto(`/serverboard/${serverboard}/services/${s.uuid}`),
+          description: `${s.name} Service Details at ${project}`, run: () => goto(`/project/${project}/services/${s.uuid}`),
           order: 80
         }
       ],2 )
@@ -144,7 +144,7 @@ const Card=React.createClass({
     Command.remove_command_search(`service-${this.props.service.uuid}`)
   },
   handleDetach(){
-    this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
+    this.props.onDetach( this.props.project.shortname, this.props.service.uuid )
   },
   show_config(k){
     var fields = (this.props.service_description || {}).fields || []
@@ -156,7 +156,7 @@ const Card=React.createClass({
     return undefined;
   },
   handleOpenDetails(){
-    goto(`/serverboard/${this.props.serverboard.shortname}/services/${this.props.service.uuid}`)
+    goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
   },
   get_field(k){
     var fields = (this.props.service_description || {}).fields

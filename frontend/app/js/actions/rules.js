@@ -9,10 +9,10 @@ export function update_trigger_catalog(filter={}){
   }
 }
 
-export function rules_list(serverboard){
+export function rules_list(project){
   return function(dispatch){
-    rpc.call("rules.list",{serverboard: serverboard}).then( (rules) => {
-      dispatch({type: "UPDATE_RULES_LIST", serverboard, rules})
+    rpc.call("rules.list",{project: project}).then( (rules) => {
+      dispatch({type: "UPDATE_RULES_LIST", project, rules})
     }).catch( (e) => {
       console.error("Error getting rules: %o", e)
     })
