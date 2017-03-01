@@ -13,11 +13,11 @@ defmodule ProjectTest do
   def check_if_event_on_client(client, event, shortname) do
     Test.Client.expect(client, [{:method, event}, {~w(params project shortname), shortname}], 500 )
   end
-  def check_if_event_on_serverboard(agent, event, shortname) do
-    check_if_event_on_serverboard(agent, event, shortname, 10)
+  def check_if_event_on_project(agent, event, shortname) do
+    check_if_event_on_project(agent, event, shortname, 10)
   end
-  def check_if_event_on_serverboard(_agent, _event, _shortname, 0), do: false
-  def check_if_event_on_serverboard(agent, event, shortname, count) do
+  def check_if_event_on_project(_agent, _event, _shortname, 0), do: false
+  def check_if_event_on_project(agent, event, shortname, count) do
     ok = Agent.get agent, fn status ->
       events =Map.get(status, event, [])
       Logger.debug("Check if #{shortname} in #{inspect events} / #{inspect count}")
@@ -33,7 +33,7 @@ defmodule ProjectTest do
       ok
     else # tries several times. polling, bad, but necessary.
       :timer.sleep 100
-      check_if_event_on_serverboard(agent, event, shortname, count - 1)
+      check_if_event_on_project(agent, event, shortname, count - 1)
     end
   end
 
@@ -61,19 +61,19 @@ defmodule ProjectTest do
     import Serverboards.Project
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    {:ok, "SBDS-TST3"} = serverboard_add "SBDS-TST3", %{ "name" => "serverboards" }, user
-    assert check_if_event_on_serverboard(agent, "project.added", "SBDS-TST3")
+    {:ok, "SBDS-TST3"} = project_add "SBDS-TST3", %{ "name" => "serverboards" }, user
+    assert check_if_event_on_project(agent, "project.added", "SBDS-TST3")
 
-    :ok = serverboard_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
-    assert check_if_event_on_serverboard(agent, "project.updated", "SBDS-TST3")
+    :ok = project_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
+    assert check_if_event_on_project(agent, "project.updated", "SBDS-TST3")
 
-    {:ok, info} = serverboard_info "SBDS-TST3", user
+    {:ok, info} = project_info "SBDS-TST3", user
     assert info.name == "Serverboards"
 
-    :ok = serverboard_delete "SBDS-TST3", user
-    assert check_if_event_on_serverboard(agent, "project.deleted", "SBDS-TST3")
+    :ok = project_delete "SBDS-TST3", user
+    assert check_if_event_on_project(agent, "project.deleted", "SBDS-TST3")
 
-    assert {:error, :not_found} == serverboard_info "SBDS-TST3", user
+    assert {:error, :not_found} == project_info "SBDS-TST3", user
   end
 
 
@@ -83,7 +83,7 @@ defmodule ProjectTest do
 
     user = Test.User.system
 
-    serverboard_add "SBDS-TST12", %{ "name" => "Test 12" }, user
+    project_add "SBDS-TST12", %{ "name" => "Test 12" }, user
     {:ok, widget} = widget_add("SBDS-TST12", %{ config: %{}, widget: "test/widget"}, user)
     #Logger.debug(inspect list)
 
@@ -129,35 +129,35 @@ defmodule ProjectTest do
     import Serverboards.Project
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    {:error, :not_found } = serverboard_info "SBDS-TST5", user
+    {:error, :not_found } = project_info "SBDS-TST5", user
 
-    {:ok, "SBDS-TST5"} = serverboard_add "SBDS-TST5", %{ "name" => "serverboards" }, user
-    {:ok, info } = serverboard_info "SBDS-TST5", user
+    {:ok, "SBDS-TST5"} = project_add "SBDS-TST5", %{ "name" => "serverboards" }, user
+    {:ok, info } = project_info "SBDS-TST5", user
     assert info.tags == []
 
-    :ok = serverboard_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag3)}, user
-    {:ok, info } = serverboard_info "SBDS-TST5", user
+    :ok = project_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag3)}, user
+    {:ok, info } = project_info "SBDS-TST5", user
     Logger.debug("Current project info: #{inspect info}")
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert Enum.member? info.tags, "tag3"
     assert not (Enum.member? info.tags, "tag4")
 
-    serverboard_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag4) }, user
-    {:ok, info } = serverboard_info "SBDS-TST5", user
+    project_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag4) }, user
+    {:ok, info } = project_info "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert not (Enum.member? info.tags, "tag3")
     assert Enum.member? info.tags, "tag4"
 
     # should not remove tags
-    :ok = serverboard_update "SBDS-TST5", %{ "description" => "A simple description"}, user
-    {:ok, info } = serverboard_info "SBDS-TST5", user
+    :ok = project_update "SBDS-TST5", %{ "description" => "A simple description"}, user
+    {:ok, info } = project_info "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert Enum.member? info.tags, "tag4"
 
-    :ok = serverboard_delete "SBDS-TST5", user
+    :ok = project_delete "SBDS-TST5", user
   end
 
   test "Serverboards as a client", %{ } do
@@ -242,12 +242,12 @@ defmodule ProjectTest do
   end
 
   test "Screens on project", %{ system: system } do
-    import Serverboards.project
+    import Serverboards.Project
     import Serverboards.Service
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    serverboard_add "SBDS-TST13", %{ "name" => "Test 13" }, user
+    project_add "SBDS-TST13", %{ "name" => "Test 13" }, user
 
-    {:ok, info} = serverboard_info "SBDS-TST13", user
+    {:ok, info} = project_info "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
     assert Enum.count( screens ) >= 1
@@ -255,7 +255,7 @@ defmodule ProjectTest do
 
     {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "serverboards.test.auth/email" }, user
     service_attach "SBDS-TST13", service, user
-    {:ok, info} = serverboard_info "SBDS-TST13", user
+    {:ok, info} = project_info "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
     assert Enum.count( screens ) > prev_count

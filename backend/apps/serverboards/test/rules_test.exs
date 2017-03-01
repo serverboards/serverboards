@@ -146,7 +146,7 @@ defmodule Serverboards.TriggersTest do
     Rules.upsert( rule(), me )
 
     # More complex with project and related service
-    Serverboards.Project.serverboard_add "TEST-RULES-1", %{}, me
+    Serverboards.Project.project_add "TEST-RULES-1", %{}, me
     {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
 
     Rules.upsert( Map.merge(rule(), %{ project: "TEST-RULES-1" }), me )

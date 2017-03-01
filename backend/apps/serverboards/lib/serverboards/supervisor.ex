@@ -21,7 +21,7 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.Plugin.Supervisor, [[name: Serverboards.Plugin.Supervisor]]),
 
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
-      worker(Serverboards.Serverboard, [ [name: Serverboards.Serverboard] ]),
+      worker(Serverboards.Project, [ [name: Serverboards.Project] ]),
       worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
       worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),

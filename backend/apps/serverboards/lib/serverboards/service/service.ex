@@ -5,8 +5,8 @@ require EventSourcing
 defmodule Serverboards.Service do
   alias Serverboards.Service.Model.Service, as: ServiceModel
   alias Serverboards.Service.Model.ServiceTag, as: ServiceTagModel
-  alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
-  alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
+  alias Serverboards.Project.Model.Project, as: ProjectModel
+  alias Serverboards.Project.Model.ProjectService, as: ProjectServiceModel
   alias Serverboards.Repo
 
   def start_link(_options) do
@@ -110,25 +110,25 @@ defmodule Serverboards.Service do
         Logger.info(inspect current_uuids)
         if (Enum.count current_uuids) == 0 do # remove all
           Repo.delete_all(
-            from sc in ServerboardServiceModel,
-            join: s in ServerboardModel,
+            from sc in ProjectServiceModel,
+            join: s in ProjectModel,
               on: s.id == sc.project_id,
            where: s.shortname == ^project
            )
         else
           # remove only not updated
           ids_to_remove = Repo.all(
-            from sc in ServerboardServiceModel,
+            from sc in ProjectServiceModel,
              join: c in ServiceModel,
                on: c.id == sc.service_id,
-             join: s in ServerboardModel,
+             join: s in ProjectModel,
                on: s.id == sc.project_id,
              where: s.shortname == ^project and
                     not (c.uuid in ^current_uuids),
             select: sc.id
           )
           Repo.delete_all(
-             from sc_ in ServerboardServiceModel,
+             from sc_ in ProjectServiceModel,
             where: sc_.id in ^ids_to_remove
             )
         end
@@ -159,7 +159,7 @@ defmodule Serverboards.Service do
     import Ecto.Query
     # remove it when used inside any project
     Repo.delete_all(
-      from sc in ServerboardServiceModel,
+      from sc in ProjectServiceModel,
       join: c in ServiceModel, on: c.id == sc.service_id,
       where: c.uuid == ^service
       )
@@ -174,8 +174,8 @@ defmodule Serverboards.Service do
   defp service_attach_real( project, service, me ) do
     import Ecto.Query
     case Repo.one(
-        from sc in ServerboardServiceModel,
-          join: s in ServerboardModel,
+        from sc in ProjectServiceModel,
+          join: s in ProjectModel,
             on: s.id == sc.project_id,
           join: c in ServiceModel,
             on: c.id == sc.service_id,
@@ -183,10 +183,10 @@ defmodule Serverboards.Service do
                  c.uuid == ^service,
           select: sc.id ) do
       nil ->
-        project_obj = Repo.get_by(ServerboardModel, shortname: project)
+        project_obj = Repo.get_by(ProjectModel, shortname: project)
         service_obj = Repo.get_by(ServiceModel, uuid: service)
         if Enum.all?([project_obj, service_obj]) do
-          {:ok, _project_service} = Repo.insert( %ServerboardServiceModel{
+          {:ok, _project_service} = Repo.insert( %ProjectServiceModel{
             project_id: project_obj.id,
             service_id: service_obj.id
           } )
@@ -206,15 +206,15 @@ defmodule Serverboards.Service do
     import Ecto.Query
 
     to_remove = Repo.all(
-      from sc in ServerboardServiceModel,
-      join: s in ServerboardModel, on: s.id == sc.project_id,
+      from sc in ProjectServiceModel,
+      join: s in ProjectModel, on: s.id == sc.project_id,
       join: c in ServiceModel, on: c.id == sc.service_id,
       where: c.uuid == ^service and s.shortname == ^project,
       select: sc.id
      )
 
     Repo.delete_all(
-      from sc_ in ServerboardServiceModel,
+      from sc_ in ProjectServiceModel,
       where: sc_.id in ^to_remove )
 
     {:ok, service} = service_info service, me
@@ -336,8 +336,8 @@ defmodule Serverboards.Service do
                 where([c], c.type == ^v)
             :project ->
               acc
-                |> join(:inner,[c], sc in ServerboardServiceModel, sc.service_id == c.id)
-                |> join(:inner,[c,sc], s in ServerboardModel, s.id == sc.project_id and s.shortname == ^v)
+                |> join(:inner,[c], sc in ProjectServiceModel, sc.service_id == c.id)
+                |> join(:inner,[c,sc], s in ProjectModel, s.id == sc.project_id and s.shortname == ^v)
                 |> select([c,sc,s], c)
             :traits -> # at post process
               acc
@@ -377,8 +377,8 @@ defmodule Serverboards.Service do
     service = service
           |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
           |> Map.put(:projects, Repo.all(
-            from s in ServerboardModel,
-            join: ss in ServerboardServiceModel,
+            from s in ProjectModel,
+            join: ss in ProjectServiceModel,
               on: ss.project_id == s.id,
            where: ss.service_id == ^service.id,
           select: s.shortname
@@ -428,7 +428,7 @@ defmodule Serverboards.Service do
 
     iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
-    iex> {:ok, _project} = Serverboards.Serverboard.project_add "SBDS-TST7", %{ "name" => "projects" }, user
+    iex> {:ok, _project} = Serverboards.Project.project_add "SBDS-TST7", %{ "name" => "projects" }, user
     iex> :ok = service_attach "SBDS-TST7", service, user
     iex> services = service_list [project: "SBDS-TST7"]
     iex> Enum.map(services, fn c -> c.name end )
@@ -450,7 +450,7 @@ defmodule Serverboards.Service do
 
     iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
-    iex> {:ok, _project} = Serverboards.Serverboard.project_add "SBDS-TST9", %{ "name" => "projects" }, user
+    iex> {:ok, _project} = Serverboards.Project.project_add "SBDS-TST9", %{ "name" => "projects" }, user
     iex> :ok = service_attach "SBDS-TST9", service, user
     iex> services = service_list [project: "SBDS-TST9"]
     iex> Enum.map(services, fn c -> c.name end )
