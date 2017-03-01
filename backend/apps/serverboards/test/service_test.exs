@@ -4,7 +4,7 @@ defmodule ServerboardTest do
   use ExUnit.Case
   @moduletag :capture_log
 
-  doctest Serverboards.Serverboard, import: true
+  doctest Serverboards.Project, import: true
   doctest Serverboards.Service, import: true
 
   @email_type "serverboards.test.auth/email"
@@ -30,7 +30,7 @@ defmodule ServerboardTest do
   end
 
   def check_if_event_on_client(client, event, shortname) do
-    Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}] )
+    Test.Client.expect(client, [{:method, event}, {~w(params project shortname), shortname}] )
   end
 
   def check_if_event_on_serverboard(agent, event, shortname) do
@@ -42,8 +42,8 @@ defmodule ServerboardTest do
       events =Map.get(status, event, [])
       Logger.debug("Check if #{shortname} in #{inspect events} / #{inspect count}")
       Enum.any? events, fn event ->
-        if Map.get(event.data, :serverboard) do
-          event.data.serverboard.shortname == shortname
+        if Map.get(event.data, :project) do
+          event.data.project.shortname == shortname
         else
           event.data.shortname == shortname
         end
@@ -58,7 +58,7 @@ defmodule ServerboardTest do
   end
 
   test "Tags into services", %{ system: system } do
-    import Serverboards.Serverboard
+    import Serverboards.Project
     import Serverboards.Service
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
@@ -88,8 +88,8 @@ defmodule ServerboardTest do
     assert Enum.count((hd services).fields) > 0
   end
 
-  test "Update serverboard removing services", %{ system: system } do
-    import Serverboards.Serverboard
+  test "Update project removing services", %{ system: system } do
+    import Serverboards.Project
     import Serverboards.Service
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
@@ -116,7 +116,7 @@ defmodule ServerboardTest do
   end
 
   test "Service info has serverboards", %{ system: user } do
-    import Serverboards.Serverboard
+    import Serverboards.Project
     import Serverboards.Service
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", user)

@@ -6,7 +6,7 @@ defmodule Serverboards.Rules.Model do
       field :is_active, :boolean
       field :name, :string
       field :description, :string
-      field :serverboard_id, :id
+      field :project_id, :id
 
       field :service_id, :id
 
@@ -21,7 +21,7 @@ defmodule Serverboards.Rules.Model do
     end
 
     @required_fields ~w(uuid is_active)a
-    @optional_fields ~w(name description serverboard_id service_id trigger params from_template last_state)a
+    @optional_fields ~w(name description project_id service_id trigger params from_template last_state)a
     def changeset(data, changes \\ :empty) do
       import Ecto.Changeset
       data

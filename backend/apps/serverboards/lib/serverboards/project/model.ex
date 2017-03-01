@@ -1,55 +1,55 @@
 require Logger
-defmodule Serverboards.Serverboard.Model do
-  defmodule Serverboard do
+defmodule Serverboards.Project.Model do
+  defmodule Project do
     use Ecto.Schema
-    schema "serverboard_serverboard" do
+    schema "project_project" do
       field :shortname, :string
       field :name, :string
       field :description, :string
       field :creator_id, :id
       field :priority, :integer
 
-      has_many :tags, Serverboards.Serverboard.Model.ServerboardTag
+      has_many :tags, Serverboards.Project.Model.ProjectTag
       timestamps
     end
 
     @required_fields ~w(shortname)a
     @optional_fields ~w(name description creator_id priority)a
-    def changeset(serverboard, changes \\ :empty) do
+    def changeset(project, changes \\ :empty) do
       import Ecto.Changeset
-      serverboard
+      project
         |> cast(changes, @required_fields ++ @optional_fields)
         |> validate_required(@required_fields)
     end
   end
 
-  defmodule ServerboardTag do
+  defmodule ProjectTag do
     use Ecto.Schema
-    schema "serverboard_serverboard_tag" do
-      #field :serverboard_id, :id
+    schema "project_project_tag" do
+      #field :project_id, :id
       field :name, :string
 
-      belongs_to :serverboard, Serverboard
+      belongs_to :project, Project
     end
-    @required_fields ~w(serverboard_id name)a
+    @required_fields ~w(project_id name)a
     @optional_fields ~w()a
   end
 
   defmodule ServerboardService do
     use Ecto.Schema
-    schema "serverboard_serverboard_service" do
-      field :serverboard_id, :id
+    schema "project_project_service" do
+      field :project_id, :id
       field :service_id, :id
       timestamps
     end
-    @required_fields ~w(serverboard_id service_id)a
+    @required_fields ~w(project_id service_id)a
     @optional_fields ~w()a
   end
 
   defmodule Widget do
     use Ecto.Schema
-    schema "serverboard_widget" do
-      field :serverboard_id, :id
+    schema "project_widget" do
+      field :project_id, :id
       field :uuid, Ecto.UUID
       field :widget, :string
       field :config, :map
@@ -57,7 +57,7 @@ defmodule Serverboards.Serverboard.Model do
       timestamps
     end
 
-    @required_fields ~w(serverboard_id uuid widget)a
+    @required_fields ~w(project_id uuid widget)a
     @optional_fields ~w(config ui)a
     def changeset(widget, changes \\ :empty) do
       import Ecto.Changeset

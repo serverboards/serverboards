@@ -1,6 +1,6 @@
 require Logger
 
-defmodule ServerboardsTest do
+defmodule ProjectTest do
   use ExUnit.Case
   @moduletag :capture_log
 
@@ -11,7 +11,7 @@ defmodule ServerboardsTest do
   @email_type "serverboards.test.auth/email"
 
   def check_if_event_on_client(client, event, shortname) do
-    Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}], 500 )
+    Test.Client.expect(client, [{:method, event}, {~w(params project shortname), shortname}], 500 )
   end
   def check_if_event_on_serverboard(agent, event, shortname) do
     check_if_event_on_serverboard(agent, event, shortname, 10)
@@ -22,8 +22,8 @@ defmodule ServerboardsTest do
       events =Map.get(status, event, [])
       Logger.debug("Check if #{shortname} in #{inspect events} / #{inspect count}")
       Enum.any? events, fn event ->
-        if Map.get(event.data, :serverboard) do
-          event.data.serverboard.shortname == shortname
+        if Map.get(event.data, :project) do
+          event.data.project.shortname == shortname
         else
           event.data.shortname == shortname
         end
@@ -57,29 +57,29 @@ defmodule ServerboardsTest do
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
   end
 
-  test "Serverboard lifecycle", %{ agent: agent, system: system } do
-    import Serverboards.Serverboard
+  test "Project lifecycle", %{ agent: agent, system: system } do
+    import Serverboards.Project
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = serverboard_add "SBDS-TST3", %{ "name" => "serverboards" }, user
-    assert check_if_event_on_serverboard(agent, "serverboard.added", "SBDS-TST3")
+    assert check_if_event_on_serverboard(agent, "project.added", "SBDS-TST3")
 
     :ok = serverboard_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
-    assert check_if_event_on_serverboard(agent, "serverboard.updated", "SBDS-TST3")
+    assert check_if_event_on_serverboard(agent, "project.updated", "SBDS-TST3")
 
     {:ok, info} = serverboard_info "SBDS-TST3", user
     assert info.name == "Serverboards"
 
     :ok = serverboard_delete "SBDS-TST3", user
-    assert check_if_event_on_serverboard(agent, "serverboard.deleted", "SBDS-TST3")
+    assert check_if_event_on_serverboard(agent, "project.deleted", "SBDS-TST3")
 
     assert {:error, :not_found} == serverboard_info "SBDS-TST3", user
   end
 
 
-  test "Create serverboard and widgets, no ES" do
-    import Serverboards.Serverboard
-    import Serverboards.Serverboard.Widget
+  test "Create project and widgets, no ES" do
+    import Serverboards.Project
+    import Serverboards.Project.Widget
 
     user = Test.User.system
 
@@ -102,31 +102,31 @@ defmodule ServerboardsTest do
     assert Enum.any?(list, &(&1.config == %{ "test" => true }))
   end
 
-  test "Serverboard and widgets via RPC" do
+  test "Project and widgets via RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    Test.Client.call(client, "event.subscribe", ["serverboard.widget.added", "serverboard.widget.updated"])
-    {:ok, sbds} = Test.Client.call(client, "serverboard.add", ["SBDS-TST13", %{}] )
-    {:ok, uuid} = Test.Client.call(client, "serverboard.widget.add", %{ serverboard: "SBDS-TST13", widget: "test"})
+    Test.Client.call(client, "event.subscribe", ["project.widget.added", "project.widget.updated"])
+    {:ok, sbds} = Test.Client.call(client, "project.add", ["SBDS-TST13", %{}] )
+    {:ok, uuid} = Test.Client.call(client, "project.widget.add", %{ project: "SBDS-TST13", widget: "test"})
     :timer.sleep(300)
-    assert Test.Client.expect(client, method: "serverboard.widget.added")
+    assert Test.Client.expect(client, method: "project.widget.added")
 
-    {:ok, _ } = Test.Client.call(client, "serverboard.widget.list", [sbds])
+    {:ok, _ } = Test.Client.call(client, "project.widget.list", [sbds])
 
-    {:ok, _uuid} = Test.Client.call(client, "serverboard.widget.update", %{ uuid: uuid, widget: "test2"})
+    {:ok, _uuid} = Test.Client.call(client, "project.widget.update", %{ uuid: uuid, widget: "test2"})
     :timer.sleep(300)
 
-    assert Test.Client.expect(client, method: "serverboard.widget.updated")
-    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "serverboard.widget.list", [sbds])
+    assert Test.Client.expect(client, method: "project.widget.updated")
+    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "project.widget.list", [sbds])
 
     # just dont fail
-    {:ok, _catalog} = Test.Client.call(client, "serverboard.widget.catalog", ["SBDS-TST13"])
+    {:ok, _catalog} = Test.Client.call(client, "project.widget.catalog", ["SBDS-TST13"])
 
-    {:ok, _} = Test.Client.call(client, "serverboard.widget.remove", [uuid])
-    {:ok, []} = Test.Client.call(client, "serverboard.widget.list", [sbds])
+    {:ok, _} = Test.Client.call(client, "project.widget.remove", [uuid])
+    {:ok, []} = Test.Client.call(client, "project.widget.list", [sbds])
   end
 
   test "Update serverboards tags", %{ system: system } do
-    import Serverboards.Serverboard
+    import Serverboards.Project
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:error, :not_found } = serverboard_info "SBDS-TST5", user
@@ -137,7 +137,7 @@ defmodule ServerboardsTest do
 
     :ok = serverboard_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag3)}, user
     {:ok, info } = serverboard_info "SBDS-TST5", user
-    Logger.debug("Current serverboard info: #{inspect info}")
+    Logger.debug("Current project info: #{inspect info}")
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert Enum.member? info.tags, "tag3"
@@ -165,22 +165,22 @@ defmodule ServerboardsTest do
 
     {:ok, dir} = Test.Client.call client, "dir", []
     Logger.debug("Known methods: #{inspect dir}")
-    assert Enum.member? dir, "serverboard.list"
-    assert Enum.member? dir, "serverboard.add"
-    assert Enum.member? dir, "serverboard.delete"
-    assert Enum.member? dir, "serverboard.info"
+    assert Enum.member? dir, "project.list"
+    assert Enum.member? dir, "project.add"
+    assert Enum.member? dir, "project.delete"
+    assert Enum.member? dir, "project.info"
 
     #{:ok, json} = Poison.encode(Test.Client.debug client)
     #Logger.info("Debug information: #{json}")
 
     Test.Client.call(client, "event.subscribe", [
-      "serverboard.added","serverboard.deleted","serverboard.updated"
+      "project.added","project.deleted","project.updated"
       ])
-    {:ok, l} = Test.Client.call client, "serverboard.list", []
+    {:ok, l} = Test.Client.call client, "project.list", []
     Logger.info("Got serverboards: #{inspect l}")
     assert (Enum.count l) >= 0
 
-    {:ok, "SBDS-TST8"} = Test.Client.call client, "serverboard.add", [
+    {:ok, "SBDS-TST8"} = Test.Client.call client, "project.add", [
       "SBDS-TST8",
       %{
         "name" => "Serverboards test",
@@ -191,20 +191,20 @@ defmodule ServerboardsTest do
         ]
       }
     ]
-    assert check_if_event_on_client(client, "serverboard.added", "SBDS-TST8")
-    deleted=check_if_event_on_client(client, "serverboard.deleted", "SBDS-TST8")
-    Logger.info("At serverboard deleted? #{deleted}")
+    assert check_if_event_on_client(client, "project.added", "SBDS-TST8")
+    deleted=check_if_event_on_client(client, "project.deleted", "SBDS-TST8")
+    Logger.info("At project deleted? #{deleted}")
     assert not deleted
 
-    {:ok, cl} = Test.Client.call client, "serverboard.info", ["SBDS-TST8"]
-    Logger.info("Info from serverboard #{inspect cl}")
+    {:ok, cl} = Test.Client.call client, "project.info", ["SBDS-TST8"]
+    Logger.info("Info from project #{inspect cl}")
     {:ok, json} = Poison.encode(cl)
     assert not String.contains? json, "__"
     assert (hd cl["services"])["name"] == "main web"
     assert (hd (tl cl["services"]))["name"] == "blog"
 
-    {:ok, cls} = Test.Client.call client, "serverboard.list", []
-    Logger.info("Info from serverboard #{inspect cls}")
+    {:ok, cls} = Test.Client.call client, "project.list", []
+    Logger.info("Info from project #{inspect cls}")
     {:ok, json} = Poison.encode(cls)
     assert not String.contains? json, "__"
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
@@ -216,7 +216,7 @@ defmodule ServerboardsTest do
     Test.Client.call client, "service.list", []
     Test.Client.call client, "service.list", [["type","email"]]
 
-    Test.Client.call client, "serverboard.update", [
+    Test.Client.call client, "project.update", [
       "SBDS-TST8",
       %{
         "services" => [
@@ -232,17 +232,17 @@ defmodule ServerboardsTest do
     assert not (Enum.any? services, &(&1["uuid"] == service))
 
 
-    Test.Client.call client, "serverboard.delete", ["SBDS-TST8"]
+    Test.Client.call client, "project.delete", ["SBDS-TST8"]
 
-    assert check_if_event_on_client(client, "serverboard.updated", "SBDS-TST8")
-    assert Test.Client.expect(client, [{:method, "serverboard.deleted"}, {[:params, :shortname], "SBDS-TST8"}])
+    assert check_if_event_on_client(client, "project.updated", "SBDS-TST8")
+    assert Test.Client.expect(client, [{:method, "project.deleted"}, {[:params, :shortname], "SBDS-TST8"}])
 
 
     Test.Client.stop(client)
   end
 
-  test "Screens on serverboard", %{ system: system } do
-    import Serverboards.Serverboard
+  test "Screens on project", %{ system: system } do
+    import Serverboards.project
     import Serverboards.Service
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     serverboard_add "SBDS-TST13", %{ "name" => "Test 13" }, user

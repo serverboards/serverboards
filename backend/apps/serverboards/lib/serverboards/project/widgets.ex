@@ -1,17 +1,17 @@
 require Logger
 
-defmodule Serverboards.Serverboard.Widget do
+defmodule Serverboards.Project.Widget do
   @moduledoc ~S"""
   Widget management
 
   This implements a basic CRUD over the widgets.
   """
-  alias Serverboards.Serverboard.Model
+  alias Serverboards.Project.Model
   alias Serverboards.Repo
 
   def setup_eventsourcing(es) do
     EventSourcing.subscribe es, :add_widget, fn attr, _me ->
-      widget_add_real(attr.serverboard, attr)
+      widget_add_real(attr.project, attr)
     end
     EventSourcing.subscribe es, :update_widget, fn attr, _me ->
       widget_update_real(attr.uuid, attr)
@@ -21,12 +21,12 @@ defmodule Serverboards.Serverboard.Widget do
     end
   end
 
-  def widget_list(serverboard) do
+  def widget_list(project) do
     import Ecto.Query
     list = Repo.all( from w in Model.Widget,
-      join: s in Model.Serverboard,
-        on: s.id == w.serverboard_id,
-      where: s.shortname == ^serverboard,
+      join: s in Model.Project,
+        on: s.id == w.project_id,
+      where: s.shortname == ^project,
       select: %{ widget: w.widget, uuid: w.uuid, config: w.config, ui: w.ui }
       )
     {:ok, list}
@@ -34,13 +34,13 @@ defmodule Serverboards.Serverboard.Widget do
 
 
   @doc ~S"""
-  Returns the list of compatible plugins for the given serverboard.
+  Returns the list of compatible plugins for the given project.
 
   Compatibility depends on installed services / traits.
 
   TODO. Now returns all.
   """
-  def catalog(_serverboard) do
+  def catalog(_project) do
     for w <- Serverboards.Plugin.Registry.filter_component([type: "widget"]) do
       %{
         id: w.id,
@@ -51,31 +51,31 @@ defmodule Serverboards.Serverboard.Widget do
     end
   end
 
-  def widget_add(serverboard, data, me) do
+  def widget_add(project, data, me) do
     Logger.debug("Pre #{inspect data}")
     uuid = data[:uuid] || UUID.uuid4
-    data = Map.merge(data, %{ serverboard: serverboard, uuid: uuid })
+    data = Map.merge(data, %{ project: project, uuid: uuid })
     Logger.debug("Post #{inspect data}")
-    EventSourcing.dispatch(:serverboard, :add_widget, data, me.email )
+    EventSourcing.dispatch(:project, :add_widget, data, me.email )
     {:ok, data.uuid}
   end
-  def widget_add_real(serverboard, data) do
+  def widget_add_real(project, data) do
     import Ecto.Query
-    serverboard_id = Repo.one(
-      from s in Model.Serverboard,
-      where: s.shortname == ^serverboard,
+    project_id = Repo.one(
+      from s in Model.Project,
+      where: s.shortname == ^project,
       select: s.id
       )
-    data = Map.put(data, :serverboard_id, serverboard_id)
+    data = Map.put(data, :project_id, project_id)
     {:ok, _widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
 
-    Serverboards.Event.emit("serverboard.widget.added", data, ["serverboard.info"])
-    Serverboards.Event.emit("serverboard.widget.added[#{serverboard}]", data, ["serverboard.info"])
+    Serverboards.Event.emit("project.widget.added", data, ["project.info"])
+    Serverboards.Event.emit("project.widget.added[#{project}]", data, ["project.info"])
     {:ok, data.uuid}
   end
 
   def widget_update(uuid, data, me) do
-    EventSourcing.dispatch(:serverboard, :update_widget, Map.merge(data, %{ uuid: uuid }), me.email )
+    EventSourcing.dispatch(:project, :update_widget, Map.merge(data, %{ uuid: uuid }), me.email )
     :ok
   end
   def widget_update_real(uuid, data) do
@@ -86,13 +86,13 @@ defmodule Serverboards.Serverboard.Widget do
           )
     case Repo.update( Model.Widget.changeset(prev, data) ) do
       {:ok, _update} ->
-        Serverboards.Event.emit("serverboard.widget.updated", data, ["serverboard.info"])
-        serverboard = Repo.one(
-          from s in Model.Serverboard,
-          where: s.id == ^prev.serverboard_id,
+        Serverboards.Event.emit("project.widget.updated", data, ["project.info"])
+        project = Repo.one(
+          from s in Model.Project,
+          where: s.id == ^prev.project_id,
           select: s.shortname
         )
-        Serverboards.Event.emit("serverboard.widget.updated[#{serverboard}]", data, ["serverboard.info"])
+        Serverboards.Event.emit("project.widget.updated[#{project}]", data, ["project.info"])
         :ok
       {:error, reason} ->
         Logger.error("Error updating widget: #{inspect reason}")
@@ -101,15 +101,15 @@ defmodule Serverboards.Serverboard.Widget do
   end
 
   def widget_remove(uuid, me) do
-    EventSourcing.dispatch(:serverboard, :remove_widget, %{ uuid: uuid }, me.email )
+    EventSourcing.dispatch(:project, :remove_widget, %{ uuid: uuid }, me.email )
     :ok
   end
   def widget_remove_real(uuid) do
     import Ecto.Query
-    serverboard = Repo.one(
-      from s in Model.Serverboard,
+    project = Repo.one(
+      from s in Model.Project,
       join: w in Model.Widget,
-      on: w.serverboard_id == s.id,
+      on: w.project_id == s.id,
       where: w.uuid == ^uuid,
       select: s.shortname
     )
@@ -117,8 +117,8 @@ defmodule Serverboards.Serverboard.Widget do
       from s in Model.Widget,
       where: s.uuid == ^uuid
       )
-    Serverboards.Event.emit("serverboard.widget.removed", %{uuid: uuid}, ["serverboard.info"])
-    Serverboards.Event.emit("serverboard.widget.removed[#{serverboard}]", %{uuid: uuid}, ["serverboard.info"])
+    Serverboards.Event.emit("project.widget.removed", %{uuid: uuid}, ["project.info"])
+    Serverboards.Event.emit("project.widget.removed[#{project}]", %{uuid: uuid}, ["project.info"])
     :ok
   end
 end

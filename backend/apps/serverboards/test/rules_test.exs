@@ -17,11 +17,11 @@ defmodule Serverboards.TriggersTest do
   def rule(tomerge \\ %{}) do
     Map.merge(
       %Rules.Rule{
-        serverboard: nil,
+        project: nil,
         is_active: false,
         service: nil,
         name: "Test rule",
-        serverboard: "TEST",
+        project: "TEST",
         description: "Long data",
         trigger: %{
           trigger: "serverboards.test.auth/periodic.timer",
@@ -145,11 +145,11 @@ defmodule Serverboards.TriggersTest do
 
     Rules.upsert( rule(), me )
 
-    # More complex with serverboard and related service
-    Serverboards.Serverboard.serverboard_add "TEST-RULES-1", %{}, me
+    # More complex with project and related service
+    Serverboards.Project.serverboard_add "TEST-RULES-1", %{}, me
     {:ok, service_uuid} = Serverboards.Service.service_add %{}, me
 
-    Rules.upsert( Map.merge(rule(), %{ serverboard: "TEST-RULES-1" }), me )
+    Rules.upsert( Map.merge(rule(), %{ project: "TEST-RULES-1" }), me )
     Rules.upsert( Map.merge(rule(), %{ service: service_uuid }), me )
 
     # The full list
