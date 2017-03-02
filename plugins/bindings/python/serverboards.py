@@ -17,10 +17,11 @@ class RPC:
         descriptor handlers to ease the communication using JSON-RPC.
 
         # Parameters
-        stdin : file
-          Which input file to use to read JSON-RPC calls. Normally stdin.
-        stdout : file
-          File to use to write JSON-RPC calls to the remote endpoint. Normally stdout.
+
+        param | type       | description
+        ------|------------|------------
+        stdin | file       | Which input file to use to read JSON-RPC calls. Normally stdin.
+        stdout | file      | File to use to write JSON-RPC calls to the remote endpoint. Normally stdout.
 
         """
         self.rpc_registry={}
@@ -80,10 +81,11 @@ class RPC:
         Sets the debug mode for this rpc object.
 
         # Parameters
-        debug : bool
-          Whether to activate debug data to stderr
-        debug : file
-          To which file to write
+
+        param | type       | description
+        ------|------------|------------
+        debug | bool       | Whether to activate debug data to stderr
+        debug | file       | To which file to write
         """
         if debug is True:
             self.stderr=sys.stderr
@@ -255,10 +257,11 @@ class RPC:
         This allows this class to also listen for external processes and file description changes.
 
         # Parameters
-        fd : int
-          File descriptor
-        cont : function()
-          Continuation function to call when new data ready to read at fd
+
+        param | type       | description
+        ------|------------|------------
+        fd    | int        | File descriptor
+        cont  | function() | Continuation function to call when new data ready to read at fd
         """
         if not fd in self.events:
             self.events[fd]=cont
@@ -283,10 +286,11 @@ class RPC:
         called as soon as possible.
 
         # Parameters
-        interval : float
-          Time in seconds to wait until calling this timer
-        cont : function()
-          Function to call when the timer expires.
+
+        param | type       | description
+        ------|------------|------------
+        interval | float   | Time in seconds to wait until calling this timer
+        cont  | function() | Function to call when the timer expires.
 
         # Returns
         timer_id : int
@@ -458,7 +462,7 @@ def rpc_method(f):
 
     Use as simple decorator:
 
-    ```
+    ```python
     @decorator
     def func(param1, param2):
         ....
@@ -466,10 +470,11 @@ def rpc_method(f):
 
     or with a specific name
 
-    ```
+    ```python
     @decorator("rpc-name")
     def func(param1=None):
         ...
+    ```
     """
     if type(f)==str:
         method_name=f
@@ -498,9 +503,12 @@ def loop(debug=None):
 
     It allows setting the debug flag/file here.
 
-    # Parameter
-    debug : bool|file
-      Whether to debug to stderr, or to another file object
+    # Parameters
+    
+    param | type       | description
+    ------|------------|------------
+    debug | bool\|file | Whether to debug to stderr, or to another file object
+
     
     """
     if debug:
