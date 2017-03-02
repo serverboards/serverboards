@@ -153,7 +153,7 @@ export function pretty_ago(t, now, minres="second"){
   let timediff = now.diff(other)
 
   if (timediff>timeunits.MAX){
-    return pretty_date(other)
+    return pretty_date(other, minres)
   }
 
   let lastunit='millisecond'
@@ -185,7 +185,9 @@ export function pretty_ago(t, now, minres="second"){
   return expr
 }
 
-export function pretty_date(d){
+export function pretty_date(d, precission){
+  if (precission >= timeunits.day )
+    return moment(d).format("ddd, ll")
   return moment(d).format("llll")
 }
 
