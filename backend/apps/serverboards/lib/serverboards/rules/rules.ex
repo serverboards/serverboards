@@ -33,8 +33,8 @@ defmodule Serverboards.Rules do
     EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
       rule = upsert_real(data)
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      if (data.serverboard != nil) do
-        Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: rule }, ["rules.view"])
+      if (data.project != nil) do
+        Serverboards.Event.emit("rules.update[#{data.project}]", %{ rule: rule }, ["rules.view"])
       end
     end
     EventSourcing.subscribe es, :set_state, fn data, _me ->
@@ -44,8 +44,8 @@ defmodule Serverboards.Rules do
       rule = decorate(rule)
 
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      if (rule.serverboard != nil) do
-        Serverboards.Event.emit("rules.update[#{rule.serverboard}]", %{ rule: rule }, ["rules.view"])
+      if (rule.project != nil) do
+        Serverboards.Event.emit("rules.update[#{rule.project}]", %{ rule: rule }, ["rules.view"])
       end
     end
 
@@ -71,7 +71,7 @@ defmodule Serverboards.Rules do
   end
   def list(filter) do
     import Ecto.Query
-    alias Serverboards.Serverboard.Model.Serverboard
+    alias Serverboards.Project.Model.Project
     alias Serverboards.Service.Model.Service
 
     #Logger.debug("All rules: #{inspect Repo.all(from rule in Model.Rule)}")
@@ -79,26 +79,26 @@ defmodule Serverboards.Rules do
     q = from rule in Model.Rule,
       left_join: service in Service,
               on: service.id == rule.service_id,
-      left_join: serverboard in Serverboard,
-              on: serverboard.id == rule.serverboard_id
+      left_join: project in Project,
+              on: project.id == rule.project_id
 
     q = Enum.reduce(filter, q, fn
-      {:serverboard, v}, q ->
-        q |> where([_rule, _service, serverboard], serverboard.shortname == ^v )
+      {:project, v}, q ->
+        q |> where([_rule, _service, project], project.shortname == ^v )
       {:uuid, v}, q ->
-        q |> where([rule, _service, _serverboard], rule.uuid == ^v )
+        q |> where([rule, _service, _project], rule.uuid == ^v )
       {:service, v}, q ->
-        q |> where([_rule, service, _serverboard], service.uuid == ^v )
+        q |> where([_rule, service, _project], service.uuid == ^v )
       {:is_active, v}, q ->
-        q |> where([rule, _service, _serverboard], rule.is_active == ^v )
+        q |> where([rule, _service, _project], rule.is_active == ^v )
       end)
-    q = q |> select( [rule, service, serverboard], %{
+    q = q |> select( [rule, service, project], %{
       id: rule.id,
       is_active: rule.is_active,
       uuid: rule.uuid,
       name: rule.name,
       description: rule.description,
-      serverboard: serverboard.shortname,
+      project: project.shortname,
       service: service.uuid,
       from_template: rule.from_template,
       last_state: rule.last_state,
@@ -171,10 +171,10 @@ defmodule Serverboards.Rules do
       id ->
         Repo.one( from c in Serverboards.Service.Model.Service, where: c.id == ^id, select: c.uuid )
     end
-    serverboard = case model.serverboard_id do
+    project = case model.project_id do
       nil -> nil
       id ->
-        Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.id == ^id, select: c.shortname )
+        Repo.one( from c in Serverboards.Project.Model.Project, where: c.id == ^id, select: c.shortname )
     end
     actions = Repo.all(from ac in Model.ActionAtState, where: ac.rule_id == ^model.id) |> Enum.map(fn ac ->
       { ac.state, %{
@@ -186,7 +186,7 @@ defmodule Serverboards.Rules do
     %Serverboards.Rules.Rule{
       uuid: model.uuid,
       is_active: model.is_active,
-      serverboard: serverboard,
+      project: project,
       service: service,
       name: model.name,
       description: model.description,
@@ -217,19 +217,19 @@ defmodule Serverboards.Rules do
       uuid ->
         Repo.one( from c in Serverboards.Service.Model.Service, where: c.uuid == ^uuid, select: c.id )
     end
-    serverboard_id = case data.serverboard do
+    project_id = case data.project do
       nil -> nil
       shortname ->
-        Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.shortname == ^shortname, select: c.id )
+        Repo.one( from c in Serverboards.Project.Model.Project, where: c.shortname == ^shortname, select: c.id )
     end
 
-    Logger.debug("Service id: #{inspect service_id}, serverboards id #{inspect serverboard_id}")
+    Logger.debug("Service id: #{inspect service_id}, projects id #{inspect project_id}")
 
     data = %{
       uuid: uuid,
       is_active: data.is_active,
       service_id: service_id,
-      serverboard_id: serverboard_id,
+      project_id: project_id,
       name: data.name,
       description: data.description,
       trigger: data.trigger.trigger,

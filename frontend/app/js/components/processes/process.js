@@ -43,8 +43,8 @@ let ProcessView=React.createClass({
             ) : null}
           {process.params.rule ? (
               <li>Related rule:
-                {process.params.rule.serverboard ? (
-                  <a onClick={() => goto(`/serverboard/${process.params.rule.serverboard}/rules/${process.params.rule.uuid}`)} style={{cursor:"pointer"}}>
+                {process.params.rule.project ? (
+                  <a onClick={() => goto(`/project/${process.params.rule.project}/rules/${process.params.rule.uuid}`)} style={{cursor:"pointer"}}>
                     <span> {process.params.rule.name || process.params.rule.trigger.trigger}</span>
                   </a>
                 ) : (

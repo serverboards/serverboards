@@ -15,7 +15,7 @@ const RelatedElement=React.createClass({
       rpc.call("rules.list", {uuid: al.slice(5)}).then( rl => {
         const rule=rl[0]
         this.setState({
-          url: `/serverboard/${rule.serverboard || "_"}/rules/${rule.uuid}`,
+          url: `/project/${rule.project || "_"}/rules/${rule.uuid}`,
           name: rule.name || (rule.trigger || {}).name || "This rule has no name",
           type: "Rule"
         })
@@ -24,17 +24,17 @@ const RelatedElement=React.createClass({
     if (al.startsWith("service/")){
       rpc.call("service.info", [al.slice(8)]).then( s => {
         this.setState({
-          url: `/serverboard/${s.serverboards.length>0 ? s.serverboards[0] : "_"}/services/${s.uuid}`,
+          url: `/project/${s.projects.length>0 ? s.projects[0] : "_"}/services/${s.uuid}`,
           name: s.name || "This service has no name",
           type: "Service"
         })
       })
     }
-    if (al.startsWith("serverboard/")){
-      const serverboard=al.slice(12)
+    if (al.startsWith("project/")){
+      const project=al.slice(12)
       this.setState({
-        url: `/serverboard/${serverboard}/`,
-        name: serverboard || "Serverboard",
+        url: `/project/${project}/`,
+        name: project || "Serverboard",
         type: "Serverboard"
       })
     }

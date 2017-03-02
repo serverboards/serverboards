@@ -14,7 +14,7 @@ const Details=React.createClass({
   propTypes:{
     location: React.PropTypes.object,
     rule: React.PropTypes.object.isRequired,
-    serverboard: React.PropTypes.string,
+    project: React.PropTypes.string,
     triggers: React.PropTypes.array.isRequired,
     services: React.PropTypes.array.isRequired,
     action_catalog: React.PropTypes.array.isRequired,
@@ -119,7 +119,7 @@ const Details=React.createClass({
       name: state.name,
       description: state.description,
       service: state.service && state.service.uuid,
-      serverboard: props.serverboard,
+      project: props.project,
       trigger: {
         trigger: state.trigger,
         params: state.trigger_config

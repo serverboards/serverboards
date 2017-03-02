@@ -4,7 +4,7 @@ defmodule ServerboardTest do
   use ExUnit.Case
   @moduletag :capture_log
 
-  doctest Serverboards.Serverboard, import: true
+  doctest Serverboards.Project, import: true
   doctest Serverboards.Service, import: true
 
   @email_type "serverboards.test.auth/email"
@@ -30,20 +30,20 @@ defmodule ServerboardTest do
   end
 
   def check_if_event_on_client(client, event, shortname) do
-    Test.Client.expect(client, [{:method, event}, {~w(params serverboard shortname), shortname}] )
+    Test.Client.expect(client, [{:method, event}, {~w(params project shortname), shortname}] )
   end
 
-  def check_if_event_on_serverboard(agent, event, shortname) do
-    check_if_event_on_serverboard(agent, event, shortname, 10)
+  def check_if_event_on_project(agent, event, shortname) do
+    check_if_event_on_project(agent, event, shortname, 10)
   end
-  def check_if_event_on_serverboard(_agent, _event, _shortname, 0), do: false
-  def check_if_event_on_serverboard(agent, event, shortname, count) do
+  def check_if_event_on_project(_agent, _event, _shortname, 0), do: false
+  def check_if_event_on_project(agent, event, shortname, count) do
     ok = Agent.get agent, fn status ->
       events =Map.get(status, event, [])
       Logger.debug("Check if #{shortname} in #{inspect events} / #{inspect count}")
       Enum.any? events, fn event ->
-        if Map.get(event.data, :serverboard) do
-          event.data.serverboard.shortname == shortname
+        if Map.get(event.data, :project) do
+          event.data.project.shortname == shortname
         else
           event.data.shortname == shortname
         end
@@ -53,12 +53,12 @@ defmodule ServerboardTest do
       ok
     else # tries several times. polling, bad, but necessary.
       :timer.sleep 100
-      check_if_event_on_serverboard(agent, event, shortname, count - 1)
+      check_if_event_on_project(agent, event, shortname, count - 1)
     end
   end
 
   test "Tags into services", %{ system: system } do
-    import Serverboards.Serverboard
+    import Serverboards.Project
     import Serverboards.Service
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
@@ -88,50 +88,50 @@ defmodule ServerboardTest do
     assert Enum.count((hd services).fields) > 0
   end
 
-  test "Update serverboard removing services", %{ system: system } do
-    import Serverboards.Serverboard
+  test "Update project removing services", %{ system: system } do
+    import Serverboards.Project
     import Serverboards.Service
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
 
     # delete all
-    serverboard_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => @email_type, "name" => "email", "config" => %{} }] }, user
-    {:ok, info} = serverboard_info "SBDS-TST10", user
+    project_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => @email_type, "name" => "email", "config" => %{} }] }, user
+    {:ok, info} = project_info "SBDS-TST10", user
     assert Enum.count(info.services) == 1
-    serverboard_update "SBDS-TST10", %{ "services" => []}, user
-    {:ok, info} = serverboard_info "SBDS-TST10", user
+    project_update "SBDS-TST10", %{ "services" => []}, user
+    {:ok, info} = project_info "SBDS-TST10", user
     assert Enum.count(info.services) == 0
 
     # add one
-    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => @email_type, "name" => "add again email", "config" => %{} }]}, user
-    {:ok, info} = serverboard_info "SBDS-TST10", user
+    project_update "SBDS-TST10", %{ "services" => [%{ "type" => @email_type, "name" => "add again email", "config" => %{} }]}, user
+    {:ok, info} = project_info "SBDS-TST10", user
     assert Enum.count(info.services) == 1
 
     # replace
-    serverboard_update "SBDS-TST10", %{ "services" => [%{ "type" => @email_type, "name" => "replace email", "config" => %{} }]}, user
-    {:ok, info} = serverboard_info "SBDS-TST10", user
+    project_update "SBDS-TST10", %{ "services" => [%{ "type" => @email_type, "name" => "replace email", "config" => %{} }]}, user
+    {:ok, info} = project_info "SBDS-TST10", user
     assert Enum.count(info.services) == 1
 
-    serverboard_delete "SBDS-TST10", user
+    project_delete "SBDS-TST10", user
   end
 
-  test "Service info has serverboards", %{ system: user } do
-    import Serverboards.Serverboard
+  test "Service info has projects", %{ system: user } do
+    import Serverboards.Project
     import Serverboards.Service
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", user)
 
-    serverboard_add "SBDS-TST11", %{ "name" => "Test 1", "services" => [%{ "type" => @email_type, "name" => "email", "config" => %{} }] }, user
+    project_add "SBDS-TST11", %{ "name" => "Test 1", "services" => [%{ "type" => @email_type, "name" => "email", "config" => %{} }] }, user
     {:ok, uuid} = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => @email_type }, user
 
     {:ok, service} = service_info uuid, user
-    assert not "SBDS-TST11" in service.serverboards
+    assert not "SBDS-TST11" in service.projects
 
     service_attach "SBDS-TST11", uuid, user
     {:ok, service} = service_info uuid, user
-    assert "SBDS-TST11" in service.serverboards
+    assert "SBDS-TST11" in service.projects
 
-    serverboard_delete "SBDS-TST11", user
+    project_delete "SBDS-TST11", user
   end
 
   test "Service RPC" do

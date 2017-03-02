@@ -9,9 +9,9 @@ const ServicesView=React.createClass({
     return (
       <div>
         {props.mode == "list" ? (
-          <ServiceTable services={props.services} serverboard={props.serverboard}/>
+          <ServiceTable services={props.services} project={props.project}/>
         ) : (
-          <ServiceCards services={props.services} serverboard={props.serverboard}/>
+          <ServiceCards services={props.services} project={props.project}/>
         )}
       </div>
     )

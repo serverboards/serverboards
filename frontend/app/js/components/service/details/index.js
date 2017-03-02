@@ -23,7 +23,7 @@ function get_plugin_component({tab, type}, props){
     return null
   let sp=tab.split('/')
   return (props) => (
-    <PluginScreen data={{service: props.service, serverboard: props.serverboard}} plugin={sp[0]} component={sp[1]}/>
+    <PluginScreen data={{service: props.service, project: props.project}} plugin={sp[0]} component={sp[1]}/>
   )
 }
 function get_external_url_component({tab, type}, props){
@@ -144,8 +144,8 @@ const Details = React.createClass({
     )
 
     let handleClose = undefined
-    if (props.serverboard)
-      handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
+    if (props.project)
+      handleClose = () => goto(`/project/${props.project.shortname}/services`)
 
     return (
       <Modal className="wide" onClose={handleClose}>

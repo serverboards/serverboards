@@ -13,7 +13,7 @@ defmodule Serverboards.Rules.RPC do
         rule = %Serverboards.Rules.Rule{
           uuid: rule["uuid"],
           is_active: Map.get(rule, "is_active", false),
-          serverboard: rule["serverboard"],
+          project: rule["project"],
           service: rule["service"],
           name: rule["name"],
           description: rule["description"],
@@ -37,13 +37,13 @@ defmodule Serverboards.Rules.RPC do
 
     add_method mc, "rules.list", fn
       [filter] ->
-        key_list = ~w(serverboard uuid service is_active)
+        key_list = ~w(project uuid service is_active)
         filter_a = Map.to_list(filter)
           |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
         Serverboards.Rules.list filter_a
       [] -> Serverboards.Rules.list
       filter ->
-        key_list = ~w(serverboard uuid service is_active)
+        key_list = ~w(project uuid service is_active)
         filter_a = Map.to_list(filter)
           |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
         Serverboards.Rules.list filter_a

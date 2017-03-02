@@ -5,8 +5,8 @@ require EventSourcing
 defmodule Serverboards.Service do
   alias Serverboards.Service.Model.Service, as: ServiceModel
   alias Serverboards.Service.Model.ServiceTag, as: ServiceTagModel
-  alias Serverboards.Serverboard.Model.Serverboard, as: ServerboardModel
-  alias Serverboards.Serverboard.Model.ServerboardService, as: ServerboardServiceModel
+  alias Serverboards.Project.Model.Project, as: ProjectModel
+  alias Serverboards.Project.Model.ProjectService, as: ProjectServiceModel
   alias Serverboards.Repo
 
   def start_link(_options) do
@@ -30,19 +30,19 @@ defmodule Serverboards.Service do
       service_delete_real(service, me)
     end
     # This attach_service is idempotent
-    subscribe es, :attach_service, fn [serverboard, service], me ->
-      service_attach_real(serverboard, service, me)
+    subscribe es, :attach_service, fn [project, service], me ->
+      service_attach_real(project, service, me)
     end
-    subscribe es, :detach_service, fn [serverboard, service], me ->
-      service_detach_real(serverboard, service, me)
+    subscribe es, :detach_service, fn [project, service], me ->
+      service_detach_real(project, service, me)
     end
     subscribe es, :update_service, fn [service, operations], me ->
       service_update_real( service, operations, me)
     end
 
-    # this is at a serverboard, not at a service, updates services into that serverboard
-    subscribe :serverboard, :update_serverboard, fn [serverboard, attributes], me ->
-      service_update_serverboard_real( serverboard, attributes, me)
+    # this is at a project, not at a service, updates services into that project
+    subscribe :project, :update_project, fn [project, attributes], me ->
+      service_update_project_real( project, attributes, me)
     end
   end
 
@@ -93,7 +93,7 @@ defmodule Serverboards.Service do
     end)
   end
 
-  def service_update_serverboard_real( serverboard, attributes, me) do
+  def service_update_project_real( project, attributes, me) do
     import Ecto.Query
 
     case attributes do
@@ -103,32 +103,32 @@ defmodule Serverboards.Service do
 
         current_uuids
           |> Enum.map(fn uuid ->
-            service_attach_real(serverboard, uuid, me)
+            service_attach_real(project, uuid, me)
           end)
 
         # now detach from non listed uuids
         Logger.info(inspect current_uuids)
         if (Enum.count current_uuids) == 0 do # remove all
           Repo.delete_all(
-            from sc in ServerboardServiceModel,
-            join: s in ServerboardModel,
-              on: s.id == sc.serverboard_id,
-           where: s.shortname == ^serverboard
+            from sc in ProjectServiceModel,
+            join: s in ProjectModel,
+              on: s.id == sc.project_id,
+           where: s.shortname == ^project
            )
         else
           # remove only not updated
           ids_to_remove = Repo.all(
-            from sc in ServerboardServiceModel,
+            from sc in ProjectServiceModel,
              join: c in ServiceModel,
                on: c.id == sc.service_id,
-             join: s in ServerboardModel,
-               on: s.id == sc.serverboard_id,
-             where: s.shortname == ^serverboard and
+             join: s in ProjectModel,
+               on: s.id == sc.project_id,
+             where: s.shortname == ^project and
                     not (c.uuid in ^current_uuids),
             select: sc.id
           )
           Repo.delete_all(
-             from sc_ in ServerboardServiceModel,
+             from sc_ in ProjectServiceModel,
             where: sc_.id in ^ids_to_remove
             )
         end
@@ -157,9 +157,9 @@ defmodule Serverboards.Service do
 
   defp service_delete_real( service, _me) do
     import Ecto.Query
-    # remove it when used inside any serverboard
+    # remove it when used inside any project
     Repo.delete_all(
-      from sc in ServerboardServiceModel,
+      from sc in ProjectServiceModel,
       join: c in ServiceModel, on: c.id == sc.service_id,
       where: c.uuid == ^service
       )
@@ -171,27 +171,27 @@ defmodule Serverboards.Service do
     end
   end
 
-  defp service_attach_real( serverboard, service, me ) do
+  defp service_attach_real( project, service, me ) do
     import Ecto.Query
     case Repo.one(
-        from sc in ServerboardServiceModel,
-          join: s in ServerboardModel,
-            on: s.id == sc.serverboard_id,
+        from sc in ProjectServiceModel,
+          join: s in ProjectModel,
+            on: s.id == sc.project_id,
           join: c in ServiceModel,
             on: c.id == sc.service_id,
-          where: s.shortname == ^serverboard and
+          where: s.shortname == ^project and
                  c.uuid == ^service,
           select: sc.id ) do
       nil ->
-        serverboard_obj = Repo.get_by(ServerboardModel, shortname: serverboard)
+        project_obj = Repo.get_by(ProjectModel, shortname: project)
         service_obj = Repo.get_by(ServiceModel, uuid: service)
-        if Enum.all?([serverboard_obj, service_obj]) do
-          {:ok, _serverboard_service} = Repo.insert( %ServerboardServiceModel{
-            serverboard_id: serverboard_obj.id,
+        if Enum.all?([project_obj, service_obj]) do
+          {:ok, _project_service} = Repo.insert( %ProjectServiceModel{
+            project_id: project_obj.id,
             service_id: service_obj.id
           } )
         else
-          Logger.warn("Trying to attach invalid serverboard or service (#{serverboard} (#{inspect serverboard_obj}), #{service} (#{inspect service_obj}))")
+          Logger.warn("Trying to attach invalid project or service (#{project} (#{inspect project_obj}), #{service} (#{inspect service_obj}))")
         end
 
         {:ok, service} = service_info service_obj.uuid, me
@@ -202,19 +202,19 @@ defmodule Serverboards.Service do
     :ok
   end
 
-  defp service_detach_real(serverboard, service, me ) do
+  defp service_detach_real(project, service, me ) do
     import Ecto.Query
 
     to_remove = Repo.all(
-      from sc in ServerboardServiceModel,
-      join: s in ServerboardModel, on: s.id == sc.serverboard_id,
+      from sc in ProjectServiceModel,
+      join: s in ProjectModel, on: s.id == sc.project_id,
       join: c in ServiceModel, on: c.id == sc.service_id,
-      where: c.uuid == ^service and s.shortname == ^serverboard,
+      where: c.uuid == ^service and s.shortname == ^project,
       select: sc.id
      )
 
     Repo.delete_all(
-      from sc_ in ServerboardServiceModel,
+      from sc_ in ProjectServiceModel,
       where: sc_.id in ^to_remove )
 
     {:ok, service} = service_info service, me
@@ -222,7 +222,7 @@ defmodule Serverboards.Service do
     :ok
   end
 
-  # Updates all services in a give serverboard, or creates them. Returns list of uuids.
+  # Updates all services in a give project, or creates them. Returns list of uuids.
   defp service_update_list_real( [], _me), do: []
   defp service_update_list_real( [ attributes | rest ], me) do
     uuid = case Map.get(attributes,"uuid",false) do
@@ -258,7 +258,7 @@ defmodule Serverboards.Service do
   end
 
   @doc ~S"""
-  Adds a service to a serverboard_shortname. Gives initial attributes.
+  Adds a service to a project_shortname. Gives initial attributes.
 
   ## Example:
 
@@ -334,10 +334,10 @@ defmodule Serverboards.Service do
             :type ->
               acc |>
                 where([c], c.type == ^v)
-            :serverboard ->
+            :project ->
               acc
-                |> join(:inner,[c], sc in ServerboardServiceModel, sc.service_id == c.id)
-                |> join(:inner,[c,sc], s in ServerboardModel, s.id == sc.serverboard_id and s.shortname == ^v)
+                |> join(:inner,[c], sc in ProjectServiceModel, sc.service_id == c.id)
+                |> join(:inner,[c,sc], s in ProjectModel, s.id == sc.project_id and s.shortname == ^v)
                 |> select([c,sc,s], c)
             :traits -> # at post process
               acc
@@ -376,10 +376,10 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = service
           |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
-          |> Map.put(:serverboards, Repo.all(
-            from s in ServerboardModel,
-            join: ss in ServerboardServiceModel,
-              on: ss.serverboard_id == s.id,
+          |> Map.put(:projects, Repo.all(
+            from s in ProjectModel,
+            join: ss in ProjectServiceModel,
+              on: ss.project_id == s.id,
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
@@ -405,7 +405,7 @@ defmodule Serverboards.Service do
           |> Map.put(:icon, service_definition.icon)
     end
 
-    service |> Map.take(~w(tags serverboards config uuid priority name type fields traits virtual description icon)a)
+    service |> Map.take(~w(tags projects config uuid priority name type fields traits virtual description icon)a)
   end
 
   @doc ~S"""
@@ -422,41 +422,41 @@ defmodule Serverboards.Service do
   end
 
   @doc ~S"""
-  Attaches existing services to a serverboard
+  Attaches existing services to a project
 
   ## Example
 
     iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
-    iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST7", %{ "name" => "serverboards" }, user
+    iex> {:ok, _project} = Serverboards.Project.project_add "SBDS-TST7", %{ "name" => "projects" }, user
     iex> :ok = service_attach "SBDS-TST7", service, user
-    iex> services = service_list [serverboard: "SBDS-TST7"]
+    iex> services = service_list [project: "SBDS-TST7"]
     iex> Enum.map(services, fn c -> c.name end )
     ["Email server"]
     iex> :ok = service_delete service, user
-    iex> services = service_list [serverboard: "SBDS-TST7"]
+    iex> services = service_list [project: "SBDS-TST7"]
     iex> Enum.map(services, fn c -> c.name end )
     []
   """
-  def service_attach(serverboard, service, me) do
-    EventSourcing.dispatch(:service, :attach_service, [serverboard, service], me.email)
+  def service_attach(project, service, me) do
+    EventSourcing.dispatch(:service, :attach_service, [project, service], me.email)
     :ok
   end
 
   @doc ~S"""
-  Detaches existing services from a serverboard
+  Detaches existing services from a project
 
   ## Example
 
     iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Email server", "type" => "email" }, user
-    iex> {:ok, _serverboard} = Serverboards.Serverboard.serverboard_add "SBDS-TST9", %{ "name" => "serverboards" }, user
+    iex> {:ok, _project} = Serverboards.Project.project_add "SBDS-TST9", %{ "name" => "projects" }, user
     iex> :ok = service_attach "SBDS-TST9", service, user
-    iex> services = service_list [serverboard: "SBDS-TST9"]
+    iex> services = service_list [project: "SBDS-TST9"]
     iex> Enum.map(services, fn c -> c.name end )
     ["Email server"]
     iex> :ok = service_detach "SBDS-TST9", service, user
-    iex> services = service_list [serverboard: "SBDS-TST9"]
+    iex> services = service_list [project: "SBDS-TST9"]
     iex> Enum.map(services, fn c -> c.name end )
     []
     iex> {:ok, info} = service_info service, user
@@ -464,13 +464,13 @@ defmodule Serverboards.Service do
     "Email server"
 
   """
-  def service_detach(serverboard, service, me) do
-    EventSourcing.dispatch(:service, :detach_service, [serverboard, service], me.email)
+  def service_detach(project, service, me) do
+    EventSourcing.dispatch(:service, :detach_service, [project, service], me.email)
     :ok
   end
 
   @doc ~S"""
-  Returns info about a given service, including tags, name, config and serverboards
+  Returns info about a given service, including tags, name, config and projects
   it is in.
 
   IT is a wrapper with {:ok, _}/{:error, :now_found} semantics that in the

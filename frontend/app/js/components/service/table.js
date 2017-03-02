@@ -18,7 +18,7 @@ export function service_definition(service_type, service_catalog){
 
 const ServiceTableLine = React.createClass({
   handleOpenDetails(){
-    goto(`/serverboard/${this.props.serverboard.shortname}/services/${this.props.service.uuid}`)
+    goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
   },
   render(){
     const props=this.props
@@ -65,7 +65,7 @@ function Table(props){
       </tr></thead>
       <tbody>
       {props.services.map((p) => (
-        <ServiceTableLine key={p.uuid} service={p} serverboard={props.serverboard} definition={service_definition(p.type, props.catalog)}/>
+        <ServiceTableLine key={p.uuid} service={p} project={props.project} definition={service_definition(p.type, props.catalog)}/>
       ))}
       </tbody>
     </table>

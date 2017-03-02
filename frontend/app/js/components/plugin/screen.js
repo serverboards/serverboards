@@ -1,6 +1,7 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
+import {merge} from 'app/utils'
 
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
@@ -43,7 +44,7 @@ const ExternalScreen = React.createClass({
         plugin_do_screen(
           `${plugin}/${component}`,
           this.refs.el,
-          props.data || this.props.location.state,
+          merge(props.data || this.props.location.state, {project: this.props.project}),
           context
         )
       ).then( (cleanupf) =>

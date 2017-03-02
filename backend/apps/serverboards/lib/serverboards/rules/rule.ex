@@ -10,7 +10,7 @@ defmodule Serverboards.Rules.Rule do
   defstruct [
     uuid: nil,
     is_active: false,
-    serverboard: nil,
+    project: nil,
     service: nil,
     name: nil,
     description: nil,

@@ -18,14 +18,14 @@ export function get_modal(name){
       return require('app/components/notifications/send').default
     case "service.action":
       return require('app/components/service/actionmodal').default
-    case "serverboard.widget.add":
-      return require('app/containers/serverboard/board/add_widget').default
-    case "serverboard.widget.edit":
-      return require('app/containers/serverboard/board/edit_widget').default
+    case "project.widget.add":
+      return require('app/containers/project/board/add_widget').default
+    case "project.widget.edit":
+      return require('app/containers/project/board/edit_widget').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default
     case "service.add":
-      return require('app/containers/serverboard/addservice').default
+      return require('app/containers/project/addservice').default
   }
 }
 

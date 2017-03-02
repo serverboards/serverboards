@@ -22,9 +22,9 @@ const Rules=React.createClass({
   },
   handleAdd(){
     if (this.state.filter)
-      goto(`/serverboard/${this.props.serverboard.shortname}/rules/add`, {trigger: this.state.filter})
+      goto(`/project/${this.props.project.shortname}/rules/add`, {trigger: this.state.filter})
     else
-      goto(`/serverboard/${this.props.serverboard.shortname}/rules/add`)
+      goto(`/project/${this.props.project.shortname}/rules/add`)
   },
   render(){
     const props=this.props

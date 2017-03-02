@@ -37,7 +37,7 @@ defmodule Serverboards.Service.RPC do
         [k,v] -> {k,v}
         {k,v} -> {k,v}
       end)
-      filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"name type serverboard traits")
+      filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"name type project traits")
       filter = if Keyword.has_key?(filter, :traits) do
         traits = case filter[:traits] do
           b when is_binary(b) -> String.split(b)
@@ -56,12 +56,12 @@ defmodule Serverboards.Service.RPC do
       service_catalog filter
     end, [required_perm: "service.info"]
 
-    RPC.MethodCaller.add_method mc, "service.attach", fn [serverboard, service], context ->
-      service_attach serverboard, service, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "service.attach", fn [project, service], context ->
+      service_attach project, service, Context.get(context, :user)
     end, [required_perm: "service.attach", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.detach", fn [serverboard, service], context ->
-      service_detach serverboard, service, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "service.detach", fn [project, service], context ->
+      service_detach project, service, Context.get(context, :user)
     end, [required_perm: "service.attach", context: true]
 
     RPC.MethodCaller.add_method mc, "service.screens", fn traits ->
