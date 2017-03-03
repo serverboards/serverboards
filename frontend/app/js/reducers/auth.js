@@ -7,6 +7,7 @@ const default_state={
   users: undefined,
   groups: undefined,
   all_perms: undefined,
+  lang: "en",
   avatar: default_avatar
 }
 
@@ -57,6 +58,9 @@ export const auth = (state = default_state , action) => {
       break;
     case 'AUTH_PROFILE_AVATAR':
       state.avatar=action.avatar
+      break;
+    case 'AUTH_SET_LANG':
+      state.lang=action.lang
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {

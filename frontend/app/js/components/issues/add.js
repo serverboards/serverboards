@@ -13,20 +13,20 @@ const Add = React.createClass({
     return (
       <Modal>
         <div className="ui top secondary menu header">
-          <h3 className="ui header">Add Issue</h3>
+          <h3 className="ui header">{i18n("Add Issue")}</h3>
         </div>
         <div className="ui container">
           <div className="ui form">
             <div className="ui field">
-              <label>Title</label>
-              <input type="text" ref="title" placeholder="Short issue description"/>
+              <label>{i18n("Title")}</label>
+              <input type="text" ref="title" placeholder={i18n("Short issue description")}/>
             </div>
             <div className="ui field">
-              <label>Description</label>
-              <textarea ref="description" placeholder="Short issue description"></textarea>
+              <label>{i18n("Description")}</label>
+              <textarea ref="description" placeholder={i18n("Short issue description")}></textarea>
             </div>
             <button className="ui button yellow" onClick={this.handleAdd}>
-            Add Issue
+            {i18n("Add Issue")}
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import event from 'app/utils/event'
+import i18n from 'app/utils/i18n'
 
 export function logout(){
   return {
@@ -34,6 +35,7 @@ export function logged_in_as(user){
         if (d.avatar)
           dispatch( user_update_avatar(d.avatar) )
       })
+      set_lang("es")(dispatch)
     }
     else{
       Flash.error("Invalid email/password")
@@ -153,6 +155,17 @@ export function perm_list(){
   return function(dispatch){
     rpc.call("perm.list", []).then((l) =>{
       dispatch({type: "AUTH_PERMS_LIST", perms: l})
+    })
+  }
+}
+
+export function set_lang(lang){
+  return function(dispatch){
+    let full_url = `/lang/${lang}.json`
+    $.get(full_url).then( (tr) => {
+      i18n.update( tr, {clear: true})
+      console.log("Updated translations, force React update. %o", require("app/app").root)
+      dispatch({type: "AUTH_SET_LANG", lang})
     })
   }
 }

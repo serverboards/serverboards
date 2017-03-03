@@ -31,7 +31,8 @@ module.exports = {
     resolve: {
       alias:{
         app : path.resolve("./app/js"),
-        sass : path.resolve("./app/sass")
+        sass : path.resolve("./app/sass"),
+        lang : path.resolve("./lang")
       }
     },
     devtool: __DEV__ ? "source-map" : "cheap-module-source-map",

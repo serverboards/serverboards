@@ -13,6 +13,7 @@ import graphs from 'app/graphs'
 import perms from 'app/utils/perms'
 import event from 'app/utils/event'
 import cache from 'app/utils/cache'
+import i18n from 'app/utils/i18n'
 require('moment-range');
 
 require("sass/serverboards.sass")
@@ -34,6 +35,7 @@ Flash.log=function(message, options={}){
 
 window.Serverboards = {
   rpc,
+  i18n,
   store,
   Flash,
   React,
@@ -54,7 +56,7 @@ window.Serverboards = {
   event
 }
 
-ReactDOM.render(
+let root = ReactDOM.render(
   (
     <Provider store={store}>
       <Main/>
@@ -62,3 +64,5 @@ ReactDOM.render(
   ),
   document.getElementById('react')
 );
+
+export { root }

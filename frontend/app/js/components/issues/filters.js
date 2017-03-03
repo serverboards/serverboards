@@ -1,6 +1,7 @@
 import React from 'react'
 import {goto} from 'app/utils/store'
 import rpc from 'app/rpc'
+import i18n from 'app/utils/i18n'
 
 const RelatedElement=React.createClass({
   getInitialState(){
@@ -77,7 +78,7 @@ const Filters=React.createClass({
           <a style={{position: "absolute", top:9, right:0, cursor: "pointer"}} onClick={this.handleOpenEditFilters}><i className="ui add yellow icon"/></a>
           <h4 className="ui header">Labels</h4>
           <div className="ui form" style={{margin: 20}} ref="add_labels">
-            <input type="text" ref="add_labels_input" placeholder="Press ENTER when finished"/>
+            <input type="text" ref="add_labels_input" placeholder={i18n("Press ENTER when finished")}/>
           </div>
           {(issue.labels || []).map( (l) => (
             <div key={l.name} style={{paddingBottom: 10}}>

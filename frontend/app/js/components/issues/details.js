@@ -5,6 +5,7 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
 import {merge, colorize, pretty_ago} from 'app/utils'
 import Avatar from 'app/containers/avatar'
+import {i18n, i18n_nop} from 'app/utils/i18n'
 
 import Filters from './filters'
 
@@ -19,12 +20,12 @@ function tag_color(status){
 const EVENT_DESC = {
   alias: {
     icon: "pin",
-    text: "created a new alias",
+    text: i18n_nop("created a new alias"),
     color: "blue"
   },
   unalias: {
     icon: "pin",
-    text: "removed an alias",
+    text: i18n_nop("removed an alias"),
     color: "orange"
   },
 }
@@ -97,7 +98,7 @@ function IssueEventUnsetLabels({event}){
 function IssueEventMisc({event, desc}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} icon={desc.icon} label={desc.text} text={event.data} color={desc.color}/>
+      <CardHeader event={event} icon={desc.icon} label={desc.text} text={i18n(event.data)} color={desc.color}/>
     </div>
   )
 }
@@ -145,7 +146,7 @@ const Details = React.createClass({
       addfuture=this.props.handleAddCommentAndReopen(comment)
     else{
       addfuture=this.props.addComment(comment)
-        .then( () => Flash.info("Added new comment") )
+        .then( () => Flash.info(i18n("Added new comment")) )
     }
     addfuture
       .then( () => { this.refs.new_comment.value="" })
@@ -167,7 +168,7 @@ const Details = React.createClass({
         <div className="ui top secondary menu">
           <h3 className="ui header">Issues</h3>
           <div className="right menu">
-            <a className="item" onClick={this.handleFocusComment}><i className="ui icon comment"/> Add comment</a>
+            <a className="item" onClick={this.handleFocusComment}><i className="ui icon comment"/> {i18n("Add comment")}</a>
           </div>
         </div>
         <div className="ui issue details">
@@ -179,7 +180,7 @@ const Details = React.createClass({
             </div>
             <div className="ui text normal regular">
               <span className={`ui tag label ${tag_color(issue.status)} big`}>{issue.status}</span>
-              <span><b>{(issue.creator || {name: "System"}).name}</b> created this issue on {issue.inserted_at}</span>
+              <span><b>{i18n("{name} created this issue on {date}", {name: issue.creator || i18n("System"), date: issue.inserted_at})}</b></span>
             </div>
           </div>
           <div className="ui divider"></div>
@@ -197,22 +198,22 @@ const Details = React.createClass({
           <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
             <div className="field">
               <label>New comment</label>
-              <textarea ref="new_comment" placeholder="Write your comment here..."></textarea>
+              <textarea ref="new_comment" placeholder={i18n("Write your comment here...")}></textarea>
             </div>
             <div className="ui inline fields form" style={{marginBottom: 30}}>
               <div className="field">
-                <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
+                <button className="ui button yellow" onClick={this.handleAddComment}>{i18n("Add comment")}</button>
               </div>
               <div className="field">
                 {issue.status == "open" ? (
                   <div className="ui checkbox close">
                     <input type="checkbox" ref="close_issue" id="close_issue"/>
-                    <label htmlFor="close_issue" style={{cursor:"pointer"}}> Close issue</label>
+                    <label htmlFor="close_issue" style={{cursor:"pointer"}}> {i18n("Close issue")}</label>
                   </div>
                 ) : (
                   <div className="ui checkbox reopen">
                     <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
-                    <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> Reopen issue</label>
+                    <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> {i18n("Reopen issue")}</label>
                   </div>
                 )}
               </div>

@@ -9,7 +9,8 @@ var Main=connect(
   (state) => {
     return {
       logged_in: state.auth.logged_in,
-      location: state.routing.locationBeforeTransitions
+      location: state.routing.locationBeforeTransitions,
+      lang: state.auth.lang
     }
   },
   (dispatch) => {
