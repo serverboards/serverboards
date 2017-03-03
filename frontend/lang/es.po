@@ -3,19 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 18:39+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2017-03-03 18:46+0100\n"
+"PO-Revision-Date: 2017-03-03 18:47+0100\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.12\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107
@@ -86,6 +86,7 @@ msgstr "Resumen de la incidencia"
 
 #: app/js/components/issues/add.js:25
 #: app/js/components/project/settings_add.js:91
+#: app/js/components/settings/plugins/details.js:120
 msgid "Description"
 msgstr "Descripción"
 
@@ -633,6 +634,7 @@ msgid "SSH `Host *` Options"
 msgstr "Opciones `Host *`"
 
 #: ../plugins/core-services/manifest.yaml
+#: app/js/components/settings/plugins/details.js:106
 msgid "URL"
 msgstr "URL"
 
@@ -1001,3 +1003,43 @@ msgstr "Texto Markdown"
 #: ../plugins/core-settings/manifest.yaml
 msgid "Base settings"
 msgstr "Configuración base"
+
+#: app/js/components/settings/plugins/card.js:37
+msgid "by"
+msgstr "por"
+
+#: app/js/components/settings/plugins/card.js:38
+msgid "version"
+msgstr "versión"
+
+#: app/js/components/settings/plugins/details.js:16
+msgid "Type:"
+msgstr "Tipo:"
+
+#: app/js/components/settings/plugins/details.js:18
+msgid "Description:"
+msgstr "Descripción:"
+
+#: app/js/components/settings/plugins/details.js:82
+msgid "Active"
+msgstr "Activo"
+
+#: app/js/components/settings/plugins/details.js:84
+msgid "Not Active"
+msgstr "No activo"
+
+#: app/js/components/settings/plugins/details.js:93
+msgid "Update now"
+msgstr "Actualizar ahora"
+
+#: app/js/components/settings/plugins/details.js:101
+msgid "Version"
+msgstr "Versión"
+
+#: app/js/components/settings/plugins/details.js:112
+msgid "Components"
+msgstr "Componentes"
+
+#: app/js/components/settings/plugins/details.js:127
+msgid "Update changelog"
+msgstr "Actualizar changelog"

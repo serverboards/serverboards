@@ -32,10 +32,10 @@ function PluginCard(props){
         )) }
       </div>
       <div className="content">
-        <ImageIcon src={icon} className="right floated" name={p.name}/>
+        <ImageIcon src={icon} className="right floated" name={i18n(p.name)}/>
         <h2 className="ui header">{i18n(p.name)}</h2>
-        <div className="ui meta bold">by {author}</div>
-        <div className="ui meta italic">version {p.version}</div>
+        <div className="ui meta bold">{i18n("by")} {author}</div>
+        <div className="ui meta italic">{i18n("version")} {p.version}</div>
 
         <div className="ui description"><MarkdownPreview value={i18n(p.description)}/></div>
       </div>
