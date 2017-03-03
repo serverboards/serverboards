@@ -38,7 +38,7 @@ function CardHeader({event, label, icon, color, text}){
       ) : (
         <span className="ui circular image small"><Avatar email={(event.creator || {}).email}/></span>
       )}
-      <b>{(event.creator || {name:"System"}).name} </b>
+      <b>{(event.creator || {name:i18n("System")}).name} </b>
       {pretty_ago(event.inserted_at)}
       <span className="ui meta"> {label}{text ? ":" : null} </span> {text}
     </div>
@@ -49,14 +49,14 @@ function IssueEventComment({event, connected}){
   if (typeof(event.data)!="string"){
     return (
       <div className={`ui red card ${ connected ? "connected" : ""}`}>
-        <CardHeader event={event} label="commented"/>
-        <div className="ui red text">Invalid event data: {JSON.stringify(event.data)}</div>
+        <CardHeader event={event} label={i18n("commented")}/>
+        <div className="ui red text">{i18n("Invalid event data: {data}", {data: JSON.stringify(event.data)})}</div>
       </div>
     )
   }
   return (
     <div className={`ui card ${ connected ? "connected" : ""}`}>
-      <CardHeader event={event} label="commented"/>
+      <CardHeader event={event} label={i18n("commented")}/>
       <MarkdownPreview value={event.data}/>
     </div>
   )
@@ -65,7 +65,7 @@ function IssueEventComment({event, connected}){
 function IssueEventChangeStatus({event}){
   return (
     <div className="ui status change">
-      <CardHeader event={event} label="changed status"/>
+      <CardHeader event={event} label={i18n("changed status")}/>
       <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
     </div>
   )
@@ -74,7 +74,7 @@ function IssueEventChangeStatus({event}){
 function IssueEventSetLabels({event}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} label="added tags"/>
+      <CardHeader event={event} label={i18n("added tags")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
           <span className={`ui text green`}>{l}&nbsp; </span>
@@ -86,7 +86,7 @@ function IssueEventSetLabels({event}){
 function IssueEventUnsetLabels({event}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} label="removed tag"/>
+      <CardHeader event={event} label={i18n("removed tag")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
           <span className={`ui text red`}>{l}</span>
@@ -98,7 +98,7 @@ function IssueEventUnsetLabels({event}){
 function IssueEventMisc({event, desc}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} icon={desc.icon} label={desc.text} text={i18n(event.data)} color={desc.color}/>
+      <CardHeader event={event} icon={desc.icon} label={i18n(desc.text)} text={i18n(event.data)} color={desc.color}/>
     </div>
   )
 }
@@ -166,7 +166,7 @@ const Details = React.createClass({
     return (
       <Modal className="wide" id="issues">
         <div className="ui top secondary menu">
-          <h3 className="ui header">Issues</h3>
+          <h3 className="ui header">{i18n("Issues")}</h3>
           <div className="right menu">
             <a className="item" onClick={this.handleFocusComment}><i className="ui icon comment"/> {i18n("Add comment")}</a>
           </div>
@@ -197,7 +197,7 @@ const Details = React.createClass({
           <div className="ui divider"></div>
           <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
             <div className="field">
-              <label>New comment</label>
+              <label>{i18n("New comment")}</label>
               <textarea ref="new_comment" placeholder={i18n("Write your comment here...")}></textarea>
             </div>
             <div className="ui inline fields form" style={{marginBottom: 30}}>

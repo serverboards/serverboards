@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 12:11+0100\n"
+"POT-Creation-Date: 2017-03-03 13:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app/js/components/issues/index.js:90
+#: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 msgid "Issues"
 msgstr "Incidencias"
 
@@ -62,3 +62,93 @@ msgstr "En el projecto"
 #: app/js/components/issues/index_filters.js:91
 msgid "All projects"
 msgstr "Todos los projectos"
+
+#: app/js/components/issues/details.js:23
+msgid "created a new alias"
+msgstr "creado nuevo alias"
+
+#: app/js/components/issues/details.js:28
+msgid "removed an alias"
+msgstr "eliminado un alias"
+
+#: app/js/components/issues/add.js:16 app/js/components/issues/add.js:29
+msgid "Add Issue"
+msgstr "Añadir incidencia"
+
+#: app/js/components/issues/add.js:21
+msgid "Title"
+msgstr "Título"
+
+#: app/js/components/issues/add.js:22 app/js/components/issues/add.js:26
+msgid "Short issue description"
+msgstr "Resumen de la incidencia"
+
+#: app/js/components/issues/add.js:25
+msgid "Description"
+msgstr "Descripción"
+
+#: app/js/components/issues/filters.js:81
+msgid "Press ENTER when finished"
+msgstr "Pulsa ENTER al finalizar"
+
+#: app/js/components/issues/details.js:149
+msgid "Added new comment"
+msgstr "Añadido nuevo comentario"
+
+#: app/js/components/issues/details.js:171
+#: app/js/components/issues/details.js:205
+msgid "Add comment"
+msgstr "Añadir comentario"
+
+#: app/js/components/issues/details.js:183
+msgid "System"
+msgstr "Sistema"
+
+#: app/js/components/issues/details.js:183
+msgid "{name} created this issue on {date}"
+msgstr "{name} creó esta incidencia el {date}"
+
+#: app/js/components/issues/details.js:201
+msgid "Write your comment here..."
+msgstr "Escriba su comentario aquí..."
+
+#: app/js/components/issues/details.js:211
+msgid "Close issue"
+msgstr "Cerrar incidencia"
+
+#: app/js/components/issues/details.js:216
+msgid "Reopen issue"
+msgstr "Reabrir incidencia"
+
+#: app/js/components/issues/filters.js:79
+msgid "Labels"
+msgstr "Etiquetas"
+
+#: app/js/components/issues/filters.js:91
+msgid "Related"
+msgstr "Relacionados"
+
+#: app/js/components/issues/details.js:53
+msgid "Invalid event data: {data}"
+msgstr "Datos de evento inválidos: {data}"
+
+#: app/js/components/issues/details.js:200
+msgid "New comment"
+msgstr "Nuevo comentario"
+
+#: app/js/components/issues/details.js:52
+#: app/js/components/issues/details.js:59
+msgid "commented"
+msgstr "comentó"
+
+#: app/js/components/issues/details.js:68
+msgid "changed status"
+msgstr "cambió el estado"
+
+#: app/js/components/issues/details.js:77
+msgid "added tags"
+msgstr "añadió etiquetas"
+
+#: app/js/components/issues/details.js:89
+msgid "removed tag"
+msgstr "eliminó una etiqueta"

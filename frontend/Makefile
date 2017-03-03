@@ -38,7 +38,7 @@ clean:
 i18n-update: JSFILES=$(shell find app -name "*.js" | grep -Ev "(test|min)" )
 i18n-update:
 	@echo -n "Updating po files..."
-	@xgettext --language=C -o lang/es.po --force-po --keyword=i18n ${JSFILES}
+	@xgettext --language=C -o lang/es.po --force-po --keyword=i18n_nop --keyword=i18n --join-existing ${JSFILES}
 	@echo " Done"
 
 i18n-compile:

@@ -76,7 +76,7 @@ const Filters=React.createClass({
       <div>
         <div style={{position: "relative"}}>
           <a style={{position: "absolute", top:9, right:0, cursor: "pointer"}} onClick={this.handleOpenEditFilters}><i className="ui add yellow icon"/></a>
-          <h4 className="ui header">Labels</h4>
+          <h4 className="ui header">{i18n("Labels")}</h4>
           <div className="ui form" style={{margin: 20}} ref="add_labels">
             <input type="text" ref="add_labels_input" placeholder={i18n("Press ENTER when finished")}/>
           </div>
@@ -88,7 +88,7 @@ const Filters=React.createClass({
         </div>
         {issue.aliases.length>0 ? (
           <div>
-            <h4 className="ui header">Related</h4>
+            <h4 className="ui header">{i18n("Related")}</h4>
               {issue.aliases.map( (a) => (
                 <RelatedElement key={a} alias={a}/>
               ))}
