@@ -2,6 +2,7 @@ import React from 'react'
 import Calendar from 'rc-calendar';
 import moment from 'moment'
 import {pretty_ago} from 'app/utils'
+import i18n from 'app/utils/i18n'
 
 require("sass/calendar.sass")
 const DATE_FORMAT="YYYY-MM-DD hh:mm"
@@ -115,11 +116,11 @@ const DatetimePicker=React.createClass({
               <button
                 className="ui button"
                 onClick={this.setToday}
-                >Set now</button>
+                >{i18n("Set now")}</button>
               <button
                 className="ui button yellow"
                 onClick={this.handleOk}
-                >Set selected</button>
+                >{i18n("Set selected")}</button>
             </div>
           </div>
         </div>

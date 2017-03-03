@@ -4,13 +4,14 @@ import rpc from 'app/rpc'
 import ScreensMenu from 'app/components/service/screensmenu'
 import {get_service_data} from 'app/components/service/utils'
 import ServerboardSelector from 'app/containers/project/projectselector'
+import i18n from 'app/utils/i18n'
 
 function ProjectHeader(props){
   return (
     <div className="ui item header">
       <div className="ui grid">
         <div className="eleven wide column">
-          <h3 className="ui header" style={{margin: 0}}>Projects <span style={{fontSize:"0.8em", color: "#acb5b5"}}>({props.projects_count})</span></h3>
+          <h3 className="ui header" style={{margin: 0}}>{i18n("Projects")} <span style={{fontSize:"0.8em", color: "#acb5b5"}}>({props.projects_count})</span></h3>
         </div>
         <div className="five wide column right aligned">
           <a onClick={props.toggleShowServerboardSelector} className="item"><i className="icons">
@@ -100,10 +101,10 @@ const SidebarSections = React.createClass({
         <div className="ui vertical menu sections">
           <div>
             <ProjectHeader {...props} toggleShowServerboardSelector={this.toggleShowServerboardSelector}/>
-            <MenuItem section="dashboard">Dashboard</MenuItem>
-            <MenuItem section="services">Services</MenuItem>
-            <MenuItem section="rules">Rules</MenuItem>
-            <MenuItem section="issues">Issues</MenuItem>
+            <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
+            <MenuItem section="services">{i18n("Services")}</MenuItem>
+            <MenuItem section="rules">{i18n("Rules")}</MenuItem>
+            <MenuItem section="issues">{i18n("Issues")}</MenuItem>
           </div>
           <ScreensMenu
             services={props.project.services}
@@ -113,7 +114,7 @@ const SidebarSections = React.createClass({
             onSectionChange={this.handleSectionChange}
             />
           <div>
-            <MenuItem section="settings">Settings</MenuItem>
+            <MenuItem section="settings">{i18n("Settings")}</MenuItem>
           </div>
 
         </div>

@@ -3,6 +3,7 @@ import plugin from 'app/utils/plugin'
 import {object_is_equal} from 'app/utils'
 import {merge} from 'app/utils'
 import Restricted from 'app/restricted'
+import i18n from 'app/utils/i18n'
 
 const Widget = React.createClass({
   umount: undefined,
@@ -19,7 +20,7 @@ const Widget = React.createClass({
     let service = this.props.services.find( (s) => s.uuid == uuid )
     //console.log("Got %o", service)
     if (!service)
-      return {uuid: uuid, error: "Not at current project, cant load full data."}
+      return {uuid: uuid, error: i18n("Not at current project, cant load full data.")}
     return service
   },
   decorate_config(config){
@@ -62,7 +63,8 @@ const Widget = React.createClass({
       () => this.do_widget(this.props)
     ).catch( (e) => {
       console.error(e)
-      $(this.refs.el).html(`<div class="ui negative message">Error loading widget ${this.props.widget}: ${String(e)}</div>`)
+      const msg = i18n("Error loading widget {widget}: {error}", {widget: this.props.widget, error: String(e)})
+      $(this.refs.el).html(`<div class="ui negative message">${msg}</div>`)
     } )
   },
   componentWillUnmount(){
