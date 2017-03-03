@@ -36,9 +36,11 @@ clean:
 	rm -rf node_modules
 
 i18n-update: JSFILES=$(shell find app -name "*.js" | grep -Ev "(test|min)" )
+i18n-update: YAMLFILES=$(shell find ../plugins -name "manifest.yaml" | grep -Ev "templates" )
 i18n-update:
 	@echo -n "Updating po files..."
 	@xgettext --language=C -o lang/es.po --force-po --keyword=i18n_nop --keyword=i18n --join-existing ${JSFILES}
+	@lang/extract-manifest-yaml-po.py ${YAMLFILES} | msgcat lang/es.po - --use-first -o lang/es.po
 	@echo " Done"
 
 i18n-compile:

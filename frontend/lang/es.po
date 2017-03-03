@@ -3,19 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 13:58+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2017-03-03 17:51+0100\n"
+"PO-Revision-Date: 2017-03-03 18:01+0100\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.12\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107
@@ -104,6 +104,7 @@ msgstr "Añadir comentario"
 
 #: app/js/components/issues/details.js:183
 #: app/js/components/issues/details.js:41
+#: app/js/components/settings/index.js:51
 msgid "System"
 msgstr "Sistema"
 
@@ -241,6 +242,7 @@ msgid "Rules"
 msgstr "Reglas"
 
 #: app/js/components/project/sidebar.js:117
+#: app/js/components/settings/index.js:39
 msgid "Settings"
 msgstr "Configuración"
 
@@ -315,3 +317,187 @@ msgstr "Actualizar proyecto"
 #: app/js/components/project/settings_add.js:98
 msgid "Create project"
 msgstr "Crear proyecto"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid "PAM Authentication"
+msgstr "Autenticación PAM"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid ""
+"Allows to access serverboards using PAM, enabling use of many technologies\n"
+"to be used for login.\n"
+"\n"
+"Users try to log in the `serverboards` service.\n"
+"\n"
+"When new users try to login and they do not exist a proper user is created\n"
+"with the user name.\n"
+"\n"
+"If any of the groups of the user matches the name of a group in "
+"Serverboards,\n"
+"it is added to such group. This is checked and modified on every login.\n"
+"\n"
+"If any group starts with `serverboards-`, it will be added as well, without\n"
+"the initial `serverboards-`. For example `serverboards-admin` will be added "
+"as\n"
+"`admin`.\n"
+msgstr ""
+"Permite acceder a Serverboards usando PAM, habilitando el uso de multiples "
+"tecnologías\n"
+"para realizar el login.\n"
+"\n"
+"Cuando los usuario sintentan entrar en serverboards, se intentará también "
+"acceder al\n"
+"usuario local con el nombre de usuario y clave adecuado.\n"
+"\n"
+"Si consigue acceder, y alguno de los grupos a los que pertenece el usuario "
+"existe en \n"
+"Serverboards, el usuario usará dicho grupo, por ejemplo 'admin'. Esto se "
+"comprueba y \n"
+"verifica en cada login.\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid ""
+"Shows at serverboards setting oerview whether serverboards needs an update,\n"
+"and allows to trigger the update of the system.\n"
+msgstr ""
+"Muestra en la vista general de configuración de Serverborads si este "
+"necesita actualizarse,\n"
+"y permite lanzar la actualización del sistema.\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Serverboards Update Checker"
+msgstr "Comprobador de actualizaciones de Serverboards"
+
+#: ../plugins/__optional-quick-actions/manifest.yaml
+#: ../plugins/optional-quickactions/manifest.yaml
+#: ../plugins/__optional-quick-actions2/manifest.yaml
+msgid "Quick Actions"
+msgstr "Acciones rápidas"
+
+#: ../plugins/__optional-quick-actions/manifest.yaml
+#: ../plugins/optional-quickactions/manifest.yaml
+#: ../plugins/__optional-quick-actions2/manifest.yaml
+msgid ""
+"Allows to create new actions that are just actions prefilled with some "
+"data.\n"
+"\n"
+"This is useful for fast access to common actions\n"
+msgstr ""
+"Permite crear nuevas acciones predefinidas con algún dato.\n"
+"\n"
+"Esto es muy útil para acceder rapidamente a acciones comunes.\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"Performs core operations needed for SSH connectivity to hosts.\n"
+"This may be used by other plugins to achieve their own goals.\n"
+msgstr ""
+"Ejecuta las acciones básicas necesarias para la conectividad SSH a los "
+"hosts.\n"
+"Esto puede ser usado por otros plugins para alcanzar sus propios objetivos.\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Core SSH support"
+msgstr "Soporte Core SSH"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Definition of core services and fields to store in them.\n"
+"This is just the list of available core services; other plugins add the "
+"required functionalities.\n"
+msgstr ""
+"Definición de los servicios core básicos y campos para definirlos.\n"
+"Esta es simplemente una lista de estos servicios; otros plugins añaden las "
+"funcionalidades necesarias.\n"
+
+#: ../plugins/core-services/manifest.yaml
+#: ../plugins/core-notifications/manifest.yaml
+msgid "core services"
+msgstr "Servicios Core"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Various core triggers.\n"
+msgstr "Disparadores Core\n"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Core Triggers"
+msgstr "Disparadores Core"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid ""
+"Definition of core notification subsystem. Includes global config, user "
+"notification channel config, and delivery subsystem.\n"
+msgstr ""
+"Definición del susistema Core de notificaciones. Incluye la configuración "
+"global, de canales de comunicación, y subsistema de entrega.\n"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Definition an basic ussage of cloud services.\n"
+msgstr "Definición y uso básico de servicios en la nube (Cloud)\n"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Core cloud services"
+msgstr "Servicios Cloud Core"
+
+#: ../plugins/htpasswd-auth/manifest.yaml
+msgid ""
+"Allows to log in using a htpasswd-like file. Have the file at $INSTALLPATH/"
+"auth/htpasswd file.\n"
+"User can create new users executing manually the `./htpasswd-auth.py --set "
+"[email]`\n"
+"With the proper SERVERBOARDS_PATH environment variable.\n"
+msgstr ""
+"Permite acceder usando un archivo tipo htpasswd. Debe estar en $INSTALLPATH/"
+"auth/htpasswd.\n"
+"El usuario puede crear nuevos usuario ejecutando `./htpasswd-auth.py --set "
+"[email]`\n"
+"Con la variable de entorno `SERVERBOARDS_PATH` correctamente configurada.\n"
+
+#: ../plugins/htpasswd-auth/manifest.yaml
+msgid "htpasswd"
+msgstr "htpasswd"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Various core widgets.\n"
+msgstr "Widgets Core\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Core Widgets"
+msgstr "Widget Core"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "core settings"
+msgstr "Configuración Core"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Various core actions.\n"
+msgstr "Acciones Core\n"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Core actions"
+msgstr "Acciones Core"
+
+#: app/js/components/settings/index.js:40
+msgid "Overview"
+msgstr "Vista general"
+
+#: app/js/components/settings/index.js:42
+msgid "Users"
+msgstr "Usuarios"
+
+#: app/js/components/settings/index.js:45
+msgid "Groups and permissions"
+msgstr "Grupos y permisos"
+
+#: app/js/components/settings/index.js:48
+msgid "Plugins"
+msgstr "Plugins"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid ""
+"Definition of core settings and fields to store in them.\n"
+"Core settings define minimal settings required for Serverboards to work.\n"
+msgstr ""
+"Definición de la configuración básica del sistema y los campos a guardar.\n"
+"La configuración básica (core) indica las configuraciones mínimas que\n"
+"necesita Serverboards para funcionar\n"

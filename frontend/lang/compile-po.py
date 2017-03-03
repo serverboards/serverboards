@@ -10,9 +10,6 @@ if len(sys.argv)!=3:
     sys.exit(1)
 
 data = {}
-last_orig=None
-last_trans=None
-fd = open(sys.argv[1])
 nline=0
 error=False
 missing=0
@@ -28,7 +25,7 @@ def get_str(l):
                 state=1
         elif state==1:
             if c=='"':
-                return s
+                return s.replace("\\n", "\n")
             else:
                 s+=c
     if state==0:
@@ -40,27 +37,41 @@ def get_str(l):
     return ""
 
 
-try:
-    while True:
-        l = next(fd)
+def parse_file(fd):
+    global nline
+    last_orig=None
+    last_trans=None
+
+    state=0 # none, at msgid
+    for l in fd:
         nline+=1
-        if l.startswith("msgid"):
-            s=get_str(l)
-            #print("Set msgid: %s"%s)
-            last_orig=s
-        if l.startswith("msgstr"):
-            s=get_str(l)
-            #print("Set trans: %s"%s)
-            last_trans=s
-            if last_orig and last_trans:
-                data[last_orig]=last_trans
-            elif last_orig or last_trans: # ignore full empty (shoud be only one (as coalesced), but not always)
-                missing+=1
-except StopIteration:
-    pass
+        if state==0:
+            if l.startswith("msgid"): # as initial state is 0, get first msgid
+                last_orig=get_str(l)
+            elif l.startswith('"'):
+                last_orig+=get_str(l)
+            elif l.startswith("msgstr"):
+                last_trans=get_str(l)
+                state=1
+        elif state==1:
+            if l.startswith('"'):
+                last_trans+=get_str(l)
+            elif l.startswith("msgid"):
+                store_data(last_orig, last_trans)
+                last_orig=get_str(l)
+                state=0
+    store_data(last_orig, last_trans)
 
+def store_data(orig, trans):
+    global missing
+    if orig and trans:
+        data[orig]=trans
+    else:
+        missing+=1
 
-open(sys.argv[2],"w+").write( json.dumps(data) )
+parse_file(open(sys.argv[1]))
+
+open(sys.argv[2],"w+").write( json.dumps(data, indent=2) )
 print("%d translations, %d missing translations"%(len(data), missing))
 if error:
     print("There were errors when compiling the translation file")
