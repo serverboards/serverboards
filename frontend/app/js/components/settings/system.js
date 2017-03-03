@@ -7,12 +7,13 @@ import {MarkdownPreview} from 'react-marked-markdown';
 import Restricted from 'app/restricted'
 import store from 'app/utils/store'
 import {settings_all} from 'app/actions/settings'
+import i18n from 'app/utils/i18n'
 
 function Section(props){
   return (
     <section key={props.id}>
-      <h2 className="ui header">{props.name}</h2>
-      <div className="ui description"><MarkdownPreview value={props.description}/></div>
+      <h2 className="ui header">{i18n(props.name)}</h2>
+      <div className="ui description"><MarkdownPreview value={i18n(props.description)}/></div>
       <GenericForm fields={props.fields} onSubmit={(ev) => ev.preventDefault() }/>
     </section>
   )
@@ -24,7 +25,6 @@ let System=React.createClass({
     var all_updates=[]
     for(let section of this.props.settings){
       section=section.id
-      console.log(section)
       let data={}
       let $form=$(this.refs[section]).find('form')
       $form.serializeArray().map( ({name, value}) => {
@@ -42,7 +42,7 @@ let System=React.createClass({
     let props=this.props
     if (!props.settings)
       return (
-        <Loading>Loading settings</Loading>
+        <Loading>{i18n("Loading settings")}</Loading>
       )
 
     return (
@@ -64,7 +64,7 @@ let System=React.createClass({
                 className="ui button approve floating right yellow"
                 onClick={this.handleSubmit}
                 >
-              Save all changes
+              {i18n("Save all changes")}
             </button>
           </Restricted>
         </div>

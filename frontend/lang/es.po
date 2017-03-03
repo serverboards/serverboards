@@ -3,19 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 17:51+0100\n"
-"PO-Revision-Date: 2017-03-03 18:01+0100\n"
-"Language: es\n"
+"POT-Creation-Date: 2017-03-03 18:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"X-Generator: Poedit 1.8.12\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107
@@ -501,3 +501,503 @@ msgstr ""
 "Definición de la configuración básica del sistema y los campos a guardar.\n"
 "La configuración básica (core) indica las configuraciones mínimas que\n"
 "necesita Serverboards para funcionar\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "{{latest_version.version}}"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"This settings will be applied to all SSH connections. Please check the\n"
+"[ssh documentation](https://linux.die.net/man/5/ssh_config) for all\n"
+"options.\n"
+"\n"
+"Enter one option per line.\n"
+msgstr ""
+"Esta configuración será usada en todas las conexiones SSH. Por favor "
+"consulta en\n"
+"la [documentación de SSH](https://linux.die.net/man/5/ssh_config) para\n"
+"ver todas las opciones.\n"
+"\n"
+"Escriba una opción por linea.\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"To connect via SSH please ensure that the following SSH public key is\n"
+"added to your servers `~/.ssh/authorized_keys`:\n"
+"\n"
+"**SSH Public Key:**\n"
+"\n"
+"```\n"
+"{{ssh_key}}\n"
+"```\n"
+msgstr ""
+"Para conectarse por SSH por favor asegurese de que la siguiente clave SSH\n"
+"publica esté añadida al archivo `~/.ssh/authorized_keys` en sus servidores:\n"
+"\n"
+"**Clave pública SSH:**\n"
+"\n"
+"```\n"
+"{{ssh_key}}\n"
+"```\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"The remote fingerprints are:\n"
+"\n"
+"```\n"
+"{{status.fingerprint}}\n"
+"```\n"
+"Click on \"Enable host\" to add to your known_hosts. This is required to "
+"access this server.\n"
+msgstr ""
+"Los fingerprints remotos son:\n"
+"\n"
+"```\n"
+"{{status.fingerprint}}\n"
+"```\n"
+"Si es correcto pulse en \"Activar host\" para añadirlo a su known_hosts. "
+"Esto es requerido para acceder al servidor.\n"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Space or comma separated list of ip addresses and DNS names that point to "
+"this server"
+msgstr ""
+"Lista de direcciones IP o DNSs separados por comas o espacios que apuntan a "
+"este servidor"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "IP address or DNS name of the SMTP Server"
+msgstr "Dirección IP o nombre DNS del servidor SMTP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Port of communication"
+msgstr "Puerto de comunicación"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Username if required of the SMTP Server"
+msgstr "Nombre de usuario si lo requiere el servidor SMTP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Password if required to use the SMTP Server"
+msgstr "Clave si la requiere el servidor SMTP"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Connection UUID"
+msgstr "UUID de la conexión"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Node UUID"
+msgstr "Nodo UUID"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid ""
+"Create new tokens at the [API page](https://cloud.digitalocean.com/settings/"
+"api/tokens) at [Digital Ocean](https://digitalocean.com)."
+msgstr ""
+"Puede crear nuevos tokens en la [Paǵina de API](https://cloud.digitalocean."
+"com/settings/api/tokens) en [Digital Ocean](https://digitalocean.com)."
+
+#: ../plugins/core-settings/manifest.yaml
+msgid ""
+"This settings is used for remote services to connect to self,\n"
+"for example on Oauth2 auth flows.\n"
+msgstr ""
+"Esta configuración se usa en los servidores remotos para conectarse a este "
+"servidor,\n"
+"por ejemplo en los flujos de autenticación Oauth2.\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Latest version available"
+msgstr "Última versión disponible"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Address"
+msgstr "Dirección SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH `Host` Options"
+msgstr "Opciones `Host`"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Public Key"
+msgstr "Clave pública SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Remote SSH Fingerprint"
+msgstr "Fingerprint remoto"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH `Host *` Options"
+msgstr "Opciones `Host *`"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "URL"
+msgstr "URL"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SMTP Server Address"
+msgstr "Dirección del servidor SMTP"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SMTP Username"
+msgstr "Nombre de usuario SMTP"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SMTP Password"
+msgstr "Clave SMTP"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "IP Addresses"
+msgstr "Dirección IP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "SMTP Server"
+msgstr "Servidor SMTP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Port"
+msgstr "Puerto"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email from"
+msgstr "Dirección email de origen"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Password"
+msgstr "Contraseña"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email address"
+msgstr "Dirección Email"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Remote Server Address"
+msgstr "Dirección del servidor remoto"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Access Token"
+msgstr "Token de acceso"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Text in markdown"
+msgstr "Texto en markdown"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "Base URL"
+msgstr "URL Base"
+
+#: app/js/components/settings/system.js:45
+msgid "Loading settings"
+msgstr "Cargando configuración"
+
+#: app/js/components/settings/system.js:67
+msgid "Save all changes"
+msgstr "Guardar todos los cambios"
+
+#: app/js/components/genericform/genericbutton.js:36
+#: app/js/components/genericform/richdescription.js:34
+msgid "Error loading dynamic data. Contact plugin author."
+msgstr "Error cargando los datos dinámicos. Contactar con el autor del plugin."
+
+#: app/js/components/genericform/genericbutton.js:53
+#: app/js/components/genericform/richdescription.js:38
+msgid "Error loading dynamic data. Contact plugin author. [Error #{code}]"
+msgstr ""
+"Error cargando los datos dinamicos. Contacte con el autor del plugin [Error "
+"#{code}]"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid "PAM Authenticator Daemon"
+msgstr "Demonio de autenticación PAM"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid "PAM Auth"
+msgstr "Autenticación PAM"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Update"
+msgstr "Actualizar"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Updater"
+msgstr "Actualizador"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Access via SSH to any server"
+msgstr "Accede usando SSH a cualquier servidor"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH access"
+msgstr "Acceso SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Screen on which to view known peers"
+msgstr "Pantalla en la que ver los peers conocidos"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Management"
+msgstr "Gestión de SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Can access via SSH to server"
+msgstr "Puede acceder via SSH al servidor"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Terminal"
+msgstr "Terminal SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Execute SSH Command"
+msgstr "Ejecute un comando SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"Executes a remote command. It is recommended that the key exchange is "
+"configured prior, so no ssh passwords are stored on the database."
+msgstr ""
+"Ejecuta un comando remoto. Se recomienda que el intercambio de claves sea "
+"configurado previamente, de modo que no se almacenen claves SSH en la base "
+"de datos."
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH daemon"
+msgstr "Demonio SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "General SSH Settings"
+msgstr "Configuración SSH General"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Web Server"
+msgstr "Servidor Web"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Email Account"
+msgstr "Cuenta de Email"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Server"
+msgstr "Servidor"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Various tests and checks on the web site performance as seen by Google.\n"
+msgstr ""
+"Varios tests y comprobaciones sobre el rendimiento del sitio web tal y como "
+"lo ve Google.\n"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Google PageSpeed"
+msgstr "Google PageSpeed"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Check the SSL quality of a given web page."
+msgstr "Comprueba la calidad SSL de una página Web dada."
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SSL Labs"
+msgstr "SSL Labs"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Opens the URL page in a tab"
+msgstr "Abre la URL en un tab"
+
+#: ../plugins/optional-quickactions/manifest.yaml
+msgid "Quick Action"
+msgstr "Acción rápida"
+
+#: ../plugins/optional-quickactions/manifest.yaml
+msgid "Action executor and store"
+msgstr "Ejecutor y almacen de acciones"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Server is running / Ping"
+msgstr "El servidor está en ejecución / Ping"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "HTTP Response time limit"
+msgstr "Tiempo límite de respuesta HTTP"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Socket is receiving connections"
+msgstr "El socket recibe conexiones"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Periodic trigger"
+msgstr "Lanzador periodico"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Service tags changed"
+msgstr "Los tags del servicio han cambiado"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Triggers when a specific tag appears or disappears from service tags, as UP "
+"or DOWN"
+msgstr ""
+"Lanzador cuando un tag específico aparece o desaparece del listado de tags "
+"del servicio, por ejemplo UP o DOWN"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Checks every 5m/ 10m grace if the server socket is up, and sets labels "
+"according to changes."
+msgstr ""
+"Comprueba cada 5m/10m de gracia si el socket del servidor esta levantado, y "
+"cambia las etiquetas según corresponda."
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Server socket is up"
+msgstr "El socket esta activo"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Monitors server tags to know when a server is DOWN or UP and notifies all "
+"users"
+msgstr ""
+"Monitoriza los tags del servicio para saber si un servidor esta DOWN o UP, y "
+"notifica a todos los usuarios"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Open issue if down"
+msgstr "Abrir incidencia si esta DOWN"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Core triggers daemon"
+msgstr "Demonio Core de lanzadores"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid ""
+"SMTP Server setting used by the system to communicate with users via email."
+msgstr ""
+"Configuracón SMTP usada por el sistema para comunicarse con los usuarios via "
+"email."
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email settings"
+msgstr "Configuración Email"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email notifications"
+msgstr "Notificaciones por Email"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Cloud services daemon"
+msgstr "Demonio de servicios Cloud"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid ""
+"A node in a cloud service, as an AWS instance or libvirt virtual machine."
+msgstr ""
+"Un nodo en un servicio Cloud, como una instancia AWS o una máquina virtual "
+"libvirt."
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Cloud node"
+msgstr "Nodo Cloud"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Libvirt"
+msgstr "Libvirt"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Management of [libvirt](https://libvirt.org) based clouds."
+msgstr "Gestión de cloud basada en [libvirt](https://libvirt.org)"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Digital Ocean"
+msgstr "Digital Ocean"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Management of [Digital Ocean](https://digitalocean.com) clouds."
+msgstr "Gestión de Cloud basada en [Digital Ocean](https://digitalocean.com)"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "List nodes"
+msgstr "Lista de nodos"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Start node"
+msgstr "Iniciar nodo"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Shutdown node"
+msgstr "Apagar nodo"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Force stop node"
+msgstr "Forzar apagado"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Reboot node"
+msgstr "Reiniciar nodo"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Ping server"
+msgstr "Ping al servidor"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Webhook call"
+msgstr "Llamada webhook"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Service tag change"
+msgstr "Cambio de tabs del servicio"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Send notification"
+msgstr "Enviar notificación"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue Open"
+msgstr "Abrir Inicidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue Close"
+msgstr "Cerrar incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Notify all users"
+msgstr "Notificar a todos los usuarios"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Open issue"
+msgstr "Abrir incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Mark service up/down"
+msgstr "Marcar servicio UP/DOWN"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Core actions."
+msgstr "Acciones core"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Core widgets daemon"
+msgstr "Demonio de widgets core"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Simple clock with local time"
+msgstr "Reloj simple con hora local"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Clock"
+msgstr "Reloj"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "A simple markdown text to write notes"
+msgstr "Un texto simple Markdown para escribir notas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Markdown text"
+msgstr "Texto Markdown"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "Base settings"
+msgstr "Configuración base"

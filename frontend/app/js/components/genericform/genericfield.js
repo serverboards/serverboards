@@ -4,6 +4,7 @@ import SelectService from './selectservice'
 import SelectCall from './selectcall'
 import RichDescription from './richdescription'
 import GenericButton from './genericbutton'
+import i18n from 'app/utils/i18n'
 
 const GenericField=React.createClass({
   getInitialState(){
@@ -49,11 +50,11 @@ const GenericField=React.createClass({
       case 'text':
         return (
           <div className="field">
-            <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <label>{i18n(props.label)}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="text"
               name={props.name}
-              placeholder={props.placeholder || props.description}
+              placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
               onChange={this.handleChange}/>
           </div>
@@ -61,11 +62,11 @@ const GenericField=React.createClass({
       case 'url':
         return (
           <div className="field">
-            <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <label>{i18n(props.label)}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="url"
               name={props.name}
-              placeholder={props.placeholder || props.description}
+              placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
               onChange={this.handleChange}/>
           </div>
@@ -73,11 +74,11 @@ const GenericField=React.createClass({
       case 'textarea':
         return (
           <div className="field">
-            <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <label>{i18n(props.label)}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <textarea
               name={props.name}
-              placeholder={props.placeholder || props.description}
+              placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
               onChange={this.handleChange}/>
           </div>
@@ -85,11 +86,11 @@ const GenericField=React.createClass({
       case 'password':
         return (
           <div className="field">
-            <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+            <label>{i18n(props.label)}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="password"
               name={props.name}
-              placeholder={props.placeholder || props.description}
+              placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
               onChange={this.handleChange}/>
           </div>
@@ -97,8 +98,8 @@ const GenericField=React.createClass({
       case 'description':
         return (
           <div className="field">
-            <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars} form_data={props.form_data}/>
+            <label>{i18n(props.label)}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
           </div>
         )
       case 'hidden':
@@ -108,8 +109,8 @@ const GenericField=React.createClass({
       case 'select':
         return (
           <div className="field">
-            <label>{props.label}</label>
-            <RichDescription className="ui meta" value={props.description} vars={props.vars} form_data={props.form_data}/>
+            <label>{i18n(props.label)}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
             <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
               {props.options.map((o) => (
                 <option value={o.value}>{o.label || o.name}</option>
