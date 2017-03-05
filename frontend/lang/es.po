@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-05 12:08+0100\n"
-"PO-Revision-Date: 2017-03-05 12:12+0100\n"
+"POT-Creation-Date: 2017-03-05 12:31+0100\n"
+"PO-Revision-Date: 2017-03-05 12:37+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -90,7 +90,7 @@ msgstr "Resumen de la incidencia"
 #: app/js/components/service/settings.js:179
 #: app/js/components/service/details/detailstab.js:21
 #: app/js/components/service/details/detailstab.js:36
-#: app/js/components/service/table.js:65
+#: app/js/components/service/table.js:65 app/js/components/rules/edit.js:171
 msgid "Description"
 msgstr "Descripción"
 
@@ -242,7 +242,7 @@ msgstr "Proyectos"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: app/js/components/project/sidebar.js:106
+#: app/js/components/project/sidebar.js:106 app/js/components/rules/index.js:46
 msgid "Rules"
 msgstr "Reglas"
 
@@ -1106,7 +1106,7 @@ msgstr "Mantén pulsado para activar"
 #: app/js/components/settings/users.js:92
 #: app/js/components/settings/user/add.js:39
 #: app/js/components/service/settings.js:169
-#: app/js/components/service/table.js:65
+#: app/js/components/service/table.js:65 app/js/components/rules/edit.js:167
 msgid "Name"
 msgstr "Nombre"
 
@@ -1179,10 +1179,12 @@ msgid "Add user"
 msgstr "Añadir usuario"
 
 #: app/js/components/settings/plugins/card.js:10
+#: app/js/components/rules/edit.js:151
 msgid "Disabled"
 msgstr "Desactivado"
 
 #: app/js/components/settings/plugins/card.js:11
+#: app/js/components/rules/edit.js:151
 msgid "Enabled"
 msgstr "Activo"
 
@@ -1306,3 +1308,232 @@ msgstr "Estado"
 #: app/js/components/service/table.js:65
 msgid "Actions"
 msgstr "Acciones"
+
+#: app/js/components/rules/rules.js:56
+msgid "Filter by trigger type"
+msgstr "Filtrar por tipo de disparador"
+
+#: app/js/components/rules/rules.js:58
+msgid "Show all"
+msgstr "Mostrar todos"
+
+#: app/js/components/rules/rule.js:80
+msgid "Pending trigger"
+msgstr "Disparador pendiente"
+
+#: app/js/components/rules/rule.js:82
+msgid "OFF"
+msgstr "OFF"
+
+#: app/js/components/rules/rule.js:92 app/js/components/rules/edit.js:183
+msgid "Trigger"
+msgstr "Disparador"
+
+#: app/js/components/rules/rule.js:97
+msgid "No actions defined"
+msgstr "No hay acciones definidas"
+
+#: app/js/components/rules/rule.js:110
+msgid "Edit rule"
+msgstr "Editar regla"
+
+#: app/js/components/rules/actionedit.js:54
+msgid "Action"
+msgstr "Acción"
+
+#: app/js/components/rules/actionedit.js:58
+msgid "Select action"
+msgstr "Seleccione acción"
+
+#: app/js/components/rules/actionedit.js:60
+msgid "Do nothing"
+msgstr "No hacer nada"
+
+#: app/js/components/rules/triggerselect.js:38
+msgid "Select trigger"
+msgstr "Seleccione disparador"
+
+#: app/js/components/rules/edit.js:175
+msgid "Service"
+msgstr "Servicio"
+
+#: app/js/components/rules/edit.js:201
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+#: app/js/components/rules/selectservice.js:33
+msgid "Select service"
+msgstr "Seleccionar servicio"
+
+#: app/js/components/rules/selectservice.js:35
+msgid "No service"
+msgstr "No hay servicio seleccionado"
+
+#: app/js/components/rules/ruleactions.js:46
+msgid "Select a preset"
+msgstr "Seleccione un preset"
+
+#: app/js/components/rules/ruleactions.js:81
+msgid "Custom actions"
+msgstr "Acciones personalizadas"
+
+#: app/js/components/rules/ruleactions.js:87
+msgid "Preset actions"
+msgstr "Acciones del preset"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Connection url"
+msgstr "URL de conexión"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Connection options"
+msgstr "Opciones de conexión SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Command to execute"
+msgstr "Comando a ejecutar"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Non blocking command to execute"
+msgstr "Comando no bloqueante a ejecutar"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Remote IP address or DNS name"
+msgstr "Dirección IP o nombre DNS remoto"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Check frequency"
+msgstr "Frecuencia de comprobación"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Time between checks in seconds"
+msgstr "Tiempo entre comprobaciones en segundos"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Grace period"
+msgstr "Periodo de gracia"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Seconds that connectivity can be lost without triggering"
+msgstr "Segundos en los que se puede perder la conectividad sin disparar"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Remote URL"
+msgstr "URL remota"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Maximum response time (s)"
+msgstr "Tiempo máximo de respuesta (s)"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Trigger if response time is greater than the given value in seconds for "
+"longer that grace period."
+msgstr ""
+"Disparar si el tiempo de respuesta es superior que el valor dado en segundos "
+"por más tiempo que el tiempo de gracia."
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Check frequency (s)"
+msgstr "Frecuencuia de comprobación (s)"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Grace period (s)"
+msgstr "Periodo de gracia (s)"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Full URL of the resource"
+msgstr "URL completa del recurso"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Trigger every"
+msgstr "Disparar cada"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Write human time description: 1d, 12h, 30m, 10s"
+msgstr "Escriba una descripción humana: 1d, 12h, 30m, 10s "
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Service to watch"
+msgstr "Servicio a observar"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Label"
+msgstr "Etiqueta"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "{{rule.description}}"
+msgstr "{{rule.description}}"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Tags to set."
+msgstr "Etiquetas a poner."
+
+#: ../plugins/core-actions/manifest.yaml
+msgid ""
+"Space separated list of tags to add. It can start with a dash to remove the "
+"label (-label)."
+msgstr ""
+"Lista de etiquetas separadas por espacios. Puede empezar con un guion para "
+"eliminar la etiqueta (-etiqueta)."
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "User email or @group"
+msgstr "Email de usuario o @group"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Subject"
+msgstr "Título"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid ""
+"Opens a new issue with the given parameters.\n"
+"\n"
+"Depending on where the action is invoked it may use one or several\n"
+"placeholders with context sensitive data, as rule name, id, description,\n"
+"related service and so on.\n"
+"\n"
+"Check at [Serverboards documentation](https://serverboards.io/docs/"
+"templating#issue-open).\n"
+msgstr ""
+"Abre una nueva incidencia con los parametros indicados.\n"
+"\n"
+"Dependiendo de donde sea invocada la acción se pueden usar uno\n"
+"o varios placeholders con datos dependientes del contexto, como el nombre\n"
+"de la regla, id, descripción, servicio relaciona y así.\n"
+"\n"
+"Coimpruebe en la [documentación de Serverboards](https://serverboards.io/"
+"docs/templating#issue-open).\n"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue title"
+msgstr "Título de la incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue description"
+msgstr "Descripción de la incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue aliases"
+msgstr "Alias de la incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid ""
+"Issue may be referenced by this alias. Useful to allow closing issue\n"
+"using the rule.id, or any other identifier for the problem.\n"
+"\n"
+"Aliases are separated by spaces.\n"
+msgstr ""
+"Las incidencias pueden ser referenciadas por medio de alias. Esto es útil "
+"para permitir cerrar incidencias usando el id de la regla, o cualquier otro "
+"identificador único del problema.\n"
+"\n"
+"Los alias se pueden separar por espacios.\n"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue id or alias"
+msgstr "Id de usuario o alias"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue comment"
+msgstr "Comentar una incidencia"

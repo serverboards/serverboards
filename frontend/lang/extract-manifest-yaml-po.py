@@ -27,7 +27,7 @@ def extract_texts(d, context, filename):
                     print("msgstr \"\"")
                     print("")
                     known_texts.add(v)
-        if type(v) == object:
+        if type(v) == dict:
             extract_texts(v, k, filename)
         if type(v) == list:
             for i in v:

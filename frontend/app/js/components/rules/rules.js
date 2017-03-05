@@ -1,6 +1,7 @@
 import React from 'react'
 import Rule from './rule'
 import {goto} from 'app/utils/store'
+import {i18n} from 'app/utils/i18n'
 
 require('sass/rules.sass')
 
@@ -48,13 +49,13 @@ const Rules=React.createClass({
       <div>
         <div className="ui top secondary header menu">
           <h3 className="ui header">
-            Rules
+            {i18n("Rules")}
           </h3>
           <div className="right menu">
             <div className="ui inline form fields">
-              <label>Filter by trigger type: </label>
+              <label>{i18n("Filter by trigger type")}: </label>
               <select ref="filter" className="ui search dropdown">
-                <option value="all">Show all</option>
+                <option value="all">{i18n("Show all")}</option>
                 {trigger_catalog_in_use.map( (t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}

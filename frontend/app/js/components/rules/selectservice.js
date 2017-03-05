@@ -1,4 +1,5 @@
 import React from 'react'
+import {i18n} from 'app/utils/i18n'
 
 const SelectService=React.createClass({
   propTypes:{
@@ -29,12 +30,12 @@ const SelectService=React.createClass({
       <div ref="service" className="ui fluid search normal selection dropdown">
         <input type="hidden" defaultValue={defaultValue && defaultValue.uuid} name="service"/>
         <i className="dropdown icon"></i>
-        <div className="default text">Select service.</div>
+        <div className="default text">{i18n("Select service")}</div>
         <div className="menu">
-          <div className="item" data-value="">No service</div>
+          <div className="item" data-value="">{i18n("No service")}</div>
           {services.map( (sv) => (
             <div key={sv.uuid} className="item" data-value={sv.uuid}>
-              {sv.name}
+              {i18n(sv.name)}
               <span style={{float: "right", paddingLeft: 10, fontStyle: "italic", color: "#aaa"}}>
                 {Object.keys(sv.config).map((k) => sv.config[k]).join(', ')}
               </span>

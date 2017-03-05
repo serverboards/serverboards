@@ -1,6 +1,7 @@
 import React from 'react'
 import ActionEdit from './actionedit'
 import rpc from 'app/rpc'
+import {i18n} from 'app/utils/i18n'
 
 const PresetActions=React.createClass({
   getInitialState(){
@@ -42,7 +43,7 @@ const PresetActions=React.createClass({
     return (
       <div className="ui field">
         <select ref="dropdown" className="ui dropdown search">
-          <option value="">Select a preset</option>
+          <option value="">{i18n("Select a preset")}</option>
           {this.state.presets.map( (p) => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
@@ -77,13 +78,13 @@ const RuleActions=React.createClass({
             <div className="field">
               <div className="ui radio checkbox">
                 <input type="radio" name="custom_or_preset" value="custom" defaultChecked="on" className="hidden"/>
-                <label>Custom actions</label>
+                <label>{i18n("Custom actions")}</label>
               </div>
             </div>
             <div className="field">
               <div className="ui radio checkbox">
                 <input type="radio" name="custom_or_preset" value="preset" className="hidden"/>
-                <label>Preset actions</label>
+                <label>{i18n("Preset actions")}</label>
               </div>
             </div>
           </div>
