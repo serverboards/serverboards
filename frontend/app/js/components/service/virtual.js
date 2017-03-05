@@ -9,6 +9,7 @@ import { goBack } from 'react-router-redux'
 import store from 'app/utils/store'
 import ScreensMenu from 'app/components/service/screensmenu'
 import event from 'app/utils/event'
+import {i18n} from 'app/utils/i18n'
 
 const VirtualServices=React.createClass({
   getInitialState(){
@@ -70,7 +71,7 @@ const VirtualServices=React.createClass({
       })
       .catch((e) => {
         console.error(e)
-        Flash.error(`Error loading virtual services\n\n${e}`)
+        Flash.error(i18n("Error loading virtual services\n\n{e}", {e}))
         store.dispatch( goBack() )
       })
   },
@@ -88,7 +89,7 @@ const VirtualServices=React.createClass({
     if (state.services == undefined){
       return (
         <Modal>
-          <Loading>Virtual services for {props.parent.name}</Loading>
+          <Loading>{i18n("Virtual services for {name}", {name: props.parent.name})}</Loading>
         </Modal>
       )
     }
@@ -103,7 +104,7 @@ const VirtualServices=React.createClass({
           </div>
         ) : null}
         <div className="ui container">
-          <h1 className="ui header">Virtual services for {props.parent.name}</h1>
+          <h1 className="ui header">{i18n("Virtual services for {name}", {name: props.parent.name})}</h1>
           <div className="ui cards">
             {state.services.map((p) => (
               <Card key={p.id} service={p} projects={props.projects} location={props.location}/>

@@ -2,6 +2,7 @@ import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
 import rpc from 'app/rpc'
+import {i18n} from 'app/utils/i18n'
 
 const ActionModal = React.createClass({
   contextTypes: {
@@ -31,11 +32,11 @@ const ActionModal = React.createClass({
 
     return (
       <Modal>
-        <h2 className="ui header">{props.action.name}</h2>
-        <div className="ui meta">{props.action.description}</div>
+        <h2 className="ui header">{i18n(props.action.name)}</h2>
+        <div className="ui meta">{i18n(props.action.description)}</div>
         <GenericForm fields={props.missing_params} updateForm={this.setMissingParams}/>
         <div className="actions">
-          <button className="ui yellow button" onClick={this.triggerAction}>Trigger action</button>
+          <button className="ui yellow button" onClick={this.triggerAction}>{i18n("Trigger action")}</button>
         </div>
       </Modal>
     )

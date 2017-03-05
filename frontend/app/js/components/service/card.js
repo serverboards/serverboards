@@ -9,6 +9,7 @@ import ActionMenu from 'app/containers/service/actionmenu'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {trigger_action} from './action'
 import {goto} from 'app/utils/store'
+import {i18n} from 'app/utils/i18n'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -52,12 +53,12 @@ function RealBottomMenu(props){
   return (
     <div className="ui inverted yellow menu bottom attached">
       {props.service.virtual ? (
-        <a className="item" onClick={open_virtual}>Related services <i className="ui icon caret right"/></a>
+        <a className="item" onClick={open_virtual}>{i18n("Related services")} <i className="ui icon caret right"/></a>
       ) : []}
       <div className="right menu">
         <div className="item">
           <ActionMenu service={props.service} actions={props.actions} onDetach={props.onDetach}>
-            Menu
+            {i18n("Menu")}
           </ActionMenu>
         </div>
       </div>
@@ -76,7 +77,7 @@ const VirtualBottomMenu=React.createClass({
           actions: actions,
         })
       }).catch(() => {
-        Flash.error("Could not load actions for this service")
+        Flash.error(i18n("Could not load actions for this service"))
         this.setState({
           actions: undefined,
         })
@@ -99,7 +100,7 @@ const VirtualBottomMenu=React.createClass({
       return (
         <div className="item disabled">
           <i className="ui spinner loading icon"/>
-          Loading
+          {i18n("Loading")}
         </div>
       )
     }
@@ -134,7 +135,7 @@ const Card=React.createClass({
       Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
         {
           id: `service-details-${s.uuid}`, title: `${s.name} settings`,
-          description: `${s.name} Service Details at ${project}`, run: () => goto(`/project/${project}/services/${s.uuid}`),
+          description: i18n("{name} Service details at {project}", {name: s.name, project}), run: () => goto(`/project/${project}/services/${s.uuid}`),
           order: 80
         }
       ],2 )
@@ -181,7 +182,7 @@ const Card=React.createClass({
       <div className="service card">
         <div className="extra content">
           {(props.tags || []).map( (l) => (
-            <span key={l} style={{color:"#ccc", paddingLeft:10}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
+            <span key={l} style={{color:"#ccc", paddingLeft:10}}><span className={`ui circular empty ${colorize(l)} label`}/> {i18n(l)}</span>
           ))}&nbsp;
         </div>
 
@@ -190,11 +191,11 @@ const Card=React.createClass({
             {props.icon ? (
               <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
             ) : (
-              <ImageIcon src={icon}  name={props.name}/>
+              <ImageIcon src={icon} name={props.name}/>
             )}
           </div>
           <div className="header">{props.name}</div>
-          <div className="description" style={{display:"inline-block"}}><MarkdownPreview value={props.description || ""}/></div>
+          <div className="description" style={{display:"inline-block"}}><MarkdownPreview value={i18n(props.description) || ""}/></div>
           <div style={{clear:"both"}}>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>

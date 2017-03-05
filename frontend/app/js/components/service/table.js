@@ -5,6 +5,7 @@ import IconIcon from '../iconicon'
 import ActionMenu from 'app/containers/service/actionmenu'
 import Loading from '../loading'
 import {goto} from 'app/utils/store'
+import {i18n} from 'app/utils/i18n'
 
 const icon = require("../../../imgs/services.svg")
 
@@ -45,7 +46,7 @@ const ServiceTableLine = React.createClass({
         </td>
         <td>
           <ActionMenu service={props.service} actions={props.actions}>
-            More
+            {i18n("More")}
           </ActionMenu>
         </td>
       </tr>
@@ -61,7 +62,7 @@ function Table(props){
   return (
     <table className="ui service selectable table">
       <thead><tr>
-        <th/><th>Name</th><th>Type</th><th>Description</th><th>Status</th><th>Actions</th>
+        <th/><th>{i18n("Name")}</th><th>{i18n("Type")}</th><th>{i18n("Description")}</th><th>{i18n("Status")}</th><th>{i18n("Actions")}</th>
       </tr></thead>
       <tbody>
       {props.services.map((p) => (

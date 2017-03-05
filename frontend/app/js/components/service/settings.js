@@ -5,6 +5,7 @@ import { setup_fields, service_definition } from '../service/utils'
 import Loading from '../loading'
 import rpc from 'app/rpc'
 import { merge } from 'app/utils'
+import {i18n} from 'app/utils/i18n'
 
 const RuleList = React.createClass({
   componentDidMount(){
@@ -31,14 +32,14 @@ const RuleList = React.createClass({
     return (
       <div className="ui equal width form" ref="form">
         <h4 className="ui header">
-          Rule presets
+          {i18n("Rule presets")}
         </h4>
         <div className="ui two column grid"  style={{paddingTop:10}}>
         {props.rules.map( (r) => (
           <div key={r.id} className="field column">
             <div className="ui checkbox toggle" data-position="bottom left" data-tooltip={r.description}>
               <input type="checkbox" className="toggle" defaultChecked={r.is_active} name={r.id}/>
-              <label>{r.name}</label>
+              <label>{i18n(r.name)}</label>
             </div>
           </div>
         ))}
@@ -165,9 +166,9 @@ const SetupComponent=React.createClass({
         <div className="content" ref="content">
           <div className="ui form">
             <div className="field">
-              <label>Name</label>
+              <label>{i18n("Name")}</label>
               <input type="text" name="name"
-                placeholder="Service name as shown in UI"
+                placeholder={i18n("Service name as shown in UI")}
                 defaultValue={props.service.name}/>
             </div>
 
@@ -175,18 +176,18 @@ const SetupComponent=React.createClass({
             <GenericForm ref="form" fields={fields} data={{service: props.service}} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
 
             <div className="field">
-              <label>Description</label>
+              <label>{i18n("Description")}</label>
               <textarea
                 name="description"
-                placeholder="Comments about this service"
-                defaultValue={props.service.description}
+                placeholder={i18n("Comments about this service")}
+                defaultValue={i18n(props.service.description)}
               />
             </div>
           </div>
         </div>
         <div className="actions" style={{margin: "20px 0 0 0"}}>
           <button className="ui ok yellow button" onClick={this.handleAccept} style={{margin: 0}}>
-            Update service settings
+            {i18n("Update service settings")}
           </button>
         </div>
       </div>

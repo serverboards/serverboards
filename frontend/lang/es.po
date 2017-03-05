@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-05 11:46+0100\n"
-"PO-Revision-Date: 2017-03-05 11:46+0100\n"
+"POT-Creation-Date: 2017-03-05 12:08+0100\n"
+"PO-Revision-Date: 2017-03-05 12:12+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -87,6 +87,10 @@ msgstr "Resumen de la incidencia"
 #: app/js/components/issues/add.js:25
 #: app/js/components/project/settings_add.js:91
 #: app/js/components/settings/plugins/details.js:120
+#: app/js/components/service/settings.js:179
+#: app/js/components/service/details/detailstab.js:21
+#: app/js/components/service/details/detailstab.js:36
+#: app/js/components/service/table.js:65
 msgid "Description"
 msgstr "Descripción"
 
@@ -244,6 +248,8 @@ msgstr "Reglas"
 
 #: app/js/components/project/sidebar.js:117
 #: app/js/components/settings/index.js:39
+#: app/js/components/service/actionmenu.js:54
+#: app/js/components/service/details/index.js:117
 msgid "Settings"
 msgstr "Configuración"
 
@@ -1081,7 +1087,7 @@ msgstr "verdadero"
 msgid "false"
 msgstr "false"
 
-#: app/js/components/settings/users.js:23
+#: app/js/components/settings/users.js:23 app/js/components/service/table.js:49
 msgid "More"
 msgstr "Más"
 
@@ -1099,6 +1105,8 @@ msgstr "Mantén pulsado para activar"
 
 #: app/js/components/settings/users.js:92
 #: app/js/components/settings/user/add.js:39
+#: app/js/components/service/settings.js:169
+#: app/js/components/service/table.js:65
 msgid "Name"
 msgstr "Nombre"
 
@@ -1185,3 +1193,116 @@ msgstr "Roto"
 #: app/js/components/settings/plugins/card.js:50
 msgid "View details"
 msgstr "Ver detalles"
+
+#: app/js/components/service/actionmenu.js:29
+#: app/js/components/service/card.js:80
+msgid "Could not load actions for this service"
+msgstr "No se pueden cargar las acciones para este servicio"
+
+#: app/js/components/service/actionmenu.js:51
+msgid "Hold to Detach"
+msgstr "Mantén pulsado para desasociar"
+
+#: app/js/components/service/actionmenu.js:60
+#: app/js/components/service/card.js:103
+msgid "Loading"
+msgstr "Cargando"
+
+#: app/js/components/service/virtual.js:74
+msgid ""
+"Error loading virtual services\n"
+"\n"
+"{e}"
+msgstr ""
+"Error cargando los servicios virtuales \n"
+"\n"
+"{e}"
+
+#: app/js/components/service/virtual.js:92
+#: app/js/components/service/virtual.js:107
+msgid "Virtual services for {name}"
+msgstr "Servicios virtuales para {name}"
+
+#: app/js/components/service/settingsmodal.js:15
+msgid "Settings for {name}"
+msgstr "Configuración para {name}"
+
+#: app/js/components/service/settingsmodal.js:19
+msgid "No description at service definition"
+msgstr "No hay descripción en la definición del servicio"
+
+#: app/js/components/service/action.js:27
+msgid "Dont know how to trigger this action"
+msgstr "No se como ejecutar esta acción"
+
+#: app/js/components/service/cards.js:13
+msgid "Service catalog"
+msgstr "Catálogo de servicios"
+
+#: app/js/components/service/card.js:56
+msgid "Related services"
+msgstr "Servicios relacionados"
+
+#: app/js/components/service/card.js:61
+msgid "Menu"
+msgstr "Menú"
+
+#: app/js/components/service/card.js:138
+msgid "{name} Service details at {project}"
+msgstr "{name} Detalles del servicio en {project}"
+
+#: app/js/components/service/actionmodal.js:39
+msgid "Trigger action"
+msgstr "Ejecutar acción"
+
+#: app/js/components/service/settings.js:35
+msgid "Rule presets"
+msgstr "Presets de reglas"
+
+#: app/js/components/service/settings.js:171
+msgid "Service name as shown in UI"
+msgstr "Nombre del servicio como se muestra en el interfáz"
+
+#: app/js/components/service/settings.js:182
+msgid "Comments about this service"
+msgstr "Comentarios sobre este servicio"
+
+#: app/js/components/service/settings.js:190
+msgid "Update service settings"
+msgstr "Actualizar la configuración del servicio"
+
+#: app/js/components/service/details/index.js:110
+msgid "Service details"
+msgstr "Detalles del servicio"
+
+#: app/js/components/service/details/index.js:116
+msgid "Details"
+msgstr "Detalles"
+
+#: app/js/components/service/details/detailstab.js:19
+msgid "Service Type"
+msgstr "Tipo de servicio"
+
+#: app/js/components/service/details/detailstab.js:25
+msgid "Related projects"
+msgstr "Projectos relacionados"
+
+#: app/js/components/service/details/detailstab.js:37
+msgid "No description set"
+msgstr "Aún no hay descripción"
+
+#: app/js/components/service/details/detailstab.js:38
+msgid "Config Details"
+msgstr "Detalles de configuración"
+
+#: app/js/components/service/table.js:65
+msgid "Type"
+msgstr "Tipo"
+
+#: app/js/components/service/table.js:65
+msgid "Status"
+msgstr "Estado"
+
+#: app/js/components/service/table.js:65
+msgid "Actions"
+msgstr "Acciones"

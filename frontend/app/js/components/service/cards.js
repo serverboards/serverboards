@@ -1,6 +1,7 @@
 import React from 'react'
 import Card from 'app/containers/service/card'
 import Loading from '../loading'
+import {i18n} from 'app/utils/i18n'
 
 export function service_definition(service_type, service_catalog){
   return service_catalog.find( (c) => c.type == service_type )
@@ -9,7 +10,7 @@ export function service_definition(service_type, service_catalog){
 function Cards(props){
   if (!props.catalog)
     return (
-      <Loading>Service catalog</Loading>
+      <Loading>{i18n("Service catalog")}</Loading>
     )
   return (
     <div className="ui cards">
