@@ -5,6 +5,7 @@ import PluginDetails from './details'
 import plugin from 'app/utils/plugin'
 import {merge} from 'app/utils'
 import event from 'app/utils/event'
+import i18n from 'app/utils/i18n'
 
 require('sass/cards.sass')
 import PluginCard from './card'
@@ -70,11 +71,11 @@ const Plugins=React.createClass({
   handleInstallPlugin(){
     const plugin_url=this.refs.plugin_url.value
     if (!plugin_url){
-      Flash.error("Please set a valid URL")
+      Flash.error(i18n("Please set a valid URL"))
       return;
     }
     rpc.call("plugin.install", [plugin_url]).then( () => {
-      Flash.info(`Plugin from ${plugin_url} installed and ready.`)
+      Flash.info(i18n("Plugin from {plugin_url} installed and ready.",{plugin_url}))
       this.componentDidMount() // reload plugin list
     }).catch( (e) => {
       Flash.error(e)
@@ -99,19 +100,19 @@ const Plugins=React.createClass({
     return (
       <div>
         <div className="ui top secondary header menu">
-          <h3 className="ui header">Plugins</h3>
+          <h3 className="ui header">{i18n("Plugins")}</h3>
           <div className="right menu">
             <div className="item">
               <div className="ui form">
                 <div className="inline fields">
                   <div className="field">
-                    <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder="Enter plugin git repository URL"/>
+                    <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder={i18n("Enter plugin git repository URL")}/>
                   </div>
                   <div className="field">
-                    <button className="ui button yellow" onClick={this.handleInstallPlugin}>Install</button>
+                    <button className="ui button yellow" onClick={this.handleInstallPlugin}>{i18n("Install")}</button>
                   </div>
                 </div>
-                <div style={{marginTop: -10}}>View full plugin list at <a href="https://serverboards.io/downloads/plugins/" target="_blank">Serverboards.io Plugin List page.</a></div>
+                <div style={{marginTop: -10}}>{i18n("View full plugin list at")} <a href="https://serverboards.io/downloads/plugins/" target="_blank">{i18n("Serverboards.io Plugin List page.")}</a></div>
               </div>
             </div>
           </div>

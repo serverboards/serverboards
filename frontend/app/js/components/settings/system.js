@@ -35,7 +35,7 @@ let System=React.createClass({
       )
     }
     Promise.all(all_updates).then(function(){
-      Flash.success("Updated settings!")
+      Flash.success(i18n("Updated settings!"))
     }).then( () => store.dispatch(settings_all()) )
   },
   render(){
@@ -48,7 +48,7 @@ let System=React.createClass({
     return (
       <div>
         <div className="ui secondary header top menu">
-          <h3 className="ui header">System Settings</h3>
+          <h3 className="ui header">{i18n("System Settings")}</h3>
         </div>
         <div className="ui text container settings">
 

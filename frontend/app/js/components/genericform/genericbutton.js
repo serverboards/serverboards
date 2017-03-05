@@ -77,7 +77,7 @@ const GenericButton= React.createClass({
         ) : (
           <div>
             <MarkdownPreview className={`ui meta ${state.extraClass}`} value={state.description}/>
-            <button className={`ui button ${state.className}`} onClick={this.handleClick}>{state.value}</button>
+            <button className={`ui button ${state.className}`} onClick={this.handleClick}>{i18n(state.value)}</button>
           </div>
         )}
       </div>

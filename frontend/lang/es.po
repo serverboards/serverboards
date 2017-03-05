@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 18:46+0100\n"
-"PO-Revision-Date: 2017-03-03 18:47+0100\n"
+"POT-Creation-Date: 2017-03-05 11:46+0100\n"
+"PO-Revision-Date: 2017-03-05 11:46+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -483,14 +483,18 @@ msgid "Overview"
 msgstr "Vista general"
 
 #: app/js/components/settings/index.js:42
+#: app/js/components/settings/groups.js:45
+#: app/js/components/settings/users.js:87
 msgid "Users"
 msgstr "Usuarios"
 
 #: app/js/components/settings/index.js:45
+#: app/js/components/settings/groups.js:64
 msgid "Groups and permissions"
 msgstr "Grupos y permisos"
 
 #: app/js/components/settings/index.js:48
+#: app/js/components/settings/plugins/index.js:103
 msgid "Plugins"
 msgstr "Plugins"
 
@@ -505,7 +509,7 @@ msgstr ""
 
 #: ../plugins/optional-updater/manifest.yaml
 msgid "{{latest_version.version}}"
-msgstr ""
+msgstr "{{latest_version.version}}"
 
 #: ../plugins/core-ssh/manifest.yaml
 msgid ""
@@ -952,7 +956,7 @@ msgstr "Llamada webhook"
 msgid "Service tag change"
 msgstr "Cambio de tabs del servicio"
 
-#: ../plugins/core-actions/manifest.yaml
+#: ../plugins/core-actions/manifest.yaml app/js/components/settings/users.js:36
 msgid "Send notification"
 msgstr "Enviar notificación"
 
@@ -1005,10 +1009,13 @@ msgid "Base settings"
 msgstr "Configuración base"
 
 #: app/js/components/settings/plugins/card.js:37
+#: app/js/components/settings/plugins/details.js:75
+#: app/js/components/settings/plugins/card.js:42
 msgid "by"
 msgstr "por"
 
 #: app/js/components/settings/plugins/card.js:38
+#: app/js/components/settings/plugins/card.js:43
 msgid "version"
 msgstr "versión"
 
@@ -1043,3 +1050,138 @@ msgstr "Componentes"
 #: app/js/components/settings/plugins/details.js:127
 msgid "Update changelog"
 msgstr "Actualizar changelog"
+
+#: app/js/components/settings/groups.js:37 app/js/components/maxtable.js:41
+msgid "Hold to remove from group"
+msgstr "Manten pulsado para eliminar del grupo"
+
+#: app/js/components/settings/groups.js:46
+#: app/js/components/settings/groups.js:53
+msgid "Edit users"
+msgstr "Editar usuarios"
+
+#: app/js/components/settings/groups.js:48
+#: app/js/components/settings/users.js:93
+msgid "Email"
+msgstr "Email"
+
+#: app/js/components/settings/groups.js:52
+msgid "Permissions"
+msgstr "Permisos"
+
+#: app/js/components/settings/groups.js:55
+msgid "Permission"
+msgstr "Permiso"
+
+#: app/js/components/settings/users.js:18
+msgid "true"
+msgstr "verdadero"
+
+#: app/js/components/settings/users.js:18
+msgid "false"
+msgstr "false"
+
+#: app/js/components/settings/users.js:23
+msgid "More"
+msgstr "Más"
+
+#: app/js/components/settings/users.js:29
+msgid "Edit user"
+msgstr "Editar usuario"
+
+#: app/js/components/settings/users.js:43
+msgid "Hold to disable"
+msgstr "Mantén pulsado para desactivar"
+
+#: app/js/components/settings/users.js:48
+msgid "Hold to enable"
+msgstr "Mantén pulsado para activar"
+
+#: app/js/components/settings/users.js:92
+#: app/js/components/settings/user/add.js:39
+msgid "Name"
+msgstr "Nombre"
+
+#: app/js/components/settings/users.js:94
+msgid "Groups"
+msgstr "Grupos"
+
+#: app/js/components/settings/users.js:95
+msgid "Is active?"
+msgstr "¿Está activo?"
+
+#: app/js/components/settings/plugins/index.js:112
+msgid "Install"
+msgstr "Instalar"
+
+#: app/js/components/settings/plugins/index.js:115
+msgid "View full plugin list at"
+msgstr "Ver lista completa de plugins en"
+
+#: app/js/components/settings/plugins/index.js:115
+msgid "Serverboards.io Plugin List page."
+msgstr "la lista de Plugins en Serverboards.io"
+
+#: app/js/components/maxtable.js:52
+msgid "And {n} more..."
+msgstr "Y {n} más..."
+
+#: app/js/components/maxtable.js:56
+msgid "Show less"
+msgstr "Mostrar menos"
+
+#: app/js/components/settings/overview.js:42
+msgid "General information"
+msgstr "Información general"
+
+#: app/js/components/settings/overview.js:51
+msgid "Current version:"
+msgstr "Versión actual:"
+
+#: app/js/components/settings/overview.js:55
+msgid "Connected to server:"
+msgstr "Conectado al servidor:"
+
+#: app/js/components/settings/system.js:38
+msgid "Updated settings!"
+msgstr "¡Configuración actualizada!"
+
+#: app/js/components/settings/system.js:51
+msgid "System Settings"
+msgstr "Configuración del sistema"
+
+#: app/js/components/settings/plugins/index.js:74
+msgid "Please set a valid URL"
+msgstr "Por favor indique una URL válida"
+
+#: app/js/components/settings/plugins/index.js:78
+msgid "Plugin from {plugin_url} installed and ready."
+msgstr "Plugin de {plugin_url} instalado listo para ser usado."
+
+#: app/js/components/settings/plugins/index.js:109
+msgid "Enter plugin git repository URL"
+msgstr "Introduzca la URL del repositorio git"
+
+#: app/js/components/settings/user/add.js:36
+msgid "This will be used as the user identifier"
+msgstr "Esto será usado como identificador del usuario"
+
+#: app/js/components/settings/user/add.js:43
+msgid "Add user"
+msgstr "Añadir usuario"
+
+#: app/js/components/settings/plugins/card.js:10
+msgid "Disabled"
+msgstr "Desactivado"
+
+#: app/js/components/settings/plugins/card.js:11
+msgid "Enabled"
+msgstr "Activo"
+
+#: app/js/components/settings/plugins/card.js:12
+msgid "Broken"
+msgstr "Roto"
+
+#: app/js/components/settings/plugins/card.js:50
+msgid "View details"
+msgstr "Ver detalles"

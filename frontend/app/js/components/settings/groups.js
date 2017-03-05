@@ -2,6 +2,7 @@ import React from 'react'
 import Loading from '../loading'
 import Table from '../maxtable'
 import HoldButton from '../holdbutton'
+import i18n from 'app/utils/i18n'
 
 let Groups=React.createClass({
   handleEditUsers(g){
@@ -33,7 +34,7 @@ let Groups=React.createClass({
             {g.users.length == 0 ? (
               <span style={{position: "absolute", top: 5, right: 0}}>
               <HoldButton className="ui trash icon"
-              data-content="Hold to remove from group"
+              data-content={i18n("Hold to remove from group")}
               onHoldClick={() => {self.props.onRemoveGroup(g.name)}}
               />
               </span>
@@ -41,17 +42,17 @@ let Groups=React.createClass({
           <div className="ui grid two columns stackable">
             <div className="column">
               <h3 className="ui header">
-                <span className="content">Users</span>
-                <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditUsers(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
+                <span className="content">{i18n("Users")}</span>
+                <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditUsers(g) }} title={i18n("Edit users")} href="#!"> <i className="ui icon edit"/></a>
               </h3>
-              <Table data={g.users} headers={["Email"]} onDelete={(u) => self.props.onRemoveUser(g.name, u)}/>
+              <Table data={g.users} headers={[i18n("Email")]} onDelete={(u) => self.props.onRemoveUser(g.name, u)}/>
             </div>
             <div className="column">
               <h3 className="ui header">
-                <span className="content">Permissions</span>
-                <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditPerms(g) }} title="Edit users" href="#!"> <i className="ui icon edit"/></a>
+                <span className="content">{i18n("Permissions")}</span>
+                <a onClick={(ev) =>{ ev.preventDefault(); self.handleEditPerms(g) }} title={i18n("Edit users")} href="#!"> <i className="ui icon edit"/></a>
               </h3>
-              <Table data={g.perms} headers={["Permission"]}/>
+              <Table data={g.perms} headers={[i18n("Permission")]}/>
             </div>
           </div>
         </div>
@@ -60,7 +61,7 @@ let Groups=React.createClass({
 
     return (
       <div className="ui text container">
-        <h1>Groups and permissions</h1>
+        <h1>{i18n("Groups and permissions")}</h1>
 
         {props.groups.map(Group)}
 
