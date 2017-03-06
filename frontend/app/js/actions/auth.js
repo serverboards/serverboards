@@ -1,7 +1,7 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import event from 'app/utils/event'
-import i18n from 'app/utils/i18n'
+import {i18n, i18n_nop} from 'app/utils/i18n'
 
 export function logout(){
   return {
@@ -164,12 +164,31 @@ export function perm_list(){
   }
 }
 
+const LANG_LIST={
+  "es" : i18n_nop("spanish"),
+  "en" : i18n_nop("english"),
+}
+
+export function user_settings_set_language(lang){
+  return function(dispatch){
+    rpc.call("settings.user.set", ["language", {lang}]).then( () => {
+      console.log(LANG_LIST, lang)
+      Flash.info(i18n("Set language to {lang}", {lang: i18n( LANG_LIST[lang] )}))
+      set_lang(lang)(dispatch)
+    })
+  }
+}
+
 export function set_lang(lang){
   return function(dispatch){
     let full_url = `/lang/${lang}.json`
     $.get(full_url).then( (tr) => {
-      i18n.update( tr, {clear: true})
+      i18n.update( tr, {clean: true})
       console.log("Updated translations, force React update. %o", require("app/app").root)
+      dispatch({type: "AUTH_SET_LANG", lang})
+    }).fail( (e) => {
+      console.log("Using default translations.")
+      i18n.update( {}, {clean: true})
       dispatch({type: "AUTH_SET_LANG", lang})
     })
   }

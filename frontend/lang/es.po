@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-06 13:19+0100\n"
-"PO-Revision-Date: 2017-03-06 13:19+0100\n"
+"POT-Creation-Date: 2017-03-06 13:56+0100\n"
+"PO-Revision-Date: 2017-03-06 13:57+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1080,6 +1080,7 @@ msgstr "Editar usuarios"
 #: app/js/components/settings/users.js:93 app/js/components/profile/index.js:87
 #: app/js/components/login/index.js:80
 #: app/js/components/login/reset_password.js:44
+#: app/js/components/profile/index.js:90
 msgid "Email"
 msgstr "Email"
 
@@ -1910,29 +1911,30 @@ msgstr "Parámetros de la acción"
 msgid "Action result"
 msgstr "Resultado de la acción"
 
-#: app/js/components/profile/index.js:45
+#: app/js/components/profile/index.js:45 app/js/components/profile/index.js:48
 msgid "Avatar image saved"
 msgstr "Imagen del avatar guardada"
 
-#: app/js/components/profile/index.js:75
+#: app/js/components/profile/index.js:75 app/js/components/profile/index.js:78
 msgid "Personal data"
 msgstr "Datos personales"
 
 #: app/js/components/profile/index.js:76
 #: app/js/components/profile/password_change.js:38
 #: app/js/components/profile/password_change.js:57
+#: app/js/components/profile/index.js:79
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
-#: app/js/components/profile/index.js:82
+#: app/js/components/profile/index.js:82 app/js/components/profile/index.js:85
 msgid "Upload new image"
 msgstr "Actualizar imagen"
 
-#: app/js/components/profile/index.js:85
+#: app/js/components/profile/index.js:85 app/js/components/profile/index.js:88
 msgid "Basic user data"
 msgstr "Datos básicos del usuario"
 
-#: app/js/components/profile/index.js:96
+#: app/js/components/profile/index.js:96 app/js/components/profile/index.js:113
 msgid "Update profile"
 msgstr "Actualizar perfíl"
 
@@ -2086,3 +2088,19 @@ msgstr "Mensaje"
 #: app/js/components/login/index.js:75
 msgid "Login into Serverboards"
 msgstr "Entrar en Serverboards"
+
+#: app/js/components/profile/index.js:92
+msgid "Language"
+msgstr "Idioma"
+
+#: app/js/actions/auth.js:168
+msgid "spanish"
+msgstr "español"
+
+#: app/js/actions/auth.js:169
+msgid "english"
+msgstr "inglés"
+
+#: app/js/actions/auth.js:176
+msgid "Set language to {lang}"
+msgstr "Se ha cambiado el idioma a {lang}"

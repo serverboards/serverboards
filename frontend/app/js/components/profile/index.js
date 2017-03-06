@@ -11,7 +11,8 @@ let Profile = React.createClass({
   getInitialState(){
     return {
       modal: undefined,
-      avatar: this.props.avatar
+      avatar: this.props.avatar,
+      lang: this.props.lang
     }
   },
   handleSubmit(){
@@ -29,14 +30,16 @@ let Profile = React.createClass({
     ev.preventDefault()
     this.setState({ modal: "personal_data" })
   },
-  /*
   componentDidMount(){
-    rpc.call("settings.user.get", ["profile_avatar"]).then( (d) => {
-      if (d && d.avatar)
-        this.setState({avatar: d.avatar})
-    } ).error( (e) => console.log(e) )
+    const self=this
+    $(this.refs.lang).dropdown({
+      onChange(lang){
+        console.log("Set language to ", lang)
+        self.setState({lang})
+        self.props.onSetLanguage(lang)
+      }
+    })
   },
-  */
   uploadAvatar(ev){
     let fr = new FileReader()
     fr.onload = (ev) => {
@@ -86,6 +89,20 @@ let Profile = React.createClass({
             <div className="ui inline field">
               <label>{i18n("Email")}:</label> <span className="value">{props.user.email}</span>
             </div>
+          <h2 className="ui header">{i18n("Language")}</h2>
+            <div className="ui inline field">
+
+            <div className="ui selection dropdown" ref="lang">
+              <input type="hidden" name="lang" defaultValue={this.state.lang}/>
+              <i className="dropdown icon"/>
+              <div className="default text">Language</div>
+              <div className="menu">
+                <div className="item" data-value="en"><i className="ui flag gb"/>English</div>
+                <div className="item" data-value="es"><i className="ui flag es"/>Español</div>
+              </div>
+            </div>
+          </div>
+
           <div style={{clear:"both"}}/>
 
           <Notifications user={props.user.email}

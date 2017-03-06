@@ -70,6 +70,7 @@ export function printf(tr, ...args){
 export function update(newtrans, options={clean: false}){
   if (options.clean){
     trans={}
+    unknown=[]
   }
   // remove new known
   Object.keys(newtrans).map( (o) => {
@@ -101,11 +102,12 @@ export function i18n_nop(txt){
   return txt
 }
 
-export { unknown}
+export { unknown, trans }
 
 i18n.unknown=unknown
 i18n.i18n_nop=i18n_nop
 i18n.update=update
 i18n.i18n_c=i18n_c
+i18n.trans=() => trans
 
 export default i18n
