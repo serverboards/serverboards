@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-06 12:40+0100\n"
-"PO-Revision-Date: 2017-03-06 12:40+0100\n"
+"POT-Creation-Date: 2017-03-06 12:55+0100\n"
+"PO-Revision-Date: 2017-03-06 12:57+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1039,6 +1039,7 @@ msgid "Description:"
 msgstr "Descripción:"
 
 #: app/js/components/settings/plugins/details.js:82
+#: app/js/components/profile/notifications.js:43
 msgid "Active"
 msgstr "Activo"
 
@@ -1072,7 +1073,7 @@ msgid "Edit users"
 msgstr "Editar usuarios"
 
 #: app/js/components/settings/groups.js:48
-#: app/js/components/settings/users.js:93
+#: app/js/components/settings/users.js:93 app/js/components/profile/index.js:87
 msgid "Email"
 msgstr "Email"
 
@@ -1186,6 +1187,7 @@ msgstr "Añadir usuario"
 
 #: app/js/components/settings/plugins/card.js:10
 #: app/js/components/rules/edit.js:151
+#: app/js/components/profile/notifications.js:43
 msgid "Disabled"
 msgstr "Desactivado"
 
@@ -1308,6 +1310,8 @@ msgid "Type"
 msgstr "Tipo"
 
 #: app/js/components/service/table.js:65
+#: app/js/components/processes/index.js:43
+#: app/js/components/processes/index.js:44
 msgid "Status"
 msgstr "Estado"
 
@@ -1344,6 +1348,8 @@ msgid "Edit rule"
 msgstr "Editar regla"
 
 #: app/js/components/rules/actionedit.js:54
+#: app/js/components/processes/index.js:41
+#: app/js/components/processes/index.js:42
 msgid "Action"
 msgstr "Acción"
 
@@ -1748,10 +1754,14 @@ msgid "All Notifications"
 msgstr "Todas las notificaciones"
 
 #: app/js/components/notifications/list.js:42
+#: app/js/components/processes/index.js:33
+#: app/js/components/processes/index.js:34
 msgid "First page"
 msgstr "Primera página"
 
 #: app/js/components/notifications/list.js:44
+#: app/js/components/processes/index.js:34
+#: app/js/components/processes/index.js:35
 msgid "Next page"
 msgstr "Siguiente página"
 
@@ -1830,3 +1840,131 @@ msgstr "no-leido"
 #: app/js/components/notifications/item.js:8
 msgid "new"
 msgstr "nuevo"
+
+#: app/js/components/processes/index.js:15
+#: app/js/components/processes/index.js:16
+msgid "error"
+msgstr "error"
+
+#: app/js/components/processes/index.js:16
+#: app/js/components/processes/index.js:17
+msgid "aborted"
+msgstr "abortado"
+
+#: app/js/components/processes/index.js:17
+#: app/js/components/processes/index.js:18
+msgid "running"
+msgstr "en ejecución"
+
+#: app/js/components/processes/index.js:24
+#: app/js/components/processes/index.js:30
+#: app/js/components/processes/index.js:25
+#: app/js/components/processes/index.js:31
+#: app/js/components/processes/process.js:71
+msgid "Process history"
+msgstr "Historial de procesos"
+
+#: app/js/components/processes/index.js:39
+#: app/js/components/processes/index.js:40
+#: app/js/components/processes/process.js:40
+msgid "Date"
+msgstr "Fecha"
+
+#: app/js/components/processes/index.js:40
+#: app/js/components/processes/index.js:41
+#: app/js/components/processes/process.js:43
+msgid "Elapsed"
+msgstr "Transcurrido"
+
+#: app/js/components/processes/index.js:42
+#: app/js/components/processes/index.js:43
+#: app/js/components/processes/process.js:41
+msgid "User"
+msgstr "Usuario"
+
+#: app/js/components/processes/index.js:32
+#: app/js/components/processes/index.js:33
+msgid "Showing {start}-{end} of {total}"
+msgstr "Mostrando {start}-{end} de {total}"
+
+#: app/js/components/processes/index.js:15
+msgid "ok"
+msgstr "ok"
+
+#: app/js/components/processes/process.js:46
+msgid "Related rule"
+msgstr "Regla relacionada"
+
+#: app/js/components/processes/process.js:57
+msgid "Action params"
+msgstr "Parámetros de la acción"
+
+#: app/js/components/processes/process.js:62
+msgid "Action result"
+msgstr "Resultado de la acción"
+
+#: app/js/components/profile/index.js:45
+msgid "Avatar image saved"
+msgstr "Imagen del avatar guardada"
+
+#: app/js/components/profile/index.js:75
+msgid "Personal data"
+msgstr "Datos personales"
+
+#: app/js/components/profile/index.js:76
+#: app/js/components/profile/password_change.js:38
+#: app/js/components/profile/password_change.js:57
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: app/js/components/profile/index.js:82
+msgid "Upload new image"
+msgstr "Actualizar imagen"
+
+#: app/js/components/profile/index.js:85
+msgid "Basic user data"
+msgstr "Datos básicos del usuario"
+
+#: app/js/components/profile/index.js:96
+msgid "Update profile"
+msgstr "Actualizar perfíl"
+
+#: app/js/components/profile/password_change.js:27
+msgid "Password changed properly"
+msgstr "La contraseña ha sido modificada con éxito"
+
+#: app/js/components/profile/password_change.js:30
+msgid "Error changing password: {e}"
+msgstr "Error modificando contraseña: {e}"
+
+#: app/js/components/profile/password_change.js:41
+msgid "Current password"
+msgstr "Contraseña actual"
+
+#: app/js/components/profile/password_change.js:42
+msgid "Enter here you current password"
+msgstr "Escriba aquí su nueva contraseña"
+
+#: app/js/components/profile/password_change.js:46
+msgid "New password"
+msgstr "Nueva contraseña"
+
+#: app/js/components/profile/password_change.js:47
+msgid "Enter here the new password"
+msgstr "Escriba aquí su nueva contraseña"
+
+#: app/js/components/profile/password_change.js:51
+msgid "Repeat password"
+msgstr "Repita su contraseña"
+
+#: app/js/components/profile/password_change.js:52
+msgid "Repeat the password for verification"
+msgstr "Repita la contraseña para la verificación"
+
+#: app/js/components/profile/notifications.js:87
+msgid "Notification channels"
+msgstr "Canales de notificación"
+
+#: app/js/components/profile/notifications.js:91
+msgid "Communication Channels"
+msgstr "Canales de comunicación"
