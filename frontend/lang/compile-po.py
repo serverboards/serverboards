@@ -81,7 +81,7 @@ def store_data(context, orig, trans):
 
 parse_file(open(sys.argv[1]))
 
-open(sys.argv[2],"w+").write( json.dumps(data, indent=2) )
+open(sys.argv[2],"w+").write( json.dumps(data, indent=2, sort_keys=True) )
 print("%d translations, %d missing translations"%(len(data), missing))
 if error:
     print("There were errors when compiling the translation file")
