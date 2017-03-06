@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-06 12:55+0100\n"
-"PO-Revision-Date: 2017-03-06 12:57+0100\n"
+"POT-Creation-Date: 2017-03-06 13:19+0100\n"
+"PO-Revision-Date: 2017-03-06 13:19+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -133,7 +133,7 @@ msgstr "Reabrir incidencia"
 msgid "Labels"
 msgstr "Etiquetas"
 
-#: app/js/components/issues/filters.js:91
+#: app/js/components/issues/filters.js:91 app/js/components/logs/index.js:99
 msgid "Related"
 msgstr "Relacionados"
 
@@ -266,6 +266,8 @@ msgstr "Eliminar"
 
 #: app/js/components/project/setupservice.js:45
 #: app/js/components/notifications/send.js:44
+#: app/js/components/login/reset_password.js:54
+#: app/js/components/login/set_password.js:67
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -685,10 +687,12 @@ msgid "Username"
 msgstr "Nombre de usuario"
 
 #: ../plugins/core-notifications/manifest.yaml
+#: app/js/components/login/index.js:87
 msgid "Password"
 msgstr "Contraseña"
 
 #: ../plugins/core-notifications/manifest.yaml
+#: app/js/components/login/set_password.js:49
 msgid "Email address"
 msgstr "Dirección Email"
 
@@ -1074,6 +1078,8 @@ msgstr "Editar usuarios"
 
 #: app/js/components/settings/groups.js:48
 #: app/js/components/settings/users.js:93 app/js/components/profile/index.js:87
+#: app/js/components/login/index.js:80
+#: app/js/components/login/reset_password.js:44
 msgid "Email"
 msgstr "Email"
 
@@ -1717,7 +1723,7 @@ msgstr "Ver historial de procesos"
 msgid "Search and execute commands..."
 msgstr "Búscar y ejecutar comandos..."
 
-#: app/js/components/top/usermenu.js:20
+#: app/js/components/top/usermenu.js:20 app/js/components/logs/index.js:174
 msgid "Logs"
 msgstr "Logs"
 
@@ -1842,7 +1848,7 @@ msgid "new"
 msgstr "nuevo"
 
 #: app/js/components/processes/index.js:15
-#: app/js/components/processes/index.js:16
+#: app/js/components/processes/index.js:16 app/js/components/logs/index.js:8
 msgid "error"
 msgstr "error"
 
@@ -1866,7 +1872,8 @@ msgstr "Historial de procesos"
 
 #: app/js/components/processes/index.js:39
 #: app/js/components/processes/index.js:40
-#: app/js/components/processes/process.js:40
+#: app/js/components/processes/process.js:40 app/js/components/logs/index.js:78
+#: app/js/components/logs/index.js:187
 msgid "Date"
 msgstr "Fecha"
 
@@ -1946,6 +1953,7 @@ msgid "Enter here you current password"
 msgstr "Escriba aquí su nueva contraseña"
 
 #: app/js/components/profile/password_change.js:46
+#: app/js/components/login/set_password.js:54
 msgid "New password"
 msgstr "Nueva contraseña"
 
@@ -1954,6 +1962,7 @@ msgid "Enter here the new password"
 msgstr "Escriba aquí su nueva contraseña"
 
 #: app/js/components/profile/password_change.js:51
+#: app/js/components/login/set_password.js:59
 msgid "Repeat password"
 msgstr "Repita su contraseña"
 
@@ -1968,3 +1977,112 @@ msgstr "Canales de notificación"
 #: app/js/components/profile/notifications.js:91
 msgid "Communication Channels"
 msgstr "Canales de comunicación"
+
+#: app/js/components/login/index.js:75 app/js/components/login/index.js:103
+msgid "Login"
+msgstr "Login"
+
+#: app/js/components/login/index.js:98
+msgid "Keep logged login"
+msgstr "Mantenerse logueado"
+
+#: app/js/components/login/index.js:101
+msgid "Reset password"
+msgstr "Resetear contraseña"
+
+#: app/js/components/login/reset_password.js:13
+msgid "Email sent. Check your email at {email}"
+msgstr "Email enviado. Compruebe su email en {email}"
+
+#: app/js/components/login/reset_password.js:16
+msgid "Could not request password reset: {e}"
+msgstr "No se pudo solicitar el cambio de contraseña: {e}"
+
+#: app/js/components/login/reset_password.js:39
+msgid "Request email with reset password link"
+msgstr "Solicitado email con enlace de cambio de contraseña"
+
+#: app/js/components/login/reset_password.js:52
+msgid "I already have a password change token"
+msgstr "Ya tengo un token de cambio de contraseña"
+
+#: app/js/components/login/reset_password.js:57
+msgid "Request email"
+msgstr "Solicitar email"
+
+#: app/js/components/login/set_password.js:13
+msgid "Updating password"
+msgstr "Actualizando contraseña"
+
+#: app/js/components/login/set_password.js:15
+msgid "Password changed successfuly. You can now log in."
+msgstr "La contraseña se modificó con éxito. Ahora puede entrar."
+
+#: app/js/components/login/set_password.js:18
+msgid ""
+"There was an error changing password. Check your change password token.\n"
+" {e}"
+msgstr ""
+"Hubo un error modificando la contraseña. Por favor compruebe su token de "
+"cambio de contraseña.\n"
+"{e}"
+
+#: app/js/components/login/set_password.js:44
+msgid "Reset token"
+msgstr "Reiniciar token"
+
+#: app/js/components/login/set_password.js:70
+msgid "Set new password"
+msgstr "Poner una nueva contraseña"
+
+#: app/js/components/logs/index.js:9
+msgid "warn"
+msgstr "aviso"
+
+#: app/js/components/logs/index.js:10
+msgid "debug"
+msgstr "debug"
+
+#: app/js/components/logs/index.js:11
+msgid "info"
+msgstr "info"
+
+#: app/js/components/logs/index.js:73
+msgid "Log line details"
+msgstr "Detalles de la linea de bitacora"
+
+#: app/js/components/logs/index.js:82
+msgid "Full Message"
+msgstr "Mensaje completo"
+
+#: app/js/components/logs/index.js:89
+msgid "Metadata"
+msgstr "Metadatos"
+
+#: app/js/components/logs/index.js:175
+msgid "{count} total log lines. Page {pagenr}."
+msgstr "Hay {count} lineas de log. Página {pagenr}. "
+
+#: app/js/components/logs/index.js:178
+msgid "Next"
+msgstr "Siguiente"
+
+#: app/js/components/logs/index.js:179
+msgid "Refresh"
+msgstr "Refrescar"
+
+#: app/js/components/logs/index.js:185
+msgid "Id"
+msgstr "Id"
+
+#: app/js/components/logs/index.js:186
+msgid "Level"
+msgstr "Nivel"
+
+#: app/js/components/logs/index.js:188
+msgid "Message"
+msgstr "Mensaje"
+
+#: app/js/components/login/index.js:75
+msgid "Login into Serverboards"
+msgstr "Entrar en Serverboards"

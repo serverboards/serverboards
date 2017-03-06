@@ -3,6 +3,7 @@ import ResetPassword from './reset_password'
 import SetPassword from './set_password'
 import rpc from 'app/rpc'
 import 'sass/login.sass'
+import {i18n} from 'app/utils/i18n'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
@@ -71,19 +72,19 @@ var LoginView = React.createClass({
 
         <div className="ui small modal active" id="login">
           <div className="header">
-            Login
+            {i18n("Login into Serverboards")}
           </div>
 
           <div className="content">
             <div className="field">
-              <label>Email</label>
+              <label>{i18n("Email")}</label>
               <input type="text" name="email" placeholder="user@company.com"
                 onChange={(ev) => {this.setState({email: ev.target.value})}}
                 />
             </div>
 
             <div className="field">
-              <label>Password</label>
+              <label>{i18n("Password")}</label>
               <input type="password" name="password" placeholder="*******"
                 />
             </div>
@@ -94,12 +95,12 @@ var LoginView = React.createClass({
             <span className="ui checkbox action left" style={{float: "left"}}>
               <input type="checkbox" id="keep_logged_in" onClick={this.keep_logged_in}/>
               <label htmlFor="keep_logged_in" style={{cursor:"pointer"}}>
-                Keep logged login
+                {i18n("Keep logged login")}
               </label>
             </span>
-            <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>Reset password</a>
+            <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>{i18n("Reset password")}</a>
             <button type="button" className="ui positive right labeled icon button" onClick={this.handleSubmit}>
-              Login
+              {i18n("Login")}
               <i className="caret right icon"></i>
             </button>
           </div>

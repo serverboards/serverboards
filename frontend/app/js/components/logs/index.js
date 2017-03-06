@@ -1,8 +1,14 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import Modal from '../modal'
+import {i18n, i18n_nop} from 'app/utils/i18n'
 
 require('sass/table.sass')
+
+i18n_nop("error")
+i18n_nop("warn")
+i18n_nop("debug")
+i18n_nop("info")
 
 function levelToClass(level){
   if (level=="error")
@@ -35,7 +41,7 @@ function LogLine(props){
   return (
     <tr className={levelToClass(line.level)} onClick={(ev) => { ev.preventDefault(); props.showDetails(line)}} style={{cursor:"pointer"}}>
       <td>{line.id}</td>
-      <td>{line.level}</td>
+      <td>{i18n(line.level)}</td>
       <td>{date}<br/>{time}</td>
       <td>{line.message.split('\n')[0]}</td>
       <td><i className="ui icon angle right"/></td>
@@ -64,23 +70,23 @@ function Details(props){
   return (
     <Modal>
       <div className="ui top secondary header menu">
-        <h3 className="ui header">Log line details</h3>
+        <h3 className="ui header">{i18n("Log line details")}</h3>
         <div className="right menu">
           <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
         </div>
       </div>
-      <h3 className="ui header uppercase">Date</h3>
+      <h3 className="ui header uppercase">{i18n("Date")}</h3>
       <div className="meta">{line.timestamp.replace('T',' ')}</div>
 
 
-      <h3 className="ui header uppercase">Full Message</h3>
+      <h3 className="ui header uppercase">{i18n("Full Message")}</h3>
       <div>
         <pre className="ui code">
           {reformatMessage(line.message)}
         </pre>
       </div>
 
-      <h3 className="ui header uppercase">Metadata</h3>
+      <h3 className="ui header uppercase">{i18n("Metadata")}</h3>
       <div>
         {Object.keys(line.meta).map( (k) => (
           <div key={k}>
@@ -90,7 +96,7 @@ function Details(props){
         ))}
 
       </div>
-      <h3 className="ui header uppercase">Related</h3>
+      <h3 className="ui header uppercase">{i18n("Related")}</h3>
       <div>
         <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
         <a href={related} target="_blank">{related}</a>
@@ -165,21 +171,21 @@ const Logs = React.createClass({
     return (
       <div className="ui central area white background">
         <div className="ui container">
-          <h1 className="ui header">Logs</h1>
-          <div className="meta">{this.state.count} total log lines. Page {this.state.page}.</div>
+          <h1 className="ui header">{i18n("Logs")}</h1>
+          <div className="meta">{i18n("{count} total log lines. Page {pagenr}.", {count: this.state.count, pagenr: this.state.page})}</div>
 
           <div>
-            <a href="#" onClick={this.nextPage}>Next</a> |
-            <a href="#" onClick={this.refresh}>Refresh</a>
+            <a href="#" onClick={this.nextPage}>{i18n("Next")}</a> |
+            <a href="#" onClick={this.refresh}>{i18n("Refresh")}</a>
           </div>
 
           <table className="ui selectable table">
             <thead>
               <tr>
-                <th>Id</th>
-                <th>Level</th>
-                <th style={{width: "7em"}}>Date</th>
-                <th>Message</th>
+                <th>{i18n("Id")}</th>
+                <th>{i18n("Level")}</th>
+                <th style={{width: "7em"}}>{i18n("Date")}</th>
+                <th>{i18n("Message")}</th>
                 <th></th>
               </tr>
             </thead>
