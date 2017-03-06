@@ -1,6 +1,7 @@
 import React from 'react'
 import {Link} from 'app/router'
 import {is_empty} from 'app/utils'
+import {i18n} from 'app/utils/i18n'
 
 function ProcessesMenu(props){
   return (
@@ -18,12 +19,12 @@ function ProcessesMenu(props){
         ) : (
           <div>
             <div className="item centered ui grey" style={{display: "flex"}}>
-              <span style={{flexGrow:1}}>No active processes</span>
+              <span style={{flexGrow:1}}>{i18n("No active processes")}</span>
             </div>
           </div>
         )}
         <a href="#/process/history" className="item inverted yellow">
-          View process history
+          {i18n("View process history")}
           <i className="ui caret right icon" style={{paddingLeft: 5}}/>
         </a>
       </div>

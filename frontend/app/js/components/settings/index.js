@@ -6,6 +6,7 @@ import Groups from 'app/containers/settings/groups'
 import Plugins from 'app/components/settings/plugins'
 import System from 'app/containers/settings/system'
 import Restricted from 'app/restricted'
+import i18n from 'app/utils/i18n'
 
 const sections={
   overview: Overview,
@@ -35,19 +36,19 @@ var SidebarSections = function(props){
 
   return (
     <div className="ui vertical menu sections">
-      <h3 className="ui item header">Settings</h3>
-      <MenuItem section="overview">Overview</MenuItem>
+      <h3 className="ui item header">{i18n("Settings")}</h3>
+      <MenuItem section="overview">{i18n("Overview")}</MenuItem>
       <Restricted perm="auth.list">
-        <MenuItem section="users">Users</MenuItem>
+        <MenuItem section="users">{i18n("Users")}</MenuItem>
       </Restricted>
       <Restricted perm="auth.list AND auth.manage_groups">
-        <MenuItem section="groups">Groups and permissions</MenuItem>
+        <MenuItem section="groups">{i18n("Groups and permissions")}</MenuItem>
       </Restricted>
       <Restricted perm="plugin.list">
-        <MenuItem section="plugins">Plugins</MenuItem>
+        <MenuItem section="plugins">{i18n("Plugins")}</MenuItem>
       </Restricted>
       <Restricted perm="settings.view">
-        <MenuItem section="system">System</MenuItem>
+        <MenuItem section="system">{i18n("System")}</MenuItem>
       </Restricted>
     </div>
   )

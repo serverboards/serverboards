@@ -2,6 +2,7 @@ import React from 'react'
 import {MarkdownPreview} from 'react-marked-markdown'
 import {render, resolve_form_vars} from './utils'
 import Flash from 'app/flash'
+import i18n from 'app/utils/i18n'
 
 const RichDescription=React.createClass({
   process_description(vars={}){
@@ -30,11 +31,11 @@ const RichDescription=React.createClass({
     }).catch((e) => {
       console.error(e)
       this.setError(100)
-      Flash.error("Error loading dynamic data. Contact plugin author.",{error: 100})
+      Flash.error(i18n("Error loading dynamic data. Contact plugin author."),{error: 100})
     })
   },
   setError(code){
-    this.setState({content: `Error loading dynamic data. Contact plugin author. [Error #${code}]`, loading: false, extraClass: "error"})
+    this.setState({content: i18n("Error loading dynamic data. Contact plugin author. [Error #{code}]", {code}), loading: false, extraClass: "error"})
   },
   render(){
     const props=this.props

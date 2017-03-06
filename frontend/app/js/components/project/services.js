@@ -6,6 +6,7 @@ import ServicesView from 'app/containers/service'
 import ServiceDetails from 'app/containers/service/details'
 import Restricted from 'app/restricted'
 import { set_modal } from 'app/utils/store'
+import i18n from 'app/utils/i18n'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -32,7 +33,7 @@ let Services=React.createClass({
   componentDidMount(){
     let self = this
     Command.add_command_search("sbds-services", (Q, context) => ([
-        {id: 'add-service', title: "Add Service", description: `Add a new service`, run: () => self.openAddServiceModal()},
+        {id: 'add-service', title: i18n("Add Service"), description: i18n("Add a new service"), run: () => self.openAddServiceModal()},
       ]), 2)
   },
   componentWillUnmount(){
@@ -53,7 +54,7 @@ let Services=React.createClass({
       <div>
         <div className="ui top secondary header menu">
           <h3 className="ui header">
-            Services
+            {i18n("Services")}
           </h3>
           <div className="right menu">
             <div className="ui secondary pointing menu">
@@ -74,7 +75,7 @@ let Services=React.createClass({
           <a href="#"
               onClick={this.openAddServiceModal}
               className="ui massive button _add icon floating yellow"
-              title="Add a service"
+              title={i18n("Add a service")}
               >
             <i className="add icon"></i>
           </a>

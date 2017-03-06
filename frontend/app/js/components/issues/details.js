@@ -5,6 +5,7 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import Flash from 'app/flash'
 import {merge, colorize, pretty_ago} from 'app/utils'
 import Avatar from 'app/containers/avatar'
+import {i18n, i18n_nop} from 'app/utils/i18n'
 
 import Filters from './filters'
 
@@ -19,12 +20,12 @@ function tag_color(status){
 const EVENT_DESC = {
   alias: {
     icon: "pin",
-    text: "created a new alias",
+    text: i18n_nop("created a new alias"),
     color: "blue"
   },
   unalias: {
     icon: "pin",
-    text: "removed an alias",
+    text: i18n_nop("removed an alias"),
     color: "orange"
   },
 }
@@ -37,7 +38,7 @@ function CardHeader({event, label, icon, color, text}){
       ) : (
         <span className="ui circular image small"><Avatar email={(event.creator || {}).email}/></span>
       )}
-      <b>{(event.creator || {name:"System"}).name} </b>
+      <b>{(event.creator || {name:i18n("System")}).name} </b>
       {pretty_ago(event.inserted_at)}
       <span className="ui meta"> {label}{text ? ":" : null} </span> {text}
     </div>
@@ -48,14 +49,14 @@ function IssueEventComment({event, connected}){
   if (typeof(event.data)!="string"){
     return (
       <div className={`ui red card ${ connected ? "connected" : ""}`}>
-        <CardHeader event={event} label="commented"/>
-        <div className="ui red text">Invalid event data: {JSON.stringify(event.data)}</div>
+        <CardHeader event={event} label={i18n("commented")}/>
+        <div className="ui red text">{i18n("Invalid event data: {data}", {data: JSON.stringify(event.data)})}</div>
       </div>
     )
   }
   return (
     <div className={`ui card ${ connected ? "connected" : ""}`}>
-      <CardHeader event={event} label="commented"/>
+      <CardHeader event={event} label={i18n("commented")}/>
       <MarkdownPreview value={event.data}/>
     </div>
   )
@@ -64,7 +65,7 @@ function IssueEventComment({event, connected}){
 function IssueEventChangeStatus({event}){
   return (
     <div className="ui status change">
-      <CardHeader event={event} label="changed status"/>
+      <CardHeader event={event} label={i18n("changed status")}/>
       <span className={`ui label tag ${tag_color(event.data)}`}>{event.data}</span>
     </div>
   )
@@ -73,7 +74,7 @@ function IssueEventChangeStatus({event}){
 function IssueEventSetLabels({event}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} label="added tags"/>
+      <CardHeader event={event} label={i18n("added tags")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
           <span className={`ui text green`}>{l}&nbsp; </span>
@@ -85,7 +86,7 @@ function IssueEventSetLabels({event}){
 function IssueEventUnsetLabels({event}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} label="removed tag"/>
+      <CardHeader event={event} label={i18n("removed tag")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
           <span className={`ui text red`}>{l}</span>
@@ -97,7 +98,7 @@ function IssueEventUnsetLabels({event}){
 function IssueEventMisc({event, desc}){
   return (
     <div className="ui card connected">
-      <CardHeader event={event} icon={desc.icon} label={desc.text} text={event.data} color={desc.color}/>
+      <CardHeader event={event} icon={desc.icon} label={i18n(desc.text)} text={i18n(event.data)} color={desc.color}/>
     </div>
   )
 }
@@ -145,7 +146,7 @@ const Details = React.createClass({
       addfuture=this.props.handleAddCommentAndReopen(comment)
     else{
       addfuture=this.props.addComment(comment)
-        .then( () => Flash.info("Added new comment") )
+        .then( () => Flash.info(i18n("Added new comment")) )
     }
     addfuture
       .then( () => { this.refs.new_comment.value="" })
@@ -165,9 +166,9 @@ const Details = React.createClass({
     return (
       <Modal className="wide" id="issues">
         <div className="ui top secondary menu">
-          <h3 className="ui header">Issues</h3>
+          <h3 className="ui header">{i18n("Issues")}</h3>
           <div className="right menu">
-            <a className="item" onClick={this.handleFocusComment}><i className="ui icon comment"/> Add comment</a>
+            <a className="item" onClick={this.handleFocusComment}><i className="ui icon comment"/> {i18n("Add comment")}</a>
           </div>
         </div>
         <div className="ui issue details">
@@ -179,7 +180,7 @@ const Details = React.createClass({
             </div>
             <div className="ui text normal regular">
               <span className={`ui tag label ${tag_color(issue.status)} big`}>{issue.status}</span>
-              <span><b>{(issue.creator || {name: "System"}).name}</b> created this issue on {issue.inserted_at}</span>
+              <span><b>{i18n("{name} created this issue on {date}", {name: issue.creator || i18n("System"), date: issue.inserted_at})}</b></span>
             </div>
           </div>
           <div className="ui divider"></div>
@@ -196,23 +197,23 @@ const Details = React.createClass({
           <div className="ui divider"></div>
           <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
             <div className="field">
-              <label>New comment</label>
-              <textarea ref="new_comment" placeholder="Write your comment here..."></textarea>
+              <label>{i18n("New comment")}</label>
+              <textarea ref="new_comment" placeholder={i18n("Write your comment here...")}></textarea>
             </div>
             <div className="ui inline fields form" style={{marginBottom: 30}}>
               <div className="field">
-                <button className="ui button yellow" onClick={this.handleAddComment}>Add comment</button>
+                <button className="ui button yellow" onClick={this.handleAddComment}>{i18n("Add comment")}</button>
               </div>
               <div className="field">
                 {issue.status == "open" ? (
                   <div className="ui checkbox close">
                     <input type="checkbox" ref="close_issue" id="close_issue"/>
-                    <label htmlFor="close_issue" style={{cursor:"pointer"}}> Close issue</label>
+                    <label htmlFor="close_issue" style={{cursor:"pointer"}}> {i18n("Close issue")}</label>
                   </div>
                 ) : (
                   <div className="ui checkbox reopen">
                     <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
-                    <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> Reopen issue</label>
+                    <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> {i18n("Reopen issue")}</label>
                   </div>
                 )}
               </div>

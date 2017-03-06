@@ -4,6 +4,7 @@ import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
 import Modal from 'app/components/modal'
 import {set_modal} from 'app/utils/store'
+import i18n from 'app/utils/i18n'
 
 const AddWidget = React.createClass({
   getInitialState(){
@@ -56,13 +57,13 @@ const AddWidget = React.createClass({
     return (
       <Modal className="wide">
         <div className="ui top secondary header menu">
-          <h3 className="ui header">Add widget</h3>
+          <h3 className="ui header">{i18n("Add widget")}</h3>
         </div>
         <div className="ui form text container" ref="form">
           <div className="ui field">
-            <label>Widget type</label>
+            <label>{i18n("Widget type")}</label>
             <select name="widget">
-              <option value="">Select a widget</option>
+              <option value="">{i18n("Select a widget")}</option>
               {catalog.map( (w) => (
                 <option value={w.id}>{w.name}</option>
               ))}
@@ -73,7 +74,7 @@ const AddWidget = React.createClass({
               <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
               <GenericForm fields={widget.params} updateForm={this.setFormData}/>
               <button className="ui button yellow" style={{marginTop:20}} onClick={this.addWidget}>
-                Add widget
+                {i18n("Add widget")}
               </button>
             </div>
           ) : []}

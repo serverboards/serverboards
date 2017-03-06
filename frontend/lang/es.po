@@ -1,0 +1,2123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-06 13:59+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
+#: app/js/components/project/sidebar.js:107
+msgid "Issues"
+msgstr "Incidencias"
+
+#: app/js/components/issues/index.js:95
+msgid "Open"
+msgstr "Abiertas"
+
+#: app/js/components/issues/index.js:100
+msgid "Closed"
+msgstr "Cerradas"
+
+#: app/js/components/issues/index.js:105
+msgid "All"
+msgstr "Todas"
+
+#: app/js/components/issues/index_filters.js:52
+msgid "Search..."
+msgstr "Buscar..."
+
+#: app/js/components/issues/index_filters.js:69
+#: app/js/components/issues/index_filters.js:70
+msgid "Preset filters"
+msgstr "Filtros preseleccionados"
+
+#: app/js/components/issues/index_filters.js:71
+msgid "Show open"
+msgstr "Mostrar abiertas"
+
+#: app/js/components/issues/index_filters.js:72
+msgid "Show closed"
+msgstr "Mostrar cerradas"
+
+#: app/js/components/issues/index_filters.js:76
+msgid "Filter by labels"
+msgstr "Filtrar por etiquetas"
+
+#: app/js/components/issues/index_filters.js:88
+msgid "At project"
+msgstr "En el projecto"
+
+#: app/js/components/issues/index_filters.js:90
+#: app/js/components/issues/index_filters.js:91
+msgid "All projects"
+msgstr "Todos los projectos"
+
+#: app/js/components/issues/details.js:23
+msgid "created a new alias"
+msgstr "creado nuevo alias"
+
+#: app/js/components/issues/details.js:28
+msgid "removed an alias"
+msgstr "eliminado un alias"
+
+#: app/js/components/issues/add.js:16 app/js/components/issues/add.js:29
+msgid "Add Issue"
+msgstr "Añadir incidencia"
+
+#: app/js/components/issues/add.js:21
+msgid "Title"
+msgstr "Título"
+
+#: app/js/components/issues/add.js:22 app/js/components/issues/add.js:26
+msgid "Short issue description"
+msgstr "Resumen de la incidencia"
+
+#: app/js/components/issues/add.js:25
+#: app/js/components/project/settings_add.js:91
+#: app/js/components/settings/plugins/details.js:120
+#: app/js/components/service/settings.js:179
+#: app/js/components/service/details/detailstab.js:21
+#: app/js/components/service/details/detailstab.js:36
+#: app/js/components/service/table.js:65 app/js/components/rules/edit.js:171
+msgid "Description"
+msgstr "Descripción"
+
+#: app/js/components/issues/filters.js:81
+msgid "Press ENTER when finished"
+msgstr "Pulsa ENTER al finalizar"
+
+#: app/js/components/issues/details.js:149
+msgid "Added new comment"
+msgstr "Añadido nuevo comentario"
+
+#: app/js/components/issues/details.js:171
+#: app/js/components/issues/details.js:205
+msgid "Add comment"
+msgstr "Añadir comentario"
+
+#: app/js/components/issues/details.js:183
+#: app/js/components/issues/details.js:41
+#: app/js/components/settings/index.js:51
+msgid "System"
+msgstr "Sistema"
+
+#: app/js/components/issues/details.js:183
+msgid "{name} created this issue on {date}"
+msgstr "{name} creó esta incidencia el {date}"
+
+#: app/js/components/issues/details.js:201
+msgid "Write your comment here..."
+msgstr "Escriba su comentario aquí..."
+
+#: app/js/components/issues/details.js:211
+msgid "Close issue"
+msgstr "Cerrar incidencia"
+
+#: app/js/components/issues/details.js:216
+msgid "Reopen issue"
+msgstr "Reabrir incidencia"
+
+#: app/js/components/issues/filters.js:79
+msgid "Labels"
+msgstr "Etiquetas"
+
+#: app/js/components/issues/filters.js:91 app/js/components/logs/index.js:99
+msgid "Related"
+msgstr "Relacionados"
+
+#: app/js/components/issues/details.js:53
+msgid "Invalid event data: {data}"
+msgstr "Datos de evento inválidos: {data}"
+
+#: app/js/components/issues/details.js:200
+msgid "New comment"
+msgstr "Nuevo comentario"
+
+#: app/js/components/issues/details.js:52
+#: app/js/components/issues/details.js:59
+msgid "commented"
+msgstr "comentó"
+
+#: app/js/components/issues/details.js:68
+msgid "changed status"
+msgstr "cambió el estado"
+
+#: app/js/components/issues/details.js:77
+msgid "added tags"
+msgstr "añadió etiquetas"
+
+#: app/js/components/issues/details.js:89
+msgid "removed tag"
+msgstr "eliminó una etiqueta"
+
+#: app/js/components/project/add.js:9
+msgid "Add a new project"
+msgstr "Añadir nuevo proyecto"
+
+#: app/js/components/project/index.js:43
+msgid "Project information"
+msgstr "Información del proyecto"
+
+#: app/js/components/project/board/widget.js:23
+msgid "Not at current project, cant load full data."
+msgstr ""
+"No se encuentra actualmente en un proyecto. No se pueden cargar los datos "
+"completos."
+
+#: app/js/components/project/board/widget.js:66
+msgid "Error loading widget {widget}: {error}"
+msgstr "Error cargando el widget {widget}: {error}"
+
+#: app/js/components/project/board/daterange.js:119
+msgid "Set now"
+msgstr "Ahora"
+
+#: app/js/components/project/board/daterange.js:123
+msgid "Set selected"
+msgstr "Seleccionado"
+
+#: app/js/components/project/board/edit_widget.js:45
+msgid "Widget description"
+msgstr "Descripción del Widget"
+
+#: app/js/components/project/board/edit_widget.js:54
+msgid "Remove"
+msgstr "Eliminar"
+
+#: app/js/components/project/board/edit_widget.js:60
+#: app/js/components/flashmessages.js:17
+msgid "Error"
+msgstr "Error"
+
+#: app/js/components/project/board/edit_widget.js:68
+msgid "Update widget"
+msgstr "Actualizar Widget"
+
+#: app/js/components/project/board/add_widget.js:60
+#: app/js/components/project/board/add_widget.js:77
+msgid "Add widget"
+msgstr "Añadir Widget"
+
+#: app/js/components/project/board/add_widget.js:64
+msgid "Widget type"
+msgstr "Tipo de Widget"
+
+#: app/js/components/project/board/add_widget.js:66
+msgid "Select a widget"
+msgstr "Seleccionar un Widget"
+
+#: app/js/components/project/services.js:36
+msgid "Add Service"
+msgstr "Añadir servicio"
+
+#: app/js/components/project/services.js:36
+msgid "Add a new service"
+msgstr "Añadir un nuevo servicio"
+
+#: app/js/components/project/services.js:57
+#: app/js/components/project/sidebar.js:105
+msgid "Services"
+msgstr "Servicios"
+
+#: app/js/components/project/services.js:78
+msgid "Add a service"
+msgstr "Añadir un servicio"
+
+#: app/js/components/project/sidebar.js:14
+msgid "Projects"
+msgstr "Proyectos"
+
+#: app/js/components/project/sidebar.js:104
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: app/js/components/project/sidebar.js:106 app/js/components/rules/index.js:46
+#: app/js/components/rules/rules.js:52
+msgid "Rules"
+msgstr "Reglas"
+
+#: app/js/components/project/sidebar.js:117
+#: app/js/components/settings/index.js:39
+#: app/js/components/service/actionmenu.js:54
+#: app/js/components/service/details/index.js:117
+#: app/js/components/top/usermenu.js:15
+msgid "Settings"
+msgstr "Configuración"
+
+#: app/js/components/project/setupservice.js:43
+msgid "Accept"
+msgstr "Aceptar"
+
+#: app/js/components/project/setupservice.js:44
+#: app/js/components/rules/edit.js:146
+msgid "Delete"
+msgstr "Eliminar"
+
+#: app/js/components/project/setupservice.js:45
+#: app/js/components/notifications/send.js:44
+#: app/js/components/login/reset_password.js:54
+#: app/js/components/login/set_password.js:67
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: app/js/components/project/projectselector.js:93
+msgid "Search by name"
+msgstr "Buscar por nombre"
+
+#: app/js/components/project/addservice.js:90
+msgid "Add a new service to this project"
+msgstr "Añadir un nuevo servicio a este proyecto"
+
+#: app/js/components/project/addservice.js:94
+msgid ""
+"Add an existing service from another project into this one. This service "
+"will be shared between the projects."
+msgstr ""
+"Añadir un servicio esistente de otro proyecto en este. Este servicio será "
+"compartido entre los proyectos."
+
+#: app/js/components/project/settings_add.js:55
+msgid "Delete project"
+msgstr "Eliminar proyecto"
+
+#: app/js/components/project/settings_add.js:71
+msgid "Project Name"
+msgstr "Nombre del proyecto"
+
+#: app/js/components/project/settings_add.js:75
+msgid "Ex. My company name, web projects, external projects..."
+msgstr "Ej. Nombre de mi empresa, proyecto web, proyecto externo..."
+
+#: app/js/components/project/settings_add.js:78
+msgid "Shortname"
+msgstr "Nombre corto"
+
+#: app/js/components/project/settings_add.js:79
+msgid "This name is used as a Serverboard identifier and is autogenerated."
+msgstr "Este nombre es usado como identificador de proyecto y es autogenerado"
+
+#: app/js/components/project/settings_add.js:82
+msgid "Ex. CMPNY"
+msgstr "Ej. EMPSA"
+
+#: app/js/components/project/settings_add.js:85
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: app/js/components/project/settings_add.js:88
+msgid "Ex. web, mail, external..."
+msgstr "Ej, web, mail, externo..."
+
+#: app/js/components/project/settings_add.js:92
+msgid "Long description"
+msgstr "Descripción larga"
+
+#: app/js/components/project/settings_add.js:98
+msgid "Update project"
+msgstr "Actualizar proyecto"
+
+#: app/js/components/project/settings_add.js:98
+msgid "Create project"
+msgstr "Crear proyecto"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid "PAM Authentication"
+msgstr "Autenticación PAM"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid ""
+"Allows to access serverboards using PAM, enabling use of many technologies\n"
+"to be used for login.\n"
+"\n"
+"Users try to log in the `serverboards` service.\n"
+"\n"
+"When new users try to login and they do not exist a proper user is created\n"
+"with the user name.\n"
+"\n"
+"If any of the groups of the user matches the name of a group in "
+"Serverboards,\n"
+"it is added to such group. This is checked and modified on every login.\n"
+"\n"
+"If any group starts with `serverboards-`, it will be added as well, without\n"
+"the initial `serverboards-`. For example `serverboards-admin` will be added "
+"as\n"
+"`admin`.\n"
+msgstr ""
+"Permite acceder a Serverboards usando PAM, habilitando el uso de multiples "
+"tecnologías\n"
+"para realizar el login.\n"
+"\n"
+"Cuando los usuario sintentan entrar en serverboards, se intentará también "
+"acceder al\n"
+"usuario local con el nombre de usuario y clave adecuado.\n"
+"\n"
+"Si consigue acceder, y alguno de los grupos a los que pertenece el usuario "
+"existe en \n"
+"Serverboards, el usuario usará dicho grupo, por ejemplo 'admin'. Esto se "
+"comprueba y \n"
+"verifica en cada login.\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid ""
+"Shows at serverboards setting oerview whether serverboards needs an update,\n"
+"and allows to trigger the update of the system.\n"
+msgstr ""
+"Muestra en la vista general de configuración de Serverborads si este "
+"necesita actualizarse,\n"
+"y permite lanzar la actualización del sistema.\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Serverboards Update Checker"
+msgstr "Comprobador de actualizaciones de Serverboards"
+
+#: ../plugins/__optional-quick-actions/manifest.yaml
+#: ../plugins/optional-quickactions/manifest.yaml
+#: ../plugins/__optional-quick-actions2/manifest.yaml
+msgid "Quick Actions"
+msgstr "Acciones rápidas"
+
+#: ../plugins/__optional-quick-actions/manifest.yaml
+#: ../plugins/optional-quickactions/manifest.yaml
+#: ../plugins/__optional-quick-actions2/manifest.yaml
+msgid ""
+"Allows to create new actions that are just actions prefilled with some "
+"data.\n"
+"\n"
+"This is useful for fast access to common actions\n"
+msgstr ""
+"Permite crear nuevas acciones predefinidas con algún dato.\n"
+"\n"
+"Esto es muy útil para acceder rapidamente a acciones comunes.\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"Performs core operations needed for SSH connectivity to hosts.\n"
+"This may be used by other plugins to achieve their own goals.\n"
+msgstr ""
+"Ejecuta las acciones básicas necesarias para la conectividad SSH a los "
+"hosts.\n"
+"Esto puede ser usado por otros plugins para alcanzar sus propios objetivos.\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Core SSH support"
+msgstr "Soporte Core SSH"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Definition of core services and fields to store in them.\n"
+"This is just the list of available core services; other plugins add the "
+"required functionalities.\n"
+msgstr ""
+"Definición de los servicios core básicos y campos para definirlos.\n"
+"Esta es simplemente una lista de estos servicios; otros plugins añaden las "
+"funcionalidades necesarias.\n"
+
+#: ../plugins/core-services/manifest.yaml
+#: ../plugins/core-notifications/manifest.yaml
+msgid "core services"
+msgstr "Servicios Core"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Various core triggers.\n"
+msgstr "Disparadores Core\n"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Core Triggers"
+msgstr "Disparadores Core"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid ""
+"Definition of core notification subsystem. Includes global config, user "
+"notification channel config, and delivery subsystem.\n"
+msgstr ""
+"Definición del susistema Core de notificaciones. Incluye la configuración "
+"global, de canales de comunicación, y subsistema de entrega.\n"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Definition an basic ussage of cloud services.\n"
+msgstr "Definición y uso básico de servicios en la nube (Cloud)\n"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Core cloud services"
+msgstr "Servicios Cloud Core"
+
+#: ../plugins/htpasswd-auth/manifest.yaml
+msgid ""
+"Allows to log in using a htpasswd-like file. Have the file at $INSTALLPATH/"
+"auth/htpasswd file.\n"
+"User can create new users executing manually the `./htpasswd-auth.py --set "
+"[email]`\n"
+"With the proper SERVERBOARDS_PATH environment variable.\n"
+msgstr ""
+"Permite acceder usando un archivo tipo htpasswd. Debe estar en $INSTALLPATH/"
+"auth/htpasswd.\n"
+"El usuario puede crear nuevos usuario ejecutando `./htpasswd-auth.py --set "
+"[email]`\n"
+"Con la variable de entorno `SERVERBOARDS_PATH` correctamente configurada.\n"
+
+#: ../plugins/htpasswd-auth/manifest.yaml
+msgid "htpasswd"
+msgstr "htpasswd"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Various core widgets.\n"
+msgstr "Widgets Core\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Core Widgets"
+msgstr "Widget Core"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "core settings"
+msgstr "Configuración Core"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Various core actions.\n"
+msgstr "Acciones Core\n"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Core actions"
+msgstr "Acciones Core"
+
+#: app/js/components/settings/index.js:40
+msgid "Overview"
+msgstr "Vista general"
+
+#: app/js/components/settings/index.js:42
+#: app/js/components/settings/groups.js:45
+#: app/js/components/settings/users.js:87
+msgid "Users"
+msgstr "Usuarios"
+
+#: app/js/components/settings/index.js:45
+#: app/js/components/settings/groups.js:64
+msgid "Groups and permissions"
+msgstr "Grupos y permisos"
+
+#: app/js/components/settings/index.js:48
+#: app/js/components/settings/plugins/index.js:103
+msgid "Plugins"
+msgstr "Plugins"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid ""
+"Definition of core settings and fields to store in them.\n"
+"Core settings define minimal settings required for Serverboards to work.\n"
+msgstr ""
+"Definición de la configuración básica del sistema y los campos a guardar.\n"
+"La configuración básica (core) indica las configuraciones mínimas que\n"
+"necesita Serverboards para funcionar\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "{{latest_version.version}}"
+msgstr "{{latest_version.version}}"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"This settings will be applied to all SSH connections. Please check the\n"
+"[ssh documentation](https://linux.die.net/man/5/ssh_config) for all\n"
+"options.\n"
+"\n"
+"Enter one option per line.\n"
+msgstr ""
+"Esta configuración será usada en todas las conexiones SSH. Por favor "
+"consulta en\n"
+"la [documentación de SSH](https://linux.die.net/man/5/ssh_config) para\n"
+"ver todas las opciones.\n"
+"\n"
+"Escriba una opción por linea.\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"To connect via SSH please ensure that the following SSH public key is\n"
+"added to your servers `~/.ssh/authorized_keys`:\n"
+"\n"
+"**SSH Public Key:**\n"
+"\n"
+"```\n"
+"{{ssh_key}}\n"
+"```\n"
+msgstr ""
+"Para conectarse por SSH por favor asegurese de que la siguiente clave SSH\n"
+"publica esté añadida al archivo `~/.ssh/authorized_keys` en sus servidores:\n"
+"\n"
+"**Clave pública SSH:**\n"
+"\n"
+"```\n"
+"{{ssh_key}}\n"
+"```\n"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"The remote fingerprints are:\n"
+"\n"
+"```\n"
+"{{status.fingerprint}}\n"
+"```\n"
+"Click on \"Enable host\" to add to your known_hosts. This is required to "
+"access this server.\n"
+msgstr ""
+"Los fingerprints remotos son:\n"
+"\n"
+"```\n"
+"{{status.fingerprint}}\n"
+"```\n"
+"Si es correcto pulse en \"Activar host\" para añadirlo a su known_hosts. "
+"Esto es requerido para acceder al servidor.\n"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Space or comma separated list of ip addresses and DNS names that point to "
+"this server"
+msgstr ""
+"Lista de direcciones IP o DNSs separados por comas o espacios que apuntan a "
+"este servidor"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "IP address or DNS name of the SMTP Server"
+msgstr "Dirección IP o nombre DNS del servidor SMTP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Port of communication"
+msgstr "Puerto de comunicación"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Username if required of the SMTP Server"
+msgstr "Nombre de usuario si lo requiere el servidor SMTP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Password if required to use the SMTP Server"
+msgstr "Clave si la requiere el servidor SMTP"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Connection UUID"
+msgstr "UUID de la conexión"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Node UUID"
+msgstr "Nodo UUID"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid ""
+"Create new tokens at the [API page](https://cloud.digitalocean.com/settings/"
+"api/tokens) at [Digital Ocean](https://digitalocean.com)."
+msgstr ""
+"Puede crear nuevos tokens en la [Paǵina de API](https://cloud.digitalocean."
+"com/settings/api/tokens) en [Digital Ocean](https://digitalocean.com)."
+
+#: ../plugins/core-settings/manifest.yaml
+msgid ""
+"This settings is used for remote services to connect to self,\n"
+"for example on Oauth2 auth flows.\n"
+msgstr ""
+"Esta configuración se usa en los servidores remotos para conectarse a este "
+"servidor,\n"
+"por ejemplo en los flujos de autenticación Oauth2.\n"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Latest version available"
+msgstr "Última versión disponible"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Address"
+msgstr "Dirección SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH `Host` Options"
+msgstr "Opciones `Host`"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Public Key"
+msgstr "Clave pública SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Remote SSH Fingerprint"
+msgstr "Fingerprint remoto"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH `Host *` Options"
+msgstr "Opciones `Host *`"
+
+#: ../plugins/core-services/manifest.yaml
+#: app/js/components/settings/plugins/details.js:106
+msgid "URL"
+msgstr "URL"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SMTP Server Address"
+msgstr "Dirección del servidor SMTP"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SMTP Username"
+msgstr "Nombre de usuario SMTP"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SMTP Password"
+msgstr "Clave SMTP"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "IP Addresses"
+msgstr "Dirección IP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "SMTP Server"
+msgstr "Servidor SMTP"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Port"
+msgstr "Puerto"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email from"
+msgstr "Dirección email de origen"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#: ../plugins/core-notifications/manifest.yaml
+#: app/js/components/login/index.js:87
+msgid "Password"
+msgstr "Contraseña"
+
+#: ../plugins/core-notifications/manifest.yaml
+#: app/js/components/login/set_password.js:49
+msgid "Email address"
+msgstr "Dirección Email"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Remote Server Address"
+msgstr "Dirección del servidor remoto"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Access Token"
+msgstr "Token de acceso"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Text in markdown"
+msgstr "Texto en markdown"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "Base URL"
+msgstr "URL Base"
+
+#: app/js/components/settings/system.js:45
+msgid "Loading settings"
+msgstr "Cargando configuración"
+
+#: app/js/components/settings/system.js:67
+msgid "Save all changes"
+msgstr "Guardar todos los cambios"
+
+#: app/js/components/genericform/genericbutton.js:36
+#: app/js/components/genericform/richdescription.js:34
+msgid "Error loading dynamic data. Contact plugin author."
+msgstr "Error cargando los datos dinámicos. Contactar con el autor del plugin."
+
+#: app/js/components/genericform/genericbutton.js:53
+#: app/js/components/genericform/richdescription.js:38
+msgid "Error loading dynamic data. Contact plugin author. [Error #{code}]"
+msgstr ""
+"Error cargando los datos dinamicos. Contacte con el autor del plugin [Error "
+"#{code}]"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid "PAM Authenticator Daemon"
+msgstr "Demonio de autenticación PAM"
+
+#: ../plugins/optional-auth-pam/manifest.yaml
+msgid "PAM Auth"
+msgstr "Autenticación PAM"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Update"
+msgstr "Actualizar"
+
+#: ../plugins/optional-updater/manifest.yaml
+msgid "Updater"
+msgstr "Actualizador"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Access via SSH to any server"
+msgstr "Accede usando SSH a cualquier servidor"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH access"
+msgstr "Acceso SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Screen on which to view known peers"
+msgstr "Pantalla en la que ver los peers conocidos"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Management"
+msgstr "Gestión de SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Can access via SSH to server"
+msgstr "Puede acceder via SSH al servidor"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Terminal"
+msgstr "Terminal SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Execute SSH Command"
+msgstr "Ejecute un comando SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"Executes a remote command. It is recommended that the key exchange is "
+"configured prior, so no ssh passwords are stored on the database."
+msgstr ""
+"Ejecuta un comando remoto. Se recomienda que el intercambio de claves sea "
+"configurado previamente, de modo que no se almacenen claves SSH en la base "
+"de datos."
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH daemon"
+msgstr "Demonio SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "General SSH Settings"
+msgstr "Configuración SSH General"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Web Server"
+msgstr "Servidor Web"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Email Account"
+msgstr "Cuenta de Email"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Server"
+msgstr "Servidor"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Various tests and checks on the web site performance as seen by Google.\n"
+msgstr ""
+"Varios tests y comprobaciones sobre el rendimiento del sitio web tal y como "
+"lo ve Google.\n"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Google PageSpeed"
+msgstr "Google PageSpeed"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Check the SSL quality of a given web page."
+msgstr "Comprueba la calidad SSL de una página Web dada."
+
+#: ../plugins/core-services/manifest.yaml
+msgid "SSL Labs"
+msgstr "SSL Labs"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Opens the URL page in a tab"
+msgstr "Abre la URL en un tab"
+
+#: ../plugins/optional-quickactions/manifest.yaml
+msgid "Quick Action"
+msgstr "Acción rápida"
+
+#: ../plugins/optional-quickactions/manifest.yaml
+msgid "Action executor and store"
+msgstr "Ejecutor y almacen de acciones"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Server is running / Ping"
+msgstr "El servidor está en ejecución / Ping"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "HTTP Response time limit"
+msgstr "Tiempo límite de respuesta HTTP"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Socket is receiving connections"
+msgstr "El socket recibe conexiones"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Periodic trigger"
+msgstr "Lanzador periodico"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Service tags changed"
+msgstr "Los tags del servicio han cambiado"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Triggers when a specific tag appears or disappears from service tags, as UP "
+"or DOWN"
+msgstr ""
+"Lanzador cuando un tag específico aparece o desaparece del listado de tags "
+"del servicio, por ejemplo UP o DOWN"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Checks every 5m/ 10m grace if the server socket is up, and sets labels "
+"according to changes."
+msgstr ""
+"Comprueba cada 5m/10m de gracia si el socket del servidor esta levantado, y "
+"cambia las etiquetas según corresponda."
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Server socket is up"
+msgstr "El socket esta activo"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Monitors server tags to know when a server is DOWN or UP and notifies all "
+"users"
+msgstr ""
+"Monitoriza los tags del servicio para saber si un servidor esta DOWN o UP, y "
+"notifica a todos los usuarios"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Open issue if down"
+msgstr "Abrir incidencia si esta DOWN"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Core triggers daemon"
+msgstr "Demonio Core de lanzadores"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid ""
+"SMTP Server setting used by the system to communicate with users via email."
+msgstr ""
+"Configuracón SMTP usada por el sistema para comunicarse con los usuarios via "
+"email."
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email settings"
+msgstr "Configuración Email"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email notifications"
+msgstr "Notificaciones por Email"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Cloud services daemon"
+msgstr "Demonio de servicios Cloud"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid ""
+"A node in a cloud service, as an AWS instance or libvirt virtual machine."
+msgstr ""
+"Un nodo en un servicio Cloud, como una instancia AWS o una máquina virtual "
+"libvirt."
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Cloud node"
+msgstr "Nodo Cloud"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Libvirt"
+msgstr "Libvirt"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Management of [libvirt](https://libvirt.org) based clouds."
+msgstr "Gestión de cloud basada en [libvirt](https://libvirt.org)"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Digital Ocean"
+msgstr "Digital Ocean"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Management of [Digital Ocean](https://digitalocean.com) clouds."
+msgstr "Gestión de Cloud basada en [Digital Ocean](https://digitalocean.com)"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "List nodes"
+msgstr "Lista de nodos"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Start node"
+msgstr "Iniciar nodo"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Shutdown node"
+msgstr "Apagar nodo"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Force stop node"
+msgstr "Forzar apagado"
+
+#: ../plugins/core-cloud/manifest.yaml
+msgid "Reboot node"
+msgstr "Reiniciar nodo"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Ping server"
+msgstr "Ping al servidor"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Webhook call"
+msgstr "Llamada webhook"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Service tag change"
+msgstr "Cambio de tabs del servicio"
+
+#: ../plugins/core-actions/manifest.yaml app/js/components/settings/users.js:36
+#: app/js/components/notifications/send.js:43
+msgid "Send notification"
+msgstr "Enviar notificación"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue Open"
+msgstr "Abrir Inicidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue Close"
+msgstr "Cerrar incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Notify all users"
+msgstr "Notificar a todos los usuarios"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Open issue"
+msgstr "Abrir incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Mark service up/down"
+msgstr "Marcar servicio UP/DOWN"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Core actions."
+msgstr "Acciones core"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Core widgets daemon"
+msgstr "Demonio de widgets core"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Simple clock with local time"
+msgstr "Reloj simple con hora local"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Clock"
+msgstr "Reloj"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "A simple markdown text to write notes"
+msgstr "Un texto simple Markdown para escribir notas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Markdown text"
+msgstr "Texto Markdown"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "Base settings"
+msgstr "Configuración base"
+
+#: app/js/components/settings/plugins/card.js:37
+#: app/js/components/settings/plugins/details.js:75
+#: app/js/components/settings/plugins/card.js:42
+msgid "by"
+msgstr "por"
+
+#: app/js/components/settings/plugins/card.js:38
+#: app/js/components/settings/plugins/card.js:43
+msgid "version"
+msgstr "versión"
+
+#: app/js/components/settings/plugins/details.js:16
+msgid "Type:"
+msgstr "Tipo:"
+
+#: app/js/components/settings/plugins/details.js:18
+msgid "Description:"
+msgstr "Descripción:"
+
+#: app/js/components/settings/plugins/details.js:82
+#: app/js/components/profile/notifications.js:43
+msgid "Active"
+msgstr "Activo"
+
+#: app/js/components/settings/plugins/details.js:84
+msgid "Not Active"
+msgstr "No activo"
+
+#: app/js/components/settings/plugins/details.js:93
+msgid "Update now"
+msgstr "Actualizar ahora"
+
+#: app/js/components/settings/plugins/details.js:101
+msgid "Version"
+msgstr "Versión"
+
+#: app/js/components/settings/plugins/details.js:112
+msgid "Components"
+msgstr "Componentes"
+
+#: app/js/components/settings/plugins/details.js:127
+msgid "Update changelog"
+msgstr "Actualizar changelog"
+
+#: app/js/components/settings/groups.js:37 app/js/components/maxtable.js:41
+msgid "Hold to remove from group"
+msgstr "Manten pulsado para eliminar del grupo"
+
+#: app/js/components/settings/groups.js:46
+#: app/js/components/settings/groups.js:53
+msgid "Edit users"
+msgstr "Editar usuarios"
+
+#: app/js/components/settings/groups.js:48
+#: app/js/components/settings/users.js:93 app/js/components/profile/index.js:87
+#: app/js/components/login/index.js:80
+#: app/js/components/login/reset_password.js:44
+#: app/js/components/profile/index.js:90
+msgid "Email"
+msgstr "Email"
+
+#: app/js/components/settings/groups.js:52
+msgid "Permissions"
+msgstr "Permisos"
+
+#: app/js/components/settings/groups.js:55
+msgid "Permission"
+msgstr "Permiso"
+
+#: app/js/components/settings/users.js:18
+msgid "true"
+msgstr "verdadero"
+
+#: app/js/components/settings/users.js:18
+msgid "false"
+msgstr "false"
+
+#: app/js/components/settings/users.js:23 app/js/components/service/table.js:49
+msgid "More"
+msgstr "Más"
+
+#: app/js/components/settings/users.js:29
+msgid "Edit user"
+msgstr "Editar usuario"
+
+#: app/js/components/settings/users.js:43
+msgid "Hold to disable"
+msgstr "Mantén pulsado para desactivar"
+
+#: app/js/components/settings/users.js:48
+msgid "Hold to enable"
+msgstr "Mantén pulsado para activar"
+
+#: app/js/components/settings/users.js:92
+#: app/js/components/settings/user/add.js:39
+#: app/js/components/service/settings.js:169
+#: app/js/components/service/table.js:65 app/js/components/rules/edit.js:167
+msgid "Name"
+msgstr "Nombre"
+
+#: app/js/components/settings/users.js:94
+msgid "Groups"
+msgstr "Grupos"
+
+#: app/js/components/settings/users.js:95
+msgid "Is active?"
+msgstr "¿Está activo?"
+
+#: app/js/components/settings/plugins/index.js:112
+msgid "Install"
+msgstr "Instalar"
+
+#: app/js/components/settings/plugins/index.js:115
+msgid "View full plugin list at"
+msgstr "Ver lista completa de plugins en"
+
+#: app/js/components/settings/plugins/index.js:115
+msgid "Serverboards.io Plugin List page."
+msgstr "la lista de Plugins en Serverboards.io"
+
+#: app/js/components/maxtable.js:52
+#: app/js/components/top/notificationsmenu.js:15
+msgid "And {n} more..."
+msgstr "Y {n} más..."
+
+#: app/js/components/maxtable.js:56
+msgid "Show less"
+msgstr "Mostrar menos"
+
+#: app/js/components/settings/overview.js:42
+msgid "General information"
+msgstr "Información general"
+
+#: app/js/components/settings/overview.js:51
+msgid "Current version:"
+msgstr "Versión actual:"
+
+#: app/js/components/settings/overview.js:55
+msgid "Connected to server:"
+msgstr "Conectado al servidor:"
+
+#: app/js/components/settings/system.js:38
+msgid "Updated settings!"
+msgstr "¡Configuración actualizada!"
+
+#: app/js/components/settings/system.js:51
+msgid "System Settings"
+msgstr "Configuración del sistema"
+
+#: app/js/components/settings/plugins/index.js:74
+msgid "Please set a valid URL"
+msgstr "Por favor indique una URL válida"
+
+#: app/js/components/settings/plugins/index.js:78
+msgid "Plugin from {plugin_url} installed and ready."
+msgstr "Plugin de {plugin_url} instalado listo para ser usado."
+
+#: app/js/components/settings/plugins/index.js:109
+msgid "Enter plugin git repository URL"
+msgstr "Introduzca la URL del repositorio git"
+
+#: app/js/components/settings/user/add.js:36
+msgid "This will be used as the user identifier"
+msgstr "Esto será usado como identificador del usuario"
+
+#: app/js/components/settings/user/add.js:43
+msgid "Add user"
+msgstr "Añadir usuario"
+
+#: app/js/components/settings/plugins/card.js:10
+#: app/js/components/rules/edit.js:151
+#: app/js/components/profile/notifications.js:43
+msgid "Disabled"
+msgstr "Desactivado"
+
+#: app/js/components/settings/plugins/card.js:11
+#: app/js/components/rules/edit.js:151
+msgid "Enabled"
+msgstr "Activo"
+
+#: app/js/components/settings/plugins/card.js:12
+msgid "Broken"
+msgstr "Roto"
+
+#: app/js/components/settings/plugins/card.js:50
+msgid "View details"
+msgstr "Ver detalles"
+
+#: app/js/components/service/actionmenu.js:29
+#: app/js/components/service/card.js:80
+msgid "Could not load actions for this service"
+msgstr "No se pueden cargar las acciones para este servicio"
+
+#: app/js/components/service/actionmenu.js:51
+msgid "Hold to Detach"
+msgstr "Mantén pulsado para desasociar"
+
+#: app/js/components/service/actionmenu.js:60
+#: app/js/components/service/card.js:103
+msgid "Loading"
+msgstr "Cargando"
+
+#: app/js/components/service/virtual.js:74
+msgid ""
+"Error loading virtual services\n"
+"\n"
+"{e}"
+msgstr ""
+"Error cargando los servicios virtuales \n"
+"\n"
+"{e}"
+
+#: app/js/components/service/virtual.js:92
+#: app/js/components/service/virtual.js:107
+msgid "Virtual services for {name}"
+msgstr "Servicios virtuales para {name}"
+
+#: app/js/components/service/settingsmodal.js:15
+msgid "Settings for {name}"
+msgstr "Configuración para {name}"
+
+#: app/js/components/service/settingsmodal.js:19
+msgid "No description at service definition"
+msgstr "No hay descripción en la definición del servicio"
+
+#: app/js/components/service/action.js:27
+msgid "Dont know how to trigger this action"
+msgstr "No se como ejecutar esta acción"
+
+#: app/js/components/service/cards.js:13
+msgid "Service catalog"
+msgstr "Catálogo de servicios"
+
+#: app/js/components/service/card.js:56
+msgid "Related services"
+msgstr "Servicios relacionados"
+
+#: app/js/components/service/card.js:61
+msgid "Menu"
+msgstr "Menú"
+
+#: app/js/components/service/card.js:138
+msgid "{name} Service details at {project}"
+msgstr "{name} Detalles del servicio en {project}"
+
+#: app/js/components/service/actionmodal.js:39
+msgid "Trigger action"
+msgstr "Ejecutar acción"
+
+#: app/js/components/service/settings.js:35
+msgid "Rule presets"
+msgstr "Presets de reglas"
+
+#: app/js/components/service/settings.js:171
+msgid "Service name as shown in UI"
+msgstr "Nombre del servicio como se muestra en el interfáz"
+
+#: app/js/components/service/settings.js:182
+msgid "Comments about this service"
+msgstr "Comentarios sobre este servicio"
+
+#: app/js/components/service/settings.js:190
+msgid "Update service settings"
+msgstr "Actualizar la configuración del servicio"
+
+#: app/js/components/service/details/index.js:110
+msgid "Service details"
+msgstr "Detalles del servicio"
+
+#: app/js/components/service/details/index.js:116
+msgid "Details"
+msgstr "Detalles"
+
+#: app/js/components/service/details/detailstab.js:19
+msgid "Service Type"
+msgstr "Tipo de servicio"
+
+#: app/js/components/service/details/detailstab.js:25
+msgid "Related projects"
+msgstr "Projectos relacionados"
+
+#: app/js/components/service/details/detailstab.js:37
+msgid "No description set"
+msgstr "Aún no hay descripción"
+
+#: app/js/components/service/details/detailstab.js:38
+msgid "Config Details"
+msgstr "Detalles de configuración"
+
+#: app/js/components/service/table.js:65
+msgid "Type"
+msgstr "Tipo"
+
+#: app/js/components/service/table.js:65
+#: app/js/components/processes/index.js:43
+#: app/js/components/processes/index.js:44
+msgid "Status"
+msgstr "Estado"
+
+#: app/js/components/service/table.js:65
+msgid "Actions"
+msgstr "Acciones"
+
+#: app/js/components/rules/rules.js:56
+msgid "Filter by trigger type"
+msgstr "Filtrar por tipo de disparador"
+
+#: app/js/components/rules/rules.js:58
+msgid "Show all"
+msgstr "Mostrar todos"
+
+#: app/js/components/rules/rule.js:80
+msgid "Pending trigger"
+msgstr "Disparador pendiente"
+
+#: app/js/components/rules/rule.js:82
+msgid "OFF"
+msgstr "OFF"
+
+#: app/js/components/rules/rule.js:92 app/js/components/rules/edit.js:183
+msgid "Trigger"
+msgstr "Disparador"
+
+#: app/js/components/rules/rule.js:97
+msgid "No actions defined"
+msgstr "No hay acciones definidas"
+
+#: app/js/components/rules/rule.js:110
+msgid "Edit rule"
+msgstr "Editar regla"
+
+#: app/js/components/rules/actionedit.js:54
+#: app/js/components/processes/index.js:41
+#: app/js/components/processes/index.js:42
+msgid "Action"
+msgstr "Acción"
+
+#: app/js/components/rules/actionedit.js:58
+msgid "Select action"
+msgstr "Seleccione acción"
+
+#: app/js/components/rules/actionedit.js:60
+msgid "Do nothing"
+msgstr "No hacer nada"
+
+#: app/js/components/rules/triggerselect.js:38
+msgid "Select trigger"
+msgstr "Seleccione disparador"
+
+#: app/js/components/rules/edit.js:175
+msgid "Service"
+msgstr "Servicio"
+
+#: app/js/components/rules/edit.js:201
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+#: app/js/components/rules/selectservice.js:33
+msgid "Select service"
+msgstr "Seleccionar servicio"
+
+#: app/js/components/rules/selectservice.js:35
+msgid "No service"
+msgstr "No hay servicio seleccionado"
+
+#: app/js/components/rules/ruleactions.js:46
+msgid "Select a preset"
+msgstr "Seleccione un preset"
+
+#: app/js/components/rules/ruleactions.js:81
+msgid "Custom actions"
+msgstr "Acciones personalizadas"
+
+#: app/js/components/rules/ruleactions.js:87
+msgid "Preset actions"
+msgstr "Acciones del preset"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Connection url"
+msgstr "URL de conexión"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Connection options"
+msgstr "Opciones de conexión SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Command to execute"
+msgstr "Comando a ejecutar"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Non blocking command to execute"
+msgstr "Comando no bloqueante a ejecutar"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Remote IP address or DNS name"
+msgstr "Dirección IP o nombre DNS remoto"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Check frequency"
+msgstr "Frecuencia de comprobación"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Time between checks in seconds"
+msgstr "Tiempo entre comprobaciones en segundos"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Grace period"
+msgstr "Periodo de gracia"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Seconds that connectivity can be lost without triggering"
+msgstr "Segundos en los que se puede perder la conectividad sin disparar"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Remote URL"
+msgstr "URL remota"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Maximum response time (s)"
+msgstr "Tiempo máximo de respuesta (s)"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"Trigger if response time is greater than the given value in seconds for "
+"longer that grace period."
+msgstr ""
+"Disparar si el tiempo de respuesta es superior que el valor dado en segundos "
+"por más tiempo que el tiempo de gracia."
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Check frequency (s)"
+msgstr "Frecuencuia de comprobación (s)"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Grace period (s)"
+msgstr "Periodo de gracia (s)"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Full URL of the resource"
+msgstr "URL completa del recurso"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Trigger every"
+msgstr "Disparar cada"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Write human time description: 1d, 12h, 30m, 10s"
+msgstr "Escriba una descripción humana: 1d, 12h, 30m, 10s "
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Service to watch"
+msgstr "Servicio a observar"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Label"
+msgstr "Etiqueta"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "{{rule.description}}"
+msgstr "{{rule.description}}"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Tags to set."
+msgstr "Etiquetas a poner."
+
+#: ../plugins/core-actions/manifest.yaml
+msgid ""
+"Space separated list of tags to add. It can start with a dash to remove the "
+"label (-label)."
+msgstr ""
+"Lista de etiquetas separadas por espacios. Puede empezar con un guion para "
+"eliminar la etiqueta (-etiqueta)."
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "User email or @group"
+msgstr "Email de usuario o @group"
+
+#: ../plugins/core-actions/manifest.yaml
+#: app/js/components/notifications/send.js:33
+msgid "Subject"
+msgstr "Título"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid ""
+"Opens a new issue with the given parameters.\n"
+"\n"
+"Depending on where the action is invoked it may use one or several\n"
+"placeholders with context sensitive data, as rule name, id, description,\n"
+"related service and so on.\n"
+"\n"
+"Check at [Serverboards documentation](https://serverboards.io/docs/"
+"templating#issue-open).\n"
+msgstr ""
+"Abre una nueva incidencia con los parametros indicados.\n"
+"\n"
+"Dependiendo de donde sea invocada la acción se pueden usar uno\n"
+"o varios placeholders con datos dependientes del contexto, como el nombre\n"
+"de la regla, id, descripción, servicio relaciona y así.\n"
+"\n"
+"Coimpruebe en la [documentación de Serverboards](https://serverboards.io/"
+"docs/templating#issue-open).\n"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue title"
+msgstr "Título de la incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue description"
+msgstr "Descripción de la incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue aliases"
+msgstr "Alias de la incidencia"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid ""
+"Issue may be referenced by this alias. Useful to allow closing issue\n"
+"using the rule.id, or any other identifier for the problem.\n"
+"\n"
+"Aliases are separated by spaces.\n"
+msgstr ""
+"Las incidencias pueden ser referenciadas por medio de alias. Esto es útil "
+"para permitir cerrar incidencias usando el id de la regla, o cualquier otro "
+"identificador único del problema.\n"
+"\n"
+"Los alias se pueden separar por espacios.\n"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue id or alias"
+msgstr "Id de usuario o alias"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Issue comment"
+msgstr "Comentar una incidencia"
+
+#: app/js/components/project/board/daterange.js:176
+msgctxt "date range"
+msgid "From"
+msgstr "Desde"
+
+#: app/js/components/project/board/daterange.js:182
+msgctxt "date range"
+msgid "to"
+msgstr "hasta"
+
+#: app/js/components/project/board/daterange.js:157
+msgctxt "date range"
+msgid "at"
+msgstr "a las"
+
+#: app/js/components/calendar.js:8 app/js/utils/index.js:196
+#: app/js/utils/index.js:202
+msgctxt "calendar"
+msgid "January"
+msgstr "Enero"
+
+#: app/js/components/calendar.js:9 app/js/utils/index.js:197
+#: app/js/utils/index.js:203
+msgctxt "calendar"
+msgid "February"
+msgstr "Febrero"
+
+#: app/js/components/calendar.js:10 app/js/utils/index.js:198
+#: app/js/utils/index.js:204
+msgctxt "calendar"
+msgid "March"
+msgstr "Marzo"
+
+#: app/js/components/calendar.js:11 app/js/utils/index.js:199
+#: app/js/utils/index.js:205
+msgctxt "calendar"
+msgid "April"
+msgstr "Abril"
+
+#: app/js/components/calendar.js:12 app/js/utils/index.js:200
+#: app/js/utils/index.js:206
+msgctxt "calendar"
+msgid "May"
+msgstr "Mayo"
+
+#: app/js/components/calendar.js:13 app/js/utils/index.js:201
+#: app/js/utils/index.js:207
+msgctxt "calendar"
+msgid "June"
+msgstr "Junio"
+
+#: app/js/components/calendar.js:14 app/js/utils/index.js:202
+#: app/js/utils/index.js:208
+msgctxt "calendar"
+msgid "July"
+msgstr "Julio"
+
+#: app/js/components/calendar.js:15 app/js/utils/index.js:203
+#: app/js/utils/index.js:209
+msgctxt "calendar"
+msgid "August"
+msgstr "Agosto"
+
+#: app/js/components/calendar.js:16 app/js/utils/index.js:204
+#: app/js/utils/index.js:210
+msgctxt "calendar"
+msgid "September"
+msgstr "Septiembre"
+
+#: app/js/components/calendar.js:17 app/js/utils/index.js:205
+#: app/js/utils/index.js:211
+msgctxt "calendar"
+msgid "October"
+msgstr "Octubre"
+
+#: app/js/components/calendar.js:18 app/js/utils/index.js:206
+#: app/js/utils/index.js:212
+msgctxt "calendar"
+msgid "November"
+msgstr "Noviembre"
+
+#: app/js/components/calendar.js:19 app/js/utils/index.js:207
+#: app/js/utils/index.js:213
+msgctxt "calendar"
+msgid "December"
+msgstr "Diciembre"
+
+#: app/js/components/calendar.js:113
+msgctxt "calendar"
+msgid "MON"
+msgstr "LU"
+
+#: app/js/components/calendar.js:114
+msgctxt "calendar"
+msgid "TUE"
+msgstr "MA"
+
+#: app/js/components/calendar.js:115
+msgctxt "calendar"
+msgid "WED"
+msgstr "MI"
+
+#: app/js/components/calendar.js:116
+msgctxt "calendar"
+msgid "THU"
+msgstr "JU"
+
+#: app/js/components/calendar.js:117
+msgctxt "calendar"
+msgid "FRI"
+msgstr "VI"
+
+#: app/js/components/calendar.js:118
+msgctxt "calendar"
+msgid "SAT"
+msgstr "SA"
+
+#: app/js/components/calendar.js:119
+msgctxt "calendar"
+msgid "SUN"
+msgstr "DO"
+
+#: app/js/utils/index.js:167 app/js/utils/index.js:173
+msgid "today"
+msgstr "hoy"
+
+#: app/js/utils/index.js:168 app/js/utils/index.js:174
+msgid "now"
+msgstr "ahora"
+
+#: app/js/utils/index.js:148
+msgid "millisecond"
+msgstr "milisegundo"
+
+#: app/js/utils/index.js:149
+msgid "second"
+msgstr "segundo"
+
+#: app/js/utils/index.js:150
+msgid "minute"
+msgstr "minuto"
+
+#: app/js/utils/index.js:151
+msgid "hour"
+msgstr "hora"
+
+#: app/js/utils/index.js:152
+msgid "day"
+msgstr "día"
+
+#: app/js/utils/index.js:191
+msgid "{units} {timeunit} ago"
+msgstr "hace {units} {timeunit}"
+
+#: app/js/components/top/processesmenu.js:22
+msgid "No active processes"
+msgstr "No hay procesos activos"
+
+#: app/js/components/top/processesmenu.js:27
+msgid "View process history"
+msgstr "Ver historial de procesos"
+
+#: app/js/components/top/commands.js:96
+msgid "Search and execute commands..."
+msgstr "Búscar y ejecutar comandos..."
+
+#: app/js/components/top/usermenu.js:20 app/js/components/logs/index.js:174
+msgid "Logs"
+msgstr "Logs"
+
+#: app/js/components/top/usermenu.js:25
+msgid "Logout"
+msgstr "Logout"
+
+#: app/js/components/top/notificationsmenu.js:19
+msgid "View all"
+msgstr "Ver todos"
+
+#: app/js/components/notifications/send.js:17
+msgid "Notification sent"
+msgstr "Notificación envíada"
+
+#: app/js/components/notifications/send.js:20
+msgid "Error sending notification."
+msgstr "Error enviando notificación"
+
+#: app/js/components/notifications/send.js:28
+msgid "Send notification to {user}"
+msgstr "Enviar notificación a {user}"
+
+#: app/js/components/notifications/send.js:37
+msgid "Body"
+msgstr "Cuerpo del mensaje"
+
+#: app/js/components/notifications/list.js:33
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#: app/js/components/notifications/list.js:40
+msgid "All Notifications"
+msgstr "Todas las notificaciones"
+
+#: app/js/components/notifications/list.js:42
+#: app/js/components/processes/index.js:33
+#: app/js/components/processes/index.js:34
+msgid "First page"
+msgstr "Primera página"
+
+#: app/js/components/notifications/list.js:44
+#: app/js/components/processes/index.js:34
+#: app/js/components/processes/index.js:35
+msgid "Next page"
+msgstr "Siguiente página"
+
+#: app/js/components/notifications/notification.js:34
+msgid "Notification"
+msgstr "Notificación"
+
+#: app/js/components/notifications/notification.js:45
+msgid "Last message"
+msgstr "Último mensaje"
+
+#: app/js/components/notifications/notification.js:50
+msgid "Next message"
+msgstr "Próximo mensaje"
+
+#: app/js/utils/index.js:202
+msgid "January"
+msgstr "Enero"
+
+#: app/js/utils/index.js:203
+msgid "February"
+msgstr "Febrero"
+
+#: app/js/utils/index.js:204
+msgid "March"
+msgstr "Marzo"
+
+#: app/js/utils/index.js:205
+msgid "April"
+msgstr "Abril"
+
+#: app/js/utils/index.js:206
+msgid "May"
+msgstr "Mayo"
+
+#: app/js/utils/index.js:207
+msgid "June"
+msgstr "Junio"
+
+#: app/js/utils/index.js:208
+msgid "July"
+msgstr "Julio"
+
+#: app/js/utils/index.js:209
+msgid "August"
+msgstr "Agosto"
+
+#: app/js/utils/index.js:210
+msgid "September"
+msgstr "Septiembre"
+
+#: app/js/utils/index.js:211
+msgid "October"
+msgstr "Octubre"
+
+#: app/js/utils/index.js:212
+msgid "November"
+msgstr "Noviembre"
+
+#: app/js/utils/index.js:213
+msgid "December"
+msgstr "Diciembre"
+
+#: app/js/components/notifications/item.js:7
+msgid "UNREAD"
+msgstr "NO-LEIDO"
+
+#: app/js/components/notifications/item.js:8
+msgid "NEW"
+msgstr "NUEVO"
+
+#: app/js/components/notifications/item.js:7
+msgid "unread"
+msgstr "no-leido"
+
+#: app/js/components/notifications/item.js:8
+msgid "new"
+msgstr "nuevo"
+
+#: app/js/components/processes/index.js:15
+#: app/js/components/processes/index.js:16 app/js/components/logs/index.js:8
+msgid "error"
+msgstr "error"
+
+#: app/js/components/processes/index.js:16
+#: app/js/components/processes/index.js:17
+msgid "aborted"
+msgstr "abortado"
+
+#: app/js/components/processes/index.js:17
+#: app/js/components/processes/index.js:18
+msgid "running"
+msgstr "en ejecución"
+
+#: app/js/components/processes/index.js:24
+#: app/js/components/processes/index.js:30
+#: app/js/components/processes/index.js:25
+#: app/js/components/processes/index.js:31
+#: app/js/components/processes/process.js:71
+msgid "Process history"
+msgstr "Historial de procesos"
+
+#: app/js/components/processes/index.js:39
+#: app/js/components/processes/index.js:40
+#: app/js/components/processes/process.js:40 app/js/components/logs/index.js:78
+#: app/js/components/logs/index.js:187
+msgid "Date"
+msgstr "Fecha"
+
+#: app/js/components/processes/index.js:40
+#: app/js/components/processes/index.js:41
+#: app/js/components/processes/process.js:43
+msgid "Elapsed"
+msgstr "Transcurrido"
+
+#: app/js/components/processes/index.js:42
+#: app/js/components/processes/index.js:43
+#: app/js/components/processes/process.js:41
+msgid "User"
+msgstr "Usuario"
+
+#: app/js/components/processes/index.js:32
+#: app/js/components/processes/index.js:33
+msgid "Showing {start}-{end} of {total}"
+msgstr "Mostrando {start}-{end} de {total}"
+
+#: app/js/components/processes/index.js:15
+msgid "ok"
+msgstr "ok"
+
+#: app/js/components/processes/process.js:46
+msgid "Related rule"
+msgstr "Regla relacionada"
+
+#: app/js/components/processes/process.js:57
+msgid "Action params"
+msgstr "Parámetros de la acción"
+
+#: app/js/components/processes/process.js:62
+msgid "Action result"
+msgstr "Resultado de la acción"
+
+#: app/js/components/profile/index.js:45 app/js/components/profile/index.js:48
+msgid "Avatar image saved"
+msgstr "Imagen del avatar guardada"
+
+#: app/js/components/profile/index.js:75 app/js/components/profile/index.js:78
+msgid "Personal data"
+msgstr "Datos personales"
+
+#: app/js/components/profile/index.js:76
+#: app/js/components/profile/password_change.js:38
+#: app/js/components/profile/password_change.js:57
+#: app/js/components/profile/index.js:79
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: app/js/components/profile/index.js:82 app/js/components/profile/index.js:85
+msgid "Upload new image"
+msgstr "Actualizar imagen"
+
+#: app/js/components/profile/index.js:85 app/js/components/profile/index.js:88
+msgid "Basic user data"
+msgstr "Datos básicos del usuario"
+
+#: app/js/components/profile/index.js:96 app/js/components/profile/index.js:113
+msgid "Update profile"
+msgstr "Actualizar perfíl"
+
+#: app/js/components/profile/password_change.js:27
+msgid "Password changed properly"
+msgstr "La contraseña ha sido modificada con éxito"
+
+#: app/js/components/profile/password_change.js:30
+msgid "Error changing password: {e}"
+msgstr "Error modificando contraseña: {e}"
+
+#: app/js/components/profile/password_change.js:41
+msgid "Current password"
+msgstr "Contraseña actual"
+
+#: app/js/components/profile/password_change.js:42
+msgid "Enter here you current password"
+msgstr "Escriba aquí su nueva contraseña"
+
+#: app/js/components/profile/password_change.js:46
+#: app/js/components/login/set_password.js:54
+msgid "New password"
+msgstr "Nueva contraseña"
+
+#: app/js/components/profile/password_change.js:47
+msgid "Enter here the new password"
+msgstr "Escriba aquí su nueva contraseña"
+
+#: app/js/components/profile/password_change.js:51
+#: app/js/components/login/set_password.js:59
+msgid "Repeat password"
+msgstr "Repita su contraseña"
+
+#: app/js/components/profile/password_change.js:52
+msgid "Repeat the password for verification"
+msgstr "Repita la contraseña para la verificación"
+
+#: app/js/components/profile/notifications.js:87
+msgid "Notification channels"
+msgstr "Canales de notificación"
+
+#: app/js/components/profile/notifications.js:91
+msgid "Communication Channels"
+msgstr "Canales de comunicación"
+
+#: app/js/components/login/index.js:75 app/js/components/login/index.js:103
+msgid "Login"
+msgstr "Login"
+
+#: app/js/components/login/index.js:98
+msgid "Keep logged login"
+msgstr "Mantenerse logueado"
+
+#: app/js/components/login/index.js:101
+msgid "Reset password"
+msgstr "Resetear contraseña"
+
+#: app/js/components/login/reset_password.js:13
+msgid "Email sent. Check your email at {email}"
+msgstr "Email enviado. Compruebe su email en {email}"
+
+#: app/js/components/login/reset_password.js:16
+msgid "Could not request password reset: {e}"
+msgstr "No se pudo solicitar el cambio de contraseña: {e}"
+
+#: app/js/components/login/reset_password.js:39
+msgid "Request email with reset password link"
+msgstr "Solicitado email con enlace de cambio de contraseña"
+
+#: app/js/components/login/reset_password.js:52
+msgid "I already have a password change token"
+msgstr "Ya tengo un token de cambio de contraseña"
+
+#: app/js/components/login/reset_password.js:57
+msgid "Request email"
+msgstr "Solicitar email"
+
+#: app/js/components/login/set_password.js:13
+msgid "Updating password"
+msgstr "Actualizando contraseña"
+
+#: app/js/components/login/set_password.js:15
+msgid "Password changed successfuly. You can now log in."
+msgstr "La contraseña se modificó con éxito. Ahora puede entrar."
+
+#: app/js/components/login/set_password.js:18
+msgid ""
+"There was an error changing password. Check your change password token.\n"
+" {e}"
+msgstr ""
+"Hubo un error modificando la contraseña. Por favor compruebe su token de "
+"cambio de contraseña.\n"
+"{e}"
+
+#: app/js/components/login/set_password.js:44
+msgid "Reset token"
+msgstr "Reiniciar token"
+
+#: app/js/components/login/set_password.js:70
+msgid "Set new password"
+msgstr "Poner una nueva contraseña"
+
+#: app/js/components/logs/index.js:9
+msgid "warn"
+msgstr "aviso"
+
+#: app/js/components/logs/index.js:10
+msgid "debug"
+msgstr "debug"
+
+#: app/js/components/logs/index.js:11
+msgid "info"
+msgstr "info"
+
+#: app/js/components/logs/index.js:73
+msgid "Log line details"
+msgstr "Detalles de la linea de bitacora"
+
+#: app/js/components/logs/index.js:82
+msgid "Full Message"
+msgstr "Mensaje completo"
+
+#: app/js/components/logs/index.js:89
+msgid "Metadata"
+msgstr "Metadatos"
+
+#: app/js/components/logs/index.js:175
+msgid "{count} total log lines. Page {pagenr}."
+msgstr "Hay {count} lineas de log. Página {pagenr}. "
+
+#: app/js/components/logs/index.js:178
+msgid "Next"
+msgstr "Siguiente"
+
+#: app/js/components/logs/index.js:179
+msgid "Refresh"
+msgstr "Refrescar"
+
+#: app/js/components/logs/index.js:185
+msgid "Id"
+msgstr "Id"
+
+#: app/js/components/logs/index.js:186
+msgid "Level"
+msgstr "Nivel"
+
+#: app/js/components/logs/index.js:188
+msgid "Message"
+msgstr "Mensaje"
+
+#: app/js/components/login/index.js:75
+msgid "Login into Serverboards"
+msgstr "Entrar en Serverboards"
+
+#: app/js/components/profile/index.js:92
+msgid "Language"
+msgstr "Idioma"
+
+#: app/js/actions/auth.js:168
+msgid "spanish"
+msgstr "español"
+
+#: app/js/actions/auth.js:169
+msgid "english"
+msgstr "inglés"
+
+#: app/js/actions/auth.js:176
+msgid "Set language to {lang}"
+msgstr "Se ha cambiado el idioma a {lang}"
+
+#: app/js/components/flashmessages.js:18
+msgid "Information"
+msgstr "Información"
+
+#: app/js/components/flashmessages.js:19
+msgid "Success"
+msgstr "Éxito"
+
+#: app/js/components/flashmessages.js:20
+msgid "Debug"
+msgstr "Depuración"
+
+#: app/js/components/flashmessages.js:21
+msgid "Warning"
+msgstr "Aviso"

@@ -3,6 +3,7 @@ import Modal from '../modal'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import { dispatch_set_modal } from 'app/actions/modal'
+import {i18n} from 'app/utils/i18n'
 
 let SendNotification=React.createClass({
   handleSend(){
@@ -13,10 +14,10 @@ let SendNotification=React.createClass({
       body: form.find('textarea[name=body]').val()
     }
     rpc.call("notifications.notify", data).then(()=>{
-      Flash.success("Notification sent")
+      Flash.success(i18n("Notification sent"))
       dispatch_set_modal(false)
     }).catch(()=>{
-      Flash.error("Error sending notification.")
+      Flash.error(i18n("Error sending notification."))
     })
   },
   render(){
@@ -24,23 +25,23 @@ let SendNotification=React.createClass({
     return (
       <Modal onClose={props.onClose}>
         <div className="ui top header secondary menu">
-          <h3 className="ui header">Send notification to {props.user.name}</h3>
+          <h3 className="ui header">{i18n("Send notification to {user}", {user: props.user.name})}</h3>
         </div>
         <div className="content">
           <form ref="form" className="ui form" onSubmit={this.handleSend}>
             <div className="field">
-              <label>Subject</label>
+              <label>{i18n("Subject")}</label>
               <input name="subject" placeholder=""/>
             </div>
             <div className="field">
-              <label>Body</label>
+              <label>{i18n("Body")}</label>
               <textarea name="body"/>
             </div>
           </form>
         </div>
         <div className="actions">
-          <div className="ui accept yellow button" onClick={this.handleSend}>Send notification</div>
-          <div className="ui cancel button" onClick={props.onClose}>Cancel</div>
+          <div className="ui accept yellow button" onClick={this.handleSend}>{i18n("Send notification")}</div>
+          <div className="ui cancel button" onClick={props.onClose}>{i18n("Cancel")}</div>
         </div>
       </Modal>
     )

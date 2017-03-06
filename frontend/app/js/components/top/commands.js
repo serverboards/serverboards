@@ -3,6 +3,7 @@ import Command from 'app/utils/command'
 import store from 'app/utils/store'
 import { merge } from 'app/utils'
 import { push } from 'react-router-redux'
+import {i18n, i18n_c, i18n_nop} from 'app/utils/i18n'
 
 const skip_nodes={
   INPUT: true,
@@ -92,7 +93,7 @@ const CommandSearch = React.createClass({
       <div className="menu">
         <div ref="search" className={`ui search ${ is_open ? "" : "hidden"}`}>
           <div className="ui icon input">
-            <input className="prompt" type="text" placeholder="Search and execute commands..."/>
+            <input className="prompt" type="text" placeholder={i18n("Search and execute commands...")}/>
             <i className="terminal icon" onClick={() => this.handleToggleOpen(false)}></i>
           </div>
           <div className="results">

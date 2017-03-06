@@ -6,6 +6,7 @@ import { to_map, to_list, merge } from 'app/utils'
 import SelectService from './selectservice'
 import TriggerSelect from './triggerselect'
 import RuleActions from './ruleactions'
+import {i18n} from 'app/utils/i18n'
 
 const icon = require("../../../imgs/rules.svg")
 
@@ -142,12 +143,12 @@ const Details=React.createClass({
         <div ref="el">
           <div className="ui top secondary menu">
             <a className="item">
-              <i className="ui icon trash"/> Delete
+              <i className="ui icon trash"/> {i18n("Delete")}
             </a>
             <div className="right menu">
               <div className="item">
                 <div className="ui checkbox toggle">
-                  <label>{state.is_active ? "Enabled " : "Disabled"}</label>
+                  <label>{state.is_active ? i18n("Enabled") : i18n("Disabled")}</label>
                   <input type="checkbox" defaultChecked={state.is_active} name="is_active"/>
                 </div>
               </div>
@@ -157,21 +158,21 @@ const Details=React.createClass({
           <div className="ui medium header side header centered">
             <ImageIcon src={icon} name={state.name}/>
             <br/>
-            <h3 className="ui header">{state.name}</h3>
+            <h3 className="ui header">{i18n(state.name)}</h3>
           </div>
 
           <div className="ui form">
             <div>
               <div className="field">
-                <label>Name:</label>
-                <input type="text" defaultValue={state.name} name="name" onChange={this.handleNameChange}/>
+                <label>{i18n("Name")}:</label>
+                <input type="text" defaultValue={i18n(state.name)} name="name" onChange={this.handleNameChange}/>
               </div>
               <div className="field">
-                <label>Description:</label>
-                <textarea type="text" defaultValue={state.description} name="description" onChange={this.handleDescriptionChange}/>
+                <label>{i18n("Description")}:</label>
+                <textarea type="text" defaultValue={i18n(state.description)} name="description" onChange={this.handleDescriptionChange}/>
               </div>
               <div className="field">
-                <label>Service:</label>
+                <label>{i18n("Service")}:</label>
                 <SelectService defaultValue={state.service && state.service.uuid} services={services} onChange={this.handleServiceChange}/>
               </div>
             </div>
@@ -179,7 +180,7 @@ const Details=React.createClass({
             <div>
               <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
               <div className="field">
-                <label>Trigger:</label>
+                <label>{i18n("Trigger")}:</label>
                 <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
               </div>
               <GenericForm fields={trigger_params} data={state.trigger_config} updateForm={this.handleTriggerConfigChange}/>
@@ -197,7 +198,7 @@ const Details=React.createClass({
 
         </div>
         <div className="actions">
-          <button className="ui yellow button" onClick={this.handleSave}>Save changes</button>
+          <button className="ui yellow button" onClick={this.handleSave}>{i18n("Save changes")}</button>
         </div>
       </Modal>
     )

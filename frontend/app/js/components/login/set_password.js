@@ -1,6 +1,7 @@
 import React from 'react'
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
+import {i18n} from 'app/utils/i18n'
 
 const SetPassword=React.createClass({
   setPassword(){
@@ -9,12 +10,12 @@ const SetPassword=React.createClass({
       const email=$form.find('input[name=email]').val()
       const token=$form.find('input[name=token]').val()
       const password=$form.find('input[name=password]').val()
-      Flash.info(`Updating password`)
+      Flash.info(i18n("Updating password"))
       rpc.call("auth.reset_password",[email, token, password]).then(() => {
-        Flash.success('Password changed successfuly. You can now log in.')
+        Flash.success(i18n("Password changed successfuly. You can now log in."))
         this.props.closeReset()
       }).catch((e) => {
-        Flash.error(`There was an error changing password. Check your change password token.\n ${e}`)
+        Flash.error(i18n("There was an error changing password. Check your change password token.\n {e}", {e}))
       })
     }
   },
@@ -40,22 +41,22 @@ const SetPassword=React.createClass({
 
             <div className="content">
               <div className="field">
-                <label>Reset token</label>
+                <label>{i18n("Reset token")}</label>
                 <input type="text" name="token" defaultValue={props.token} placeholder="As received on the email"
                   />
               </div>
               <div className="field">
-                <label>Email address</label>
+                <label>{i18n("Email address")}</label>
                 <input type="text" name="email" defaultValue={props.email} placeholder="Account email address"
                   />
               </div>
               <div className="field">
-                <label>New password</label>
+                <label>{i18n("New password")}</label>
                 <input type="password" name="password" placeholder="*********"
                   />
               </div>
               <div className="field">
-                <label>Repeat password</label>
+                <label>{i18n("Repeat password")}</label>
                 <input type="password" name="repeat_password" placeholder="*********"
                   />
               </div>
@@ -63,10 +64,10 @@ const SetPassword=React.createClass({
 
             <div className="actions">
               <button type="button" className="ui right button" onClick={props.closeReset}>
-                Cancel
+                {i18n("Cancel")}
               </button>
               <button type="button" className="ui positive right labeled icon button" onClick={this.setPassword}>
-                Set new password
+                {i18n("Set new password")}
                 <i className="caret right icon"></i>
               </button>
             </div>

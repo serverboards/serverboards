@@ -2,6 +2,7 @@ import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
 import HoldButton from '../holdbutton'
+import i18n from 'app/utils/i18n'
 
 let SetupComponent=React.createClass({
   getInitialState(){
@@ -39,9 +40,9 @@ let SetupComponent=React.createClass({
           <GenericForm ref="form" fields={props.service.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
         </div>
         <div className="actions">
-          <button className="ui ok yellow button" onClick={this.handleAccept}>Accept</button>
-          <HoldButton className="ui red button" onHoldClick={props.onDelete}>Delete</HoldButton>
-          <button className="ui cancel button" onClick={props.onClose}>Cancel</button>
+          <button className="ui ok yellow button" onClick={this.handleAccept}>{i18n("Accept")}</button>
+          <HoldButton className="ui red button" onHoldClick={props.onDelete}>{i18n("Delete")}</HoldButton>
+          <button className="ui cancel button" onClick={props.onClose}>{i18n("Cancel")}</button>
         </div>
       </Modal>
     )

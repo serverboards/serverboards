@@ -4,6 +4,7 @@ import IconIcon from '../iconicon'
 import Loading from '../loading'
 import Modal from '../modal'
 import { set_modal, goto } from 'app/utils/store'
+import i18n from 'app/utils/i18n'
 
 const icon = require("../../../imgs/services.svg")
 
@@ -86,11 +87,11 @@ let AddService=React.createClass({
     let desc
     //if (this.state.tab=="new"){ // default
       services=props.catalog
-      desc="Add a new service to this project"
+      desc=i18n("Add a new service to this project")
     //}
     if (this.state.tab=="existing"){
       services=props.all_services
-      desc="Add an existing service from another project into this one. This service will be shared between the projects."
+      desc=i18n("Add an existing service from another project into this one. This service will be shared between the projects.")
     }
 
     return (

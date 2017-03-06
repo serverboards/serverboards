@@ -1,5 +1,6 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
+import i18n from 'app/utils/i18n'
 
 function filter_project(s, search){
   let valid = true
@@ -89,7 +90,7 @@ const Selector=React.createClass({
         <div ref="el" className={`ui vertical menu project selector ${props.className}`}>
           <div className="ui search">
             <div className="ui icon input">
-              <input ref="search" className="prompt" type="text" placeholder="Search by name" onChange={(ev) => this.setSearch(ev.target.value)}/>
+              <input ref="search" className="prompt" type="text" placeholder={i18n("Search by name")} onChange={(ev) => this.setSearch(ev.target.value)}/>
               <i className="search icon"/>
             </div>
           </div>

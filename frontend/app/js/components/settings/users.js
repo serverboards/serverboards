@@ -2,6 +2,7 @@ import React from 'react'
 import Loading from '../loading'
 import HoldButton from '../holdbutton'
 import Restricted from 'app/restricted'
+import i18n from 'app/utils/i18n'
 
 const UserRow = React.createClass({
   componentDidMount(){
@@ -14,37 +15,37 @@ const UserRow = React.createClass({
         <td className={u.is_active ? "" : "disabled"}>{u.name}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.email}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
-        <td className={u.is_active ? "" : "disabled"}>{u.is_active ? "true" : "false"}</td>
+        <td className={u.is_active ? "" : "disabled"}>{u.is_active ? i18n("true") : i18n("false")}</td>
         <td className="ui">
           <Restricted perm="auth.modify_any OR notifications.notify_all">
             <div className="ui item">
               <div ref="dropdown" className="ui dropdown">
-                More
+                {i18n("More")}
                 <i className="dropdown icon"></i>
                 <div className="menu" style={{marginLeft: "-6em"}}>
                   <Restricted perm="auth.modify_any">
                     <a href="#" className="item"
                       onClick={(ev) => { ev.preventDefault(); this.props.onOpenEditUser()}}>
-                      Edit user
+                      {i18n("Edit user")}
                       <i className="ui icon edit" style={{float:"right"}}/>
                     </a>
                   </Restricted>
                   <Restricted perm="notifications.notify_all">
                     <a href="#" className="item"
                       onClick={(ev) => { ev.preventDefault(); this.props.onOpenSendNotification()}}>
-                      Send notification
+                      {i18n("Send notification")}
                       <i className="ui icon mail" style={{float:"right"}}/>
                     </a>
                   </Restricted>
                   <Restricted perm="auth.modify_any">
                     {u.is_active ? (
                       <HoldButton className="item" onHoldClick={this.props.onDisableUser}>
-                      Hold to disable
+                      {i18n("Hold to disable")}
                       <i className="ui icon trash user" style={{paddingLeft: 10}}/>
                       </HoldButton>
                     ) : (
                       <HoldButton className="item" onHoldClick={this.props.onEnableUser}>
-                      Hold to enable
+                      {i18n("Hold to enable")}
                       <i className="ui icon enable user" style={{paddingLeft: 10}}/>
                       </HoldButton>
                     )}
@@ -83,15 +84,15 @@ const Users=React.createClass({
 
     return (
       <div className="ui container" ref="el">
-        <h1>Users</h1>
+        <h1>{i18n("Users")}</h1>
 
         <table className="ui table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Groups</th>
-              <th>Is active?</th>
+              <th>{i18n("Name")}</th>
+              <th>{i18n("Email")}</th>
+              <th>{i18n("Groups")}</th>
+              <th>{i18n("Is active?")}</th>
               <th style={{width: "8em"}}></th>
             </tr>
           </thead>

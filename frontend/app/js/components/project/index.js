@@ -3,6 +3,7 @@ import Loading from '../loading'
 import {object_is_equal} from 'app/utils'
 import PluginScreen from 'app/components/plugin/screen'
 import SidebarSections from './sidebar'
+import i18n from 'app/utils/i18n'
 
 const Serverboard=React.createClass({
   shouldComponentUpdate(nprops){
@@ -39,7 +40,7 @@ const Serverboard=React.createClass({
     if (!props.project)
       return (
         <Loading>
-        Serverboard information.
+        {i18n("Project information")}
         </Loading>
       )
 

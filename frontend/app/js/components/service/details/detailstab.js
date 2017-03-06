@@ -2,6 +2,7 @@ import React from 'react'
 import store from 'app/utils/store'
 import {goto} from 'app/utils/store'
 import {MarkdownPreview} from 'react-marked-markdown';
+import {i18n} from 'app/utils/i18n'
 
 function project_name(shortname){
   return (store.getState().project.projects.find( (s) => s.shortname == shortname) || {}).name
@@ -15,13 +16,13 @@ function DetailsTab(props){
   return (
     <div className="ui grid" style={{flexGrow:1, margin: 0}}>
       <div className="six wide column" style={{borderRight:"1px solid #ddd", paddingLeft: 20}}>
-        <h3 className="ui header">Service Type</h3>
+        <h3 className="ui header">{i18n("Service Type")}</h3>
         {props.service_template.name}
-        <h3 className="ui header">Description</h3>
+        <h3 className="ui header">{i18n("Description")}</h3>
         {props.service_template.description ? (
-          <MarkdownPreview className="ui meta" value={props.service_template.description}/>
+          <MarkdownPreview className="ui meta" value={i18n(props.service_template.description)}/>
         ) : null}
-        <h3 className="ui header">Related projects</h3>
+        <h3 className="ui header">{i18n("Related projects")}</h3>
         <div className="ui vertical secondary menu">
           {props.service.projects.map( (s) => (
             <div key={s} className={`item ${is_current_project(s) ? "active" : ""}`} onClick={() => goto(`/project/${s}/`)} style={{cursor: "pointer"}}>
@@ -32,16 +33,16 @@ function DetailsTab(props){
         </div>
       </div>
       <div className="ten wide column">
-        <h3 className="ui header">Description</h3>
-        <MarkdownPreview className="ui meta" value={props.service.description || "No description set"}/>
-        <h3 className="ui header">Config Details</h3>
+        <h3 className="ui header">{i18n("Description")}</h3>
+        <MarkdownPreview className="ui meta" value={props.service.description || i18n("No description set")}/>
+        <h3 className="ui header">{i18n("Config Details")}</h3>
         <div className="ui grid">
           {((props.service_template || {}).fields || []).map( (f) => (
             <div key={f.name} className="row">
-              <label className="four wide column" style={{fontWeight:"bold"}}>{f.label || f.name}</label>
+              <label className="four wide column" style={{fontWeight:"bold"}}>{i18n(f.label || f.name)}</label>
               <div className="twelve wide column">
                 {props.service.config[f.name] ? (props.service.config[f.name].name || props.service.config[f.name]) : (
-                  <div className="ui meta">{f.value || f.placeholder}</div>
+                  <div className="ui meta">{i18n(f.value || f.placeholder)}</div>
                 )}
                 </div>
             </div>

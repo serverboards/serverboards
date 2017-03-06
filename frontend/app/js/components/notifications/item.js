@@ -2,6 +2,10 @@ import React from 'react'
 import {colorize} from 'app/utils'
 import {pretty_ago} from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown';
+import {i18n, i18n_nop} from 'app/utils/i18n'
+
+i18n_nop("unread")
+i18n_nop("new")
 
 function NotificationItem(props){
   try{
@@ -15,7 +19,7 @@ function NotificationItem(props){
     <a href={`#/notifications/${p.id}`} className="item">
       <div>
         <span>{tags.map( (t) => (
-          <span key={t} style={{marginRight: 5}} className={`ui tiny basic plain label ${colorize(t)}`}>{t}</span>
+          <span key={t} style={{marginRight: 5}} className={`ui tiny basic plain label ${colorize(t)}`}>{i18n(t)}</span>
         ))}
         </span>
         <span className="ui meta"> {timespec}</span>

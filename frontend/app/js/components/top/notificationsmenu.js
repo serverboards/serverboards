@@ -1,5 +1,6 @@
 import React from 'react'
 import NotificationItem from 'app/components/notifications/item'
+import {i18n} from 'app/utils/i18n'
 
 function NotificationsMenu(props){
   const unread=props.unread || []
@@ -11,11 +12,11 @@ function NotificationsMenu(props){
         ))}
         {unread.length > 5 ? (
           <div className="item meta disabled">
-          And {unread.length - 5} more...
+          {i18n("And {n} more...", {n: unread.length - 5})}
           </div>
         ) : null}
         <a href="#/notifications/list" className="item inverted yellow" style={{flexDirection: "row"}}>
-          View all
+          {i18n("View all")}
           <i className="ui caret right icon" style={{paddingLeft: 5}}/>
         </a>
       </div>

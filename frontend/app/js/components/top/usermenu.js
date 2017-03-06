@@ -1,6 +1,7 @@
 import React from 'react'
 import {Link} from 'app/router'
 import Restricted from 'app/restricted'
+import {i18n} from 'app/utils/i18n'
 
 function UserMenu(props){
   return (
@@ -11,17 +12,17 @@ function UserMenu(props){
           <i className="ui icon user"></i>
         </a>
         <a className="item" href="#/settings/">
-          <span>Settings</span>
+          <span>{i18n("Settings")}</span>
           <i className="ui icon settings"></i>
         </a>
         <Restricted perm="logs.view">
           <a className="item" href="#/logs/">
-              <span>Logs</span>
+              <span>{i18n("Logs")}</span>
               <i className="ui icon book"></i>
           </a>
         </Restricted>
         <a href="#!" className="item" onClick={props.onLogout}>
-          <span>Logout</span>
+          <span>{i18n("Logout")}</span>
           <i className="ui icon power"></i>
         </a>
       </div>

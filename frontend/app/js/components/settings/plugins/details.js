@@ -5,16 +5,17 @@ import ImageIcon from 'app/components/imageicon'
 import {to_list} from 'app/utils'
 import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
+import i18n from 'app/utils/i18n'
 
 const icon = require("../../../../imgs/plugins.svg")
 
 function ComponentDetails({component: c}){
   return (
     <div>
-      <h3 className="ui small header" style={{marginBottom: 0, textTransform:"none"}}>{c.name || c.id}</h3>
-      <div><label>Type:</label> <span className="ui meta">{c.type}</span></div>
+      <h3 className="ui small header" style={{marginBottom: 0, textTransform:"none"}}>{i18n(c.name || c.id)}</h3>
+      <div><label>{i18n("Type:")}</label> <span className="ui meta">{c.type}</span></div>
       {c.description ? (
-        <div><label>Description:</label> <span className="ui meta"><MarkdownPreview value={c.description}/></span></div>
+        <div><label>{i18n("Description:")}</label> <span className="ui meta"><MarkdownPreview value={i18n(c.description)}/></span></div>
       ) : [] }
     </div>
   )
@@ -68,19 +69,19 @@ const PluginDetails=React.createClass({
     return (
       <Modal className="wide">
         <div className="ui top secondary menu">
-          <ImageIcon src={icon} name={plugin.name}/>
+          <ImageIcon src={icon} name={i18n(plugin.name)}/>
           <div style={{display:"inline-block"}}>
-            <h3 className="ui header" style={{marginBottom:0, textTransform:"none"}}>{plugin.name}</h3>
-            <div className="ui meta bold">by {author}</div>
+            <h3 className="ui header" style={{marginBottom:0, textTransform:"none"}}>{i18n(plugin.name)}</h3>
+            <div className="ui meta bold">{i18n("by")} {author}</div>
           </div>
           <div className="right menu">
             {!plugin.id.startsWith("serverboards.core.") ? (
               <div className="item" style={{flexDirection:"column"}}>
                 <div>
                   {this.state.is_active ? (
-                    <span><i className="ui icon circle green"/> Active</span>
+                    <span><i className="ui icon circle green"/> {i18n("Active")}</span>
                   ) : (
-                    <span><i className="ui icon circle grey"/> Not Active</span>
+                    <span><i className="ui icon circle grey"/> {i18n("Not Active")}</span>
                   )}
                 </div>
                 <div ref="is_active" className="ui toggle checkbox" style={{paddingTop: 10}}>
@@ -89,7 +90,7 @@ const PluginDetails=React.createClass({
               </div>
             ) : null }
             {plugin.require_update ? (
-              <button className="ui yellow button" onClick={this.handleUpdate}>Update now</button>
+              <button className="ui yellow button" onClick={this.handleUpdate}>{i18n("Update now")}</button>
             ) : null }
           </div>
         </div>
@@ -97,18 +98,18 @@ const PluginDetails=React.createClass({
           <div className="six wide column" style={left_pane_style}>
             <div className="ui fields" style={{clear:"both"}}>
               <div className="field">
-                <label>Version</label>
+                <label>{i18n("Version")}</label>
                 <div className="ui meta">{plugin.version}</div>
               </div>
               {plugin.url ? (
                 <div className="field">
-                  <label>URL</label>
+                  <label>{i18n("URL")}</label>
                   <div className="ui meta"><a href={plugin.url} target="_blank" rel="external">{plugin.url}</a></div>
                 </div>
               ) : []}
             </div>
             <div style={{paddingTop: 20, overflow: "auto", maxHeight:"calc( 100vh - 195px )"}}>
-              <h3>Components</h3>
+              <h3>{i18n("Components")}</h3>
               {to_list(plugin.components).map( (nc) => (
                 <ComponentDetails key={nc[1].id} component={nc[1]}/>
               ))}
@@ -116,14 +117,14 @@ const PluginDetails=React.createClass({
           </div>
           <div className="ten wide column">
             <div>
-              <h3 className="ui medium header" style={{textTransform:"none"}}>Description</h3>
+              <h3 className="ui medium header" style={{textTransform:"none"}}>{i18n("Description")}</h3>
               <div className="ui description">
-                <MarkdownPreview value={plugin.description}/>
+                <MarkdownPreview value={i18n(plugin.description)}/>
               </div>
             </div>
             {plugin.require_update ? (
               <div>
-                <h3 className="ui medium header">Update changelog</h3>
+                <h3 className="ui medium header">{i18n("Update changelog")}</h3>
                 <ul>
                   {plugin.require_update.split('\n').map( (l) => (
                     <li key={l}>{l}</li>

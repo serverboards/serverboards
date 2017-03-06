@@ -6,6 +6,7 @@ import Modal from 'app/components/modal'
 import HoldButton from 'app/components/holdbutton'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
+import i18n from 'app/utils/i18n'
 
 const AddWidget = React.createClass({
   getInitialState(){
@@ -41,7 +42,7 @@ const AddWidget = React.createClass({
     if (!widget){
       return (
         <Modal>
-          <Loading>Widget description</Loading>
+          <Loading>{i18n("Widget description")}</Loading>
         </Modal>
       )
     }
@@ -50,13 +51,13 @@ const AddWidget = React.createClass({
         <div className="ui top secondary menu">
           <h3 className="ui header">{widget.name}</h3>
           <div className="right menu">
-            <HoldButton className="item" onHoldClick={this.removeWidget}>Remove <i className="ui icon trash"/></HoldButton>
+            <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
           </div>
         </div>
         <div className="ui form" ref="form">
           {this.state.error ? (
             <div className="ui message visible error">
-              <div className="header">Error</div>
+              <div className="header">{i18n("Error")}</div>
               <p>{this.state.error}</p>
             </div>
           ) : (
@@ -64,7 +65,7 @@ const AddWidget = React.createClass({
               <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
               <GenericForm fields={widget.params} data={this.state.config} updateForm={this.setFormData}/>
               <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
-                Update widget
+                {i18n("Update widget")}
               </button>
             </div>
           )}

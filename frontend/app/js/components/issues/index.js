@@ -6,6 +6,7 @@ import moment from 'moment'
 import Loading from 'app/components/loading'
 import Filters from 'app/containers/issues/index_filters'
 import Avatar from 'app/containers/avatar'
+import i18n from 'app/utils/i18n'
 
 import 'sass/issues.sass'
 
@@ -86,22 +87,22 @@ function Issues(props){
   return (
     <div className="ui central area white background" style={{flexDirection:"column"}} id="issues">
       <div className="ui top secondary menu" style={{paddingBottom: 0}}>
-        <h3 className="ui header">Issues</h3>
+        <h3 className="ui header">{i18n("Issues")}</h3>
         <div className="ui tabs secondary pointing menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
           <a
             className={`item ${ props.filter.indexOf("status:open")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:open")}>
-              Open&nbsp;<span className="ui meta"> ({props.open_count})</span>
+              {i18n("Open")}&nbsp;<span className="ui meta"> ({props.open_count})</span>
           </a>
           <a
             className={`item ${ props.filter.indexOf("status:closed")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:closed")}>
-              Closed&nbsp;<span className="ui meta"> ({props.closed_count})</span>
+              {i18n("Closed")}&nbsp;<span className="ui meta"> ({props.closed_count})</span>
           </a>
           <a
             className={`item ${ props.filter.indexOf("status:*")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:*")}>
-              All&nbsp;<span className="ui meta">({props.all_count})</span>
+              {i18n("All")}&nbsp;<span className="ui meta">({props.all_count})</span>
           </a>
         </div>
       </div>

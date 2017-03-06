@@ -3,6 +3,7 @@ import RuleEdit from 'app/containers/rules/edit'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import Rules from './rules'
+import {i18n} from 'app/utils/i18n'
 
 const empty_rule={
   uuid: undefined,
@@ -42,7 +43,7 @@ const Index=React.createClass({
     const props=this.props
     if (props.rules == undefined){
       return (
-        <Loading>Rules</Loading>
+        <Loading>{i18n("Rules")}</Loading>
       )
     }
     if (props.subsection){

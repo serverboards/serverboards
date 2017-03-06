@@ -113,7 +113,7 @@ components:
             using the rule.id, or any other identifier for the problem.
 
             Aliases are separated by spaces.
-          placeholder: "eg. rule/\{\{rule.uuid\}\}"
+          placeholder: "eg. rule/{{rule.uuid}}"
 
   - name: Issue Close
     type: action
@@ -127,7 +127,7 @@ components:
         - name: issue
           type: text
           label: Issue id or alias
-          placeholder: "eg. rule/\{\{rule.uuid\}\}"
+          placeholder: "eg. rule/{{rule.uuid}}"
         - name: comment
           type: textarea
           label: Issue comment
@@ -139,7 +139,7 @@ components:
       any:
         action: serverboards.core.actions/send-notification
         params:
-          email: @user
+          email: "@user"
           subject: "{{rule.name}}: {{state}}"
           body: "{{rule.description}}"
 
