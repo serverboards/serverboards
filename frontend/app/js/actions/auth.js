@@ -35,7 +35,7 @@ export function logged_in_as(user){
         if (d.avatar)
           dispatch( user_update_avatar(d.avatar) )
       })
-      rpc.call("settings.user.get", ["language"]).then( (lang) => {
+      rpc.call("settings.user.get", ["language"]).then( ({lang}) => {
         if (lang){
           set_lang(lang)(dispatch)
         }
