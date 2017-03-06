@@ -35,7 +35,12 @@ export function logged_in_as(user){
         if (d.avatar)
           dispatch( user_update_avatar(d.avatar) )
       })
-      set_lang("es")(dispatch)
+      rpc.call("settings.user.get", ["language"]).then( (lang) => {
+        if (lang){
+          set_lang(lang)(dispatch)
+        }
+      })
+
     }
     else{
       Flash.error("Invalid email/password")

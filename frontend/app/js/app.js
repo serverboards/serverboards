@@ -65,4 +65,10 @@ let root = ReactDOM.render(
   document.getElementById('react')
 );
 
+{
+  // Get the main language component of the first language or "en"
+  const lang = (navigator.languages || ["en"])[0].split("-")[0]
+  store.dispatch( require("app/actions/auth").set_lang(lang) )
+}
+
 export { root }
