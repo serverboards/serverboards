@@ -1,4 +1,5 @@
 import moment from 'moment'
+import {i18n, i18n_c, i18n_nop} from 'app/utils/i18n'
 
 /// Convert a list of key,value into an object
 export function to_map(l){
@@ -144,6 +145,12 @@ const timeunits={
 }
 const one_day=(24*60*60)
 
+i18n_nop("millisecond")
+i18n_nop("second")
+i18n_nop("minute")
+i18n_nop("hour")
+i18n_nop("day")
+
 export function pretty_ago(t, now, minres="second"){
   now = moment.utc(now)
   let other = moment.utc(t)
@@ -163,8 +170,8 @@ export function pretty_ago(t, now, minres="second"){
   }
   if (timeunits[lastunit] < minres){
     if (minres >= (timeunits["day"]))
-      return "today"
-    return "now"
+      return i18n("today")
+    return i18n("now")
   }
   let units
   if (lastunit=="day"){
@@ -173,15 +180,15 @@ export function pretty_ago(t, now, minres="second"){
     units = Math.floor(now.unix() / one_day) - Math.floor(other.unix() / one_day)
 
     if (units==0)
-      return 'today'
+      return i18n('today')
     if (units==1)
-      return 'yesterday'
+      return i18n('yesterday')
   }
   else{
     units=Math.floor(timediff / timeunits[lastunit])
   }
   const s=units > 1 ? 's' : ''
-  let expr=String(units)+' '+lastunit+s+' ago'
+  let expr=i18n("{units} {timeunit} ago", {units, timeunit: `${i18n(lastunit)}${s}` })
   return expr
 }
 
@@ -191,7 +198,20 @@ export function pretty_date(d, precission){
   return moment(d).format("llll")
 }
 
-export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+export const months = [
+    i18n_c("calendar", "January"),
+    i18n_c("calendar", "February"),
+    i18n_c("calendar", "March"),
+    i18n_c("calendar", "April"),
+    i18n_c("calendar", "May"),
+    i18n_c("calendar", "June"),
+    i18n_c("calendar", "July"),
+    i18n_c("calendar", "August"),
+    i18n_c("calendar", "September"),
+    i18n_c("calendar", "October"),
+    i18n_c("calendar", "November"),
+    i18n_c("calendar", "December")
+  ]
 
 export function unwrap(fn, arg1, arg2){ // If two args, use them, if one, use store.getState() and props, if none, use store.getState and this.props.
   if (!fn) // not existant is as an empty list

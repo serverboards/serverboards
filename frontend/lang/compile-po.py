@@ -41,8 +41,9 @@ def parse_file(fd):
     global nline
     last_orig=None
     last_trans=None
+    context=None
 
-    state=0 # none, at msgid
+    state=0 # wait for msgid none, wait for msgtxt
     for l in fd:
         nline+=1
         if state==0:
@@ -53,18 +54,27 @@ def parse_file(fd):
             elif l.startswith("msgstr"):
                 last_trans=get_str(l)
                 state=1
+            elif l.startswith("msgctxt"):
+                context=get_str(l)
         elif state==1:
             if l.startswith('"'):
                 last_trans+=get_str(l)
+            elif l.startswith("msgctxt"):
+                store_data(context, last_orig, last_trans)
+                context=get_str(l)
+                state=0
             elif l.startswith("msgid"):
-                store_data(last_orig, last_trans)
+                store_data(context, last_orig, last_trans)
+                context=None
                 last_orig=get_str(l)
                 state=0
-    store_data(last_orig, last_trans)
+    store_data(context, last_orig, last_trans)
 
-def store_data(orig, trans):
+def store_data(context, orig, trans):
     global missing
     if orig and trans:
+        if context:
+            orig='%s|%s'%(context, orig)
         data[orig]=trans
     else:
         missing+=1

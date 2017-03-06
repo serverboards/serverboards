@@ -1,5 +1,5 @@
 
-import {i18n, i18n_nop, unknown, update} from 'app/utils/i18n'
+import {i18n, i18n_nop, i18n_c, unknown, update} from 'app/utils/i18n'
 import assert from 'assert'
 
 describe("I18N", () => {
@@ -40,7 +40,12 @@ describe("I18N", () => {
     update({"hello {name}": "hola {name}", "hello {name} <{email}>": "hola {name} <{email}>"}, {clean: true})
     assert.equal( i18n("hello {name}", {name: "David"}), "hola David" )
     assert.equal( i18n("hello {name} <{email}>", {name: "David", email: "dmoreno@localhost"}), "hola David <dmoreno@localhost>" )
-
+  })
+  it("Can have a related context", () => {
+    update({"CTX_A|hello": "hola"})
+    assert( i18n_c("CTX_A", "hello") == "hola" )
+    assert( i18n_c("CTX_B", "hello") == "hello" )
+    assert( i18n("hello") == "hello" )
   })
 })
 

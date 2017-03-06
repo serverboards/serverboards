@@ -2,7 +2,7 @@ import React from 'react'
 import Calendar from 'rc-calendar';
 import moment from 'moment'
 import {pretty_ago} from 'app/utils'
-import i18n from 'app/utils/i18n'
+import {i18n, i18n_c} from 'app/utils/i18n'
 
 require("sass/calendar.sass")
 const DATE_FORMAT="YYYY-MM-DD hh:mm"
@@ -154,7 +154,7 @@ const DatetimeItem=React.createClass({
           <label>{props.label}</label>
           <div className="value">
             {pretty}<br/>
-            <span className="meta" style={{color: "#bbb", fontWeight: "normal"}}>at {props.value.format("HH:mm")}</span>
+            <span className="meta" style={{color: "#bbb", fontWeight: "normal"}}>{i18n.i18n_c("date range", "at")} {props.value.format("HH:mm")}</span>
             </div>
         </a>
         {this.state.open_calendar ? (
@@ -173,13 +173,13 @@ const DateRange=function(props){
   return (
     <div className="menu" id="daterange">
       <DatetimeItem
-        label="From"
+        label={i18n_c("date range","From")}
         value={props.start}
         onSelect={props.onStartChange}
         now={props.now}
         />
       <DatetimeItem
-        label="to"
+        label={i18n_c("date range", "to")}
         value={props.end}
         onSelect={props.onEndChange}
         now={props.now}

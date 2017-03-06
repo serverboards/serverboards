@@ -1,8 +1,6 @@
-import {merge} from 'app/utils'
 const s_re = /%s/g
 const pl_re = /{(.*?)}/g
 
-let lang = 'es'
 let trans = {}
 let unknown = []
 
@@ -18,7 +16,29 @@ export function i18n(txt, ...args){
       unknown.push(txt)
     tr=txt
   }
+  return printf(tr, ...args)
+}
 
+/**
+ * @short Same as i18n but a context is provided.
+ *
+ * This allows two sentences that in english may be translated as diferent
+ * things in another language, to state in which context this is used.
+ */
+export function i18n_c(ctx, txt, ...args){
+  let tr = trans[`${ctx}|${txt}`]
+  if (!tr){
+    if (unknown.indexOf(txt)<0)
+      unknown.push(txt)
+    tr=txt
+  }
+  return printf(tr, ...args)
+}
+
+/**
+ * @short Formats a string using %s and {name} placeholders
+ */
+export function printf(tr, ...args){
   // Do replacements
   if (args.length==0){
     return tr
@@ -48,7 +68,6 @@ export function i18n(txt, ...args){
  *   clean: If true, sets only the passed translation strings, else merges them
  */
 export function update(newtrans, options={clean: false}){
-  console.log("Updated translations %o", options)
   if (options.clean){
     trans={}
   }
@@ -56,6 +75,8 @@ export function update(newtrans, options={clean: false}){
   Object.keys(newtrans).map( (o) => {
     unknown = unknown.filter( (u) => u != o)
   })
+  const merge = require('app/utils').merge
+
   trans = merge(trans, newtrans)
 }
 
@@ -80,11 +101,11 @@ export function i18n_nop(txt){
   return txt
 }
 
-export { unknown, lang }
+export { unknown }
 
 i18n.unknown=unknown
-i18n.lang=lang
 i18n.i18n_nop=i18n_nop
 i18n.update=update
+i18n.i18n_c=i18n_c
 
 export default i18n

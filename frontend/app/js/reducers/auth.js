@@ -61,6 +61,7 @@ export const auth = (state = default_state , action) => {
       break;
     case 'AUTH_SET_LANG':
       state.lang=action.lang
+      require("moment").locale(action.lang)
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {

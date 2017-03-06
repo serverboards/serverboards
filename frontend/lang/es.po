@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-05 12:31+0100\n"
-"PO-Revision-Date: 2017-03-05 12:37+0100\n"
+"POT-Creation-Date: 2017-03-06 12:05+0100\n"
+"PO-Revision-Date: 2017-03-06 12:05+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -243,6 +243,7 @@ msgid "Dashboard"
 msgstr "Dashboard"
 
 #: app/js/components/project/sidebar.js:106 app/js/components/rules/index.js:46
+#: app/js/components/rules/rules.js:52
 msgid "Rules"
 msgstr "Reglas"
 
@@ -258,6 +259,7 @@ msgid "Accept"
 msgstr "Aceptar"
 
 #: app/js/components/project/setupservice.js:44
+#: app/js/components/rules/edit.js:146
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -1537,3 +1539,157 @@ msgstr "Id de usuario o alias"
 #: ../plugins/core-actions/manifest.yaml
 msgid "Issue comment"
 msgstr "Comentar una incidencia"
+
+#: app/js/components/project/board/daterange.js:176
+msgctxt "date range"
+msgid "From"
+msgstr "Desde"
+
+#: app/js/components/project/board/daterange.js:182
+msgctxt "date range"
+msgid "to"
+msgstr "hasta"
+
+#: app/js/components/project/board/daterange.js:157
+msgctxt "date range"
+msgid "at"
+msgstr "a las"
+
+#: app/js/components/calendar.js:8 app/js/utils/index.js:196
+#: app/js/utils/index.js:202
+msgctxt "calendar"
+msgid "January"
+msgstr "Enero"
+
+#: app/js/components/calendar.js:9 app/js/utils/index.js:197
+#: app/js/utils/index.js:203
+msgctxt "calendar"
+msgid "February"
+msgstr "Febrero"
+
+#: app/js/components/calendar.js:10 app/js/utils/index.js:198
+#: app/js/utils/index.js:204
+msgctxt "calendar"
+msgid "March"
+msgstr "Marzo"
+
+#: app/js/components/calendar.js:11 app/js/utils/index.js:199
+#: app/js/utils/index.js:205
+msgctxt "calendar"
+msgid "April"
+msgstr "Abril"
+
+#: app/js/components/calendar.js:12 app/js/utils/index.js:200
+#: app/js/utils/index.js:206
+msgctxt "calendar"
+msgid "May"
+msgstr "Mayo"
+
+#: app/js/components/calendar.js:13 app/js/utils/index.js:201
+#: app/js/utils/index.js:207
+msgctxt "calendar"
+msgid "June"
+msgstr "Junio"
+
+#: app/js/components/calendar.js:14 app/js/utils/index.js:202
+#: app/js/utils/index.js:208
+msgctxt "calendar"
+msgid "July"
+msgstr "Julio"
+
+#: app/js/components/calendar.js:15 app/js/utils/index.js:203
+#: app/js/utils/index.js:209
+msgctxt "calendar"
+msgid "August"
+msgstr "Agosto"
+
+#: app/js/components/calendar.js:16 app/js/utils/index.js:204
+#: app/js/utils/index.js:210
+msgctxt "calendar"
+msgid "September"
+msgstr "Septiembre"
+
+#: app/js/components/calendar.js:17 app/js/utils/index.js:205
+#: app/js/utils/index.js:211
+msgctxt "calendar"
+msgid "October"
+msgstr "Octubre"
+
+#: app/js/components/calendar.js:18 app/js/utils/index.js:206
+#: app/js/utils/index.js:212
+msgctxt "calendar"
+msgid "November"
+msgstr "Noviembre"
+
+#: app/js/components/calendar.js:19 app/js/utils/index.js:207
+#: app/js/utils/index.js:213
+msgctxt "calendar"
+msgid "December"
+msgstr "Diciembre"
+
+#: app/js/components/calendar.js:113
+msgctxt "calendar"
+msgid "MON"
+msgstr "LU"
+
+#: app/js/components/calendar.js:114
+msgctxt "calendar"
+msgid "TUE"
+msgstr "MA"
+
+#: app/js/components/calendar.js:115
+msgctxt "calendar"
+msgid "WED"
+msgstr "MI"
+
+#: app/js/components/calendar.js:116
+msgctxt "calendar"
+msgid "THU"
+msgstr "JU"
+
+#: app/js/components/calendar.js:117
+msgctxt "calendar"
+msgid "FRI"
+msgstr "VI"
+
+#: app/js/components/calendar.js:118
+msgctxt "calendar"
+msgid "SAT"
+msgstr "SA"
+
+#: app/js/components/calendar.js:119
+msgctxt "calendar"
+msgid "SUN"
+msgstr "DO"
+
+#: app/js/utils/index.js:167 app/js/utils/index.js:173
+msgid "today"
+msgstr "hoy"
+
+#: app/js/utils/index.js:168 app/js/utils/index.js:174
+msgid "now"
+msgstr "ahora"
+
+#: app/js/utils/index.js:148
+msgid "millisecond"
+msgstr "milisegundo"
+
+#: app/js/utils/index.js:149
+msgid "second"
+msgstr "segundo"
+
+#: app/js/utils/index.js:150
+msgid "minute"
+msgstr "minuto"
+
+#: app/js/utils/index.js:151
+msgid "hour"
+msgstr "hora"
+
+#: app/js/utils/index.js:152
+msgid "day"
+msgstr "día"
+
+#: app/js/utils/index.js:191
+msgid "{units} {timeunit} ago"
+msgstr "hace {units} {timeunit}"
