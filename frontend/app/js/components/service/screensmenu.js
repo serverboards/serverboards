@@ -2,6 +2,7 @@ import React from 'react'
 import {merge, is_empty} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import {match_traits} from './utils'
+import {i18n} from 'app/utils/i18n'
 
 function by_name(a,b){
   return a.name.localeCompare( b.name )
@@ -102,7 +103,7 @@ const ScreensMenu=React.createClass({
             onOpen={ () => this.toggleScreen(s.id) }
             is_open={ s.id == state.open_screen }
             subopen={  (s.id == state.open_screen) && state.service_id }>
-              {s.name}
+              {i18n(s.name)}
           </MenuItem>
         )) }
       </div>

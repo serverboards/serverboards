@@ -101,7 +101,7 @@ export function i18n_nop(txt){
   return txt
 }
 
-export { unknown }
+export { unknown}
 
 i18n.unknown=unknown
 i18n.i18n_nop=i18n_nop

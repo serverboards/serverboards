@@ -199,18 +199,18 @@ export function pretty_date(d, precission){
 }
 
 export const months = [
-    i18n_c("calendar", "January"),
-    i18n_c("calendar", "February"),
-    i18n_c("calendar", "March"),
-    i18n_c("calendar", "April"),
-    i18n_c("calendar", "May"),
-    i18n_c("calendar", "June"),
-    i18n_c("calendar", "July"),
-    i18n_c("calendar", "August"),
-    i18n_c("calendar", "September"),
-    i18n_c("calendar", "October"),
-    i18n_c("calendar", "November"),
-    i18n_c("calendar", "December")
+    i18n_nop("January"),
+    i18n_nop("February"),
+    i18n_nop("March"),
+    i18n_nop("April"),
+    i18n_nop("May"),
+    i18n_nop("June"),
+    i18n_nop("July"),
+    i18n_nop("August"),
+    i18n_nop("September"),
+    i18n_nop("October"),
+    i18n_nop("November"),
+    i18n_nop("December")
   ]
 
 export function unwrap(fn, arg1, arg2){ // If two args, use them, if one, use store.getState() and props, if none, use store.getState and this.props.

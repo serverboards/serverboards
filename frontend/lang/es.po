@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-06 12:05+0100\n"
-"PO-Revision-Date: 2017-03-06 12:05+0100\n"
+"POT-Creation-Date: 2017-03-06 12:40+0100\n"
+"PO-Revision-Date: 2017-03-06 12:40+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -251,6 +251,7 @@ msgstr "Reglas"
 #: app/js/components/settings/index.js:39
 #: app/js/components/service/actionmenu.js:54
 #: app/js/components/service/details/index.js:117
+#: app/js/components/top/usermenu.js:15
 msgid "Settings"
 msgstr "Configuración"
 
@@ -264,6 +265,7 @@ msgid "Delete"
 msgstr "Eliminar"
 
 #: app/js/components/project/setupservice.js:45
+#: app/js/components/notifications/send.js:44
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -965,6 +967,7 @@ msgid "Service tag change"
 msgstr "Cambio de tabs del servicio"
 
 #: ../plugins/core-actions/manifest.yaml app/js/components/settings/users.js:36
+#: app/js/components/notifications/send.js:43
 msgid "Send notification"
 msgstr "Enviar notificación"
 
@@ -1133,6 +1136,7 @@ msgid "Serverboards.io Plugin List page."
 msgstr "la lista de Plugins en Serverboards.io"
 
 #: app/js/components/maxtable.js:52
+#: app/js/components/top/notificationsmenu.js:15
 msgid "And {n} more..."
 msgstr "Y {n} más..."
 
@@ -1484,6 +1488,7 @@ msgid "User email or @group"
 msgstr "Email de usuario o @group"
 
 #: ../plugins/core-actions/manifest.yaml
+#: app/js/components/notifications/send.js:33
 msgid "Subject"
 msgstr "Título"
 
@@ -1693,3 +1698,135 @@ msgstr "día"
 #: app/js/utils/index.js:191
 msgid "{units} {timeunit} ago"
 msgstr "hace {units} {timeunit}"
+
+#: app/js/components/top/processesmenu.js:22
+msgid "No active processes"
+msgstr "No hay procesos activos"
+
+#: app/js/components/top/processesmenu.js:27
+msgid "View process history"
+msgstr "Ver historial de procesos"
+
+#: app/js/components/top/commands.js:96
+msgid "Search and execute commands..."
+msgstr "Búscar y ejecutar comandos..."
+
+#: app/js/components/top/usermenu.js:20
+msgid "Logs"
+msgstr "Logs"
+
+#: app/js/components/top/usermenu.js:25
+msgid "Logout"
+msgstr "Logout"
+
+#: app/js/components/top/notificationsmenu.js:19
+msgid "View all"
+msgstr "Ver todos"
+
+#: app/js/components/notifications/send.js:17
+msgid "Notification sent"
+msgstr "Notificación envíada"
+
+#: app/js/components/notifications/send.js:20
+msgid "Error sending notification."
+msgstr "Error enviando notificación"
+
+#: app/js/components/notifications/send.js:28
+msgid "Send notification to {user}"
+msgstr "Enviar notificación a {user}"
+
+#: app/js/components/notifications/send.js:37
+msgid "Body"
+msgstr "Cuerpo del mensaje"
+
+#: app/js/components/notifications/list.js:33
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#: app/js/components/notifications/list.js:40
+msgid "All Notifications"
+msgstr "Todas las notificaciones"
+
+#: app/js/components/notifications/list.js:42
+msgid "First page"
+msgstr "Primera página"
+
+#: app/js/components/notifications/list.js:44
+msgid "Next page"
+msgstr "Siguiente página"
+
+#: app/js/components/notifications/notification.js:34
+msgid "Notification"
+msgstr "Notificación"
+
+#: app/js/components/notifications/notification.js:45
+msgid "Last message"
+msgstr "Último mensaje"
+
+#: app/js/components/notifications/notification.js:50
+msgid "Next message"
+msgstr "Próximo mensaje"
+
+#: app/js/utils/index.js:202
+msgid "January"
+msgstr "Enero"
+
+#: app/js/utils/index.js:203
+msgid "February"
+msgstr "Febrero"
+
+#: app/js/utils/index.js:204
+msgid "March"
+msgstr "Marzo"
+
+#: app/js/utils/index.js:205
+msgid "April"
+msgstr "Abril"
+
+#: app/js/utils/index.js:206
+msgid "May"
+msgstr "Mayo"
+
+#: app/js/utils/index.js:207
+msgid "June"
+msgstr "Junio"
+
+#: app/js/utils/index.js:208
+msgid "July"
+msgstr "Julio"
+
+#: app/js/utils/index.js:209
+msgid "August"
+msgstr "Agosto"
+
+#: app/js/utils/index.js:210
+msgid "September"
+msgstr "Septiembre"
+
+#: app/js/utils/index.js:211
+msgid "October"
+msgstr "Octubre"
+
+#: app/js/utils/index.js:212
+msgid "November"
+msgstr "Noviembre"
+
+#: app/js/utils/index.js:213
+msgid "December"
+msgstr "Diciembre"
+
+#: app/js/components/notifications/item.js:7
+msgid "UNREAD"
+msgstr "NO-LEIDO"
+
+#: app/js/components/notifications/item.js:8
+msgid "NEW"
+msgstr "NUEVO"
+
+#: app/js/components/notifications/item.js:7
+msgid "unread"
+msgstr "no-leido"
+
+#: app/js/components/notifications/item.js:8
+msgid "new"
+msgstr "nuevo"
