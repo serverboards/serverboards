@@ -99,7 +99,7 @@ export function service_load_current(uuid){
 
   return function(dispatch){
     dispatch({type: "SERVICE_SET_CURRENT", payload: null})
-    rpc.call("service.info", [uuid])
+    rpc.call("service.get", [uuid])
       .then( (service) => {
         dispatch({ type: "SERVICE_SET_CURRENT", payload: service })
         return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})

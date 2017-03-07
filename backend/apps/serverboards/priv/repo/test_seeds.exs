@@ -17,7 +17,7 @@ all_perms = [
     "serverboard.delete", "serverboard.info",
     "serverboard.widget.add", "serverboard.widget.update",
     "service.add", "service.update",
-    "service.delete", "service.info",
+    "service.delete", "service.get",
     "service.attach",
     "debug",
     "action.trigger", "action.watch",
@@ -32,7 +32,7 @@ all_perms = [
 user_perms = [
   "auth.modify_self", "auth.create_token",
   "action.trigger", "action.watch",
-  "serverboard.info",  "service.info",
+  "serverboard.info",  "service.get",
   "settings.user.view", "settings.user.update",
   "notifications.notify"
 ]

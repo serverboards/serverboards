@@ -212,7 +212,7 @@ defmodule ProjectTest do
 
     {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => @email_type, "name" => "Email" }
     Test.Client.call client, "service.attach", ["SBDS-TST8", service]
-    Test.Client.call client, "service.info", [service]
+    Test.Client.call client, "service.get", [service]
     Test.Client.call client, "service.list", []
     Test.Client.call client, "service.list", [["type","email"]]
 
@@ -224,7 +224,7 @@ defmodule ProjectTest do
         ]
       }
     ]
-    {:ok, info} = Test.Client.call client, "service.info", [service]
+    {:ok, info} = Test.Client.call client, "service.get", [service]
     assert info["name"] == "new name"
 
     Test.Client.call client, "service.delete", [service]

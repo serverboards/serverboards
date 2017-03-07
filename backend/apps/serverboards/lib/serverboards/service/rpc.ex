@@ -27,9 +27,9 @@ defmodule Serverboards.Service.RPC do
       service_update service, operations, Context.get(context, :user)
     end, [required_perm: "service.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.info", fn [service], context ->
-      service_info service, Context.get(context, :user)
-    end, [required_perm: "service.info", context: true]
+    RPC.MethodCaller.add_method mc, "service.get", fn [service], context ->
+      service_get service, Context.get(context, :user)
+    end, [required_perm: "service.get", context: true]
 
     RPC.MethodCaller.add_method mc, "service.list", fn filter ->
       # some cleanup
@@ -50,11 +50,11 @@ defmodule Serverboards.Service.RPC do
 
       services = service_list filter
       Enum.map services, &Serverboards.Utils.clean_struct(&1)
-    end, [required_perm: "service.info"]
+    end, [required_perm: "service.get"]
 
     RPC.MethodCaller.add_method mc, "service.catalog", fn filter ->
       service_catalog filter
-    end, [required_perm: "service.info"]
+    end, [required_perm: "service.get"]
 
     RPC.MethodCaller.add_method mc, "service.attach", fn [project, service], context ->
       service_attach project, service, Context.get(context, :user)
@@ -66,7 +66,7 @@ defmodule Serverboards.Service.RPC do
 
     RPC.MethodCaller.add_method mc, "service.screens", fn traits ->
       service_screens traits
-    end, [required_perm: "service.info"]
+    end, [required_perm: "service.get"]
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->

@@ -19,7 +19,7 @@ const ServiceField=React.createClass({
     return {service: undefined}
   },
   componentDidMount(){
-    rpc.call("service.info", [this.props.value]).then( (service) => {
+    rpc.call("service.get", [this.props.value]).then( (service) => {
       this.setState({service: service.name})
     })
   },

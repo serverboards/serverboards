@@ -20,7 +20,7 @@ defmodule Serverboards.Setup do
     "project.delete", "project.get",
     "project.widget.add", "project.widget.update",
     "service.add", "service.update",
-    "service.delete", "service.info",
+    "service.delete", "service.get",
     "service.attach",
     "settings.user.view", "settings.user.view_all",
     "settings.user.update", "settings.user.update_all",

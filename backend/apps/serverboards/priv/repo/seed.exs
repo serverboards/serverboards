@@ -48,7 +48,7 @@ defmodule Seeds do
     "serverboard.delete", "serverboard.info",
     "serverboard.widget.add", "serverboard.widget.update",
     "service.add", "service.update",
-    "service.delete", "service.info",
+    "service.delete", "service.get",
     "service.attach",
     "settings.user.view", "settings.user.view_all",
     "settings.user.update", "settings.user.update_all",
