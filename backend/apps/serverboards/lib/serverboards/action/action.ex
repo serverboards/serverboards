@@ -86,7 +86,7 @@ defmodule Serverboards.Action do
   @doc ~S"""
   Returns the action history with some filtering
   """
-  def history(filter, _user) do
+  def list(filter, _user) do
     import Ecto.Query
     count = Map.get(filter,:count, 100)
     start = Map.get(filter,:start)

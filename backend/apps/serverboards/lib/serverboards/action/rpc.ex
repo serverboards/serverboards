@@ -46,17 +46,20 @@ defmodule Serverboards.Action.RPC do
       Serverboards.Utils.clean_struct Serverboards.Action.ps user
     end, [required_perm: "action.watch", context: true]
 
-    add_method mc, "action.history", fn
+    add_method mc, "action.get", fn
       [uuid], context ->
         user = RPC.Context.get context, :user
         Serverboards.Action.details uuid, user
+    end, [required_perm: "action.watch", context: true]
+
+    add_method mc, "action.list", fn
       [], context ->
         user = RPC.Context.get context, :user
-        Serverboards.Action.history %{}, user
+        Serverboards.Action.list %{}, user
       options, context ->
         user = RPC.Context.get context, :user
         options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"start count")
-        Serverboards.Action.history options, user
+        Serverboards.Action.list options, user
     end, [required_perm: "action.watch", context: true]
 
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client, user: _user}} ->

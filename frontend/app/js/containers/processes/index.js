@@ -19,7 +19,7 @@ const Processes = React.createClass({
   },
   update_processes(start){
     this.setState({loading: true, start})
-    rpc.call("action.history", {start: start}).then( ({count,list}) => {
+    rpc.call("action.list", {start: start}).then( ({count,list}) => {
       this.setState({processes: list, count: count, loading: false})
     }).catch( (e) => {
       Flash.error("Error loading action history: "+e)
