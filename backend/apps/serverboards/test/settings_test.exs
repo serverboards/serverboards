@@ -45,7 +45,7 @@ defmodule Serverboards.SettingsTest do
   test "Client use" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, _} = Test.Client.call(client, "settings.all", [])
+    {:ok, _} = Test.Client.call(client, "settings.list", [])
     {:ok, :ok} = Test.Client.call(client, "settings.update", [
       "serverboards.test.auth/settings",
       %{ test_pw: "https://test.serverboards.io"}]
