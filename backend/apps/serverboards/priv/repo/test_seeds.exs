@@ -13,9 +13,9 @@ all_perms = [
     "auth.info_any_user",
     "auth.modify_groups", "auth.manage_groups",
     "plugin",
-    "serverboard.add", "serverboard.update",
-    "serverboard.delete", "serverboard.info",
-    "serverboard.widget.add", "serverboard.widget.update",
+    "project.add", "project.update",
+    "project.delete", "project.get",
+    "project.widget.add", "project.widget.update",
     "service.add", "service.update",
     "service.delete", "service.get",
     "service.attach",
@@ -32,7 +32,7 @@ all_perms = [
 user_perms = [
   "auth.modify_self", "auth.create_token",
   "action.trigger", "action.watch",
-  "serverboard.info",  "service.get",
+  "project.get",  "service.get",
   "settings.user.view", "settings.user.update",
   "notifications.notify"
 ]
