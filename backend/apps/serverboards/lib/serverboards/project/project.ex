@@ -35,7 +35,7 @@ defmodule Serverboards.Project do
         inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.inserted_at),
         updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.updated_at)
       }
-      Serverboards.Event.emit("project.added", %{ project: project}, ["project.info"])
+      Serverboards.Event.emit("project.added", %{ project: project}, ["project.get"])
       project.shortname
     end, name: :project
 
@@ -53,7 +53,7 @@ defmodule Serverboards.Project do
         project, operations
       ) )
 
-      {:ok, project} = project_info upd, me
+      {:ok, project} = project_get upd, me
       project = %{
         project |
         inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.inserted_at),
@@ -62,7 +62,7 @@ defmodule Serverboards.Project do
       Serverboards.Event.emit(
         "project.updated",
         %{ shortname: shortname, project: project},
-        ["project.info"]
+        ["project.get"]
         )
 
       :ok
@@ -71,7 +71,7 @@ defmodule Serverboards.Project do
     EventSourcing.subscribe es, :delete_project, fn shortname, _me ->
       Repo.delete_all( from s in ProjectModel, where: s.shortname == ^shortname )
 
-      Serverboards.Event.emit("project.deleted", %{ shortname: shortname}, ["project.info"])
+      Serverboards.Event.emit("project.deleted", %{ shortname: shortname}, ["project.get"])
     end
   end
 
@@ -114,7 +114,7 @@ defmodule Serverboards.Project do
 
     iex> user = Test.User.system
     iex> {:ok, "SBDS-TST1"} = project_add "SBDS-TST1", %{ "name" => "projects" }, user
-    iex> {:ok, info} = project_info "SBDS-TST1", user
+    iex> {:ok, info} = project_get "SBDS-TST1", user
     iex> info.name
     "projects"
     iex> project_delete "SBDS-TST1", user
@@ -144,7 +144,7 @@ defmodule Serverboards.Project do
     iex> user = Test.User.system
     iex> {:ok, "SBDS-TST2"} = project_add "SBDS-TST2", %{ "name" => "projects" }, user
     iex> :ok = project_update "SBDS-TST2", %{ "name" => "projects" }, user
-    iex> {:ok, info} = project_info "SBDS-TST2", user
+    iex> {:ok, info} = project_get "SBDS-TST2", user
     iex> info.name
     "projects"
     iex> project_delete "SBDS-TST2", user
@@ -206,7 +206,7 @@ defmodule Serverboards.Project do
 
   TODO Return only services to which the user has access
   """
-  def project_info(%ProjectModel{} = project, _me) do
+  def project_get(%ProjectModel{} = project, _me) do
     project = Repo.preload(project, :tags)
 
     project = %{
@@ -223,18 +223,18 @@ defmodule Serverboards.Project do
     {:ok, project}
   end
 
-  def project_info(project_id, me) when is_number(project_id) do
+  def project_get(project_id, me) when is_number(project_id) do
     case Repo.one( from( s in ProjectModel, where: s.id == ^project_id, preload: :tags ) ) do
       nil -> {:error, :not_found}
       project ->
-        project_info(project, me)
+        project_get(project, me)
     end
   end
-  def project_info(project_shortname, me) when is_binary(project_shortname) do
+  def project_get(project_shortname, me) when is_binary(project_shortname) do
     case Repo.one( from(s in ProjectModel, where: s.shortname == ^project_shortname, preload: :tags ) ) do
       nil -> {:error, :not_found}
       project ->
-        project_info(project, me)
+        project_get(project, me)
     end
   end
 

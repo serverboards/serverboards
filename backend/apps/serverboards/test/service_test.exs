@@ -96,20 +96,20 @@ defmodule ServerboardTest do
 
     # delete all
     project_add "SBDS-TST10", %{ "name" => "Test 1", "services" => [%{ "type" => @email_type, "name" => "email", "config" => %{} }] }, user
-    {:ok, info} = project_info "SBDS-TST10", user
+    {:ok, info} = project_get "SBDS-TST10", user
     assert Enum.count(info.services) == 1
     project_update "SBDS-TST10", %{ "services" => []}, user
-    {:ok, info} = project_info "SBDS-TST10", user
+    {:ok, info} = project_get "SBDS-TST10", user
     assert Enum.count(info.services) == 0
 
     # add one
     project_update "SBDS-TST10", %{ "services" => [%{ "type" => @email_type, "name" => "add again email", "config" => %{} }]}, user
-    {:ok, info} = project_info "SBDS-TST10", user
+    {:ok, info} = project_get "SBDS-TST10", user
     assert Enum.count(info.services) == 1
 
     # replace
     project_update "SBDS-TST10", %{ "services" => [%{ "type" => @email_type, "name" => "replace email", "config" => %{} }]}, user
-    {:ok, info} = project_info "SBDS-TST10", user
+    {:ok, info} = project_get "SBDS-TST10", user
     assert Enum.count(info.services) == 1
 
     project_delete "SBDS-TST10", user

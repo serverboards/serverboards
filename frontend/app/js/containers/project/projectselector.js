@@ -4,7 +4,7 @@ import connect from 'app/containers/connect'
 import {project_update_all} from 'app/actions/project'
 import {has_perm_guard} from 'app/restricted'
 
-var Container=has_perm_guard("project.info", connect({
+var Container=has_perm_guard("project.get", connect({
   state: (state) => {
     return {
       current: state.project.current,

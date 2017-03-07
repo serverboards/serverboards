@@ -60,7 +60,7 @@ function projects_update_info(project){
   return function(dispatch){
     dispatch({type:"UPDATE_PROJECT_INFO", project, info: undefined})
     if (project){
-      rpc.call("project.info", [project]).then( (info) => {
+      rpc.call("project.get", [project]).then( (info) => {
         dispatch({type:"UPDATE_PROJECT_INFO", project, info})
       })
     }

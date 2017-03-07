@@ -26,15 +26,15 @@ defmodule Serverboards.Project.RPC do
         project_update project_id, operations, Context.get(context, :user)
       end, [required_perm: "project.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.info", fn [project_id], context ->
-      {:ok, project} = project_info project_id, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "project.get", fn [project_id], context ->
+      {:ok, project} = project_get project_id, Context.get(context, :user)
       {:ok, Serverboards.Utils.clean_struct project}
-    end, [required_perm: "project.info", context: true]
+    end, [required_perm: "project.get", context: true]
 
     RPC.MethodCaller.add_method mc, "project.list", fn [], context ->
       {:ok, projects} = project_list Context.get(context, :user)
       Enum.map projects, &Serverboards.Utils.clean_struct(&1)
-    end, [required_perm: "project.info", context: true]
+    end, [required_perm: "project.get", context: true]
 
 
     RPC.MethodCaller.add_method mc, "project.widget.add", fn attr, context ->
@@ -65,11 +65,11 @@ defmodule Serverboards.Project.RPC do
 
     RPC.MethodCaller.add_method mc, "project.widget.list", fn [shortname] ->
       Serverboards.Project.Widget.widget_list(shortname)
-    end, [required_perm: "project.info"]
+    end, [required_perm: "project.get"]
 
     RPC.MethodCaller.add_method mc, "project.widget.catalog", fn [project] ->
         Serverboards.Project.Widget.catalog(project)
-    end, [required_perm: "project.info"]
+    end, [required_perm: "project.get"]
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->

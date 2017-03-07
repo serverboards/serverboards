@@ -69,8 +69,8 @@ defmodule Serverboards.Project.Widget do
     data = Map.put(data, :project_id, project_id)
     {:ok, _widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
 
-    Serverboards.Event.emit("project.widget.added", data, ["project.info"])
-    Serverboards.Event.emit("project.widget.added[#{project}]", data, ["project.info"])
+    Serverboards.Event.emit("project.widget.added", data, ["project.get"])
+    Serverboards.Event.emit("project.widget.added[#{project}]", data, ["project.get"])
     {:ok, data.uuid}
   end
 
@@ -86,13 +86,13 @@ defmodule Serverboards.Project.Widget do
           )
     case Repo.update( Model.Widget.changeset(prev, data) ) do
       {:ok, _update} ->
-        Serverboards.Event.emit("project.widget.updated", data, ["project.info"])
+        Serverboards.Event.emit("project.widget.updated", data, ["project.get"])
         project = Repo.one(
           from s in Model.Project,
           where: s.id == ^prev.project_id,
           select: s.shortname
         )
-        Serverboards.Event.emit("project.widget.updated[#{project}]", data, ["project.info"])
+        Serverboards.Event.emit("project.widget.updated[#{project}]", data, ["project.get"])
         :ok
       {:error, reason} ->
         Logger.error("Error updating widget: #{inspect reason}")
@@ -117,8 +117,8 @@ defmodule Serverboards.Project.Widget do
       from s in Model.Widget,
       where: s.uuid == ^uuid
       )
-    Serverboards.Event.emit("project.widget.removed", %{uuid: uuid}, ["project.info"])
-    Serverboards.Event.emit("project.widget.removed[#{project}]", %{uuid: uuid}, ["project.info"])
+    Serverboards.Event.emit("project.widget.removed", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("project.widget.removed[#{project}]", %{uuid: uuid}, ["project.get"])
     :ok
   end
 end

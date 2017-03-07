@@ -17,7 +17,7 @@ defmodule Serverboards.Setup do
     "auth.modify_groups", "auth.manage_groups",
     "plugin", "plugin.data", "plugin.install", "plugin.list",
     "project.add", "project.update",
-    "project.delete", "project.info",
+    "project.delete", "project.get",
     "project.widget.add", "project.widget.update",
     "service.add", "service.update",
     "service.delete", "service.info",

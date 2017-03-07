@@ -67,13 +67,13 @@ defmodule ProjectTest do
     :ok = project_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
     assert check_if_event_on_project(agent, "project.updated", "SBDS-TST3")
 
-    {:ok, info} = project_info "SBDS-TST3", user
+    {:ok, info} = project_get "SBDS-TST3", user
     assert info.name == "Serverboards"
 
     :ok = project_delete "SBDS-TST3", user
     assert check_if_event_on_project(agent, "project.deleted", "SBDS-TST3")
 
-    assert {:error, :not_found} == project_info "SBDS-TST3", user
+    assert {:error, :not_found} == project_get "SBDS-TST3", user
   end
 
 
@@ -129,14 +129,14 @@ defmodule ProjectTest do
     import Serverboards.Project
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    {:error, :not_found } = project_info "SBDS-TST5", user
+    {:error, :not_found } = project_get "SBDS-TST5", user
 
     {:ok, "SBDS-TST5"} = project_add "SBDS-TST5", %{ "name" => "serverboards" }, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     assert info.tags == []
 
     :ok = project_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag3)}, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     Logger.debug("Current project info: #{inspect info}")
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
@@ -144,7 +144,7 @@ defmodule ProjectTest do
     assert not (Enum.member? info.tags, "tag4")
 
     project_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag4) }, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert not (Enum.member? info.tags, "tag3")
@@ -152,7 +152,7 @@ defmodule ProjectTest do
 
     # should not remove tags
     :ok = project_update "SBDS-TST5", %{ "description" => "A simple description"}, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert Enum.member? info.tags, "tag4"
@@ -168,7 +168,7 @@ defmodule ProjectTest do
     assert Enum.member? dir, "project.list"
     assert Enum.member? dir, "project.add"
     assert Enum.member? dir, "project.delete"
-    assert Enum.member? dir, "project.info"
+    assert Enum.member? dir, "project.get"
 
     #{:ok, json} = Poison.encode(Test.Client.debug client)
     #Logger.info("Debug information: #{json}")
@@ -196,7 +196,7 @@ defmodule ProjectTest do
     Logger.info("At project deleted? #{deleted}")
     assert not deleted
 
-    {:ok, cl} = Test.Client.call client, "project.info", ["SBDS-TST8"]
+    {:ok, cl} = Test.Client.call client, "project.get", ["SBDS-TST8"]
     Logger.info("Info from project #{inspect cl}")
     {:ok, json} = Poison.encode(cl)
     assert not String.contains? json, "__"
@@ -247,7 +247,7 @@ defmodule ProjectTest do
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     project_add "SBDS-TST13", %{ "name" => "Test 13" }, user
 
-    {:ok, info} = project_info "SBDS-TST13", user
+    {:ok, info} = project_get "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
     assert Enum.count( screens ) >= 1
@@ -255,7 +255,7 @@ defmodule ProjectTest do
 
     {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "serverboards.test.auth/email" }, user
     service_attach "SBDS-TST13", service, user
-    {:ok, info} = project_info "SBDS-TST13", user
+    {:ok, info} = project_get "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
     assert Enum.count( screens ) > prev_count
