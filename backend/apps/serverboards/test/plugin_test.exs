@@ -105,19 +105,19 @@ defmodule Serverboards.PluginTest do
 
   test "List plugin components using RPC" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
-    {:ok, list} = Client.call(client, "plugin.list", [])
+    {:ok, list} = Client.call(client, "plugin.catalog", [])
     assert (Enum.count(list)) > 0
     Logger.debug("Got #{Enum.count list} plugins")
 
-    {:ok, list} = Client.call(client, "plugin.list_components", [])
+    {:ok, list} = Client.call(client, "plugin.component.catalog", [])
     Logger.debug("Got #{Enum.count list} components")
     assert (Enum.count(list)) > 0
 
-    {:ok, list} = Client.call(client, "plugin.list_components", %{ type: "action" })
+    {:ok, list} = Client.call(client, "plugin.component.catalog", %{ type: "action" })
     Logger.debug("Got #{Enum.count list} action components")
     assert (Enum.count(list)) > 0
 
-    {:ok, list} = Client.call(client, "plugin.list_components", %{ type: "action template" })
+    {:ok, list} = Client.call(client, "plugin.component.catalog", %{ type: "action template" })
     Logger.debug("Got #{Enum.count list} action template components")
     assert (Enum.count(list)) >= 0
   end
@@ -150,7 +150,7 @@ defmodule Serverboards.PluginTest do
   test "Plugin list" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, list} = Client.call(client, "plugin.list", [])
+    {:ok, list} = Client.call(client, "plugin.catalog", [])
     Logger.debug("#{inspect list}")
     assert Map.get list, "serverboards.test.auth", false
   end
@@ -159,7 +159,7 @@ defmodule Serverboards.PluginTest do
   test "Plugin is active" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, list} = Client.call(client, "plugin.list", [])
+    {:ok, list} = Client.call(client, "plugin.catalog", [])
     assert "active" in list["serverboards.test.auth"]["status"]
     assert not "disabled" in list["serverboards.test.auth"]["status"]
 
@@ -167,12 +167,12 @@ defmodule Serverboards.PluginTest do
     context = Serverboards.Config.get(:plugins)
     Logger.debug("At exs: #{inspect context}")
 
-    {:ok, list} = Client.call(client, "plugin.list", [])
+    {:ok, list} = Client.call(client, "plugin.catalog", [])
     assert not "active" in list["serverboards.test.auth"]["status"]
     assert "disabled" in list["serverboards.test.auth"]["status"]
 
     Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", true])
-    {:ok, list} = Client.call(client, "plugin.list", [])
+    {:ok, list} = Client.call(client, "plugin.catalog", [])
     assert "active" in list["serverboards.test.auth"]["status"]
     assert not "disabled" in list["serverboards.test.auth"]["status"]
   end
@@ -358,9 +358,9 @@ defmodule Serverboards.PluginTest do
     # there was a bug when changing from JSON to Poison, it does not convert tuples to lists
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, _} = Client.call(client, "plugin.data_set", ["serverboards.test.auth/fake", "test", "value"])
-    {:ok, _} = Client.call(client, "plugin.data_set", ["serverboards.test.auth/fake", "test2", "value"])
-    {:ok, keys} = Client.call(client, "plugin.data_keys", ["serverboards.test.auth/fake", ""])
+    {:ok, _} = Client.call(client, "plugin.data.update", ["serverboards.test.auth/fake", "test", "value"])
+    {:ok, _} = Client.call(client, "plugin.data.update", ["serverboards.test.auth/fake", "test2", "value"])
+    {:ok, keys} = Client.call(client, "plugin.data.list", ["serverboards.test.auth/fake", ""])
     Logger.debug(inspect keys)
 
     {:ok, items} = Client.call(client, "plugin.data_items", ["serverboards.test.auth/fake", ""])

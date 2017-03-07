@@ -15,7 +15,7 @@ defmodule Serverboards.Setup do
     "auth.create_user", "auth.token.add",
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
-    "plugin", "plugin.data", "plugin.install", "plugin.list",
+    "plugin", "plugin.data", "plugin.install", "plugin.catalog",
     "project.add", "project.update",
     "project.delete", "project.get",
     "project.widget.add", "project.widget.update",

@@ -9,7 +9,7 @@ const PresetActions=React.createClass({
   },
   componentDidMount(){
     let self=this
-    rpc.call("plugin.list_components", {type:"action template"})
+    rpc.call("plugin.component.catalog", {type:"action template"})
       .then( (presets) => {
         presets = presets.filter( (p) => {
           if ('any' in p.extra.actions)

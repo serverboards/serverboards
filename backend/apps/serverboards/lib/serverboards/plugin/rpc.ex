@@ -91,7 +91,7 @@ defmodule Serverboards.Plugin.RPC do
         end
     end, [required_perm: "plugin", context: true]
 
-    RPC.MethodCaller.add_method method_caller, "plugin.list", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.catalog", fn
       [] ->
         Serverboards.Plugin.Registry.list
       %{} ->
@@ -102,7 +102,7 @@ defmodule Serverboards.Plugin.RPC do
         Serverboards.Plugin.Installer.install(url)
     end, [required_perm: "plugin.install"]
 
-    RPC.MethodCaller.add_method(method_caller, "plugin.data_set", fn
+    RPC.MethodCaller.add_method(method_caller, "plugin.data.update", fn
       [ key, value ], context ->
         case check_perm_for_plugin_data( context ) do
           {plugin, user} ->
@@ -120,7 +120,7 @@ defmodule Serverboards.Plugin.RPC do
       end,
       context: true)
 
-    RPC.MethodCaller.add_method(method_caller, "plugin.data_get", fn
+    RPC.MethodCaller.add_method(method_caller, "plugin.data.get", fn
       [ key ], context ->
         case check_perm_for_plugin_data( context ) do
           {plugin, _user} ->
@@ -138,7 +138,7 @@ defmodule Serverboards.Plugin.RPC do
       end,
       context: true)
 
-    RPC.MethodCaller.add_method method_caller, "plugin.data_keys", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.data.list", fn
       [ plugin, keyprefix ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
           {plugin, _user} ->
@@ -171,7 +171,7 @@ defmodule Serverboards.Plugin.RPC do
         end
     end, context: true
 
-    RPC.MethodCaller.add_method method_caller, "plugin.data_remove",
+    RPC.MethodCaller.add_method method_caller, "plugin.data.delete",
         fn [ plugin, key ], context ->
       user = RPC.Context.get context, :user
       perms = user.perms
@@ -188,7 +188,7 @@ defmodule Serverboards.Plugin.RPC do
     end, context: true
 
 
-    RPC.MethodCaller.add_method method_caller, "plugin.list_components", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.component.catalog", fn
       [] ->
         []
           |> Serverboards.Plugin.Registry.filter_component

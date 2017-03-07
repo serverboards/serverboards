@@ -14,7 +14,7 @@ const Default=React.createClass({
   },
   componentDidMount(){
     console.log("Get components.")
-    rpc.call("plugin.list_components", {type:"settings overview"}).then( (l) => {
+    rpc.call("plugin.component.catalog", {type:"settings overview"}).then( (l) => {
       console.log("Get components. %o", l)
       // Get only the fields, with the order
       let fields = l.map(

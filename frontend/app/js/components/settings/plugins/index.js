@@ -15,7 +15,7 @@ const Plugins=React.createClass({
     return { plugins: [] }
   },
   componentDidMount(){
-    rpc.call("plugin.list",[]).then((pluginsd)=>{
+    rpc.call("plugin.catalog",[]).then((pluginsd)=>{
       let plugins=[]
       for (let k in pluginsd){
         plugins.push(pluginsd[k])

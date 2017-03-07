@@ -44,7 +44,7 @@ var SidebarSections = function(props){
       <Restricted perm="auth.list AND auth.manage_groups">
         <MenuItem section="groups">{i18n("Groups and permissions")}</MenuItem>
       </Restricted>
-      <Restricted perm="plugin.list">
+      <Restricted perm="plugin.catalog">
         <MenuItem section="plugins">{i18n("Plugins")}</MenuItem>
       </Restricted>
       <Restricted perm="settings.view">
