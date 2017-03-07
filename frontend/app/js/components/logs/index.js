@@ -122,7 +122,7 @@ const Logs = React.createClass({
     if (state.start)
       filter.start=state.start
 
-    rpc.call('logs.history', filter).then((history) => {
+    rpc.call('logs.list', filter).then((history) => {
       this.setState({lines: history.lines, count: history.count, start: state.start, page: state.page || 1 })
     })
   },

@@ -9,7 +9,7 @@ defmodule Serverboards.Logger.RPC do
 
     import RPC.MethodCaller
 
-    add_method mc, "logs.history", fn opts ->
+    add_method mc, "logs.list", fn opts ->
       opts = Map.new(Enum.map(Map.to_list(opts), fn
         {"start", v} -> {:start, v}
         {"count", v} -> {:count, v}
