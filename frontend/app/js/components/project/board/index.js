@@ -17,10 +17,10 @@ require('sass/gridlayout.sass')
 const Board = React.createClass({
   handleEdit(uuid){
     const widget=this.props.widgets.find( (w) => w.uuid == uuid )
-    set_modal("project.widget.edit", {uuid, widget})
+    set_modal("dashboard.widget.edit", {uuid, widget})
   },
   handleAddWidget(){
-    set_modal('project.widget.add',{project: this.props.project})
+    set_modal('dashboard.widget.add',{project: this.props.project})
   },
   getLayout(props){
     const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
@@ -40,7 +40,7 @@ const Board = React.createClass({
       return l
     }).filter( Boolean )
     to_set.map( (w) => {
-      rpc.call("project.widget.update", {uuid: w.i, ui: w})
+      rpc.call("dashboard.widget.update", {uuid: w.i, ui: w})
     })
     this.setState({layout})
   },
@@ -109,7 +109,7 @@ const Board = React.createClass({
               </div>
             ))}
         </ReactGridLayout>
-        <Restricted perm="project.widget.add">
+        <Restricted perm="dashboard.widget.add">
           <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
             <i className="add icon"></i>
           </a>

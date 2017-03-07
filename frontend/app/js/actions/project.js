@@ -50,7 +50,7 @@ function projects_widget_list(project){
   return function(dispatch){
     dispatch({type:"UPDATE_PROJECT_WIDGETS", project, widgets: undefined})
     if (project)
-      rpc.call("project.widget.list", [project]).then((widgets) => {
+      rpc.call("dashboard.widget.list", [project]).then((widgets) => {
         dispatch({type:"UPDATE_PROJECT_WIDGETS", project, widgets})
       })
   }
@@ -71,7 +71,7 @@ function project_update_widget_catalog(project){
   return function(dispatch){
     dispatch({type:"UPDATE_WIDGET_CATALOG", project, widget_catalog: undefined})
     if (project)
-      rpc.call("project.widget.catalog", [project]).then( (widget_catalog) => {
+      rpc.call("dashboard.widget.catalog", [project]).then( (widget_catalog) => {
         dispatch({type:"UPDATE_WIDGET_CATALOG", project, widget_catalog})
       })
   }

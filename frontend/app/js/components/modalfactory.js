@@ -18,9 +18,9 @@ export function get_modal(name){
       return require('app/components/notifications/send').default
     case "service.action":
       return require('app/components/service/actionmodal').default
-    case "project.widget.add":
+    case "dashboard.widget.add":
       return require('app/containers/project/board/add_widget').default
-    case "project.widget.edit":
+    case "dashboard.widget.edit":
       return require('app/containers/project/board/edit_widget').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default

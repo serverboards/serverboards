@@ -24,13 +24,13 @@ const AddWidget = React.createClass({
       project: this.props.project,
       config: state.config
     }
-    rpc.call("project.widget.update", data).then( () => {
+    rpc.call("dashboard.widget.update", data).then( () => {
       set_modal(null)
     })
   },
   removeWidget(){
     console.log("remove")
-    rpc.call("project.widget.remove", [this.props.widget.uuid]).then(() => {
+    rpc.call("dashboard.widget.remove", [this.props.widget.uuid]).then(() => {
       set_modal(null)
     })
   },

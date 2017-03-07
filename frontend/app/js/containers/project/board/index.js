@@ -8,17 +8,17 @@ import {
 
 const Board = store.connect({
   state: (state) => ({
-    widgets: state.project.widgets,
-    widget_catalog: state.project.widget_catalog
+    widgets: state.dashboard.widgets,
+    widget_catalog: state.dashboard.widget_catalog
   }),
   handlers: (dispatch, prop) => ({
     updateDaterangeNow: () => dispatch( board_update_now() )
   }),
   subscriptions: (state, props) => {
     return [
-      `project.widget.added[${props.project}]`,
-      `project.widget.removed[${props.project}]`,
-      `project.widget.updated[${props.project}]`
+      `dashboard.widget.added[${props.project}]`,
+      `dashboard.widget.removed[${props.project}]`,
+      `dashboard.widget.updated[${props.project}]`
     ]
   },
   // Update catalog on entry
@@ -32,7 +32,7 @@ const Board = store.connect({
   ],
   watch: ['project'], // Watch this prop
   loading(state){
-    if (!state.project.widget_catalog)
+    if (!state.dashboard.widget_catalog)
       return "Widget catalog"
     return false
   }

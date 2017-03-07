@@ -104,25 +104,25 @@ defmodule ProjectTest do
 
   test "Project and widgets via RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    Test.Client.call(client, "event.subscribe", ["project.widget.added", "project.widget.updated"])
+    Test.Client.call(client, "event.subscribe", ["dashboard.widget.added", "dashboard.widget.updated"])
     {:ok, sbds} = Test.Client.call(client, "project.add", ["SBDS-TST13", %{}] )
-    {:ok, uuid} = Test.Client.call(client, "project.widget.add", %{ project: "SBDS-TST13", widget: "test"})
+    {:ok, uuid} = Test.Client.call(client, "dashboard.widget.add", %{ project: "SBDS-TST13", widget: "test"})
     :timer.sleep(300)
-    assert Test.Client.expect(client, method: "project.widget.added")
+    assert Test.Client.expect(client, method: "dashboard.widget.added")
 
-    {:ok, _ } = Test.Client.call(client, "project.widget.list", [sbds])
+    {:ok, _ } = Test.Client.call(client, "dashboard.widget.list", [sbds])
 
-    {:ok, _uuid} = Test.Client.call(client, "project.widget.update", %{ uuid: uuid, widget: "test2"})
+    {:ok, _uuid} = Test.Client.call(client, "dashboard.widget.update", %{ uuid: uuid, widget: "test2"})
     :timer.sleep(300)
 
-    assert Test.Client.expect(client, method: "project.widget.updated")
-    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "project.widget.list", [sbds])
+    assert Test.Client.expect(client, method: "dashboard.widget.updated")
+    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "dashboard.widget.list", [sbds])
 
     # just dont fail
-    {:ok, _catalog} = Test.Client.call(client, "project.widget.catalog", ["SBDS-TST13"])
+    {:ok, _catalog} = Test.Client.call(client, "dashboard.widget.catalog", ["SBDS-TST13"])
 
-    {:ok, _} = Test.Client.call(client, "project.widget.remove", [uuid])
-    {:ok, []} = Test.Client.call(client, "project.widget.list", [sbds])
+    {:ok, _} = Test.Client.call(client, "dashboard.widget.remove", [uuid])
+    {:ok, []} = Test.Client.call(client, "dashboard.widget.list", [sbds])
   end
 
   test "Update serverboards tags", %{ system: system } do

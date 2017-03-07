@@ -37,21 +37,21 @@ defmodule Serverboards.Project.RPC do
     end, [required_perm: "project.get", context: true]
 
 
-    RPC.MethodCaller.add_method mc, "project.widget.add", fn attr, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.add", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_add(attr["project"], %{
         config: attr["config"],
         ui: attr["ui"],
         widget: attr["widget"]
         }, me)
-    end, [required_perm: "project.widget.add", context: true]
+    end, [required_perm: "dashboard.widget.add", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.widget.remove", fn [uuid], context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.remove", fn [uuid], context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_remove(uuid, me)
-    end, [required_perm: "project.widget.add", context: true]
+    end, [required_perm: "dashboard.widget.add", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.widget.update", fn attr, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.update", fn attr, context ->
       me = Context.get(context, :user)
       config = [
         config: attr["config"],
@@ -61,13 +61,13 @@ defmodule Serverboards.Project.RPC do
           |> Map.new
 
       Serverboards.Project.Widget.widget_update(attr["uuid"], config, me)
-    end, [required_perm: "project.widget.update", context: true]
+    end, [required_perm: "dashboard.widget.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.widget.list", fn [shortname] ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.list", fn [shortname] ->
       Serverboards.Project.Widget.widget_list(shortname)
     end, [required_perm: "project.get"]
 
-    RPC.MethodCaller.add_method mc, "project.widget.catalog", fn [project] ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.catalog", fn [project] ->
         Serverboards.Project.Widget.catalog(project)
     end, [required_perm: "project.get"]
 

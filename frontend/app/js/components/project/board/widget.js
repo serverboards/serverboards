@@ -90,7 +90,7 @@ const Widget = React.createClass({
           <span className="ui header oneline">
             {state.title || config.name || widget.name}
           </span>
-          <Restricted perm="project.widget.update">
+          <Restricted perm="dashboard.widget.update">
             <a className="item right" onClick={this.props.onEdit}>
               <i className="icon configure"/>
             </a>

@@ -46,7 +46,7 @@ defmodule Seeds do
     "plugin",
     "project.add", "project.update",
     "project.delete", "project.get",
-    "project.widget.add", "project.widget.update",
+    "dashboard.widget.add", "dashboard.widget.update",
     "service.add", "service.update",
     "service.delete", "service.get",
     "service.attach",
