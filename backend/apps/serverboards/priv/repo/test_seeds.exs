@@ -9,7 +9,7 @@ require Logger
 
 all_perms = [
     "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
+    "auth.create_user", "auth.token.add",
     "auth.info_any_user",
     "auth.modify_groups", "auth.manage_groups",
     "plugin",
@@ -30,7 +30,7 @@ all_perms = [
   ]
 
 user_perms = [
-  "auth.modify_self", "auth.create_token",
+  "auth.modify_self", "auth.token.add",
   "action.trigger", "action.watch",
   "project.get",  "service.get",
   "settings.user.view", "settings.user.update",
@@ -82,7 +82,7 @@ defmodule Seeds do
       id: -1,
       perms: [
         "auth.modify_self", "auth.modify_any",
-        "auth.create_user", "auth.create_token",
+        "auth.create_user", "auth.token.add",
         "auth.info_any_user",
         "auth.modify_groups", "auth.manage_groups",
         "plugin",

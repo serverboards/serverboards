@@ -141,7 +141,7 @@ var RPC = function(options={}){
     store.on('auth.user', function(user){
       if (user){
         if (!sessionStorage.reconnect_token){
-          rpc.call("auth.create_token").then(function(token){
+          rpc.call("auth.token.add").then(function(token){
             //console.debug("My reconnect token is "+token)
             sessionStorage.reconnect_token=token
             if (rpc.keep_logged_in)
@@ -249,7 +249,7 @@ var RPC = function(options={}){
       rpc.clear_refresh_token()
     }
 
-    rpc.call("auth.refresh_token",[sessionStorage.reconnect_token]).catch( (e) => {
+    rpc.call("auth.token.update",[sessionStorage.reconnect_token]).catch( (e) => {
       console.error("Error refreshing the connection token")
       rpc.clear_refresh_token()
     })

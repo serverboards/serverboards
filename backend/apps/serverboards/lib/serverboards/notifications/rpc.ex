@@ -15,7 +15,7 @@ defmodule Serverboards.Notifications.RPC do
       {:ok, Notifications.catalog}
     end
 
-    add_method mc, "notifications.config", fn
+    add_method mc, "notifications.config.get", fn
       [email], context ->
         me = RPC.Context.get(context, :user)
         if (me.email == email) or ("settings.user.view_all" in me.perms) do
@@ -32,7 +32,7 @@ defmodule Serverboards.Notifications.RPC do
         end
     end, context: true, required_perm: "settings.user.view"
 
-    add_method mc, "notifications.config_update",
+    add_method mc, "notifications.config.update",
                   fn %{ "email" => email, "channel" => channel,
                         "is_active" => is_active, "config" => config}, context ->
       me = RPC.Context.get(context, :user)
@@ -59,7 +59,7 @@ defmodule Serverboards.Notifications.RPC do
       Notifications.InApp.list(filter, me)
     end, context: true, required_perm: "notifications.list"
 
-    add_method mc, "notifications.details", fn [id], context ->
+    add_method mc, "notifications.get", fn [id], context ->
       me = RPC.Context.get(context, :user)
       Notifications.InApp.details(id, me)
     end, context: true, required_perm: "notifications.list"

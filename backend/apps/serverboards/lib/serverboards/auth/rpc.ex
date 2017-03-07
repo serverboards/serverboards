@@ -26,17 +26,17 @@ defmodule Serverboards.Auth.RPC do
       end
     end, [required_perm: "auth.modify_self", context: true]
 
-    add_method mc, "auth.create_token", fn [], context ->
+    add_method mc, "auth.token.add", fn [], context ->
       user = RPC.Context.get(context, :user)
       Logger.info("#{user.email} created new token.")
       Serverboards.Auth.User.Token.create(user)
-    end, [required_perm: "auth.create_token", context: true]
+    end, [required_perm: "auth.token.add", context: true]
 
-    add_method mc, "auth.refresh_token", fn [token], context ->
+    add_method mc, "auth.token.update", fn [token], context ->
       user = RPC.Context.get(context, :user)
       Logger.info("#{user.email} refreshes a token.", user: user, token: token)
       Serverboards.Auth.User.Token.refresh(token, user.email)
-    end, [required_perm: "auth.create_token", context: true]
+    end, [required_perm: "auth.token.add", context: true]
 
 
     add_method mc, "auth.user", fn [], context ->
