@@ -72,7 +72,7 @@ const VirtualBottomMenu=React.createClass({
   },
   loadAvailableActions(){
     if (this.state.actions == undefined){
-      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+      rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
         this.setState({
           actions: actions,
         })

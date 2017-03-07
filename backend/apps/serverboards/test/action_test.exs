@@ -41,7 +41,7 @@ defmodule Serverboards.ActionTest do
   test "Action list" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, [_c]} = Test.Client.call(client, "action.filter",
+    {:ok, [_c]} = Test.Client.call(client, "action.catalog",
       %{ "traits" => ["test"] } )
 
     Test.Client.stop client
