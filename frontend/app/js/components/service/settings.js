@@ -126,12 +126,30 @@ const SetupComponent=React.createClass({
     return setup_fields(this.props.service, this.props.service_catalog)
   },
   componentDidMount(){
-    let filter = { traits: this.props.service.traits }
+    let filter = { traits: this.props.service.traits, type: "rule template" }
     console.log(filter)
     Promise.all([
-      rpc.call("rules.templates", filter),
+      rpc.call("plugin.components.catalog", filter),
       rpc.call("rules.list", { service: this.props.service.uuid })
     ]).then( ([templates, rules]) => {
+      templates = templates.map( t => ({
+        id: t.id,
+        name: t.name,
+        traits: t.traits,
+        description: t.description,
+        plugin: t.plugin,
+        trigger: %{
+          trigger: t.extra.trigger.trigger,
+          params: t.extra.trigger.params
+        },
+        actions: to_map(to_list(extra.actions).map( kv => {
+          const k=kv[0]
+          const v=kv[1]
+          return [k, { params: v.params, action: v.action }]
+        }))
+      }))
+
+
       //console.log(templates, rules)
       const decorated_templates = templates.map( (t) => {
         let r = rules.find( (r) => t.id == r.from_template )
