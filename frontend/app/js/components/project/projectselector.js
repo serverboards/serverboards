@@ -86,7 +86,7 @@ const Selector=React.createClass({
     const projects = state.projects
     return (
       <div>
-        <div style={{position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh", background: "none"}} onClick={() => props.onClose && props.onClose()}/>
+        <div className="ui full background clear" onClick={() => props.onClose && props.onClose()}/>
         <div ref="el" className={`ui vertical menu project selector ${props.className}`}>
           <div className="ui search">
             <div className="ui icon input">
