@@ -35,7 +35,7 @@ const AddWidget = React.createClass({
       config: state.config
     }
     console.log(data, this)
-    rpc.call("dashboard.widget.add", data).then( () => {
+    rpc.call("dashboard.widget.create", data).then( () => {
       set_modal(null)
     })
   },

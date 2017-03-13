@@ -20,7 +20,7 @@ const Board = React.createClass({
     set_modal("dashboard.widget.edit", {uuid, widget})
   },
   handleAddWidget(){
-    set_modal('dashboard.widget.add',{project: this.props.project})
+    set_modal('dashboard.widget.create',{project: this.props.project})
   },
   getLayout(props){
     const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
@@ -109,7 +109,7 @@ const Board = React.createClass({
               </div>
             ))}
         </ReactGridLayout>
-        <Restricted perm="dashboard.widget.add">
+        <Restricted perm="dashboard.widget.create">
           <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
             <i className="add icon"></i>
           </a>

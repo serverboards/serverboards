@@ -116,7 +116,7 @@ function Issues(props){
           <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
         </div>
       </div>
-      <Restricted perm="issues.add">
+      <Restricted perm="issues.create">
         <a onClick={() => goto("/issues/add",{project:props.project})} className="ui massive button _add icon floating yellow">
           <i className="add icon"></i>
         </a>

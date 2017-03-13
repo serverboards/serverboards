@@ -16,10 +16,10 @@ defmodule Serverboards.Setup do
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
     "plugin", "plugin.data", "plugin.install", "plugin.catalog",
-    "project.add", "project.update",
+    "project.create", "project.update",
     "project.delete", "project.get",
-    "dashboard.widget.add", "dashboard.widget.update",
-    "service.add", "service.update",
+    "dashboard.widget.create", "dashboard.widget.update",
+    "service.create", "service.update",
     "service.delete", "service.get",
     "service.attach",
     "settings.user.view", "settings.user.view_all",
@@ -31,7 +31,7 @@ defmodule Serverboards.Setup do
     "action.trigger", "action.watch",
     "rules.update", "rules.view",
     "logs.view",
-    "issues.view", "issues.add", "issues.update"
+    "issues.view", "issues.create", "issues.update"
     ]
   end
 

@@ -47,8 +47,8 @@ defmodule Serverboards.AuthTest do
 
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
-    {:ok, :ok} = Client.call(client, "group.add", ["test"])
-    Client.expect( client, [method: "group.added"], 500 )
+    {:ok, :ok} = Client.call(client, "group.create", ["test"])
+    Client.expect( client, [method: "group.created"], 500 )
 
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user","test"]), MapSet.new(groups)
@@ -84,7 +84,7 @@ defmodule Serverboards.AuthTest do
   test "Manage users" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, :ok} = Client.call(client, "user.add",
+    {:ok, :ok} = Client.call(client, "user.create",
       %{ "email" => "dmoreno+c@serverboards.io",
         "name" => "test", "is_active" => true
       })
@@ -116,14 +116,14 @@ defmodule Serverboards.AuthTest do
     {:ok, user} = Client.call(client, "auth.user", [])
     assert not "auth.create_user" in user["perms"]
 
-    {:error, :unknown_method} = Client.call(client, "user.add", %{
+    {:error, :unknown_method} = Client.call(client, "user.create", %{
       "email" => "test+rmtr@serverboards.io",
       "name" => "test",
       "is_active" => "true"
       })
 
     {:ok, dir} = Client.call(client, "dir", [])
-    assert not "user.add" in dir
+    assert not "user.create" in dir
 
     {:ok, :ok} = Client.call(client, "group.perm.add", ["admin", "auth.create_user"])
   end

@@ -13,13 +13,13 @@ defmodule Serverboards.Project.RPC do
     Serverboards.Utils.Decorators.permission_method_caller mc
 
     # Serverboards
-    RPC.MethodCaller.add_method mc, "project.add", fn [projectname, options], context ->
+    RPC.MethodCaller.add_method mc, "project.create", fn [projectname, options], context ->
       project_add projectname, options, Context.get(context, :user)
-    end, [required_perm: "project.add", context: true]
+    end, [required_perm: "project.create", context: true]
 
     RPC.MethodCaller.add_method mc, "project.delete", fn [project_id], context ->
       project_delete project_id, Context.get(context, :user)
-    end, [required_perm: "project.add", context: true]
+    end, [required_perm: "project.create", context: true]
 
     RPC.MethodCaller.add_method mc, "project.update", fn
       [project_id, operations], context ->
@@ -37,19 +37,19 @@ defmodule Serverboards.Project.RPC do
     end, [required_perm: "project.get", context: true]
 
 
-    RPC.MethodCaller.add_method mc, "dashboard.widget.add", fn attr, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.create", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_add(attr["project"], %{
         config: attr["config"],
         ui: attr["ui"],
         widget: attr["widget"]
         }, me)
-    end, [required_perm: "dashboard.widget.add", context: true]
+    end, [required_perm: "dashboard.widget.create", context: true]
 
     RPC.MethodCaller.add_method mc, "dashboard.widget.remove", fn [uuid], context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_remove(uuid, me)
-    end, [required_perm: "dashboard.widget.add", context: true]
+    end, [required_perm: "dashboard.widget.create", context: true]
 
     RPC.MethodCaller.add_method mc, "dashboard.widget.update", fn attr, context ->
       me = Context.get(context, :user)

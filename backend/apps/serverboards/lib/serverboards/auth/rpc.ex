@@ -48,7 +48,7 @@ defmodule Serverboards.Auth.RPC do
     add_method mc, "user.list", fn [] ->
       Auth.User.user_list nil
     end, required_perm: "auth.list"
-    add_method mc, "user.add", fn attributes, context ->
+    add_method mc, "user.create", fn attributes, context ->
       me = RPC.Context.get(context, :user)
       Auth.User.user_add %{
         email: attributes["email"],
@@ -65,7 +65,7 @@ defmodule Serverboards.Auth.RPC do
     add_method mc, "group.list", fn [] ->
       Auth.Group.group_list nil
     end, required_perm: "auth.list"
-    add_method mc, "group.add", fn [name], context ->
+    add_method mc, "group.create", fn [name], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.group_add name, me
     end, [required_perm: "auth.modify_groups", context: true]

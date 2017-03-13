@@ -69,8 +69,8 @@ defmodule Serverboards.Project.Widget do
     data = Map.put(data, :project_id, project_id)
     {:ok, _widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
 
-    Serverboards.Event.emit("dashboard.widget.added", data, ["project.get"])
-    Serverboards.Event.emit("dashboard.widget.added[#{project}]", data, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.created", data, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.created[#{project}]", data, ["project.get"])
     {:ok, data.uuid}
   end
 

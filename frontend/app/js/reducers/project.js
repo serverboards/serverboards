@@ -29,7 +29,7 @@ function project(state=default_state, action){
       return merge(state, {projects: action.projects} )
     case 'UPDATE_PROJECT_SERVICES':
       return merge(state, {current_services: action.services} )
-    case '@RPC_EVENT/project.added':
+    case '@RPC_EVENT/project.created':
       return merge(state, {projects: state.projects.concat(action.project) } )
     case '@RPC_EVENT/project.deleted':
       return merge(state, {projects: state.projects.filter( s => s.shortname != action.shortname ) } )
@@ -70,7 +70,7 @@ function project(state=default_state, action){
     case 'UPDATE_WIDGET_CATALOG':
       const widget_catalog=action.widget_catalog
       return merge(state, {widget_catalog})
-    case "@RPC_EVENT/dashboard.widget.added":
+    case "@RPC_EVENT/dashboard.widget.created":
       return merge(state, {widgets: state.widgets.concat(action)})
     case "@RPC_EVENT/dashboard.widget.updated":
       return merge(state, {widgets: state.widgets.map( (w) => {

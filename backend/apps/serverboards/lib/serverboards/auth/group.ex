@@ -14,7 +14,7 @@ defmodule Serverboards.Auth.Group do
       Repo.insert(%Model.Group{
           name: name
         })
-      Serverboards.Event.emit("group.added", %{ group: name}, ["auth.modify_groups"])
+      Serverboards.Event.emit("group.created", %{ group: name}, ["auth.modify_groups"])
     end
 
     EventSourcing.subscribe es, :remove_group, fn %{name: name}, _me ->

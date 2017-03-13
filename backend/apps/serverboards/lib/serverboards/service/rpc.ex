@@ -15,13 +15,13 @@ defmodule Serverboards.Service.RPC do
 
     ## Services
 
-    RPC.MethodCaller.add_method mc, "service.add", fn attributes, context ->
+    RPC.MethodCaller.add_method mc, "service.create", fn attributes, context ->
       service_add attributes, Context.get(context, :user)
-    end, [required_perm: "service.add", context: true]
+    end, [required_perm: "service.create", context: true]
 
     RPC.MethodCaller.add_method mc, "service.delete", fn [uuid], context ->
       service_delete uuid, Context.get(context, :user)
-    end, [required_perm: "service.add", context: true]
+    end, [required_perm: "service.create", context: true]
 
     RPC.MethodCaller.add_method mc, "service.update", fn [service, operations], context ->
       service_update service, operations, Context.get(context, :user)

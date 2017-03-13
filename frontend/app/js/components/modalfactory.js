@@ -8,7 +8,7 @@ export function get_modal(name){
       return require('app/containers/settings/group/edit_perms').default
     case "auth.group.edit_users":
       return require('app/containers/settings/group/edit_users').default
-    case "auth.group.add":
+    case "auth.group.create":
       return require('app/containers/settings/group/add').default
     case "auth.user.add":
       return require('app/containers/settings/user/add').default
@@ -18,13 +18,13 @@ export function get_modal(name){
       return require('app/components/notifications/send').default
     case "service.action":
       return require('app/components/service/actionmodal').default
-    case "dashboard.widget.add":
+    case "dashboard.widget.create":
       return require('app/containers/project/board/add_widget').default
     case "dashboard.widget.edit":
       return require('app/containers/project/board/edit_widget').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default
-    case "service.add":
+    case "service.create":
       return require('app/containers/project/addservice').default
   }
 }

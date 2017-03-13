@@ -100,7 +100,7 @@ export const auth = (state = default_state , action) => {
         return g
       })
     break;
-    case '@RPC_EVENT/group.added':
+    case '@RPC_EVENT/group.created':
       state.groups = sort_groups(
         state.groups.concat( { name: action.group, users: [], perms: []} )
       )

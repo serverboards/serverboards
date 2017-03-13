@@ -62,7 +62,7 @@ defmodule ProjectTest do
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = project_add "SBDS-TST3", %{ "name" => "serverboards" }, user
-    assert check_if_event_on_project(agent, "project.added", "SBDS-TST3")
+    assert check_if_event_on_project(agent, "project.created", "SBDS-TST3")
 
     :ok = project_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
     assert check_if_event_on_project(agent, "project.updated", "SBDS-TST3")
@@ -104,11 +104,11 @@ defmodule ProjectTest do
 
   test "Project and widgets via RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    Test.Client.call(client, "event.subscribe", ["dashboard.widget.added", "dashboard.widget.updated"])
-    {:ok, sbds} = Test.Client.call(client, "project.add", ["SBDS-TST13", %{}] )
-    {:ok, uuid} = Test.Client.call(client, "dashboard.widget.add", %{ project: "SBDS-TST13", widget: "test"})
+    Test.Client.call(client, "event.subscribe", ["dashboard.widget.created", "dashboard.widget.updated"])
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST13", %{}] )
+    {:ok, uuid} = Test.Client.call(client, "dashboard.widget.create", %{ project: "SBDS-TST13", widget: "test"})
     :timer.sleep(300)
-    assert Test.Client.expect(client, method: "dashboard.widget.added")
+    assert Test.Client.expect(client, method: "dashboard.widget.created")
 
     {:ok, _ } = Test.Client.call(client, "dashboard.widget.list", [sbds])
 
@@ -166,7 +166,7 @@ defmodule ProjectTest do
     {:ok, dir} = Test.Client.call client, "dir", []
     Logger.debug("Known methods: #{inspect dir}")
     assert Enum.member? dir, "project.list"
-    assert Enum.member? dir, "project.add"
+    assert Enum.member? dir, "project.create"
     assert Enum.member? dir, "project.delete"
     assert Enum.member? dir, "project.get"
 
@@ -174,13 +174,13 @@ defmodule ProjectTest do
     #Logger.info("Debug information: #{json}")
 
     Test.Client.call(client, "event.subscribe", [
-      "project.added","project.deleted","project.updated"
+      "project.created","project.deleted","project.updated"
       ])
     {:ok, l} = Test.Client.call client, "project.list", []
     Logger.info("Got serverboards: #{inspect l}")
     assert (Enum.count l) >= 0
 
-    {:ok, "SBDS-TST8"} = Test.Client.call client, "project.add", [
+    {:ok, "SBDS-TST8"} = Test.Client.call client, "project.create", [
       "SBDS-TST8",
       %{
         "name" => "Serverboards test",
@@ -191,7 +191,7 @@ defmodule ProjectTest do
         ]
       }
     ]
-    assert check_if_event_on_client(client, "project.added", "SBDS-TST8")
+    assert check_if_event_on_client(client, "project.created", "SBDS-TST8")
     deleted=check_if_event_on_client(client, "project.deleted", "SBDS-TST8")
     Logger.info("At project deleted? #{deleted}")
     assert not deleted
@@ -210,7 +210,7 @@ defmodule ProjectTest do
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
-    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => @email_type, "name" => "Email" }
+    {:ok, service} = Test.Client.call client, "service.create", %{ "tags" => ["email","test"], "type" => @email_type, "name" => "Email" }
     Test.Client.call client, "service.attach", ["SBDS-TST8", service]
     Test.Client.call client, "service.get", [service]
     Test.Client.call client, "service.list", []

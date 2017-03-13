@@ -13,7 +13,7 @@ function project_update_all(){
 
 function project_add(data){
   return function(dispatch, store){
-    rpc.call("project.add",
+    rpc.call("project.create",
         [ data.shortname, {name: data.name, tags: data.tags, description: data.description}]
       ).then(function(){
         dispatch( push({pathname: `/project/${data.shortname}/`}) )

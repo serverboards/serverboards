@@ -19,8 +19,8 @@ var Groups = connect({
   }),
   subscriptions: ["group.user_added", "group.user.deleted",
    "group.perm_added", "group.perm.deleted",
-   "group.added", "group.deleted",
-   "user.updated", "user.added"],
+   "group.created", "group.deleted",
+   "user.updated", "user.created"],
   store_enter: [group_list, user_list]
 })(GroupsView)
 

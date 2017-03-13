@@ -35,7 +35,7 @@ defmodule Serverboards.Project do
         inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.inserted_at),
         updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.updated_at)
       }
-      Serverboards.Event.emit("project.added", %{ project: project}, ["project.get"])
+      Serverboards.Event.emit("project.created", %{ project: project}, ["project.get"])
       project.shortname
     end, name: :project
 

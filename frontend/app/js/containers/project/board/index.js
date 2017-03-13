@@ -16,7 +16,7 @@ const Board = store.connect({
   }),
   subscriptions: (state, props) => {
     return [
-      `dashboard.widget.added[${props.project}]`,
+      `dashboard.widget.created[${props.project}]`,
       `dashboard.widget.removed[${props.project}]`,
       `dashboard.widget.updated[${props.project}]`
     ]

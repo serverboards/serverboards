@@ -14,7 +14,7 @@ var Container=has_perm_guard("project.get", connect({
   handlers: (dispatch) => ({
     onServiceSelect: (shortname) => dispatch( push( `/project/${shortname}/`) )
   }),
-  subscriptions: ["project.added", "project.deleted", "project.updated"],
+  subscriptions: ["project.created", "project.deleted", "project.updated"],
   store_enter: [project_update_all],
   watch: ["projects", "current"]
 })(View))

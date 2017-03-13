@@ -67,7 +67,7 @@ export function user_list(){
 
 export function user_add(user){
   return function(dispatch){
-    rpc.call("user.add", user).then(() => {
+    rpc.call("user.create", user).then(() => {
       Flash.info("User added")
     })
   }
@@ -142,7 +142,7 @@ export function group_add_user(group, user){
 
 export function group_add(group){
   return function(dispatch){
-    rpc.call("group.add", [group]).then(() => {
+    rpc.call("group.create", [group]).then(() => {
       Flash.info("Group added")
     })
   }
