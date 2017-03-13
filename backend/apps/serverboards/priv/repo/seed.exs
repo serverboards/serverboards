@@ -40,7 +40,7 @@ defmodule Seeds do
   def all_perms do
     [
     "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.token.add",
+    "auth.create_user", "auth.token.create",
     "auth.info_any_user",
     "auth.modify_groups", "auth.manage_groups",
     "plugin",

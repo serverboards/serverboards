@@ -141,7 +141,7 @@ var RPC = function(options={}){
     store.on('auth.user', function(user){
       if (user){
         if (!sessionStorage.reconnect_token){
-          rpc.call("auth.token.add").then(function(token){
+          rpc.call("auth.token.create").then(function(token){
             //console.debug("My reconnect token is "+token)
             sessionStorage.reconnect_token=token
             if (rpc.keep_logged_in)

@@ -206,7 +206,7 @@ defmodule Serverboards.AuthUserTest do
 
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, token} = Client.call(client, "auth.token.add", [])
+    {:ok, token} = Client.call(client, "auth.token.create", [])
     assert token != ""
     [time_limit] = Repo.all( from t in Serverboards.Auth.User.Model.Token, where: t.token == ^token, select: t.time_limit )
     :timer.sleep(1500)

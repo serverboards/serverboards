@@ -12,7 +12,7 @@ defmodule Serverboards.Setup do
     [
     "http.port_to_websocket",
     "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.token.add",
+    "auth.create_user", "auth.token.create",
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
     "plugin", "plugin.data", "plugin.install", "plugin.catalog",
