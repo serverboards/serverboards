@@ -8,8 +8,8 @@ import {
 
 const Board = store.connect({
   state: (state) => ({
-    widgets: state.dashboard.widgets,
-    widget_catalog: state.dashboard.widget_catalog
+    widgets: state.project.widgets,
+    widget_catalog: state.project.widget_catalog
   }),
   handlers: (dispatch, prop) => ({
     updateDaterangeNow: () => dispatch( board_update_now() )
@@ -32,7 +32,7 @@ const Board = store.connect({
   ],
   watch: ['project'], // Watch this prop
   loading(state){
-    if (!state.dashboard.widget_catalog)
+    if (!state.project.widget_catalog)
       return "Widget catalog"
     return false
   }

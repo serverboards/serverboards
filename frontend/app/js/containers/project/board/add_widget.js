@@ -3,7 +3,7 @@ import View from 'app/components/project/board/add_widget'
 
 const Controller = connect(
   (state) => ({
-    widget_catalog: state.dashboard.widget_catalog
+    widget_catalog: state.project.widget_catalog
   }),
   (dispatch, prop) => ({}),
 )(View)
