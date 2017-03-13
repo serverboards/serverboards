@@ -1,6 +1,7 @@
 import React from 'react'
 import LogoIcon from '../logoicon'
 import i18n from 'app/utils/i18n'
+import Restricted from 'app/restricted'
 
 function filter_project(s, search){
   let valid = true
@@ -104,6 +105,11 @@ const Selector=React.createClass({
               </a>
             ))}
           </div>
+          <Restricted perm="project.create">
+            <a href="#/project/add" className="ui bottom button yellow">
+              {i18n("Add project")} <i className="add icon"></i>
+            </a>
+          </Restricted>
         </div>
       </div>
     )
