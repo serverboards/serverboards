@@ -17,9 +17,9 @@ var Groups = connect({
     onRemoveGroup: (g) => dispatch( group_remove(g) ),
     setModal: (modal, data) => dispatch( set_modal(modal, data) )
   }),
-  subscriptions: ["group.user_added", "group.user_removed",
-   "group.perm_added", "group.perm_removed",
-   "group.added", "group.removed",
+  subscriptions: ["group.user_added", "group.user.deleted",
+   "group.perm_added", "group.perm.deleted",
+   "group.added", "group.deleted",
    "user.updated", "user.added"],
   store_enter: [group_list, user_list]
 })(GroupsView)

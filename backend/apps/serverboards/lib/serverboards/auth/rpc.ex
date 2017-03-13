@@ -69,34 +69,33 @@ defmodule Serverboards.Auth.RPC do
       me = RPC.Context.get(context, :user)
       Auth.Group.group_add name, me
     end, [required_perm: "auth.modify_groups", context: true]
-    add_method mc, "group.remove", fn [name], context ->
+    add_method mc, "group.delete", fn [name], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.group_remove name, me
     end, [required_perm: "auth.modify_groups", context: true]
-    add_method mc, "group.add_perm", fn [group, code], context ->
+    add_method mc, "group.perm.add", fn [group, code], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_add group, code, me
     end, [required_perm: "auth.manage_groups", context: true]
-    add_method mc, "group.remove_perm", fn [group, code], context ->
+    add_method mc, "group.perm.delete", fn [group, code], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.perm_remove group, code, me
     end, [required_perm: "auth.manage_groups", context: true]
-    add_method mc, "group.list_perms", fn [group], context ->
+    add_method mc, "group.get", fn [group], context ->
       me = RPC.Context.get(context, :user)
-      Auth.Group.perm_list group, me
+      %{
+        perms: Auth.Group.perm_list(group, me),
+        users: Auth.Group.user_list(group, me)
+      }
     end, [required_perm: "auth.manage_groups", context: true]
-    add_method mc, "group.add_user", fn [group, new_user], context ->
+    add_method mc, "group.user.add", fn [group, new_user], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_add group, new_user, me
     end, [required_perm: "auth.manage_groups", context: true]
-    add_method mc, "group.remove_user", fn [group, user], context ->
+    add_method mc, "group.user.delete", fn [group, user], context ->
       me = RPC.Context.get(context, :user)
       Auth.Group.user_remove group, user, me
     end, [required_perm: "auth.manage_groups", context: true]
-    add_method mc, "group.list_users", fn [group], context ->
-      me = RPC.Context.get(context, :user)
-      Auth.Group.user_list group, me
-    end, [context: true, required_perm: "auth.list"]
 
     # permission list
     add_method mc, "perm.list", fn [] ->
@@ -128,7 +127,7 @@ defmodule Serverboards.Auth.RPC do
       # subscribe this client to changes on this user
       MOM.Channel.subscribe(:client_events, fn %{ payload: %{ type: type, data: data}} ->
         cond do
-          type in ["group.perm_added", "group.perm_removed"] ->
+          type in ["group.perm_added", "group.perm.deleted"] ->
             user = RPC.Client.get client, :user
             %{ group: group } = data
             if group in user.groups do
@@ -138,7 +137,7 @@ defmodule Serverboards.Auth.RPC do
               Serverboards.Event.emit("user.updated", %{ user: user}, ["auth.modify_any"])
               Serverboards.Event.emit("user.updated", %{ user: user}, %{ user: user })
             end
-          type in ["group.user_added","group.user_removed"] ->
+          type in ["group.user_added","group.user.deleted"] ->
             user = RPC.Client.get client, :user
             if data.email == user.email do
               {:ok, user} = Auth.User.user_info user.email, user

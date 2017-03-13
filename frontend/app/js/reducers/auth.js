@@ -72,7 +72,7 @@ export const auth = (state = default_state , action) => {
       })
       console.log(state)
       break;
-    case '@RPC_EVENT/group.user_removed':
+    case '@RPC_EVENT/group.user.deleted':
       state.groups = state.groups.map( (g) => {
         if (g.name == action.group){
           return Object.assign({}, g,
@@ -90,7 +90,7 @@ export const auth = (state = default_state , action) => {
         return g
       })
       break;
-    case '@RPC_EVENT/group.perm_removed':
+    case '@RPC_EVENT/group.perm.deleted':
       state.groups = state.groups.map( (g) => {
         if (g.name == action.group){
           console.log("Remove perm at group %o", g)
@@ -105,7 +105,7 @@ export const auth = (state = default_state , action) => {
         state.groups.concat( { name: action.group, users: [], perms: []} )
       )
     break;
-    case '@RPC_EVENT/group.removed':
+    case '@RPC_EVENT/group.deleted':
       state.groups = sort_groups(
         state.groups.filter( (g) => g.name != action.group )
       )

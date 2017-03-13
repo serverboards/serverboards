@@ -88,12 +88,11 @@ export function group_list(){
       Promise.all( list.map((g) => {
         return Promise.all([
           Promise.resolve(g),
-          rpc.call("group.list_users", [g]),
-          rpc.call("group.list_perms", [g])
+          rpc.call("group.get", [g])
         ])
       }) ).then(function(gs){
         gs.map( (g) => {
-          groups.push( {name: g[0], users: g[1], perms: g[2]} )
+          groups.push( {name: g[0], users: g[1].users, perms: g[1].perms} )
         })
         dispatch({type:'AUTH_GROUP_LIST', groups: groups})
       } )
@@ -105,9 +104,9 @@ export function group_update_perms(group, to_add, to_remove){
   return function(dispatch){
     Promise.all([
       Promise.all(
-        to_add.map( (p) => rpc.call("group.add_perm", [group, p])  )
+        to_add.map( (p) => rpc.call("group.perm.add", [group, p])  )
       ), Promise.all(
-        to_remove.map( (p) => rpc.call("group.remove_perm", [group, p]) )
+        to_remove.map( (p) => rpc.call("group.perm.delete", [group, p]) )
       )
     ]).then(() => {
       Flash.info("Updated group permissions.")
@@ -119,9 +118,9 @@ export function group_update_users(group, to_add, to_remove){
   return function(dispatch){
     Promise.all([
       Promise.all(
-        to_add.map( (u) => rpc.call("group.add_user", [group, u])  )
+        to_add.map( (u) => rpc.call("group.user.add", [group, u])  )
       ), Promise.all(
-        to_remove.map( (u) => rpc.call("group.remove_user", [group, u]) )
+        to_remove.map( (u) => rpc.call("group.user.delete", [group, u]) )
       )
     ]).then(() => {
       Flash.info("Updated group users.")
@@ -131,13 +130,13 @@ export function group_update_users(group, to_add, to_remove){
 
 export function group_remove_user(group, user){
   return function(dispatch){
-    rpc.call("group.remove_user", [group, user])
+    rpc.call("group.user.delete", [group, user])
   }
 }
 
 export function group_add_user(group, user){
   return function(dispatch){
-    rpc.call("group.add_user", [group, user])
+    rpc.call("group.user.add", [group, user])
   }
 }
 
@@ -150,7 +149,7 @@ export function group_add(group){
 }
 export function group_remove(group){
   return function(dispatch){
-    rpc.call("group.remove", [group]).then(() => {
+    rpc.call("group.delete", [group]).then(() => {
       Flash.info("Group removed")
     })
   }
