@@ -23,7 +23,7 @@ const RelatedElement=React.createClass({
       })
     }
     if (al.startsWith("service/")){
-      rpc.call("service.info", [al.slice(8)]).then( s => {
+      rpc.call("service.get", [al.slice(8)]).then( s => {
         this.setState({
           url: `/project/${s.projects.length>0 ? s.projects[0] : "_"}/services/${s.uuid}`,
           name: s.name || "This service has no name",

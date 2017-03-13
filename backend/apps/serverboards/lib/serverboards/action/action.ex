@@ -67,26 +67,26 @@ defmodule Serverboards.Action do
   end
 
   @doc ~S"""
-  Searchs for actions that fulfill this filter.
+  Searchs for actions that fulfill this catalog.
 
   ## Example
 
     iex> user = Test.User.system
-    iex> Enum.count filter([trait: "test"], user)
+    iex> Enum.count catalog([trait: "test"], user)
     1
-    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
+    iex> [%{id: action_id} | _rest ] = catalog([trait: "test"], user)
     iex> action_id
     "serverboards.test.auth/action"
 
   """
-  def filter(q, _user) do
+  def catalog(q, _user) do
     Plugin.Registry.filter_component([type: "action"] ++ q)
   end
 
   @doc ~S"""
   Returns the action history with some filtering
   """
-  def history(filter, _user) do
+  def list(filter, _user) do
     import Ecto.Query
     count = Map.get(filter,:count, 100)
     start = Map.get(filter,:start)
@@ -167,7 +167,7 @@ defmodule Serverboards.Action do
   Excutes an action
 
     iex> user = Test.User.system
-    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
+    iex> [%{id: action_id} | _rest ] = catalog([trait: "test"], user)
     iex> {:ok, uuid} = trigger(action_id, %{ url: "https://serverboards.io" }, user)
     iex> String.length uuid
     36

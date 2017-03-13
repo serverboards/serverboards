@@ -13,45 +13,45 @@ defmodule Serverboards.Project.RPC do
     Serverboards.Utils.Decorators.permission_method_caller mc
 
     # Serverboards
-    RPC.MethodCaller.add_method mc, "project.add", fn [projectname, options], context ->
+    RPC.MethodCaller.add_method mc, "project.create", fn [projectname, options], context ->
       project_add projectname, options, Context.get(context, :user)
-    end, [required_perm: "project.add", context: true]
+    end, [required_perm: "project.create", context: true]
 
     RPC.MethodCaller.add_method mc, "project.delete", fn [project_id], context ->
       project_delete project_id, Context.get(context, :user)
-    end, [required_perm: "project.add", context: true]
+    end, [required_perm: "project.create", context: true]
 
     RPC.MethodCaller.add_method mc, "project.update", fn
       [project_id, operations], context ->
         project_update project_id, operations, Context.get(context, :user)
       end, [required_perm: "project.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.info", fn [project_id], context ->
-      {:ok, project} = project_info project_id, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "project.get", fn [project_id], context ->
+      {:ok, project} = project_get project_id, Context.get(context, :user)
       {:ok, Serverboards.Utils.clean_struct project}
-    end, [required_perm: "project.info", context: true]
+    end, [required_perm: "project.get", context: true]
 
     RPC.MethodCaller.add_method mc, "project.list", fn [], context ->
       {:ok, projects} = project_list Context.get(context, :user)
       Enum.map projects, &Serverboards.Utils.clean_struct(&1)
-    end, [required_perm: "project.info", context: true]
+    end, [required_perm: "project.get", context: true]
 
 
-    RPC.MethodCaller.add_method mc, "project.widget.add", fn attr, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.create", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_add(attr["project"], %{
         config: attr["config"],
         ui: attr["ui"],
         widget: attr["widget"]
         }, me)
-    end, [required_perm: "project.widget.add", context: true]
+    end, [required_perm: "dashboard.widget.create", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.widget.remove", fn [uuid], context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.remove", fn [uuid], context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_remove(uuid, me)
-    end, [required_perm: "project.widget.add", context: true]
+    end, [required_perm: "dashboard.widget.create", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.widget.update", fn attr, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.update", fn attr, context ->
       me = Context.get(context, :user)
       config = [
         config: attr["config"],
@@ -61,15 +61,15 @@ defmodule Serverboards.Project.RPC do
           |> Map.new
 
       Serverboards.Project.Widget.widget_update(attr["uuid"], config, me)
-    end, [required_perm: "project.widget.update", context: true]
+    end, [required_perm: "dashboard.widget.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.widget.list", fn [shortname] ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.list", fn [shortname] ->
       Serverboards.Project.Widget.widget_list(shortname)
-    end, [required_perm: "project.info"]
+    end, [required_perm: "project.get"]
 
-    RPC.MethodCaller.add_method mc, "project.widget.catalog", fn [project] ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.catalog", fn [project] ->
         Serverboards.Project.Widget.catalog(project)
-    end, [required_perm: "project.info"]
+    end, [required_perm: "project.get"]
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->

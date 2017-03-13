@@ -23,7 +23,7 @@ const ActionMenu=React.createClass({
   },
   loadAvailableActions(){
     if (!this.state.actions){
-      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+      rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
         this.setState({ actions })
       }).catch(() => {
         Flash.error(i18n("Could not load actions for this service"))

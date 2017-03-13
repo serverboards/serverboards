@@ -64,7 +64,7 @@ defmodule Serverboards.Service do
       service, operations
       ) )
 
-      {:ok, service} = service_info upd.uuid, me
+      {:ok, service} = service_get upd.uuid, me
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.update"])
 
@@ -194,7 +194,7 @@ defmodule Serverboards.Service do
           Logger.warn("Trying to attach invalid project or service (#{project} (#{inspect project_obj}), #{service} (#{inspect service_obj}))")
         end
 
-        {:ok, service} = service_info service_obj.uuid, me
+        {:ok, service} = service_get service_obj.uuid, me
         Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
       _ ->  #  already in
         nil
@@ -217,7 +217,7 @@ defmodule Serverboards.Service do
       from sc_ in ProjectServiceModel,
       where: sc_.id in ^to_remove )
 
-    {:ok, service} = service_info service, me
+    {:ok, service} = service_get service, me
     Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
     :ok
   end
@@ -264,7 +264,7 @@ defmodule Serverboards.Service do
 
     iex> user = Test.User.system
     iex> {:ok, service} = service_add %{ "name" => "Generic", "type" => "generic" }, user
-    iex> {:ok, info} = service_info service, user
+    iex> {:ok, info} = service_get service, user
     iex> info.priority
     50
     iex> info.name
@@ -459,7 +459,7 @@ defmodule Serverboards.Service do
     iex> services = service_list [project: "SBDS-TST9"]
     iex> Enum.map(services, fn c -> c.name end )
     []
-    iex> {:ok, info} = service_info service, user
+    iex> {:ok, info} = service_get service, user
     iex> info.name
     "Email server"
 
@@ -476,7 +476,7 @@ defmodule Serverboards.Service do
   IT is a wrapper with {:ok, _}/{:error, :now_found} semantics that in the
   future (TODO) will check for permission to access this service data
   """
-  def service_info(service, _me) when is_binary(service) do
+  def service_get(service, _me) when is_binary(service) do
     case decorate(service) do
       nil -> {:error, :not_found}
       service -> {:ok, service}
@@ -578,20 +578,5 @@ defmodule Serverboards.Service do
 
         s
       end)
-  end
-
-  def service_screens(traits) do
-    screens =
-      (Serverboards.Plugin.Registry.filter_component type: "screen", traits: traits)
-    screens |> Enum.map( fn s ->
-      %{
-        id: s.id,
-        name: s.name,
-        icon: Map.get(s.extra, "icon", nil),
-        description: s.description,
-        traits: s.traits,
-        perms: Map.get(s.extra, "perms", [])
-      }
-    end)
   end
 end

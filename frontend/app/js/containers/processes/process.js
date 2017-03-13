@@ -11,7 +11,7 @@ const Process = React.createClass({
     }
   },
   componentDidMount(){
-    rpc.call("action.history", [this.props.params.uuid]).then( (process) => {
+    rpc.call("action.get", [this.props.params.uuid]).then( (process) => {
       this.setState({process})
     }).catch( (e) => {
       Flash.error("Could not get information of the process")

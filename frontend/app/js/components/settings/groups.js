@@ -12,7 +12,7 @@ let Groups=React.createClass({
     this.props.setModal('auth.group.edit_perms', { group: g })
   },
   handleAddGroup(name){
-    this.props.setModal('auth.group.add')
+    this.props.setModal('auth.group.create')
   },
   render(){
     let props=this.props

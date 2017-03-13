@@ -12,26 +12,26 @@ defmodule Serverboards.Setup do
     [
     "http.port_to_websocket",
     "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
+    "auth.create_user", "auth.token.create",
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
-    "plugin", "plugin.data", "plugin.install", "plugin.list",
-    "project.add", "project.update",
-    "project.delete", "project.info",
-    "project.widget.add", "project.widget.update",
-    "service.add", "service.update",
-    "service.delete", "service.info",
+    "plugin", "plugin.data", "plugin.install", "plugin.catalog",
+    "project.create", "project.update",
+    "project.delete", "project.get",
+    "dashboard.widget.create", "dashboard.widget.update",
+    "service.create", "service.update",
+    "service.delete", "service.get",
     "service.attach",
     "settings.user.view", "settings.user.view_all",
     "settings.user.update", "settings.user.update_all",
     "settings.view", "settings.update",
     "debug",
-    "notifications.notify", "notifications.notify_all",
+    "notifications.create", "notifications.create_all",
     "notifications.list",
     "action.trigger", "action.watch",
     "rules.update", "rules.view",
     "logs.view",
-    "issues.view", "issues.add", "issues.update"
+    "issues.view", "issues.create", "issues.update"
     ]
   end
 

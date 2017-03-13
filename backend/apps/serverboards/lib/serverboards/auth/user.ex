@@ -15,7 +15,7 @@ defmodule Serverboards.Auth.User do
         is_active: Map.get(attributes, :is_active, true)
 				})
       {:ok, user} = user_info user
-      Serverboards.Event.emit("user.added", %{ user: user}, ["auth.create_user"])
+      Serverboards.Event.emit("user.created", %{ user: user}, ["auth.create_user"])
     end
     EventSourcing.subscribe es, :update_user, fn %{ user: email, operations: operations }, _me ->
       user = Repo.get_by!(Model.User, email: email)

@@ -17,7 +17,7 @@ const UserRow = React.createClass({
         <td className={u.is_active ? "" : "disabled"}>{u.groups.join(' + ')}</td>
         <td className={u.is_active ? "" : "disabled"}>{u.is_active ? i18n("true") : i18n("false")}</td>
         <td className="ui">
-          <Restricted perm="auth.modify_any OR notifications.notify_all">
+          <Restricted perm="auth.modify_any OR notifications.create_all">
             <div className="ui item">
               <div ref="dropdown" className="ui dropdown">
                 {i18n("More")}
@@ -30,7 +30,7 @@ const UserRow = React.createClass({
                       <i className="ui icon edit" style={{float:"right"}}/>
                     </a>
                   </Restricted>
-                  <Restricted perm="notifications.notify_all">
+                  <Restricted perm="notifications.create_all">
                     <a href="#" className="item"
                       onClick={(ev) => { ev.preventDefault(); this.props.onOpenSendNotification()}}>
                       {i18n("Send notification")}

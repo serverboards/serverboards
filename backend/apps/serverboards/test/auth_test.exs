@@ -47,44 +47,44 @@ defmodule Serverboards.AuthTest do
 
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
-    {:ok, :ok} = Client.call(client, "group.add", ["test"])
-    Client.expect( client, [method: "group.added"], 500 )
+    {:ok, :ok} = Client.call(client, "group.create", ["test"])
+    Client.expect( client, [method: "group.created"], 500 )
 
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user","test"]), MapSet.new(groups)
 
-    {:ok, :ok} = Client.call(client, "group.add_user", ["test", "dmoreno@serverboards.io"])
+    {:ok, :ok} = Client.call(client, "group.user.add", ["test", "dmoreno@serverboards.io"])
     Client.expect( client, [method: "group.user_added"], 500 )
 
-    {:ok, :ok} = Client.call(client, "group.add_perm", ["test", "auth.modify_self"])
+    {:ok, :ok} = Client.call(client, "group.perm.add", ["test", "auth.modify_self"])
     Client.expect( client, [method: "group.perm_added"], 500 )
-    {:ok, perms} = Client.call(client, "group.list_perms", ["test"])
+    {:ok, %{ "perms" => perms}} = Client.call(client, "group.get", ["test"])
     assert perms == ["auth.modify_self"]
 
-    {:ok, :ok} = Client.call(client, "group.remove_perm", ["test", "auth.modify_self"])
-    Client.expect( client, [method: "group.perm_removed"], 500 )
-    {:ok, perms} = Client.call(client, "group.list_perms", ["test"])
+    {:ok, :ok} = Client.call(client, "group.perm.delete", ["test", "auth.modify_self"])
+    Client.expect( client, [method: "group.perm.deleted"], 500 )
+    {:ok, %{ "perms" => perms }} = Client.call(client, "group.get", ["test"])
     assert perms == []
 
-    assert Client.call(client, "group.list_users", ["test"]) == {:ok, ["dmoreno@serverboards.io"]}
+    {:ok, %{ "users" => ["dmoreno@serverboards.io"]}} = Client.call(client, "group.get", ["test"])
 
-    {:ok, :ok} = Client.call(client, "group.remove_user", ["test", "dmoreno@serverboards.io"])
-    Client.expect( client, [method: "group.user_removed"], 500 )
+    {:ok, :ok} = Client.call(client, "group.user.delete", ["test", "dmoreno@serverboards.io"])
+    Client.expect( client, [method: "group.user.deleted"], 500 )
 
-    assert Client.call(client, "group.list_users", ["test"]) == {:ok, []}
+    {:ok, %{ "users" => [] }} = Client.call(client, "group.get", ["test"])
 
-    assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
+    assert Client.call(client, "group.delete", ["test"]) == {:ok, :ok}
     {:ok, groups} = Client.call( client, "group.list", [] )
     assert MapSet.subset? MapSet.new(["admin","user"]), MapSet.new(groups)
     assert not Enum.member? groups, "test"
 
-    assert Client.call(client, "group.remove", ["test"]) == {:ok, :ok}
+    assert Client.call(client, "group.delete", ["test"]) == {:ok, :ok}
   end
 
   test "Manage users" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, :ok} = Client.call(client, "user.add",
+    {:ok, :ok} = Client.call(client, "user.create",
       %{ "email" => "dmoreno+c@serverboards.io",
         "name" => "test", "is_active" => true
       })
@@ -108,24 +108,24 @@ defmodule Serverboards.AuthTest do
     {:ok, user} = Client.call(client, "auth.user", [])
     assert "auth.create_user" in user["perms"]
 
-    {:ok, :ok} = Client.call(client, "group.remove_perm", ["admin", "auth.create_user"])
-    Client.expect(client, method: "group.perm_removed")
+    {:ok, :ok} = Client.call(client, "group.perm.delete", ["admin", "auth.create_user"])
+    Client.expect(client, method: "group.perm.deleted")
     Client.expect(client, method: "user.updated")
 
     # automatically removed at server
     {:ok, user} = Client.call(client, "auth.user", [])
     assert not "auth.create_user" in user["perms"]
 
-    {:error, :unknown_method} = Client.call(client, "user.add", %{
+    {:error, :unknown_method} = Client.call(client, "user.create", %{
       "email" => "test+rmtr@serverboards.io",
       "name" => "test",
       "is_active" => "true"
       })
 
     {:ok, dir} = Client.call(client, "dir", [])
-    assert not "user.add" in dir
+    assert not "user.create" in dir
 
-    {:ok, :ok} = Client.call(client, "group.add_perm", ["admin", "auth.create_user"])
+    {:ok, :ok} = Client.call(client, "group.perm.add", ["admin", "auth.create_user"])
   end
 
   test "Perm list" do

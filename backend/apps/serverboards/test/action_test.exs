@@ -41,7 +41,7 @@ defmodule Serverboards.ActionTest do
   test "Action list" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, [_c]} = Test.Client.call(client, "action.filter",
+    {:ok, [_c]} = Test.Client.call(client, "action.catalog",
       %{ "traits" => ["test"] } )
 
     Test.Client.stop client
@@ -67,12 +67,12 @@ defmodule Serverboards.ActionTest do
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid}])
     :timer.sleep(1000)
 
-    {:ok, history} = Test.Client.call(client, "action.history", [])
+    {:ok, history} = Test.Client.call(client, "action.list", [])
     Logger.info("History: #{inspect history}")
     assert "serverboards.test.auth/action" in Enum.map(history["list"], &(&1["type"]))
     :timer.sleep(500)
 
-    {:ok, details} = Test.Client.call(client, "action.history", [ (hd history["list"])["uuid"] ])
+    {:ok, details} = Test.Client.call(client, "action.get", [(hd history["list"])["uuid"]] )
     assert details["uuid"] == (hd history["list"])["uuid"]
     assert details["status"] == "ok"
     assert details["elapsed"] != nil

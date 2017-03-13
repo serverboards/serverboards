@@ -16,9 +16,9 @@ const Board = store.connect({
   }),
   subscriptions: (state, props) => {
     return [
-      `project.widget.added[${props.project}]`,
-      `project.widget.removed[${props.project}]`,
-      `project.widget.updated[${props.project}]`
+      `dashboard.widget.created[${props.project}]`,
+      `dashboard.widget.removed[${props.project}]`,
+      `dashboard.widget.updated[${props.project}]`
     ]
   },
   // Update catalog on entry

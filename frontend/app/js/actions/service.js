@@ -49,7 +49,7 @@ export function service_detach(serverboard_shortname, service_uuid){
 
 export function service_add(sbds, service){
   return function(dispatch){
-    rpc.call("service.add", service).then(function(service_uuid){
+    rpc.call("service.create", service).then(function(service_uuid){
       if (sbds){
         rpc.call("service.attach",[sbds, service_uuid]).then(function(){
           Flash.info("Added service and attached to serverboard")
@@ -64,7 +64,7 @@ export function service_add(sbds, service){
 
 export function update_external_url_components(traits=[]){
   return function(dispatch){
-    rpc.call("plugin.list_components",{type:"external url", traits})
+    rpc.call("plugin.component.catalog",{type:"external url", traits})
        .then( (components) => dispatch({type:"UPDATE_EXTERNAL_URL_COMPONENTS", components}))
   }
 }
@@ -77,7 +77,7 @@ export function clear_external_url_components(){
 
 export function service_load_external_url_components(traits=[]){
   return function(dispatch){
-    rpc.call("plugin.list_components",{type:"external url", traits})
+    rpc.call("plugin.component.catalog",{type:"external url", traits})
        .then( (components) => dispatch({type:"SERVICE_SET_EXTERNAL_URL_COMPONENTS", payload: components}))
   }
 }
@@ -99,10 +99,10 @@ export function service_load_current(uuid){
 
   return function(dispatch){
     dispatch({type: "SERVICE_SET_CURRENT", payload: null})
-    rpc.call("service.info", [uuid])
+    rpc.call("service.get", [uuid])
       .then( (service) => {
         dispatch({ type: "SERVICE_SET_CURRENT", payload: service })
-        return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})
+        return rpc.call("plugin.component.catalog", {type: "screen", traits: service.traits})
       } )
       .then( (screens) => {
         dispatch({ type: "SERVICE_SET_CURRENT_SCREENS", payload: screens })

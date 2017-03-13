@@ -4,7 +4,7 @@ import connect from 'app/containers/connect'
 import {project_update_all} from 'app/actions/project'
 import {has_perm_guard} from 'app/restricted'
 
-var Container=has_perm_guard("project.info", connect({
+var Container=has_perm_guard("project.get", connect({
   state: (state) => {
     return {
       current: state.project.current,
@@ -14,7 +14,7 @@ var Container=has_perm_guard("project.info", connect({
   handlers: (dispatch) => ({
     onServiceSelect: (shortname) => dispatch( push( `/project/${shortname}/`) )
   }),
-  subscriptions: ["project.added", "project.deleted", "project.updated"],
+  subscriptions: ["project.created", "project.deleted", "project.updated"],
   store_enter: [project_update_all],
   watch: ["projects", "current"]
 })(View))

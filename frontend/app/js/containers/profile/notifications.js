@@ -7,7 +7,7 @@ import connect from 'app/containers/connect'
 var Notifications=connect({
   state: (state) => ({
       channels: state.notifications.catalog_with_config,
-      config: state.notifications.config
+      config: state.notifications.config.get
     }),
   handlers: (dispatch) => ({
       onSubmit: (data) => dispatch( notifications_update(data) )

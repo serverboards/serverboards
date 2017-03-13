@@ -13,7 +13,7 @@ import {
 function get_screens( service ){
   if (!service)
     return []
-  return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})
+  return rpc.call("plugin.component.catalog", {type: "screen", traits: service.traits})
 }
 
 // I need to layer it as the external url require the service traits

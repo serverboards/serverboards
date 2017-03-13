@@ -39,7 +39,7 @@ defmodule Serverboards.IssuesTest do
   test "Create issue using RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
+    {:ok, issue_id} = Test.Client.call(client, "issues.create", %{ title: "From RPC", description: "This is a new issue" })
     assert issue_id > 0
     {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
     Logger.info(inspect issue)
@@ -62,7 +62,7 @@ defmodule Serverboards.IssuesTest do
   test "Create issue with alias" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From alias", description: "This is a new issue", aliases: ["test/1111"] })
+    {:ok, issue_id} = Test.Client.call(client, "issues.create", %{ title: "From alias", description: "This is a new issue", aliases: ["test/1111"] })
     {:ok, issue} = Test.Client.call(client, "issues.get", ["test/1111"])
 
     assert issue["id"] == issue_id
@@ -84,7 +84,7 @@ defmodule Serverboards.IssuesTest do
   test "Status changes" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
+    {:ok, issue_id} = Test.Client.call(client, "issues.create", %{ title: "From RPC", description: "This is a new issue" })
     {:ok, _issue} = Test.Client.call(client, "issues.update", [issue_id, [
         %{ type: :comment, data: "Closing issue"},
         %{ type: :change_status, data: "closed"}
@@ -100,7 +100,7 @@ defmodule Serverboards.IssuesTest do
   test "Set labels" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, issue_id} = Test.Client.call(client, "issues.add", %{ title: "From RPC", description: "This is a new issue" })
+    {:ok, issue_id} = Test.Client.call(client, "issues.create", %{ title: "From RPC", description: "This is a new issue" })
     {:ok, _issue} = Test.Client.call(client, "issues.update", [issue_id, [
         %{ type: :comment, data: "Set labels"},
         %{ type: :set_labels, data: ["one", "two"]}

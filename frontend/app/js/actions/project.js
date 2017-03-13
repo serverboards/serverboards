@@ -13,7 +13,7 @@ function project_update_all(){
 
 function project_add(data){
   return function(dispatch, store){
-    rpc.call("project.add",
+    rpc.call("project.create",
         [ data.shortname, {name: data.name, tags: data.tags, description: data.description}]
       ).then(function(){
         dispatch( push({pathname: `/project/${data.shortname}/`}) )
@@ -50,7 +50,7 @@ function projects_widget_list(project){
   return function(dispatch){
     dispatch({type:"UPDATE_PROJECT_WIDGETS", project, widgets: undefined})
     if (project)
-      rpc.call("project.widget.list", [project]).then((widgets) => {
+      rpc.call("dashboard.widget.list", [project]).then((widgets) => {
         dispatch({type:"UPDATE_PROJECT_WIDGETS", project, widgets})
       })
   }
@@ -60,7 +60,7 @@ function projects_update_info(project){
   return function(dispatch){
     dispatch({type:"UPDATE_PROJECT_INFO", project, info: undefined})
     if (project){
-      rpc.call("project.info", [project]).then( (info) => {
+      rpc.call("project.get", [project]).then( (info) => {
         dispatch({type:"UPDATE_PROJECT_INFO", project, info})
       })
     }
@@ -71,7 +71,7 @@ function project_update_widget_catalog(project){
   return function(dispatch){
     dispatch({type:"UPDATE_WIDGET_CATALOG", project, widget_catalog: undefined})
     if (project)
-      rpc.call("project.widget.catalog", [project]).then( (widget_catalog) => {
+      rpc.call("dashboard.widget.catalog", [project]).then( (widget_catalog) => {
         dispatch({type:"UPDATE_WIDGET_CATALOG", project, widget_catalog})
       })
   }

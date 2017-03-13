@@ -7,7 +7,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 
 function service_add_future(sbds, service){
-  return rpc.call("service.add", service).then(function(service_uuid){
+  return rpc.call("service.create", service).then(function(service_uuid){
     console.log("UUID is %o", service_uuid)
     if (sbds){
       return rpc.call("service.attach",[sbds, service_uuid]).then(function(){

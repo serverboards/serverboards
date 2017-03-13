@@ -322,7 +322,7 @@ defmodule Serverboards.TriggersTest do
 
   test "Modify service resets the rules" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    {:ok, service} = Test.Client.call(client, "service.add", %{ name: "test service", type: "test", config: %{ x: 1 }} )
+    {:ok, service} = Test.Client.call(client, "service.create", %{ name: "test service", type: "test", config: %{ x: 1 }} )
     trigger = %{
       trigger: "serverboards.test.auth/start.trigger",
       params: %{}

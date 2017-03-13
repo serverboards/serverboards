@@ -19,7 +19,7 @@ const Add = React.createClass({
       data.aliases=[`project/${project}`]
     }
 
-    rpc.call("issues.add", data)
+    rpc.call("issues.create", data)
       .then( (id) => {
         if (updates.length>0)
           return update_issue_multi(id, updates).then( () => id )

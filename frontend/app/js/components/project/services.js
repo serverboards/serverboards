@@ -24,7 +24,7 @@ let Services=React.createClass({
   },
   openAddServiceModal(ev){
     ev && ev.preventDefault()
-    this.setModal('service.add', {project: this.props.project.shortname})
+    this.setModal('service.create', {project: this.props.project.shortname})
   },
   setModal: (modal, data) => set_modal(modal, data),
   contextTypes: {
@@ -71,7 +71,7 @@ let Services=React.createClass({
           <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
         </div>
 
-        <Restricted perm="service.add">
+        <Restricted perm="service.create">
           <a href="#"
               onClick={this.openAddServiceModal}
               className="ui massive button _add icon floating yellow"

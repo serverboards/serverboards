@@ -62,18 +62,18 @@ defmodule ProjectTest do
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     {:ok, "SBDS-TST3"} = project_add "SBDS-TST3", %{ "name" => "serverboards" }, user
-    assert check_if_event_on_project(agent, "project.added", "SBDS-TST3")
+    assert check_if_event_on_project(agent, "project.created", "SBDS-TST3")
 
     :ok = project_update "SBDS-TST3", %{ "name" => "Serverboards" }, user
     assert check_if_event_on_project(agent, "project.updated", "SBDS-TST3")
 
-    {:ok, info} = project_info "SBDS-TST3", user
+    {:ok, info} = project_get "SBDS-TST3", user
     assert info.name == "Serverboards"
 
     :ok = project_delete "SBDS-TST3", user
     assert check_if_event_on_project(agent, "project.deleted", "SBDS-TST3")
 
-    assert {:error, :not_found} == project_info "SBDS-TST3", user
+    assert {:error, :not_found} == project_get "SBDS-TST3", user
   end
 
 
@@ -104,39 +104,39 @@ defmodule ProjectTest do
 
   test "Project and widgets via RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    Test.Client.call(client, "event.subscribe", ["project.widget.added", "project.widget.updated"])
-    {:ok, sbds} = Test.Client.call(client, "project.add", ["SBDS-TST13", %{}] )
-    {:ok, uuid} = Test.Client.call(client, "project.widget.add", %{ project: "SBDS-TST13", widget: "test"})
+    Test.Client.call(client, "event.subscribe", ["dashboard.widget.created", "dashboard.widget.updated"])
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST13", %{}] )
+    {:ok, uuid} = Test.Client.call(client, "dashboard.widget.create", %{ project: "SBDS-TST13", widget: "test"})
     :timer.sleep(300)
-    assert Test.Client.expect(client, method: "project.widget.added")
+    assert Test.Client.expect(client, method: "dashboard.widget.created")
 
-    {:ok, _ } = Test.Client.call(client, "project.widget.list", [sbds])
+    {:ok, _ } = Test.Client.call(client, "dashboard.widget.list", [sbds])
 
-    {:ok, _uuid} = Test.Client.call(client, "project.widget.update", %{ uuid: uuid, widget: "test2"})
+    {:ok, _uuid} = Test.Client.call(client, "dashboard.widget.update", %{ uuid: uuid, widget: "test2"})
     :timer.sleep(300)
 
-    assert Test.Client.expect(client, method: "project.widget.updated")
-    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "project.widget.list", [sbds])
+    assert Test.Client.expect(client, method: "dashboard.widget.updated")
+    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "dashboard.widget.list", [sbds])
 
     # just dont fail
-    {:ok, _catalog} = Test.Client.call(client, "project.widget.catalog", ["SBDS-TST13"])
+    {:ok, _catalog} = Test.Client.call(client, "dashboard.widget.catalog", ["SBDS-TST13"])
 
-    {:ok, _} = Test.Client.call(client, "project.widget.remove", [uuid])
-    {:ok, []} = Test.Client.call(client, "project.widget.list", [sbds])
+    {:ok, _} = Test.Client.call(client, "dashboard.widget.remove", [uuid])
+    {:ok, []} = Test.Client.call(client, "dashboard.widget.list", [sbds])
   end
 
   test "Update serverboards tags", %{ system: system } do
     import Serverboards.Project
 
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
-    {:error, :not_found } = project_info "SBDS-TST5", user
+    {:error, :not_found } = project_get "SBDS-TST5", user
 
     {:ok, "SBDS-TST5"} = project_add "SBDS-TST5", %{ "name" => "serverboards" }, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     assert info.tags == []
 
     :ok = project_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag3)}, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     Logger.debug("Current project info: #{inspect info}")
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
@@ -144,7 +144,7 @@ defmodule ProjectTest do
     assert not (Enum.member? info.tags, "tag4")
 
     project_update "SBDS-TST5", %{ "tags" => ~w(tag1 tag2 tag4) }, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert not (Enum.member? info.tags, "tag3")
@@ -152,7 +152,7 @@ defmodule ProjectTest do
 
     # should not remove tags
     :ok = project_update "SBDS-TST5", %{ "description" => "A simple description"}, user
-    {:ok, info } = project_info "SBDS-TST5", user
+    {:ok, info } = project_get "SBDS-TST5", user
     assert Enum.member? info.tags, "tag1"
     assert Enum.member? info.tags, "tag2"
     assert Enum.member? info.tags, "tag4"
@@ -166,21 +166,21 @@ defmodule ProjectTest do
     {:ok, dir} = Test.Client.call client, "dir", []
     Logger.debug("Known methods: #{inspect dir}")
     assert Enum.member? dir, "project.list"
-    assert Enum.member? dir, "project.add"
+    assert Enum.member? dir, "project.create"
     assert Enum.member? dir, "project.delete"
-    assert Enum.member? dir, "project.info"
+    assert Enum.member? dir, "project.get"
 
     #{:ok, json} = Poison.encode(Test.Client.debug client)
     #Logger.info("Debug information: #{json}")
 
     Test.Client.call(client, "event.subscribe", [
-      "project.added","project.deleted","project.updated"
+      "project.created","project.deleted","project.updated"
       ])
     {:ok, l} = Test.Client.call client, "project.list", []
     Logger.info("Got serverboards: #{inspect l}")
     assert (Enum.count l) >= 0
 
-    {:ok, "SBDS-TST8"} = Test.Client.call client, "project.add", [
+    {:ok, "SBDS-TST8"} = Test.Client.call client, "project.create", [
       "SBDS-TST8",
       %{
         "name" => "Serverboards test",
@@ -191,12 +191,12 @@ defmodule ProjectTest do
         ]
       }
     ]
-    assert check_if_event_on_client(client, "project.added", "SBDS-TST8")
+    assert check_if_event_on_client(client, "project.created", "SBDS-TST8")
     deleted=check_if_event_on_client(client, "project.deleted", "SBDS-TST8")
     Logger.info("At project deleted? #{deleted}")
     assert not deleted
 
-    {:ok, cl} = Test.Client.call client, "project.info", ["SBDS-TST8"]
+    {:ok, cl} = Test.Client.call client, "project.get", ["SBDS-TST8"]
     Logger.info("Info from project #{inspect cl}")
     {:ok, json} = Poison.encode(cl)
     assert not String.contains? json, "__"
@@ -210,9 +210,9 @@ defmodule ProjectTest do
     assert Enum.any?(cls, &(&1["shortname"] == "SBDS-TST8"))
 
 
-    {:ok, service} = Test.Client.call client, "service.add", %{ "tags" => ["email","test"], "type" => @email_type, "name" => "Email" }
+    {:ok, service} = Test.Client.call client, "service.create", %{ "tags" => ["email","test"], "type" => @email_type, "name" => "Email" }
     Test.Client.call client, "service.attach", ["SBDS-TST8", service]
-    Test.Client.call client, "service.info", [service]
+    Test.Client.call client, "service.get", [service]
     Test.Client.call client, "service.list", []
     Test.Client.call client, "service.list", [["type","email"]]
 
@@ -224,7 +224,7 @@ defmodule ProjectTest do
         ]
       }
     ]
-    {:ok, info} = Test.Client.call client, "service.info", [service]
+    {:ok, info} = Test.Client.call client, "service.get", [service]
     assert info["name"] == "new name"
 
     Test.Client.call client, "service.delete", [service]
@@ -247,7 +247,7 @@ defmodule ProjectTest do
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     project_add "SBDS-TST13", %{ "name" => "Test 13" }, user
 
-    {:ok, info} = project_info "SBDS-TST13", user
+    {:ok, info} = project_get "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
     assert Enum.count( screens ) >= 1
@@ -255,7 +255,7 @@ defmodule ProjectTest do
 
     {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "serverboards.test.auth/email" }, user
     service_attach "SBDS-TST13", service, user
-    {:ok, info} = project_info "SBDS-TST13", user
+    {:ok, info} = project_get "SBDS-TST13", user
     screens = Map.get(info, :screens)
     assert screens != nil
     assert Enum.count( screens ) > prev_count
