@@ -24,7 +24,7 @@ all_perms = [
     "settings.view", "settings.update",
     "settings.user.view", "settings.user.update",
     "settings.user.view_all", "settings.user.update_all",
-    "notifications.notify", "notifications.notify_all",
+    "notifications.create", "notifications.create_all",
     "notifications.list",
     "rules.update", "rules.view"
   ]
@@ -34,7 +34,7 @@ user_perms = [
   "action.trigger", "action.watch",
   "project.get",  "service.get",
   "settings.user.view", "settings.user.update",
-  "notifications.notify"
+  "notifications.create"
 ]
 
 data = [

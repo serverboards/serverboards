@@ -26,7 +26,7 @@ defmodule Serverboards.Setup do
     "settings.user.update", "settings.user.update_all",
     "settings.view", "settings.update",
     "debug",
-    "notifications.notify", "notifications.notify_all",
+    "notifications.create", "notifications.create_all",
     "notifications.list",
     "action.trigger", "action.watch",
     "rules.update", "rules.view",

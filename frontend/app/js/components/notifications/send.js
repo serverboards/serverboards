@@ -13,7 +13,7 @@ let SendNotification=React.createClass({
       subject: form.find('input[name=subject]').val(),
       body: form.find('textarea[name=body]').val()
     }
-    rpc.call("notifications.notify", data).then(()=>{
+    rpc.call("notifications.create", data).then(()=>{
       Flash.success(i18n("Notification sent"))
       dispatch_set_modal(false)
     }).catch(()=>{

@@ -43,15 +43,15 @@ defmodule Serverboards.Notifications.RPC do
       end
     end, context: true, required_perm: "settings.user.update"
 
-    add_method mc, "notifications.notify",
+    add_method mc, "notifications.create",
         fn %{ "email" => email, "subject" => subject, "body" => body } = params, context ->
       me = RPC.Context.get(context, :user)
-      if (me.email == email) or ("notifications.notify_all" in me.perms) do
+      if (me.email == email) or ("notifications.create_all" in me.perms) do
         Notifications.notify email, subject, body, Map.get(params, "extra", []), me
       else
         {:error, :not_allowed}
       end
-    end, context: true, required_perm: "notifications.notify"
+    end, context: true, required_perm: "notifications.create"
 
     add_method mc, "notifications.list", fn filter, context ->
       me = RPC.Context.get(context, :user)

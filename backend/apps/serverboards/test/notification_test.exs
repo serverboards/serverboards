@@ -107,7 +107,7 @@ defmodule Serverboards.NotificationTest do
       %{ email: "dmoreno@serverboards.io", channel: ch["channel"],
         config: %{ email: "test@serverboards.io"}, is_active: true}
 
-    {:ok, :ok} = Client.call client, "notifications.notify",
+    {:ok, :ok} = Client.call client, "notifications.create",
       %{ email: "dmoreno@serverboards.io", subject: "Subject", body: "Body", extra: [] }
 
     {:ok, config} = Client.call client, "notifications.config.get", ["dmoreno@serverboards.io"]
@@ -165,7 +165,7 @@ defmodule Serverboards.NotificationTest do
     assert user.is_active == false
 
 
-    {:ok, :ok} = Client.call client, "notifications.notify",
+    {:ok, :ok} = Client.call client, "notifications.create",
       %{ email: "@admin", subject: "Notify all but me", body: "Body", extra: [] }
     {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
     bodies = ( for c <- coms, do: c["subject"] )
@@ -173,7 +173,7 @@ defmodule Serverboards.NotificationTest do
     assert not "Notify all but me" in bodies
 
     # Send straigth to a disabled user should fail
-    {:ok, :ok} = Client.call client, "notifications.notify",
+    {:ok, :ok} = Client.call client, "notifications.create",
       %{ email: "dmoreno@serverboards.io", subject: "Notify all but me2", body: "Body", extra: [] }
     {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
     bodies = ( for c <- coms, do: c["subject"] )
