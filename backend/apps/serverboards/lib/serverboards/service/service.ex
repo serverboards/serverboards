@@ -579,19 +579,4 @@ defmodule Serverboards.Service do
         s
       end)
   end
-
-  def service_screens(traits) do
-    screens =
-      (Serverboards.Plugin.Registry.filter_component type: "screen", traits: traits)
-    screens |> Enum.map( fn s ->
-      %{
-        id: s.id,
-        name: s.name,
-        icon: Map.get(s.extra, "icon", nil),
-        description: s.description,
-        traits: s.traits,
-        perms: Map.get(s.extra, "perms", [])
-      }
-    end)
-  end
 end
