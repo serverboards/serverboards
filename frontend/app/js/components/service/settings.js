@@ -138,7 +138,7 @@ const SetupComponent=React.createClass({
         traits: t.traits,
         description: t.description,
         plugin: t.plugin,
-        trigger: %{
+        trigger: {
           trigger: t.extra.trigger.trigger,
           params: t.extra.trigger.params
         },

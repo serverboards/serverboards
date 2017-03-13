@@ -48,7 +48,7 @@ const VirtualServices=React.createClass({
           description: s.description,
           traits: s.traits,
           perms: s.extra.perms || []
-        })
+        }))
 
         this.setState({screens})
       })
