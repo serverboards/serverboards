@@ -58,20 +58,20 @@ defmodule Serverboards.AuthTest do
 
     {:ok, :ok} = Client.call(client, "group.perm.add", ["test", "auth.modify_self"])
     Client.expect( client, [method: "group.perm_added"], 500 )
-    {:ok, %{ perms: perms}} = Client.call(client, "group.get", ["test"])
+    {:ok, %{ "perms" => perms}} = Client.call(client, "group.get", ["test"])
     assert perms == ["auth.modify_self"]
 
     {:ok, :ok} = Client.call(client, "group.perm.delete", ["test", "auth.modify_self"])
     Client.expect( client, [method: "group.perm.deleted"], 500 )
-    {:ok, %{ perms: perms }} = Client.call(client, "group.get", ["test"])
+    {:ok, %{ "perms" => perms }} = Client.call(client, "group.get", ["test"])
     assert perms == []
 
-    {:ok, %{ users: ["dmoreno@serverboards.io"]}} = Client.call(client, "group.get", ["test"])
+    {:ok, %{ "users" => ["dmoreno@serverboards.io"]}} = Client.call(client, "group.get", ["test"])
 
     {:ok, :ok} = Client.call(client, "group.user.delete", ["test", "dmoreno@serverboards.io"])
     Client.expect( client, [method: "group.user.deleted"], 500 )
 
-    {:ok, %{ users: [] }} = Client.call(client, "group.get", ["test"])
+    {:ok, %{ "users" => [] }} = Client.call(client, "group.get", ["test"])
 
     assert Client.call(client, "group.delete", ["test"]) == {:ok, :ok}
     {:ok, groups} = Client.call( client, "group.list", [] )

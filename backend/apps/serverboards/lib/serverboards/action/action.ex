@@ -167,7 +167,7 @@ defmodule Serverboards.Action do
   Excutes an action
 
     iex> user = Test.User.system
-    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
+    iex> [%{id: action_id} | _rest ] = catalog([trait: "test"], user)
     iex> {:ok, uuid} = trigger(action_id, %{ url: "https://serverboards.io" }, user)
     iex> String.length uuid
     36
