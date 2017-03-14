@@ -202,7 +202,7 @@ defmodule Serverboards.Action do
   """
   def trigger_real(command_id, method, params) do
     {:ok, plugin} = Plugin.Runner.start( command_id )
-    #Logger.debug("Call method #{method}")
+    #Logger.debug("Call method #{inspect method} (#{inspect params})")
     ret = try do
       ret = Plugin.Runner.call(plugin, method, params)
       Plugin.Runner.stop(plugin)
@@ -239,7 +239,7 @@ defmodule Serverboards.Action do
   Updates the label and or progress of a running action
   """
   def update(uuid, params, user) do
-    Logger.info("Updating action status: #{inspect uuid}: #{inspect params}", uuid: uuid, params: params, user: user)
+    #Logger.info("Updating action status: #{inspect uuid}: #{inspect params}", uuid: uuid, params: params, user: user)
     GenServer.cast(Serverboards.Action, {:update, uuid, params})
   end
 
@@ -290,8 +290,8 @@ defmodule Serverboards.Action do
       {:ok, task} = Task.start_link fn ->
         #Process.put(:name, Serverboards.Action.Running)
         # time and run
-        #Logger.debug("Trigger start #{inspect uuid}: #{inspect command_id}")
-        params = Map.put(params, :action_id, uuid)
+        #Logger.debug("Action start #{inspect uuid}: #{inspect command_id}")
+        params = Map.put(params, "action_id", uuid)
         {ok, ret} = trigger_real(command_id, method, params)
         GenServer.call(server, {:trigger_stop, {uuid, ok, ret}})
       end
