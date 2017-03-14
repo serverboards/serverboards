@@ -4,7 +4,7 @@ import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import {goto} from 'app/utils/store'
-import CommandSearh from './commands'
+import CommandSearch from './commands'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import ProjectSelector from 'app/containers/project/projectselector'
@@ -36,26 +36,7 @@ const Top = React.createClass({
       },
       onVisible: () => this.setState({open_time: new Date()})
     })
-    $(this.refs.actions).popup({
-      position: 'bottom center',
-      content: i18n("Actions")
-    })
-    $(this.refs.search).popup({
-      position: 'bottom right',
-      content: i18n("Commands and search")
-    })
-    $(this.refs.issues).popup({
-      position: 'bottom center',
-      content: i18n("Issues")
-    })
-    $(this.refs.projects).popup({
-      position: 'bottom center',
-      content: i18n("Projects")
-    })
-    $(this.refs.profile).popup({
-      position: 'bottom right',
-      content: i18n("Profile and more...")
-    })
+    $(this.refs.el).find("[data-content]").popup()
   },
   toggleProjects(){
     this.setState({open_selectproject: !this.state.open_selectproject})
@@ -97,14 +78,21 @@ const Top = React.createClass({
         </div>
 
         <div className="right menu">
-          <div className="item search" ref="search">
-            <CommandSearh/>
+          <div
+              className="item search"
+              ref="search"
+              data-content={i18n("Commands and search")}
+              data-position="bottom right"
+              >
+            <CommandSearch/>
           </div>
           <Restricted perm="project.info">
             <a
                 ref="projects"
                 onClick={() => props.toggleMenu('projects')}
                 className={`item ${(props.menu == 'projects' || section == 'project') ? "active" : ""}`}
+                data-content={i18n("Projects")}
+                data-position="bottom center"
                 >
               <i className="browser icon"/>
             </a>
@@ -114,6 +102,8 @@ const Top = React.createClass({
                 className={`item ${ section == "issues" ? "active" : ""}`}
                 onClick={() => goto("/issues/")}
                 ref="issues"
+                data-content={i18n("Issues")}
+                data-position="bottom center"
                 >
               <i className="warning sign icon"/>
               <span
@@ -142,6 +132,8 @@ const Top = React.createClass({
               className={`item ${section == 'process' ? "active" : ""}`}
               onClick={() => props.toggleMenu('processes')}
               ref="actions"
+              data-content={i18n("Actions")}
+              data-position="bottom center"
               >
               <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
             </a>
@@ -150,6 +142,8 @@ const Top = React.createClass({
             className={`item ${(section == 'settings' || section == 'user' || section == 'logs') ? "active" : ""}`}
             onClick={() => props.toggleMenu('user')}
             ref="profile"
+            data-content={i18n("Profile and more...")}
+            data-position="bottom right"
             >
             <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32, marginTop: -6}}
               data-tooltip={props.user.email}/>
