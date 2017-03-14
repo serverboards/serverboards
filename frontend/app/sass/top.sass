@@ -112,11 +112,21 @@ $top-height: 70px
       position: fixed
       left: calc( 100vw - 320px)
       top: $top-height - 15px
-      div
+      > div
         min-height: 200px
       &:after
         right: 92px !important
         left: auto !important
+      .item.divider
+        display: flex
+        flex-direction: column
+        align-items: stretch
+        > div
+          display: flex
+          flex-direction: row
+          margin-bottom: 1em
+          b
+            flex-grow: 1
 
   #notifications_menu
     width: 600px

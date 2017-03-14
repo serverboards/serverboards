@@ -22,7 +22,7 @@ def service_in_serverboard(service, serverboard):
 
 @serverboards.rpc_method
 def list_actions(serverboard=None, service=None, star=None):
-    items = rpc.call("plugin.data_items","action.")
+    items = rpc.call("plugin.data.items","action.")
     items = [x[1] for x in items]
     if star:
         items = [x for x in items if x.get("star")]
@@ -33,7 +33,7 @@ def list_actions(serverboard=None, service=None, star=None):
 @serverboards.rpc_method
 def list_actions_select(**kwargs):
     serverboards.debug(kwargs)
-    items = rpc.call("plugin.data_items","action.")
+    items = rpc.call("plugin.data.items","action.")
     ret = [{"value":k[7:], "name": v["name"]} for k,v in items]
     serverboards.debug(ret)
     return sorted(ret, key=lambda x: x["name"])
@@ -43,22 +43,22 @@ def add_action(action):
     print(action)
     muuid = uuid.uuid4().hex
     action["id"]=muuid
-    rpc.call("plugin.data_set", "action."+muuid, action)
+    rpc.call("plugin.data.update", "action."+muuid, action)
     return muuid
 
 @serverboards.rpc_method
 def update_action(action):
-    rpc.call("plugin.data_set", "action."+action["id"], action)
+    rpc.call("plugin.data.update", "action."+action["id"], action)
     return True
 
 @serverboards.rpc_method
 def run_action(actionid):
-    action = rpc.call("plugin.data_get", "action."+actionid)
+    action = rpc.call("plugin.data.get", "action."+actionid)
     serverboards.debug(actionid)
     serverboards.debug(action)
     params = action["params"]
     if action.get("service"):
-        service=rpc.call("service.info", action.get("service"))
+        service=rpc.call("service.get", action.get("service"))
         params.update(service["config"])
     #print(action["action"], params)
     return rpc.call("action.trigger", action["action"], params)

@@ -28,7 +28,7 @@ defmodule Serverboards.Setup do
     "debug",
     "notifications.create", "notifications.create_all",
     "notifications.list",
-    "action.trigger", "action.watch",
+    "action.trigger", "action.watch", "action.update",
     "rules.update", "rules.view",
     "logs.view",
     "issues.view", "issues.create", "issues.update"

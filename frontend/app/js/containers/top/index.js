@@ -20,7 +20,7 @@ var Top=connect({
     toggleMenu: (menu) => dispatch({type: "TOP_TOGGLE_MENU", menu: menu}),
     closeMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
   }),
-  subscriptions: ["action.started","action.stopped","notifications.new","notifications.update"],
+  subscriptions: ["action.started","action.updated","action.stopped","notifications.new","notifications.update"],
   store_enter: [action_ps, notifications_unread]
 })(TopView)
 

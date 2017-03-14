@@ -17,4 +17,3 @@ var Widget=React.createClass({displayName:"Widget",getInitialState:function getI
 function main(b,c){return Serverboards.ReactDOM.render(React.createElement(Widget,c),b),plugin_id=c.plugin,function(){Serverboards.ReactDOM.unmountComponentAtNode(b)}}Serverboards.add_widget(plugin_id+"/widget",main);
 
 })));
-//# sourceMappingURL=widget.js.map
