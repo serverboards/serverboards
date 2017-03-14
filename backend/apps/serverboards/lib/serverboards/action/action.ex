@@ -235,6 +235,14 @@ defmodule Serverboards.Action do
     GenServer.call(Serverboards.Action, {:ps})
   end
 
+  @doc ~S"""
+  Updates the label and or progress of a running action
+  """
+  def update(uuid, params, user) do
+    Logger.info("Updating action status: #{inspect uuid}: #{inspect params}", uuid: uuid, params: params, user: user)
+    GenServer.cast(Serverboards.Action, {:update, uuid, params})
+  end
+
   ## Server impl
   def init(%{}) do
     Process.flag(:trap_exit, true)
@@ -265,10 +273,14 @@ defmodule Serverboards.Action do
       method = action_component.extra["call"]
 
       action = %{
-       uuid: uuid, name: action_component.name,
+       uuid: uuid,
+       name: action_component.name,
        id: action_component.id,
-       user: user, params: params,
-       timer_start: DateTime.utc_now
+       user: user,
+       params: params,
+       timer_start: DateTime.utc_now,
+       progress: nil,
+       label: nil
        }
 
       action_update_started(action)
@@ -279,7 +291,7 @@ defmodule Serverboards.Action do
         #Process.put(:name, Serverboards.Action.Running)
         # time and run
         #Logger.debug("Trigger start #{inspect uuid}: #{inspect command_id}")
-
+        params = Map.put(params, :action_id, uuid)
         {ok, ret} = trigger_real(command_id, method, params)
         GenServer.call(server, {:trigger_stop, {uuid, ok, ret}})
       end
@@ -354,7 +366,7 @@ defmodule Serverboards.Action do
 
   def handle_call({:ps}, _from, status) do
     ret = status.running
-      |> Enum.map( fn {uuid, %{ id: action_id, params: params } } ->
+      |> Enum.map( fn {uuid, %{ id: action_id, params: params, progress: progress, label: label } } ->
         component = Plugin.Registry.find(action_id)
         #Logger.debug("ps: #{inspect component}/#{inspect action_id}")
         %{
@@ -365,12 +377,25 @@ defmodule Serverboards.Action do
             Map.put(param, :value, params[param["name"]])
           end),
           returns: component.extra["call"]["returns"],
-          uuid: uuid
+          uuid: uuid,
+          progress: progress,
+          label: label
         }
       end )
     {:reply, ret, status}
   end
-
+  def handle_cast({:update, uuid, params}, status) do
+    action = status.running[uuid]
+    if action do
+      action = Map.merge(action, Map.take(params, ~w"progress label"a))
+      Event.emit("action.updated", action, ["action.watch"] )
+      {:noreply, %{ status |
+        running: Map.put(status.running, uuid, action)
+        }}
+    else
+      {:noreply, status}
+    end
+  end
   def handle_info({:DOWN, _, :process, _, :normal}, status) do
     #Logger.debug("Got process down // This is the command port")
     # All ok

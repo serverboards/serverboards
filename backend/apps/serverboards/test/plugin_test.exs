@@ -363,7 +363,7 @@ defmodule Serverboards.PluginTest do
     {:ok, keys} = Client.call(client, "plugin.data.list", ["serverboards.test.auth/fake", ""])
     Logger.debug(inspect keys)
 
-    {:ok, items} = Client.call(client, "plugin.data_items", ["serverboards.test.auth/fake", ""])
+    {:ok, items} = Client.call(client, "plugin.data.items", ["serverboards.test.auth/fake", ""])
     Logger.debug(inspect items)
 
   end

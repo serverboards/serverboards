@@ -154,7 +154,7 @@ defmodule Serverboards.Plugin.RPC do
             {:error, :not_allowed}
         end
     end, context: true
-    RPC.MethodCaller.add_method method_caller, "plugin.data_items", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.data.items", fn
       [ plugin, keyprefix ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
           {plugin, _user} ->
