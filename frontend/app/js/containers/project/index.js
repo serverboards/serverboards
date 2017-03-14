@@ -5,6 +5,9 @@ import { projects_update_info } from 'app/actions/project'
 
 var Project=store.connect({
   state(state){
+    if (state.project.current != "/" && localStorage.last_project != state.project.current){
+      localStorage.last_project = state.project.current
+    }
     return {
       shortname: state.project.current,
       project: state.project.project,

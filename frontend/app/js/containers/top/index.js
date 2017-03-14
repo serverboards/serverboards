@@ -12,7 +12,8 @@ var Top=connect({
       avatar: state.auth.avatar,
       menu: state.top.menu,
       actions: state.action.actions,
-      notifications: state.notifications.unread
+      notifications: state.notifications.unread,
+      section: state.routing.locationBeforeTransitions.pathname.replace( /\/(.*?)\/.*/ ,"$1")
   }),
   handlers: (dispatch) => ({
     onLogout: () => dispatch(logout()),

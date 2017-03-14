@@ -70,6 +70,13 @@ $top-height: 70px
   background: #313f3e
   z-index: 100
   border-radius: 0
+  box-shadow: 0 2px 5px black
+  border: 0
+  .icon
+    font-size: 1em
+  &.right
+    right: 0
+    left: auto
   .item:hover, .item.hover
     background: #4d605f
     color: white
@@ -80,6 +87,8 @@ $top-height: 70px
   .menu
     max-height: calc( 100vh - 149px )
     overflow: auto
+    width: 100%
+    flex-grow: 1
     .item
       color: white
       font-size: 14px
@@ -88,3 +97,13 @@ $top-height: 70px
       align-items: center
       &.active
         background: #6e8887
+  .ui.bottom.button
+    width: 100%
+    margin: 0
+    box-shadow: 0 0 6px black
+    height: 4em
+    align-self: flex-end
+    display: flex
+    align-items: center
+    justify-content: center
+    border-radius: 0

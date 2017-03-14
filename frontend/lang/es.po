@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-06 13:59+0100\n"
-"PO-Revision-Date: 2017-03-13 12:50+0100\n"
+"POT-Creation-Date: 2017-03-14 12:47+0100\n"
+"PO-Revision-Date: 2017-03-14 12:47+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Generator: Poedit 1.8.12\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
-#: app/js/components/project/sidebar.js:107
+#: app/js/components/project/sidebar.js:107 app/js/components/top/index.js:105
 msgid "Issues"
 msgstr "Incidencias"
 
@@ -91,6 +91,7 @@ msgstr "Resumen de la incidencia"
 #: app/js/components/service/details/detailstab.js:21
 #: app/js/components/service/details/detailstab.js:36
 #: app/js/components/service/table.js:65 app/js/components/rules/edit.js:171
+#: app/js/components/service/settings.js:197
 msgid "Description"
 msgstr "Descripción"
 
@@ -235,7 +236,7 @@ msgstr "Servicios"
 msgid "Add a service"
 msgstr "Añadir un servicio"
 
-#: app/js/components/project/sidebar.js:14
+#: app/js/components/project/sidebar.js:14 app/js/components/top/index.js:94
 msgid "Projects"
 msgstr "Proyectos"
 
@@ -273,6 +274,7 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: app/js/components/project/projectselector.js:93
+#: app/js/components/project/projectselector.js:94
 msgid "Search by name"
 msgstr "Buscar por nombre"
 
@@ -1121,6 +1123,7 @@ msgstr "Mantén pulsado para activar"
 #: app/js/components/settings/user/add.js:39
 #: app/js/components/service/settings.js:169
 #: app/js/components/service/table.js:65 app/js/components/rules/edit.js:167
+#: app/js/components/service/settings.js:187
 msgid "Name"
 msgstr "Nombre"
 
@@ -1227,6 +1230,7 @@ msgid "Loading"
 msgstr "Cargando"
 
 #: app/js/components/service/virtual.js:74
+#: app/js/components/service/virtual.js:82
 msgid ""
 "Error loading virtual services\n"
 "\n"
@@ -1238,6 +1242,8 @@ msgstr ""
 
 #: app/js/components/service/virtual.js:92
 #: app/js/components/service/virtual.js:107
+#: app/js/components/service/virtual.js:100
+#: app/js/components/service/virtual.js:115
 msgid "Virtual services for {name}"
 msgstr "Servicios virtuales para {name}"
 
@@ -1278,14 +1284,17 @@ msgid "Rule presets"
 msgstr "Presets de reglas"
 
 #: app/js/components/service/settings.js:171
+#: app/js/components/service/settings.js:189
 msgid "Service name as shown in UI"
 msgstr "Nombre del servicio como se muestra en el interfáz"
 
 #: app/js/components/service/settings.js:182
+#: app/js/components/service/settings.js:200
 msgid "Comments about this service"
 msgstr "Comentarios sobre este servicio"
 
 #: app/js/components/service/settings.js:190
+#: app/js/components/service/settings.js:208
 msgid "Update service settings"
 msgstr "Actualizar la configuración del servicio"
 
@@ -1323,7 +1332,7 @@ msgstr "Tipo"
 msgid "Status"
 msgstr "Estado"
 
-#: app/js/components/service/table.js:65
+#: app/js/components/service/table.js:65 app/js/components/top/index.js:135
 msgid "Actions"
 msgstr "Acciones"
 
@@ -2094,15 +2103,15 @@ msgstr "Entrar en Serverboards"
 msgid "Language"
 msgstr "Idioma"
 
-#: app/js/actions/auth.js:168
+#: app/js/actions/auth.js:168 app/js/actions/auth.js:167
 msgid "spanish"
 msgstr "español"
 
-#: app/js/actions/auth.js:169
+#: app/js/actions/auth.js:169 app/js/actions/auth.js:168
 msgid "english"
 msgstr "inglés"
 
-#: app/js/actions/auth.js:176
+#: app/js/actions/auth.js:176 app/js/actions/auth.js:175
 msgid "Set language to {lang}"
 msgstr "Se ha cambiado el idioma a {lang}"
 
@@ -2121,3 +2130,15 @@ msgstr "Depuración"
 #: app/js/components/flashmessages.js:21
 msgid "Warning"
 msgstr "Aviso"
+
+#: app/js/components/project/projectselector.js:110
+msgid "Add project"
+msgstr "Añadir proyecto"
+
+#: app/js/components/top/index.js:84
+msgid "Commands and search"
+msgstr "Comandos y búsqueda"
+
+#: app/js/components/top/index.js:145
+msgid "Profile and more..."
+msgstr "Perfíl de usuario y más..."

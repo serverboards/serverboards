@@ -14,9 +14,20 @@ $top-height: 70px
   > .item, > .menu > .item
     color: white
     max-height: 45px
+    .icon
+      margin: auto
     &:before
       width: 0
       height: 0
+    &.active:before
+      position: absolute
+      top: 45px
+      left: 0
+      height: 3px
+      background: white
+      width: 100%
+    &.active
+      background: none
 
   .item:before
     width: 0

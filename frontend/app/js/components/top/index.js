@@ -4,8 +4,10 @@ import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import {goto} from 'app/utils/store'
-import CommandSearh from './commands'
+import CommandSearch from './commands'
 import Restricted from 'app/restricted'
+import i18n from 'app/utils/i18n'
+import ProjectSelector from 'app/containers/project/projectselector'
 
 require("sass/top.sass")
 
@@ -18,7 +20,8 @@ function notifications_color(notifications){
 const Top = React.createClass({
   getInitialState(){
     return {
-      open_time: undefined
+      open_time: undefined,
+      open_selectproject: false
     }
   },
   componentDidMount(){
@@ -33,9 +36,14 @@ const Top = React.createClass({
       },
       onVisible: () => this.setState({open_time: new Date()})
     })
+    $(this.refs.el).find("[data-content]").popup()
+  },
+  toggleProjects(){
+    this.setState({open_selectproject: !this.state.open_selectproject})
   },
   render(){
     const props=this.props
+    const section=props.section
     let menu=undefined
     switch (props.menu){
       case 'user':
@@ -48,6 +56,11 @@ const Top = React.createClass({
           <ProcessesMenu/>
         )
         break;
+      case 'projects':
+        menu=(
+          <ProjectSelector className="right"/>
+        )
+        break;
     }
     if (menu)
       menu=(
@@ -56,7 +69,6 @@ const Top = React.createClass({
         </div>
       )
     let logo=require("../../../imgs/white-horizontal-logo.svg")
-
     return (
       <nav className="ui top fixed menu" ref="el">
         <div className="item logo">
@@ -66,11 +78,33 @@ const Top = React.createClass({
         </div>
 
         <div className="right menu">
-          <div className="item search">
-            <CommandSearh/>
+          <div
+              className="item search"
+              ref="search"
+              data-content={i18n("Commands and search")}
+              data-position="bottom right"
+              >
+            <CommandSearch/>
           </div>
+          <Restricted perm="project.info">
+            <a
+                ref="projects"
+                onClick={() => props.toggleMenu('projects')}
+                className={`item ${(props.menu == 'projects' || section == 'project') ? "active" : ""}`}
+                data-content={i18n("Projects")}
+                data-position="bottom center"
+                >
+              <i className="browser icon"/>
+            </a>
+          </Restricted>
           <Restricted perm="issues.view">
-            <a className="item" onClick={() => goto("/issues/")}>
+            <a
+                className={`item ${ section == "issues" ? "active" : ""}`}
+                onClick={() => goto("/issues/")}
+                ref="issues"
+                data-content={i18n("Issues")}
+                data-position="bottom center"
+                >
               <i className="warning sign icon"/>
               <span
                 className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
@@ -79,7 +113,10 @@ const Top = React.createClass({
             </a>
           </Restricted>
           <Restricted perm="notifications.list">
-            <a className="item" ref="notifications_item">
+            <a
+              className={`item ${section == 'notifications' ? "active" : ""}`}
+              ref="notifications_item"
+              >
               <i className="announcement icon"></i>
               {((props.notifications||[]).length > 0) ? (
                 <span
@@ -91,11 +128,23 @@ const Top = React.createClass({
           </Restricted>
           <NotificationsMenu open_time={this.state.open_time}/>
           <Restricted perm="action.watch">
-            <a className="item" onClick={() => props.toggleMenu('processes')}>
+            <a
+              className={`item ${section == 'process' ? "active" : ""}`}
+              onClick={() => props.toggleMenu('processes')}
+              ref="actions"
+              data-content={i18n("Actions")}
+              data-position="bottom center"
+              >
               <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
             </a>
           </Restricted>
-          <a className="item" onClick={() => props.toggleMenu('user')}>
+          <a
+            className={`item ${(section == 'settings' || section == 'user' || section == 'logs') ? "active" : ""}`}
+            onClick={() => props.toggleMenu('user')}
+            ref="profile"
+            data-content={i18n("Profile and more...")}
+            data-position="bottom right"
+            >
             <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32, marginTop: -6}}
               data-tooltip={props.user.email}/>
           </a>
