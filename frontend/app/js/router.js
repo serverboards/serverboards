@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 import store from 'app/utils/store'
 
-import DashBoard from 'app/components/dashboard'
+import DashBoard from 'app/containers/dashboard'
 import Profile from 'app/containers/profile'
 import Settings from 'app/components/settings'
 import Serverboard from 'app/containers/project'
