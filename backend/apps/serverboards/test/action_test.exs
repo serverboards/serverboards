@@ -103,4 +103,21 @@ defmodule Serverboards.ActionTest do
     assert Test.Client.expect(client, [{:method, "action.stopped"}, {~w(params uuid)a, uuid_ok_c}, {~w(params status)a, "ok"}])
   end
 
+  test "Action update, set progress" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, :ok} = Test.Client.call(client, "event.subscribe", ["action.started","action.stopped","action.updated"])
+    {:ok, uuid} = Test.Client.call(client, "action.trigger",
+      ["serverboards.test.auth/action", %{ url: "https://serverboards.io", sleep: 3 }])
+
+    {:ok, _} = Test.Client.call(client, "action.update",
+      [uuid, %{ progress: 10, label: "Test" }])
+
+    assert Test.Client.expect(client, [{:method, "action.updated"},
+      {~w(params uuid)a, uuid},
+      {~w(params progress)a, 10},
+      {~w(params label)a, "Test"}
+      ])
+  end
+
 end

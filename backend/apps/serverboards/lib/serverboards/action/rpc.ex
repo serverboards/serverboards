@@ -25,11 +25,11 @@ defmodule Serverboards.Action.RPC do
       user = RPC.Context.get context, :user
       perms = user.perms
       params = Serverboards.Utils.keys_to_atoms_from_list(params, ~w"progress label")
-      #if ("action.trigger" in perms) do
+      if ("action.update" in perms) do
         Serverboards.Action.update action_id, params, user
-      #else
-      #  {:error, :unknown_method}
-      #end
+      else
+        {:error, :unknown_method}
+      end
     end, context: true
 
     add_method mc, "action.trigger_wait", fn [action, params], context ->
