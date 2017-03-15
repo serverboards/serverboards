@@ -1,6 +1,7 @@
 import React from 'react'
 
 import GenericField from './genericfield'
+import {object_is_equal} from 'app/utils'
 
 const GenericForm=React.createClass({
   propTypes:{
@@ -33,7 +34,7 @@ const GenericForm=React.createClass({
     this.props.updateForm && this.props.updateForm(nstate)
   },
   componentWillReceiveProps(newprops){
-    if (newprops.fields != this.props.fields || newprops.data != this.props.data){
+    if (!object_is_equal(newprops.fields, this.props.fields) || !object_is_equal(newprops.data, this.props.data)){
       this.setState( this.getInitialState(newprops) )
     }
   },

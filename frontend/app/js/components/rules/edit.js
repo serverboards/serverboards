@@ -113,7 +113,6 @@ const Details=React.createClass({
         params: ac.params
       }
     })
-
     let rule={
       uuid: props.rule.uuid,
       is_active: state.is_active,
