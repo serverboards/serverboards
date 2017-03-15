@@ -2,6 +2,10 @@ import React from 'react'
 import {object_is_equal} from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
+function sort_by_name(l){
+  return l.slice().sort((a,b) => (a.name || "").localeCompare(b.name || "") )
+}
+
 const TriggerSelect=React.createClass({
   propTypes:{
     defaultValue: React.PropTypes.string,
@@ -37,7 +41,7 @@ const TriggerSelect=React.createClass({
         <i className="dropdown icon"/>
         <div className="default text">{i18n("Select trigger")}</div>
         <div className="menu">
-          {props.triggers.map( (tr) => (
+          {sort_by_name(props.triggers).map( (tr) => (
             <div key={tr.id} className="item" data-value={tr.id}>{i18n(tr.name)}</div>
           ))}
         </div>

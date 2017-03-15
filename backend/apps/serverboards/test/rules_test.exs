@@ -371,4 +371,57 @@ defmodule Serverboards.TriggersTest do
     Logger.info("Should have triggered")
     {:ok, _} = File.stat("/tmp/sbds-rule-test2")
   end
+
+  test "Get individual rules, manual trigger" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    uuid = UUID.uuid4()
+    waitt = 500
+
+    Test.Client.call(client, "rules.update", %{
+        uuid: uuid, is_active: true,
+        trigger: %{ trigger: "serverboards.test.auth/shallow.trigger", params: %{} },
+        actions: %{
+          "ok" => %{
+            action: "serverboards.test.auth/touchfile",
+            params: %{
+              filename: "/tmp/sbds-rule-test-ok",
+            }
+          },
+          "nok" => %{
+            action: "serverboards.test.auth/touchfile",
+            params: %{
+              filename: "/tmp/sbds-rule-test-nok",
+            }
+          },
+        }
+      })
+
+    {:ok, rule} = Test.Client.call(client, "rules.get", [uuid])
+    assert rule["uuid"] == uuid
+
+    {:ok, _} = Test.Client.call(client, "rules.trigger", %{ id: uuid, state: "ok", other: "params" } )
+    :timer.sleep(waitt)
+    Logger.info("Should have triggered")
+    {:ok, _} = File.stat("/tmp/sbds-rule-test-ok")
+    File.rm("/tmp/sbds-rule-test-ok")
+
+    {:ok, _} = Test.Client.call(client, "rules.trigger", %{ id: uuid, state: "ok", other: "params" } )
+    :timer.sleep(waitt)
+    Logger.info("Should not retrigger if same state")
+    {:error, :enoent} = File.stat("/tmp/sbds-rule-test-ok")
+
+    {:ok, _} = Test.Client.call(client, "rules.trigger", %{ id: uuid, state: "nok", other: "params" } )
+    :timer.sleep(waitt)
+    Logger.info("Should have triggered nok")
+    {:ok, _} = File.stat("/tmp/sbds-rule-test-nok")
+    File.rm("/tmp/sbds-rule-test-nok")
+
+
+    {:ok, rule} = Test.Client.call(client, "rules.get", [uuid])
+    assert rule["uuid"] == uuid
+    assert rule["last_state"] == "nok"
+
+    # extra list by trigger type
+    assert Test.Client.call(client, "rules.list", %{ trigger: "serverboards.test.auth/shallow.trigger" }) == {:ok, [rule]}
+  end
 end
