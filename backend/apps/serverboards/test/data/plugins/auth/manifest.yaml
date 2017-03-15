@@ -159,6 +159,12 @@ components:
       method: trigger_at_start
       params: []
 
+  - name: Shallow Trigger
+    type: trigger
+    states: ok nok
+    id: shallow.trigger
+    command: fake_singleton
+
   - name: Touch a file
     type: action
     id: touchfile

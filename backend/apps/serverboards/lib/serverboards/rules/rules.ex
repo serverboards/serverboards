@@ -65,6 +65,44 @@ defmodule Serverboards.Rules do
     ) |> Map.new
   end
 
+  def trigger(uuid, state, params, me) do
+    case get(uuid) do
+      nil -> {:error, :unknown_rule}
+      rule ->
+        trigger = case Serverboards.Rules.Trigger.find(id: rule.trigger.trigger) do
+          [] ->
+            Logger.debug("Unknown trigger #{inspect rule.trigger.trigger}")
+            %{}
+          [trigger] -> trigger
+        end
+
+        if not state in trigger[:states] do
+          {:error, :unknown_state}
+        else
+          case rule.actions[state] do
+            nil ->
+              Logger.info("Force trigger empty action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], rule: rule)
+            action ->
+              if rule.last_state != state do
+                full_params = Map.merge( action.params, Map.merge(params, %{ uuid: uuid, state: state} ))
+                Logger.info("Force trigger action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
+                Serverboards.Action.trigger(action.action, full_params, %{ email: "rule/#{rule.uuid}", perms: []})
+                EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: state }, "rule/#{rule.uuid}")
+              else
+                Logger.info("NOT force triggering action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}. State did not change.", rule: rule, params: params, action: action)
+              end
+          end
+        end
+    end
+  end
+
+  def get(uuid) do
+      case list(uuid: uuid) do
+        [rule] -> rule
+        [] -> nil
+      end
+  end
+
   def list(), do: list([])
   def list(map) when is_map(map) do
     list(Map.to_list(map))

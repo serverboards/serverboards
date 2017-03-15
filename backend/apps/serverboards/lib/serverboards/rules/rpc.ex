@@ -49,6 +49,23 @@ defmodule Serverboards.Rules.RPC do
         Serverboards.Rules.list filter_a
     end, required_perm: "rules.view"
 
+    add_method mc, "rules.get", fn [uuid] ->
+      Serverboards.Rules.get uuid
+    end, required_perm: "rules.view"
+
+    add_method mc, "rules.trigger", fn
+      [uuid, state], context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, %{}, me.email
+      [uuid, state, other], context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, other, me.email
+      %{ "id" => uuid, "state" => state} = params, context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, Map.drop(params, ["id", "state"]), me.email
+    end, required_perm: "rules.trigger", context: true
+
+
     add_method mc, "rules.catalog", fn
       [filter] -> Serverboards.Rules.Trigger.find filter
       [] -> Serverboards.Rules.Trigger.find

@@ -22,14 +22,23 @@ defmodule Serverboards.Rules.Rule do
   def start_link(rule, _options \\ []) do
     #Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
 
-    {:ok, pid} = GenServer.start_link __MODULE__, {}
-    Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
-    case GenServer.call(pid, {:init, rule}) do
-      :ok ->
-        {:ok, pid}
-      {:error, _reason} ->
-        GenServer.stop(pid)
-        {:error, :cant_start}
+    trigger = case Serverboards.Rules.Trigger.find(id: rule.trigger.trigger) do
+      [] -> {:error, :unknown_trigger}
+      [trigger] ->
+        if Map.get(trigger, :start, %{})["method"] do
+          {:ok, pid} = GenServer.start_link __MODULE__, {}
+          Serverboards.ProcessRegistry.add(Serverboards.Rules.Registry, rule.uuid, pid)
+          case GenServer.call(pid, {:init, rule}) do
+            :ok ->
+              {:ok, pid}
+            {:error, _reason} ->
+              GenServer.stop(pid)
+              {:error, :cant_start}
+          end
+        else
+          Logger.info("Not starting shallow rule #{inspect rule.name}. #{inspect rule} #{inspect trigger}")
+          :ignore
+        end
     end
   end
 
