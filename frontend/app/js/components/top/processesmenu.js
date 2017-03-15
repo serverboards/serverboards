@@ -27,9 +27,9 @@ const ProcessLine = React.createClass({
             <div className="bar">
               <div className="progress"></div>
             </div>
-            <div className="label">{p.label}</div>
           </div>
-        ) : p.label ? (
+        ) : null }
+        { p.label ? (
             <div className="ui meta">{p.label}</div>
         ) : null }
       </a>
