@@ -275,7 +275,7 @@ class RPC:
             if 'id' in rpc and ('result' in rpc or 'error' in rpc):
                 assert rpc['id']==id, "Expected id %s, got %s"%(id, rpc['id'])
                 if 'error' in rpc:
-                    raise Exception(rpc['error'])
+                    raise Exception("%s: %s"%(rpc['error'], method))
                 else:
                     return rpc['result']
             else:
@@ -387,5 +387,51 @@ class Config:
         except OSError as e:
             if 'File exists' not in str(e):
                 raise
+
+class Plugin:
+    """
+    Easy run a plugin and call methods in it.
+
+    It wraps normal calling of plugin methods, allowing easy lifecycle
+    mangament of the plugin.
+    """
+    def __init__(self, id):
+        self.id=id
+        self.uuid=None
+    def start(self):
+        """
+        Starts the plugin
+        """
+        assert not self.uuid
+        self.uuid = rpc.call("plugin.start", self.id)
+        return self
+    def call(self, method, *args, **kwargs):
+        """
+        Calls the given method
+        """
+        assert self.uuid
+        return rpc.call("%s.%s"%(self.uuid, method), *args, **kwargs)
+    def stop(self):
+        """
+        Stops the plugin
+        """
+        assert self.uuid
+        rpc.call("plugin.stop", self.uuid)
+        self.uuid=None
+        return self
+
+    @staticmethod
+    def start_call_stop(plugin, method, *args, **kwargs):
+        """
+        Performs the 3 steps: start, call a method, and stop the plugin.
+        """
+        pl = Plugin(plugin).start()
+        ret = None
+        try:
+            ret = pl.call(method, *args, **kwargs)
+        finally:
+            pl.stop()
+        return ret
+
 
 config=Config()
