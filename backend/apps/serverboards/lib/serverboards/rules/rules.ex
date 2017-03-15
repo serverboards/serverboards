@@ -129,6 +129,8 @@ defmodule Serverboards.Rules do
         q |> where([_rule, service, _project], service.uuid == ^v )
       {:is_active, v}, q ->
         q |> where([rule, _service, _project], rule.is_active == ^v )
+      {:trigger, v}, q ->
+        q |> where([rule, _service, _project], rule.trigger == ^v )
       end)
     q = q |> select( [rule, service, project], %{
       id: rule.id,

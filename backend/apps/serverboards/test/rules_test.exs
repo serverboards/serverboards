@@ -421,5 +421,7 @@ defmodule Serverboards.TriggersTest do
     assert rule["uuid"] == uuid
     assert rule["last_state"] == "nok"
 
+    # extra list by trigger type
+    assert Test.Client.call(client, "rules.list", %{ trigger: "serverboards.test.auth/shallow.trigger" }) == {:ok, [rule]}
   end
 end
