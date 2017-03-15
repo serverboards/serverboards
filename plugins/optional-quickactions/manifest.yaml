@@ -35,4 +35,4 @@ components:
     command: ./serverboards-quickactions.py
     type: onetime
     timeout: 3s
-    perms: plugin.data[serverboards.optional.quickactions] service.info action.trigger
+    perms: plugin.data[serverboards.optional.quickactions] service.get action.trigger

@@ -12,7 +12,7 @@ def service_in_serverboard(service, serverboard):
     serverboards = service_serverboards_cache.get(service)
     if not serverboards:
         try:
-            serverboards = rpc.call("service.info",service)["serverboards"]
+            serverboards = rpc.call("service.get",service)["projects"]
             service_serverboards_cache[service] = serverboards
         except:
             import traceback
