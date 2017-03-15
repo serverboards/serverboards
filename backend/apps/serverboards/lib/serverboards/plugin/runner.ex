@@ -223,7 +223,7 @@ defmodule Serverboards.Plugin.Runner do
         {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
         GenServer.cast(Serverboards.Plugin.Runner, {:ping, id})
-        Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
+        #Logger.debug("Plugin runner call #{inspect method}(#{inspect(params)})")
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
             GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it

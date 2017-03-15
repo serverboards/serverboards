@@ -84,13 +84,23 @@ defmodule Serverboards.Rules do
               Logger.info("Force trigger empty action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], rule: rule)
             action ->
               if rule.last_state != state do
-                full_params = Map.merge( action.params, Map.merge(params, %{ uuid: uuid, state: state} ))
+                service = if rule.service do
+                  case Serverboards.Service.service_get(rule.service, %{}) do
+                    {:ok, service} -> service
+                    _ -> nil
+                  end
+                else
+                  nil
+                end
+
+                full_params = Map.merge( action.params, Map.merge(params, %{ uuid: uuid, state: state, rule: rule, service: service} ))
                 Logger.info("Force trigger action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
                 Serverboards.Action.trigger(action.action, full_params, %{ email: "rule/#{rule.uuid}", perms: []})
                 EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: state }, "rule/#{rule.uuid}")
               else
                 Logger.info("NOT force triggering action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}. State did not change.", rule: rule, params: params, action: action)
               end
+              :ok
           end
         end
     end
