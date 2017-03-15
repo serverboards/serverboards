@@ -63,6 +63,9 @@ defmodule Serverboards.Rules.RPC do
       %{ "id" => uuid, "state" => state} = params, context ->
         me = MOM.RPC.Context.get context, :user
         Serverboards.Rules.trigger uuid, state, Map.drop(params, ["id", "state"]), me.email
+      %{ "uuid" => uuid, "state" => state} = params, context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, Map.drop(params, ["uuid", "state"]), me.email
     end, required_perm: "rules.trigger", context: true
 
 
