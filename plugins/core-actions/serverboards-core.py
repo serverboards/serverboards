@@ -105,7 +105,7 @@ def send_notification(email, subject, body, service=None, **extra):
             service["url"] = "%s/#/serverboard/%s/services"%(base_url(), serverboard)
         extra["service"] = service
 
-    serverboards.rpc.call("notifications.notify", email=email, subject=subject, body=body, extra=extra)
+    serverboards.rpc.call("notifications.create", email=email, subject=subject, body=body, extra=extra)
 
 
 @serverboards.rpc_method
@@ -117,7 +117,7 @@ def open_issue(**data):
     aliases=render(data.get("aliases"), data).split()
     #serverboards.rpc.info(json.dumps(data, indent=2))
 
-    serverboards.rpc.call("issues.add", title=title, description=description, aliases=aliases)
+    serverboards.rpc.call("issues.create", title=title, description=description, aliases=aliases)
 
 @serverboards.rpc_method
 def close_issue(issue=None, **data):

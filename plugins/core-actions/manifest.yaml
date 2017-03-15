@@ -217,6 +217,6 @@ components:
     timeout: 20s
     command: serverboards-core.py
     perms: |
-      service.info service.update notifications.notify notifications.notify_all
-      issues.add issues.update
+      service.info service.update notifications.create notifications.create_all
+      issues.create issues.update
       settings.view[serverboards.core.settings/base]
