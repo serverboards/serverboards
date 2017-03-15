@@ -180,7 +180,7 @@ const Details = React.createClass({
             </div>
             <div className="ui text normal regular">
               <span className={`ui tag label ${tag_color(issue.status)} big`}>{issue.status}</span>
-              <span><b>{i18n("{name} created this issue on {date}", {name: issue.creator || i18n("System"), date: issue.inserted_at})}</b></span>
+              <span><b>{i18n("{name} created this issue {date}", {name: (issue.creator || {}).name || i18n("System"), date: pretty_ago(issue.inserted_at)})}</b></span>
             </div>
           </div>
           <div className="ui divider"></div>
