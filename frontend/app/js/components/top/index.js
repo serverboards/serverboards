@@ -86,7 +86,7 @@ const Top = React.createClass({
               >
             <CommandSearch/>
           </div>
-          <Restricted perm="project.info">
+          <Restricted perm="project.get">
             <a
                 ref="projects"
                 onClick={() => props.toggleMenu('projects')}
