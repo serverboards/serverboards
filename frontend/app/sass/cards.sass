@@ -20,5 +20,27 @@
     img.icon
       top: 33px
 
-  .ui.tag.label
-    font-size: 0.60em
+  .extra.content:first-child
+      padding: 0
+      .labels
+        padding-top: 3px
+        display: flex
+        flex-direction: row
+        > .label
+          display: flex
+          flex-direction: row
+          align-items: center
+          padding-left: 4px
+          padding-right: 10px
+          color: #333
+          font-size: 12px
+          font-weight: bold
+
+          .label.rectangular
+            max-width: 4px
+            min-height: 18px
+            display: inline-block
+            padding: 10px 3px
+            margin-right: 3px
+  .extra.content:first-child ~ .content
+    border-top: 0
