@@ -183,7 +183,7 @@ const Card=React.createClass({
         <div className="extra content">
           <div className="labels">
             {(props.tags || []).map( (l) => (
-              <span key={l} className="label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
+              <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
             ))}&nbsp;
           </div>
         </div>

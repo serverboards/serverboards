@@ -34,7 +34,7 @@ function PluginCard(props){
       <div className="extra content">
         <div className="labels">
           {p.status.map( (s) => (
-            <span key={s} className="label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
+            <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
           )) }
         </div>
       </div>
