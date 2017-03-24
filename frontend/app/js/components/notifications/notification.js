@@ -37,8 +37,9 @@ const Notification=React.createClass({
     const n=this.state.notification
 
     return (
-      <Modal>
+      <Modal className="wide">
         <div className="ui top secondary menu">
+          <h3 className="ui header">{i18n("Notifications")}</h3>
           <div className="right menu">
             <a
               className={`item ${n.last_id ? "" : "disabled"}`}
@@ -52,15 +53,17 @@ const Notification=React.createClass({
               ><i className="ui icon chevron right"/></a>
           </div>
         </div>
-      <div className="ui meta" title={n.inserted_at}>{pretty_ago(n.inserted_at)}</div>
-        <h1 className="ui header" style={{margin: 0}}>{n.subject}</h1>
-        <div className="ui labels">
-          {n.tags.map( (t) => (
-            <span className={`ui tiny plain basic label ${colorize(t)}`}>{i18n(t)}</span>
-          ))}
-        </div>
-        <div className="ui body">
-          <MarkdownPreview value={n.body}/>
+        <div className="ui text container">
+          <div className="ui meta" title={n.inserted_at}>{pretty_ago(n.inserted_at)}</div>
+          <h1 className="ui header" style={{margin: 0}}>{n.subject}</h1>
+          <div className="ui labels">
+            {n.tags.map( (t) => (
+              <span className={`ui tiny plain basic label ${colorize(t)}`}>{i18n(t)}</span>
+            ))}
+          </div>
+          <div className="ui body">
+            <MarkdownPreview value={n.body}/>
+          </div>
         </div>
       </Modal>
     )

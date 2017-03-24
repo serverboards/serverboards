@@ -47,28 +47,30 @@ const AddWidget = React.createClass({
       )
     }
     return (
-      <Modal>
+      <Modal className="wide">
         <div className="ui top secondary menu">
           <h3 className="ui header">{widget.name}</h3>
           <div className="right menu">
             <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
           </div>
         </div>
-        <div className="ui form" ref="form">
-          {this.state.error ? (
-            <div className="ui message visible error">
-              <div className="header">{i18n("Error")}</div>
-              <p>{this.state.error}</p>
-            </div>
-          ) : (
-            <div>
-              <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
-              <GenericForm fields={widget.params} data={this.state.config} updateForm={this.setFormData}/>
-              <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
-                {i18n("Update widget")}
-              </button>
-            </div>
-          )}
+        <div className="ui text container">
+          <div className="ui form" ref="form">
+            {this.state.error ? (
+              <div className="ui message visible error">
+                <div className="header">{i18n("Error")}</div>
+                <p>{this.state.error}</p>
+              </div>
+            ) : (
+              <div>
+                <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
+                <GenericForm fields={widget.params} data={this.state.config} updateForm={this.setFormData}/>
+                <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
+                  {i18n("Update widget")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </Modal>
     )

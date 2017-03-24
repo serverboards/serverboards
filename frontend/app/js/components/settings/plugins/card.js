@@ -31,10 +31,12 @@ function PluginCard(props){
 
   return (
     <div key={p.id} className="card">
-      <div>
-        {p.status.map( (s) => (
-          <span key={s} style={{paddingRight: 15}}><i className={`ui icon circle ${ colorize(s) }`}/> {i18n(capitalize(s))}</span>
-        )) }
+      <div className="extra content">
+        <div className="labels">
+          {p.status.map( (s) => (
+            <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
+          )) }
+        </div>
       </div>
       <div className="content">
         <ImageIcon src={icon} className="right floated" name={i18n(p.name)}/>

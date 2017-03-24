@@ -15,6 +15,11 @@ function NotificationsMenu(props){
           {i18n("And {n} more...", {n: unread.length - 5})}
           </div>
         ) : null}
+        {unread.length == 0 ? (
+          <div className="item centered ui grey">
+            {i18n("No new messages.")}
+          </div>
+        ) : null}
         <a href="#/notifications/list" className="item inverted yellow" style={{flexDirection: "row"}}>
           {i18n("View all")}
           <i className="ui caret right icon" style={{paddingLeft: 5}}/>

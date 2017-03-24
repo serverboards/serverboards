@@ -18,7 +18,7 @@
     display: flex
     flex-direction: row
   .issues
-    flex-grow: 6
+    flex-grow: 1
     .day
       .item
         position: relative
@@ -46,10 +46,11 @@
           padding: 10px 15px
           flex-grow: 1
   .filters
-    flex-grow: 1
+    flex-grow: 0
     margin-left: 100px
     > div
-      margin-left: 100px
+      min-width: 250px
+      max-width: 250px
       display: flex
       flex-direction: column
       > *

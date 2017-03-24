@@ -20,5 +20,13 @@
     img.icon
       top: 33px
 
-  .ui.tag.label
-    font-size: 0.60em
+  .extra.content:first-child
+      padding: 0
+      .labels
+        display: flex
+        flex-direction: row
+        .label
+          padding: 3px
+
+  .extra.content:first-child + .content
+    border-top: 0

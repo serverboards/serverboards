@@ -64,7 +64,6 @@ const Filters = React.createClass({
               <option value="order:+modified">Show more time not modified first</option>
             </select>
           </div>
-          */}
           <div className="field">
             <select className="ui dropdown" onChange={this.handleFilterChange} placeholder={i18n("Preset filters")}>
               <option value="">{i18n("Preset filters")}</option>
@@ -72,6 +71,7 @@ const Filters = React.createClass({
               <option value="status:closed">{i18n("Show closed")}</option>
             </select>
           </div>
+          */}
           <div className="ui labels">
             <h4 className="ui grey header">{i18n("Filter by labels")}</h4>
             <div className="ui divider"/>

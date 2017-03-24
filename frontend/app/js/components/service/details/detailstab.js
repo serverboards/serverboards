@@ -20,7 +20,7 @@ function DetailsTab(props){
         {props.service_template.name}
         <h3 className="ui header">{i18n("Description")}</h3>
         {props.service_template.description ? (
-          <MarkdownPreview className="ui meta" value={i18n(props.service_template.description)}/>
+          <MarkdownPreview className="ui grey text" value={i18n(props.service_template.description)}/>
         ) : null}
         <h3 className="ui header">{i18n("Related projects")}</h3>
         <div className="ui vertical secondary menu">
@@ -34,7 +34,7 @@ function DetailsTab(props){
       </div>
       <div className="ten wide column">
         <h3 className="ui header">{i18n("Description")}</h3>
-        <MarkdownPreview className="ui meta" value={props.service.description || i18n("No description set")}/>
+        <MarkdownPreview className="ui grey text" value={props.service.description || i18n("Not provided")}/>
         <h3 className="ui header">{i18n("Config Details")}</h3>
         <div className="ui grid">
           {((props.service_template || {}).fields || []).map( (f) => (
