@@ -40,6 +40,7 @@ const Widget = React.createClass({
     let plugin_component=props.template.id.split('/')
     const context={
       setTitle: self.setTitle,
+      setError(err){ self.setState({error: err}) },
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
       widget_id: props.template.id,
