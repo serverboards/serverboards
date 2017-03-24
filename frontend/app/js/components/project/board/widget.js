@@ -9,7 +9,8 @@ const Widget = React.createClass({
   umount: undefined,
   getInitialState(){
     return {
-      title: undefined
+      title: undefined,
+      error: false
     }
   },
   setTitle(title){
@@ -63,8 +64,8 @@ const Widget = React.createClass({
       () => this.do_widget(this.props)
     ).catch( (e) => {
       console.error(e)
-      const msg = i18n("Error loading widget {widget}: {error}", {widget: this.props.widget, error: String(e)})
-      $(this.refs.el).html(`<div class="ui negative message">${msg}</div>`)
+      this.setState({error: String(e)})
+      this.refs.el.html("")
     } )
   },
   componentWillUnmount(){
@@ -96,7 +97,17 @@ const Widget = React.createClass({
             </a>
           </Restricted>
         </div>
-        <div ref="el"/>
+        {this.state.error ? (
+          <section ref="error" className="plugin error">
+            <div><i className="ui huge warning sign red icon"/></div>
+            <div className="ui text red bold">{i18n("Error loading widget")}</div>
+            <div className="ui meta">{widget.name}</div>
+            <div className="ui meta">{this.props.widget}</div>
+            <div style={{paddingTop:10}}>{this.state.error}</div>
+          </section>
+        ) : (
+          <div ref="el"/>
+        )}
       </div>
     )
   }
