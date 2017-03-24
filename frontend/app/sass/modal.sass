@@ -1,3 +1,5 @@
+$modal-top-menu-height: 70px
+
 .ui.modal:not(.small)
   &.background
     display: block
@@ -11,8 +13,8 @@
 
   > .ui.top.menu
     position: absolute
-    display: block
-    height: 45px
+    display: flex
+    height: $modal-top-menu-height
     background: white
     width: 100vw
     border-radius: 0
@@ -24,20 +26,25 @@
     a
       cursor: pointer
     .right.aligned
-      float: right
       padding: 10px 10px
       color: black
+      flex-grow: 0
+    a.logo
+      flex-grow: 0
+      align-self: center
     img.logo
-      max-height: 45px
-      width: 230px
+      max-height: $modal-top-menu-height
+      width: 250px
       padding: 5px
+    div.central
+      flex-grow: 1
   > .content
     position: absolute
     overflow: auto
-    height: calc( 100vh - 45px )
+    height: calc( 100vh - #{$modal-top-menu-height} )
     background: white
     right: 0
-    top: 45px
+    top: $modal-top-menu-height
     width: calc( 100vw - 300px ) !important
     border-top: 1px solid #ddd
     overflow-x: hidden
@@ -65,7 +72,7 @@
           margin-left: 0
       .side
         position: absolute
-        top: 45px
+        top: $modal-top-menu-height
         margin-left: -150px
         width: 150px
         &.header
@@ -108,12 +115,12 @@
 
 .ui.modal > .content .content > .ui.vertical.menu
   position: fixed
-  top: 45px
+  top: $modal-top-menu-height
   left: 85px
   width: 220px !important
   max-width: 220px !important
   min-width: 220px !important
-  height: calc( 100vh - 45px )
+  height: calc( 100vh - #{$modal-top-menu-height} )
   border-radius: 0
   border-left: 1px solid #666
   .header
