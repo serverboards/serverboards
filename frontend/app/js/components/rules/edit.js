@@ -138,7 +138,7 @@ const Details=React.createClass({
     const trigger_params=state.trigger_fields.filter( (tf) => !(tf.name in defconfig) )
     //console.log("defconfig", this.state.service, defconfig, trigger_fields)
     return (
-      <Modal>
+      <Modal className="wide">
         <div ref="el">
           <div className="ui top secondary menu">
             <a className="item">
@@ -153,51 +153,52 @@ const Details=React.createClass({
               </div>
             </div>
           </div>
-
-          <div className="ui medium header side header centered">
-            <ImageIcon src={icon} name={state.name}/>
-            <br/>
-            <h3 className="ui header">{i18n(state.name)}</h3>
-          </div>
-
-          <div className="ui form">
-            <div>
-              <div className="field">
-                <label>{i18n("Name")}:</label>
-                <input type="text" defaultValue={i18n(state.name)} name="name" onChange={this.handleNameChange}/>
-              </div>
-              <div className="field">
-                <label>{i18n("Description")}:</label>
-                <textarea type="text" defaultValue={i18n(state.description)} name="description" onChange={this.handleDescriptionChange}/>
-              </div>
-              <div className="field">
-                <label>{i18n("Service")}:</label>
-                <SelectService defaultValue={state.service && state.service.uuid} services={services} onChange={this.handleServiceChange}/>
-              </div>
+          <div className="ui text container">
+            <div className="ui medium header side header centered">
+              <ImageIcon src={icon} name={state.name}/>
+              <br/>
+              <h3 className="ui header">{i18n(state.name)}</h3>
             </div>
 
-            <div>
-              <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
-              <div className="field">
-                <label>{i18n("Trigger")}:</label>
-                <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
+            <div className="ui form">
+              <div>
+                <div className="field">
+                  <label>{i18n("Name")}:</label>
+                  <input type="text" defaultValue={i18n(state.name)} name="name" onChange={this.handleNameChange}/>
+                </div>
+                <div className="field">
+                  <label>{i18n("Description")}:</label>
+                  <textarea type="text" defaultValue={i18n(state.description)} name="description" onChange={this.handleDescriptionChange}/>
+                </div>
+                <div className="field">
+                  <label>{i18n("Service")}:</label>
+                  <SelectService defaultValue={state.service && state.service.uuid} services={services} onChange={this.handleServiceChange}/>
+                </div>
               </div>
-              <GenericForm fields={trigger_params} data={state.trigger_config} updateForm={this.handleTriggerConfigChange}/>
+
+              <div>
+                <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
+                <div className="field">
+                  <label>{i18n("Trigger")}:</label>
+                  <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
+                </div>
+                <GenericForm fields={trigger_params} data={state.trigger_config} updateForm={this.handleTriggerConfigChange}/>
+              </div>
+
+              {actions.length != 0 ? (
+                <RuleActions
+                  actions={actions}
+                  action_catalog={props.action_catalog}
+                  handleActionConfig={this.handleActionConfig}
+                  defconfig={defconfig}
+                  />
+              ) : null }
             </div>
 
-            {actions.length != 0 ? (
-              <RuleActions
-                actions={actions}
-                action_catalog={props.action_catalog}
-                handleActionConfig={this.handleActionConfig}
-                defconfig={defconfig}
-                />
-            ) : null }
           </div>
-
-        </div>
-        <div className="actions">
-          <button className="ui yellow button" onClick={this.handleSave}>{i18n("Save changes")}</button>
+          <div className="actions">
+            <button className="ui yellow button" onClick={this.handleSave}>{i18n("Save changes")}</button>
+          </div>
         </div>
       </Modal>
     )

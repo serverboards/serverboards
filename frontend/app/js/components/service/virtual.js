@@ -79,7 +79,7 @@ const VirtualServices=React.createClass({
       })
       .catch((e) => {
         console.error(e)
-        Flash.error(i18n("Error loading virtual services\n\n{e}", {e}))
+        Flash.error(i18n("Error loading virtual services\n\nPlease check it is correctly configured.", {e}))
         store.dispatch( goBack() )
       })
   },

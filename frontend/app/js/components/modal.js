@@ -28,9 +28,10 @@ const Modal=React.createClass({
     return (
       <div className={`ui modal background ${props.className || ""}`} id={props.id}>
         <div className="ui top menu">
-          <a href="#/">
+          <a href="#/" className="logo">
             <img className="logo" src={logo}/>
           </a>
+          <div className="central"></div>
 
           <a className="right aligned" onClick={this.onClose} title="Close popup"><i className="big close icon "/></a>
         </div>

@@ -3,6 +3,9 @@
 .ui.board
   background: $background
   padding: 0 15px 15px
+  .react-grid-item.react-grid-placeholder
+    background: #ccc
+    border-radius: 3px
   > .ui.top.menu
     background: none
     border: 0
@@ -86,6 +89,15 @@
         visibility: visible
       .react-resizable-handle
         visibility: visible
+
+  .plugin.error
+    display: flex
+    flex-direction: column
+    align-self: center
+    justify-content: center
+    text-align: center
+    padding: 1em
+
 
 .ui.main.area .ui.central.with.menu .ui.board .ui.cards > .ui.card .active.dimmer
       position: relative

@@ -181,9 +181,11 @@ const Card=React.createClass({
     return (
       <div className="service card">
         <div className="extra content">
-          {(props.tags || []).map( (l) => (
-            <span key={l} style={{color:"#ccc", paddingLeft:10}}><span className={`ui circular empty ${colorize(l)} label`}/> {i18n(l)}</span>
-          ))}&nbsp;
+          <div className="labels">
+            {(props.tags || []).map( (l) => (
+              <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
+            ))}&nbsp;
+          </div>
         </div>
 
         <div className="content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>

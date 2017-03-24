@@ -109,16 +109,16 @@ div.ui.main
 .top.secondary.menu
   padding: 0
   padding-right: 10px
+  margin-bottom: 10px !important
   margin: 0 !important
   border: 0
   border-bottom: 1px solid #ddd !important
-  min-height: 70px
+  min-height: 80px
+  max-height: 80px
   position: relative
   display: flex
   align-items: center
   flex-direction: row
-  .ui.iconicon, ui.imageicon
-    margin: -10px 15px 0 0
   > h3.header
     margin: 10px 20px auto 10px !important
     min-width: 100px
@@ -137,6 +137,8 @@ div.ui.main
       .right.options
         visibility: visible
 
+.top.secondary.menu ~ .ui.text.container
+  margin-top: 10px
 
 .ui.scroll
   overflow: auto
@@ -279,3 +281,23 @@ code
   width: 100vw
   height: 100vh
   background: "none"
+
+.ui.modal .ui.secondary.pointing.menu
+  border-bottom: 0px
+
+
+.ui.text.label
+  display: flex
+  flex-direction: row
+  align-items: center
+  margin-right: 8px
+  color: #333 !important
+  font-size: 12px
+  font-weight: bold
+  background: none !important
+  .ui.label.rectangular
+    max-width: 4px
+    min-height: 18px
+    display: inline-block
+    padding: 12px 3px
+    margin-right: 3px

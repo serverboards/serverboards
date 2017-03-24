@@ -72,15 +72,17 @@ function Rule(props){
 
   return (
     <div className="rule card">
-      <div className="extra content" style={{padding:"0 10px"}}>
-        { rule.is_active ?
-          rule.last_state ? (
-            <span><i className={`ui label circular empty ${colorize(rule.last_state)}`}/> {i18n(rule.last_state)}</span>
-          ) :  (
-            <span><i className="ui label circular empty yellow"/> {i18n("Pending trigger")}</span>
-          ) : (
-            <span><i className="ui label circular empty grey"/> {i18n("OFF")}</span>
-        )}
+      <div className="extra content">
+        <div className="labels">
+          { rule.is_active ?
+            rule.last_state ? (
+              <span className="ui text label"><i className={`ui label rectangular empty ${colorize(rule.last_state)}`}/> {i18n(rule.last_state)}</span>
+            ) :  (
+              <span className="ui text label"><i className="ui label rectangular empty yellow"/> {i18n("Pending trigger")}</span>
+            ) : (
+              <span className="ui text label"><i className="ui label rectangular empty grey"/> {i18n("OFF")}</span>
+          )}
+        </div>
       </div>
       <div className="header content">
         <ImageIcon src={icon} className="right floated" name={rule.name || i18n(trigger_template.name)}/>
