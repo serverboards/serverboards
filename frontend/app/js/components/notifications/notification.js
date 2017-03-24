@@ -39,6 +39,7 @@ const Notification=React.createClass({
     return (
       <Modal className="wide">
         <div className="ui top secondary menu">
+          <h3 className="ui header">{i18n("Notifications")}</h3>
           <div className="right menu">
             <a
               className={`item ${n.last_id ? "" : "disabled"}`}
