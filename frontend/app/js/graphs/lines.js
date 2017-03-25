@@ -19,6 +19,7 @@
 import Plotly from './plotly'
 import 'sass/graphs/index.sass'
 import moment from 'moment'
+import {create_error} from './utils'
 
 const config = {
   displaylogo: false,
@@ -42,7 +43,7 @@ class LineGraph{
       .text("Loading")
   }
   set_error(e){
-    this.$el.addClass("error").text(e)
+    create_error(this.$el, e)
   }
   /**
    * @short Sets the data for the graph, may reload the full graph if required

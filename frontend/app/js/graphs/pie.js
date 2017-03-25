@@ -20,6 +20,7 @@ import Plotly from './plotly'
 import 'sass/graphs/index.sass'
 import moment from 'moment'
 import {merge} from 'app/utils'
+import {create_error} from './utils'
 
 const config = {
   displaylogo: false,
@@ -43,7 +44,7 @@ class PieChart{
       .text("Loading")
   }
   set_error(e){
-    this.$el.addClass("error").text(e)
+    create_error(this.$el, e)
   }
   resize(){
     Plotly.Plots.resize(this.plot);
