@@ -5,6 +5,7 @@ description: |
   Allows to create new actions that are just actions prefilled with some data.
 
   This is useful for fast access to common actions
+version: 17.04
 
 components:
   - id: editor

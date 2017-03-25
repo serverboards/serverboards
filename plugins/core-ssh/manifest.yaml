@@ -1,7 +1,7 @@
 id: serverboards.core.ssh
 name: Core SSH support
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 17.04
 description: >
   Performs core operations needed for SSH connectivity to hosts.
 

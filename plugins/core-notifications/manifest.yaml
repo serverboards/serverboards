@@ -1,7 +1,7 @@
 id: serverboards.core.notifications
 name: core services
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.2.0
+version: 17.04
 description: >
   Definition of core notification subsystem. Includes global config,
   user notification channel config, and delivery subsystem.
@@ -53,4 +53,3 @@ components:
     command: serverboards_email.py
     type: singleton
     timeout: 1m
-    

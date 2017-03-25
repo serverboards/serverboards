@@ -4,7 +4,7 @@ description: |
   Shows at serverboards setting oerview whether serverboards needs an update,
   and allows to trigger the update of the system.
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.1.0
+version: 17.04
 
 components:
   - id: settings.overview

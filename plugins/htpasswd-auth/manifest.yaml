@@ -10,7 +10,7 @@ description: >
   variable.
 author: David Moreno <dmoreno@serverboards.io>
 id: serverboards.auth.htpasswd
-version: 0.0.2
+version: 17.04
 
 components:
   - name: htpasswd

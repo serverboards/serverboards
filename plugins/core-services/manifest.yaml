@@ -1,7 +1,7 @@
 id: serverboards.core.services
 name: core services
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 17.04
 description: >
   Definition of core services and fields to store in them.
 

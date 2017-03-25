@@ -1,7 +1,7 @@
 id: serverboards.core.cloud
 name: Core cloud services
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.1.0
+version: 17.04
 description: >
   Definition an basic ussage of cloud services.
 

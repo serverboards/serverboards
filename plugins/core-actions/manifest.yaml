@@ -1,7 +1,7 @@
 id: serverboards.core.actions
 name: Core actions
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 17.04
 description: >
   Various core actions.
 url: https://serverboards.io
