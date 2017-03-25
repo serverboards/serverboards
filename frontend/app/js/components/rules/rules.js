@@ -2,6 +2,7 @@ import React from 'react'
 import Rule from './rule'
 import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
+import Empty from './empty'
 
 require('sass/rules.sass')
 
@@ -64,18 +65,22 @@ const Rules=React.createClass({
           </div>
         </div>
         <div className="ui container">
-          <div className="ui cards" style={{paddingTop: 20}}>
-            {rules.map((r) =>
-              <Rule
-                rule={r}
-                key={r.uuid}
-                onOpenEdit={() => props.onOpenEdit(r)}
-                trigger_catalog={props.trigger_catalog}
-                service_catalog={props.service_catalog}
-                action_catalog={props.action_catalog}
-                />
-            )}
+          {(rules.length==0) ? (
+            <Empty/>
+          ) : (
+            <div className="ui cards" style={{paddingTop: 20}}>
+              {rules.map((r) =>
+                <Rule
+                  rule={r}
+                  key={r.uuid}
+                  onOpenEdit={() => props.onOpenEdit(r)}
+                  trigger_catalog={props.trigger_catalog}
+                  service_catalog={props.service_catalog}
+                  action_catalog={props.action_catalog}
+                  />
+              )}
             </div>
+          )}
         </div>
         <a onClick={() => this.handleAdd()} className="ui massive button add icon floating yellow">
           <i className="add icon"></i>

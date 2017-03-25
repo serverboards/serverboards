@@ -7,6 +7,7 @@ import Loading from 'app/components/loading'
 import Filters from 'app/containers/issues/index_filters'
 import Avatar from 'app/containers/avatar'
 import i18n from 'app/utils/i18n'
+import Empty from './empty'
 
 import 'sass/issues.sass'
 
@@ -106,16 +107,20 @@ function Issues(props){
           </a>
         </div>
       </div>
-      <div className="ui container">
-        <div className="issues">
-          {issues_by_day.map( ([date, issues]) => (
-            <IssueDay key={date} label={date} issues={issues}/>
-          ))}
+      {issues_by_day.length == 0 ? (
+        <Empty/>
+      ) : (
+        <div className="ui row container">
+          <div className="issues">
+            {issues_by_day.map( ([date, issues]) => (
+              <IssueDay key={date} label={date} issues={issues}/>
+            ))}
+          </div>
+          <div className="filters">
+            <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
+          </div>
         </div>
-        <div className="filters">
-          <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
-        </div>
-      </div>
+      )}
       <Restricted perm="issues.create">
         <a onClick={() => goto("/issues/add",{project:props.project})} className="ui massive button _add icon floating yellow">
           <i className="add icon"></i>
