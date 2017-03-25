@@ -11,11 +11,12 @@ description: >
 # name and tags fields are always assumed
 
 components:
-  - name: Web Server
+  - name: Web Site
     type: service
     traits: url web
     id: web_server
     icon: world
+    description: A web URL to be monitored.
     fields:
       - label: URL
         name: url
