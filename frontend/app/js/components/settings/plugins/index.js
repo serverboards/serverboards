@@ -104,7 +104,7 @@ const Plugins=React.createClass({
           <div className="right menu">
             <div className="item">
               <div className="ui form">
-                <div className="inline fields">
+                <div className="inline fields" style={{marginBottom: 0}}>
                   <div className="field">
                     <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder={i18n("Enter plugin git repository URL")}/>
                   </div>
@@ -112,9 +112,18 @@ const Plugins=React.createClass({
                     <button className="ui button yellow" onClick={this.handleInstallPlugin}>{i18n("Install")}</button>
                   </div>
                 </div>
-                <div style={{marginTop: -10}}>{i18n("View full plugin list at")} <a href="https://serverboards.io/downloads/plugins/" target="_blank">{i18n("Serverboards.io Plugin List page.")}</a></div>
               </div>
             </div>
+            <a
+                className="item with icon"
+                href="https://serverboards.io/downloads/plugins/"
+                target="_blank"
+                data-tooltip={i18n("View full plugin list")}
+                data-position="bottom right"
+                >
+              <i className="ui icon browser"/>
+              <div>{i18n("Plugin list")}</div>
+            </a>
           </div>
         </div>
 
