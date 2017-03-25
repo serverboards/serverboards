@@ -7,14 +7,25 @@ import Flash from 'app/flash'
 import connect from 'app/containers/connect'
 
 var Top=connect({
-  state: (state) => ({
+  state: (state) => {
+    let pathname = state.routing.locationBeforeTransitions.pathname
+    let section
+    switch (pathname){
+      case "/settings/plugins":
+        section = "plugins"
+        break;
+      default:
+        section = pathname.replace( /\/(.*?)\/.*/ ,"$1")
+    }
+    return {
       user: state.auth.user,
       avatar: state.auth.avatar,
       menu: state.top.menu,
       actions: state.action.actions,
       notifications: state.notifications.unread,
-      section: state.routing.locationBeforeTransitions.pathname.replace( /\/(.*?)\/.*/ ,"$1")
-  }),
+      section
+    }
+  },
   handlers: (dispatch) => ({
     onLogout: () => dispatch(logout()),
     toggleMenu: (menu) => dispatch({type: "TOP_TOGGLE_MENU", menu: menu}),

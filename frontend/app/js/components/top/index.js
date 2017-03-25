@@ -10,6 +10,7 @@ import i18n from 'app/utils/i18n'
 import ProjectSelector from 'app/containers/project/projectselector'
 
 require("sass/top.sass")
+const icon_plugin = require("../../../imgs/007-icon-plugins.svg")
 
 function notifications_color(notifications){
   if (!notifications || notifications.length==0)
@@ -136,6 +137,17 @@ const Top = React.createClass({
               data-position="bottom center"
               >
               <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
+            </a>
+          </Restricted>
+          <Restricted perm="project.get">
+            <a
+                ref="plugins"
+                onClick={() => goto("/settings/plugins")}
+                className={`item ${(props.menu == 'plugins' || section == 'plugins') ? "active" : ""}`}
+                data-content={i18n("Plugins")}
+                data-position="bottom center"
+                >
+              <img className="ui icon" src={icon_plugin}/>
             </a>
           </Restricted>
           <a
