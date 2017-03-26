@@ -159,6 +159,12 @@ components:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
           aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
+      nok:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{{rule.name}}: {{state}}"
+          description: "{{rule.description}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
       not-exists:
         action: serverboards.core.actions/open-issue
         params:
@@ -172,6 +178,11 @@ components:
           comment: "Status back to {{state}}"
           issue: "rule/{{rule.uuid}}"
       up:
+        action: serverboards.core.actions/close-issue
+        params:
+          comment: "Status back to {{state}}"
+          issue: "rule/{{rule.uuid}}"
+      ok:
         action: serverboards.core.actions/close-issue
         params:
           comment: "Status back to {{state}}"
