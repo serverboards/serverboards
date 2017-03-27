@@ -283,10 +283,10 @@ class RPC:
                     return rpc['result']
             else:
                 if self.loop_status=="IN":
-                    self.debug("Waiting for reply; Execute now for later: %s"% res)
+                    #self.debug("Waiting for reply; Execute now for later: %s"% res)
                     self.__process_request(rpc)
                 else:
-                    self.debug("Waiting for reply; Queue for later: %s"% res)
+                    #self.debug("Waiting for reply; Queue for later: %s"% res)
                     self.requestq.append(rpc)
 
     def subscribe(self, event, callback):
