@@ -182,7 +182,10 @@ const Details=React.createClass({
                   <label>{i18n("Trigger")}:</label>
                   <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
                 </div>
-                <GenericForm fields={trigger_params} data={state.trigger_config} updateForm={this.handleTriggerConfigChange}/>
+                <GenericForm
+                  fields={trigger_params}
+                  data={merge(state.trigger_config, {service: this.state.service})}
+                  updateForm={this.handleTriggerConfigChange}/>
               </div>
 
               {actions.length != 0 ? (
