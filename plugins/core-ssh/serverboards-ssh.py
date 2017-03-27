@@ -6,6 +6,22 @@ import urllib.parse as urlparse
 import base64
 from common import *
 
+td_to_s_multiplier=[
+    ("ms", 0.001),
+    ("s", 1),
+    ("m", 60),
+    ("h", 60*60),
+    ("d", 24*60*60),
+]
+
+def time_description_to_seconds(td):
+    if type(td) in (int, float):
+        return float(td)
+    for sufix, multiplier in td_to_s_multiplier:
+        if td.endswith(sufix):
+            return float(td[:-len(sufix)])*multiplier
+    return float(td)
+
 def url_to_opts(url):
     """
     Url must be an `ssh://username:password@hostname:port/` with all optional
@@ -249,6 +265,49 @@ def close_port(port):
     del port_to_pexpect[port]
     serverboards.debug("Closed port redirect localhost:%s"%(port))
     return True
+
+@serverboards.rpc_method
+def watch_start(id=None, period=None, service=None, script=None, **kwargs):
+    period_s = time_description_to_seconds(period or "5m")
+    url=service["config"]["url"]
+    class Check:
+        def __init__(self):
+            self.state=None
+        def check_ok(self):
+            stdout=None
+            try:
+                p = ssh_exec(url, script)
+                stdout=p["stdout"]
+                p = (p["exit"] == 0)
+                serverboards.info(
+                    "SSH remote check script: %s: %s"%(script, p),
+                    extra=dict(
+                        rule=id,
+                        service=service["uuid"],
+                        script=script,
+                        stdout=stdout,
+                        exit_code=p)
+                    )
+            except:
+                serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"]))
+                p = False
+            nstate = "ok" if p else "nok"
+            if self.state != nstate:
+                serverboards.rpc.event("trigger", {"id":id, "state": nstate})
+                self.state=nstate
+            return True
+    check = Check()
+    check.check_ok()
+    timer_id = serverboards.rpc.add_timer(period_s, check.check_ok)
+    serverboards.info("Start SSH script watch %s"%timer_id)
+    return timer_id
+
+@serverboards.rpc_method
+def watch_stop(id):
+    serverboards.info("Stop SSH script watch %s"%(id))
+    serverboards.rpc.remove_timer(id)
+    return "ok"
+
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':

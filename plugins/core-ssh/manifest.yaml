@@ -142,3 +142,37 @@ components:
           ControlPersist 600
         type: textarea
         name: options
+
+  - id: trigger
+    name: SSH Remote command
+    description: If a remote command fails, it executes an action.
+    type: trigger
+    trait: ssh
+    states: nok ok
+    command: daemon
+    start:
+      method: watch_start
+      params:
+        - name: service
+          label: SSH Service
+          type: service
+          traits: ssh
+        - name: period
+          label: Check period
+          description: |
+            Check every given time for the expression.
+            Time can use time modifiers as 1m, 30s, 1h...
+          placeholder: 5m
+          default: 5m
+          card: true
+          type: text
+        - name: script
+          card: true
+          label: Shell Script
+          placeholder: test -e /tmp/test
+          description: |
+            Shell script to execute on the remote server.
+
+            If this script returns an error code, it goes to the nok status.
+          type: textarea
+    stop: watch_stop

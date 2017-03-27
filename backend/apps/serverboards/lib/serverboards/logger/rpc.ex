@@ -31,32 +31,28 @@ defmodule Serverboards.Logger.RPC do
       [message] ->
         Logger.debug(message)
       [message, extra] ->
-        extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
+        extra = decorate_extra(extra)
         Logger.debug(message, extra)
     end
     add_method mc, "log.error", fn
       [message] ->
         Logger.error(message)
       [message, extra] ->
-        extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
+        extra = decorate_extra(extra)
         Logger.error(message, extra)
     end
     add_method mc, "log.warning", fn
       [message] ->
         Logger.warn(message)
       [message, extra] ->
-        extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
+        extra = decorate_extra(extra)
         Logger.warn(message, extra)
     end
     add_method mc, "log.info", fn
       [message] ->
         Logger.info(message)
       [message, extra] ->
-        extra = Map.to_list(extra)
-          |> Serverboards.Utils.keys_to_atoms_from_list(~w"file function line pid")
+        extra = decorate_extra(extra)
         Logger.info(message, extra)
     end
 
@@ -65,5 +61,10 @@ defmodule Serverboards.Logger.RPC do
     end)
 
     {:ok, mc}
+  end
+
+  def decorate_extra(extra) do
+    Map.to_list(extra)
+      |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
   end
 end
