@@ -6,6 +6,11 @@ var sbds_event = Serverboards.event
 var plugin_id = "serverboards.core.ssh"
 
 function main(element, config){
+  console.log("New terminal! %o", element, config)
+
+  if (!element) // Fix shadow terminals
+    return
+
   var term={}
   term.$el= $(element)
   term.$el.find('#name').text(config.service.name)
@@ -211,9 +216,9 @@ function main(element, config){
   $(window).on('resize', viewport_resize)
 
   return function(){
+    console.log("Close terminal.")
     unsetup_host()
     $(window).off('resize', viewport_resize)
-    term.$el.html('')
   }
 }
 
