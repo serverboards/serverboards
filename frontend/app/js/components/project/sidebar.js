@@ -110,7 +110,7 @@ const SidebarSections = React.createClass({
             services={props.project.services}
             screens={props.project.screens}
             project={props.project}
-            current={props.section}
+            section={`${props.section}/${props.subsection}`}
             onSectionChange={this.handleSectionChange}
             />
           <div>

@@ -50,6 +50,7 @@ const Serverboard=React.createClass({
       <div className="ui central with menu white background">
         <SidebarSections
           section={props.params.section}
+          subsection={props.params.subsection}
           project={props.project}
           projects_count={props.projects_count}
           goto={props.goto}
