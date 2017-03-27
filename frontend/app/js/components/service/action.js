@@ -7,7 +7,7 @@ export function trigger_action(action, service){
   if (action.extra.call){
     const params = service.config
 
-    let missing_params = action.extra.call.params.filter((p) => !(p.name in params))
+    let missing_params = (action.extra.call.params || []).filter((p) => !(p.name in params))
     if (missing_params.length==0){
       rpc.call("action.trigger",
         [action.id, params]).then(function(){
