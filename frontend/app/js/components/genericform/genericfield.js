@@ -113,7 +113,7 @@ const GenericField=React.createClass({
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
             <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
               {props.options.map((o) => (
-                <option value={o.value}>{o.label || o.name}</option>
+                <option key={o.value} value={o.value}>{o.label || o.name}</option>
               ))}
             </select>
           </div>
