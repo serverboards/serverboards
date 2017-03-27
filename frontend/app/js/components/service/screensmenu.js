@@ -28,7 +28,7 @@ function MenuItem(props){
               screen={props.screen}
               data={merge(props.data, {service: s})}
               onSectionChange={props.onSectionChange}
-              active={ s.uuid == props.current_service }
+              active={ props.active && s.uuid == props.current_service }
               >
               {s.name}
             </MenuItem>
