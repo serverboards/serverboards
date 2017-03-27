@@ -195,9 +195,12 @@ const Details=React.createClass({
               ) : null }
             </div>
 
-          </div>
-          <div className="actions">
-            <button className="ui yellow button" onClick={this.handleSave}>{i18n("Save changes")}</button>
+            <button
+              className="ui yellow button"
+              onClick={this.handleSave}
+              style={{marginBottom: 50, marginTop: 20}}>
+                {i18n("Save changes")}
+            </button>
           </div>
         </div>
       </Modal>
