@@ -58,7 +58,7 @@ function RealBottomMenu(props){
       <div className="right menu">
         <div className="item">
           <ActionMenu service={props.service} actions={props.actions} onDetach={props.onDetach}>
-            {i18n("Menu")}
+            {i18n("Options")}
           </ActionMenu>
         </div>
       </div>
@@ -178,11 +178,14 @@ const Card=React.createClass({
   },
   render(){
     let props=this.props.service
+    let tags = props.tags || []
+    if (!props.config || $.isEmptyObject(props.config))
+      tags = tags.concat("NOT-CONFIGURED")
     return (
       <div className="service card">
-        <div className="extra content">
+        <div className="extra content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           <div className="labels">
-            {(props.tags || []).map( (l) => (
+            {tags.map( (l) => (
               <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
             ))}&nbsp;
           </div>
@@ -197,12 +200,18 @@ const Card=React.createClass({
             )}
           </div>
           <div className="header">{props.name}</div>
-          <div className="description" style={{display:"inline-block"}}><MarkdownPreview value={i18n(props.description) || ""}/></div>
-          <div style={{clear:"both"}}>
+          <div className="description">
+            {props.description ? (
+              <MarkdownPreview value={i18n(props.description)}/>
+            ) : (
+              <span className="ui text meta italic">{i18n("No description yet")}</span>
+            )}
+          </div>
+        </div>
+        <div className="extra content config" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
           ) : [])}
-          </div>
         </div>
         <div className="extra content" ref="menu">
           {props.is_virtual ? (
