@@ -178,11 +178,14 @@ const Card=React.createClass({
   },
   render(){
     let props=this.props.service
+    let tags = props.tags || []
+    if (!props.config || $.isEmptyObject(props.config))
+      tags = tags.concat("NOT-CONFIGURED")
     return (
       <div className="service card">
         <div className="extra content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           <div className="labels">
-            {(props.tags || []).map( (l) => (
+            {tags.map( (l) => (
               <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
             ))}&nbsp;
           </div>

@@ -25,6 +25,10 @@ const ServiceTableLine = React.createClass({
     const props=this.props
     const s=props.service
     const d=props.definition || {}
+    let tags = s.tags || []
+    if (!s.config || $.isEmptyObject(s.config))
+      tags = tags.concat("NOT-CONFIGURED")
+
     return (
       <tr ref="el" onClick={this.handleOpenDetails} style={{cursor: "pointer"}}>
         <td>
@@ -38,7 +42,7 @@ const ServiceTableLine = React.createClass({
         <td>{d.name}</td>
         <td className="ui meta">{s.description}</td>
         <td>
-          {(s.tags || []).map( (l) => (
+          {(tags || []).map( (l) => (
             <span key={l} style={{color:"#ccc", display:"block", whiteSpace:"nowrap"}}>
               <span className={`ui circular empty ${colorize(l)} label`}/> {l}
             </span>
