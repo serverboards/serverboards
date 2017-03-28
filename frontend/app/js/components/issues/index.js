@@ -11,6 +11,8 @@ import Empty from './empty'
 
 import 'sass/issues.sass'
 
+const noissues = require('app/../imgs/018-img-no-issues.svg')
+
 function tag_color(status){
   if (status=="open")
     return "yellow"
@@ -107,15 +109,23 @@ function Issues(props){
           </a>
         </div>
       </div>
-      {issues_by_day.length == 0 ? (
-        <Empty/>
-      ) : (
-        <div className="ui row container">
-          <div className="issues">
-            {issues_by_day.map( ([date, issues]) => (
-              <IssueDay key={date} label={date} issues={issues}/>
-            ))}
-          </div>
+        {props.all_count == 0 ? (
+          <Empty/>
+        ) : (
+          <div className="ui row container">
+            {issues_by_day.length == 0 ? (
+              <div className="ui centered text">
+                <img src={noissues} alt=""/>
+                <h2>{i18n("There are no issues to show.")}</h2>
+                <div className="ui grey text">{i18n("Try different filters to look beyond...")}</div>
+              </div>
+            ) : (
+              <div className="issues">
+                {issues_by_day.map( ([date, issues]) => (
+                  <IssueDay key={date} label={date} issues={issues}/>
+                ))}
+              </div>
+          )}
           <div className="filters">
             <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
           </div>

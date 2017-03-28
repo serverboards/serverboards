@@ -72,17 +72,19 @@ const Filters = React.createClass({
             </select>
           </div>
           */}
-          <div className="ui labels">
-            <h4 className="ui grey header">{i18n("Filter by labels")}</h4>
-            <div className="ui divider"/>
-            {props.labels.map( (t) => (
-              <IssueTag key={t.name} value={t.name} color={t.color}
-                onEnable={() => props.setFilter(`+tag:${t.name}`)}
-                onDisable={() => props.setFilter(`-tag:${t.name}`)}
-              />
-            ))}
-            <div className="ui divider"/>
-          </div>
+          {(props.labels.length > 0) ? (
+            <div className="ui labels">
+              <h4 className="ui grey header">{i18n("Filter by labels")}</h4>
+              <div className="ui divider"/>
+              {props.labels.map( (t) => (
+                <IssueTag key={t.name} value={t.name} color={t.color}
+                  onEnable={() => props.setFilter(`+tag:${t.name}`)}
+                  onDisable={() => props.setFilter(`-tag:${t.name}`)}
+                />
+              ))}
+              <div className="ui divider"/>
+            </div>
+          ) : null }
           {props.project ? null : (
             <div className="field">
               <h4 className="ui grey header">{i18n("At project")}</h4>
