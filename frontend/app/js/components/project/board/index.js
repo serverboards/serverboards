@@ -10,6 +10,7 @@ import ReactGridLayout from 'react-grid-layout'
 import {object_is_equal} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
+import Empty from './empty'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
@@ -79,36 +80,42 @@ const Board = React.createClass({
     //const layout = this.state.layout || widgets.map( (w) => w.ui )
     //console.log(layout)
     return (
-      <div className="ui board">
-        <BoardHeader/>
-        <ReactGridLayout
-          className="ui cards layout"
-          cols={8}
-          rowHeight={280}
-          width={2400}
-          margin={[15,15]}
-          draggableHandle=".ui.top.mini.menu .ui.header"
-          layout={this.state.layout}
-          onLayoutChange={this.handleLayoutChange}
-          >
-            {widgets.map( (w) => (
-              <div
-                key={w.uuid}
-                data-grid={w.ui}
-                className="ui card"
-                >
-                <Widget
-                  key={w.uuid}
-                  widget={w.widget}
-                  config={w.config}
-                  uuid={w.uuid}
-                  onEdit={() => this.handleEdit(w.uuid)}
-                  project={this.props.project}
-                  layout={this.getLayout(w.uuid)}
-                  />
-              </div>
-            ))}
-        </ReactGridLayout>
+      <div className={(widgets.length == 0) ? "ui centered container" : ""}>
+        {(widgets.length == 0) ? (
+          <Empty/>
+        ) : (
+          <div className="ui board">
+            <BoardHeader/>
+            <ReactGridLayout
+              className="ui cards layout"
+              cols={8}
+              rowHeight={280}
+              width={2400}
+              margin={[15,15]}
+              draggableHandle=".ui.top.mini.menu .ui.header"
+              layout={this.state.layout}
+              onLayoutChange={this.handleLayoutChange}
+              >
+                {widgets.map( (w) => (
+                  <div
+                    key={w.uuid}
+                    data-grid={w.ui}
+                    className="ui card"
+                    >
+                    <Widget
+                      key={w.uuid}
+                      widget={w.widget}
+                      config={w.config}
+                      uuid={w.uuid}
+                      onEdit={() => this.handleEdit(w.uuid)}
+                      project={this.props.project}
+                      layout={this.getLayout(w.uuid)}
+                      />
+                  </div>
+                ))}
+            </ReactGridLayout>
+          </div>
+          )}
         <Restricted perm="dashboard.widget.create">
           <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
             <i className="add icon"></i>

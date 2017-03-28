@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="312px" height="312px" viewBox="0 0 312 312" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.3 (33839) - http://www.bohemiancoding.com/sketch -->
+    <title>illustration</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <circle id="path-1" cx="150" cy="150" r="150"></circle>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-3">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="3" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <linearGradient x1="49.9999967%" y1="138.524017%" x2="49.9999967%" y2="-12.1471017%" id="linearGradient-4">
+            <stop stop-color="#EAC44B" offset="0%"></stop>
+            <stop stop-color="#E7C34D" offset="1.528281%"></stop>
+            <stop stop-color="#AAB272" offset="35.64%"></stop>
+            <stop stop-color="#7EA68E" offset="64.59%"></stop>
+            <stop stop-color="#629F9F" offset="86.94%"></stop>
+            <stop stop-color="#589CA5" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="52.1389089%" y1="4.98853455%" x2="69.2440342%" y2="74.1431767%" id="linearGradient-5">
+            <stop stop-color="#FFFFFF" stop-opacity="0.7" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="100%"></stop>
+        </linearGradient>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-6">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-7">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-8">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-9">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-10">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-11">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-12">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-13">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-14">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-15">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-16">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-17">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-18">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-19">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-20">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-21">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-22">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-23">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-24">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-25">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-26">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-27">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-28">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-29">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-30">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-31">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-32">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-33">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-34">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-35">
+            <feGaussianBlur stdDeviation="7" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+    </defs>
+    <g id="Illustraion-no-issues" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="illustration" transform="translate(6.000000, 4.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="mask">
+                <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-1"></use>
+                <use fill="#D8D8D8" fill-rule="evenodd" xlink:href="#path-1"></use>
+            </g>
+            <rect id="background-sky-copy" fill="url(#linearGradient-4)" mask="url(#mask-2)" x="-1386" y="-220" width="3000" height="740"></rect>
+            <g id="planet-copy" mask="url(#mask-2)">
+                <g transform="translate(141.000000, 157.000000)">
+                    <ellipse id="Oval-4" fill-opacity="0.849999964" fill="url(#linearGradient-5)" transform="translate(75.605256, 75.605256) rotate(6.000000) translate(-75.605256, -75.605256) " cx="75.6052556" cy="75.6052556" rx="68.4845133" ry="68.4845133"></ellipse>
+                    <circle id="Oval-5" fill-opacity="0.3" fill="#9B9B9B" cx="52.449115" cy="35.0774336" r="3.00663717"></circle>
+                    <circle id="Oval-5-Copy" fill-opacity="0.3" fill="#9B9B9B" cx="98.2168142" cy="37.4159292" r="4.67699115"></circle>
+                    <ellipse id="Oval-5-Copy-2" fill-opacity="0.3" fill="#9B9B9B" cx="59.130531" cy="41.7588496" rx="3.67477876" ry="3.67477876"></ellipse>
+                    <ellipse id="Oval-5-Copy-3" fill-opacity="0.3" fill="#9B9B9B" cx="112.247788" cy="49.4424779" rx="2.67256637" ry="2.67256637"></ellipse>
+                    <ellipse id="Oval-5-Copy-5" fill-opacity="0.3" fill="#9B9B9B" cx="77.170354" cy="19.0420354" rx="1.67035398" ry="1.67035398"></ellipse>
+                    <circle id="Oval-5-Copy-6" fill-opacity="0.3" fill="#9B9B9B" cx="126.612832" cy="38.4181416" r="1.67035398"></circle>
+                    <ellipse id="Oval-5-Copy-7" fill-opacity="0.3" fill="#9B9B9B" cx="137.303097" cy="65.8119469" rx="1.67035398" ry="1.67035398"></ellipse>
+                    <ellipse id="Oval-5-Copy-4" fill-opacity="0.3" fill="#9B9B9B" cx="40.0884956" cy="48.1061947" rx="4.00884956" ry="4.00884956"></ellipse>
+                </g>
+            </g>
+            <g id="stars-sky-copy" mask="url(#mask-2)" fill="#FFFFFF" opacity="0.45">
+                <g transform="translate(-1233.000000, 12.000000)">
+                    <circle id="Oval" cx="1431" cy="80.9" r="3.3"></circle>
+                    <circle id="Oval-Copy-34" cx="1325.3" cy="62.3" r="3.3"></circle>
+                    <circle id="Oval-Copy-35" cx="1323.6" cy="118.6" r="1.6"></circle>
+                    <circle id="Oval" cx="1465" cy="130.5" r="1.6"></circle>
+                    <circle id="Oval" cx="1524" cy="151.5" r="3.3"></circle>
+                    <circle id="Oval" cx="1257.4" cy="145" r="1.6"></circle>
+                    <circle id="Oval" cx="1537.2" cy="103.4" r="1.6"></circle>
+                    <circle id="Oval" cx="1537.3" cy="47.8" r="3.3"></circle>
+                    <circle id="Oval" cx="1416.2" cy="24.9" r="3.3"></circle>
+                    <circle id="Oval" cx="1382.6" cy="53.2" r="1.6"></circle>
+                    <circle id="Oval" cx="1460.3" cy="71.7" r="1.6"></circle>
+                    <circle id="Oval" cx="1416.2" cy="180.9" r="1.6"></circle>
+                    <circle id="Oval" cx="1490.6" cy="41.4" r="1.6"></circle>
+                    <circle id="Oval" cx="1275.6" cy="86.5" r="1.6"></circle>
+                    <circle id="Oval" cx="1414.6" cy="122.6" r="1.6"></circle>
+                </g>
+            </g>
+            <g id="Andromeda-constellation" opacity="0.504096477" mask="url(#mask-2)">
+                <g transform="translate(-37.000000, 9.000000)">
+                    <g id="star01" stroke="none" fill-rule="evenodd" transform="translate(80.815788, 89.846047)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-6)" cx="4.24452666" cy="4.2380211" rx="4.24452666" ry="4.2380211"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-7)" cx="4.24452666" cy="4.2380211" rx="4.24452666" ry="4.2380211"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="4.24452666" cy="4.2380211" rx="4.24452666" ry="4.2380211"></ellipse>
+                    </g>
+                    <g id="star02" stroke="none" fill-rule="evenodd" transform="translate(98.473018, 64.078879)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-8)" cx="3.22584026" cy="3.22089604" rx="3.22584026" ry="3.22089604"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-9)" cx="3.22584026" cy="3.22089604" rx="3.22584026" ry="3.22089604"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="3.22584026" cy="3.22089604" rx="3.22584026" ry="3.22089604"></ellipse>
+                    </g>
+                    <g id="star03" stroke="none" fill-rule="evenodd" transform="translate(64.516805, 7.458917)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-10)" cx="2.20715386" cy="2.20377097" rx="2.20715386" ry="2.20377097"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-11)" cx="2.20715386" cy="2.20377097" rx="2.20715386" ry="2.20377097"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.20715386" cy="2.20377097" rx="2.20715386" ry="2.20377097"></ellipse>
+                    </g>
+                    <g id="star03-copy" stroke="none" fill-rule="evenodd" transform="translate(179.967930, 11.527417)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-12)" cx="2.20715386" cy="2.20377097" rx="2.20715386" ry="2.20377097"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-13)" cx="2.20715386" cy="2.20377097" rx="2.20715386" ry="2.20377097"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.20715386" cy="2.20377097" rx="2.20715386" ry="2.20377097"></ellipse>
+                    </g>
+                    <g id="star04" stroke="none" fill-rule="evenodd" transform="translate(100.170829, 41.024044)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-14)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-15)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                    </g>
+                    <g id="star05" stroke="none" fill-rule="evenodd" transform="translate(29.541906, 2.373292)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-16)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-17)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                    </g>
+                    <g id="star05-copy" stroke="none" fill-rule="evenodd" transform="translate(197.964723, 17.630168)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-18)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-19)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                    </g>
+                    <g id="star06" stroke="none" fill-rule="evenodd" transform="translate(34.635338, 59.332295)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-20)" cx="3.05605919" cy="3.05137519" rx="3.05605919" ry="3.05137519"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-21)" cx="3.05605919" cy="3.05137519" rx="3.05605919" ry="3.05137519"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="3.05605919" cy="3.05137519" rx="3.05605919" ry="3.05137519"></ellipse>
+                    </g>
+                    <g id="star07" stroke="none" fill-rule="evenodd" transform="translate(144.653468, 90.185089)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-22)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-23)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                    </g>
+                    <g id="star07-copy-2" stroke="none" fill-rule="evenodd" transform="translate(210.188960, 0.000000)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-24)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-25)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                    </g>
+                    <g id="star07-copy" stroke="none" fill-rule="evenodd" transform="translate(142.276534, 152.907801)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-26)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-27)" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.54671599" cy="2.54281266" rx="2.54671599" ry="2.54281266"></ellipse>
+                    </g>
+                    <g id="star08" stroke="none" fill-rule="evenodd" transform="translate(142.276534, 114.935132)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-28)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-29)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                    </g>
+                    <g id="star08-copy" stroke="none" fill-rule="evenodd" transform="translate(129.373172, 169.859886)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-30)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-31)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                    </g>
+                    <g id="star08-copy-2" stroke="none" fill-rule="evenodd" transform="translate(198.983410, 124.428300)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-32)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-33)" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="2.71649706" cy="2.71233351" rx="2.71649706" ry="2.71233351"></ellipse>
+                    </g>
+                    <g id="star09" stroke="none" fill-rule="evenodd" transform="translate(159.933764, 53.229545)">
+                        <ellipse id="Oval-Copy-33" fill="#FFFFFF" filter="url(#filter-34)" cx="3.22584026" cy="3.22089604" rx="3.22584026" ry="3.22089604"></ellipse>
+                        <ellipse id="Oval-Copy-32" fill="#FFFFFF" filter="url(#filter-35)" cx="3.22584026" cy="3.22089604" rx="3.22584026" ry="3.22089604"></ellipse>
+                        <ellipse id="Oval-Copy-31" fill="#FFFFFF" cx="3.22584026" cy="3.22089604" rx="3.22584026" ry="3.22089604"></ellipse>
+                    </g>
+                    <path d="M85.7394385,95.1011936 L143.804563,117.816987" id="Shape-Copy" stroke="#FFFFFF"></path>
+                    <path d="M38.2007399,62.2141498 L85.0603142,93.7450268" id="Shape-Copy-14" stroke="#FFFFFF"></path>
+                    <path d="M67.4030833,9.66268812 L102.717545,43.2278153" id="Shape-Copy-18" stroke="#FFFFFF"></path>
+                    <path d="M3.56540239,57.4675662 L37.5216156,62.5531915" id="Shape-Copy-15" stroke="#FFFFFF"></path>
+                    <path d="M144.483687,156.128697 L144.483687,119.173153" id="Shape-Copy-2" stroke="#FFFFFF"></path>
+                    <path d="M132.47482,171.735683 L145.116812,156.010931" id="Shape-Copy-20" stroke="#FFFFFF"></path>
+                    <path d="M146.52106,118.156028 L200.851001,126.971112" id="Shape-Copy-3" stroke="#FFFFFF"></path>
+                    <path d="M183.193771,14.4092718 L200.511439,20.5120221" id="Shape-Copy-7" stroke="#FFFFFF"></path>
+                    <path d="M201.869688,19.1558554 L212.735676,3.89897942" id="Shape-Copy-8" stroke="#FFFFFF"></path>
+                    <path d="M145.502374,117.816987 L147.200184,93.7450268" id="Shape-Copy-4" stroke="#FFFFFF"></path>
+                    <path d="M85.7394385,93.7450268 L101.359297,68.3169002" id="Shape-Copy-16" stroke="#FFFFFF"></path>
+                    <path d="M102.377983,66.6216917 L102.377983,44.583982" id="Shape-Copy-17" stroke="#FFFFFF"></path>
+                    <path d="M32.7677458,5.25514617 L65.0261484,9.66268812" id="Shape-Copy-19" stroke="#FFFFFF"></path>
+                    <path d="M147.879309,92.0498184 L163.159605,58.4846912" id="Shape-Copy-5" stroke="#FFFFFF"></path>
+                    <path d="M163.499167,56.1113994 L200.511439,20.8510638" id="Shape-Copy-6" stroke="#FFFFFF"></path>
+                </g>
+            </g>
+            <g id="server-copy" mask="url(#mask-2)">
+                <g transform="translate(176.000000, 204.000000)">
+                    <g id="Group" stroke-width="1" fill="none" transform="translate(0.930047, 0.000000)">
+                        <path d="M54.949166,96.98625 C54.949166,96.98625 54.949166,96.8475 54.949166,96.98625 C54.949166,96.43125 54.1207867,96.015 53.0162808,96.015 C51.911775,96.015 51.0833956,96.43125 51.0833956,96.8475 L51.0833956,98.09625 C51.0833956,98.5125 51.911775,98.92875 53.0162808,98.92875 C54.1207867,98.92875 54.949166,98.5125 54.949166,98.09625 C54.949166,98.09625 54.949166,98.09625 54.949166,97.9575 L54.949166,96.98625 L54.949166,96.98625 Z" id="Shape" fill="#333333"></path>
+                        <path d="M72.4831964,92.54625 C72.4831964,92.54625 72.4831964,92.4075 72.4831964,92.54625 C72.4831964,91.8525 71.654817,91.43625 70.6883744,91.43625 C69.5838686,91.43625 68.7554892,91.8525 68.7554892,92.4075 L68.7554892,93.795 C68.7554892,94.35 69.5838686,94.76625 70.6883744,94.76625 C71.654817,94.76625 72.6212596,94.35 72.6212596,93.795 L72.6212596,93.65625 L72.6212596,92.54625 L72.4831964,92.54625 L72.4831964,92.54625 L72.4831964,92.54625 Z" id="Shape" fill="#333333"></path>
+                        <path d="M9.11217326,95.46 C9.11217326,95.32125 9.11217326,95.32125 9.11217326,95.46 C9.11217326,94.905 8.28379388,94.48875 7.17928803,94.48875 C6.07478218,94.48875 5.24640279,94.905 5.24640279,95.32125 L5.24640279,96.57 C5.24640279,96.98625 6.07478218,97.4025 7.17928803,97.4025 C8.28379388,97.4025 9.11217326,96.98625 9.11217326,96.57 C9.11217326,96.57 9.11217326,96.57 9.11217326,96.43125 L9.11217326,95.46 L9.11217326,95.46 Z" id="Shape" fill="#333333"></path>
+                        <path d="M2.89932786,16.51125 C2.89932786,16.51125 1.24256908,16.9275 1.51869554,20.535 C1.51869554,24.28125 0.552252925,92.9625 0.552252925,92.9625 C0.552252925,92.9625 0.552252925,95.59875 2.89932786,96.015 C5.93671894,96.15375 57.296241,97.68 57.296241,97.68 L57.296241,0 L2.89932786,16.51125 L2.89932786,16.51125 Z" id="Shape" fill="#4D4D4D"></path>
+                        <polygon id="Shape" fill="#333333" points="57.296241 0 57.296241 97.81875 73.449639 92.9625 73.449639 18.17625"></polygon>
+                        <path d="M0.552252925,86.71875 L57.4343042,86.99625 L57.4343042,97.68 L3.03739109,96.015 C2.89932786,96.15375 -1.24256908,95.87625 0.552252925,86.71875 L0.552252925,86.71875 Z" id="Shape" fill="#1A1A1A"></path>
+                    </g>
+                    <ellipse id="Oval" fill="#8BC53F" cx="54.0843913" cy="7.35375" rx="1.24256908" ry="1.665"></ellipse>
+                    <ellipse id="Oval" fill="#F6921E" cx="54.0843913" cy="16.9275" rx="1.24256908" ry="1.665"></ellipse>
+                    <ellipse id="Oval" fill="#EE4036" cx="54.0843913" cy="26.50125" rx="1.24256908" ry="1.665"></ellipse>
+                    <g id="Group" opacity="0.25" stroke-width="1" fill="none" transform="translate(13.180234, 26.362500)">
+                        <path d="M20.8849888,0.97125 C16.3289022,1.24875 12.4631317,3.6075 9.28767737,7.77 C6.25028628,11.9325 4.73159074,16.78875 4.73159074,22.4775 L0.0374408763,22.755 C0.175504108,28.5825 1.83226288,33.43875 5.14578043,37.32375 C8.45929798,41.20875 12.3250685,43.0125 17.0192183,42.735 C21.575305,42.4575 25.4410754,40.09875 28.6165297,35.93625 C31.6539208,31.77375 33.1726164,26.9175 33.1726164,21.22875 L37.8667662,20.95125 C37.728703,15.12375 36.0719442,10.2675 32.7584267,6.3825 C29.4449091,2.4975 25.5791387,0.69375 20.8849888,0.97125 L20.8849888,0.97125 Z M28.4784665,12.21 C30.4113518,14.43 31.3777944,17.34375 31.6539208,20.8125 L26.959771,21.09 C26.959771,24.83625 26.1313916,27.88875 24.1985063,30.525 C22.2656211,33.16125 19.7804829,34.54875 16.8811551,34.82625 C13.9818272,34.965 11.4966891,33.855 9.4257406,31.49625 C7.49285536,29.27625 6.52641275,26.3625 6.25028628,22.89375 L10.9444361,22.61625 C10.9444361,18.87 11.7728155,15.8175 13.7057008,13.18125 C15.638586,10.545 18.1237242,9.1575 21.023052,8.88 C23.9223799,8.74125 26.407518,9.85125 28.4784665,12.21 L28.4784665,12.21 Z" id="Shape" fill="#FFFFFF"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

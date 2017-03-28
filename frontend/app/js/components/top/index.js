@@ -87,15 +87,15 @@ const Top = React.createClass({
               >
             <CommandSearch/>
           </div>
-          <Restricted perm="project.get">
+          <Restricted perm="plugin.catalog">
             <a
-                ref="projects"
-                onClick={() => props.toggleMenu('projects')}
-                className={`item ${(props.menu == 'projects' || section == 'project') ? "active" : ""}`}
-                data-content={i18n("Projects")}
+                ref="plugins"
+                onClick={() => goto("/settings/plugins")}
+                className={`item ${(props.menu == 'plugins' || section == 'plugins') ? "active" : ""}`}
+                data-content={i18n("Plugins")}
                 data-position="bottom center"
                 >
-              <i className="browser icon"/>
+              <img className="ui icon" src={icon_plugin}/>
             </a>
           </Restricted>
           <Restricted perm="issues.view">
@@ -141,13 +141,13 @@ const Top = React.createClass({
           </Restricted>
           <Restricted perm="project.get">
             <a
-                ref="plugins"
-                onClick={() => goto("/settings/plugins")}
-                className={`item ${(props.menu == 'plugins' || section == 'plugins') ? "active" : ""}`}
-                data-content={i18n("Plugins")}
+                ref="projects"
+                onClick={() => props.toggleMenu('projects')}
+                className={`item ${(props.menu == 'projects' || section == 'project') ? "active" : ""}`}
+                data-content={i18n("Projects")}
                 data-position="bottom center"
                 >
-              <img className="ui icon" src={icon_plugin}/>
+              <i className="browser icon"/>
             </a>
           </Restricted>
           <a
