@@ -58,7 +58,7 @@ function RealBottomMenu(props){
       <div className="right menu">
         <div className="item">
           <ActionMenu service={props.service} actions={props.actions} onDetach={props.onDetach}>
-            {i18n("Menu")}
+            {i18n("Options")}
           </ActionMenu>
         </div>
       </div>
