@@ -26,7 +26,7 @@ export function services_update_all(){
 export function service_update(uuid, data){
   return function(dispatch){
     rpc.call("service.update", [uuid, data]).then(() => {
-      Flash.info("Service updated")
+      Flash.success("Service updated")
     })
   }
 }
@@ -34,7 +34,7 @@ export function service_update(uuid, data){
 export function service_attach(serverboard_shortname, service_uuid){
   return function(dispatch){
     rpc.call("service.attach",[serverboard_shortname, service_uuid]).then(function(){
-      Flash.info("Added service to serverboard")
+      Flash.success("Added service to serverboard")
     })
   }
 }
@@ -42,7 +42,7 @@ export function service_attach(serverboard_shortname, service_uuid){
 export function service_detach(serverboard_shortname, service_uuid){
   return function(dispatch){
     rpc.call("service.detach",[serverboard_shortname, service_uuid]).then(function(){
-      Flash.info("Detached service from serverboard")
+      Flash.success("Detached service from serverboard")
     })
   }
 }
@@ -52,7 +52,7 @@ export function service_add(sbds, service){
     rpc.call("service.create", service).then(function(service_uuid){
       if (sbds){
         rpc.call("service.attach",[sbds, service_uuid]).then(function(){
-          Flash.info("Added service and attached to serverboard")
+          Flash.success("Added service and attached to serverboard")
         })
       }
       else{
