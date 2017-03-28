@@ -101,29 +101,31 @@ const Plugins=React.createClass({
       <div>
         <div className="ui top secondary header menu">
           <h3 className="ui header">{i18n("Plugins")}</h3>
-          <div className="right menu">
-            <div className="item">
-              <div className="ui form">
-                <div className="inline fields" style={{marginBottom: 0}}>
-                  <div className="field">
-                    <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder={i18n("Enter plugin git repository URL")}/>
-                  </div>
-                  <div className="field">
-                    <button className="ui button yellow" onClick={this.handleInstallPlugin}>{i18n("Install")}</button>
-                  </div>
+          <div className="item">
+            <div className="ui form">
+              <div className="inline fields" style={{marginBottom: 0}}>
+                <div className="field">
+                  <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder={i18n("Enter plugin git repository URL")}/>
+                </div>
+                <div className="field">
+                  <button className="ui button yellow" onClick={this.handleInstallPlugin}>{i18n("Install")}</button>
                 </div>
               </div>
             </div>
-            <a
-                className="item with icon"
-                href="https://serverboards.io/downloads/plugins/"
-                target="_blank"
-                data-tooltip={i18n("View full plugin list")}
-                data-position="bottom right"
-                >
-              <i className="ui icon browser"/>
-              <div>{i18n("Plugin list")}</div>
-            </a>
+          </div>
+          <div className="right menu">
+            <div className="item">
+              <a
+                  className="ui teal medium button"
+                  href="https://serverboards.io/downloads/plugins/"
+                  target="_blank"
+                  data-tooltip={i18n("View the full plugin list at https://serverboards.io")}
+                  data-position="bottom right"
+                  style={{fontSize: 14}}
+                  >
+                {i18n("Get Plugins")}
+              </a>
+            </div>
           </div>
         </div>
 
