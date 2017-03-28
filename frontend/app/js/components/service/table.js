@@ -46,7 +46,7 @@ const ServiceTableLine = React.createClass({
         </td>
         <td>
           <ActionMenu service={props.service} actions={props.actions}>
-            {i18n("More")}
+            {i18n("Options")}
           </ActionMenu>
         </td>
       </tr>
