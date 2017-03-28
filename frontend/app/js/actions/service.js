@@ -1,5 +1,6 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import i18n from 'app/utils/i18n'
 
 export function services_update_catalog(){
   return function(dispatch){
@@ -26,23 +27,23 @@ export function services_update_all(){
 export function service_update(uuid, data){
   return function(dispatch){
     rpc.call("service.update", [uuid, data]).then(() => {
-      Flash.success("Service updated")
+      Flash.success(i18n("*{name}* updated", {name: data.name}))
     })
   }
 }
 
-export function service_attach(serverboard_shortname, service_uuid){
+export function service_attach(project_shortname, service_uuid){
   return function(dispatch){
-    rpc.call("service.attach",[serverboard_shortname, service_uuid]).then(function(){
-      Flash.success("Added service to serverboard")
+    rpc.call("service.attach",[project_shortname, service_uuid]).then(function(){
+      Flash.success(i18n("Service attached to project"))
     })
   }
 }
 
-export function service_detach(serverboard_shortname, service_uuid){
+export function service_detach(project_shortname, service_uuid){
   return function(dispatch){
-    rpc.call("service.detach",[serverboard_shortname, service_uuid]).then(function(){
-      Flash.success("Detached service from serverboard")
+    rpc.call("service.detach",[project_shortname, service_uuid]).then(function(){
+      Flash.success(i18n("Service detached from project"))
     })
   }
 }
@@ -52,11 +53,11 @@ export function service_add(sbds, service){
     rpc.call("service.create", service).then(function(service_uuid){
       if (sbds){
         rpc.call("service.attach",[sbds, service_uuid]).then(function(){
-          Flash.success("Added service and attached to serverboard")
+          Flash.success(i18n("Added service and attached to project"))
         })
       }
       else{
-        Flash.warning("Added DETACHED service")
+        Flash.warning(i18n("Added DETACHED service"))
       }
     })
   }

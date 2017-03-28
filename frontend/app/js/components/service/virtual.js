@@ -39,7 +39,7 @@ const VirtualServices=React.createClass({
     const traits=dedup(services.reduce( (acc, s) => acc.concat(s.traits), [] ))
     if (!this.props.screens && traits!=this.state.traits){
       this.setState({traits})
-      rpc.call("plugin.components.catalog", {type: "screen", traits: traits}).then( (screens) => {
+      rpc.call("plugin.component.catalog", {type: "screen", traits: traits}).then( (screens) => {
 
         screens = screens.map( s => ({
           id: s.id,

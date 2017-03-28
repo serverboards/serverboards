@@ -4,7 +4,7 @@ import GenericForm from '../genericform'
 import { setup_fields, service_definition } from '../service/utils'
 import Loading from '../loading'
 import rpc from 'app/rpc'
-import { merge } from 'app/utils'
+import { merge, to_map, to_list } from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
 const RuleList = React.createClass({
@@ -129,7 +129,7 @@ const SetupComponent=React.createClass({
     let filter = { traits: this.props.service.traits, type: "rule template" }
     console.log(filter)
     Promise.all([
-      rpc.call("plugin.components.catalog", filter),
+      rpc.call("plugin.component.catalog", filter),
       rpc.call("rules.list", { service: this.props.service.uuid })
     ]).then( ([templates, rules]) => {
       templates = templates.map( t => ({
@@ -142,7 +142,7 @@ const SetupComponent=React.createClass({
           trigger: t.extra.trigger.trigger,
           params: t.extra.trigger.params
         },
-        actions: to_map(to_list(extra.actions).map( kv => {
+        actions: to_map(to_list(t.extra.actions).map( kv => {
           const k=kv[0]
           const v=kv[1]
           return [k, { params: v.params, action: v.action }]

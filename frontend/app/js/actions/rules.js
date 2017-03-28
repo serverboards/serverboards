@@ -1,5 +1,6 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import i18n from 'app/utils/i18n'
 
 export function update_trigger_catalog(filter={}){
   return function(dispatch){
@@ -26,7 +27,7 @@ export function rules_list_clean(){
 export function rules_save(rule){
   return function(dispatch){
     rpc.call("rules.update", rule).then(() => {
-      Flash.success("Updated rule "+rule.name)
+      Flash.success(i18n("Rule *{rule}* updated", {rule: rule.name}))
     })
   }
 }
