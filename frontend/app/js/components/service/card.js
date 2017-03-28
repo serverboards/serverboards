@@ -180,7 +180,7 @@ const Card=React.createClass({
     let props=this.props.service
     return (
       <div className="service card">
-        <div className="extra content">
+        <div className="extra content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           <div className="labels">
             {(props.tags || []).map( (l) => (
               <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
@@ -197,12 +197,18 @@ const Card=React.createClass({
             )}
           </div>
           <div className="header">{props.name}</div>
-          <div className="description" style={{display:"inline-block"}}><MarkdownPreview value={i18n(props.description) || ""}/></div>
-          <div style={{clear:"both"}}>
+          <div className="description">
+            {props.description ? (
+              <MarkdownPreview value={i18n(props.description)}/>
+            ) : (
+              <span className="ui text meta italic">{i18n("No description yet")}</span>
+            )}
+          </div>
+        </div>
+        <div className="extra content config" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
           ) : [])}
-          </div>
         </div>
         <div className="extra content" ref="menu">
           {props.is_virtual ? (
