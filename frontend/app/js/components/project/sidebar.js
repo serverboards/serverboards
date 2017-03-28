@@ -72,10 +72,11 @@ const SidebarSections = React.createClass({
   render(){
     const props=this.props
     let self=this
+    const section = props.section || "dashboard"
     function MenuItem(menu_props){
       let klass="item"
       let current=[]
-      if (menu_props.section==props.section){
+      if (menu_props.section==section){
         klass+=" active"
         current=(
           <i className="icon angle right floating right"/>
