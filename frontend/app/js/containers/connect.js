@@ -46,7 +46,7 @@ import Loading from 'app/components/loading'
  *            Props elements to watch, if any changes, update the component data
  *            store and resubscribe.
  *   loading(state, props)
- *            Returns a string to show in a loagind component or false if all
+ *            Returns a string to show in a loading component or false if all
  *            data ready. Doing it here prevents downstream component to get
  *            undefined states
  *
