@@ -40,5 +40,8 @@ defmodule Serverboards.Issues do
         )
      |> Enum.map(&decorate_issues_list/1)
   end
+  def list(%{}) do
+    list()
+  end
 
 end
