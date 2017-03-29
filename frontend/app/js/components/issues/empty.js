@@ -7,7 +7,7 @@ const img3 = require('app/../imgs/015-right-nocontent-issues.png')
 
 function Column({h1, t1, h2, t2, img}){
   return (
-    <div className="column">
+    <div className="ui column">
       <h2 className="ui header">{h1}</h2>
       <h3 className="ui grey header">{h2}</h3>
       <div>
@@ -25,7 +25,7 @@ function Column({h1, t1, h2, t2, img}){
 
 function Empty(props){
   return (
-    <div className="ui container centered">
+    <div className="ui nocontent container centered">
       <h1 className="ui centered grey huge header">{i18n("Improve your projects using \"issues\"")}</h1>
       <div className="ui grid three columns" style={{marginTop: 40}}>
 

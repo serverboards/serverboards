@@ -25,7 +25,7 @@ function Column({h1, t1, h2, t2, img}){
 
 function Empty(props){
   return (
-    <div className="ui container centered">
+    <div className="ui nocontent container centered">
       <h1 className="ui centered grey huge header">{i18n("Automate process and create connections between services.")}</h1>
       <div className="ui grid three columns" style={{marginTop: 40}}>
 
