@@ -192,7 +192,8 @@ defmodule Serverboards.Plugin.Registry do
         description: plugin.description,
         url: plugin.url,
         status: plugin.status,
-        components: components
+        components: components,
+        extra: plugin.extra
         })
     end)
   end

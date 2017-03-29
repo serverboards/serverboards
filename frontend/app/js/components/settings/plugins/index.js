@@ -41,7 +41,6 @@ const Plugins=React.createClass({
       else
         return pl
     })
-    console.log("Require update: %o", plugins)
     this.setState({plugins})
   },
   handleSetActive(plugin_id, is_active){

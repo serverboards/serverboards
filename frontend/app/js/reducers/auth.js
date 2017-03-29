@@ -8,6 +8,7 @@ const default_state={
   groups: undefined,
   all_perms: undefined,
   lang: "en",
+  lang_counter: 0,
   avatar: default_avatar
 }
 
@@ -61,6 +62,7 @@ export const auth = (state = default_state , action) => {
       break;
     case 'AUTH_SET_LANG':
       state.lang=action.lang
+      state.lang_counter+=1
       require("moment").locale(action.lang)
       break;
     case '@RPC_EVENT/group.user_added':

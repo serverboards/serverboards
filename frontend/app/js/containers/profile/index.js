@@ -8,7 +8,7 @@ import connect from 'app/containers/connect'
 var Profile=connect({
   state: (state) => ({
     user: state.auth.user,
-    lang: state.auth.lang,
+    lang_counter: state.auth.lang_counter,
     avatar: state.auth.avatar
   }),
   handlers: (dispatch) => ({
