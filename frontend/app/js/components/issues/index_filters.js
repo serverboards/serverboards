@@ -45,11 +45,12 @@ const Filters = React.createClass({
   },
   render(){
     const props = this.props
+    const current_project = (props.filter.filter( f => f.startsWith("project:") ).map( f => f.slice(8) )  || [""])[0]
     return (
       <div className="" ref="el">
         <div className="ui search">
           <div className="ui icon input">
-            <input className="prompt" type="text" placeholder={i18n("Search...")} value={props.filter}/>
+            <input className="prompt" type="text" placeholder={i18n("Search...")} value={props.filter.join(" ")}/>
             <i className="search icon"></i>
           </div>
           <div className="results"></div>
@@ -89,7 +90,7 @@ const Filters = React.createClass({
             <div className="field">
               <h4 className="ui grey header">{i18n("At project")}</h4>
               <div className="ui divider"/>
-              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder={i18n("All projects")}>
+              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder={i18n("All projects")} defaultValue={current_project}>
                 <option value="none">{i18n("All projects")}</option>
                 {sorted_projects(props.projects).map((s) => (
                   <option key={s.shortname} value={s.shortname}>{s.name}</option>

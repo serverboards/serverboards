@@ -86,7 +86,7 @@ function Issues(props){
     return (
       <Loading>Issues</Loading>
     )
-  const issues_by_day = group_by_day(props.show_issues)
+  const issues_by_day = group_by_day(props.issues_show)
   return (
     <div className="ui central area white background" style={{flexDirection:"column"}} id="issues">
       <div className="ui top secondary menu" style={{paddingBottom: 0}}>
@@ -109,28 +109,26 @@ function Issues(props){
           </a>
         </div>
       </div>
-        {props.all_count == 0 ? (
+      <div className="ui row container">
+        {(props.issues.length == 0) ? (
           <Empty/>
-        ) : (
-          <div className="ui row container">
-            {issues_by_day.length == 0 ? (
-              <div className="ui centered text">
-                <img src={noissues} alt=""/>
-                <h2>{i18n("There are no issues to show.")}</h2>
-                <div className="ui grey text">{i18n("Try different filters to look beyond...")}</div>
-              </div>
-            ) : (
-              <div className="issues">
-                {issues_by_day.map( ([date, issues]) => (
-                  <IssueDay key={date} label={date} issues={issues}/>
-                ))}
-              </div>
-          )}
-          <div className="filters">
-            <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
+        ) : ( issues_by_day.length == 0 ) ? (
+          <div className="ui centered text">
+            <img src={noissues} alt=""/>
+            <h2>{i18n("There are no issues to show.")}</h2>
+            <div className="ui grey text">{i18n("Try different filters to look beyond...")}</div>
           </div>
+        ) : (
+          <div className="issues">
+            {issues_by_day.map( ([date, issues]) => (
+              <IssueDay key={date} label={date} issues={issues}/>
+            ))}
+          </div>
+        )}
+        <div className="filters">
+          <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
         </div>
-      )}
+      </div>
       <Restricted perm="issues.create">
         <a onClick={() => goto("/issues/add",{project:props.project})} className="ui massive button _add icon floating yellow">
           <i className="add icon"></i>
