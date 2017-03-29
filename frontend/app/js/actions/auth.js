@@ -2,6 +2,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import event from 'app/utils/event'
 import {i18n, i18n_nop} from 'app/utils/i18n'
+import { set_lang } from './i18n'
 
 export function logout(){
   return {
@@ -173,20 +174,6 @@ export function user_settings_set_language(lang){
     rpc.call("settings.user.set", ["language", {lang}]).then( () => {
       Flash.info(i18n("Set language to {lang}", {lang: i18n( LANG_LIST[lang] )}))
       set_lang(lang)(dispatch)
-    })
-  }
-}
-
-export function set_lang(lang){
-  return function(dispatch){
-    let full_url = `/lang/${lang}.json`
-    i18n.load(full_url, {clean: true}).then( () => {
-      console.log("Updated translations, force React update. %o", require("app/app").root)
-      dispatch({type: "AUTH_SET_LANG", lang})
-    }).catch( (e) => {
-      console.log("Using default translations.")
-      i18n.update( {}, {clean: true})
-      dispatch({type: "AUTH_SET_LANG", lang})
     })
   }
 }

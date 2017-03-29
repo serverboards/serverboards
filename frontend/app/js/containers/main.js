@@ -10,7 +10,7 @@ var Main=connect(
     return {
       logged_in: state.auth.logged_in,
       location: state.routing.locationBeforeTransitions,
-      lang: state.auth.lang
+      lang_counter: state.auth.lang_counter
     }
   },
   (dispatch) => {

@@ -74,7 +74,7 @@ defmodule Serverboards.Plugin.Parser do
 
       components: components,
 
-      extra: Map.drop(dict, ~w(id name description author version components))
+      extra: Map.drop(dict, ~w(id name description author version url components))
     }
   end
 

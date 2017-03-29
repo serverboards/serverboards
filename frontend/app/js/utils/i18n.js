@@ -81,7 +81,16 @@ export function update(newtrans, options={clean: false}){
   trans = merge(trans, newtrans)
 }
 
-export function load(url, options){
+export function load(options){
+  let url
+  if (options.plugin){
+    url = `/static/${options.plugin}/lang/${options.lang}.json`
+    if (localStorage.servername)
+      url=`${localStorage.servername}${url}`
+  }
+  else{
+    url = `/lang/${options.lang}.json`
+  }
   return new Promise( (accept, reject) => {
     $.get(url, (tr) => {
       update(tr, options)
