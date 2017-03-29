@@ -81,6 +81,17 @@ export function update(newtrans, options={clean: false}){
   trans = merge(trans, newtrans)
 }
 
+export function load(url, options){
+  return new Promise( (accept, reject) => {
+    $.get(url, (tr) => {
+      update(tr, options)
+      accept(tr)
+    },'json').fail((e) =>
+      reject(e)
+    )
+  })
+}
+
 /**
  * @short Do nothing, returns the same text
  *
@@ -106,8 +117,9 @@ export { unknown, trans }
 
 i18n.unknown=unknown
 i18n.i18n_nop=i18n_nop
-i18n.update=update
 i18n.i18n_c=i18n_c
+i18n.update=update
+i18n.load=load
 i18n.trans=() => trans
 
 export default i18n
