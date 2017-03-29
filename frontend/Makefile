@@ -37,7 +37,7 @@ clean:
 
 i18n-update:
 	@echo -n "Updating po files..."
-	../cli/serverboards-i18n-update.py lang/es.po app ../plugins/
+	../cli/serverboards-i18n-update.sh lang/es.po app ../plugins/
 	@echo " Done"
 
 i18n-compile:

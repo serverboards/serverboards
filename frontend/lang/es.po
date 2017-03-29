@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-14 12:47+0100\n"
-"PO-Revision-Date: 2017-03-14 12:47+0100\n"
+"POT-Creation-Date: 2017-03-29 18:10+0200\n"
+"PO-Revision-Date: 2017-03-29 18:11+0200\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,22 +19,26 @@ msgstr ""
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107 app/js/components/top/index.js:105
+#: app/js/components/issues/index.js:93
+#: app/js/components/project/sidebar.js:108 app/js/components/top/index.js:106
+#: app/js/containers/issues/index.js:83
 msgid "Issues"
 msgstr "Incidencias"
 
-#: app/js/components/issues/index.js:95
+#: app/js/components/issues/index.js:95 app/js/components/issues/index.js:98
 msgid "Open"
 msgstr "Abiertas"
 
-#: app/js/components/issues/index.js:100
+#: app/js/components/issues/index.js:100 app/js/components/issues/index.js:103
 msgid "Closed"
 msgstr "Cerradas"
 
-#: app/js/components/issues/index.js:105
+#: app/js/components/issues/index.js:105 app/js/components/issues/index.js:108
 msgid "All"
 msgstr "Todas"
 
 #: app/js/components/issues/index_filters.js:52
+#: app/js/components/issues/index_filters.js:53
 msgid "Search..."
 msgstr "Buscar..."
 
@@ -52,15 +56,19 @@ msgid "Show closed"
 msgstr "Mostrar cerradas"
 
 #: app/js/components/issues/index_filters.js:76
+#: app/js/components/issues/index_filters.js:78
 msgid "Filter by labels"
 msgstr "Filtrar por etiquetas"
 
 #: app/js/components/issues/index_filters.js:88
+#: app/js/components/issues/index_filters.js:91
 msgid "At project"
 msgstr "En el projecto"
 
 #: app/js/components/issues/index_filters.js:90
 #: app/js/components/issues/index_filters.js:91
+#: app/js/components/issues/index_filters.js:93
+#: app/js/components/issues/index_filters.js:94
 msgid "All projects"
 msgstr "Todos los projectos"
 
@@ -73,14 +81,16 @@ msgid "removed an alias"
 msgstr "eliminado un alias"
 
 #: app/js/components/issues/add.js:16 app/js/components/issues/add.js:29
+#: app/js/components/issues/add.js:17 app/js/components/issues/add.js:30
 msgid "Add Issue"
 msgstr "Añadir incidencia"
 
-#: app/js/components/issues/add.js:21
+#: app/js/components/issues/add.js:21 app/js/components/issues/add.js:22
 msgid "Title"
 msgstr "Título"
 
 #: app/js/components/issues/add.js:22 app/js/components/issues/add.js:26
+#: app/js/components/issues/add.js:23 app/js/components/issues/add.js:27
 msgid "Short issue description"
 msgstr "Resumen de la incidencia"
 
@@ -91,7 +101,8 @@ msgstr "Resumen de la incidencia"
 #: app/js/components/service/details/detailstab.js:21
 #: app/js/components/service/details/detailstab.js:36
 #: app/js/components/service/table.js:65 app/js/components/rules/edit.js:171
-#: app/js/components/service/settings.js:197
+#: app/js/components/service/settings.js:197 app/js/components/issues/add.js:26
+#: app/js/components/rules/edit.js:170 app/js/components/service/table.js:69
 msgid "Description"
 msgstr "Descripción"
 
@@ -172,6 +183,7 @@ msgid "Project information"
 msgstr "Información del proyecto"
 
 #: app/js/components/project/board/widget.js:23
+#: app/js/components/project/board/widget.js:24
 msgid "Not at current project, cant load full data."
 msgstr ""
 "No se encuentra actualmente en un proyecto. No se pueden cargar los datos "
@@ -199,10 +211,12 @@ msgstr "Eliminar"
 
 #: app/js/components/project/board/edit_widget.js:60
 #: app/js/components/flashmessages.js:17
+#: app/js/components/project/board/edit_widget.js:61
 msgid "Error"
 msgstr "Error"
 
 #: app/js/components/project/board/edit_widget.js:68
+#: app/js/components/project/board/edit_widget.js:69
 msgid "Update widget"
 msgstr "Actualizar Widget"
 
@@ -229,6 +243,7 @@ msgstr "Añadir un nuevo servicio"
 
 #: app/js/components/project/services.js:57
 #: app/js/components/project/sidebar.js:105
+#: app/js/components/project/sidebar.js:106
 msgid "Services"
 msgstr "Servicios"
 
@@ -237,15 +252,18 @@ msgid "Add a service"
 msgstr "Añadir un servicio"
 
 #: app/js/components/project/sidebar.js:14 app/js/components/top/index.js:94
+#: app/js/components/top/index.js:147
 msgid "Projects"
 msgstr "Proyectos"
 
 #: app/js/components/project/sidebar.js:104
+#: app/js/components/project/sidebar.js:105
 msgid "Dashboard"
 msgstr "Dashboard"
 
 #: app/js/components/project/sidebar.js:106 app/js/components/rules/index.js:46
-#: app/js/components/rules/rules.js:52
+#: app/js/components/rules/rules.js:52 app/js/components/project/sidebar.js:107
+#: app/js/components/rules/rules.js:53
 msgid "Rules"
 msgstr "Reglas"
 
@@ -254,6 +272,7 @@ msgstr "Reglas"
 #: app/js/components/service/actionmenu.js:54
 #: app/js/components/service/details/index.js:117
 #: app/js/components/top/usermenu.js:15
+#: app/js/components/project/sidebar.js:118
 msgid "Settings"
 msgstr "Configuración"
 
@@ -262,7 +281,7 @@ msgid "Accept"
 msgstr "Aceptar"
 
 #: app/js/components/project/setupservice.js:44
-#: app/js/components/rules/edit.js:146
+#: app/js/components/rules/edit.js:146 app/js/components/rules/edit.js:145
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -510,6 +529,7 @@ msgstr "Grupos y permisos"
 
 #: app/js/components/settings/index.js:48
 #: app/js/components/settings/plugins/index.js:103
+#: app/js/components/top/index.js:95
 msgid "Plugins"
 msgstr "Plugins"
 
@@ -1029,11 +1049,13 @@ msgstr "Configuración base"
 #: app/js/components/settings/plugins/card.js:37
 #: app/js/components/settings/plugins/details.js:75
 #: app/js/components/settings/plugins/card.js:42
+#: app/js/components/settings/plugins/card.js:44
 msgid "by"
 msgstr "por"
 
 #: app/js/components/settings/plugins/card.js:38
 #: app/js/components/settings/plugins/card.js:43
+#: app/js/components/settings/plugins/card.js:45
 msgid "version"
 msgstr "versión"
 
@@ -1124,6 +1146,7 @@ msgstr "Mantén pulsado para activar"
 #: app/js/components/service/settings.js:169
 #: app/js/components/service/table.js:65 app/js/components/rules/edit.js:167
 #: app/js/components/service/settings.js:187
+#: app/js/components/rules/edit.js:166 app/js/components/service/table.js:69
 msgid "Name"
 msgstr "Nombre"
 
@@ -1136,6 +1159,7 @@ msgid "Is active?"
 msgstr "¿Está activo?"
 
 #: app/js/components/settings/plugins/index.js:112
+#: app/js/components/settings/plugins/index.js:111
 msgid "Install"
 msgstr "Instalar"
 
@@ -1185,6 +1209,7 @@ msgid "Plugin from {plugin_url} installed and ready."
 msgstr "Plugin de {plugin_url} instalado listo para ser usado."
 
 #: app/js/components/settings/plugins/index.js:109
+#: app/js/components/settings/plugins/index.js:108
 msgid "Enter plugin git repository URL"
 msgstr "Introduzca la URL del repositorio git"
 
@@ -1199,11 +1224,12 @@ msgstr "Añadir usuario"
 #: app/js/components/settings/plugins/card.js:10
 #: app/js/components/rules/edit.js:151
 #: app/js/components/profile/notifications.js:43
+#: app/js/components/rules/edit.js:150
 msgid "Disabled"
 msgstr "Desactivado"
 
 #: app/js/components/settings/plugins/card.js:11
-#: app/js/components/rules/edit.js:151
+#: app/js/components/rules/edit.js:151 app/js/components/rules/edit.js:150
 msgid "Enabled"
 msgstr "Activo"
 
@@ -1212,6 +1238,7 @@ msgid "Broken"
 msgstr "Roto"
 
 #: app/js/components/settings/plugins/card.js:50
+#: app/js/components/settings/plugins/card.js:52
 msgid "View details"
 msgstr "Ver detalles"
 
@@ -1322,45 +1349,48 @@ msgstr "Aún no hay descripción"
 msgid "Config Details"
 msgstr "Detalles de configuración"
 
-#: app/js/components/service/table.js:65
+#: app/js/components/service/table.js:65 app/js/components/service/table.js:69
 msgid "Type"
 msgstr "Tipo"
 
 #: app/js/components/service/table.js:65
 #: app/js/components/processes/index.js:43
 #: app/js/components/processes/index.js:44
+#: app/js/components/service/table.js:69
 msgid "Status"
 msgstr "Estado"
 
 #: app/js/components/service/table.js:65 app/js/components/top/index.js:135
+#: app/js/components/top/index.js:136 app/js/components/service/table.js:69
 msgid "Actions"
 msgstr "Acciones"
 
-#: app/js/components/rules/rules.js:56
+#: app/js/components/rules/rules.js:56 app/js/components/rules/rules.js:57
 msgid "Filter by trigger type"
 msgstr "Filtrar por tipo de disparador"
 
-#: app/js/components/rules/rules.js:58
+#: app/js/components/rules/rules.js:58 app/js/components/rules/rules.js:59
 msgid "Show all"
 msgstr "Mostrar todos"
 
-#: app/js/components/rules/rule.js:80
+#: app/js/components/rules/rule.js:80 app/js/components/rules/rule.js:81
 msgid "Pending trigger"
 msgstr "Disparador pendiente"
 
-#: app/js/components/rules/rule.js:82
+#: app/js/components/rules/rule.js:82 app/js/components/rules/rule.js:83
 msgid "OFF"
 msgstr "OFF"
 
 #: app/js/components/rules/rule.js:92 app/js/components/rules/edit.js:183
+#: app/js/components/rules/rule.js:94 app/js/components/rules/edit.js:182
 msgid "Trigger"
 msgstr "Disparador"
 
-#: app/js/components/rules/rule.js:97
+#: app/js/components/rules/rule.js:97 app/js/components/rules/rule.js:99
 msgid "No actions defined"
 msgstr "No hay acciones definidas"
 
-#: app/js/components/rules/rule.js:110
+#: app/js/components/rules/rule.js:110 app/js/components/rules/rule.js:112
 msgid "Edit rule"
 msgstr "Editar regla"
 
@@ -1379,14 +1409,15 @@ msgid "Do nothing"
 msgstr "No hacer nada"
 
 #: app/js/components/rules/triggerselect.js:38
+#: app/js/components/rules/triggerselect.js:42
 msgid "Select trigger"
 msgstr "Seleccione disparador"
 
-#: app/js/components/rules/edit.js:175
+#: app/js/components/rules/edit.js:175 app/js/components/rules/edit.js:174
 msgid "Service"
 msgstr "Servicio"
 
-#: app/js/components/rules/edit.js:201
+#: app/js/components/rules/edit.js:201 app/js/components/rules/edit.js:205
 msgid "Save changes"
 msgstr "Guardar cambios"
 
@@ -1691,42 +1722,46 @@ msgid "SUN"
 msgstr "DO"
 
 #: app/js/utils/index.js:167 app/js/utils/index.js:173
+#: app/js/utils/index.js:178
 msgid "today"
 msgstr "hoy"
 
 #: app/js/utils/index.js:168 app/js/utils/index.js:174
+#: app/js/utils/index.js:179
 msgid "now"
 msgstr "ahora"
 
-#: app/js/utils/index.js:148
+#: app/js/utils/index.js:148 app/js/utils/index.js:153
 msgid "millisecond"
 msgstr "milisegundo"
 
-#: app/js/utils/index.js:149
+#: app/js/utils/index.js:149 app/js/utils/index.js:154
 msgid "second"
 msgstr "segundo"
 
-#: app/js/utils/index.js:150
+#: app/js/utils/index.js:150 app/js/utils/index.js:155
 msgid "minute"
 msgstr "minuto"
 
-#: app/js/utils/index.js:151
+#: app/js/utils/index.js:151 app/js/utils/index.js:156
 msgid "hour"
 msgstr "hora"
 
-#: app/js/utils/index.js:152
+#: app/js/utils/index.js:152 app/js/utils/index.js:157
 msgid "day"
 msgstr "día"
 
-#: app/js/utils/index.js:191
+#: app/js/utils/index.js:191 app/js/utils/index.js:196
 msgid "{units} {timeunit} ago"
 msgstr "hace {units} {timeunit}"
 
 #: app/js/components/top/processesmenu.js:22
+#: app/js/components/top/processesmenu.js:53
 msgid "No active processes"
 msgstr "No hay procesos activos"
 
 #: app/js/components/top/processesmenu.js:27
+#: app/js/components/top/processesmenu.js:58
 msgid "View process history"
 msgstr "Ver historial de procesos"
 
@@ -1743,6 +1778,7 @@ msgid "Logout"
 msgstr "Logout"
 
 #: app/js/components/top/notificationsmenu.js:19
+#: app/js/components/top/notificationsmenu.js:24
 msgid "View all"
 msgstr "Ver todos"
 
@@ -1763,6 +1799,7 @@ msgid "Body"
 msgstr "Cuerpo del mensaje"
 
 #: app/js/components/notifications/list.js:33
+#: app/js/components/notifications/notification.js:42
 msgid "Notifications"
 msgstr "Notificaciones"
 
@@ -1787,58 +1824,60 @@ msgid "Notification"
 msgstr "Notificación"
 
 #: app/js/components/notifications/notification.js:45
+#: app/js/components/notifications/notification.js:46
 msgid "Last message"
 msgstr "Último mensaje"
 
 #: app/js/components/notifications/notification.js:50
+#: app/js/components/notifications/notification.js:51
 msgid "Next message"
 msgstr "Próximo mensaje"
 
-#: app/js/utils/index.js:202
+#: app/js/utils/index.js:202 app/js/utils/index.js:207
 msgid "January"
 msgstr "Enero"
 
-#: app/js/utils/index.js:203
+#: app/js/utils/index.js:203 app/js/utils/index.js:208
 msgid "February"
 msgstr "Febrero"
 
-#: app/js/utils/index.js:204
+#: app/js/utils/index.js:204 app/js/utils/index.js:209
 msgid "March"
 msgstr "Marzo"
 
-#: app/js/utils/index.js:205
+#: app/js/utils/index.js:205 app/js/utils/index.js:210
 msgid "April"
 msgstr "Abril"
 
-#: app/js/utils/index.js:206
+#: app/js/utils/index.js:206 app/js/utils/index.js:211
 msgid "May"
 msgstr "Mayo"
 
-#: app/js/utils/index.js:207
+#: app/js/utils/index.js:207 app/js/utils/index.js:212
 msgid "June"
 msgstr "Junio"
 
-#: app/js/utils/index.js:208
+#: app/js/utils/index.js:208 app/js/utils/index.js:213
 msgid "July"
 msgstr "Julio"
 
-#: app/js/utils/index.js:209
+#: app/js/utils/index.js:209 app/js/utils/index.js:214
 msgid "August"
 msgstr "Agosto"
 
-#: app/js/utils/index.js:210
+#: app/js/utils/index.js:210 app/js/utils/index.js:215
 msgid "September"
 msgstr "Septiembre"
 
-#: app/js/utils/index.js:211
+#: app/js/utils/index.js:211 app/js/utils/index.js:216
 msgid "October"
 msgstr "Octubre"
 
-#: app/js/utils/index.js:212
+#: app/js/utils/index.js:212 app/js/utils/index.js:217
 msgid "November"
 msgstr "Noviembre"
 
-#: app/js/utils/index.js:213
+#: app/js/utils/index.js:213 app/js/utils/index.js:218
 msgid "December"
 msgstr "Diciembre"
 
@@ -1885,18 +1924,21 @@ msgstr "Historial de procesos"
 #: app/js/components/processes/index.js:40
 #: app/js/components/processes/process.js:40 app/js/components/logs/index.js:78
 #: app/js/components/logs/index.js:187
+#: app/js/components/processes/process.js:42
 msgid "Date"
 msgstr "Fecha"
 
 #: app/js/components/processes/index.js:40
 #: app/js/components/processes/index.js:41
 #: app/js/components/processes/process.js:43
+#: app/js/components/processes/process.js:45
 msgid "Elapsed"
 msgstr "Transcurrido"
 
 #: app/js/components/processes/index.js:42
 #: app/js/components/processes/index.js:43
 #: app/js/components/processes/process.js:41
+#: app/js/components/processes/process.js:43
 msgid "User"
 msgstr "Usuario"
 
@@ -1910,14 +1952,17 @@ msgid "ok"
 msgstr "ok"
 
 #: app/js/components/processes/process.js:46
+#: app/js/components/processes/process.js:48
 msgid "Related rule"
 msgstr "Regla relacionada"
 
 #: app/js/components/processes/process.js:57
+#: app/js/components/processes/process.js:59
 msgid "Action params"
 msgstr "Parámetros de la acción"
 
 #: app/js/components/processes/process.js:62
+#: app/js/components/processes/process.js:64
 msgid "Action result"
 msgstr "Resultado de la acción"
 
@@ -2135,10 +2180,491 @@ msgstr "Aviso"
 msgid "Add project"
 msgstr "Añadir proyecto"
 
-#: app/js/components/top/index.js:84
+#: app/js/components/top/index.js:84 app/js/components/top/index.js:85
 msgid "Commands and search"
 msgstr "Comandos y búsqueda"
 
-#: app/js/components/top/index.js:145
+#: app/js/components/top/index.js:145 app/js/components/top/index.js:157
 msgid "Profile and more..."
 msgstr "Perfíl de usuario y más..."
+
+#: app/js/components/issues/index.js:118
+msgid "There are no issues to show."
+msgstr "No hay incidencias que mostar"
+
+#: app/js/components/issues/index.js:119
+msgid "Try different filters to look beyond..."
+msgstr "Prueba filtros diferentes para ver mas allá..."
+
+#: app/js/components/issues/details.js:183
+msgid "{name} created this issue {date}"
+msgstr "{name} creó este issue {date}"
+
+#: app/js/components/issues/empty.js:17
+#: app/js/components/project/board/empty.js:17
+#: app/js/components/dashboard.js:19 app/js/components/rules/empty.js:17
+#: app/js/components/service/empty.js:17
+msgid "TIP"
+msgstr "TIP"
+
+#: app/js/components/issues/empty.js:29
+msgid "Improve your projects using \"issues\""
+msgstr ""
+
+#: app/js/components/issues/empty.js:33
+msgid "Create issues for problems or tasks"
+msgstr ""
+
+#: app/js/components/issues/empty.js:34
+msgid "Timelines for issues"
+msgstr ""
+
+#: app/js/components/issues/empty.js:35
+msgid ""
+"An issue is a work unit created to make an improvement. Normally issues are "
+"used to record errors and can be used to manage the failure fix, but also "
+"can be used as a work task."
+msgstr ""
+
+#: app/js/components/issues/empty.js:36
+msgid ""
+"With issues you can assign a task with a releated project, aiding with the "
+"organization. Each issue can be followed in a timeline. But also each issue "
+"has its own page with details and comments to facilitate the colaboration "
+"and an improved issue management."
+msgstr ""
+
+#: app/js/components/issues/empty.js:41
+msgid "Manual or autoamtic issues"
+msgstr ""
+
+#: app/js/components/issues/empty.js:42
+msgid "Rules can create and close issues"
+msgstr ""
+
+#: app/js/components/issues/empty.js:43
+msgid ""
+"Isses can be open manyally to better manage your project needs, but to ease "
+"your jobs they can also be created or closed using automatic rules."
+msgstr ""
+
+#: app/js/components/issues/empty.js:44
+msgid ""
+"To be able to close or open automatic issues you must create rules. Just "
+"select the trigger and the action to open or close the issue depending on "
+"your case. If one issue has related rules they will be properly linked from "
+"the issue details for quick access and modification."
+msgstr ""
+
+#: app/js/components/issues/empty.js:49
+msgid "Filter by state, tags or project"
+msgstr ""
+
+#: app/js/components/issues/empty.js:50
+msgid "Find quickly any issue"
+msgstr ""
+
+#: app/js/components/issues/empty.js:51
+msgid ""
+"Given the great ammount of issues that can acummulate in short time, to be "
+"able to find your issue you can do it by state, project or even tags. Tags "
+"are used to state the main idea of each issue."
+msgstr ""
+
+#: app/js/components/issues/empty.js:52
+msgid ""
+"Set the tags for the issues from the issues details page. When creating a "
+"new issue its possible to mark te tags to ease the process from a listing, "
+"so you dont need to create it again each time."
+msgstr ""
+
+#: app/js/components/settings/plugins/index.js:122
+msgid "View the full plugin list at https://serverboards.io"
+msgstr ""
+
+#: app/js/components/settings/plugins/index.js:126
+msgid "Get Plugins"
+msgstr ""
+
+#: app/js/components/project/board/widget.js:104
+msgid "Error loading widget"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:29
+msgid "Start adding Widgets into your project's Dashboard"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:33
+msgid "Add widgets to this Dashboard"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:34
+#: app/js/components/dashboard.js:59
+msgid "One dashboard per project"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:35
+msgid ""
+"Dashboards are the control panels for your projects. The visible area for "
+"the connections to your Cloud Apps and Servers. Use the + button to add new "
+"widgets."
+msgstr ""
+
+#: app/js/components/project/board/empty.js:36
+msgid ""
+"Widgets in the Dashboards are directly related with the plugins you already "
+"installed. We suggest to create new projects depending on the objectives of "
+"your project. If you want to manage servers, create a specific project, and "
+"do te same to manage the actions related a specific client."
+msgstr ""
+
+#: app/js/components/project/board/empty.js:41
+msgid "Position where you want"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:42
+msgid "Freedom of movement"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:43
+msgid ""
+"Widgets can be moved and positioned anywhere you want in the Dashboard. "
+"Manage your widgets your way to have always visible your most used widgets."
+msgstr ""
+
+#: app/js/components/project/board/empty.js:44
+msgid ""
+"Widgets can be positioned with the criteria of graphs on one side, and tools "
+"on another, o as you want. You are free to organize your own way. Select the "
+"Widget title and keep the mouse pressed to move it, and release it where you "
+"want it."
+msgstr ""
+
+#: app/js/components/project/board/empty.js:49
+msgid "Change the size"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:50
+msgid "Contents adapt to the size"
+msgstr ""
+
+#: app/js/components/project/board/empty.js:51
+msgid ""
+"There will be Widgets that will need more space to show all the information, "
+"and others that only require a minimal size. No problem you choose the size "
+"of each."
+msgstr ""
+
+#: app/js/components/project/board/empty.js:52
+msgid ""
+"There is a minimal size for all Widgets, and the content always adapts if "
+"you cahgne the size. Sometimes if you make a Widget bigger you will see more "
+"options and some content that may otherwise be hidden."
+msgstr ""
+
+#: app/js/components/dashboard.js:30
+msgid "This is how Serverboards works."
+msgstr ""
+
+#: app/js/components/dashboard.js:34
+msgid "Start by creating a project"
+msgstr ""
+
+#: app/js/components/dashboard.js:35
+msgid "The always present \"+\""
+msgstr ""
+
+#: app/js/components/dashboard.js:36
+msgid ""
+"At each screen where it is possible to add an element you will see a big "
+"yellow round button with a \"+\". Use this button now to create a new "
+"project and start using Serverboards."
+msgstr ""
+
+#: app/js/components/dashboard.js:37
+msgid ""
+"With this button you always add something to the current section. For "
+"example in the Dashboards you will add Widgets, and in the Service list new "
+"Servers or Cloud Apps to your project."
+msgstr ""
+
+#: app/js/components/dashboard.js:42
+msgid "Add Servers and Cloud Apps"
+msgstr ""
+
+#: app/js/components/dashboard.js:43
+msgid "Setup and use based on clicks"
+msgstr ""
+
+#: app/js/components/dashboard.js:44
+msgid ""
+"For each project you can add as man Cloud Apps and services as you need, and "
+"all click based using only the UI."
+msgstr ""
+
+#: app/js/components/dashboard.js:45
+msgid ""
+"For each Cloud App and Service you add we will tell you when the "
+"subscription expires with enought time. To use this functionallity you need "
+"the \"Expirations\" plugin available at the plugin store."
+msgstr ""
+
+#: app/js/components/dashboard.js:50
+msgid "Install the plugins you need"
+msgstr ""
+
+#: app/js/components/dashboard.js:51
+msgid "12 plugins available and growing"
+msgstr ""
+
+#: app/js/components/dashboard.js:52
+msgid ""
+"Plugins are the core of Serverboards. By this plugins you can monitorize "
+"activities or create new possibilities of use by creating connections "
+"between your Cloud Apps."
+msgstr ""
+
+#: app/js/components/dashboard.js:53
+msgid "Combine plugins for each project to achieve your specific goals."
+msgstr ""
+
+#: app/js/components/dashboard.js:58
+msgid "Add widgets to your Dashboards"
+msgstr ""
+
+#: app/js/components/dashboard.js:60
+msgid ""
+"Dashboards are the control panel for your projects, the visible side of you "
+"Cloud Apps and Servers. Use the \"+\" button in the Dashboard to add the "
+"Widgets available from your plugins."
+msgstr ""
+
+#: app/js/components/dashboard.js:61
+msgid ""
+"Widgets at Dashboards are provided by your installed plugins. We recommend "
+"crete diferent projects depending on the diferent goals. Create a project to "
+"manage servers, other to manage engagement on social networks and so on."
+msgstr ""
+
+#: app/js/components/rules/empty.js:29
+msgid "Automate process and create connections between services."
+msgstr ""
+
+#: app/js/components/rules/empty.js:33
+msgid "There rule IF > THEN style"
+msgstr ""
+
+#: app/js/components/rules/empty.js:34
+msgid "Create rules connecting your services"
+msgstr ""
+
+#: app/js/components/rules/empty.js:35
+msgid ""
+"Create as many rules as actions you want to automatize, from generete "
+"automatic backups at a set time, start anew server when the traffic reaches "
+"a threeshold limit, or get a Telegram notification when a client uploads a "
+"document to Google Drive."
+msgstr ""
+
+#: app/js/components/rules/empty.js:36
+msgid ""
+"In each project you can create as many rules as you want. To ease searc f "
+"rules use the provided filters."
+msgstr ""
+
+#: app/js/components/rules/empty.js:41
+msgid "Greater productivity and control"
+msgstr ""
+
+#: app/js/components/rules/empty.js:42
+msgid "Automate the most common processes"
+msgstr ""
+
+#: app/js/components/rules/empty.js:43
+msgid ""
+"The most important quality of the rules is to help you on your daily job, by "
+"easing the automation of your most common process."
+msgstr ""
+
+#: app/js/components/rules/empty.js:44
+msgid ""
+"To improve your workflow you can not only automate usual process, but also "
+"open and close issues for out of the ordinary situations."
+msgstr ""
+
+#: app/js/components/rules/empty.js:49
+msgid "Multiple connections to do more"
+msgstr ""
+
+#: app/js/components/rules/empty.js:50
+msgid "The limit is your imagination"
+msgstr ""
+
+#: app/js/components/rules/empty.js:51
+msgid ""
+"Using the same service and trigger you can perform several actions. "
+"Combining the service with other you achieve goals with each rule. Compine a "
+"trigger with a service for a goal, and with another for a related action."
+msgstr ""
+
+#: app/js/components/rules/empty.js:52
+msgid ""
+"If you want to automate for example to redo a backup, and open an issue when "
+"a backup fails, create two diferent rule, each for each action. For example "
+"Backup + Repeat and Backup + Open/Close Issue."
+msgstr ""
+
+#: app/js/components/top/notificationsmenu.js:20
+msgid "No new messages."
+msgstr ""
+
+#: app/js/components/service/virtual.js:82
+msgid ""
+"Error loading virtual services\n"
+"\n"
+"Please check it is correctly configured."
+msgstr ""
+
+#: app/js/components/service/card.js:61 app/js/components/service/table.js:53
+msgid "Options"
+msgstr ""
+
+#: app/js/components/service/card.js:207
+msgid "No description yet"
+msgstr ""
+
+#: app/js/components/service/empty.js:29
+msgid "Servers and Cloud Apps is Serverboards Secret Sauce"
+msgstr ""
+
+#: app/js/components/service/empty.js:33
+msgid "Add your Servers and Cloud Apps"
+msgstr ""
+
+#: app/js/components/service/empty.js:34
+msgid "Third party integrations, no limits"
+msgstr ""
+
+#: app/js/components/service/empty.js:35
+msgid ""
+"Add as many servers and cloud apps as you need to each of your projects. "
+"Manage, monitorize and even interconnect them by creating rules. To add do "
+"it clicking on the + button on the bottom corner of this screen."
+msgstr ""
+
+#: app/js/components/service/empty.js:36
+msgid ""
+"For each project you can add new Servers and Cloud Apps, that will be only "
+"present on this project, or select one of the already existing services to "
+"access to it from diferent projects."
+msgstr ""
+
+#: app/js/components/service/empty.js:41
+msgid "Access management tools"
+msgstr ""
+
+#: app/js/components/service/empty.js:42
+msgid "Not only monitoring, also management"
+msgstr ""
+
+#: app/js/components/service/empty.js:43
+msgid ""
+"When adding services (Servers and Cloud Apps) to your projects, you can not "
+"only monitorize them, but also manage. At each service you can also execute "
+"quick actions, as running remote commands."
+msgstr ""
+
+#: app/js/components/service/empty.js:44
+msgid ""
+"At the service details you can also access to specific tools for each "
+"service, where you can fine grain manage and access your services."
+msgstr ""
+
+#: app/js/components/service/empty.js:49
+msgid "We tell when they expire"
+msgstr ""
+
+#: app/js/components/service/empty.js:50
+msgid "Never forget important dates"
+msgstr ""
+
+#: app/js/components/service/empty.js:51
+msgid ""
+"To ease service renovation, even if they are Domain Names or SSL "
+"certificates, each service can be monitored for expirations."
+msgstr ""
+
+#: app/js/components/service/empty.js:52
+msgid ""
+"To have all services expiration monitored, you need to install the free "
+"\"Expirations\" plugin."
+msgstr ""
+
+#: app/js/components/service/details/detailstab.js:37
+msgid "Not provided"
+msgstr ""
+
+#: app/js/actions/service.js:30
+msgid "*{name}* updated"
+msgstr ""
+
+#: app/js/actions/service.js:38
+msgid "Service attached to project"
+msgstr ""
+
+#: app/js/actions/service.js:46
+msgid "Service detached from project"
+msgstr ""
+
+#: app/js/actions/service.js:56
+msgid "Added service and attached to project"
+msgstr ""
+
+#: app/js/actions/service.js:60
+msgid "Added DETACHED service"
+msgstr ""
+
+#: app/js/actions/rules.js:30
+msgid "Rule *{rule}* updated"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Remote command"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "If a remote command fails, it executes an action."
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH Service"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"Check every given time for the expression.\n"
+"Time can use time modifiers as 1m, 30s, 1h...\n"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Check period"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid ""
+"Shell script to execute on the remote server.\n"
+"\n"
+"If this script returns an error code, it goes to the nok status.\n"
+msgstr ""
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Shell Script"
+msgstr ""
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Web Site"
+msgstr ""
+
+#: ../plugins/core-services/manifest.yaml
+msgid "A web URL to be monitored."
+msgstr ""

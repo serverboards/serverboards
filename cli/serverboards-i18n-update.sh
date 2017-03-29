@@ -22,8 +22,8 @@ GTFILES=""
 YAMLFILES=""
 set +e
 for d in $*; do
-  GTFILES="$GTFILES $( find $d -name "*.js" -o -name "*.html" | grep -Ev "(test|min)" )"
-  YAMLFILES="$YAMLFILES $( find $d -name "*.yaml" | grep -Ev "(test|min)" )"
+  GTFILES="$GTFILES $( find $d -name "*.js" -o -name "*.html" | grep -Ev "(test|min|node_modules|^\.|^__)" )"
+  YAMLFILES="$YAMLFILES $( find $d -name "*.yaml" | grep -Ev "(test|min|node_modules|^\.|^__)" )"
 done
 set -e
 
