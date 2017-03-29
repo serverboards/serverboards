@@ -1,4 +1,4 @@
-import {pretty_ago} from 'app/utils'
+import {pretty_ago, object_is_equal} from 'app/utils'
 import assert from 'assert'
 
 describe("Pretty print", () => {
@@ -27,5 +27,11 @@ describe("Pretty print", () => {
     assert.equal(pretty_ago("2016-12-26T00:00:00", now, "second"), "2 days ago")
     assert.equal(pretty_ago("2016-12-25T23:59:59", now, "second"), "3 days ago")
 
+  })
+
+  it("Should be able to know if objects are equal", () => {
+    assert.ok( object_is_equal({}, {}), '{}, {}' )
+    assert.ok( !object_is_equal({alias:"1234"}, {}), "{alias:'1234'}, {}" )
+    assert.ok( !object_is_equal({}, {alias:"1234"}), "{}, {alias:'1234'}" )
   })
 })

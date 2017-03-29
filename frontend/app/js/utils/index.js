@@ -132,6 +132,11 @@ export function object_is_equal(a,b){
       break;
     }
   }
+  // Now check also all props of b are in a
+  for(let k in b){
+    if (!a.hasOwnProperty(k))
+      return false
+  }
   return true
 }
 
