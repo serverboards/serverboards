@@ -8,5 +8,7 @@ test:
 	@echo
 	@echo "HTML at htmlcov/ directory"
 
-install: serverboards-cli.py serverboards-i18n-compile.sh serverboards-i18n-update.sh
-	cp $^ $DESTDIR/bin/
+install: DESTDIR=../rel/serverboards/bin/
+install: serverboards-cli.py serverboards-i18n-compile.py serverboards-i18n-update.sh serverboards-i18n-update--extract-manifest-yaml-po.py
+	mkdir -p ${DESTDIR}
+	cp $^ ${DESTDIR} -a

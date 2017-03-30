@@ -86,7 +86,7 @@ prepare-release: compile-frontend compile-backend
 	rm rel/serverboards/share/serverboards/plugins/.git -rf
 
 	#cp -a serverboards.sh rel/serverboards/
-	cp cli/serverboards.py rel/serverboards/bin/serverboards-cli -a
+	cd cli; make install
 
 INSTALL=$(DESTDIR)$(prefix)
 install: prepare-release
