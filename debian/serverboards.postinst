@@ -32,7 +32,7 @@ case "$1" in
     chmod 0700 $INSTALL/.ssh
     [ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
 
-    if [ "$( grep PASSWD /etc/serverboards.ini) "]; then
+    if [ "$( grep PASSWD /etc/serverboards.ini)" ]; then
       echo "Configuring database with random password"
       PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )
       sudo -u postgres psql << EOF

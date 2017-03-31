@@ -60,7 +60,7 @@ defmodule Serverboards.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:mom, "~> 0.4"},
+      {:mom, in_umbrella: true},
       {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 2.1"},
