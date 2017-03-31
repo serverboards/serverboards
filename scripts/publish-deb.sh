@@ -31,7 +31,7 @@ EOF
 
     # configured as explained at https://www.digitalocean.com/community/tutorials/how-to-use-reprepro-for-a-secure-package-repository-on-ubuntu-14-04
 
-    reprepro -b $REPOPATH includedeb stable serveboards.deb
+    reprepro -b $REPOPATH includedeb stable serverboards.deb
     if [ ! -e "$REPOPATH/dists/stable/Release.gpg" ]; then
             echo "No GPG signed. Aborting upload"
             exit 1
