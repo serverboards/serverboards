@@ -32,6 +32,18 @@ case "$1" in
     chmod 0700 $INSTALL/.ssh
     [ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
 
+    if [ "$( grep PASSWD /etc/serverboards.ini) "]; then
+      echo "Configuring database with random password"
+      PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )
+      sudo -u postgres psql << EOF
+CREATE DATABASE serverboards;
+CREATE USER serverboards WITH PASSWORD '$PASSWD';
+GRANT ALL ON DATABASE serverboards TO serverboards;
+EOF
+    sudo -u postgres psql serverboards < $INSTALL/share/serverboards/backend/initial.sql
+    sed -i s/PASSWD/$PASSWD/ /etc/serverboards.ini
+    fi
+
     if [ "$( systemctl is-active serverboards )" = "active" ]; then
       systemctl restart serverboards
     fi
