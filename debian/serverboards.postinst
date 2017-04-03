@@ -34,7 +34,7 @@ case "$1" in
 
     if [ "$( grep PASSWD /etc/serverboards.ini)" ]; then
       echo "Configuring database with random password"
-      PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32} )
+      PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32 )
       sudo -u postgres psql << EOF
 CREATE DATABASE serverboards;
 CREATE USER serverboards WITH PASSWORD '$PASSWD';
