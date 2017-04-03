@@ -104,4 +104,4 @@ install: prepare-release
 deb:
 	scripts/version-update.sh
 	fakeroot dpkg-buildpackage
-	mv ../serverboards_*.deb serverboards.deb
+	cp ../serverboards_$(shell head -1 debian/changelog  | sed "s/.*(\\(.*\\)).*/\\1/g")_amd64.deb serverboards.deb
