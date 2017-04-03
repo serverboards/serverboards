@@ -29,7 +29,7 @@ defmodule Serverboards.IO.HTTP do
     {:ok, res} = :cowboy.start_http(
       :http,
       100,
-      [{:port, port}],
+      [port: port, ip: {127,0,0,1}],
       [
         {:env, [{:dispatch, dispatch}]},
         # Some fallbacks

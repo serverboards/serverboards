@@ -99,6 +99,8 @@ install: prepare-release
 	mkdir -p $(INSTALL)/../etc/sudoers.d/
 	cp etc/serverboards.sudoers $(INSTALL)/../etc/sudoers.d/serverboards
 	chmod 0440 $(INSTALL)/../etc/sudoers.d/serverboards
+	mkdir -p $(INSTALL)/../etc/nginx/sites-available/
+	cp etc/nginx.conf $(INSTALL)/../etc/nginx/sites-available/serverboards.conf
 
 
 deb:
