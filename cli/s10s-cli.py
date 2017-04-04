@@ -461,10 +461,15 @@ if __name__=='__main__':  # pragma: no cover
             help='file to be parsed')
         parser.add_argument('--command', type=str,
             help='Executes this command as a JSON-PC endpoint. To ease plugin debugging.')
+        parser.add_argument('--one-line-help', action='store_true',
+            help='Shows brief description.')
 
         args = parser.parse_args()
 
         client=None
+        if args.one_line_help:
+            print("Command Line Interpreter for commands and core connection")
+            sys.exit(0)
         if args.command:
             print("Run external command %s"%args.command)
             cmdstream=CmdStream(args.command)

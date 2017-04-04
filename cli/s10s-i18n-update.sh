@@ -2,6 +2,12 @@
 
 set -e
 
+if [ "$1" == "--one-line-help" ]; then
+  echo "Updates .po translation files from the source files"
+  exit 0
+fi
+
+
 if [ ! "$1" ]; then
   echo "Update Serverboard translations."
   echo

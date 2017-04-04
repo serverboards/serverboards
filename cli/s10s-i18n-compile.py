@@ -2,6 +2,10 @@
 
 import sys, json
 
+if len(sys.argv)==2 and sys.argv[1]=="--one-line-help":
+    print("Compile i18n .po translation files to .json")
+    sys.exit(0)
+    
 if len(sys.argv)!=3:
     print(""" compile-po <input pofile> <output json>
 
