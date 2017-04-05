@@ -27,7 +27,7 @@ function update_version_frontend(){
 function update_version_debian(){
 	if [ ! "$( grep "$2" debian/changelog )" ]; then
 		cat - debian/changelog > debian/changelog.bak <<EOF
-serverboards ($( echo $2 | sed "s/rc/~rc/g" )) unstable; urgency=medium
+serverboards ($2) unstable; urgency=medium
 
 $( git log --pretty=format:'  * %s' --abbrev-commit v$1..HEAD  | grep -v WIP | grep -v Merge )
 
@@ -45,9 +45,9 @@ function update_versions(){
 	if [ "$PREV_VERSION" == "$VERSION" ]; then
 		echo "Nothing to update"
 	else
-		update_version_backend $VERSION
+		update_version_backend $( echo $VERSION | sed "s/rc/.0+rc/g" )
 		update_version_frontend $VERSION
-		update_version_debian $PREV_VERSION $VERSION
+		update_version_debian $PREV_VERSION $( echo $VERSION | sed "s/rc/~rc/g" )
 		echo "Updated version: $PREV_VERSION -> $VERSION"
 	fi
 }
