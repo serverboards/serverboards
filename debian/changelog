@@ -1,3 +1,168 @@
+serverboards (17.04~rc1) unstable; urgency=medium
+
+  * Added gzip compression by default on initial nginx.conf
+  * Added s10s executable link to /usr/bin
+  * Renamed serverboards CLI to s10s. Use subcommands.
+  * Updated installation instructions. Removed old .sh files.
+  * Hide psql stdout at postinst.
+  * HTTP only listen localhost. Updated nginx config. Install nginx.
+  * Fixes to debian postinstall password generation
+  * Copy only generated serverboards_VERSION_amd64.deb as release
+  * Revert commit: Fix use proper elixir-mom, not in umbrella
+  * Fixes to initial .deb file database creation
+  * Improved publish deb script to allow publish to apt repo
+  * Fix install of new style cli tools
+  * Plugin can set i18n to load
+  * Added support for loading more translations.
+  * Small fixes to avoid node_modules and hidden files
+  * Moved i18n update/compile logic to cli.
+  * Event on returns an id (fn) that can be used for off
+  * Removed old issues container logic
+  * Refactored issues, now properly using Redux
+  * Fix object_is_equal on b has more keys than a
+  * Typo corrections at function description
+  * Improved empty images, max size column size
+  * Allow filter issues with empty filter
+  * Fix #116 and #137. Rule templates not working.
+  * Improved image to show when no issues at current filter
+  * Added NOT-CONFIGURED virtual tag to services
+  * Menu is now options at service cards
+  * Show "no description yet" and improved style service cards
+  * Fix #59. Use proposed style for get plugins button
+  * Default section is Dashboard at project sidebar
+  * Fix #119. Flash at service update is now a success
+  * Added CORS and CSP headers to nginx config
+  * Do not mark subsection if section not marked.
+  * Fix #23. Shadow terminals appear sometimes
+  * Fix sidebar current active section marks
+  * Fix #131. Select call now works.
+  * Fix action trigger with no params. Fix #130.
+  * Added keys to generic fields select
+  * Removed some debug logs on queuing messages ok
+  * Improved log functions, allow use of extra random data
+  * Fixed rules accpet changes button
+  * Added preset for issues on ok/nok
+  * Reorder top menu
+  * Added empty main dashboard screen
+  * Initial empty screens for issues, dashboard, services and rules
+  * Improved error reporting from graphs
+  * Change plugin list access to a button
+  * Fix #58. Show plugin icons at top header
+  * Fix #118. Rename Web Server to Web site.
+  * Fix #122. Improved frontend packaging with lang
+  * Updated plugin versions to 17.04
+  * Fix #117. Long message boxes.
+  * Fix #104. Use grey for widget move background
+  * Fix #112. Improved no messages dropdown.
+  * Pass extra.setError to widgets to set widget errors
+  * Fix #105. Improved widget error visualization
+  * Fix #113. Improved action details.
+  * Fix #114. Improved cards with rectangular status labels
+  * Fix #109. Improved message on no virtual services available
+  * Fix #108. Improved service details margins and text
+  * Fix #98. No grey bottom on pointing menus.
+  * Fix rules modal, and added some margin top to some other modals
+  * Fix #107, service modal icon style fix
+  * Added notifiaction details header title
+  * Fix 95. Taller modal menu bar.
+  * Fix #96. Improved mesage details header
+  * Fix #99. Improvements on issues list style
+  * Fix #106. Fix modal consistency at issues add.
+  * Added missing i18n dependency at issues add
+  * Fix show top project select.
+  * Fix not properly updating some genericform fields
+  * Improved issue details date at header
+  * Properly pass the service when force trigger an rule
+  * Fixed use new API
+  * Sort triggers at trigger select
+  * Allow trigger rules using uuid instead of id
+  * Allow to filter rules by trigger type
+  * Added support for shallow triggers
+  * Fixes to quickactions use API 1
+  * Progress bar style fixes
+  * Added Plugin class to python bindings
+  * Fixed progress report was using atom, should have used string
+  * Added permissions to action.update and test
+  * Actions can notify of progress shown on UI
+  * Fixed translations of top tooltips
+  * Fix enter in user profile
+  * Go directly to latest dashboard or first if none
+  * Added add to project selector
+  * Project selector at top bar, and section highlight
+  * Fixed tests for new API
+  * Fix dashboard, was using invalid state name
+  * Fix i18n es typos
+  * Fix typos
+  * API fixes: token.add -> token.create
+  * Removed rules.templates, as can use plugins.components.catalog
+  * Removed service.screens RPC call, use plugin components
+  * API fix notifications.notify -> notifications.create
+  * API changed many .add to .create
+  * Fix API auth.group perms, users add, remove, get
+  * API Project widgets are now dashboard widgets
+  * API update settings.all -> settings.list
+  * API update for plugins (listing, components and data)
+  * API updated, logs.history -> logs.list
+  * API changes: notifications.config.get/update auth.token.add/update
+  * action.filter -> action.catalog, added action.get
+  * action.filter -> action.catalog
+  * Some missing renames of Serverboards -> Project, info -> get
+  * Removed rpc doc (now at web), updated perms
+  * service.info -> service.get
+  * project.info -> project.get
+  * Fixed webpack test babel configuration
+  * Improved i18n set lang at flash messages
+  * i18n flash messages
+  * Added language change at user profile.
+  * i18n login and logs
+  * Updated i18n for processes and profiles
+  * Sort keys at generated i18n json
+  * Translations top menu and notifications
+  * Added i18n context, translated calendar components
+  * Rules translations
+  * Translated services
+  * More translations, for settings
+  * Improved translations on plugins
+  * Improved manifest.yaml extraction and generic form support
+  * Extract text to translate from manifest.yaml, and some use
+  * Translated project module
+  * Improved issue translations
+  * Do not show hour when precission is days
+  * Style: Label change to better state related service projects
+  * Removed test that may fail depending on order
+  * Small fixes on Serverboard->Project refactor
+  * Style. Taller widget header
+  * Self remove init reload at plugins_update
+  * Properly restart and stop inti services
+  * Fix properly finish command at timeout.
+  * Added cache.service(service_id)
+  * Cleanup innecesary logging
+  * Sort widgets at widget adding
+  * Show any error the same way, stating the error
+  * Send client events when a setting is changed
+  * Catch init exit, and do normal reload process
+  * Modifying plugins reloads all init services
+  * Added init service type
+  * Fix use space to change rule preset toggle at service settings
+  * Updated semantic ui to 2.2.7
+  * Show widget loading inside widget area, not all screen
+  * Show quick actions only on the proper serverboard
+  * Tab change and then close closes the modal, not go to previous tab
+  * Removed all uses of old event.subscribe_connect
+  * Fix show permissions screen.
+  * Fixes on initial permission check and creation
+  * Improvements to make, remove parallel as it fails
+  * Set rw permission on full local directory at deb
+  * Make backend, frontend and plugins parallel.
+  * Fixes to journald hacks, to properly release
+  * Try to use some hacks to solve ejournald not compiling .so
+  * Removed ejournald from serverboards repo, use systemd's
+  * Fix restart on serverboards systemd service definition
+  * Fixed intermitent rules test fail
+  * Updated version for publishing
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 05 Apr 2017 12:39:38 +0200
+
 serverboards (0.6.282-g1168f) unstable; urgency=medium
 
   * Fix error when sending message to disabled users
