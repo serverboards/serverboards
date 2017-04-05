@@ -46,7 +46,7 @@ function update_versions(){
 		echo "Nothing to update"
 	else
 		update_version_backend $( echo $VERSION | sed "s/rc/.0+rc/g" )
-		update_version_frontend $VERSION
+		update_version_frontend $( echo $VERSION | sed "s/rc/.0+rc/g" )
 		update_version_debian $PREV_VERSION $( echo $VERSION | sed "s/rc/~rc/g" )
 		echo "Updated version: $PREV_VERSION -> $VERSION"
 	fi
