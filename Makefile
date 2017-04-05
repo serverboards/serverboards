@@ -101,6 +101,7 @@ install: prepare-release
 	chmod 0440 $(INSTALL)/../etc/sudoers.d/serverboards
 	mkdir -p $(INSTALL)/../etc/nginx/sites-available/
 	cp etc/nginx.conf $(INSTALL)/../etc/nginx/sites-available/serverboards.conf
+	mkdir -p $(INSTALL)/../usr/bin/
 	ln -fs /opt/serverboards/bin/s10s $(INSTALL)/../usr/bin/s10s
 
 deb:
