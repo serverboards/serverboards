@@ -5,7 +5,7 @@ set -ex
 cd "$( dirname $0 )/.."
 
 function get_version(){
-	local VERSION=$( git describe --match "v[0-9]*" --tags --abbrev=5 HEAD 2>/dev/null | cut -b2- | sed "s/.0-\(.*\)-/.\\1-/g" | sed "s/rc/~rc/g" )
+	local VERSION=$( git describe --match "v[0-9]*" --tags --abbrev=5 HEAD 2>/dev/null | cut -b2- | sed "s/.0-\(.*\)-/.\\1-/g" ) 
 	[ "$VERSION" ] || get_prev_version
 	echo $VERSION
 }
@@ -27,7 +27,7 @@ function update_version_frontend(){
 function update_version_debian(){
 	if [ ! "$( grep "$2" debian/changelog )" ]; then
 		cat - debian/changelog > debian/changelog.bak <<EOF
-serverboards ($2) unstable; urgency=medium
+serverboards ($( echo $2 | sed "s/rc/~rc/g" )) unstable; urgency=medium
 
 $( git log --pretty=format:'  * %s' --abbrev-commit v$1..HEAD  | grep -v WIP | grep -v Merge )
 
