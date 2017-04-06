@@ -1,19 +1,18 @@
 # Serverboards
 https://serverboards.io
 
-[![build status](https://git.coralbits.com/serverboards/serverboards/badges/master/build.svg)](https://git.coralbits.com/serverboards/serverboards/commits/master)
-
 **This is still work in progress. Use with caution.**
 
 ----
 
-Serverboards is a microservices based service consolidation, monitoring,
-alerting and management system.
+Serverboards is a microservices based service monitoring, management and
+automation platform.
 
 Serverboards is based on a simple core that is in charge of communication
 of all the microservices, doing all the common tasks that are needed:
 
 * User management
+* Project management
 * Permissions
 * Plugin management
 * Notifications
@@ -21,27 +20,26 @@ of all the microservices, doing all the common tasks that are needed:
 
 ## Collaborate / Develop with Serverboards
 
-Please use the issue tracker at [github](https://github.com/serverboards/serverboards/issues)
-to report bugs and feature requests.
+Please use the issue tracker at
+[github](https://github.com/serverboards/serverboards/issues) to report bugs and
+feature requests.
 
-It is developed under the Apache 2 license, and plugins can be developed
-by third parties using any license. Please refer to https://serverboards.io/developers/ for more information.
+It is developed under the Apache 2 license, and plugins can be developed by
+third parties using any license. Please refer to
+https://serverboards.io/developers/ for more information.
 
 There are forums in place at https://disqus.com/home/channel/serverboards/
 
-Subscribe to our newsletter https://serverboards.io
+Subscribe to our newsletter at https://serverboards.io
 
 ## Download
 
 Serverboards can be downloaded to be used on Ubuntu 16.04 (and maybe others) at
-https://serverboards.io
-
-Once downloaded install it with `dpkg -i serverboards.deb` and do a `apt -f
-install` to ensure all dependencies are downloaded.
+https://serverboards.io/downloads/
 
 Access it at http://localhost:8080, and enter with your user and password. If
-your user is in the adm group it will have admin access, and can add other users
-and disable PAM access.
+your user is in the `adm` or `admin` group it will have admin access, and can
+add other users and disable PAM access.
 
 ## Compiling and running the server
 
@@ -66,4 +64,28 @@ cd frontend
 npm start
 ```
 
-Alternatively you can create the release with `make release` and run it as `rel/serverboards/bin/serverboards foreground`.
+Now you can connect to the backend at http://localhost:8080 or at the running
+webpack server at http://localhost:3000 .
+
+If you connect to the webpack server it is necessary to force the backend URL so
+that the Websocket can connect. Open the developer console at the browser (F12
+or Crtl+Shift+C), and write:
+
+```js
+localStorage.servername="http://localhost:8080"
+```
+
+Alternatively you can create the release with `make release` and run it as
+`rel/serverboards/bin/serverboards foreground`.
+
+## Plugin development workflow
+
+To devlop new plugins create a directory or link to your source at
+$SERVERBOARDS_PATH/plugins, which by default is on installed systems at
+`/opt/serverboards/share/serverboards/plugins/`. If you use the development
+version, it would be at `~/.local/serverboards/plugins/`.
+
+Plugin manifest is normally reloaded automatically upon changes, and commands at
+command restart. If it is necessary to force a command execution, you can
+restart full Serverboards (`sudo service serverboards restart` or restart
+backend process).
