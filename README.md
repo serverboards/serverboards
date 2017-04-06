@@ -1,12 +1,17 @@
 # Serverboards
 https://serverboards.io
 
-**This is still work in progress. Use with caution.**
+![Serverboards Video Introduction](docs/061-index-animation.gif)
 
-----
+Serverboards is a service monitoring, management and automation platform.
 
-Serverboards is a microservices based service monitoring, management and
-automation platform.
+It allows users to connect the myriad of disperse services nowadays we need to
+be productive at our jobs. All the services we use are independant islands,
+with their own protocols and APIs and a lot of integration work is needed to
+make them talk each other.
+
+With Serverboards it is very easy to create the small puzzle pieces required
+to talk to the services, and to allow them to fit together.
 
 Serverboards is based on a simple core that is in charge of communication
 of all the microservices, doing all the common tasks that are needed:
