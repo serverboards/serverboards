@@ -69,7 +69,10 @@ defmodule Serverboards.Rules.Rule do
         {:error, :invalid}
       pid ->
         params = Serverboards.Utils.keys_to_atoms_from_list(params, ~w(id state))
-        GenServer.call(pid, {:trigger, params } )
+
+        # important a cast, as this can be (via de plugin initial method) be called at :init
+        GenServer.cast(pid, {:trigger, params } )
+        :ok
     end
   end
 
@@ -250,6 +253,10 @@ defmodule Serverboards.Rules.Rule do
     state = %{ state | last_state: rule_state }
 
     {:reply, :ok, state}
+  end
+  def handle_cast({:trigger, params}, state) do
+    {:reply, :ok, state} = handle_call({:trigger, params}, nil, state)
+    {:noreply, state}
   end
 
   def handle_info({:EXIT, _pid, :normal}, status) do

@@ -86,7 +86,7 @@ defmodule Test.Client do
   Client calls to server, as if JSON written
   """
   def call(client, method, params) do
-    GenServer.call(RPC.Client.get(client, :pid), {:call_from_json, method, params})
+    GenServer.call(RPC.Client.get(client, :pid), {:call_from_json, method, params}, 60_000)
   end
 
   @doc ~S"""
