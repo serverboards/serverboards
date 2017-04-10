@@ -125,9 +125,9 @@ def send(uuid, data=None, data64=None):
     """
     sp=sessions[uuid]
     if not data:
-        data=base64.decodestring(bytes(data64,'ascii'))
+        data=base64.decodestring(bytes(data64,'utf8'))
     else:
-        data=bytes(data, 'ascii')
+        data=bytes(data, 'utf8')
     #ret = sp.send(data)
     ret = os.write( sp["ptymaster"], data )
     return ret
@@ -166,7 +166,7 @@ def new_data_event(uuid):
     sp['buffer']=(sp['buffer'] + raw_data)[-4096:] # keep last 4k
     sp['end']+=len(raw_data)
 
-    data = str( base64.encodestring( raw_data ), 'ascii' )
+    data = str( base64.encodestring( raw_data ), 'utf8' )
     serverboards.rpc.event("event.emit", "terminal.data.received.%s"%uuid, {"data64": data, "end": sp["end"]})
 
 @serverboards.rpc_method
@@ -201,8 +201,9 @@ def recv(uuid, start=None, encoding='utf8'):
         else:
             i=start-bstart
     raw_data=raw_data[i:]
+    print(raw_data, repr(raw_data))
     if encoding=='b64':
-        data = str( base64.encodestring(raw_data), 'ascii' )
+        data = str( base64.encodestring(raw_data), 'utf8' )
     else:
         data = str( raw_data, encoding )
     return {'end': bend, 'data': data }
