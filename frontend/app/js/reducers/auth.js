@@ -9,7 +9,8 @@ const default_state={
   all_perms: undefined,
   lang: "en",
   lang_counter: 0,
-  avatar: default_avatar
+  avatar: default_avatar,
+  logging: false // this is used to mark already loading user. Actually its kept for UI reasons until logout. 
 }
 
 // http://stackoverflow.com/questions/1179366/is-there-a-javascript-strcmp#1179377
@@ -46,6 +47,7 @@ export const auth = (state = default_state , action) => {
     case 'AUTH_LOGOUT':
       state.logged_in=false
       state.user=undefined
+      state.logging=false;
       state.avatar=default_avatar
       break;
     case 'AUTH_USER_LIST':
@@ -64,6 +66,12 @@ export const auth = (state = default_state , action) => {
       state.lang=action.lang
       state.lang_counter+=1
       require("moment").locale(action.lang)
+      break;
+    case 'AUTH_TRY_LOGIN':
+      state.logging=true;
+      break;
+    case 'AUTH_FAIL_LOGIN':
+      state.logging=false;
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {

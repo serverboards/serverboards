@@ -7,7 +7,8 @@ import { connect } from 'react-redux'
 
 var Login = connect(
   (state) => ({
-    lang_counter: state.auth.lang_counter
+    lang_counter: state.auth.lang_counter,
+    logging: state.auth.logging
   }),
   (dispatch) => ({
     _onSubmit: (params) => dispatch(login(params))
