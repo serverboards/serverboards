@@ -14,6 +14,8 @@ import perms from 'app/utils/perms'
 import event from 'app/utils/event'
 import cache from 'app/utils/cache'
 import i18n from 'app/utils/i18n'
+import {set_lang} from 'app/actions/i18n'
+
 require('moment-range');
 
 require("sass/serverboards.sass")
@@ -68,7 +70,7 @@ let root = ReactDOM.render(
 {
   // Get the main language component of the first language or "en"
   const lang = (navigator.languages || ["en"])[0].split("-")[0]
-  store.dispatch( require("app/actions/auth").set_lang(lang) )
+  store.dispatch( set_lang(lang) )
 }
 
 export { root }

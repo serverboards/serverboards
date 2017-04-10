@@ -7,7 +7,7 @@ export function set_lang(lang){
       dispatch({type: "AUTH_SET_LANG", lang})
       dispatch(load_plugin_list_i18n(lang))
     }).catch( (e) => {
-      console.warning("Using default translations.")
+      console.warn("Using default translations.")
       i18n.update( {}, {clean: true})
       dispatch({type: "AUTH_SET_LANG", lang})
     })

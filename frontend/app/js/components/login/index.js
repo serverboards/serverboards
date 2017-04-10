@@ -4,12 +4,16 @@ import SetPassword from './set_password'
 import rpc from 'app/rpc'
 import 'sass/login.sass'
 import {i18n} from 'app/utils/i18n'
+import {merge} from 'app/utils'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
 var LoginView = React.createClass({
   getInitialState(){
-    return { modal: undefined, email: undefined }
+    return {
+      modal: undefined,
+      email: undefined,
+    }
   },
   handleSubmit(ev){
     ev && ev.preventDefault()
@@ -18,7 +22,7 @@ var LoginView = React.createClass({
     if ($form.form('validate form')){
       let fields = $form.form('get values')
       this.props._onSubmit(
-        Object.assign({type: 'basic'}, fields)
+        merge({type: 'basic'}, fields)
       )
     }
   },
@@ -64,6 +68,7 @@ var LoginView = React.createClass({
       return(
         <SetPassword closeReset={() => this.setState({modal:undefined})}  email={this.state.email} token={this.state.token}/>
       )
+    const logging = this.props.logging
 
     return (
       <div className="ui login serverboards background diagonal">
@@ -99,9 +104,13 @@ var LoginView = React.createClass({
               </label>
             </span>
             <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>{i18n("Reset password")}</a>
-            <button type="button" className="ui positive right labeled icon button" onClick={this.handleSubmit}>
+            <button type="button" className={`ui positive right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
               {i18n("Login")}
-              <i className="caret right icon"></i>
+              {logging ? (
+                <i className="loading spinner icon"></i>
+              ) : (
+                <i className="caret right icon"></i>
+              )}
             </button>
           </div>
         </div>
