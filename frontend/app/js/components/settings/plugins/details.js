@@ -33,7 +33,8 @@ const left_pane_style={
 const PluginDetails=React.createClass({
   getInitialState(){
     return {
-      is_active: this.props.plugin.status.includes("active")
+      is_active: this.props.plugin.status.includes("active"),
+      is_updatable: this.props.plugin.status.includes("updatable")
     }
   },
   componentDidMount(){
@@ -76,6 +77,11 @@ const PluginDetails=React.createClass({
             <div className="ui meta bold">{i18n("by")} {author}</div>
           </div>
           <div className="right menu">
+            {this.state.is_updatable ? (
+              <div className="item">
+                <button className="ui yellow button" onClick={this.handleUpdate}>{i18n("Update now")}</button>
+              </div>
+            ) : null }
             {!plugin.id.startsWith("serverboards.core.") ? (
               <div className="item two lines">
                 <div>
@@ -83,15 +89,10 @@ const PluginDetails=React.createClass({
                     <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
                   )) }
                 </div>
-                <div>
-                  <div ref="is_active" className="ui toggle checkbox" style={{paddingTop: 10}}>
-                    <input type="checkbox" checked={this.state.is_active}/>
-                  </div>
+                <div ref="is_active" className="ui toggle checkbox">
+                  <input type="checkbox" checked={this.state.is_active}/>
                 </div>
               </div>
-            ) : null }
-            {plugin.require_update ? (
-              <button className="ui yellow button" onClick={this.handleUpdate}>{i18n("Update now")}</button>
             ) : null }
           </div>
         </div>
