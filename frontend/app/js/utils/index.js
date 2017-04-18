@@ -104,6 +104,11 @@ export function random_color(str){
   return color_set[hash(str)%color_set.length]
 }
 
+// http://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
+export function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 /// Merges two or more dicts into a new one. Do not modify origins. B items have priority.
 export function merge(){
   let args=[{}, ...arguments]

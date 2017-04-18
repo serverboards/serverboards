@@ -1,7 +1,7 @@
 import React from 'react'
 import ImageIcon from 'app/components/imageicon'
 import {MarkdownPreview} from 'react-marked-markdown';
-import {colorize} from 'app/utils'
+import {colorize, capitalize} from 'app/utils'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 
 const icon = require("../../../../imgs/plugins.svg")
@@ -10,12 +10,6 @@ const icon = require("../../../../imgs/plugins.svg")
 i18n_nop("Disabled")
 i18n_nop("Enabled")
 i18n_nop("Broken")
-
-// http://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
-function capitalize(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 
 function PluginCard(props){
   const p=props.plugin

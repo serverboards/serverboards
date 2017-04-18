@@ -6,6 +6,7 @@ import {to_list} from 'app/utils'
 import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
+import {colorize, capitalize} from 'app/utils'
 
 const icon = require("../../../../imgs/plugins.svg")
 
@@ -76,16 +77,16 @@ const PluginDetails=React.createClass({
           </div>
           <div className="right menu">
             {!plugin.id.startsWith("serverboards.core.") ? (
-              <div className="item" style={{flexDirection:"column"}}>
+              <div className="item two lines">
                 <div>
-                  {this.state.is_active ? (
-                    <span><i className="ui icon circle green"/> {i18n("Active")}</span>
-                  ) : (
-                    <span><i className="ui icon circle grey"/> {i18n("Not Active")}</span>
-                  )}
+                  {plugin.status.map( (s) => (
+                    <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
+                  )) }
                 </div>
-                <div ref="is_active" className="ui toggle checkbox" style={{paddingTop: 10}}>
-                  <input type="checkbox" defaultChecked={plugin.is_active}/>
+                <div>
+                  <div ref="is_active" className="ui toggle checkbox" style={{paddingTop: 10}}>
+                    <input type="checkbox" checked={this.state.is_active}/>
+                  </div>
                 </div>
               </div>
             ) : null }
