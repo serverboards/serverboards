@@ -35,5 +35,26 @@ components:
     command: ./serverboards-updater.py
     requires: perms[update]
     strategy: singleton
-    timeout: 5s
-    perms: event.emit
+    timeout: 5m
+    perms: event.emit action.update
+
+  - id: check_plugin_updates
+    traits: plugins
+    type: action
+    name: Check if any plugin require updating
+    command: updater
+    call:
+      method: check_plugin_updates
+      params:
+        - name: action_id
+
+  - id: update_plugin
+    traits: plugins
+    type: action
+    name: Plugin update
+    command: updater
+    call:
+      method: update_plugin
+      params:
+        - name: action_id
+        - name: plugin_id

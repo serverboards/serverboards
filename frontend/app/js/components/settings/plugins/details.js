@@ -3,7 +3,7 @@ import {MarkdownPreview} from 'react-marked-markdown';
 import Modal from 'app/components/modal'
 import ImageIcon from 'app/components/imageicon'
 import {to_list} from 'app/utils'
-import plugin from 'app/utils/plugin'
+import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import {colorize, capitalize} from 'app/utils'
@@ -49,7 +49,7 @@ const PluginDetails=React.createClass({
     })
   },
   handleUpdate(){
-    plugin.start_call_stop("serverboards.optional.update/updater","update_plugin",[this.props.plugin.id]).then( () => {
+    rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
       this.props.updateAll()
     }).catch( (e) => {

@@ -24,11 +24,14 @@ def update_now(**args):
             serverboards.error("Error updating Serverboards\n%s"%data)
 
 @serverboards.rpc_method
-def check_plugin_updates(**args):
-    serverboards.rpc.reply({"level": "info", "message": "Checking plugin updates in the background."})
-
+def check_plugin_updates(action_id=None, **args):
     PLUGIN_PATH=os.environ.get("SERVERBOARDS_PATH", os.environ["HOME"]+"/.local/serverboards/")+"/plugins/"
-    for pl in os.listdir(PLUGIN_PATH):
+    paths=os.listdir(PLUGIN_PATH)
+    paths_count=len(paths)
+    update_count=0
+    serverboards.info("Checking updates at %s for (maybe) %s plugins"%(PLUGIN_PATH, paths_count))
+    for n, pl in enumerate(paths):
+        serverboards.rpc.call("action.update", action_id, {"progress": (n*100.0/paths_count), "label": pl})
         try:
             pl=PLUGIN_PATH+pl
             if os.path.exists(pl+"/.git/"):
@@ -42,25 +45,33 @@ def check_plugin_updates(**args):
                     }
                     serverboards.info("Plugin %s requires update"%plugin_id)
                     serverboards.rpc.event("event.emit","plugin.update.required", payload, ["plugin.install"])
+                    update_count+=1
         except:
             import traceback; traceback.print_exc()
+    serverboards.info("%s plugins require updates"%update_count)
+    return update_count
+
 
 @serverboards.rpc_method
-def update_plugin(id):
+def update_plugin(action_id=None, plugin_id=None):
     PLUGIN_PATH=os.environ.get("SERVERBOARDS_PATH", os.environ["HOME"]+"/.local/serverboards/")+"/plugins/"
     for pl in os.listdir(PLUGIN_PATH):
         pl=PLUGIN_PATH+pl
-        try:
-            plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]
-            if plugin_id == id:
-                update_at(pl)
+        current_plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]
+        if current_plugin_id == plugin_id:
+            update_at(pl)
             return "ok"
-        except:
-            import traceback; traceback.print_exc()
+    raise Exception("not-found")
 
 def update_at(path):
+    serverboards.info("Updating plugin at %s"%path)
     cmd="cd %s && git pull"%path
-    output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    try:
+        output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        serverboards.error("Error updating %s: %s"%(path, e.output))
+        raise Exception("cant-update")
+    serverboards.info("Updated plugin at %s: %s"%(path, output))
     return output
 
 def test():
