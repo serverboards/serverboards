@@ -59,10 +59,14 @@ const Board = React.createClass({
     this.setState({
       interval_id: setInterval(() => this.props.updateDaterangeNow(), 60 * 1000)
     })
+    // jquery hack, may be better using some property at redux
+    $('.ui.central.with.menu.white.background').removeClass("white").addClass("grey")
   },
   componentWillUnmount(){
     Command.remove_command_search('add-widget')
     clearInterval(this.state.interval_id)
+    // jquery hack, may be better using some property at redux
+    $('.ui.central.with.menu.grey.background').removeClass("grey").addClass("white")
   },
   getLayout(wid){
     const layout = this.state && (this.state.layout || []).find( l => l.i == wid )
