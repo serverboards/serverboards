@@ -24,11 +24,9 @@ const Plugins=React.createClass({
       this.setState({plugins})
     }).catch((e) => {
       Flash.error(`Could not load plugin list.\n ${e}`)
-    }).then( () =>
-      plugin.start_call_stop("serverboards.optional.update/updater","check_plugin_updates",[])
-    ).then( (msg) => {
+    }).then( () => {
       event.on("plugin.update.required", this.updateRequired)
-      Flash.log(msg)
+      return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
     } )
   },
   componentWillUnmount(){
