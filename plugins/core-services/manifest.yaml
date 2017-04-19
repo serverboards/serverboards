@@ -21,7 +21,9 @@ components:
       - label: URL
         name: url
         type: text
-        validation: empty
+        validation: regExp[(http://|https://)]
+        description: Server URL must start with `http://` or `https://`
+        placeholder: http://example.com
         card: true
 
   - name: Email Account
