@@ -34,7 +34,8 @@ const PluginDetails=React.createClass({
   getInitialState(){
     return {
       is_active: this.props.plugin.status.includes("active"),
-      is_updatable: this.props.plugin.status.includes("updatable")
+      is_updatable: this.props.plugin.status.includes("updatable"),
+      tags: this.props.plugin.status
     }
   },
   componentDidMount(){
@@ -52,6 +53,7 @@ const PluginDetails=React.createClass({
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
       this.props.updateAll()
+      this.setState({is_updatable: false, tags: this.state.tags.filter( t => t!="updatable" ) })
     }).catch( (e) => {
       Flash.error("Error updating plugin: "+e)
     })
@@ -85,7 +87,7 @@ const PluginDetails=React.createClass({
             {!plugin.id.startsWith("serverboards.core.") ? (
               <div className="item two lines">
                 <div>
-                  {plugin.status.map( (s) => (
+                  {this.state.tags.map( (s) => (
                     <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
                   )) }
                 </div>
