@@ -20,7 +20,7 @@ const SelectCall = React.createClass({
         let ff = props.fields.find( f => f.name == k)
         if (ff && ff.type == "service"){
           let service_id = form_data[k]
-          data[k]=store.getState().serverboard.serverboard.services.find( s => s.uuid == service_id )
+          data[k]=store.getState().project.project.services.find( s => s.uuid == service_id )
         }
         else{
           data[k]=form_data[k]
