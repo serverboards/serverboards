@@ -93,6 +93,8 @@ def base_url():
     url="http://localhost:8080"
     try:
         url=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
+        if url.endswith("/"):
+            url=url[0:-1]
     except:
         pass
     return url
@@ -116,6 +118,13 @@ def open_issue(**data):
     description=render(data.get("description"), data)
     aliases=render(data.get("aliases"), data).split()
     #serverboards.rpc.info(json.dumps(data, indent=2))
+    if 'service' in data or 'rule' in data:
+        description+="\n\nRelated:\n\n"
+        if 'service' in data:
+            description+=" * Service: [%s](%s/#/services/%s)\n"%(data["service"].get("name"), base_url(), data["service"].get("uuid"))
+        if 'rule' in data:
+            description+=" * Rule: [%s](%s/#/rules/%s)\n"%(data["rule"].get("name"), base_url(), data["rule"].get("uuid"))
+        description+="\n"
 
     serverboards.rpc.call("issues.create", title=title, description=description, aliases=aliases)
 
@@ -125,7 +134,6 @@ def close_issue(issue=None, **data):
     import json
     issue=render(issue, data)
     comment=render(data.get("comment"), data)
-    #serverboards.rpc.info(json.dumps(data, indent=2))
     if not issue:
         serverboards.error("Error trying to close issue, none given")
 
@@ -145,7 +153,6 @@ def comment_issue(issue=None, **data):
     import json
     issue=render(issue, data)
     comment=render(data.get("comment"), data)
-    #serverboards.rpc.info(json.dumps(data, indent=2))
     if not issue:
         serverboards.error("Error trying to close issue, none given")
 

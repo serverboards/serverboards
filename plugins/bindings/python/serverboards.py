@@ -378,14 +378,14 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
-def debug(s):
-    rpc.debug(s, level=1)
-def info(s):
-    rpc.info(s, level=1)
-def warning(s):
-    rpc.warning(s, level=1)
-def error(s):
-    rpc.error(s, level=1)
+def debug(s, extra={}):
+    rpc.debug(s, extra=extra, level=1)
+def info(s, extra={}):
+    rpc.info(s, extra=extra, level=1)
+def warning(s, extra={}):
+    rpc.warning(s, extra=extra, level=1)
+def error(s, extra={}):
+    rpc.error(s, extra=extra, level=1)
 
 class Config:
     def __init__(self):
