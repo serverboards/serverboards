@@ -49,7 +49,9 @@ components:
   - id: daemon.email
     type: cmd
     traits: email
-    perms: settings.view[serverboards.core.notifications/settings.email]
+    perms:
+      - settings.view[serverboards.core.notifications/settings.email]
+      - settings.view[serverboards.core.settings/base]
     command: serverboards_email.py
     type: singleton
     timeout: 1m

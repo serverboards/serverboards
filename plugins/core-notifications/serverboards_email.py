@@ -27,13 +27,18 @@ def render_template(filename, context):
     with open(filename) as fd:
         return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
 
+base_url_cache=None
 def base_url():
-    url="http://localhost:8080"
-    try:
-        url=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
-    except:
-        pass
-    return url
+    global base_url_cache
+    if not base_url_cache:
+        base_url_cache="http://localhost:8080"
+        try:
+            base_url_cache=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
+            if base_url_cache.endswith("/"):
+                base_url_cache=base_url_cache[0:-1]
+        except:
+            pass
+    return base_url_cache
 
 @serverboards.rpc_method
 def send_email(user=None, config=None, message=None, test=False):
@@ -52,7 +57,7 @@ def send_email(user=None, config=None, message=None, test=False):
         "subject": message["subject"],
         "body": markdown.markdown(body_md, safe_mode='escape'),
         "settings": settings,
-        "APP_URL": "http://localhost:8080" if test else base_url(),
+        "APP_URL": base_url(),
         "type": extra.get("type", "MESSAGE"),
         "url": extra.get("url", base_url())
         }
@@ -90,6 +95,7 @@ def send_email(user=None, config=None, message=None, test=False):
 
 
 if len(sys.argv)==2 and sys.argv[1]=="test":
+    base_url_cache="http://localhost/"
     settings={
         "servername" : "mail.serverboards.io",
         "port" : "",
@@ -103,7 +109,7 @@ if len(sys.argv)==2 and sys.argv[1]=="test":
         message={
             "subject":"This is a test message",
             "body":"Body of the test message\n\nAnother line",
-            "extra":[]
+            "extra":{}
         }, test=True))
 else:
     try:
