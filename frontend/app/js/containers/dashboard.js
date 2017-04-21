@@ -6,6 +6,8 @@ import { connect } from 'react-redux'
 let Dashboard = connect(
   (state) => {
     let last_project = localStorage.last_project
+    if (!state.project.projects.find( (p) => p.shortname == last_project )) // not real, dont use it
+      last_project = undefined
     if (!last_project){
       const prjs = state.project.projects
       console.log(prjs)

@@ -20,9 +20,12 @@ function project(state=default_state, action){
   switch(action.type){
     case '@@router/LOCATION_CHANGE':
     {
-      let current=action.payload.pathname.replace(RegExp("^/project/([^/]*)/.*"), "$1")
-      if (current!=state.current)
-        return merge(state, {current, project: undefined} )
+      const match = action.payload.pathname.match(RegExp("^/project/([^/]*)/.*"))
+      if (match){
+        let current=match[1]
+        if (current!=state.current)
+          return merge(state, {current, project: undefined} )
+        }
       return state
     }
     case 'UPDATE_ALL_PROJECTS':
