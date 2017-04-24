@@ -1,3 +1,9 @@
+serverboards (17.04.1-g90249) unstable; urgency=medium
+
+  * Updated version to 17.04 final.
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 24 Apr 2017 17:31:13 +0200
+
 serverboards (17.04~rc1-36-g7d7c4) unstable; urgency=medium
 
   * s10s update executable bit set
