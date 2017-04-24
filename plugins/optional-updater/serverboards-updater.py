@@ -65,7 +65,7 @@ def update_plugin(action_id=None, plugin_id=None):
 
 def update_at(path):
     serverboards.info("Updating plugin at %s"%path)
-    cmd="cd %s && git pull"%path
+    cmd="cd %s && git reset --hard && git pull"%path
     try:
         output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
