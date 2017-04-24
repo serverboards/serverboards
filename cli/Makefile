@@ -22,6 +22,7 @@ test:
 	@echo "HTML at htmlcov/ directory"
 
 CMDS=s10s-cli.py s10s-i18n-compile.py s10s-i18n-update.sh \
+		 s10s-update.sh \
 		 s10s-i18n-update--extract-manifest-yaml-po.py \
 		 s10s-shell
 
