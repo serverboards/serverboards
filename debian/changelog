@@ -1,3 +1,37 @@
+serverboards (17.04~rc1-36-g7d7c4) unstable; urgency=medium
+
+  * s10s update executable bit set
+  * Added s10s update command
+  * Force update of plugins.
+  * Fix really open latest project, or first
+  * Emails have proper URL and show properly on gmail/android
+  * Improvements to sent emails
+  * Fix select call with related service param
+  * Improved updater script
+  * Fix edit user settings, missing i18n
+  * Fixes to plotly extra tools style
+  * Fix grey dashboard menu entry
+  * Grey background for board even on scroll
+  * Force http|https at website url
+  * Update updatable status at plugin details after update
+  * Improved plugin updating, use actions, better reporting
+  * Updated when to show update plugin
+  * Improved show plugin active status and tags
+  * Added initial backup and restore solution
+  * Fix #147, unicode chars at ssh terminal
+  * Fix show logging in loading when trying to log in
+  * Triggers are async to prevent deadlock
+  * Fix out of order reply on python bindings
+  * Added python3-venv dependency
+  * Updated use MOM 0.5.0
+  * Fix no more cast at mom
+  * Added intro video to README
+  * Updated README.md
+  * Use semver also for frontend
+  * Fix compilation for backend, requires semver
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 24 Apr 2017 17:16:28 +0200
+
 serverboards (17.04~rc1-2-g42010) unstable; urgency=medium
 
   * Version at mix and node should not use ~
