@@ -20,6 +20,7 @@ import Issues from 'app/containers/issues'
 import IssuesAdd from 'app/containers/issues/add'
 import IssuesView from 'app/containers/issues/details'
 import ServiceDetails from 'app/containers/service/details'
+import RuleDetails from 'app/containers/rules/edit'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -58,6 +59,9 @@ var ServerboardsRouter = React.createClass({
 
           <Route path="/services/">
             <Route path=":id" component={ServiceDetails}/>
+          </Route>
+          <Route path="/rules/">
+            <Route path=":id" component={RuleDetails}/>
           </Route>
 
           <Route path="/s/">

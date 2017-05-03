@@ -119,7 +119,7 @@ const Details=React.createClass({
       name: state.name,
       description: state.description,
       service: state.service && state.service.uuid,
-      project: props.project,
+      project: props.project || props.rule.project,
       trigger: {
         trigger: state.trigger,
         params: state.trigger_config

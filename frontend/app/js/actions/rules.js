@@ -31,3 +31,36 @@ export function rules_save(rule){
     })
   }
 }
+
+export function get_rule(uuid){
+  return function(dispatch){
+    rpc.call("rules.get", [uuid]).then( (rule) => {
+      dispatch({type:"CURRENT_RULE", payload: rule })
+    })
+  }
+}
+
+export function clean_rule(){
+  return {
+    type: "CURRENT_RULE",
+    payload: undefined
+  }
+}
+
+const empty_rule={
+  uuid: undefined,
+  id: undefined,
+  service: undefined,
+  trigger: {
+    trigger: undefined,
+    params: {}
+  },
+  actions: {}
+}
+
+export function set_empty_rule(){
+  return {
+    type: "CURRENT_RULE",
+    payload: empty_rule
+  }
+}

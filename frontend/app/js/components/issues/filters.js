@@ -13,10 +13,12 @@ const RelatedElement=React.createClass({
   componentDidMount(){
     const al=this.props.alias
     if (al.startsWith("rule/")){
-      rpc.call("rules.list", {uuid: al.slice(5)}).then( rl => {
-        const rule=rl[0]
+      rpc.call("rules.get", [al.slice(5)]).then( rule => {
+        let rule_url = `/rules/${rule.uuid}`
+        //if (rule.project)
+          //rule_url = `/project/${rule.project || "_"}/rules/${rule.uuid}`
         this.setState({
-          url: `/project/${rule.project || "_"}/rules/${rule.uuid}`,
+          url: rule_url,
           name: rule.name || (rule.trigger || {}).name || "This rule has no name",
           type: "Rule"
         })
@@ -32,11 +34,23 @@ const RelatedElement=React.createClass({
       })
     }
     if (al.startsWith("project/")){
-      const project=al.slice(12)
+      const project=al.slice(8)
+      if (!project)
+        return
       this.setState({
         url: `/project/${project}/`,
-        name: project || "Serverboard",
-        type: "Serverboard"
+        name: project || "Project",
+        type: "Project"
+      })
+    }
+    if (al.startsWith("serverboard/")){
+      const project=al.slice(12)
+      if (!project)
+        return
+      this.setState({
+        url: `/project/${project}/`,
+        name: project,
+        type: "Project"
       })
     }
   },

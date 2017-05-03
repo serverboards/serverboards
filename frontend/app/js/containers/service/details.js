@@ -9,6 +9,7 @@ import {
   service_clear_external_url_components,
   service_load_external_url_components,
   } from 'app/actions/service'
+import i18n from 'app/utils/i18n'
 
 function get_screens( service ){
   if (!service)
@@ -74,7 +75,7 @@ var Container = connect({
     state = this.state(state, props) // Get next component props, no need to generate again
     if (state.service && state.screens && state.service_template)
       return false;
-    return "Service details"
+    return i18n("Service details")
   }
 })(DetailsWithExternalUrls)
 

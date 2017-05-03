@@ -5,17 +5,6 @@ import Command from 'app/utils/command'
 import Rules from './rules'
 import {i18n} from 'app/utils/i18n'
 
-const empty_rule={
-  uuid: undefined,
-  id: undefined,
-  service: undefined,
-  trigger: {
-    trigger: undefined,
-    params: {}
-  },
-  actions: {}
-}
-
 const Index=React.createClass({
   componentDidMount(){
     let self=this
@@ -47,16 +36,9 @@ const Index=React.createClass({
       )
     }
     if (props.subsection){
-      if (props.subsection == "add")
-        return (
-          <div className="ui text container">
-            <RuleEdit rule={empty_rule} project={props.project.shortname}/>
-          </div>
-        )
-      const rule = props.rules.find( (r) => r.uuid == props.subsection )
       return (
         <div className="ui text container">
-          <RuleEdit rule={rule} project={props.project.shortname}/>
+          <RuleEdit id={props.subsection} project={props.project.shortname}/>
         </div>
       )
     }
