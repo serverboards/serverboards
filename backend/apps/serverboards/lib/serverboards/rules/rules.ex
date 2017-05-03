@@ -30,8 +30,8 @@ defmodule Serverboards.Rules do
     {:ok, es} = EventSourcing.start_link( [name: Serverboards.Rules.EventSourcing] ++ options )
     EventSourcing.Model.subscribe es, :rules, Serverboards.Repo
 
-    EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
-      rule = upsert_real(data)
+    EventSourcing.subscribe es, :upsert, fn %{ data: data }, me ->
+      rule = upsert_real(data, me)
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
       if (data.project != nil) do
         Serverboards.Event.emit("rules.update[#{data.project}]", %{ rule: rule }, ["rules.view"])
@@ -231,14 +231,15 @@ defmodule Serverboards.Rules do
     EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :upsert, %{ data: data }, me.email)
   end
 
-  defp upsert_real(%Serverboards.Rules.Rule{ uuid: uuid } = data) do
+  defp upsert_real(%Serverboards.Rules.Rule{ uuid: uuid } = data, me) do
     import Ecto.Query
 
     uuid = if uuid=="" or uuid==nil do UUID.uuid4 else uuid end
     #Logger.debug("UUID is #{inspect uuid}")
     actions = data.actions
+    service_uuid = data.service
 
-    service_id = case data.service do
+    service_id = case service_uuid do
       nil -> nil
       "" -> nil
       uuid ->
@@ -271,6 +272,11 @@ defmodule Serverboards.Rules do
         update_rule( rule, data, actions )
     end
 
+    if data.is_active do
+      Logger.info("Updated rule #{inspect data.name}, now active", is_active: data.is_active, rule_id: uuid, service_id: service_uuid, user: me, project_id: project_id)
+    else
+      Logger.info("Updated rule #{inspect data.name}, now NOT active", is_active: data.is_active, rule_id: uuid, service_id: service_uuid, user: me, project_id: project_id)
+    end
     rule = decorate(rulem)
 
     #Logger.debug("Decorated rule: #{inspect rule.trigger} / #{inspect rule.is_active}")

@@ -19,8 +19,8 @@ config :serverboards, Serverboards.Repo,
 
 config :logger, :backends,
   [
-    #{Serverboards.Logger, :serverboards_logs},
-    :console,
+    {Serverboards.Logger, :serverboards_logs},
+    #:console,
   ]
 
 # for config_test
