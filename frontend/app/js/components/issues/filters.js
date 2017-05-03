@@ -34,11 +34,23 @@ const RelatedElement=React.createClass({
       })
     }
     if (al.startsWith("project/")){
-      const project=al.slice(12)
+      const project=al.slice(8)
+      if (!project)
+        return
       this.setState({
         url: `/project/${project}/`,
-        name: project || "Serverboard",
-        type: "Serverboard"
+        name: project || "Project",
+        type: "Project"
+      })
+    }
+    if (al.startsWith("serverboard/")){
+      const project=al.slice(12)
+      if (!project)
+        return
+      this.setState({
+        url: `/project/${project}/`,
+        name: project,
+        type: "Project"
       })
     }
   },
