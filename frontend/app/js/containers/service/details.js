@@ -74,7 +74,7 @@ var Container = connect({
     state = this.state(state, props) // Get next component props, no need to generate again
     if (state.service && state.screens && state.service_template)
       return false;
-    return "Service details"
+    return i18n("Service details")
   }
 })(DetailsWithExternalUrls)
 

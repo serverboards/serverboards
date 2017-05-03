@@ -24,9 +24,9 @@ const Rules=React.createClass({
   },
   handleAdd(){
     if (this.state.filter)
-      goto(`/project/${this.props.project.shortname}/rules/add`, {trigger: this.state.filter})
+      this.props.handleAdd({trigger:this.state.filter, project: this.props.project.shortnme })
     else
-      goto(`/project/${this.props.project.shortname}/rules/add`)
+      this.props.handleAdd({project: this.props.project.shortname })
   },
   render(){
     const props=this.props
@@ -73,7 +73,7 @@ const Rules=React.createClass({
                 <Rule
                   rule={r}
                   key={r.uuid}
-                  onOpenEdit={() => props.onOpenEdit(r)}
+                  onOpenEdit={() => props.handleEdit(r)}
                   trigger_catalog={props.trigger_catalog}
                   service_catalog={props.service_catalog}
                   action_catalog={props.action_catalog}

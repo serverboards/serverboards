@@ -26,6 +26,10 @@ export function get_modal(name){
       return require('app/components/plugin/modal').default
     case "service.create":
       return require('app/containers/project/addservice').default
+    case "rule.create":
+      return require('app/containers/rules/edit').default
+    case "rule.edit":
+      return require('app/containers/rules/edit').default
   }
 }
 
