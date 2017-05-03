@@ -9,6 +9,7 @@ import {
   service_clear_external_url_components,
   service_load_external_url_components,
   } from 'app/actions/service'
+import i18n from 'app/utils/i18n'
 
 function get_screens( service ){
   if (!service)

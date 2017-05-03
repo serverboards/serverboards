@@ -13,10 +13,12 @@ const RelatedElement=React.createClass({
   componentDidMount(){
     const al=this.props.alias
     if (al.startsWith("rule/")){
-      rpc.call("rules.list", {uuid: al.slice(5)}).then( rl => {
-        const rule=rl[0]
+      rpc.call("rules.get", [al.slice(5)]).then( rule => {
+        let rule_url = `/rules/${rule.uuid}`
+        //if (rule.project)
+          //rule_url = `/project/${rule.project || "_"}/rules/${rule.uuid}`
         this.setState({
-          url: `/project/${rule.project || "_"}/rules/${rule.uuid}`,
+          url: rule_url,
           name: rule.name || (rule.trigger || {}).name || "This rule has no name",
           type: "Rule"
         })
