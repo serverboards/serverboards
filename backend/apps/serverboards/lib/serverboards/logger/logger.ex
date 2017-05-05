@@ -1,3 +1,4 @@
+require Logger
 alias Serverboards.Logger.Model
 alias Serverboards.Repo
 
@@ -22,22 +23,32 @@ defmodule Serverboards.Logger do
   def history(options \\ %{}) do
     import Ecto.Query
 
+    # Prepare the main query
+    q = from l in Model.Line
+    q = case options[:service] do
+      nil -> q
+      id -> where(q, [l],
+        fragment("?->>'service' = ?", l.meta, ^id)
+        or
+        fragment("?->>'service_id' = ?", l.meta, ^id)
+        )
+    end
+
     # count total lines
-    q = from l in Model.Line,
-      select: count(l.id)
-    count = Repo.one( q )
+    qcount = select(q, [l], count(l.id))
+    count = Repo.one( qcount )
 
+    # get the lines, current window
+    qlines = q
+      |> select([l], %{ message: l.message, timestamp: l.timestamp, level: l.level, meta: l.meta, id: l.id})
+      |> limit(^Map.get(options, :count, 50))
+      |> order_by([l], [desc: l.id]);
+    qlines = case options[:start] do
+      nil -> qlines
+      id -> where(qlines, [l], l.id < ^id )
+    end
+    lines = Repo.all(qlines)
 
-    # Get the lines from start to start+count
-    q =    from l in Model.Line,
-       order_by: [desc: l.id],
-          limit: ^Map.get(options, :count, 50),
-         select: %{ message: l.message, timestamp: l.timestamp, level: l.level, meta: l.meta, id: l.id}
-     q = case options[:start] do
-       nil -> q
-       id -> where(q, [l], l.id < ^id )
-     end
-    lines = Repo.all(q)
 
     {:ok, %{ lines: lines, count: count }}
   end

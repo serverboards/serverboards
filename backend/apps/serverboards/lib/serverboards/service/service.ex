@@ -68,6 +68,8 @@ defmodule Serverboards.Service do
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.update"])
 
+      Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me)
+
       :ok
     else
       {:error, :not_found}
@@ -107,7 +109,6 @@ defmodule Serverboards.Service do
           end)
 
         # now detach from non listed uuids
-        Logger.info(inspect current_uuids)
         if (Enum.count current_uuids) == 0 do # remove all
           Repo.delete_all(
             from sc in ProjectServiceModel,
@@ -149,6 +150,12 @@ defmodule Serverboards.Service do
       priority: attributes.priority,
       config: attributes.config
     } )
+
+    Logger.info(
+      "Created new service #{inspect service.name}",
+      service_id: uuid,
+      user: me
+      )
 
     Enum.map(attributes.tags, fn name ->
       Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )

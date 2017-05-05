@@ -10,11 +10,10 @@ defmodule Serverboards.Logger.RPC do
     import RPC.MethodCaller
 
     add_method mc, "logs.list", fn opts ->
-      opts = Map.new(Enum.map(Map.to_list(opts), fn
-        {"start", v} -> {:start, v}
-        {"count", v} -> {:count, v}
-      end))
+      opts = Serverboards.Utils.keys_to_atoms_from_list(opts, ~w"start count service")
       {:ok, history} = Serverboards.Logger.history(opts)
+
+      Logger.debug("Log filter for #{inspect opts}, #{history.count} lines")
 
       history = %{
         count: history.count,

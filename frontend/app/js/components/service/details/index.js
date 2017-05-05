@@ -11,13 +11,15 @@ import PluginScreen from 'app/components/plugin/screen'
 
 import Empty from 'app/components/empty'
 import Settings from 'app/containers/service/settings'
+import Logs from 'app/containers/service/logs'
 import DetailsTab from './detailstab'
 import ExternalUrl from './externalurl'
 import {i18n} from 'app/utils/i18n'
 
 const tab_options={
   details: DetailsTab,
-  settings: Settings
+  settings: Settings,
+  logs: Logs
 }
 function get_plugin_component({tab, type}, props){
   if (type!="screen")
@@ -115,6 +117,7 @@ const Details = React.createClass({
     let sections=[
       { name: i18n("Details"), id: "details" },
       { name: i18n("Settings"), id: "settings" },
+      { name: i18n("Logs"), id: "logs" },
     ];
 
     props.screens.map( (s) => {

@@ -36,14 +36,14 @@ defmodule Serverboards.Rules.Rule do
               {:error, :cant_start}
           end
         else
-          Logger.info("Not starting shallow rule #{inspect rule.name}. #{inspect rule} #{inspect trigger}")
+          Logger.info("Not starting shallow rule #{inspect rule.name}. ", service_id: rule.service, rule_id: rule.uuid)
           :ignore
         end
     end
   end
 
   def stop(uuid) do
-    Logger.info("Stop rule // #{uuid}", uuid: uuid)
+    Logger.info("Stop rule // #{uuid}", rule_id: uuid)
     case Serverboards.ProcessRegistry.pop(Serverboards.Rules.Registry, uuid) do
       nil -> :ok
       pid ->
@@ -90,7 +90,7 @@ defmodule Serverboards.Rules.Rule do
   end
   def terminate(reason, %{ trigger: trigger, uuid: uuid, plugin_id: plugin_id } = state) do
     if reason != :normal do
-      Logger.error("Terminate, stop plugin if possible #{trigger.trigger} // #{uuid}", uuid: uuid, rule: state.rule)
+      Logger.error("Terminate, stop plugin if possible #{trigger.trigger} // #{uuid}", rule_id: uuid, uuid: uuid, rule: state.rule)
     end
     case Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, plugin_id) do
       nil -> :ok
@@ -103,17 +103,17 @@ defmodule Serverboards.Rules.Rule do
     case Serverboards.ProcessRegistry.get(Serverboards.Rules.Registry, plugin_id) do
       nil ->
         if state.trigger.stop do
-          Logger.info("Calling stop: #{plugin_id}.#{inspect state.trigger.stop}(#{inspect state.stop_id})", rule: rule)
+          Logger.info("Calling stop: #{plugin_id}.#{inspect state.trigger.stop}(#{inspect state.stop_id})", rule_id: rule.uuid, service_id: rule.service, rule: rule)
           case Plugin.Runner.call( plugin_id, state.trigger.stop, [state.stop_id] ) do
             {:ok, true} -> :ok
             res ->
-              Logger.error("Error stopping rule #{inspect rule.uuid} when calling stop: #{inspect res}", rule: rule, res: res)
+              Logger.error("Error stopping rule #{inspect rule.uuid} when calling stop: #{inspect res}", rule_id: rule.uuid, service_id: rule.service, rule: rule, res: res)
           end
         else
-          Logger.warn("Rule #{inspect rule.uuid} stop is not handled in any way. May need a stop method, or not be a singleton.", rule: rule)
+          Logger.warn("Rule #{inspect rule.uuid} stop is not handled in any way. May need a stop method, or not be a singleton.", rrule_id: rule.uuid, service_id: rule.service, ule: rule)
         end
       pid ->
-        Logger.info("Terminate rule, stopping plugin.", rule: rule)
+        Logger.info("Terminate rule, stopping plugin.", rule_id: rule.uuid, service_id: rule.service, rule: rule)
         Serverboards.Plugin.Runner.stop(pid)
     end
     :ok
@@ -166,12 +166,12 @@ defmodule Serverboards.Rules.Rule do
     default_params = get_default_params(%{ service: service, rule: uuid})
     params = Map.merge(params, default_params)
 
-    Logger.info("Start rule with trigger #{inspect trigger}, #{uuid}", uuid: uuid, trigger: trigger, params: params, actions: actions)
+    Logger.info("Start rule with trigger #{inspect trigger}, #{uuid}", rule_id: uuid, trigger: trigger, params: params, actions: actions, service_id: service)
     [trigger] = Serverboards.Rules.Trigger.find(id: trigger)
     plugin_id = case Plugin.Runner.start trigger.command do
       {:ok, plugin_id} -> plugin_id
       {:error, desc} ->
-        Logger.error("Could not start trigger", description: desc)
+        Logger.error("Could not start trigger", description: desc, rule_id: uuid, service_id: service)
         raise CantStartRule, message: to_string(desc)
     end
 
@@ -207,7 +207,7 @@ defmodule Serverboards.Rules.Rule do
 
         {:ok, uuid, state}
       {:error, error} ->
-        Logger.error("Error starting rule #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger)
+        Logger.error("Error starting rule #{inspect trigger.id}: #{inspect error}", error: error, trigger: trigger, rule_id: rule.uuid, service_id: rule.service)
         {:error, :aborted, {}}
     end
 
@@ -241,13 +241,22 @@ defmodule Serverboards.Rules.Rule do
       # only trigger if state change or only one state (ticks)
       if (state.last_state != rule_state) or (Enum.count(state.actions) == 1) do
         full_params = Map.merge( Map.merge(action.params, default_params), full_params )
-        Logger.info("Trigger action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
+        Logger.info(
+          "Trigger action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}",
+          rule_id: rule.uuid, service_id: rule.service, rule: rule, params: full_params, action: action
+          )
         Serverboards.Action.trigger(action.action, full_params, %{ email: "rule/#{rule.uuid}", perms: []})
       else
-        Logger.info("NOT triggering action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}. State did not change.", rule: rule, params: full_params, action: action)
+        Logger.info(
+          "NOT triggering action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}. State did not change.",
+          rule_id: rule.uuid, service_id: rule.service, rule: rule, params: full_params, action: action
+          )
       end
     else
-        Logger.info("Trigger empty action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], action: action)
+        Logger.info(
+          "Trigger empty action #{inspect rule_state} from rule #{rule.trigger.trigger} // #{rule.uuid}",
+          rule_id: rule.uuid, service_id: rule.service, rule: rule, params: [], action: action
+          )
         {:ok, :empty}
     end
     state = %{ state | last_state: rule_state }

@@ -1,7 +1,9 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import Modal from '../modal'
+import Loading from '../loading'
 import {i18n, i18n_nop} from 'app/utils/i18n'
+import {merge} from 'app/utils'
 
 require('sass/table.sass')
 
@@ -118,7 +120,7 @@ const Logs = React.createClass({
     this.refreshHistory()
   },
   refreshHistory(state={}){
-    let filter={}
+    let filter=merge({}, this.props.filter)
     if (state.start)
       filter.start=state.start
 
@@ -155,9 +157,13 @@ const Logs = React.createClass({
     router: React.PropTypes.object
   },
   render(){
+    if (this.state.count == undefined ){
+      return (
+        <Loading>{i18n("Logs")}</Loading>
+      )
+    }
     let popup=[]
     const modal = this.props.location.state || {}
-    console.log(modal)
     switch(modal.modal){
       case 'details':
         popup=(
