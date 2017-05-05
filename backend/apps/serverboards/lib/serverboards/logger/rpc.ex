@@ -10,7 +10,7 @@ defmodule Serverboards.Logger.RPC do
     import RPC.MethodCaller
 
     add_method mc, "logs.list", fn opts ->
-      opts = Serverboards.Utils.keys_to_atoms_from_list(opts, ~w"start count service q")
+      opts = Serverboards.Utils.keys_to_atoms_from_list(opts, ~w"start count service q offset")
       {:ok, history} = Serverboards.Logger.history(opts)
 
       Logger.debug("Log filter for #{inspect opts}, #{history.count} lines")

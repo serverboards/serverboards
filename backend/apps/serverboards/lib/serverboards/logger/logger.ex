@@ -53,6 +53,10 @@ defmodule Serverboards.Logger do
       nil -> qlines
       id -> where(qlines, [l], l.id < ^id )
     end
+    qlines = case options[:offset] do
+      nil -> qlines
+      offs -> qlines |> offset(^offs)
+    end
     lines = Repo.all(qlines)
 
 

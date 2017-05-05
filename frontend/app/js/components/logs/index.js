@@ -5,6 +5,7 @@ import Flash from 'app/flash'
 import Loading from '../loading'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import {merge} from 'app/utils'
+import Paginator from '../paginator'
 
 require('sass/table.sass')
 
@@ -113,8 +114,7 @@ const Logs = React.createClass({
     return {
       count: undefined,
       lines: [],
-      start: undefined,
-      page: 1,
+      page: 0,
       q: "",
     }
   },
@@ -123,8 +123,8 @@ const Logs = React.createClass({
   },
   refreshHistory(state={}){
     let filter=merge({}, this.props.filter)
-    if (state.start)
-      filter.start=state.start
+    if (state.page)
+      filter.offset=state.page * 50
 
     const q=state.q || this.state.q
     if (q)
@@ -137,26 +137,13 @@ const Logs = React.createClass({
         return
       }
       this.setState({loading: false})
-      this.setState({lines: history.lines, count: history.count, start: state.start, page: state.page || 1 })
+      this.setState({lines: history.lines, count: history.count, page: state.page || 0 })
     }).catch( (e) => {
       console.log("Error loading log history: %o", e)
       Flash.error(i18n("Can't load log history."))
       this.setState({loading: false})
-      this.setState({lines: [], count: 0, start: state.start, page: state.page || 1 })
+      this.setState({lines: [], count: 0, page: state.page || 0 })
     })
-  },
-  nextPage(ev){
-    ev.preventDefault()
-    if (this.state.lines.length==0)
-      return
-
-    let start=this.state.lines[this.state.lines.length-1].id
-    console.log("Start list at %o", start)
-    this.refreshHistory({start, page: this.state.page+1, lines: []})
-  },
-  refresh(ev){
-    ev.preventDefault()
-    this.refreshHistory({start: undefined, page: 1, lines: []})
   },
   showDetails(line){
     this.setModal("details", {line: line})
@@ -183,6 +170,10 @@ const Logs = React.createClass({
       this.q_timeout = undefined
     }, 200)
   },
+  handlePageChange(page){
+    this.setState({page})
+    this.refreshHistory({page})
+  },
   render(){
     if (this.state.count == undefined ){
       return (
@@ -205,7 +196,10 @@ const Logs = React.createClass({
       <div className="ui central area white background">
         <div className="ui container">
           <h1 className="ui header">{i18n("Logs")}</h1>
-          <div className="ui search">
+
+          <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange}/>
+
+          <div className="ui search" style={{paddingTop:15, paddingBottom: 15}}>
             <div className="ui icon input" style={{width:"100%"}}>
               <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
               {this.state.loading ? (
@@ -216,12 +210,7 @@ const Logs = React.createClass({
             </div>
           </div>
 
-          <div className="meta">{i18n("{count} total log lines. Page {pagenr}.", {count: this.state.count, pagenr: this.state.page})}</div>
-
-          <div>
-            <a href="#" onClick={this.nextPage}>{i18n("Next")}</a> |
-            <a href="#" onClick={this.refresh}>{i18n("Refresh")}</a>
-          </div>
+          <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
 
           <table className="ui selectable table">
             <thead>
