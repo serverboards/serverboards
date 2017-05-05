@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.LoggerTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  #@moduletag :capture_log
 
   setup do
     # Explicitly get a connection before each test
@@ -49,6 +49,35 @@ defmodule Serverboards.LoggerTest do
     assert Enum.count(history) <= 10
 
     Logger.remove_backend(Serverboards.Logger)
+  end
+
+  test "Get history, filter by query" do
+    Logger.remove_backend(Serverboards.Logger)
+    Logger.add_backend(Serverboards.Logger, [])
+
+    {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io")
+    {:ok, uuid} = Serverboards.Service.service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "aabb" }, user
+
+    Logger.flush
+
+    {:ok, history} = Serverboards.Logger.history %{q: "Test service Serverboards.Service"}
+    # Logger.info("History debug: #{inspect history}")
+    # Logger.info("History debug: #{inspect Enum.count(history.lines)}")
+
+    assert Enum.count(history.lines) > 0
+    assert Enum.count(history.lines) <= 50
+
+    {:ok, history} = Serverboards.Logger.history %{q: "Test service Serverboards.Service #{UUID.uuid4}"}
+    # Logger.info("History debug: #{inspect history}")
+    # Logger.info("History debug: #{inspect Enum.count(history.lines)}")
+
+    assert Enum.count(history.lines) == 0
+
+    {:ok, history} = Serverboards.Logger.history %{count: 10}
+    assert Enum.count(history) <= 10
+
+    Logger.remove_backend(Serverboards.Logger)
 
   end
+
 end

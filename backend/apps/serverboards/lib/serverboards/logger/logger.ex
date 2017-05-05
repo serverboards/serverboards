@@ -33,6 +33,12 @@ defmodule Serverboards.Logger do
         fragment("?->>'service_id' = ?", l.meta, ^id)
         )
     end
+    q = case options[:q] do
+      nil -> q
+      query -> where(q, [l],
+        fragment("to_tsvector('english', ? || ?::text) @@ to_tsquery('english',?)", l.message, l.meta, ^to_tsquery(query))
+        )
+    end
 
     # count total lines
     qcount = select(q, [l], count(l.id))
@@ -51,6 +57,12 @@ defmodule Serverboards.Logger do
 
 
     {:ok, %{ lines: lines, count: count }}
+  end
+
+  defp to_tsquery(txt) do
+    txt
+      |> String.split(" ", trim: true)
+      |> Enum.join(" & ")
   end
 
   defp should_log?(metadata, level) do
