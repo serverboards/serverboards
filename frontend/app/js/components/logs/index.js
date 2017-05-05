@@ -1,6 +1,7 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import Modal from '../modal'
+import Flash from 'app/flash'
 import Loading from '../loading'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import {merge} from 'app/utils'
@@ -114,6 +115,7 @@ const Logs = React.createClass({
       lines: [],
       start: undefined,
       page: 1,
+      q: "",
     }
   },
   componentDidMount(){
@@ -124,8 +126,23 @@ const Logs = React.createClass({
     if (state.start)
       filter.start=state.start
 
+    const q=state.q || this.state.q
+    if (q)
+      filter.q=q
+
+    this.lastfilter=filter
+    this.setState({loading: true})
     rpc.call('logs.list', filter).then((history) => {
+      if (this.lastfilter != filter){
+        return
+      }
+      this.setState({loading: false})
       this.setState({lines: history.lines, count: history.count, start: state.start, page: state.page || 1 })
+    }).catch( (e) => {
+      console.log("Error loading log history: %o", e)
+      Flash.error(i18n("Can't load log history."))
+      this.setState({loading: false})
+      this.setState({lines: [], count: 0, start: state.start, page: state.page || 1 })
     })
   },
   nextPage(ev){
@@ -156,6 +173,16 @@ const Logs = React.createClass({
   contextTypes: {
     router: React.PropTypes.object
   },
+  handleQChange(ev){
+    if (this.q_timeout)
+      clearTimeout(this.q_timeout)
+    const value = ev.target.value
+    this.q_timeout = setTimeout(() => {
+      this.setState({q: value})
+      this.refreshHistory({q: value})
+      this.q_timeout = undefined
+    }, 200)
+  },
   render(){
     if (this.state.count == undefined ){
       return (
@@ -178,6 +205,17 @@ const Logs = React.createClass({
       <div className="ui central area white background">
         <div className="ui container">
           <h1 className="ui header">{i18n("Logs")}</h1>
+          <div className="ui search">
+            <div className="ui icon input" style={{width:"100%"}}>
+              <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
+              {this.state.loading ? (
+                <i className="loading spinner icon"></i>
+              ) : (
+                <i className="search icon"></i>
+              )}
+            </div>
+          </div>
+
           <div className="meta">{i18n("{count} total log lines. Page {pagenr}.", {count: this.state.count, pagenr: this.state.page})}</div>
 
           <div>
