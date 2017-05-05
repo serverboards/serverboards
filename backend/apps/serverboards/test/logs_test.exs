@@ -29,7 +29,7 @@ defmodule Serverboards.LoggerTest do
     assert Enum.count(history) <= 10
   end
 
-  test "Get history, filter by service" do
+  test "Get history, filter by service and q" do
     Logger.remove_backend(Serverboards.Logger)
     Logger.add_backend(Serverboards.Logger, [])
 
@@ -48,7 +48,27 @@ defmodule Serverboards.LoggerTest do
     {:ok, history} = Serverboards.Logger.history %{count: 10}
     assert Enum.count(history) <= 10
 
-    Logger.remove_backend(Serverboards.Logger)
+    # check by query
 
+    {:ok, history} = Serverboards.Logger.history %{q: "Test service Serverboards.Service"}
+    Logger.debug("History debug: #{inspect history}")
+    Logger.debug("History debug: #{inspect Enum.count(history.lines)}")
+
+    assert Enum.count(history.lines) > 0
+    assert Enum.count(history.lines) <= 50
+
+    {:ok, history} = Serverboards.Logger.history %{q: "Test service Serverboards.Service #{UUID.uuid4}"}
+    # Logger.info("History debug: #{inspect history}")
+    # Logger.info("History debug: #{inspect Enum.count(history.lines)}")
+
+    assert Enum.count(history.lines) == 0
+
+    {:ok, history} = Serverboards.Logger.history %{count: 10}
+    assert Enum.count(history) <= 10
+
+
+
+    Logger.remove_backend(Serverboards.Logger)
   end
+
 end
