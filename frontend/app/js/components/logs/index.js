@@ -197,18 +197,26 @@ const Logs = React.createClass({
         <div className="ui container">
           <h1 className="ui header">{i18n("Logs")}</h1>
 
-          <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange}/>
-
-          <div className="ui search" style={{paddingTop:15, paddingBottom: 15}}>
-            <div className="ui icon input" style={{width:"100%"}}>
-              <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
-              {this.state.loading ? (
-                <i className="loading spinner icon"></i>
-              ) : (
-                <i className="search icon"></i>
-              )}
+          <div className="ui grid">
+            <div className="row">
+              <div className="eight wide column">
+                <div className="ui search" style={{paddingTop:15, paddingBottom: 15}}>
+                  <div className="ui icon input" style={{width:"100%"}}>
+                    <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
+                    {this.state.loading ? (
+                      <i className="loading spinner icon"></i>
+                    ) : (
+                      <i className="search icon"></i>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="eight wide column" style={{marginTop:12}}>
+                <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange} max={5}/>
+              </div>
             </div>
           </div>
+
 
           <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
 

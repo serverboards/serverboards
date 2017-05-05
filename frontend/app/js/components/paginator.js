@@ -8,10 +8,11 @@ function PageItem({active, onChange, n}){
   )
 }
 
-function Paginator({count, current, onChange}){
+function Paginator({count, current, onChange, max}){
   let pages = []
   // May need be more dynamic.
-  const max=13
+  if (!max)
+    max=13
 
   // simple case, not many pages.
   if (count<max){
