@@ -1,11 +1,17 @@
 #!/bin/bash
 
-set -ex
+VERSIONBASE="17.07.0~alpha"
+BASEREVISION="r17.04"
+NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
 
+# it will build $VERSIONBASE.$NPATCHES,
+# it may use a full semver with .$NPATCHES for alpha and beta versions too
+
+set -ex
 cd "$( dirname $0 )/.."
 
 function get_version(){
-	local VERSION=$( git describe --match "v[0-9]*" --tags --abbrev=5 HEAD 2>/dev/null | cut -b2- | sed "s/-\(.*\)-/.\\1-/g" ) 
+	local VERSION=$VERSIONBASE.$NPATCHES
 	[ "$VERSION" ] || get_prev_version
 	echo $VERSION
 }
@@ -25,11 +31,11 @@ function update_version_frontend(){
 }
 
 function update_version_debian(){
-	if [ ! "$( grep "$2" debian/changelog )" ]; then
+	if [ ! "$( grep "$1" debian/changelog )" ]; then
 		cat - debian/changelog > debian/changelog.bak <<EOF
-serverboards ($2) unstable; urgency=medium
+serverboards ($1) unstable; urgency=medium
 
-$( git log --pretty=format:'  * %s' --abbrev-commit v$1..HEAD  | grep -v WIP | grep -v Merge )
+$( git log --pretty=format:'  * %s' --abbrev-commit $BASEREVISION..HEAD  | grep -v WIP | grep -v Merge )
 
  -- $( git config --get user.name ) <$( git config --get user.email )>  $( date -R )
 
@@ -45,9 +51,9 @@ function update_versions(){
 	if [ "$PREV_VERSION" == "$VERSION" ]; then
 		echo "Nothing to update"
 	else
-		update_version_backend $( echo $VERSION | sed "s/rc/.0+rc/g" )
-		update_version_frontend $( echo $VERSION | sed "s/rc/.0+rc/g" )
-		update_version_debian $PREV_VERSION $( echo $VERSION | sed "s/rc/~rc/g" )
+		update_version_backend $( echo $VERSION | sed "s/~/+/g" )
+		update_version_frontend $( echo $VERSION | sed "s/~/+/g" )
+		update_version_debian $VERSION
 		echo "Updated version: $PREV_VERSION -> $VERSION"
 	fi
 }
