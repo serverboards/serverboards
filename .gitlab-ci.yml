@@ -54,6 +54,8 @@ publish:
     - sudo -H /usr/local/bin/publish-unstable
   dependencies:
     - release
+  variables:
+    DEBSIGN_KEYID: C1FCABC2
   tags:
     - ubuntu1604
     - rsync-www

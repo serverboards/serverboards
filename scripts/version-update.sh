@@ -3,6 +3,7 @@
 VERSIONBASE="17.07.0~alpha"
 BASEREVISION="44ce87a"
 NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
+AUTHOR="$( git config --get user.name ) <$( git config --get user.email )>"
 
 # it will build $VERSIONBASE.$NPATCHES,
 # it may use a full semver with .$NPATCHES for alpha and beta versions too
@@ -37,7 +38,7 @@ serverboards ($1) unstable; urgency=medium
 
 $( git log --pretty=format:'  * %s' --abbrev-commit $BASEREVISION..HEAD  | grep -v WIP | grep -v Merge )
 
- -- $( git config --get user.name ) <$( git config --get user.email )>  $( date -R )
+ -- $AUTHOR  $( date -R )
 
 EOF
 		mv debian/changelog.bak debian/changelog
