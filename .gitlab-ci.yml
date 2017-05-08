@@ -46,12 +46,12 @@ release:
     expire_in: 1 week
   only:
     - master
-    - T404-gen-deb
+    - CORE-4-unstable-deb-channel
 
 publish:
   stage: publish
   script:
-    - scripts/publish-deb.sh
+    - scripts/publish-deb.sh unstable
   dependencies:
     - release
   when: manual
@@ -60,4 +60,4 @@ publish:
     - rsync-www
   only:
     - master
-    - T404-gen-deb
+    - CORE-4-unstable-deb-channel
