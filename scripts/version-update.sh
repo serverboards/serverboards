@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSIONBASE="17.07.0~alpha"
-BASEREVISION="r17.04"
+BASEREVISION="44ce87a"
 NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
 
 # it will build $VERSIONBASE.$NPATCHES,
