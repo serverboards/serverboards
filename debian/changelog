@@ -1,3 +1,20 @@
+serverboards (17.07.0~alpha.16) unstable; urgency=medium
+
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 08 May 2017 10:37:13 +0200
+
 serverboards (17.04.1-g90249) unstable; urgency=medium
 
   * Updated version to 17.04 final.
