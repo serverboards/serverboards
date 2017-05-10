@@ -424,4 +424,43 @@ defmodule Serverboards.TriggersTest do
     # extra list by trigger type
     assert Test.Client.call(client, "rules.list", %{ trigger: "serverboards.test.auth/shallow.trigger" }) == {:ok, [rule]}
   end
+
+  test "Deleted rules do not appear on normal listings" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    uuid = UUID.uuid4()
+    waitt = 500
+
+    Test.Client.call(client, "rules.update", %{
+        uuid: uuid, is_active: true,
+        trigger: %{ trigger: "serverboards.test.auth/shallow.trigger", params: %{} },
+        actions: %{
+          "ok" => %{
+            action: "serverboards.test.auth/touchfile",
+            params: %{
+              filename: "/tmp/sbds-rule-test-ok",
+            }
+          },
+          "nok" => %{
+            action: "serverboards.test.auth/touchfile",
+            params: %{
+              filename: "/tmp/sbds-rule-test-nok",
+            }
+          },
+        }
+      })
+    :timer.sleep(waitt)
+
+    {:ok, rules} = Test.Client.call(client, "rules.list", %{ trigger: "serverboards.test.auth/shallow.trigger" })
+    got_uuids = (for r <- rules, do: r["uuid"])
+    assert got_uuids == [uuid]
+
+    {:ok, :ok} = Test.Client.call(client, "rules.delete", [uuid])
+    :timer.sleep(waitt)
+
+    assert Test.Client.call(client, "rules.list", %{ trigger: "serverboards.test.auth/shallow.trigger" }) == {:ok, []}
+
+    # but it is if I get explicitely
+    {:ok, rule} = Test.Client.call(client, "rules.get", [uuid])
+    assert rule["uuid"] == uuid
+  end
 end

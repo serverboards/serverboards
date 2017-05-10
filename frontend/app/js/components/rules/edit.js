@@ -8,6 +8,7 @@ import TriggerSelect from './triggerselect'
 import RuleActions from './ruleactions'
 import {i18n} from 'app/utils/i18n'
 import {match_traits} from 'app/utils'
+import HoldButton from '../holdbutton'
 
 const icon = require("../../../imgs/rules.svg")
 
@@ -146,9 +147,9 @@ const Details=React.createClass({
       <Modal className="wide">
         <div ref="el">
           <div className="ui top secondary menu">
-            <a className="item">
+            <HoldButton className="item" onHoldClick={this.props.onDelete}>
               <i className="ui icon trash"/> {i18n("Delete")}
-            </a>
+            </HoldButton>
             <div className="right menu">
               <div className="item">
                 <div className="ui checkbox toggle">

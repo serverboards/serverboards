@@ -20,7 +20,7 @@ var Rules = connect({
   subscriptions: (state, props) => {
     let subs = []
     if (props.project)
-      subs.append(`rules.update[${props.project.shortname}]`)
+      subs.push(`rules.update[${props.project.shortname}]`)
     return subs
   },
   store_enter: (state, props) => [

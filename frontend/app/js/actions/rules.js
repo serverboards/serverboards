@@ -32,6 +32,14 @@ export function rules_save(rule){
   }
 }
 
+export function rules_delete(rule){
+  return function(dispatch){
+    rpc.call("rules.delete", [rule]).then(() => {
+      Flash.success(i18n("Rule deleted"))
+    })
+  }
+}
+
 export function get_rule(uuid){
   return function(dispatch){
     rpc.call("rules.get", [uuid]).then( (rule) => {
