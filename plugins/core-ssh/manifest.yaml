@@ -147,7 +147,7 @@ components:
     name: SSH Remote command
     description: If a remote command fails, it executes an action.
     type: trigger
-    trait: ssh
+    traits: ssh
     states: nok ok
     command: daemon
     start:

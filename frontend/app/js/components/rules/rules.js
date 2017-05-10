@@ -9,12 +9,12 @@ require('sass/rules.sass')
 const Rules=React.createClass({
   getInitialState(){
     return {
-      filter: null
+      trigger_type: null
     }
   },
   componentDidMount(){
     let self=this
-    $(this.refs.filter).dropdown({
+    $(this.refs.trigger_type).dropdown({
       onChange: function(val){
         if (val=="all")
           val=null
@@ -23,10 +23,10 @@ const Rules=React.createClass({
     })
   },
   handleAdd(){
-    if (this.state.filter)
-      this.props.handleAdd({trigger:this.state.filter, project: this.props.project.shortnme })
+    if (this.state.trigger_type)
+      this.props.handleAdd({trigger:this.state.trigger_type, ...this.props.filter})
     else
-      this.props.handleAdd({project: this.props.project.shortname })
+      this.props.handleAdd(this.props.filter)
   },
   render(){
     const props=this.props
@@ -41,9 +41,9 @@ const Rules=React.createClass({
       .map( (id) => props.trigger_catalog.find( (tc) => tc.id == id ))
       .filter( (x) => x )
 
-    if (this.state.filter){
-      const filter=this.state.filter
-      rules=rules.filter( (r) => r.trigger.trigger == filter)
+    if (this.state.trigger_type){
+      const trigger_type=this.state.trigger_type
+      rules=rules.filter( (r) => r.trigger.trigger == trigger_type)
     }
 
     return (
@@ -68,7 +68,7 @@ const Rules=React.createClass({
           {(rules.length==0) ? (
             <Empty/>
           ) : (
-            <div className="ui cards" style={{paddingTop: 20}}>
+            <div className="ui cards" style={{padding: 20}}>
               {rules.map((r) =>
                 <Rule
                   rule={r}

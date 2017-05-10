@@ -10,10 +10,10 @@ export function update_trigger_catalog(filter={}){
   }
 }
 
-export function rules_list(project){
+export function rules_list(filter){
   return function(dispatch){
-    rpc.call("rules.list",{project: project}).then( (rules) => {
-      dispatch({type: "UPDATE_RULES_LIST", project, rules})
+    rpc.call("rules.list",filter).then( (rules) => {
+      dispatch({type: "UPDATE_RULES_LIST", payload: rules})
     }).catch( (e) => {
       console.error("Error getting rules: %o", e)
     })
@@ -28,6 +28,14 @@ export function rules_save(rule){
   return function(dispatch){
     rpc.call("rules.update", rule).then(() => {
       Flash.success(i18n("Rule *{rule}* updated", {rule: rule.name}))
+    })
+  }
+}
+
+export function rules_delete(rule){
+  return function(dispatch){
+    rpc.call("rules.delete", [rule]).then(() => {
+      Flash.success(i18n("Rule deleted"))
     })
   }
 }

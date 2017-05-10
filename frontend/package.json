@@ -3,7 +3,9 @@
   "version": "17.07.0+alpha.16",
   "description": "Serverboards Frontend",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.23.0"
+  },
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",

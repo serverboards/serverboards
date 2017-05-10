@@ -14,19 +14,17 @@ var Rules = connect({
   }),
   handlers: (dispatch, props) => ({
     handleAdd: (extra) => dispatch( set_modal('rule.create', extra ) ),
-    handleEdit: (r) => {
-      if (props.project.shortname)
-        dispatch( push(`/project/${props.project.shortname}/rules/${r.uuid}`) )
-      else
-        dispatch( push(`/rules/${r.uuid}`) )
-    },
+    handleEdit: (r) => dispatch( push(`/rules/${r.uuid}`) ),
     cleanRules: () => dispatch( rules_list_clean() )
   }),
-  subscriptions: (state, props) => [
-    `rules.update[${props.project.shortname}]`
-  ],
+  subscriptions: (state, props) => {
+    let subs = []
+    if (props.project)
+      subs.push(`rules.update[${props.project.shortname}]`)
+    return subs
+  },
   store_enter: (state, props) => [
-    update_trigger_catalog, action_catalog, () => rules_list(props.project.shortname)
+    update_trigger_catalog, action_catalog, () => rules_list(props.filter)
   ],
   store_exit: () => [
     rules_list_clean

@@ -34,6 +34,11 @@ defmodule Serverboards.Rules.RPC do
         Serverboards.Rules.upsert rule, me
         :ok
     end, required_perm: "rules.update", context: true
+    add_method mc, "rules.delete", fn [rule_uuid], context ->
+      me = MOM.RPC.Context.get context, :user
+      Serverboards.Rules.delete_rule rule_uuid, me
+      :ok
+    end, required_perm: "rules.delete", context: true
 
     add_method mc, "rules.list", fn
       [filter] ->

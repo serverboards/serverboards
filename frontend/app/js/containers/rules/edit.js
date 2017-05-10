@@ -2,10 +2,10 @@ import EditView from 'app/components/rules/edit'
 import connect from 'app/containers/connect'
 import {
   update_trigger_catalog, rules_save, get_rule,
-  clean_rule, set_empty_rule
+  clean_rule, set_empty_rule, rules_delete
     } from 'app/actions/rules'
 import { action_catalog } from 'app/actions/action'
-import { push } from 'react-router-redux'
+import { push, goBack } from 'react-router-redux'
 import i18n from 'app/utils/i18n'
 
 var Edit = connect({
@@ -19,8 +19,22 @@ var Edit = connect({
   handlers: (dispatch, props) => ({
     onSave: (rule) => {
       dispatch( rules_save(rule) );
+      if (rule.project){
+        dispatch( push(`/project/${rule.project}/rules`) )
+      }
+      else{
+        dispatch( goBack() )
+      }
+    },
+    onDelete: () => {
+      const rule_id = (props.rule && props.rule.uuid) || (props.params && props.params.id) || props.id
+      dispatch( rules_delete(rule_id) )
+      console.log(props)
       if (props.project){
         dispatch( push(`/project/${props.project}/rules`) )
+      }
+      else{
+        dispatch( goBack() )
       }
     }
   }),
@@ -39,6 +53,9 @@ var Edit = connect({
   loading(state, props){
     if (!props.rule){
       return i18n("Loading rule.")
+    }
+    if (!props.triggers){
+      return i18n("Loading trigger catalog.")
     }
   }
 })(EditView)

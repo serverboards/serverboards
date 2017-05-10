@@ -9,7 +9,7 @@ const default_state={
 export default function rules(state=default_state, action){
   switch(action.type){
     case "UPDATE_RULES_LIST":
-      return merge(state, {rules: action.rules})
+      return merge(state, {rules: action.payload})
     case "UPDATE_TRIGGER_CATALOG":
       return merge(state, {trigger_catalog: action.catalog})
     case "CLEAN_RULES_LIST":

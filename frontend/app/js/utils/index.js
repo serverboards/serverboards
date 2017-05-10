@@ -231,3 +231,22 @@ export function unwrap(fn, arg1, arg2){ // If two args, use them, if one, use st
   }
   return fn
 }
+
+export function match_traits({has, any, all}){
+  has = has || []
+  if (all){
+    for (let a of all){
+      if (has.indexOf(a)<0)
+        return false
+    }
+  }
+  if (any && any.length>0){
+    for (let a of any){
+      if (has.indexOf(a)>=0)
+        return true
+    }
+    return false
+  }
+  else
+    return true
+}
