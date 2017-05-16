@@ -54,11 +54,6 @@ var LoginView = React.createClass({
   setPassword(pw){
     this.setState({modal: 'set_password', pw})
   },
-  keep_logged_in(){
-    const keep_logged_in = $(this.refs.el).find("input#keep_logged_in").is(':checked')
-    //console.debug("Keep logged in %o", keep_logged_in)
-    rpc.keep_logged_in=keep_logged_in
-  },
   render(){
     if (this.state.modal=='reset_password')
       return(
@@ -97,12 +92,6 @@ var LoginView = React.createClass({
           </div>
 
           <div className="actions">
-            <span className="ui checkbox action left" style={{float: "left"}}>
-              <input type="checkbox" id="keep_logged_in" onClick={this.keep_logged_in}/>
-              <label htmlFor="keep_logged_in" style={{cursor:"pointer"}}>
-                {i18n("Keep logged login")}
-              </label>
-            </span>
             <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>{i18n("Reset password")}</a>
             <button type="button" className={`ui positive right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
               {i18n("Login")}
