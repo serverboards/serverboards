@@ -137,5 +137,10 @@ def test_rate_limiting(count):
         serverboards.rpc.event("count_for_rate_limiting", i)
     return "ok"
 
+@serverboards.rpc_method
+def server_updated(action_id, current, previous):
+    serverboards.info("From plugin: Updating '%s' service"%current["name"], extra=dict(current=current, previous=previous))
+    serverboards.rpc.event("event.emit", "test.service.updated", {"ok" : True} )
+
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() # debug=sys.stderr)

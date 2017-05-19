@@ -14,8 +14,9 @@ class RPC:
         self.stdin=stdin
         self.stdout=stdout
         self.stderr=None
-        self.loop_status='OUT'
-        self.requestq=[]
+        self.loop_status='OUT' # IN | OUT | EXIT
+        self.requestq=[] # requests that are pending to do
+        self.replyq={} # replies got out of order: id to msg
         self.send_id=1
         self.pid=os.getpid()
         self.manual_replies=set()
@@ -173,7 +174,7 @@ class RPC:
         if not l:
             self.loop_stop()
             return
-        self.debug_stdout(l)
+        self.debug_stdout("< %s"%l)
         rpc = json.loads(l)
         self.__process_request(rpc)
 
@@ -215,7 +216,7 @@ class RPC:
                 self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
-        self.debug_stdout(line)
+        self.debug_stdout("> %s"%line)
         try:
           self.stdout.write(line + '\n')
           self.stdout.flush()
@@ -268,22 +269,40 @@ class RPC:
 
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
-            self.debug_stdout(res)
+            self.debug_stdout("call res? < %s"%res)
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
             if 'id' in rpc and ('result' in rpc or 'error' in rpc):
-                assert rpc['id']==id, "Expected id %s, got %s"%(id, rpc['id'])
-                if 'error' in rpc:
-                    raise Exception(rpc['error'])
+                # got answer for another request. This might be because I got a
+                # request when I myself was waiting for an answer, got a request
+                # which requested on the server. The second request is here waiting
+                # for answer, but got the first request's answer. this also means
+                # that this answer is for some other call upper in the call stack.
+                # I save it for later.
+                if rpc['id']==id:
+                    if 'result' in rpc:
+                        return rpc['result']
+                    else:
+                        raise Exception(rpc["error"])
                 else:
-                    return rpc['result']
+                    #self.debug_stdout("Keep it for later")
+                    self.replyq[rpc['id']]=rpc
             else:
                 if self.loop_status=="IN":
-                    self.debug("Waiting for reply; Execute now for later: %s"% res)
+                    #self.debug_stdout("Waiting for reply; Execute now for later: %s"% res)
                     self.__process_request(rpc)
+                    # Now check if while I was answering this, I got my answer
+                    rpc=self.replyq.get(id)
+                    if rpc:
+                        #self.debug_stdout("Got my answer while replying to server")
+                        del self.replyq[id]
+                        if 'result' in rpc:
+                            return rpc['result']
+                        else:
+                            raise Exception(rpc["error"])
                 else:
-                    self.debug("Waiting for reply; Queue for later: %s"% res)
+                    #self.debug_stdout("Waiting for reply; Queue for later: %s"% res)
                     self.requestq.append(rpc)
 
     def subscribe(self, event, callback):
@@ -359,14 +378,14 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
-def debug(s):
-    rpc.debug(s, level=1)
-def info(s):
-    rpc.debug(s, level=1)
-def warning(s):
-    rpc.debug(s, level=1)
-def error(s):
-    rpc.debug(s, level=1)
+def debug(s, extra={}):
+    rpc.debug(s, extra=extra, level=1)
+def info(s, extra={}):
+    rpc.info(s, extra=extra, level=1)
+def warning(s, extra={}):
+    rpc.warning(s, extra=extra, level=1)
+def error(s, extra={}):
+    rpc.error(s, extra=extra, level=1)
 
 class Config:
     def __init__(self):

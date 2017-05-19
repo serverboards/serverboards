@@ -2,7 +2,7 @@ require Logger
 
 defmodule ServerboardTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  #@moduletag :capture_log
 
   doctest Serverboards.Project, import: true
   doctest Serverboards.Service, import: true
@@ -137,5 +137,18 @@ defmodule ServerboardTest do
   test "Service RPC" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
     {:ok, _catalog} = Test.Client.call(client, "service.catalog", [])
+  end
+
+  test "Service on_update" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, _ } = Test.Client.call(client, "event.subscribe", ["test.service.updated"] )
+
+    {:ok, uuid} = Test.Client.call(client, "service.create", %{ name: "test", type: "serverboards.test.auth/server"})
+    assert Test.Client.expect(client, method: "test.service.updated")
+
+    {:ok, uuid} = Test.Client.call(client, "service.update", [uuid, %{ name: "test2" }])
+
+    assert Test.Client.expect(client, method: "test.service.updated")
+
   end
 end
