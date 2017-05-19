@@ -3,7 +3,7 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-import requests, subprocess, yaml
+import requests, subprocess, yaml, time
 
 @serverboards.rpc_method
 def latest_version(**args):
@@ -23,15 +23,33 @@ def update_now(**args):
         else:
             serverboards.error("Error updating Serverboards\n%s"%data)
 
+plugins_state={}
+plugins_state_timestamp=0
+MAX_CACHE_TIME=300
+
 @serverboards.rpc_method
 def check_plugin_updates(action_id=None, **args):
+    global plugins_state
+    global plugins_state_timestamp
+
+    ctime=time.time()
+    print(ctime,plugins_state_timestamp,ctime-plugins_state_timestamp,MAX_CACHE_TIME)
+    if plugins_state and (ctime-plugins_state_timestamp < MAX_CACHE_TIME):
+        update_count=0
+        for pl,changelog in plugins_state.items():
+            if changelog:
+                serverboards.rpc.event("event.emit","plugin.update.required", {"plugin_id": plugin_id, "payload": changelog}, ["plugin.install"])
+                update_count+=1
+        serverboards.info("Using cached plugin update data: %s plugins require updates"%update_count)
+        return update_count
+
     PLUGIN_PATH=os.environ.get("SERVERBOARDS_PATH", os.environ["HOME"]+"/.local/serverboards/")+"/plugins/"
     paths=os.listdir(PLUGIN_PATH)
     paths_count=len(paths)
     update_count=0
     serverboards.info("Checking updates at %s for (maybe) %s plugins"%(PLUGIN_PATH, paths_count))
     for n, pl in enumerate(paths):
-        serverboards.rpc.call("action.update", action_id, {"progress": (n*100.0/paths_count), "label": pl})
+        serverboards.rpc.call("action.update", action_id, {"progress": (n*100.0/paths_count), "label": "%s (%d/%d)"%(pl, n, paths_count)})
         try:
             pl=PLUGIN_PATH+pl
             if os.path.exists(pl+"/.git/"):
@@ -39,16 +57,21 @@ def check_plugin_updates(action_id=None, **args):
                 output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
                 if output:
                     plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]
+                    changelog=output.decode('utf8').strip()
                     payload={
                         "plugin_id": plugin_id,
-                        "changelog":output.decode('utf8').strip()
+                        "changelog": changelog
                     }
                     serverboards.info("Plugin %s requires update"%plugin_id)
                     serverboards.rpc.event("event.emit","plugin.update.required", payload, ["plugin.install"])
                     update_count+=1
+                    plugins_state[pl]=changelog
+                else:
+                    plugins_state[pl]=None
         except:
             import traceback; traceback.print_exc()
     serverboards.info("%s plugins require updates"%update_count)
+    plugins_state_timestamp=time.time()
     return update_count
 
 
@@ -76,6 +99,7 @@ def update_at(path):
 
 def test():
     #print(repr( latest_version() ))
+    print(repr( check_plugin_updates() ))
     print(repr( check_plugin_updates() ))
 
 
