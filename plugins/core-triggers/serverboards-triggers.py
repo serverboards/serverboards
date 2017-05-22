@@ -37,10 +37,14 @@ class TimerCheck:
         self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick)
         uuid_to_timer[id]=self
          # initial status
-        if self.check():
+        check_result = self.check()
+        print("Check?", check_result)
+        if check_result != False:
+            print("up")
             serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "up"})
             self.is_up=True
         else:
+            print("down")
             serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "down"})
             self.is_up=False
 
@@ -77,8 +81,11 @@ def real_http(url=None):
     try:
         ret = requests.get(url)
         serverboards.rpc.log("Http get %.2f s"%ret.elapsed.total_seconds())
+        if not ret.ok:
+            return False
         return ret.elapsed.total_seconds()
     except:
+        # import traceback; traceback.print_exc()
         return False
 
 @serverboards.rpc_method
@@ -117,8 +124,13 @@ def ping(id, ip=None, frequency=30, grace=60):
 
 @serverboards.rpc_method
 def http(id, url=None, maxs=1, frequency=30, grace=60):
+    def http_timelimit():
+        t=real_http(url)
+        if not t:
+            return False
+        return t <= maxs
     maxs=float(maxs)
-    TimerCheck(id, lambda: real_http(url) <= maxs, "http", frequency, grace)
+    TimerCheck(id, http_timelimit, "http", frequency, grace)
     return id
 
 @serverboards.rpc_method
