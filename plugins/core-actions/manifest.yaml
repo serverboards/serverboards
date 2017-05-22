@@ -60,7 +60,6 @@ components:
     id: send-notification
     type: action
     command: cmd
-    traits: url
     icon: mail
     call:
       method: send_notification
