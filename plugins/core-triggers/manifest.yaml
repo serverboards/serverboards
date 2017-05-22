@@ -141,6 +141,26 @@ components:
         params:
           tags: -UP DOWN
 
+  - name: HTTP server is up
+    description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
+    id: rule.http.is_up
+    type: rule template
+    traits: url http
+    trigger:
+      trigger: http
+      params:
+        frequency: 5m
+        grace: 10m
+    actions:
+      up:
+        action: serverboards.core.actions/set-tags
+        params:
+          tags: UP -DOWN
+      down:
+        action: serverboards.core.actions/set-tags
+        params:
+          tags: -UP DOWN
+
   - name: Open issue if down
     description: Monitors server tags to know when a server is DOWN or UP and notifies all users
     id: rule.server.open-issue
