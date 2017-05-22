@@ -46,18 +46,18 @@ release:
     expire_in: 1 week
   only:
     - master
-    - T404-gen-deb
+    - r17.04
 
 publish:
   stage: publish
   script:
-    - scripts/publish-deb.sh
+    - sudo -H /usr/local/bin/publish-stable
   dependencies:
     - release
-  when: manual
+  variables:
+    DEBSIGN_KEYID: C1FCABC2
   tags:
     - ubuntu1604
     - rsync-www
   only:
-    - master
-    - T404-gen-deb
+    - r17.04
