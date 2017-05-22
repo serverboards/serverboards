@@ -64,6 +64,8 @@ defmodule Serverboards.Service do
       service, operations
       ) )
 
+      maybe_on_update(service, upd, %{email: me})
+
       {:ok, service} = service_get upd.uuid, me
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.update"])
@@ -152,14 +154,24 @@ defmodule Serverboards.Service do
     } )
 
     Logger.info(
-      "Created new service #{inspect service.name}",
+      "Created new service #{inspect service.name} (#{service.type})",
       service_id: uuid,
       user: me
       )
 
+    maybe_on_update(service, nil, %{email: me})
+
     Enum.map(attributes.tags, fn name ->
       Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
     end)
+  end
+
+  defp maybe_on_update(current, prev, me) do
+    on_update = service_definition(current.type)[:on_update]
+    if on_update do
+      Logger.debug("Action trigger on_update: #{on_update}")
+      Serverboards.Action.trigger_wait on_update, %{ current: decorate(current), previous: decorate(prev)}, me
+    end
   end
 
   defp service_delete_real( service, _me) do
@@ -372,6 +384,9 @@ defmodule Serverboards.Service do
 
   Canbe get from uuid, or decorate an already got model.
   """
+  def decorate(nil) do
+    nil
+  end
   def decorate(uuid) when is_binary(uuid) do
     import Ecto.Query
     case Repo.one( from c in ServiceModel, where: c.uuid == ^uuid, preload: :tags ) do
@@ -569,13 +584,23 @@ defmodule Serverboards.Service do
         Enum.all?(filter, &match_service_filter(service, &1))
       end)
       |> Enum.map(fn service ->
+        on_update = case service.extra["on_update"] do
+          nil -> nil
+          on_update -> if String.contains?(on_update, "/") do
+              on_update
+            else
+              [plugin_id, _] = String.split(service.id, "/")
+              on_update = "#{plugin_id}/#{on_update}"
+            end
+        end
         s = %{
           name: service.name,
           type: service.id,
           fields: service.extra["fields"],
           traits: service.traits,
           description: service.description,
-          icon: service.extra["icon"]
+          icon: service.extra["icon"],
+          on_update: on_update
          }
         s = if service.extra["virtual"] do
           Map.put(s, :virtual, service.extra["virtual"])
@@ -585,5 +610,12 @@ defmodule Serverboards.Service do
 
         s
       end)
+  end
+
+  def service_definition(type) do
+    case service_catalog(type: type) do
+      [definition] -> definition
+      _ -> nil
+    end
   end
 end
