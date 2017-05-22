@@ -112,7 +112,7 @@ components:
     type: cmd
     timeout: 24h
     strategy: singleton
-    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings]
+    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings] service.get
     command: serverboards-ssh.py
 
   - name: SSH Management

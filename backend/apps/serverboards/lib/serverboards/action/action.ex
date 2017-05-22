@@ -402,13 +402,13 @@ defmodule Serverboards.Action do
     {:noreply, status}
   end
   def handle_info({:EXIT, _, :normal}, status) do
-    #Logger.debug("Got process exit normal")
+    #Logger.debug("Got process exit #{inspect reason}")
     # All ok
     {:noreply, status}
   end
 
   def handle_info(info, status) do
-    Logger.warn("Got unexpected info: #{inspect info}")
+    Logger.warn("Got unexpected info: #{inspect info, pretty: true}")
     {:noreply, status}
   end
 

@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import sys, os, pty
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
-import serverboards, pexpect, shlex, re, subprocess, random
+import serverboards, pexpect, shlex, re, subprocess, random, sh
 import urllib.parse as urlparse
 import base64
+import time
 from common import *
 
 td_to_s_multiplier=[
@@ -309,17 +310,136 @@ def watch_stop(id):
     serverboards.rpc.remove_timer(id)
     return "ok"
 
+def __identity(*args, **kwargs):
+    return args or kwargs
+
+def cache_ttl(ttl=10, maxsize=50, hashf=__identity):
+    """
+    Simple decorator, not very efficient, for a time based cache.
+
+    Params:
+        ttl -- seconds this entry may live. After this time, next use is evicted.
+        maxsize -- If trying to add more than maxsize elements, older will be evicted.
+        hashf -- Hash function for the arguments. Defaults to same data as keys, but may require customization.
+
+    """
+    def wrapper(f):
+        data = {}
+        def wrapped(*args, **kwargs):
+            nonlocal data
+            currentt = time.time()
+            if len(data)>=maxsize:
+                # first take out all expired
+                data = { k:(timeout,v) for k,(timeout, v) in data.items() if timeout>currentt }
+                if len(data)>=maxsize:
+                    # not enough, expire oldest
+                    oldest_k=None
+                    oldest_t=currentt+ttl
+                    for k,(timeout,v) in data.items():
+                        if timeout<oldest_t:
+                            oldest_k=k
+                            oldest_t=timeout
+
+                    del data[oldest_k]
+            assert len(data)<maxsize
+
+            hs = hashf(*args, **kwargs)
+            timeout, value = data.get(hs, (currentt, None))
+            if timeout<=currentt or not value:
+                # recalculate
+                value = f(*args, **kwargs)
+                # store
+                data[hs]=(currentt + ttl, value)
+            return value
+        return wrapped
+    return wrapper
+
+@cache_ttl(ttl=10)
+def __get_service_url(uuid):
+    data = serverboards.rpc.call("service.get", uuid)
+    # serverboards.info("data: %s -> %s"%(uuid, data))
+    return data["config"].get("url")
+
+@serverboards.rpc_method
+def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
+    """
+    Copies a file from a service to a service.
+
+    It gets the data definition of the service (how to access) from serverboards
+    core, so any plugin with SSH access can do this copies.
+
+    It knows about options at URL definition, but only for one side (from or to).
+
+    It is recommeneded to use it only to copy from/to host.
+    """
+    assert fromfile and tofile
+    assert not (fromservice and toservice)
+    serverboards.info("Copy from %s:%s to %s:%s"%(fromservice, fromfile, toservice, tofile))
+    opts=[]
+    if fromservice:
+        opts, _url = url_to_opts(__get_service_url(toservice))
+        url=opts[0]
+        opts=opts[1:]
+        urla = "%s:%s"%(__get_service_url(fromservice), fromfile)
+    else:
+        urla=fromfile
+
+    if toservice:
+        opts, _url = url_to_opts(__get_service_url(toservice))
+        url=opts[0]
+        opts=opts[1:]
+        urlb = "%s:%s"%(url, tofile)
+    else:
+        urlb=tofile
+    serverboards.info("scp %s %s %s"%(' '.join(opts), urla, urlb))
+    try:
+        return sh.scp(*opts, urla, urlb).stdout.decode("utf8")
+    except Exception as e:
+        raise Exception(e.stderr)
+
+@serverboards.rpc_method
+def run(service=None, cmd=None):
+    assert service and cmd
+    serverboards.info("Run %s:'%s'"%(service, cmd))
+    url = __get_service_url(service)
+    serverboards.info(url)
+    return ssh_exec(url, cmd)
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
         #print(ssh_exec("localhost","ls -l | tr -cs '[:alpha:]' '\\\\n' | sort | uniq -c | sort -n"))
         #print(ssh_exec("ssh://localhost:22","ls -l | tr -cs '[:alpha:]' '\\\\n' | sort | uniq -c | sort -n"))
+        #import time
+        #localhost = open("localhost")
+        #send(localhost,"ls /tmp/\n")
+        #time.sleep(1.000)
+        #print()
+        #print(recv(localhost))
+        #print()
+
         import time
-        localhost = open("localhost")
-        send(localhost,"ls /tmp/\n")
-        time.sleep(1.000)
-        print()
-        print(recv(localhost))
-        print()
+        called=[]
+        @cache_ttl(ttl=0.25, maxsize=3)
+        def test(p):
+            print("Called!")
+            called.append(p)
+            return len(called)
+
+        assert test(1) == 1
+        assert test(1) == 1
+        assert test(2) == 2
+        assert test(1) == 1
+        time.sleep(0.5)
+        assert test(1) == 3
+        assert test(1) == 3
+        assert test(2) == 4
+        assert test(1) == 3
+        time.sleep(0.5)
+        assert test(1) == 5
+        assert test(2) == 6
+        assert test(3) == 7
+        assert test(4) == 8
+        assert test(1) == 9 # should be in cache, but maxsize achieved
+
     else:
         serverboards.loop()
