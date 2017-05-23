@@ -6,6 +6,8 @@ defmodule Serverboards do
     MOM.Tap.tap(:deadletter, "deadletter")
     MOM.Tap.tap(:invalid, "invalid")
 
+    clean_env()
+
     {:ok, pid} = Serverboards.Setup.start
     Serverboards.Setup.update
     Serverboards.Setup.exit(pid)
@@ -36,6 +38,20 @@ defmodule Serverboards do
       wait_pid(pid)
     else
       :ok
+    end
+  end
+
+
+  @whitelist ["PATH", "HOME", "USER", "DISPLAY"]
+  @doc ~S"""
+  Cleans the environmental variables, leaving only a selected few
+  """
+  defp clean_env() do
+    for {k,v} <- System.get_env() do
+      if not (Enum.member?(@whitelist, k) or String.starts_with?(k, "SERVERBOARDS_")) do
+        IO.puts("Removing ENVVAR #{inspect k}")
+        System.delete_env(k)
+      end
     end
   end
 end
