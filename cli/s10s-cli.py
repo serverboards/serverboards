@@ -275,6 +275,7 @@ class CliClient(IOClient):
         super().__init__()
         self.connect_to( self.builtin_call )
         self.maxid=1
+        self.last_dir=[]
 
     def builtin_call(self, cmd, replyf):
         method = cmd.get("method")
@@ -438,11 +439,15 @@ class CliClient(IOClient):
             nonlocal count
             count-=1
             self.debug("More dir data:", cmd["result"], count)
+            if not baseid in self.internal_dir_store:
+                return None
             self.internal_dir_store[baseid].extend(cmd["result"])
             if count==0:
-                self.reply({"id": baseid, "result":self.internal_dir_store[baseid]})
+                self.last_dir = self.internal_dir_store[baseid]
+                if baseid!="autocomplete":
+                    self.reply({"id": baseid, "result":self.last_dir})
                 del self.internal_dir_store[baseid]
-                return dir
+                return None
         return reply
 
         return list() + list(self.internal.keys())
@@ -534,7 +539,7 @@ class Completer:
         readline.set_completer(self.complete)
         readline.parse_and_bind("tab: complete")
         readline.set_completer_delims(" \t:\"'")
-        readline.set_completion_display_matches_hook(self.display_matches)
+        #readline.set_completion_display_matches_hook(self.display_matches)
 
     def autocomplete(self, text):
         def vars(vs):
@@ -550,9 +555,9 @@ class Completer:
                         yield '%d.%s'%(k,s)
             return
         try:
-            candidates = list(self.call("dir")['result'])
-            candidates += list(self.builtin.keys())
-            candidates += list('$'+x for x in vars(self.vars))
+            self.client.builtin_dir("autocomplete")
+            candidates = list(self.client.last_dir)
+            candidates += list('$'+x for x in vars(self.client.vars))
         except:
             import traceback; traceback.print_exc()
             return []
@@ -560,13 +565,17 @@ class Completer:
 
 
     def complete(self, text, index):
-        if index==0:
-            self.options=sorted( self.client.autocomplete(text) )
-            if text:
-                self.options=[x+' ' for x in self.options if x.startswith(text)]
-        if index<len(self.options):
-            return self.options[index]
-        return None
+        try:
+            if index==0:
+                self.options=sorted( self.autocomplete(text) )
+                if text:
+                    self.options=[x+' ' for x in self.options if x.startswith(text)]
+            if index<len(self.options):
+                return self.options[index]
+            return None
+        except:
+            import traceback; traceback.print_exc()
+
     def display_matches(self, substitution, matches, longest_match_length):
         line_buffer = readline.get_line_buffer()
         print("")
@@ -585,7 +594,7 @@ class Completer:
                 if ll>max_columns:
                     print("")
                     ll=len(s)
-                print(s, end='')
+                printc(s, color="yellow", end='')
         except:
             import traceback
             traceback.print_exc()
@@ -621,8 +630,9 @@ def cli_loop(client_cli, *more_clients, timeout=0.3):
 
 def main():
     print()
-    print("s10s cli -- (C) 2017 Serverboards SL")
-    print()
+    print("s10s cli")
+    print('Type "dir" for a list of current available commands')
+    print("https://serverboards.io")
     import argparse
     parser = argparse.ArgumentParser(description='Connect to Serverboards CORE or a command line plugin.')
     parser.add_argument('infiles', metavar='FILENAMES', type=str, nargs='*',
