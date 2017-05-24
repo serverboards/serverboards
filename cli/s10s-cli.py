@@ -2,7 +2,7 @@
 
 import readline, sys, shlex, json, select, os, atexit, time, math, socket
 from io import StringIO
-DEBUG=True
+DEBUG=False
 PENDING="66509317-642c-4670-a2ef-78155e32c4a9" # to be unique, not confuse with any response
 PASS="c0deb94a-4cc1-40a1-bffb-e935b0747ae3"
 
@@ -37,7 +37,7 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
     else:
         print(s, **kwargs)
 
-def debugc(s, **kwargs):
+def debugc(*s, **kwargs):
     """
     Same as printc, but to stderr
 
@@ -46,7 +46,7 @@ def debugc(s, **kwargs):
     Test
 
     """
-    printc(s, file=sys.stderr, **kwargs)
+    printc(*s, file=sys.stderr, **kwargs)
 
 
 class IOClient:
@@ -83,9 +83,10 @@ class IOClient:
         self.connections.append(fn)
         return self
 
-    def set_debug(self, _on=True):
+    def set_debug(self, _on=True, **kwargs):
         self._debug=_on
-        return self
+        self.debug("Setting debug ON!")
+        return self._debug
 
     def debug(self, *txt, **kwargs):
         if self._debug:
@@ -111,7 +112,7 @@ class IOClient:
             except Exception as e:
                 import traceback; traceback.print_exc()
                 if cmd.get('id'):
-                    self.send({
+                    self.reply({
                             "id": cmd.get("id"),
                             "error": str(e)
                         })
@@ -196,7 +197,6 @@ class CmdClient(IOClient):
         return self.process.stdout.fileno()
 
     def call_into_command(self, cmd, replyf):
-        self.debug("to command>> %s"%(cmd))
         method = cmd.get("method")
         if not method:
             replyf = self.pending_cmds.get(cmd.get('id'))
@@ -205,6 +205,7 @@ class CmdClient(IOClient):
 
         if '.' in method:
             return # not for me, for core
+        self.debug("to command>> %s"%(cmd))
 
         if cmd.get('id'):
             self.pending_cmds[cmd.get('id')]=replyf
@@ -256,11 +257,11 @@ class CliClient(IOClient):
             's': self.builtin_set,
             'set': self.builtin_set,
             'unset': self.builtin_unset,
-            'vars': lambda id:self.vars,
+            'vars': lambda _id:self.vars,
             'debug': self.set_debug,
-            'print': lambda x, id: x,
-            'p': lambda x, id: x,
-            'import': lambda filename, id: self.parse_file(filename),
+            'print': lambda x, _id: x,
+            'p': lambda x, _id: x,
+            'import': lambda filename, _id: self.parse_file(filename),
             'dir':self.builtin_dir
         }
         self.internal={
@@ -276,11 +277,10 @@ class CliClient(IOClient):
         self.maxid=1
 
     def builtin_call(self, cmd, replyf):
-        self.debug("Check builtins: %s"%cmd)
         method = cmd.get("method")
         if method in self.builtin:
-            result = self.builtin[method](*cmd["params"], id=cmd.get('id'))
-            self.debug("Result: %s"%result)
+            result = self.builtin[method](*cmd["params"], _id=cmd.get('id'))
+            self.debug("Builtin result: %s"%result)
             if result != PENDING:
                 replyf({"id": cmd.get("id"), "result": result })
             return True
@@ -293,7 +293,10 @@ class CliClient(IOClient):
 
     def reply(self, reply):
         if 'result' in reply:
-            printc("[%s]: %s"%(reply.get('id'), json.dumps(reply["result"], indent=2)), color="blue", hl=True)
+            result = reply["result"]
+            if result != self.vars:
+                self.vars[""]=result
+            printc("[%s]: %s"%(reply.get('id'), json.dumps(result, indent=2)), color="blue", hl=True)
         else:
             printc("[%s]: %s"%(reply.get('id'), json.dumps(reply["error"], indent=2)), color="red", hl=True)
 
@@ -421,9 +424,9 @@ class CliClient(IOClient):
         del self.vars[varname]
         return old
 
-    def builtin_dir(self, id=None, **kwargs):
+    def builtin_dir(self, _id=None, **kwargs):
         self.maxid+=1
-        replyf = self.internal_dir_reply(len(self.connections)-1, id)
+        replyf = self.internal_dir_reply(len(self.connections)-1, _id)
         for c in self.connections[1:]:
             c( {"method":"dir", "id": self.maxid, "params": [] }, replyf )
             self.maxid+=1
@@ -628,6 +631,8 @@ def main():
         help='Executes this command as a JSON-PC endpoint. To ease plugin debugging.')
     parser.add_argument('--one-line-help', action='store_true',
         help='Shows brief description.')
+    parser.add_argument('--debug', action='store_true',
+        help="Some extra debug output for the CLI")
 
     args = parser.parse_args()
 
@@ -635,9 +640,13 @@ def main():
         print("Command Line Interpreter for commands and core connection")
         sys.exit(0)
 
+    if args.debug:
+        global DEBUG
+        printc("Activating DEBUG.", color="yellow", hl=True)
+        DEBUG=True
+
     # Connection to Serverboards CORE
     client_core = CoreClient()
-    client_core.set_debug(True)
 
     # Connection to terminal CLI
     client_cli=CliClient()
