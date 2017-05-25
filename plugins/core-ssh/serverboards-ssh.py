@@ -393,7 +393,8 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         urlb=tofile
     serverboards.info("scp %s %s %s"%(' '.join(opts), urla, urlb))
     try:
-        return sh.scp(*opts, urla, urlb).stdout.decode("utf8")
+        sh.scp(*opts, urla, urlb).stdout.decode("utf8")
+        return True
     except Exception as e:
         raise Exception(e.stderr)
 
