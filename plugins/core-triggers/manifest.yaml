@@ -56,7 +56,7 @@ components:
           label: Grace period (s)
           description: Seconds that connectivity can be lost without triggering
           default: 60
-    traits: url
+    traits: web
 
   - name: Socket is receiving connections
     id: socket.is_up
@@ -128,6 +128,26 @@ components:
     traits: url
     trigger:
       trigger: socket.is_up
+      params:
+        frequency: 5m
+        grace: 10m
+    actions:
+      up:
+        action: serverboards.core.actions/set-tags
+        params:
+          tags: UP -DOWN
+      down:
+        action: serverboards.core.actions/set-tags
+        params:
+          tags: -UP DOWN
+
+  - name: HTTP server is up
+    description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
+    id: rule.http.is_up
+    type: rule template
+    traits: web
+    trigger:
+      trigger: http
       params:
         frequency: 5m
         grace: 10m

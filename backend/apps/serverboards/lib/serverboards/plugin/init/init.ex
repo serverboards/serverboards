@@ -22,11 +22,19 @@ defmodule Serverboards.Plugin.Init do
   end
 
   def from_component(c) do
+    command = case String.split(c.extra["command"], "/") do
+      [component_id] ->
+        [plugin_id, _] = String.split(c.id, "/")
+        "#{plugin_id}/#{component_id}"
+      [plugin_id, component_id] ->
+        "#{plugin_id}/#{component_id}"
+    end
+
     %Serverboards.Plugin.Init{
       id: c.id,
       name: c.name,
       description: c.description,
-      command: c.extra["command"],
+      command: command,
       call: c.extra["call"]
     }
   end

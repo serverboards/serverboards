@@ -6,6 +6,8 @@ defmodule Serverboards do
     MOM.Tap.tap(:deadletter, "deadletter")
     MOM.Tap.tap(:invalid, "invalid")
 
+    clean_env()
+
     {:ok, pid} = Serverboards.Setup.start
     Serverboards.Setup.update
     Serverboards.Setup.exit(pid)
