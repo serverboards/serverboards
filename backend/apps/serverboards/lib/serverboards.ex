@@ -38,4 +38,16 @@ defmodule Serverboards do
       :ok
     end
   end
+
+  @whitelist ["PATH", "HOME", "USER", "DISPLAY"]
+  @doc ~S"""
+  Cleans the environmental variables, leaving only a selected few
+  """
+  defp clean_env() do
+    for {k,v} <- System.get_env() do
+      if not (Enum.member?(@whitelist, k) or String.starts_with?(k, "SERVERBOARDS_")) do
+        System.delete_env(k)
+      end
+    end
+  end
 end

@@ -64,11 +64,13 @@ defmodule Serverboards.Service do
       service, operations
       ) )
 
-      maybe_on_update(service, upd, %{email: me})
-
       {:ok, service} = service_get upd.uuid, me
-      Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
-      Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.update"])
+      Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
+      Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
+      Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
+      for p <- service.projects do
+        Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
+      end
 
       Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me)
 
@@ -159,19 +161,16 @@ defmodule Serverboards.Service do
       user: me
       )
 
-    maybe_on_update(service, nil, %{email: me})
+    service = decorate(service)
+    Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, ["service.get"])
+    Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, ["service.get"])
+    for p <- service.projects do
+      Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
+    end
 
     Enum.map(attributes.tags, fn name ->
       Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
     end)
-  end
-
-  defp maybe_on_update(current, prev, me) do
-    on_update = service_definition(current.type)[:on_update]
-    if on_update do
-      Logger.debug("Action trigger on_update: #{on_update}")
-      Serverboards.Action.trigger_wait on_update, %{ current: decorate(current), previous: decorate(prev)}, me
-    end
   end
 
   defp service_delete_real( service, _me) do
@@ -584,15 +583,6 @@ defmodule Serverboards.Service do
         Enum.all?(filter, &match_service_filter(service, &1))
       end)
       |> Enum.map(fn service ->
-        on_update = case service.extra["on_update"] do
-          nil -> nil
-          on_update -> if String.contains?(on_update, "/") do
-              on_update
-            else
-              [plugin_id, _] = String.split(service.id, "/")
-              on_update = "#{plugin_id}/#{on_update}"
-            end
-        end
         s = %{
           name: service.name,
           type: service.id,
@@ -600,7 +590,6 @@ defmodule Serverboards.Service do
           traits: service.traits,
           description: service.description,
           icon: service.extra["icon"],
-          on_update: on_update
          }
         s = if service.extra["virtual"] do
           Map.put(s, :virtual, service.extra["virtual"])
