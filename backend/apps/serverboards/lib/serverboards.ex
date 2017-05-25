@@ -13,7 +13,9 @@ defmodule Serverboards do
     Serverboards.Setup.exit(pid)
     wait_pid(pid)
 
-    setup_logger()
+    if Application.get_env(:serverboards, :logger, true) do
+      setup_logger()
+    end
 
     res = Serverboards.Supervisor.start_link name: Serverboards.Supervisor
     res
@@ -41,7 +43,7 @@ defmodule Serverboards do
     end
   end
 
-  @whitelist ["PATH", "HOME", "USER", "DISPLAY"]
+  @whitelist ["PATH", "HOME", "USER", "DISPLAY", "PWD"]
   @doc ~S"""
   Cleans the environmental variables, leaving only a selected few
   """
