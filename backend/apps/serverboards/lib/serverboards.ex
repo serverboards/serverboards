@@ -13,7 +13,9 @@ defmodule Serverboards do
     Serverboards.Setup.exit(pid)
     wait_pid(pid)
 
-    setup_logger()
+    if Application.get_env(:serverboards, :logger, true) do
+      setup_logger()
+    end
 
     res = Serverboards.Supervisor.start_link name: Serverboards.Supervisor
     res
@@ -42,14 +44,13 @@ defmodule Serverboards do
   end
 
 
-  @whitelist ["PATH", "HOME", "USER", "DISPLAY"]
+  @whitelist ["PATH", "HOME", "USER", "DISPLAY", "PWD"]
   @doc ~S"""
   Cleans the environmental variables, leaving only a selected few
   """
   defp clean_env() do
     for {k,v} <- System.get_env() do
       if not (Enum.member?(@whitelist, k) or String.starts_with?(k, "SERVERBOARDS_")) do
-        IO.puts("Removing ENVVAR #{inspect k}")
         System.delete_env(k)
       end
     end

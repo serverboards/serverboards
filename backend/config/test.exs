@@ -8,7 +8,8 @@ config :serverboards,
   plugin_paths: [
     "apps/serverboards/test/data/plugins/",
     "../serverboards/test/data/plugins/",
-  ]
+  ],
+  logger: false
 
 dburl="ecto://serverboards:serverboards@localhost/serverboards_test"
 
