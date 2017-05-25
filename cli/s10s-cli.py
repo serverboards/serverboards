@@ -35,7 +35,7 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
             code+=10
         print("\033[{hl};{color}m{text}\033[1;m".format(hl=hl, text=text, color=code), **kwargs)
     else:
-        print(s, **kwargs)
+        print(text, **kwargs)
 
 def debugc(*s, **kwargs):
     """
@@ -63,7 +63,7 @@ class IOClient:
     """
     def __init__(self):
         self.maxid=1
-        self._debug=DEBUG
+        self._debug=False
         self.connections=[]
 
     def connect_to(self, fn):
@@ -84,12 +84,17 @@ class IOClient:
         return self
 
     def set_debug(self, _on=True, **kwargs):
-        self._debug=_on
-        self.debug("Setting debug ON!")
-        return self._debug
+        if _on=='all':
+            global DEBUG
+            DEBUG=True
+            self.debug("Setting GLOBAL debug ON!")
+        else:
+            self._debug=_on
+            self.debug("Setting debug %s"%_on)
+        return True
 
     def debug(self, *txt, **kwargs):
-        if self._debug:
+        if DEBUG or self._debug:
             extra_args={"color": "purple", "hl":False}
             extra_args.update(kwargs)
             printc("%s:"%(self.__class__.__name__), *txt, **extra_args)
@@ -155,11 +160,15 @@ class CoreClient(IOClient):
         if '\n' in data:
             datal=data.split("\n")
             line = (self.buffer.getvalue()+datal[0]).strip()
-            yield json.loads(line)
+            try:
+                yield json.loads(line)
+            except:
+                printc("Error reading line: %s"%(repr(line)), color="red")
+                raise
             for l in datal[1:-1]:
                 line = l.strip()
                 yield json.loads(line)
-            self.buffer=StringIO(data[-1])
+            self.buffer=StringIO(datal[-1])
         else:
             self.buffer.write(data)
 
@@ -215,9 +224,10 @@ class CmdClient(IOClient):
         return True
 
     def reply(self, reply):
+        self.debug("reply to command> %s"%(reply))
         if reply.get('id') != None:
-            self.debug("reply to command> %s"%(reply))
             self.process.stdin.write( (json.dumps(reply) + "\n").encode('utf8') )
+            self.process.stdin.flush()
 
     def readcmds(self):
         for cmd in self.readcmds_unfiltered():
@@ -229,6 +239,7 @@ class CmdClient(IOClient):
 
     def readcmds_unfiltered(self):
         data = self.process.stdout.readline().decode('utf8')
+        self.debug("call from command> %s"%(data))
         return [json.loads(data)]
 
     def close(self):
@@ -249,7 +260,7 @@ class CmdClient(IOClient):
 
 
 class CliClient(IOClient):
-    def __init__(self, stdin=sys.stdin, stdout=sys.stdout):
+    def __init__(self, client_core, stdin=sys.stdin, stdout=sys.stdout):
         self.stdin=stdin
         self.stdout=stdout
         self.vars={}
@@ -262,7 +273,11 @@ class CliClient(IOClient):
             'print': lambda x, _id: x,
             'p': lambda x, _id: x,
             'import': lambda filename, _id: self.parse_file(filename),
-            'dir':self.builtin_dir
+            'dir':self.builtin_dir,
+            'command':self.run_command,
+            'sleep':self.builtin_sleep,
+            'pending':self.builtin_pending,
+            'assert':self.builtin_assert
         }
         self.internal={
             'log.error':self.internal_log('red'),
@@ -271,11 +286,29 @@ class CliClient(IOClient):
             'log.warning':self.internal_log('yellow'),
         }
         self.internal_dir_store={}
-        self.pending_replies={}
+        self.pending_assign_to={}
+        self.pending_calls={}
         super().__init__()
         self.connect_to( self.builtin_call )
         self.maxid=1
         self.last_dir=[]
+        self.client_core=client_core
+        self.commands={}
+        self.commands_maxid=0
+
+    def run_command(self, command, **kwargs):
+        printc("Run external command %s"%command, color="blue", hl=True)
+        client_command = CmdClient(command)
+
+        self.connect_to( client_command.call_into_command )
+        self.client_core.connect_to( client_command.call_into_command )
+
+        client_command.connect_to( self.internal_commands )
+        client_command.connect_to( self.client_core.send )
+        self.commands[self.commands_maxid]=client_command
+        self.commands_maxid+=1
+        return self.commands_maxid
+
 
     def builtin_call(self, cmd, replyf):
         method = cmd.get("method")
@@ -293,15 +326,33 @@ class CliClient(IOClient):
         return None
 
     def reply(self, reply):
+        self.debug("CLI got reply!: %s"%reply)
         if 'result' in reply:
             result = reply["result"]
+            id = reply.get('id')
+            if id in self.pending_calls:
+                del self.pending_calls[id]
+            printc("[%s]: %s"%(id, json.dumps(result, indent=2)), color="blue", hl=True)
             if result != self.vars:
                 self.vars[""]=result
-            printc("[%s]: %s"%(reply.get('id'), json.dumps(result, indent=2)), color="blue", hl=True)
+                varname = self.pending_assign_to.get(id)
+                if varname:
+                    self.debug("Fulfilled assign to %s -> %s"%(id, varname))
+
+                    self.vars[varname] = result
+                    printc("[%s]: %s"%(varname, json.dumps(result, indent=2)))
+                    del self.pending_assign_to[id]
         else:
             printc("[%s]: %s"%(reply.get('id'), json.dumps(reply["error"], indent=2)), color="red", hl=True)
 
+    def filenos(self):
+        return (
+            [self.client_core]
+            +
+            list(self.commands.values())
+            )
     def fileno(self):
+        raise NotImplementedError()
         return sys.stdin.fileno()
 
     def parse_line(self, line):
@@ -398,8 +449,17 @@ class CliClient(IOClient):
                 expr=int(expr)
             return vars[expr]
 
-
+        if line.startswith('#'):
+            return None
         cmd = shlex.split( line )
+        if len(cmd)>=3 and cmd[1]=='=':
+            return {
+                'method':parse_arg(cmd[2]),
+                'params':list_or_dict( [parse_arg(x) for x in cmd[3:]] ),
+                'assign_to' : cmd[0]
+            }
+
+
         return {
             'method':parse_arg(cmd[0]),
             'params':list_or_dict( [parse_arg(x) for x in cmd[1:]] )
@@ -429,9 +489,23 @@ class CliClient(IOClient):
         self.maxid+=1
         replyf = self.internal_dir_reply(len(self.connections)-1, _id)
         for c in self.connections[1:]:
+            self.debug("Ask dir data to: %s"%(c.__name__))
             c( {"method":"dir", "id": self.maxid, "params": [] }, replyf )
             self.maxid+=1
         return PENDING
+    def builtin_assert(self, a, b=None, **kwargs):
+        if b:
+            if a != b:
+                raise Exception("Values are different")
+        else:
+            if not a:
+                raise Exception("Not truish")
+        return True
+    def builtin_sleep(self, seconds, **kwargs):
+        time.sleep(seconds)
+        return seconds
+    def builtin_pending(self, **kwargs):
+        return self.pending_calls
 
     def internal_dir_reply(self, count, baseid):
         self.internal_dir_store[baseid] = list(self.builtin.keys()) + list(self.internal.keys())
@@ -453,23 +527,16 @@ class CliClient(IOClient):
         return list() + list(self.internal.keys())
 
 
-    def readcmds(self):
-        line = self.stdin.readline().strip()
-        if not line:
-            debugc("Empty line at %s"%(repr(self)), color="red")
-            return []
-        try:
-            return [self.parse_line(line)]
-        except:
-            debugc("Invalid JSON data: %s"%repr(line), color="red")
-            return []
 
     def parse_file(self, filename):
         ret=[]
-        for l in open(filename):
+        for lineno,l in enumerate(open(filename)):
+            l = l.strip()
             try:
-                self.parse_line( l )
+                printc("[%s:%s]: %s"%(filename, self.maxid, l), color="blue")
+                self.call( l )
             except Exception:
+                import traceback; traceback.print_exc()
                 pass
         return ret
 
@@ -492,7 +559,14 @@ class CliClient(IOClient):
 
     def call(self, line):
         cmd = self.parse_line(line)
+        if not cmd:
+            return
+        if 'assign_to' in cmd:
+            self.debug("Pending assign to %s -> %s"%(self.maxid, cmd["assign_to"]))
+            self.pending_assign_to[self.maxid]=cmd["assign_to"]
+            del cmd["assign_to"]
         cmd['id'] = self.maxid
+        self.pending_calls[self.maxid]=cmd
         self.maxid+=1
         self.recv_and_parse_one(cmd)
 
@@ -603,13 +677,13 @@ class Completer:
         print(line_buffer, end="")
         sys.stdout.flush()
 
-def cli_loop(client_cli, *more_clients, timeout=0.3):
-    clients=[client_cli] + list(more_clients)
+def cli_loop(client_cli, timeout=0.3):
+    clients=client_cli.filenos()
     while True:
         more_data=True
         while more_data:
             more_data=False
-            for client_ready in select.select([x for x in more_clients if x],[],[], timeout):
+            for client_ready in select.select(clients,[],[], timeout):
                 for c in client_ready:
                     c.recv_and_parse()
                     more_data=True
@@ -659,26 +733,13 @@ def main():
     client_core = CoreClient()
 
     # Connection to terminal CLI
-    client_cli=CliClient()
+    client_cli=CliClient(client_core)
 
     # Connection to command, if any
-    client_command=None
     if args.command:
-        printc("Run external command %s"%args.command, color="blue", hl=True)
-        client_command = CmdClient(args.command)
-
-
-    ## Connections, order is important, as consumers decide if stop the chain
-    if client_command:
-        client_cli.connect_to( client_command.call_into_command )
-        client_core.connect_to( client_command.call_into_command )
-
-        client_command.connect_to( client_cli.internal_commands )
-        client_command.connect_to( client_core.send )
-
+        client_cli.run_command(args.command)
 
     client_core.connect_to( client_cli.from_core )
-
     client_cli.connect_to( client_core.send )
 
     interactive=True
@@ -688,14 +749,14 @@ def main():
             if f == '-':
                 interactive=True
             else:
-                printc("Running %s"%(f), "grey")
+                printc("Running %s"%(f), color="grey", hl=True)
                 res = client_cli.parse_file(f)
-                printc(json.dumps( res, indent=2), "green")
+                printc(json.dumps( res, indent=2), color="green")
 
 
     if interactive:
         completer=Completer(client_cli)
-        cli_loop(client_cli, client_core, client_command)
+        cli_loop(client_cli)
     client_cli.close()
     sys.exit(0)
 
