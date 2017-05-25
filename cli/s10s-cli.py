@@ -1,10 +1,15 @@
 #!/usr/bin/python3
 
 import readline, sys, shlex, json, select, os, atexit, time, math, socket
+import subprocess, fcntl
 from io import StringIO
 DEBUG=False
 PENDING="66509317-642c-4670-a2ef-78155e32c4a9" # to be unique, not confuse with any response
 PASS="c0deb94a-4cc1-40a1-bffb-e935b0747ae3"
+
+start_time=time.time()
+def time_since_start():
+    return time.time()-start_time
 
 def printc(*s, color=None, hl=None, bg=None, **kwargs):
     """
@@ -97,12 +102,15 @@ class IOClient:
         if DEBUG or self._debug:
             extra_args={"color": "purple", "hl":False}
             extra_args.update(kwargs)
-            printc("%s:"%(self.__class__.__name__), *txt, **extra_args)
+            printc("[%.2f] %s:"%(time_since_start(), self.__class__.__name__), *txt, **extra_args)
 
     def recv_and_parse(self):
+        some=False
         for cmd in self.readcmds():
-            self.recv_and_parse_one(cmd)
-        return False
+            if cmd: # might be none to mark something was read, but no processing required. Needed to know if should try again to select on fds.
+                self.recv_and_parse_one(cmd)
+            some=True
+        return some
 
     def reply(self, reply):
         raise NotImplementedError()
@@ -145,10 +153,14 @@ class CoreClient(IOClient):
 
     def readcmds(self):
         for cmd in self.readcmds_unfiltered():
+            if not cmd:
+                yield None
+                continue
             if 'result' in cmd or 'error' in cmd:
                 id = cmd.get('id')
                 self.pending_replies[id](cmd)
                 del self.pending_replies[id]
+                yield None # mark something hapened, not a command
             else:
                 if 'id' in cmd:
                     self.pending_requests[cmd['id']]=cmd
@@ -171,6 +183,7 @@ class CoreClient(IOClient):
             self.buffer=StringIO(datal[-1])
         else:
             self.buffer.write(data)
+            yield None
 
     def send(self, cmd, replyf):
         method = cmd.get('method')
@@ -191,14 +204,20 @@ class CoreClient(IOClient):
 
 class CmdClient(IOClient):
     def __init__(self, command):
-        import subprocess, fcntl
         self.process=subprocess.Popen(
             command,
             bufsize=1, # line buffered
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             )
+        fcntl.fcntl(
+            self.process.stdout.fileno(),
+            fcntl.F_SETFL,
+            fcntl.fcntl(self.process.stdout.fileno(), fcntl.F_GETFL) | os.O_NONBLOCK
+            )
+
         self.pending_cmds={}
+        self.buffer = StringIO()
 
         super().__init__()
 
@@ -231,16 +250,38 @@ class CmdClient(IOClient):
 
     def readcmds(self):
         for cmd in self.readcmds_unfiltered():
+            if not cmd:
+                yield None
+                continue
             id = cmd.get('id')
             if id in self.pending_cmds:
                 self.pending_cmds[id](cmd)
+                yield None
             else:
                 yield cmd
 
     def readcmds_unfiltered(self):
-        data = self.process.stdout.readline().decode('utf8')
-        self.debug("call from command> %s"%(data))
-        return [json.loads(data)]
+        data = self.process.stdout.read().decode('utf8')
+        self.debug("read>>> %s"%(data))
+        if not data:
+            time.sleep(0.5)
+            return
+        if '\n' in data:
+            datal=data.split("\n")
+            line = (self.buffer.getvalue()+datal[0]).strip()
+            try:
+                yield json.loads(line)
+            except:
+                printc("Error reading line: %s"%(repr(line)), color="red")
+                raise
+            for l in datal[1:-1]:
+                line = l.strip()
+                yield json.loads(line)
+            self.buffer=StringIO(datal[-1])
+        else:
+            self.buffer.write(data)
+            yield None
+
 
     def close(self):
         """
@@ -470,7 +511,7 @@ class CliClient(IOClient):
             file=os.path.basename(params.get('file','--'))[-20:]
             line=params.get('line','--')
             for m in msg.split('\n'):
-                printc("%20s:%s %s"%(file, line, m), color=color)
+                printc("%.2fs [%20s:%s] %s"%(time_since_start(), file, line, m), color=color)
             return PASS
         return real_log
 
@@ -576,8 +617,31 @@ class CliClient(IOClient):
         else:
             printc("??? "+str(res), color="red")
 
-    def close(self):
-        pass
+    def cli_loop(self, timeout=0.3):
+        while True:
+            parsed_some = True # requires thight loop, as it may be sending messages core<->cmd
+            while parsed_some:
+                parsed_some = False
+                # self.debug("Cheching if data ready: %s"%repr(self.filenos()))
+                for n, clients_ready in enumerate(select.select(self.filenos(),[],[], timeout)):
+                    # self.debug("Clients ready[%s]: "%n, clients_ready)
+                    for c in clients_ready:
+                        # self.debug("Data ready at %s"%repr(c))
+                        parsed_some |= c.recv_and_parse()
+                    # self.debug("parsed_more", parsed_some)
+            # self.debug("User input", parsed_some)
+            try:
+                lid = self.maxid
+                line = input('[%s]> '%(lid))
+                if line:
+                    self.call( line )
+            except EOFError:
+                debugc("EOF", color="green")
+                return
+            except:
+                import traceback
+                traceback.print_exc()
+                debugc("Continuing", color="red", hl=True)
 
 class Completer:
     """
@@ -677,29 +741,6 @@ class Completer:
         print(line_buffer, end="")
         sys.stdout.flush()
 
-def cli_loop(client_cli, timeout=0.3):
-    clients=client_cli.filenos()
-    while True:
-        more_data=True
-        while more_data:
-            more_data=False
-            for client_ready in select.select(clients,[],[], timeout):
-                for c in client_ready:
-                    c.recv_and_parse()
-                    more_data=True
-
-        try:
-            lid = client_cli.maxid
-            line = input('[%s]> '%(lid))
-            if line:
-                client_cli.call( line )
-        except EOFError:
-            debugc("EOF", color="green")
-            return
-        except:
-            import traceback
-            traceback.print_exc()
-            debugc("Continuing", color="red", hl=True)
 
 
 def main():
@@ -756,8 +797,7 @@ def main():
 
     if interactive:
         completer=Completer(client_cli)
-        cli_loop(client_cli)
-    client_cli.close()
+        client_cli.cli_loop()
     sys.exit(0)
 
 
