@@ -85,7 +85,10 @@ defmodule Serverboards.Plugin.Init do
   end
 
   defp handle_wait_run(%{started_at: started_at, timeout: timeout } = state) do
-    running_for_seconds = -Timex.Duration.diff(started_at, nil, :seconds)
+    running_for_seconds = case started_at do
+      nil -> 0
+      other -> -Timex.Duration.diff(started_at, nil, :seconds)
+    end
     timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
