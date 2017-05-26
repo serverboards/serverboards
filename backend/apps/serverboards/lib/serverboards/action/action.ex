@@ -200,8 +200,8 @@ defmodule Serverboards.Action do
 
   Called by the server
   """
-  def trigger_real(command_id, method, params) do
-    {:ok, plugin} = Plugin.Runner.start( command_id )
+  def trigger_real(command_id, method, params, user) do
+    {:ok, plugin} = Plugin.Runner.start( command_id, user )
     #Logger.debug("Call method #{inspect method} (#{inspect params})")
     ret = try do
       ret = Plugin.Runner.call(plugin, method, params)
@@ -292,7 +292,7 @@ defmodule Serverboards.Action do
         # time and run
         #Logger.debug("Action start #{inspect uuid}: #{inspect command_id}")
         params = Map.put(params, "action_id", uuid)
-        {ok, ret} = trigger_real(command_id, method, params)
+        {ok, ret} = trigger_real(command_id, method, params, user)
         GenServer.call(server, {:trigger_stop, {uuid, ok, ret}})
       end
       Process.monitor(task)

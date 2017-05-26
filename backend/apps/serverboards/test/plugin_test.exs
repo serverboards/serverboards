@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.PluginTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  # @moduletag :capture_log
 
   :ok = Application.ensure_started(:serverboards)
 
@@ -132,6 +132,10 @@ defmodule Serverboards.PluginTest do
 
     {:ok, test_cmd1} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     {:ok, test_cmd2} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
+
+    {:ok, ps} = Client.call(client, "plugin.ps", [])
+    Logger.debug("ps: #{inspect ps}")
+
     Client.call(client, "plugin.alias", [test_cmd1, "test"])
     {:ok, dir} = Client.call(client, "dir", [])
     Logger.info (inspect dir)
@@ -318,10 +322,10 @@ defmodule Serverboards.PluginTest do
   end
 
   test "Start call stop, various scenarios" do
-    assert {:ok, "pong"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "ping")
-    assert {:error, :exit} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "abort")
-    assert {:error, "Exception requested"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "exception")
-    assert {:error, :not_found} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake--XX", "anything")
+    assert {:ok, "pong"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "ping", [], "test")
+    assert {:error, :exit} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "abort", [], "test")
+    assert {:error, "Exception requested"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "exception", [], "test")
+    assert {:error, :not_found} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake--XX", "anything", [], "test")
   end
 
   test "Plugin postinst" do

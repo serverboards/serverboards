@@ -66,7 +66,7 @@ defmodule Serverboards.Plugin.Init do
   def handle_cast({:start}, state) do
     Logger.info("Starting init service #{inspect state.init.id}", init: state.init)
     init = state.init
-    {:ok, cmd} = Serverboards.Plugin.Runner.start(init.command)
+    {:ok, cmd} = Serverboards.Plugin.Runner.start(init.command, "system/init")
     Process.monitor((Serverboards.Plugin.Runner.get cmd).pid)
     #Process.link((Serverboards.Plugin.Runner.get cmd).pid)
     task =  Task.async(Serverboards.Plugin.Runner, :call, [cmd, init.call, []])
