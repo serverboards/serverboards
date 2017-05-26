@@ -431,7 +431,7 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, :ok, state}
   end
   def handle_call({:ps}, _from, state) do
-    ps = for {uuid, p} <- state.running do
+    ps = for {uuid, p} when is_map(p) <- state.running do
       %{
         uuid: uuid,
         component: p.component.id,
