@@ -146,7 +146,7 @@ defmodule Serverboards.Service do
 
   defp service_add_real( uuid, attributes, me) do
     {:ok, user} = Serverboards.Auth.User.user_info( me, %{ email: me } )
-    {:ok, service} = Repo.insert( %ServiceModel{
+    {:ok, servicem} = Repo.insert( %ServiceModel{
       uuid: uuid,
       name: attributes.name,
       type: attributes.type,
@@ -156,12 +156,12 @@ defmodule Serverboards.Service do
     } )
 
     Logger.info(
-      "Created new service #{inspect service.name} (#{service.type})",
+      "Created new service #{inspect servicem.name} (#{servicem.type})",
       service_id: uuid,
       user: me
       )
 
-    service = decorate(service)
+    service = decorate(servicem)
     Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, ["service.get"])
     for p <- service.projects do
@@ -169,7 +169,7 @@ defmodule Serverboards.Service do
     end
 
     Enum.map(attributes.tags, fn name ->
-      Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
+      Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
     end)
   end
 
