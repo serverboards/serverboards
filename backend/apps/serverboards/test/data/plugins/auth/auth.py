@@ -139,7 +139,7 @@ def test_rate_limiting(count):
 
 @serverboards.rpc_method
 def server_updated(service):
-    serverboards.info("From plugin: Updating '%s' service"%current["name"], extra=dict(service=service))
+    serverboards.info("From plugin: Updating '%s' service"%service["name"], extra=dict(service=service))
     serverboards.rpc.event("event.emit", "test.service.updated", {"ok" : True} )
 
 serverboards.rpc.subscribe("service.updated[serverboards.test.auth/server]", server_updated)

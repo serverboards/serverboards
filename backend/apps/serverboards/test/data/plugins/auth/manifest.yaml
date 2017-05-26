@@ -10,7 +10,7 @@ components:
   - name: daemon
     type: cmd
     id: fake
-    perms: plugin.data[serverboards.test.auth] event.emit
+    perms: plugin.data[serverboards.test.auth] event.emit service.get
     command: auth.py
     traits: auth
 
