@@ -117,7 +117,7 @@ class IOClient:
 
     def recv_and_parse_one(self, cmd):
         for fn in self.connections:
-            # self.debug("Try call into %s"%(fn.__name__),cmd, hl=True)
+            self.debug("Try call into %s"%(fn.__name__),cmd, hl=True)
             try:
                 ret = fn(cmd, self.reply)
                 if ret:
@@ -235,8 +235,11 @@ class CmdClient(IOClient):
             return # not for me, for core
         self.debug("to command>> %s"%(cmd))
 
-        if cmd.get('id'):
-            self.pending_cmds[cmd.get('id')]=replyf
+        id = cmd.get("id")
+        if id:
+            if id in self.pending_cmds:
+                raise Exception("Already waiting for that id!")
+            self.pending_cmds[id]=replyf
 
         self.process.stdin.write( (json.dumps(cmd) + "\n").encode('utf8') )
         self.process.stdin.flush()
@@ -254,7 +257,7 @@ class CmdClient(IOClient):
                 yield None
                 continue
             id = cmd.get('id')
-            if id in self.pending_cmds:
+            if 'error' in cmd or 'result' in cmd and id in self.pending_cmds:
                 self.pending_cmds[id](cmd)
                 yield None
             else:
@@ -262,7 +265,7 @@ class CmdClient(IOClient):
 
     def readcmds_unfiltered(self):
         data = self.process.stdout.read().decode('utf8')
-        self.debug("read>>> %s"%(data))
+        self.debug("read>>> %s"%repr(data))
         if not data:
             time.sleep(0.5)
             return
@@ -383,8 +386,11 @@ class CliClient(IOClient):
                     self.vars[varname] = result
                     printc("[%s]: %s"%(varname, json.dumps(result, indent=2)))
                     del self.pending_assign_to[id]
-        else:
+        elif 'error' in reply:
             printc("[%s]: %s"%(reply.get('id'), json.dumps(reply["error"], indent=2)), color="red", hl=True)
+        else:
+            raise Exception("Got reply with no result nor error")
+        return None
 
     def filenos(self):
         return (
@@ -553,7 +559,7 @@ class CliClient(IOClient):
         def reply(cmd):
             nonlocal count
             count-=1
-            self.debug("More dir data:", cmd["result"], count)
+            self.debug("More dir data:", cmd, count)
             if not baseid in self.internal_dir_store:
                 return None
             self.internal_dir_store[baseid].extend(cmd["result"])
@@ -564,10 +570,6 @@ class CliClient(IOClient):
                 del self.internal_dir_store[baseid]
                 return None
         return reply
-
-        return list() + list(self.internal.keys())
-
-
 
     def parse_file(self, filename):
         ret=[]
