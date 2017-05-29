@@ -68,9 +68,17 @@ let AddService=React.createClass({
 
     let self=this
 
+    function get_service_type_description(type){
+      const typet = props.catalog.find( (t) => t.type == type )
+      if (typet)
+        return typet.description
+      return undefined
+    }
+
     function WrappedService(props){
+      let tooltip = props.description || get_service_type_description(props.type)
       return (
-        <div key={props.uuid || props.type} className="column center aligned">
+        <div key={props.uuid || props.type} className="column center aligned" data-tooltip={tooltip} data-variation="narrow" data-inverted="">
           <a onClick={(ev) => self.handleAdd(ev, props)}  className="ui button invisible">
             {props.icon ? (
               <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
@@ -116,7 +124,9 @@ let AddService=React.createClass({
         <div className="ui text container">
           <h4 className="ui header" style={{paddingTop:30}}>{desc}</h4>
           <div className="ui five column grid stackable svg">
-            {services.map((c) => WrappedService(c))}
+            {services.map((c) =>
+              <WrappedService {...c}/>
+            )}
           </div>
         </div>
       </Modal>
