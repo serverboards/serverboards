@@ -5,6 +5,7 @@ import serverboards, pexpect, shlex, re, subprocess, random, sh
 import urllib.parse as urlparse
 import base64
 import time
+from cache_ttl import cache_ttl
 from common import *
 
 td_to_s_multiplier=[
@@ -41,20 +42,28 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url, command="uname -a", options=""):
+def ssh_exec(url=None, command="test", options=None, service=None):
+    serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
+    if options:
+        serverboards.warning("ssh_exec options deprecated. Better use ssh_exec by ssh service uuid. Currently ignored.")
     if not command:
         raise Exception("Need a command to run")
-    (args, url) = url_to_opts(url)
-    global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings", None) or {}).get("options","")
-    options =global_options+"\n"+(options or "")
-    args += [
-        arg.strip()
-        for option in options.split('\n') if option
-        for arg in ['-o',option]
-        ]
-    args = [x for x in args if x] # remove empty
+    if url:
+        serverboards.warning("ssh_exec by URL deprecated. Better use ssh_exec by ssh service uuid")
+        (args, url) = url_to_opts(url)
+        global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings", None) or {}).get("options","")
+        options =global_options+"\n"+(options or "")
+        args += [
+            arg.strip()
+            for option in options.split('\n') if option
+            for arg in ['-o',option]
+            ]
+        args = [x for x in args if x] # remove empty
+    else:
+        url, args = __get_service_url_and_opts(service)
     args += ['--', command]
+    serverboards.debug("Executing SSH command: [ssh] %s"%(args))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     sp=pexpect.spawn("/usr/bin/ssh", args)
@@ -66,6 +75,7 @@ def ssh_exec(url, command="uname -a", options=""):
             running=False
         elif ret==0:
             if not url.password:
+                serverboards.error("Could not connect url %s, need password"%(repr(url)))
                 raise Exception("Need password")
             sp.sendline(url.password)
     sp.wait()
@@ -79,13 +89,13 @@ def _open(url, uidesc=None, options=""):
     ensure_ID_RSA()
     if not uidesc:
         uidesc=url
+    options=[x for x in options.split('\n') if x]
 
     (opts, url) = url_to_opts(url)
-    global_options=(serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","")
-    options =global_options+"\n"+options
+    options = __get_global_options() + options
     opts += [
         arg.strip()
-        for option in options.split('\n') if option
+        for option in options
         for arg in ['-o',option]
         ]
     opts += ['-t','-t', '--', '/bin/bash']
@@ -210,9 +220,31 @@ def recv(uuid, start=None, encoding='utf8'):
     return {'end': bend, 'data': data }
 
 port_to_pexpect={}
+open_ports={}
+
+@cache_ttl(ttl=60)
+def __get_service_url_and_opts(service_uuid):
+    assert service_uuid, "Need service UUID"
+    service = __get_service(service_uuid)
+    if not service or service["type"] != "serverboards.core.ssh/ssh":
+        raise Exception("Could not get information about service")
+    url = service["config"]["url"]
+
+    options = [ x.strip() for x in service["config"].get("options","").split('\n') if x ]
+    options = __get_global_options() + options
+    options = [
+        arg
+        for option in options
+        for arg in ['-o',option] # flatten -o option
+        ]
+
+    conn_opts, url = url_to_opts(url)
+    options += conn_opts
+
+    return (url, options)
 
 @serverboards.rpc_method
-def open_port(url, hostname="localhost", port="22"):
+def open_port(url=None, ssh_service=None, hostname="localhost", port="22"):
     """
     Opens a connection to a remote ssh server on the given hostname and port.
 
@@ -221,7 +253,8 @@ def open_port(url, hostname="localhost", port="22"):
 
     Arguments:
         url --  The ssh server url, as ssh://[username@]hostname[:port], or
-                simple hostname
+                simple hostname (required or ssh_service)
+        ssh_service -- UUID of the proxying service, instead of the URL.
         hostname -- Remote hostname to connect to. Default `localhost` which
                 would be the SSH server
         port -- Remote port to connect to
@@ -230,11 +263,22 @@ def open_port(url, hostname="localhost", port="22"):
      localport -- Port id on Serverboards side to connect to.
     """
     ensure_ID_RSA()
-    (opts, url) = url_to_opts(url)
+    if url:
+        serverboards.warning("Deprecated open port by URL. Better use open port by service UUID, as it uses all SSH options.")
+        (opts, url) = url_to_opts(url)
+    else:
+        assert ssh_service
+        (url, opts) = __get_service_url_and_opts(ssh_service)
+        serverboards.debug("Service %s url is %s"%(ssh_service, url))
+
+    if url in open_ports:
+        return open_ports[url]
+
     keep_trying=True
     while keep_trying:
         localport=random.randint(20000,60000)
         mopts=opts+["-nNT","-L","%s:%s:%s"%(localport, hostname, port)]
+        serverboards.debug("Start ssh with opts: %s"%mopts)
         sp=pexpect.spawn("/usr/bin/ssh",mopts)
         port_to_pexpect[localport]=sp
         running=True
@@ -242,6 +286,7 @@ def open_port(url, hostname="localhost", port="22"):
             ret=sp.expect([str('^(.*)\'s password:'), str('Could not request local forwarding.'), pexpect.EOF, pexpect.TIMEOUT], timeout=2)
             if ret==0:
                 if not url.password:
+                    serverboards.error("Could not connect url %s, need password"%( url.geturl() ))
                     raise Exception("Need password")
                     sp.sendline(url.password)
             if ret==1:
@@ -253,6 +298,7 @@ def open_port(url, hostname="localhost", port="22"):
             if ret==3:
                 keep_trying=False
                 running=False
+    open_ports[url]=localport
     serverboards.debug("Port redirect localhost:%s -> %s:%s"%(localport, hostname, port))
     return localport
 
@@ -265,27 +311,29 @@ def close_port(port):
     """
     port_to_pexpect[port].close()
     del port_to_pexpect[port]
+    global open_ports
+    open_ports = { url:port for url,port in open_ports.items() if port != port}
     serverboards.debug("Closed port redirect localhost:%s"%(port))
     return True
 
 @serverboards.rpc_method
 def watch_start(id=None, period=None, service=None, script=None, **kwargs):
     period_s = time_description_to_seconds(period or "5m")
-    url=service["config"]["url"]
+    service_uuid=service["uuid"]
     class Check:
         def __init__(self):
             self.state=None
         def check_ok(self):
             stdout=None
             try:
-                p = ssh_exec(url, script)
+                p = ssh_exec(service=service_uuid, command=script)
                 stdout=p["stdout"]
                 p = (p["exit"] == 0)
                 serverboards.info(
                     "SSH remote check script: %s: %s"%(script, p),
                     extra=dict(
                         rule=id,
-                        service=service["uuid"],
+                        service=service_uuid,
                         script=script,
                         stdout=stdout,
                         exit_code=p)
@@ -310,55 +358,24 @@ def watch_stop(id):
     serverboards.rpc.remove_timer(id)
     return "ok"
 
-def __identity(*args, **kwargs):
-    return args or kwargs
-
-def cache_ttl(ttl=10, maxsize=50, hashf=__identity):
-    """
-    Simple decorator, not very efficient, for a time based cache.
-
-    Params:
-        ttl -- seconds this entry may live. After this time, next use is evicted.
-        maxsize -- If trying to add more than maxsize elements, older will be evicted.
-        hashf -- Hash function for the arguments. Defaults to same data as keys, but may require customization.
-
-    """
-    def wrapper(f):
-        data = {}
-        def wrapped(*args, **kwargs):
-            nonlocal data
-            currentt = time.time()
-            if len(data)>=maxsize:
-                # first take out all expired
-                data = { k:(timeout,v) for k,(timeout, v) in data.items() if timeout>currentt }
-                if len(data)>=maxsize:
-                    # not enough, expire oldest
-                    oldest_k=None
-                    oldest_t=currentt+ttl
-                    for k,(timeout,v) in data.items():
-                        if timeout<oldest_t:
-                            oldest_k=k
-                            oldest_t=timeout
-
-                    del data[oldest_k]
-            assert len(data)<maxsize
-
-            hs = hashf(*args, **kwargs)
-            timeout, value = data.get(hs, (currentt, None))
-            if timeout<=currentt or not value:
-                # recalculate
-                value = f(*args, **kwargs)
-                # store
-                data[hs]=(currentt + ttl, value)
-            return value
-        return wrapped
-    return wrapper
-
 @cache_ttl(ttl=10)
 def __get_service_url(uuid):
-    data = serverboards.rpc.call("service.get", uuid)
+    data = get_service(uuid)
     # serverboards.info("data: %s -> %s"%(uuid, data))
     return data["config"].get("url")
+
+@cache_ttl(ttl=60)
+def __get_service(uuid):
+    data = serverboards.rpc.call("service.get", uuid)
+    # serverboards.info("data: %s -> %s"%(uuid, data))
+    return data
+
+@cache_ttl(ttl=300)
+def __get_global_options():
+    options = (serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","").split('\n')
+    options = [ o.strip() for o in options ]
+    options = [ o for o in options if o ]
+    return options
 
 @serverboards.rpc_method
 def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
@@ -399,12 +416,12 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         raise Exception(e.stderr)
 
 @serverboards.rpc_method
-def run(service=None, cmd=None):
+def run(url=None, cmd=None, service=None):
+    if url:
+        return ssh_exec(url=url, command=cmd)
     assert service and cmd
     serverboards.info("Run %s:'%s'"%(service, cmd))
-    url = __get_service_url(service)
-    serverboards.info(url)
-    return ssh_exec(url, cmd)
+    return ssh_exec(service=service, command=cmd)
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':

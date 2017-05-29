@@ -95,14 +95,10 @@ components:
     call:
       method: ssh_exec
       params:
-        - name: url
-          type: url
-          label: Connection url
-          placeholder: eg. ssh://username:password@hostname:port/
-        - name: options
-          type: textarea
-          label: SSH Connection options
-          placeholder: eg. ProxyCommand ssh proxyserver -qW destserver:22
+        - name: service
+          type: service
+          traits: ssh
+          label: SSH server
         - name: command
           type: text
           label: Command to execute
