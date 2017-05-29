@@ -360,7 +360,7 @@ def watch_stop(id):
 
 @cache_ttl(ttl=10)
 def __get_service_url(uuid):
-    data = get_service(uuid)
+    data = __get_service(uuid)
     # serverboards.info("data: %s -> %s"%(uuid, data))
     return data["config"].get("url")
 
@@ -416,12 +416,12 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         raise Exception(e.stderr)
 
 @serverboards.rpc_method
-def run(url=None, cmd=None, service=None):
+def run(url=None, command=None, service=None):
     if url:
-        return ssh_exec(url=url, command=cmd)
-    assert service and cmd
-    serverboards.info("Run %s:'%s'"%(service, cmd))
-    return ssh_exec(service=service, command=cmd)
+        return ssh_exec(url=url, command=command)
+    assert service and command
+    serverboards.info("Run %s:'%s'"%(service, command))
+    return ssh_exec(service=service, command=command)
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':

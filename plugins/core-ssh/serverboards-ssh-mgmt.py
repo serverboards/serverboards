@@ -20,7 +20,7 @@ def ssh_urlparse(url):
     return (u.hostname, str(port))
 
 
-def get_fingerprint(url, options):
+def get_fingerprint(url, options=""):
     if not url:
         return None
     (hostname, port) = ssh_urlparse(url)
@@ -70,8 +70,8 @@ def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
     }
 
 @serverboards.rpc_method
-def toggle_remote_fingerprint(url=None, status=None, **args):
-    fingerprint=get_fingerprint(url)
+def toggle_remote_fingerprint(url=None, status=None, options=None, **args):
+    fingerprint=get_fingerprint(url, options)
 
     enabled=False
 
