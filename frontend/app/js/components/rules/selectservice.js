@@ -24,6 +24,16 @@ const SelectService=React.createClass({
   setService(){
     $(this.refs.service).dropdown('set selected', this.props.defaultValue)
   },
+  get_value(field){
+    if (field.type=='service'){
+      const uuid = field.value
+      const service = this.props.services.find( s => s.uuid == uuid )
+      if (service)
+        return service.name
+    }
+    else
+      return field.value
+  },
   render(){
     const {services, defaultValue}=this.props
     return (
@@ -37,7 +47,7 @@ const SelectService=React.createClass({
             <div key={sv.uuid} className="item" data-value={sv.uuid}>
               {i18n(sv.name)}
               <span style={{float: "right", paddingLeft: 10, fontStyle: "italic", color: "#aaa"}}>
-                {Object.keys(sv.config).map((k) => sv.config[k]).join(', ')}
+                {sv.fields.filter( f => f.card ).map( (f) => this.get_value(f)).join(', ')}
               </span>
             </div>
           ))}
