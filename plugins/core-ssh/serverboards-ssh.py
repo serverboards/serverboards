@@ -79,7 +79,12 @@ def ssh_exec(url=None, command="test", options=None, service=None):
                 raise Exception("Need password")
             sp.sendline(url.password)
     sp.wait()
-    return {"stdout": data.decode('utf8'), "exit": sp.exitstatus}
+
+    stdout = data.decode('utf8')
+
+    if service:
+        serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
+    return {"stdout": stdout, "exit": sp.exitstatus}
 
 sessions={}
 import uuid

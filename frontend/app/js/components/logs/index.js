@@ -64,6 +64,19 @@ function pretty_print(el){
   return el
 }
 
+function DataView({name, data}){
+  if (name=="stdout" || name=="stderr" || name == "command"){
+    return (
+      <pre className="ui code" style={{paddingLeft:10}}>{data}</pre>
+    )
+  }
+  else{
+    return (
+      <div style={{paddingLeft:10}}>{pretty_print(data)}</div>
+    )
+  }
+}
+
 function Details(props){
   const line = props.line
 
@@ -95,7 +108,7 @@ function Details(props){
         {Object.keys(line.meta).map( (k) => (
           <div key={k}>
             <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>{k}</h4>
-            <div style={{paddingLeft:10}}>{pretty_print(line.meta[k])}</div>
+            <DataView name={k} data={line.meta[k]}/>
           </div>
         ))}
 
