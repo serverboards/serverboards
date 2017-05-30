@@ -23,6 +23,7 @@ defmodule Serverboards.ConfigTest do
     System.put_env("SERVERBOARDS_TEST_ENV", "false")
     test = Serverboards.Config.get(:test)
     assert test[:env] == false
+    System.delete_env("SERVERBOARDS_TEST_ENV")
   end
 
   test "Test change database get new values" do
@@ -57,5 +58,13 @@ defmodule Serverboards.ConfigTest do
     System.put_env("SERVERBOARDS_TEST_AT", "null")
     assert Serverboards.Config.get(:test, :at, :default) == nil
     assert Serverboards.Config.get(:test, :atx, :default) == :default  # there was a bug for atom defaults when reached
+    System.delete_env("SERVERBOARDS_TEST_AT")
+  end
+
+  test "Really removed envvars" do
+    assert System.get_env("TERM") == nil
+    assert System.get_env("USERNAME") == nil
+    Logger.debug("#{inspect System.get_env()}")
+    assert Enum.count(System.get_env()) == 5
   end
 end

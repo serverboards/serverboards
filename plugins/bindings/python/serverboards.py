@@ -85,6 +85,9 @@ class RPC:
     def info(self, msg, extra={}, level=0):
         self.debug_stdout(msg)
         return self.event("log.info", str(msg), self.__decorate_log(extra, level=2+level))
+    def warning(self, msg, extra={}, level=0):
+        self.debug_stdout(msg)
+        return self.event("log.warning", str(msg), self.__decorate_log(extra, level=2+level))
 
     def debug_stdout(self, x):
         if not self.stderr:
@@ -281,28 +284,29 @@ class RPC:
                 # that this answer is for some other call upper in the call stack.
                 # I save it for later.
                 if rpc['id']==id:
+                    self.debug_stdout("Done")
                     if 'result' in rpc:
                         return rpc['result']
                     else:
                         raise Exception(rpc["error"])
                 else:
-                    #self.debug_stdout("Keep it for later")
+                    self.debug_stdout("Keep it for later, im waiting for %s"%id)
                     self.replyq[rpc['id']]=rpc
             else:
                 if self.loop_status=="IN":
-                    #self.debug_stdout("Waiting for reply; Execute now for later: %s"% res)
+                    self.debug_stdout("Waiting for reply; Execute now for later: %s"% res)
                     self.__process_request(rpc)
                     # Now check if while I was answering this, I got my answer
                     rpc=self.replyq.get(id)
                     if rpc:
-                        #self.debug_stdout("Got my answer while replying to server")
+                        self.debug_stdout("Got my answer while replying to server")
                         del self.replyq[id]
                         if 'result' in rpc:
                             return rpc['result']
                         else:
                             raise Exception(rpc["error"])
                 else:
-                    #self.debug_stdout("Waiting for reply; Queue for later: %s"% res)
+                    self.debug_stdout("Waiting for reply; Queue for later: %s"% res)
                     self.requestq.append(rpc)
 
     def subscribe(self, event, callback):

@@ -10,7 +10,7 @@ components:
   - name: daemon
     type: cmd
     id: fake
-    perms: plugin.data[serverboards.test.auth] event.emit
+    perms: plugin.data[serverboards.test.auth] event.emit service.get
     command: auth.py
     traits: auth
 
@@ -48,17 +48,10 @@ components:
     type: service
     traits: generic
     id: server
-    on_update: server_updated
     fields:
       - name: url
         label: URL
         placeholder: https://example.com
-
-  - name: Server is updating
-    type: action
-    id: server_updated
-    command: fake
-    call: server_updated
 
   - name: email component
     type: service

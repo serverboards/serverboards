@@ -52,7 +52,7 @@ function update_versions(){
 	if [ "$PREV_VERSION" == "$VERSION" ]; then
 		echo "Nothing to update"
 	else
-		update_version_backend $( echo $VERSION | sed "s/~/+/g" )
+		update_version_backend $( echo $VERSION | sed "s/~/-/g" )
 		update_version_frontend $( echo $VERSION | sed "s/~/+/g" )
 		update_version_debian $VERSION
 		echo "Updated version: $PREV_VERSION -> $VERSION"

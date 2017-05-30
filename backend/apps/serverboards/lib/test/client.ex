@@ -165,7 +165,7 @@ defmodule Test.Client do
   end
 
   def handle_call({:expect, what, timeout}, from, status) do
-    Logger.debug("Look for #{inspect what} at #{inspect status.messages}")
+    Logger.debug("Test.Client at expect: Look for #{inspect what} at #{inspect status.messages}")
     {isin, messages} = expect_rec(what, status.messages)
     if isin do
       #Logger.debug("Already here")

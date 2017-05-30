@@ -168,7 +168,7 @@ defmodule Serverboards.Rules.Rule do
 
     Logger.info("Start rule with trigger #{inspect trigger}, #{uuid}", rule_id: uuid, trigger: trigger, params: params, actions: actions, service_id: service)
     [trigger] = Serverboards.Rules.Trigger.find(id: trigger)
-    plugin_id = case Plugin.Runner.start trigger.command do
+    plugin_id = case Plugin.Runner.start(trigger.command,"system/rule") do
       {:ok, plugin_id} -> plugin_id
       {:error, desc} ->
         Logger.error("Could not start trigger", description: desc, rule_id: uuid, service_id: service)

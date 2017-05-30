@@ -66,7 +66,7 @@ defmodule Serverboards.Plugin.Init do
   def handle_cast({:start}, state) do
     Logger.info("Starting init service #{inspect state.init.id}", init: state.init)
     init = state.init
-    {:ok, cmd} = Serverboards.Plugin.Runner.start(init.command)
+    {:ok, cmd} = Serverboards.Plugin.Runner.start(init.command, "system/init")
     Process.monitor((Serverboards.Plugin.Runner.get cmd).pid)
     #Process.link((Serverboards.Plugin.Runner.get cmd).pid)
     task =  Task.async(Serverboards.Plugin.Runner, :call, [cmd, init.call, []])
@@ -85,7 +85,10 @@ defmodule Serverboards.Plugin.Init do
   end
 
   defp handle_wait_run(%{started_at: started_at, timeout: timeout } = state) do
-    running_for_seconds = -Timex.Duration.diff(started_at, nil, :seconds)
+    running_for_seconds = case started_at do
+      nil -> 0
+      other -> -Timex.Duration.diff(started_at, nil, :seconds)
+    end
     timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{

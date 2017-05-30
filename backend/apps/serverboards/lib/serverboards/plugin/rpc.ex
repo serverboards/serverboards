@@ -50,15 +50,26 @@ defmodule Serverboards.Plugin.RPC do
 
     RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id], context ->
       if has_perm_for_plugin(context, plugin_component_id) do
-        Plugin.Runner.start plugin_component_id
+        user = RPC.Context.get(context, :user)
+        Plugin.Runner.start plugin_component_id, user.email
       else
         {:error, :unknown_method}
       end
     end, context: true
 
-    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id], context ->
+    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [uuid], context ->
       if has_perm_for_plugin(context, :any) do
-        Plugin.Runner.stop plugin_component_id
+        Plugin.Runner.stop uuid
+      else
+        {:error, :unknown_method}
+      end
+    end, context: true
+
+    RPC.MethodCaller.add_method method_caller, "plugin.kill", fn [uuid], context ->
+      if has_perm_for_plugin(context, :any) do
+        user = RPC.Context.get(context, :user)
+        Logger.warn("Plugin #{inspect uuid} killed by #{inspect user.email}", plugin_uuid: uuid, user: user.email)
+        Plugin.Runner.kill uuid
       else
         {:error, :unknown_method}
       end
@@ -89,6 +100,11 @@ defmodule Serverboards.Plugin.RPC do
         else
           {:error, :unknown_method}
         end
+    end, [required_perm: "plugin", context: true]
+
+    RPC.MethodCaller.add_method method_caller, "plugin.ps", fn
+      [], context ->
+        Plugin.Runner.ps()
     end, [required_perm: "plugin", context: true]
 
     RPC.MethodCaller.add_method method_caller, "plugin.catalog", fn
