@@ -29,7 +29,7 @@ defmodule Serverboards.Setup do
     "notifications.create", "notifications.create_all",
     "notifications.list",
     "action.trigger", "action.watch", "action.update",
-    "rules.update", "rules.view", "rules.trigger", "rules.delete", 
+    "rules.update", "rules.view", "rules.trigger", "rules.delete",
     "logs.view",
     "issues.view", "issues.create", "issues.update"
     ]
@@ -44,7 +44,7 @@ defmodule Serverboards.Setup do
     else
       database = Serverboards.Config.get( :database )
 
-      {:ok, pid} = Serverboards.Repo.start_link(database)
+      {:ok, _pid} = Serverboards.Repo.start_link(database)
     end
   end
 
@@ -55,7 +55,7 @@ defmodule Serverboards.Setup do
   Setups the database for initial state, with given username and password
   """
   def initial(options \\ []) do
-    start
+    start()
     import_user(%{
       email: Keyword.get(options, :email, "admin@serverboards.io"),
       name: "Admin",
@@ -83,7 +83,7 @@ defmodule Serverboards.Setup do
     }
 
     import_group(status, %{ name: "user", perms: []} )
-    import_group(status, %{ name: "admin", perms: all_perms} )
+    import_group(status, %{ name: "admin", perms: all_perms()} )
     Logger.debug("Done")
   end
 

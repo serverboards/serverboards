@@ -87,7 +87,7 @@ defmodule Serverboards.Plugin.Init do
   defp handle_wait_run(%{started_at: started_at, timeout: timeout } = state) do
     running_for_seconds = case started_at do
       nil -> 0
-      other -> -Timex.Duration.diff(started_at, nil, :seconds)
+      _other -> -Timex.Duration.diff(started_at, nil, :seconds)
     end
     timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
@@ -102,13 +102,13 @@ defmodule Serverboards.Plugin.Init do
     state
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, type}, %{started_at: started_at} = state) when is_nil(started_at) do
+  def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
     # this is when already finished properly, it may close the cmd.
     #Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
     Serverboards.Plugin.Runner.stop(state.cmd)
     {:noreply, state}
   end
-  def handle_info({:DOWN, ref, :process, pid, type}, state) do
+def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     #Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
     Serverboards.Plugin.Runner.stop(state.cmd)
     state = handle_wait_run(state)
@@ -154,7 +154,7 @@ defmodule Serverboards.Plugin.Init do
     {:stop, :normal, state}
   end
   def handle_info(any, state) do
-    Logger.warn("#{inspect self} Got info: #{inspect any}")
+    Logger.warn("#{inspect self()} Got info: #{inspect any}")
     {:noreply, state}
   end
 end

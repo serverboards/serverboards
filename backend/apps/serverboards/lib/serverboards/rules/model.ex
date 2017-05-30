@@ -18,7 +18,7 @@ defmodule Serverboards.Rules.Model do
 
       field :last_state, :string
 
-      timestamps
+      timestamps()
     end
 
     @required_fields ~w(uuid is_active)a

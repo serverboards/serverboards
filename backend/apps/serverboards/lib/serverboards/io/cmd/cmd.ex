@@ -87,7 +87,7 @@ defmodule Serverboards.IO.Cmd do
   ## server implementation
   def init({cmd, args, cmdopts, perms}) do
     Process.flag(:trap_exit, true)
-    server = self
+    server = self()
 
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
     Logger.debug("Start command with opts: #{inspect cmdopts}")
@@ -115,7 +115,7 @@ defmodule Serverboards.IO.Cmd do
         groups: []
       }
     )
-    {:ok, timer} = :timer.send_interval(@ratelimit_bucket_rate, self, :ratelimit_bucket_add)
+    {:ok, timer} = :timer.send_interval(@ratelimit_bucket_rate, self(), :ratelimit_bucket_add)
     #Logger.debug("Timer is #{inspect timer}")
 
     state=%{
@@ -186,7 +186,7 @@ defmodule Serverboards.IO.Cmd do
   def handle_call({:write_line, line}, _from, state) do
     # If fails, makes the cmd exit. And by failing call, quite probably caller too. (Client)
     if state.debug do
-      Logger.debug("CMD // #{Path.basename state.cmd} // #{inspect self}> #{line} #{inspect Port.info(state.port)}")
+      Logger.debug("CMD // #{Path.basename state.cmd} // #{inspect self()}> #{line} #{inspect Port.info(state.port)}")
     end
     res = Port.command(state.port, line)
 
@@ -213,22 +213,22 @@ defmodule Serverboards.IO.Cmd do
     {:reply, {:ok, :ok}, %{ state | debug: onoff }}
   end
 
-  def handle_cast({:cast, method, params, cont}, state) do
-    server = self
-    RPC.Client.cast( state.client, method, params, fn res ->
-      Logger.debug("Got answer #{inspect server} #{inspect self}, #{inspect res}")
-      try do
-        GenServer.call(server, {:reply, cont, res})
-      catch
-        :exit, _ ->
-          # this means it crashed handling the RPC.Client.Cast, as would not get to call it if not running
-          Logger.error("Error with the reply, maybe cmd crashed while processing #{method}.", cmd: state.cmd, method: method)
-          cont.({:error, :abort_on_method_call})
-      end
-      :ok
-    end)
-    {:noreply, state}
-  end
+  # def handle_cast({:cast, method, params, cont}, state) do
+  #   server = self()
+  #   RPC.Client.cast( state.client, method, params, fn res ->
+  #     Logger.debug("Got answer #{inspect server} #{inspect self()}, #{inspect res}")
+  #     try do
+  #       GenServer.call(server, {:reply, cont, res})
+  #     catch
+  #       :exit, _ ->
+  #         # this means it crashed handling the RPC.Client.Cast, as would not get to call it if not running
+  #         Logger.error("Error with the reply, maybe cmd crashed while processing #{method}.", cmd: state.cmd, method: method)
+  #         cont.({:error, :abort_on_method_call})
+  #     end
+  #     :ok
+  #   end)
+  #   {:noreply, state}
+  # end
 
   def handle_info({ _, {:data, {:eol, line}}}, state) do
     state = rate_limit_wait(state)
@@ -236,7 +236,7 @@ defmodule Serverboards.IO.Cmd do
     line = to_string([state.line, line])
 
     if state.debug do
-      Logger.debug("CMD // #{Path.basename state.cmd} // #{inspect self}< #{line}")
+      Logger.debug("CMD // #{Path.basename state.cmd} // #{inspect self()}< #{line}")
     end
 
     case RPC.Client.parse_line(state.client, line) do

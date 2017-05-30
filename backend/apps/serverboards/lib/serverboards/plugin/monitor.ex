@@ -37,7 +37,7 @@ defmodule Serverboards.Plugin.Monitor do
     args = args ++ dirnames ++ all_subdirs
     cmdopts = [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
-    Port.connect(port, self)
+    Port.connect(port, self())
 
     Logger.info("Plugin monitor ready! #{inspect port} #{inspect(dirnames++all_subdirs)}")
 

@@ -64,7 +64,7 @@ defmodule Serverboards.Auth do
 			"token" ->
 				token_auth(params)
 			other ->
-				auth = auth_components
+				auth = auth_components()
 					|> Enum.find( &(&1.id == other))
 
 				if auth do
@@ -161,7 +161,7 @@ defmodule Serverboards.Auth do
 
 	defp try_login_default_plugins(params) do
 		#Logger.debug("Try login with params #{inspect params}")
-		auth_components
+		auth_components()
 			|> Enum.filter(&(&1.login.params == "default"))
 			|> try_login_by_plugins(params)
 	end
@@ -258,7 +258,7 @@ defmodule Serverboards.Auth do
 				end
 		end)
 
-		RPC.Client.event( client, "auth.required", list_auth )
+		RPC.Client.event( client, "auth.required", list_auth() )
 		:ok
 	end
 
@@ -274,7 +274,7 @@ defmodule Serverboards.Auth do
 	def list_auth do
 		auths = (
 			["basic", "token"] ++
-			(for c <- auth_components do
+			(for c <- auth_components() do
 				c.id
 			end))
 		Logger.debug("Found auth types: #{inspect auths}")
@@ -282,7 +282,7 @@ defmodule Serverboards.Auth do
 		auths
 	end
 
-	def auth_components do
+	def auth_components() do
 		Serverboards.Plugin.Registry.filter_component(type: "auth")
 		 |> Enum.map(fn c ->
 			 try do

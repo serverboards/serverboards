@@ -89,7 +89,7 @@ defmodule Serverboards.Logger do
     ]
     {:ok, supervisor} = Supervisor.start_link(children, strategy: :one_for_one)
 
-    {:ok, %{ ignore_applications: ignore_applications, queue: [], supervisor: supervisor }}
+    {:ok, %{ ignore_applications: ignore_applications(), queue: [], supervisor: supervisor }}
   end
 
   def handle_event(:flush, state) do

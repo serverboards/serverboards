@@ -238,7 +238,7 @@ defmodule Serverboards.Action do
   @doc ~S"""
   Updates the label and or progress of a running action
   """
-  def update(uuid, params, user) do
+  def update(uuid, params, _user) do
     #Logger.info("Updating action status: #{inspect uuid}: #{inspect params}", uuid: uuid, params: params, user: user)
     GenServer.cast(Serverboards.Action, {:update, uuid, params})
   end
@@ -246,7 +246,7 @@ defmodule Serverboards.Action do
   ## Server impl
   def init(%{}) do
     Process.flag(:trap_exit, true)
-    server = self
+    server = self()
 
     {:ok, es} = EventSourcing.start_link name: :action
     EventSourcing.Model.subscribe es, :action, Serverboards.Repo
@@ -286,7 +286,7 @@ defmodule Serverboards.Action do
       action_update_started(action)
       Event.emit("action.started", action, ["action.watch"] )
 
-      server = self
+      server = self()
       {:ok, task} = Task.start_link fn ->
         #Process.put(:name, Serverboards.Action.Running)
         # time and run

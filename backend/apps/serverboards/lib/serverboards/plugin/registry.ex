@@ -207,7 +207,7 @@ defmodule Serverboards.Plugin.Registry do
       %MOM.Message{ payload: %{ type: :update, section: section }} ->
         if section in ["plugins", "broken_plugins"] do
           Logger.debug("Reloading plugins, settings has changed")
-          reload_plugins
+          reload_plugins()
         end
       _ -> :ignore
     end)

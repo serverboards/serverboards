@@ -67,7 +67,7 @@ defmodule Serverboards.Rules do
     ) |> Map.new
   end
 
-  def trigger(uuid, state, params, me) do
+  def trigger(uuid, state, params, _me) do
     case get(uuid) do
       nil -> {:error, :unknown_rule}
       rule ->
@@ -153,7 +153,7 @@ defmodule Serverboards.Rules do
         q |> where([rule, _service, _project], rule.is_active == ^v )
       {:trigger, v}, q ->
         q |> where([rule, _service, _project], rule.trigger == ^v )
-      {:deleted, v}, q ->
+      {:deleted, _v}, q ->
         q # already done
       end)
     q = q |> select( [rule, service, project], %{

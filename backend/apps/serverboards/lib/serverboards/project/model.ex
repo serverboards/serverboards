@@ -10,7 +10,7 @@ defmodule Serverboards.Project.Model do
       field :priority, :integer
 
       has_many :tags, Serverboards.Project.Model.ProjectTag
-      timestamps
+      timestamps()
     end
 
     @required_fields ~w(shortname)a
@@ -31,8 +31,8 @@ defmodule Serverboards.Project.Model do
 
       belongs_to :project, Project
     end
-    @required_fields ~w(project_id name)a
-    @optional_fields ~w()a
+    # @required_fields ~w(project_id name)a
+    # @optional_fields ~w()a
   end
 
   defmodule ProjectService do
@@ -40,10 +40,10 @@ defmodule Serverboards.Project.Model do
     schema "project_project_service" do
       field :project_id, :id
       field :service_id, :id
-      timestamps
+      timestamps()
     end
-    @required_fields ~w(project_id service_id)a
-    @optional_fields ~w()a
+    # @required_fields ~w(project_id service_id)a
+    # @optional_fields ~w()a
   end
 
   defmodule Widget do
@@ -54,7 +54,7 @@ defmodule Serverboards.Project.Model do
       field :widget, :string
       field :config, :map
       field :ui, :map
-      timestamps
+      timestamps()
     end
 
     @required_fields ~w(project_id uuid widget)a

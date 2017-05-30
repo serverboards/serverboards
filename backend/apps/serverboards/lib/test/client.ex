@@ -33,7 +33,7 @@ defmodule Test.Client do
       case Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] } do
         {:ok, user} ->
           token = Serverboards.Auth.User.Token.create(user)
-          user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+          _user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
           :ok
         {:error, _} ->
           Logger.warn("Test client cant log as user #{inspect maybe_user}")

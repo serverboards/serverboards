@@ -22,7 +22,7 @@ defmodule Serverboards.Rules.Rule do
   def start_link(rule, _options \\ []) do
     #Logger.debug("Start rule #{inspect rule.uuid}", rule: rule)
 
-    trigger = case Serverboards.Rules.Trigger.find(id: rule.trigger.trigger) do
+    case Serverboards.Rules.Trigger.find(id: rule.trigger.trigger) do
       [] -> {:error, :unknown_trigger}
       [trigger] ->
         if Map.get(trigger, :start, %{})["method"] do
@@ -180,7 +180,7 @@ defmodule Serverboards.Rules.Rule do
     #  :autoremove
     #end)
     {:ok, client} = Plugin.Runner.client plugin_id
-    setup_client_for_rules(self, client)
+    setup_client_for_rules(self(), client)
 
     method = Map.put( trigger.start, "params", [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", []) )
 

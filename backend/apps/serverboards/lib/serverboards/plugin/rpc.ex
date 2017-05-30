@@ -103,9 +103,8 @@ defmodule Serverboards.Plugin.RPC do
     end, [required_perm: "plugin", context: true]
 
     RPC.MethodCaller.add_method method_caller, "plugin.ps", fn
-      [], context ->
-        Plugin.Runner.ps()
-    end, [required_perm: "plugin", context: true]
+      [] -> Plugin.Runner.ps()
+    end, [required_perm: "plugin"]
 
     RPC.MethodCaller.add_method method_caller, "plugin.catalog", fn
       [] ->

@@ -6,7 +6,7 @@ defmodule Serverboards.Notifications.Model do
         field :is_active, :boolean
         field :channel, :string
         field :config, :map
-        timestamps
+        timestamps()
      end
 
     @required_fields ~w(user_id is_active channel config)a
@@ -27,7 +27,7 @@ defmodule Serverboards.Notifications.Model do
       field :meta, :map
       field :tags, {:array, :string}
 
-      timestamps
+      timestamps()
     end
 
     @required_fields ~w(user_id subject body)a

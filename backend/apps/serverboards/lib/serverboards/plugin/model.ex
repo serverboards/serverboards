@@ -5,7 +5,7 @@ defmodule Serverboards.Plugin.Model do
       field :plugin, :string
       field :key, :string
 	    field :value, :map
-      timestamps
+      timestamps()
     end
 
     @required_fields ~w(plugin key value)a
