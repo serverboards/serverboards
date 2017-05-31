@@ -103,6 +103,7 @@ components:
           type: text
           label: Command to execute
           description: Non blocking command to execute
+
   - name: SSH daemon
     id: daemon
     type: cmd
@@ -172,3 +173,23 @@ components:
             If this script returns an error code, it goes to the nok status.
           type: textarea
     stop: watch_stop
+
+
+  - name: SSH Test Command
+    id: test-daemon
+    type: cmd
+    timeout: 1m
+    strategy: one_for_one
+    perms:
+      event.emit
+      settings.view[serverboards.core.ssh/ssh.settings]
+      service.get
+      service.update
+      service.create
+      plugin
+    command: test.py
+
+  - id: test
+    name: SSH Tests
+    type: test
+    command: test-daemon

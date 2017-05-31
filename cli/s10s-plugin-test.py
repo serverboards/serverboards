@@ -13,7 +13,11 @@ def main():
     cli=s10s_cli.CliClient(interactive=False)
     cli.authenticate()
     allok = True
-    for s in cli.call("plugin.component.catalog", type="test"):
+    suites = cli.call("plugin.component.catalog", type="test")
+    if len(sys.argv)>1:
+        suites = [x for x in suites if x["id"] in sys.argv[1:]]
+
+    for s in suites:
         printc("## %s / %s"%(s["name"], s["id"]), color="blue")
         command = s["extra"]["command"]
         if '/' not in command:
@@ -25,17 +29,23 @@ def main():
             printc("Cant start command! %s"%(command), color="red")
             allok = False
             continue
-        for test in cli.call("plugin.call", plugin, "dir"):
-            if test.startswith("test_"):
-                try:
-                    result = cli.call("plugin.call",plugin, test)
-                except Exception as e:
-                    result = e
-                if result == True:
-                    printc("* OK  %s"%(test), color="green")
-                else:
-                    printc("* NOK %s -> %s"%(test, result), color="red")
-                    allok = False
+        tests = [
+            x for x in
+            sorted(cli.call("plugin.call", plugin, "dir"))
+            if x.startswith("test_") or x.endswith("_test")
+            ]
+        tests_count = len(tests)
+        for n, test in enumerate(tests):
+            printc("* %s (%d/%d) ...\r"%(test, n+1, tests_count), end="", flush=True)
+            try:
+                result = cli.call("plugin.call",plugin, test)
+            except Exception as e:
+                result = e
+            if result == True or result == None:
+                printc("* %-48s OK"%(test), color="green")
+            else:
+                printc("* %-48s NOK -> %s"%(test, result), color="red")
+                allok = False
         try:
             cli.call("plugin.stop", plugin)
         except:
