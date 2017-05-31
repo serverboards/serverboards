@@ -412,3 +412,60 @@ class Config:
                 raise
 
 config=Config()
+
+
+class Plugin:
+    """
+    Wraps a plugin to easily call the methods in it.
+
+    It has no recovery in it.
+    """
+    class Method:
+        def __init__(self, plugin, method):
+            self.plugin=plugin
+            self.method=method
+        def __call__(self, *args, **kwargs):
+            return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs)
+    def __init__(self, plugin_id):
+        self.plugin_id = plugin_id
+        self.uuid=rpc.call("plugin.start", plugin_id)
+    def __getattr__(self, method):
+        if not self.uuid:
+            self.uuid=rpc.call("plugin.start", plugin_id)
+        return Plugin.Method(self, method)
+    def stop(self):
+        rpc.call("plugin.stop", self.uuid)
+        self.uuid = None
+
+class RPCWrapper:
+    """
+    Wraps any module or function to be able to be called.
+
+    This allows to do a simple `service.get(uuid)`, given that before you did a
+    `service = RPCWrapper("service")`.
+
+    There are already some instances ready for importing as:
+    `from serverboards import service, issues, rules, action`
+    """
+    def __init__(self, module):
+        self.module = module
+    def __getattr__(self, sub):
+        return RPCWrapper(self.module+'.'+sub)
+    def __call__(self, *args, **kwargs):
+        return rpc.call(self.module, *args, **kwargs)
+
+action = RPCWrapper("action")
+auth = RPCWrapper("auth")
+group = RPCWrapper("group")
+perm = RPCWrapper("perm")
+user = RPCWrapper("user")
+dashboard = RPCWrapper("dashboard")
+event = RPCWrapper("event")
+issues = RPCWrapper("issues")
+logs = RPCWrapper("logs")
+notifications = RPCWrapper("notifications")
+plugin = RPCWrapper("plugin")
+project = RPCWrapper("project")
+rules = RPCWrapper("rules")
+service = RPCWrapper("service")
+settings = RPCWrapper("settings")
