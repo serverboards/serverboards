@@ -13,7 +13,7 @@ defmodule Serverboards.Repo.Migrations.Rules do
       add :trigger, :string
       add :params, :map
 
-      timestamps
+      timestamps()
     end
     create unique_index(:rules_rule, [:uuid])
     create index(:rules_rule, [:is_active])

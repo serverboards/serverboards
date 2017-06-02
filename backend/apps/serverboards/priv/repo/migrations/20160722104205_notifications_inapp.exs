@@ -9,7 +9,7 @@ defmodule Serverboards.Repo.Migrations.NotificationsInapp do
       add :meta, :map
       add :tags, {:array, :string}
 
-      timestamps
+      timestamps()
     end
 
     create index(:notifications_notification, [:user_id])
