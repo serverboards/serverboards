@@ -10,12 +10,29 @@ def maybe_list(l):
     return [l]
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description='Connect to Serverboards CORE or a command line plugin.')
+    parser.add_argument('suites', metavar='SUITES', type=str, nargs='*',
+        help='suite names to run')
+    parser.add_argument('--one-line-help', action='store_true',
+        help='Shows brief description.')
+    parser.add_argument('--auth-token', type=str,
+        help="Auth Token to use for signing in.")
+
+    args = parser.parse_args()
+
+    if args.one_line_help:
+        print("Executes tests on the installed plugins. USE WITH CARE.")
+        return
+
     cli=s10s_cli.CliClient(interactive=False)
-    cli.authenticate()
+    cli.authenticate(auth_token = args.auth_token)
+
     allok = True
+    print(cli.call("auth.user"))
     suites = cli.call("plugin.component.catalog", type="test")
-    if len(sys.argv)>1:
-        suites = [x for x in suites if x["id"] in sys.argv[1:]]
+    if args.suites:
+        suites = [x for x in suites if x["id"] in args.suites]
 
     for s in suites:
         printc("## %s / %s"%(s["name"], s["id"]), color="blue")
@@ -55,10 +72,4 @@ def main():
 
 
 if __name__=='__main__':
-    try:
-        if argv[1]=="--one-line-help":
-            print("Runs plugins tests")
-            sys.exit(0)
-    except:
-        pass
     main()

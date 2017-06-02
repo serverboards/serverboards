@@ -708,9 +708,11 @@ class CliClient(IOClient):
                 traceback.print_exc()
                 debugc("Continuing", color="red", hl=True)
 
-    def authenticate(self):
-        if 'token' in settings:
-            if self.call("auth.auth", type="token", token=settings["token"]):
+    def authenticate(self, auth_token = None):
+        if not auth_token:
+            auth_token = settings.get('token')
+        if auth_token:
+            if self.call("auth.auth", type="token", token=auth_token):
                 printc("Authenticated via token", color="green")
                 return True
             else:
@@ -720,6 +722,8 @@ class CliClient(IOClient):
             password = getpass.getpass("Password: ")
             if self.call("auth.auth", type="basic", email=email, password=password):
                 settings["token"]=self.call("auth.token.create")
+                with open(os.path.expanduser("~/.config/serverboards/s10s.json"), 'w') as wd:
+                    json.dump(settings, wd)
                 return True
 
             printc("Wrong credentials", color="red")
@@ -860,7 +864,7 @@ def main():
 
     # Ensure authenticated. If do not want, use --no-auth
     if not args.no_auth:
-        authenticate(client_cli)
+        client_cli.authenticate()
 
     # Connection to command, if any
     if args.command:
@@ -889,8 +893,6 @@ def main():
             client_cli.cli_loop()
         except KeyboardInterrupt:
             pass
-        with open(os.path.expanduser("~/.config/serverboards/s10s.json"), 'w') as wd:
-            json.dump(settings, wd)
     sys.exit(0)
 
 
