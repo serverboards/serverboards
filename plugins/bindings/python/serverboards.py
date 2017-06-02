@@ -134,7 +134,7 @@ class RPC:
                     import traceback; traceback.print_exc(file=self.write_to_log)
             return None
 
-        return { 'error':'unknown_method', 'id': call_id }
+        return { 'error':'unknown_method %s'%method, 'id': call_id }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -288,7 +288,10 @@ class RPC:
                     if 'result' in rpc:
                         return rpc['result']
                     else:
-                        raise Exception(rpc["error"])
+                        if rpc["error"]=="unknown_method":
+                            raise Exception("unknown_method %s"%(method))
+                        else:
+                            raise Exception(rpc["error"])
                 else:
                     self.debug_stdout("Keep it for later, im waiting for %s"%id)
                     self.replyq[rpc['id']]=rpc
@@ -304,6 +307,9 @@ class RPC:
                         if 'result' in rpc:
                             return rpc['result']
                         else:
+                            if rpc["error"] == "unknown_method":
+                                raise Exception("unknown_method %s"%method)
+
                             raise Exception(rpc["error"])
                 else:
                     self.debug_stdout("Waiting for reply; Queue for later: %s"% res)

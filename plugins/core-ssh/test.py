@@ -42,14 +42,18 @@ def t02_ssh_add_fingerprints_test():
     assert ssh_public_key != None
 
     # add it to authorized_keys
+
     authorized_keys_path = "/home/%s/.ssh/authorized_keys"%os.environ["USER"]
-    with open(authorized_keys_path, "r") as rd:
-        if ssh_public_key in rd.read():
-            serverboards.debug("SSH already in the users store to curent user keys, will try to connect using ssh")
-        else:
-            with open(authorized_keys_path, "a") as wd:
-                serverboards.debug("Adding the SSH key to curent user keys, will try to connect using ssh")
-                wd.write("%s\n", ssh_public_key)
+    exists=False
+    if os.path.isfile(authorized_keys_path):
+        with open(authorized_keys_path, "r") as rd:
+            if ssh_public_key in rd.read():
+                serverboards.debug("SSH already in the users store to curent user keys, will try to connect using ssh")
+                exists=True
+    if not exists:
+        with open(authorized_keys_path, "a") as wd:
+            serverboards.debug("Adding the SSH key to curent user keys, will try to connect using ssh")
+            wd.write("%s\n"%ssh_public_key)
 
     # Enable finger print if not enabled
     remote_fingerprint = mgmt.remote_fingerprint(url="localhost")
