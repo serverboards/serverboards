@@ -65,6 +65,8 @@ defmodule Serverboards.ConfigTest do
     assert System.get_env("TERM") == nil
     assert System.get_env("USERNAME") == nil
     Logger.debug("#{inspect System.get_env()}")
-    assert Enum.count(System.get_env()) == 5
+    envs = System.get_env()
+      |> Enum.filter( &(not String.starts_with?(elem(&1,0), "SERVERBOARDS_")) )
+    assert Enum.count(envs) == 5
   end
 end

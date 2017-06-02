@@ -1,7 +1,6 @@
 rel
 serverboards.tar.gz
 **/node_modules
-
 *.map
-
 *.kdev4
+log

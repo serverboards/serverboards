@@ -16,14 +16,11 @@ backend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - cd backend
-    - pwd
-    - mix local.rebar --force
-    - mix local.hex --force
-    - mix deps.clean --all
-    - mix deps.get
-    - MIX_ENV=test mix deps.compile
-    - mix test
+    - scripts/backend-test.sh
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
 
 frontend-test:
   stage: test
@@ -38,7 +35,6 @@ plugins-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - cd backend
     - scripts/plugin-test.sh
 
 release:

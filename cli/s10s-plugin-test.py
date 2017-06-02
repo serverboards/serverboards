@@ -29,10 +29,11 @@ def main():
     cli.authenticate(auth_token = args.auth_token)
 
     allok = True
-    print(cli.call("auth.user"))
     suites = cli.call("plugin.component.catalog", type="test")
     if args.suites:
         suites = [x for x in suites if x["id"] in args.suites]
+    printc("# Serverboards Plugin tests", color="blue")
+    printc("*%d Suites to do*"%len(suites), color="blue")
 
     for s in suites:
         printc("## %s / %s"%(s["name"], s["id"]), color="blue")

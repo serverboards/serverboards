@@ -147,7 +147,7 @@ defmodule Serverboards.Service do
   defp service_add_real( uuid, attributes, me) do
     user_id = case Serverboards.Auth.User.user_info( me, %{ email: me } ) do
       {:ok, user} ->
-        user
+        user.id
       {:error, :unknown_user} -> # from command, where there is no user id
          nil
     end
