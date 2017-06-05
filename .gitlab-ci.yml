@@ -21,21 +21,32 @@ backend-test:
     paths:
       - log
     expire_in: 1 week
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
 
 frontend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - cd frontend
-    - pwd
-    - yarn
-    - npm test
+    - scripts/frontend-test.sh
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
+      - frontend/node_modules
+      - frontend/dist
 
 plugins-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
     - scripts/plugin-test.sh
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
 
 release:
   stage: release

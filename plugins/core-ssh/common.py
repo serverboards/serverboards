@@ -14,5 +14,7 @@ def ensure_ID_RSA():
     if not os.path.exists(CONFIG_FILE):
         serverboards.info("Creating the ssh config file")
         with open(CONFIG_FILE,"w+") as fd:
+            fd.write("UserKnownHostsFile %s"%KNOWN_HOSTS_FILE)
+            fd.write("\n\n")
             fd.write("# Write here your custom configuration\n")
         os.chmod(CONFIG_FILE, 0o0600)

@@ -67,6 +67,6 @@ defmodule Serverboards.ConfigTest do
     Logger.debug("#{inspect System.get_env()}")
     envs = System.get_env()
       |> Enum.filter( &(not String.starts_with?(elem(&1,0), "SERVERBOARDS_")) )
-    assert Enum.count(envs) == 5
+    assert Enum.count(envs) == 4 # HOME USER PATH PWD 
   end
 end
