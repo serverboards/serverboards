@@ -13,7 +13,7 @@ export SERVERBOARDS_PATH=$( pwd )/local/
 export SERVERBOARDS_INI=test/plugins.ini
 export SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/$DBNAME"
 
-pushd backend
+pushd backend >/dev/null
 mkdir -p $BASEDIR/log/
 export MIX_ENV=prod
 mix local.rebar --force > $BASEDIR/log/compile.log
@@ -23,24 +23,25 @@ mix deps.get > $BASEDIR/log/compile.log
 mix compile > $BASEDIR/log/compile.log
 mix run --no-halt > $BASEDIR/log/serverboards.log &
 BACKEND_PID=$!
-popd
+popd >/dev/null
 
 echo "Backend at $BACKEND_PID. Waiting for port 4040 UP..."
 wait_for_port 4040
 echo "Done."
 set -e
 
+echo "Create user"
 # must be after backend is on, for database to be created
-create_user $SERVERBOARDS_DATABASE_URL test@serverboards.io $TOKEN
+create_user $SERVERBOARDS_DATABASE_URL $TOKEN
 
 echo "Run tests"
-pushd cli
+pushd cli >/dev/null
 set +e
 make FINALDIR=.
 ./s10s plugin-test --auth-token=$TOKEN
 EXITCODE=$?
 set -e
-popd
+popd >/dev/null
 
 if [ "$EXITCODE" != 0 ]; then
   echo "FAILED"

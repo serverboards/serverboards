@@ -154,6 +154,7 @@ const Top = React.createClass({
             className={`item ${(section == 'settings' || section == 'user' || section == 'logs') ? "active" : ""}`}
             onClick={() => props.toggleMenu('user')}
             ref="profile"
+            id="profile"
             data-content={i18n("Profile and more...")}
             data-position="bottom right"
             >

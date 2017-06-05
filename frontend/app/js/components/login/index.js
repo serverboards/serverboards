@@ -93,7 +93,7 @@ var LoginView = React.createClass({
 
           <div className="actions">
             <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>{i18n("Reset password")}</a>
-            <button type="button" className={`ui positive right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
+            <button type="button" className={`ui login positive right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
               {i18n("Login")}
               {logging ? (
                 <i className="loading spinner icon"></i>

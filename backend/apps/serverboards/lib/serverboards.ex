@@ -43,7 +43,7 @@ defmodule Serverboards do
     end
   end
 
-  @whitelist ["PATH", "HOME", "USER", "DISPLAY", "PWD"]
+  @whitelist ["PATH", "HOME", "USER", "PWD"]
   # @doc ~S"""
   # Cleans the environmental variables, leaving only a selected few
   # """

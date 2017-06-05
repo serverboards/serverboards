@@ -1,10 +1,10 @@
 all: setup compile
 
-compile: setup dist/
+compile: setup dist/index.html
 
-dist/: node_modules app/* app/*/* *.js
+dist/index.html: node_modules $(shell find app/js -name "*.js") $(shell find app/sass -name "*.sass")
 	rm dist -rf
-	NODE_ENV=production node_modules/.bin/webpack -p --progress
+	NODE_ENV=production node_modules/.bin/webpack -p
 
 compile-dev: setup
 	rm dist -rf
@@ -25,8 +25,11 @@ help:
 watch:
 	npm run-script watch
 
-setup: yarn.lock
+setup: node_modules
+
+node_modules: yarn.lock package.json
 	yarn --no-progress
+	touch node_modules
 
 .PHONY: test
 test: all

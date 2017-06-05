@@ -37,6 +37,10 @@ frontend-test:
       - backend/deps
       - frontend/node_modules
       - frontend/dist
+  artifacts:
+    paths:
+      - frontend/shots
+    expire_in: 1 week
 
 plugins-test:
   stage: test
