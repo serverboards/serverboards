@@ -35,21 +35,26 @@ function List(props){
   const list = props.list
 
   return(
-    <div className="ui central white background">
-      <div className="ui text container">
-        <h1 className="ui header">{i18n("All Notifications")}</h1>
+    <div className="ui split area vertical">
+      <div className="ui secondary top menu">
+        <h3 className="ui header">{i18n("All Notifications")}</h3>
 
-        <a onClick={props.handleShowFirstPage} style={{cursor:"pointer"}}>{i18n("First page")}</a>
-        |
-        <a onClick={props.handleShowNextPage} style={{cursor:"pointer"}}>{i18n("Next page")}</a>
+        <div className="item stretch"/>
 
-        <div className="ui relaxed divided list" id="message_list">
-          {list.map( (n) => (
-            <div className="item">
-              {maybe_month(n['inserted_at'])}
-              <NotificationItem notification={n}/>
-            </div>
-          ))}
+        <a onClick={props.handleShowFirstPage} style={{cursor:"pointer"}} className="item">{i18n("First page")}</a>
+        <a onClick={props.handleShowNextPage} style={{cursor:"pointer"}} className="item">{i18n("Next page")}</a>
+      </div>
+
+      <div className=" expand with scroll">
+        <div className="ui text container">
+          <div className="ui relaxed divided list" id="message_list">
+            {list.map( (n) => (
+              <div className="item">
+                {maybe_month(n['inserted_at'])}
+                <NotificationItem notification={n}/>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

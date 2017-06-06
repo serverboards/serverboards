@@ -206,49 +206,52 @@ const Logs = React.createClass({
     }
 
     return (
-      <div className="ui central area white background">
-        <div className="ui container">
-          <h1 className="ui header">{i18n("Logs")}</h1>
+      <div className="ui split vertical area">
+        <div className="ui top seconday menu">
+          <div className="ui item with info">
+            <h3>{i18n("Logs")}</h3>
+            <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
+          </div>
 
-          <div className="ui grid">
-            <div className="row">
-              <div className="eight wide column">
-                <div className="ui search" style={{paddingTop:15, paddingBottom: 15}}>
-                  <div className="ui icon input" style={{width:"100%"}}>
-                    <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
-                    {this.state.loading ? (
-                      <i className="loading spinner icon"></i>
-                    ) : (
-                      <i className="search icon"></i>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="eight wide column" style={{marginTop:12}}>
-                <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange} max={5}/>
+          <div className="item">
+            <div className="ui search">
+              <div className="ui icon input" style={{width:"100%"}}>
+                <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
+                {this.state.loading ? (
+                  <i className="loading spinner icon"></i>
+                ) : (
+                  <i className="search icon"></i>
+                )}
               </div>
             </div>
           </div>
+          <div className="item stretch"/>
+          <div className="item" style={{marginTop:12}}>
+            <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange} max={5}/>
+          </div>
+        </div>
 
 
-          <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
+        <div className="expand with scroll and padding">
+          <div className="ui container">
 
-          <table className="ui selectable table">
-            <thead>
-              <tr>
-                <th>{i18n("Id")}</th>
-                <th>{i18n("Level")}</th>
-                <th style={{width: "7em"}}>{i18n("Date")}</th>
-                <th>{i18n("Message")}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.lines.map((l) => (
-                <LogLine key={l.id} line={l} showDetails={this.showDetails}/>
-              ))}
-            </tbody>
-          </table>
+            <table className="ui selectable table">
+              <thead>
+                <tr>
+                  <th>{i18n("Id")}</th>
+                  <th>{i18n("Level")}</th>
+                  <th style={{width: "7em"}}>{i18n("Date")}</th>
+                  <th>{i18n("Message")}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.lines.map((l) => (
+                  <LogLine key={l.id} line={l} showDetails={this.showDetails}/>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         {popup}
       </div>

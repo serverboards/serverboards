@@ -4,7 +4,6 @@ import AddWidget from 'app/containers/project/board/add_widget'
 import EditWidget from 'app/containers/project/board/edit_widget'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
-import BoardHeader from './header'
 import Restricted from 'app/restricted'
 import ReactGridLayout from 'react-grid-layout'
 import {object_is_equal} from 'app/utils'
@@ -84,12 +83,11 @@ const Board = React.createClass({
     //const layout = this.state.layout || widgets.map( (w) => w.ui )
     //console.log(layout)
     return (
-      <div className={(widgets.length == 0) ? "ui centered container" : ""}>
+      <div className={(widgets.length == 0) ? "ui centered container" : ""} style={{padding: 20}}>
         {(widgets.length == 0) ? (
           <Empty/>
         ) : (
           <div className="ui board">
-            <BoardHeader/>
             <ReactGridLayout
               className="ui cards layout"
               cols={8}
@@ -121,7 +119,7 @@ const Board = React.createClass({
           </div>
           )}
         <Restricted perm="dashboard.widget.create">
-          <a onClick={this.handleAddWidget} className="ui massive button _add icon floating yellow">
+          <a onClick={this.handleAddWidget} className="ui massive button _add icon floating teal">
             <i className="add icon"></i>
           </a>
         </Restricted>

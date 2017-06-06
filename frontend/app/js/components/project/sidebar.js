@@ -6,22 +6,20 @@ import {get_service_data} from 'app/components/service/utils'
 import ServerboardSelector from 'app/containers/project/projectselector'
 import i18n from 'app/utils/i18n'
 
+const serverboards_logo = require('app/../imgs/007-logo_serverboards_font.svg')
+
 function ProjectHeader(props){
   return (
-    <div className="ui item header">
-      <div className="ui grid">
-        <div className="eleven wide column">
-          <h3 className="ui header" style={{margin: 0}}>{i18n("Projects")} <span style={{fontSize:"0.8em", color: "#acb5b5"}}>({props.projects_count})</span></h3>
-        </div>
-        <div className="five wide column right aligned">
-          <a onClick={props.toggleShowServerboardSelector} className="item"><i className="icons">
-            <i className="icon content yellow"/>
-            <i className="icon inverted corner search yellow"/>
-          </i></a>
-        </div>
+    <div className="ui vertical split area">
+      <div className="ui horizontal split area padding">
+        <h3 className="ui header expand" style={{margin: 0, fontSize: 30}}>
+          <img src={serverboards_logo} style={{width: "100%", marginTop: -2}}/>
+        </h3>
+        <a className="item" onClick={props.onHideSidebar} style={{cursor:"pointer", color: "white", padding: 10}}>
+          <i className="ui icon content" style={{fontSize: 22}}/>
+        </a>
       </div>
-      <span className="corner decorator"/>
-      <h4 className="ui header teal dividing" style={{margin: "10px 0 0 15px"}}>{props.project.name}</h4>
+      <h2 className="ui header teal" style={{margin: "15px 0 0 15px"}}>{props.project.name}</h2>
     </div>
   )
 }
@@ -78,9 +76,6 @@ const SidebarSections = React.createClass({
       let current=[]
       if (menu_props.section==section){
         klass+=" active"
-        current=(
-          <i className="icon angle right floating right"/>
-        )
       }
       if (menu_props.icon){
         current=(
@@ -98,27 +93,32 @@ const SidebarSections = React.createClass({
     const project=props.project
 
     return (
-      <div>
-        <div className="ui vertical menu sections">
-          <div>
-            <ProjectHeader {...props} toggleShowServerboardSelector={this.toggleShowServerboardSelector}/>
-            <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
-            <MenuItem section="services">{i18n("Services")}</MenuItem>
-            <MenuItem section="rules">{i18n("Rules")}</MenuItem>
-            <MenuItem section="issues">{i18n("Issues")}</MenuItem>
-          </div>
-          <ScreensMenu
-            services={props.project.services}
-            screens={props.project.screens}
-            project={props.project}
-            section={`${props.section}/${props.subsection}`}
-            onSectionChange={this.handleSectionChange}
-            />
-          <div>
-            <MenuItem section="settings">{i18n("Settings")}</MenuItem>
-          </div>
-
+      <div className="ui dark vertical menu sections">
+        <div>
+          <ProjectHeader {...props}/>
+          <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
+          <MenuItem section="services">{i18n("Services")}</MenuItem>
+          <MenuItem section="rules">{i18n("Rules")}</MenuItem>
+          <MenuItem section="issues">{i18n("Issues")}</MenuItem>
         </div>
+        <ScreensMenu
+          services={props.project.services}
+          screens={props.project.screens}
+          project={props.project}
+          section={`${props.section}/${props.subsection}`}
+          onSectionChange={this.handleSectionChange}
+          />
+        <div>
+          <MenuItem section="settings">{i18n("Settings")}</MenuItem>
+        </div>
+
+        <div className="stretch"/>
+
+        <a className="item" onClick={this.toggleShowServerboardSelector} style={{borderTop:"1px solid #aaa", height: 60, lineHeight: "30px"}}>
+          View all projects
+          <i className={`icon folder`}/>
+        </a>
+
         {this.state.show_project_selector ? (
           <ServerboardSelector onClose={this.toggleShowServerboardSelector} className="center"/>
         ) : null }

@@ -41,6 +41,7 @@ frontend-test:
     paths:
       - frontend/shots
     expire_in: 1 week
+    when: always
 
 plugins-test:
   stage: test

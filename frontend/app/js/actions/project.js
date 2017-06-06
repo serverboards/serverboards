@@ -91,6 +91,13 @@ function board_set_daterange_end(end){
   }
 }
 
+function board_set_daterange_start_and_end(start, end){
+  return {
+    type: "UPDATE_DATERANGE",
+    daterange: { start: start, end: end }
+  }
+}
+
 function board_update_now(end){
   return {
     type: "UPDATE_DATERANGE",
@@ -109,5 +116,6 @@ export {
   project_update_widget_catalog,
   board_set_daterange_end,
   board_set_daterange_start,
+  board_set_daterange_start_and_end,
   board_update_now
 }

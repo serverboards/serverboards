@@ -1,13 +1,25 @@
 import React from 'react'
 import SettingsAdd from 'app/containers/project/settings_add'
 import Loading from '../loading'
+import HoldButton from '../holdbutton'
+import i18n from 'app/utils/i18n'
 
 let Settings=React.createClass({
+  componentDidMount(){
+    this.props.setSectionMenu(this.render_menu)
+  },
   handleUpdate( project ){
     this.props.onUpdate( this.props.project.shortname, project )
   },
   handleDelete(){
     this.props.onDelete( this.props.project.shortname )
+  },
+  render_menu(){
+    return (
+      <div className="right menu">
+        <HoldButton className="ui item" onHoldClick={this.props.handleDelete}>{i18n("Delete project")} <i className="ui icon trash"/></HoldButton>
+      </div>
+    )
   },
   render(){
     return (
@@ -16,14 +28,7 @@ let Settings=React.createClass({
         project={this.props.project}
         edit={true}
         onSubmit={this.handleUpdate}
-        onDelete={this.handleDelete}
         >
-        <div className="ui fixed bottom">
-          <a href={`#/project/${this.props.project.shortname}/services`}
-          className="ui header medium link">
-          Configure services for this project <i className="ui icon angle right"/>
-          </a>
-        </div>
       </SettingsAdd>
     )
   }

@@ -50,7 +50,7 @@ mkdir -p shots
 if [ "$WATCH" ]; then
   while true; do
     echo "Compiling frontend"
-    make compile
+    make compile 2>&1 >> $BASEDIR/log/compile.log
     echo
     echo "TEST"
     echo
@@ -65,7 +65,7 @@ else
   XVFB_PID=$!
   export DISPLAY=:5
   echo "Compiling frontend"
-  make compile
+  make compile 2>&1 >> $BASEDIR/log/compile.log
   echo
   echo "TEST"
   echo

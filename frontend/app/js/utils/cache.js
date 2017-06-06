@@ -42,7 +42,13 @@ const cache={
       return cache.services().then( services => services.find( s => s.uuid == service_id ) )
     }
     return Promise.resolve( services.find( s => s.uuid == service_id ) )
-  }
+  },
+  projects: cache_builder({
+    store_get: () => store.getState().project.projects,
+    store_update: require('app/actions/project').project_update_all(),
+    subscriptions: ["project.updated"]
+  })
+
 }
 
 

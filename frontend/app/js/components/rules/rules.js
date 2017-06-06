@@ -21,6 +21,7 @@ const Rules=React.createClass({
         self.setState({filter: val})
       }
     })
+    this.props.setSectionMenu(this.render_menu)
   },
   handleAdd(){
     if (this.state.trigger_type)
@@ -28,10 +29,9 @@ const Rules=React.createClass({
     else
       this.props.handleAdd(this.props.filter)
   },
-  render(){
+  render_menu(){
     const props=this.props
     let rules=props.rules
-
     // Get only rule types that are currently in use
     let trigger_catalog_in_use=rules.map( (r) => r.trigger.trigger ).reduce( (acc, id) => {
       if (acc.indexOf(id)<0)
@@ -41,6 +41,24 @@ const Rules=React.createClass({
       .map( (id) => props.trigger_catalog.find( (tc) => tc.id == id ))
       .filter( (x) => x )
 
+    return (
+      <div className="right menu">
+        <div className="ui inline form fields">
+          <label>{i18n("Filter by trigger type")}: </label>
+          <select ref="filter" className="ui search dropdown">
+            <option value="all">{i18n("Show all")}</option>
+            {trigger_catalog_in_use.map( (t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    )
+  },
+  render(){
+    const props=this.props
+    let rules=props.rules
+
     if (this.state.trigger_type){
       const trigger_type=this.state.trigger_type
       rules=rules.filter( (r) => r.trigger.trigger == trigger_type)
@@ -48,22 +66,6 @@ const Rules=React.createClass({
 
     return (
       <div>
-        <div className="ui top secondary header menu">
-          <h3 className="ui header">
-            {i18n("Rules")}
-          </h3>
-          <div className="right menu">
-            <div className="ui inline form fields">
-              <label>{i18n("Filter by trigger type")}: </label>
-              <select ref="filter" className="ui search dropdown">
-                <option value="all">{i18n("Show all")}</option>
-                {trigger_catalog_in_use.map( (t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
         <div className="ui container">
           {(rules.length==0) ? (
             <Empty/>

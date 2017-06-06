@@ -39,26 +39,24 @@ const ProcessLine = React.createClass({
 
 function ProcessesMenu(props){
   return (
-    <div className="ui dropdown pointing" id="processes_menu">
-      <div className="menu transition visible">
-        {!is_empty(props.running) ? (
-          <div>
-            {props.running.map((p) =>
-              <ProcessLine key={p.uuid} {...p}/>
-            )}
+    <div className="menu transition visible">
+      {!is_empty(props.running) ? (
+        <div>
+          {props.running.map((p) =>
+            <ProcessLine key={p.uuid} {...p}/>
+          )}
+        </div>
+      ) : (
+        <div>
+          <div className="item centered ui grey" style={{display: "flex"}}>
+            <span style={{flexGrow:1}}>{i18n("No active processes")}</span>
           </div>
-        ) : (
-          <div>
-            <div className="item centered ui grey" style={{display: "flex"}}>
-              <span style={{flexGrow:1}}>{i18n("No active processes")}</span>
-            </div>
-          </div>
-        )}
-        <a href="#/process/history" className="item inverted yellow">
-          {i18n("View process history")}
-          <i className="ui caret right icon" style={{paddingLeft: 5}}/>
-        </a>
-      </div>
+        </div>
+      )}
+      <a href="#/process/history" className="item inverted yellow">
+        {i18n("View process history")}
+        <i className="ui caret right icon" style={{paddingLeft: 5}}/>
+      </a>
     </div>
   )
 }

@@ -81,17 +81,19 @@ function group_by_day(issues){
   return days
 }
 
-function Issues(props){
-  if (props.loading)
+const Issues= React.createClass({
+  componentDidMount(){
+    if (this.props.setSectionMenu)
+      this.props.setSectionMenu(this.render_menu, this.props)
+  },
+  componentWillReceiveProps(nprops){
+    if (this.props.setSectionMenuProps)
+      this.props.setSectionMenuProps(nprops)
+  },
+  render_menu(props){
     return (
-      <Loading>Issues</Loading>
-    )
-  const issues_by_day = group_by_day(props.issues_show)
-  return (
-    <div className="ui central area white background" style={{flexDirection:"column"}} id="issues">
-      <div className="ui top secondary menu" style={{paddingBottom: 0}}>
-        <h3 className="ui header">{i18n("Issues")}</h3>
-        <div className="ui tabs secondary pointing menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
+      <div className="menu">
+        <div className="ui attached tabular menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
           <a
             className={`item ${ props.filter.indexOf("status:open")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:open")}>
@@ -109,33 +111,51 @@ function Issues(props){
           </a>
         </div>
       </div>
-      <div className="ui row container">
-        {(props.issues.length == 0) ? (
-          <Empty/>
-        ) : ( issues_by_day.length == 0 ) ? (
-          <div className="ui centered text">
-            <img src={noissues} alt=""/>
-            <h2>{i18n("There are no issues to show.")}</h2>
-            <div className="ui grey text">{i18n("Try different filters to look beyond...")}</div>
-          </div>
-        ) : (
-          <div className="issues">
-            {issues_by_day.map( ([date, issues]) => (
-              <IssueDay key={date} label={date} issues={issues}/>
-            ))}
+    )
+  },
+  render(){
+    const props = this.props
+    if (props.loading)
+      return (
+        <Loading>Issues</Loading>
+      )
+    const issues_by_day = group_by_day(props.issues_show)
+    return (
+      <div className="ui split area vertical" style={{flexDirection:"column"}} id="issues">
+        {this.props.setSectionMenu ? null :  (
+          <div className="ui top secondary menu" style={{paddingBottom: 0, zIndex: 9}}>
+            <h3 className="ui header">{i18n("Issues")}</h3>
+            {this.render_menu()}
           </div>
         )}
-        <div className="filters">
-          <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
+        <div className="ui split horizontal area expand with scroll" style={{padding:50}}>
+          {(props.issues.length == 0) ? (
+            <Empty/>
+          ) : ( issues_by_day.length == 0 ) ? (
+            <div className="ui centered text">
+              <img src={noissues} alt=""/>
+              <h2>{i18n("There are no issues to show.")}</h2>
+              <div className="ui grey text">{i18n("Try different filters to look beyond...")}</div>
+            </div>
+          ) : (
+            <div className="issues">
+              {issues_by_day.map( ([date, issues]) => (
+                <IssueDay key={date} label={date} issues={issues}/>
+              ))}
+            </div>
+          )}
+          <div className="filters">
+            <Filters setFilter={props.setFilter} labels={props.labels} filter={props.filter} project={props.project}/>
+          </div>
         </div>
+        <Restricted perm="issues.create">
+          <a onClick={() => goto("/issues/add",{project:props.project})} className="ui massive button _add icon floating yellow">
+            <i className="add icon"></i>
+          </a>
+        </Restricted>
       </div>
-      <Restricted perm="issues.create">
-        <a onClick={() => goto("/issues/add",{project:props.project})} className="ui massive button _add icon floating yellow">
-          <i className="add icon"></i>
-        </a>
-      </Restricted>
-    </div>
-  )
-}
+    )
+  }
+})
 
 export default Issues
