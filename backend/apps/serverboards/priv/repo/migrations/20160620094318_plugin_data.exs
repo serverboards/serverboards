@@ -6,7 +6,7 @@ defmodule Serverboards.Repo.Migrations.PluginData do
       add :plugin, :string
       add :key, :string
       add :value, :map
-      timestamps
+      timestamps()
     end
 
     create index(:plugin_data, [:plugin])

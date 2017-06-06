@@ -28,7 +28,7 @@ defmodule Serverboards.Config do
 
   `get(:section)` would return `[value: myvalue, value2: myvalue2]`
 
-  If none has the values, returns the default value, or an empty keyword list.
+  If none has the values, returns the default value, or an empty keyword listº.
 
   The related Serverboards.Settings is the management interface for the db.
 
@@ -63,7 +63,7 @@ defmodule Serverboards.Config do
   This can be set at environment, at .ini or calculated from home
   """
   def serverboards_path do
-    case System.get_env("SERVERBOARDS_PATH") do
+    path = case System.get_env("SERVERBOARDS_PATH") do
       nil ->
         case get(:global, "home", nil) do
           nil ->
@@ -72,6 +72,8 @@ defmodule Serverboards.Config do
         end
       path -> path
     end
+    {:ok, path} = Serverboards.Utils.Template.render(path, System.get_env)
+    path
   end
 
   def parse_val(v) do
@@ -117,9 +119,16 @@ defmodule Serverboards.Config do
   end
 
   def get_ini(section) do
-    Application.get_env(:serverboards, :ini_files, [])
-      |> Enum.map(&get_ini(&1, section))
-      |> Enum.reduce([], &Keyword.merge/2)
+      init_files = case System.get_env("SERVERBOARDS_INI") do
+        nil ->
+          files = Application.get_env(:serverboards, :ini_files, [])
+          files
+        ini_file ->
+          [ini_file]
+      end
+      init_files
+        |> Enum.map(&get_ini(&1, section))
+        |> Enum.reduce([], &Keyword.merge/2)
   end
   def get_ini(tfilename, section) do
     {:ok, filename} = Serverboards.Utils.Template.render(tfilename, System.get_env)

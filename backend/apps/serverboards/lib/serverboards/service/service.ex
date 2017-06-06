@@ -145,12 +145,17 @@ defmodule Serverboards.Service do
   end
 
   defp service_add_real( uuid, attributes, me) do
-    {:ok, user} = Serverboards.Auth.User.user_info( me, %{ email: me } )
+    user_id = case Serverboards.Auth.User.user_info( me, %{ email: me } ) do
+      {:ok, user} ->
+        user.id
+      {:error, :unknown_user} -> # from command, where there is no user id
+         nil
+    end
     {:ok, servicem} = Repo.insert( %ServiceModel{
       uuid: uuid,
       name: attributes.name,
       type: attributes.type,
-      creator_id: user.id,
+      creator_id: user_id,
       priority: attributes.priority,
       config: attributes.config
     } )
@@ -173,17 +178,32 @@ defmodule Serverboards.Service do
     end)
   end
 
-  defp service_delete_real( service, _me) do
+  defp service_delete_real( uuid, me) do
     import Ecto.Query
+
+    service = decorate(uuid)
+    Serverboards.Event.emit("service.deleted[#{service.uuid}]", %{service: service}, ["service.get"])
+    Serverboards.Event.emit("service.deleted[#{service.type}]", %{service: service}, ["service.get"])
+    for p <- service.projects do
+      Serverboards.Event.emit("service.deleted[#{p}]", %{service: service}, ["service.get"])
+    end
+
+
     # remove it when used inside any project
     Repo.delete_all(
       from sc in ProjectServiceModel,
       join: c in ServiceModel, on: c.id == sc.service_id,
-      where: c.uuid == ^service
+      where: c.uuid == ^uuid
       )
 
-      # 1 removed
-    case Repo.delete_all( from c in ServiceModel, where: c.uuid == ^service ) do
+    Logger.info(
+      "Deleted service #{inspect uuid} (#{inspect service.type})",
+      service: service,
+      user: me
+      )
+
+    # 1 removed
+    case Repo.delete_all( from c in ServiceModel, where: c.uuid == ^uuid ) do
       {1, _} -> :ok
       {0, _} -> {:error, :not_found}
     end

@@ -38,7 +38,7 @@ class TimerCheck:
         uuid_to_timer[id]=self
          # initial status
         check_result = self.check()
-        print("Check?", check_result)
+        # print("Check?", check_result)
         if check_result != False:
             print("up")
             serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "up"})

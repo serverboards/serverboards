@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import readline, sys, shlex, json, select, os, atexit, time, math, socket
-import subprocess, fcntl
+import subprocess, fcntl, getpass
 from io import StringIO
 DEBUG=False
 PENDING="66509317-642c-4670-a2ef-78155e32c4a9" # to be unique, not confuse with any response
@@ -59,11 +59,11 @@ class IOClient:
     IO Client Connection.
 
     >>> client=Client(socket.create_connection(("localhost", "4040")))
-    >>> client.call('version')['result']
+    >>> client.call_line('version')['result']
     '0.0.1'
-    >>> client.call('method.unknown params')['error']
+    >>> client.call_line('method.unknown params')['error']
     'unknown_method'
-    >>> client.call('!version') # event call
+    >>> client.call_line('!version') # event call
 
     """
     def __init__(self):
@@ -304,10 +304,11 @@ class CmdClient(IOClient):
 
 
 class CliClient(IOClient):
-    def __init__(self, client_core, stdin=sys.stdin, stdout=sys.stdout):
+    def __init__(self, interactive=True, stdin=sys.stdin, stdout=sys.stdout):
         self.stdin=stdin
         self.stdout=stdout
         self.vars={}
+        self.interactive=interactive
         self.builtin={
             's': self.builtin_set,
             'set': self.builtin_set,
@@ -332,13 +333,18 @@ class CliClient(IOClient):
         self.internal_dir_store={}
         self.pending_assign_to={}
         self.pending_calls={}
+        self.last_replies={}
         super().__init__()
         self.connect_to( self.builtin_call )
         self.maxid=1
         self.last_dir=[]
-        self.client_core=client_core
+        self.client_core=CoreClient()
         self.commands={}
         self.commands_maxid=0
+
+        self.client_core.connect_to( self.from_core )
+        self.connect_to( self.client_core.send )
+
 
     def run_command(self, command, **kwargs):
         printc("Run external command %s"%command, color="blue", hl=True)
@@ -365,7 +371,7 @@ class CliClient(IOClient):
         # internals sends the data further
         if method in self.internal:
             ret = self.internal[method](*cmd["params"], id=cmd.get('id'))
-            if ret:
+            if ret and self.interactive:
                 printc("[%s]*: %s"%(cmd.get('id'), json.dumps(ret)), color="purple", hl=True)
         return None
 
@@ -376,7 +382,9 @@ class CliClient(IOClient):
             id = reply.get('id')
             if id in self.pending_calls:
                 del self.pending_calls[id]
-            printc("[%s]: %s"%(id, json.dumps(result, indent=2)), color="blue", hl=True)
+            self.last_replies[id]=reply
+            if self.interactive:
+                printc("[%s]: %s"%(id, json.dumps(result, indent=2)), color="blue", hl=True)
             if result != self.vars:
                 self.vars[""]=result
                 varname = self.pending_assign_to.get(id)
@@ -384,10 +392,16 @@ class CliClient(IOClient):
                     self.debug("Fulfilled assign to %s -> %s"%(id, varname))
 
                     self.vars[varname] = result
-                    printc("[%s]: %s"%(varname, json.dumps(result, indent=2)))
+                    if self.interactive:
+                        printc("[%s]: %s"%(varname, json.dumps(result, indent=2)))
                     del self.pending_assign_to[id]
         elif 'error' in reply:
-            printc("[%s]: %s"%(reply.get('id'), json.dumps(reply["error"], indent=2)), color="red", hl=True)
+            id = reply.get('id')
+            self.last_replies[id]=reply
+            if id in self.pending_calls:
+                del self.pending_calls[id]
+                if self.interactive:
+                    printc("[%s]: %s"%(id, json.dumps(reply["error"], indent=2)), color="red", hl=True)
         else:
             raise Exception("Got reply with no result nor error")
         return None
@@ -499,6 +513,8 @@ class CliClient(IOClient):
         if line.startswith('#'):
             return None
         cmd = shlex.split( line )
+        if not cmd:
+            return None
         if len(cmd)>=3 and cmd[1]=='=':
             return {
                 'method':parse_arg(cmd[2]),
@@ -577,7 +593,7 @@ class CliClient(IOClient):
             l = l.strip()
             try:
                 printc("[%s:%s]: %s"%(filename, self.maxid, l), color="blue")
-                self.call( l )
+                self.call_line( l )
             except Exception:
                 import traceback; traceback.print_exc()
                 pass
@@ -600,18 +616,34 @@ class CliClient(IOClient):
                 replyf({"id": cmd.get("id"), "result": res})
             return True
 
-    def call(self, line):
+    def call_line(self, line):
         cmd = self.parse_line(line)
+        cmd['id'] = self.maxid
+        self.maxid+=1
+
         if not cmd:
             return
-        if 'assign_to' in cmd:
-            self.debug("Pending assign to %s -> %s"%(self.maxid, cmd["assign_to"]))
-            self.pending_assign_to[self.maxid]=cmd["assign_to"]
-            del cmd["assign_to"]
+        return self.call_cmd(cmd)
+
+    def call(self, method, *args, _timeout=120, **kwargs):
+        cmd = {
+            "method": method,
+            "params": kwargs or args,
+            "id": self.maxid
+        }
         cmd['id'] = self.maxid
-        self.pending_calls[self.maxid]=cmd
         self.maxid+=1
+        return self.call_cmd(cmd, _timeout=_timeout)
+
+    def call_cmd(self, cmd, _timeout=120):
+        id=cmd["id"]
+        if 'assign_to' in cmd:
+            self.debug("Pending assign to %s -> %s"%(id, cmd["assign_to"]))
+            self.pending_assign_to[id]=cmd["assign_to"]
+            del cmd["assign_to"]
+        self.pending_calls[id]=cmd
         self.recv_and_parse_one(cmd)
+        return self.wait_for_reply( id, _timeout )
 
     def from_core(self, res, replyf):
         if 'method' in res:
@@ -619,24 +651,55 @@ class CliClient(IOClient):
         else:
             printc("??? "+str(res), color="red")
 
+    def wait_for_reply(self, id, _timeout=1000):
+        timeleft=_timeout
+        while not id in self.last_replies and timeleft>0:
+            start_t=time.time()
+            self.cli_loop_select(_timeout)
+            timeleft-=(time.time() - start_t)
+        if id in self.last_replies:
+            res = self.last_replies[id]
+            del self.last_replies[id]
+            if 'error' in res:
+                raise Exception(res["error"])
+            else:
+                return res["result"]
+        else:
+            raise Exception("timeout")
+
+    def cli_loop_select(self, timeout):
+        """
+
+        Performs the select loop, where it waits for an answer inside the
+        timeout from any source, and if any, parses it and then waits a little
+        bit for more traffic, but not too much.
+
+        This helps to wait for answers, do message passing and return fast to
+        the next step.
+
+        """
+        parsed_some = True # requires thight loop, as it may be sending messages core<->cmd
+        while parsed_some:
+            parsed_some = False
+            # self.debug("Cheching if data ready: %s // to %s"%(repr(self.filenos()), timeout) )
+            for n, clients_ready in enumerate(select.select(self.filenos(),[],[], timeout)):
+                # self.debug("Clients ready[%s]: "%n, clients_ready)
+                for c in clients_ready:
+                    # self.debug("Data ready at %s"%repr(c))
+                    parsed_some |= c.recv_and_parse()
+            # self.debug("parsed_more", parsed_some)
+            timeout=0.1
+        # self.debug("User input", parsed_some)
+
     def cli_loop(self, timeout=0.3):
         while True:
-            parsed_some = True # requires thight loop, as it may be sending messages core<->cmd
-            while parsed_some:
-                parsed_some = False
-                # self.debug("Cheching if data ready: %s"%repr(self.filenos()))
-                for n, clients_ready in enumerate(select.select(self.filenos(),[],[], timeout)):
-                    # self.debug("Clients ready[%s]: "%n, clients_ready)
-                    for c in clients_ready:
-                        # self.debug("Data ready at %s"%repr(c))
-                        parsed_some |= c.recv_and_parse()
-                    # self.debug("parsed_more", parsed_some)
-            # self.debug("User input", parsed_some)
+            printc("Wait max T %s"%timeout, color="purple")
+            self.cli_loop_select(timeout)
             try:
                 lid = self.maxid
                 line = input('[%s]> '%(lid))
                 if line:
-                    self.call( line )
+                    self.call_line( line )
             except EOFError:
                 debugc("EOF", color="green")
                 return
@@ -644,6 +707,27 @@ class CliClient(IOClient):
                 import traceback
                 traceback.print_exc()
                 debugc("Continuing", color="red", hl=True)
+
+    def authenticate(self, auth_token = None):
+        if not auth_token:
+            auth_token = settings.get('token')
+        if auth_token:
+            if self.call("auth.auth", type="token", token=auth_token):
+                printc("Authenticated via token", color="green")
+                return True
+            else:
+                printc("Invalid (expired?) token. Authenticate again.", color="red")
+        for i in range(3):
+            email = input("Email: ")
+            password = getpass.getpass("Password: ")
+            if self.call("auth.auth", type="basic", email=email, password=password):
+                settings["token"]=self.call("auth.token.create")
+                with open(os.path.expanduser("~/.config/serverboards/s10s.json"), 'w') as wd:
+                    json.dump(settings, wd)
+                return True
+
+            printc("Wrong credentials", color="red")
+        os.exit(1)
 
 class Completer:
     """
@@ -743,13 +827,14 @@ class Completer:
         print(line_buffer, end="")
         sys.stdout.flush()
 
+settings = {}
+try:
+    settings.update( json.load(open(os.path.expanduser("~/.config/serverboards/s10s.json")) ) )
+except:
+    pass
 
 
 def main():
-    print()
-    print("s10s cli")
-    print('Type "dir" for a list of current available commands')
-    print("https://serverboards.io")
     import argparse
     parser = argparse.ArgumentParser(description='Connect to Serverboards CORE or a command line plugin.')
     parser.add_argument('infiles', metavar='FILENAMES', type=str, nargs='*',
@@ -760,6 +845,8 @@ def main():
         help='Shows brief description.')
     parser.add_argument('--debug', action='store_true',
         help="Some extra debug output for the CLI")
+    parser.add_argument('--no-auth', action='store_true',
+        help="Do not authenticate automatically. By default tries to use stored auth token or asks for user/password")
 
     args = parser.parse_args()
 
@@ -772,18 +859,16 @@ def main():
         printc("Activating DEBUG.", color="yellow", hl=True)
         DEBUG=True
 
-    # Connection to Serverboards CORE
-    client_core = CoreClient()
-
     # Connection to terminal CLI
-    client_cli=CliClient(client_core)
+    client_cli=CliClient()
+
+    # Ensure authenticated. If do not want, use --no-auth
+    if not args.no_auth:
+        client_cli.authenticate()
 
     # Connection to command, if any
     if args.command:
         client_cli.run_command(args.command)
-
-    client_core.connect_to( client_cli.from_core )
-    client_cli.connect_to( client_core.send )
 
     interactive=True
     if args.infiles:
@@ -798,8 +883,16 @@ def main():
 
 
     if interactive:
+        print()
+        print("s10s cli")
+        print('Type "dir" for a list of current available commands')
+        print("https://serverboards.io")
+
         completer=Completer(client_cli)
-        client_cli.cli_loop()
+        try:
+            client_cli.cli_loop()
+        except KeyboardInterrupt:
+            pass
     sys.exit(0)
 
 

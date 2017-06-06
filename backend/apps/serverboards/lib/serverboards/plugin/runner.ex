@@ -71,9 +71,16 @@ defmodule Serverboards.Plugin.Runner do
           require UUID
           uuid = UUID.uuid4
           Logger.debug("Adding runner #{uuid} #{inspect component.id}")
-          MOM.RPC.Client.set(Serverboards.IO.Cmd.client(pid), :plugin, %{ plugin_id: plugin_id, component_id: component.id })
-          :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component, user})
-          {:ok, uuid}
+          try do
+            client = Serverboards.IO.Cmd.client(pid)
+            MOM.RPC.Client.set(client, :plugin, %{ plugin_id: plugin_id, component_id: component.id })
+            :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component, user})
+            {:ok, uuid}
+          catch
+            :exit, _ ->
+              Logger.error("Command exitted unexpectedly: #{component.id}", command: component)
+              {:error, :cant_run}
+          end
         {:error, {:timeout, _where}} ->
           Logger.error("Timeout starting plugin component #{inspect component.id}")
           {:error, :timeout}

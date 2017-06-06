@@ -9,12 +9,29 @@ defmodule Serverboards.Plugin.Registry do
     {:ok, pid}
   end
 
+  def plugin_paths() do
+    paths = case Serverboards.Config.get(:plugins, :path, nil) do
+      nil ->
+        (
+          Application.fetch_env!(:serverboards, :plugin_paths)
+          ++
+          [Path.join(Serverboards.Config.serverboards_path, "plugins")]
+        )
+      paths ->
+        String.split(paths,";")
+          |> Enum.map(&String.trim/1)
+          |> Enum.filter(&(&1 != ""))
+    end
+
+    paths
+      |> Enum.filter(&File.dir?/1)
+  end
+
   @doc ~S"""
   Load all plugin description from manifests.
   """
   def load_plugins() do
-    paths = Application.fetch_env! :serverboards, :plugin_paths
-    paths = paths ++ [Path.join(Serverboards.Config.serverboards_path, "plugins")]
+    paths = plugin_paths()
     plugins = Enum.flat_map paths, fn path ->
       path = Path.expand path
       Logger.debug("Loading plugins from #{inspect path}")

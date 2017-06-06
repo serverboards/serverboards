@@ -15,23 +15,42 @@ cache:
 backend-test:
   stage: test
   script:
-    - cd backend
-    - pwd
-    - mix local.rebar --force
-    - mix local.hex --force
-    - mix deps.clean --all
-    - mix deps.get
-    - MIX_ENV=test mix deps.compile
-    - mix test
+    - cd $CI_PROJECT_DIR
+    - scripts/backend-test.sh
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
 
 frontend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - cd frontend
-    - pwd
-    - yarn
-    - npm test
+    - scripts/frontend-test.sh
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
+      - frontend/node_modules
+      - frontend/dist
+  artifacts:
+    paths:
+      - frontend/shots
+    expire_in: 1 week
+
+plugins-test:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - scripts/plugin-test.sh
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
 
 release:
   stage: release

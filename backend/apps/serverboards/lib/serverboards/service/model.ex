@@ -15,8 +15,8 @@ defmodule Serverboards.Service.Model do
 				timestamps()
 		 end
 
-		 @required_fields ~w(name type creator_id priority config)a
-		 @optional_fields ~w(description)a
+		 @required_fields ~w(name type config)a
+		 @optional_fields ~w(description creator_id priority)a
 		 def changeset(service, changes \\ :empty) do
 			import Ecto.Changeset
 			service

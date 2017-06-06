@@ -1,3 +1,157 @@
+serverboards (17.7.0~alpha.90) unstable; urgency=medium
+
+  * Forces to exist to databases file, so tests fail on this error
+  * Updated version
+  * Plugins testes in prod mode
+  * Fixes to plugin and backend tests
+  * Improved packages to install at CI and backend test
+  * Added setup CI to easy setup CI runners. Fixes to tests.
+  * Renamed backend-test[s].sh
+  * Updated how to do backend tests
+  * Added initial tests for plugins gitlab CI support
+  * Updated timestamps -> timestamps()
+  * SSH tests improvements
+  * Plugin tests improved
+  * Initial SSH component tests
+  * Added s10s plugin-test
+  * Added Plugin and RPCWrapper to Python bindings
+  * Allow plugins to create services
+  * Improve error detection on fail start command
+  * Improved authentication workflow
+  * Added plugin.test RPC call to test plugins
+  * Fixed all compilation warnings on backend
+  * Store SSH output to the logs
+  * Fix show proper fields at rules service selector
+  * Fix show proper fields at rules service selector
+  * Added services tooltip ad add
+  * Added services tooltip ad add
+  * Fixes to SSH plugin, to be usabel again
+  * Try to use semver with - instead of + at elixir
+  * Core SSH use service_uuid as conn mode
+  * Udpated .gitignore for .map and .kdev4
+  * Ignore .mo file at i18n
+  * Improved debug of repeated id conditions
+  * Removed logging of some auth info
+  * Updated to ignore some temporary files on development
+  * Fix tests
+  * Improved loggind data, for debugging pourposes
+  * Fix event emmiting service.udpate on creation
+  * Only PS on currently running
+  * Fix init case where could not start
+  * Added plugin.kill RPC call
+  * Added plugin.ps and some more tracing info
+  * SCP return True if everything ok, exception if not
+  * Fixed communication between process and core and cli
+  * Improved internals. Added more builtins.
+  * Fix remove all envvars, leave PWD
+  * Send more events on service modification. Removed on_update.
+  * Fixed autompletion
+  * Can set the init daemon as relative to the current plugin
+  * Removed all unnecesary envvars from the running code.
+  * Fix manifest for actions and triggers for HTTP services
+  * Notifications body at db is text
+  * Fixed http timeout test and added preset for http
+  * Loading intro screen
+  * Added on_updated to services to call a callback
+  * Added cache to plugin checker
+  * Do not give the option of keep logged in
+  * Can delete rules
+  * Added rules tab to service details
+  * Fixes to author name at deb package and CI vars
+  * Improvements to version update get version and publish
+  * Reworked version gathering and update
+  * Publish automatically to the unstable channel
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+
+ -- David Moreno <dmoreno@coralbits.com>  Fri, 02 Jun 2017 17:08:21 +0200
+
+serverboards (17.07.0~alpha.88) unstable; urgency=medium
+
+  * Plugins testes in prod mode
+  * Fixes to plugin and backend tests
+  * Improved packages to install at CI and backend test
+  * Added setup CI to easy setup CI runners. Fixes to tests.
+  * Renamed backend-test[s].sh
+  * Updated how to do backend tests
+  * Added initial tests for plugins gitlab CI support
+  * Updated timestamps -> timestamps()
+  * SSH tests improvements
+  * Plugin tests improved
+  * Initial SSH component tests
+  * Added s10s plugin-test
+  * Added Plugin and RPCWrapper to Python bindings
+  * Allow plugins to create services
+  * Improve error detection on fail start command
+  * Improved authentication workflow
+  * Added plugin.test RPC call to test plugins
+  * Fixed all compilation warnings on backend
+  * Store SSH output to the logs
+  * Fix show proper fields at rules service selector
+  * Fix show proper fields at rules service selector
+  * Added services tooltip ad add
+  * Added services tooltip ad add
+  * Fixes to SSH plugin, to be usabel again
+  * Try to use semver with - instead of + at elixir
+  * Core SSH use service_uuid as conn mode
+  * Udpated .gitignore for .map and .kdev4
+  * Ignore .mo file at i18n
+  * Improved debug of repeated id conditions
+  * Removed logging of some auth info
+  * Updated to ignore some temporary files on development
+  * Fix tests
+  * Improved loggind data, for debugging pourposes
+  * Fix event emmiting service.udpate on creation
+  * Only PS on currently running
+  * Fix init case where could not start
+  * Added plugin.kill RPC call
+  * Added plugin.ps and some more tracing info
+  * SCP return True if everything ok, exception if not
+  * Fixed communication between process and core and cli
+  * Improved internals. Added more builtins.
+  * Fix remove all envvars, leave PWD
+  * Send more events on service modification. Removed on_update.
+  * Fixed autompletion
+  * Can set the init daemon as relative to the current plugin
+  * Removed all unnecesary envvars from the running code.
+  * Fix manifest for actions and triggers for HTTP services
+  * Notifications body at db is text
+  * Fixed http timeout test and added preset for http
+  * Loading intro screen
+  * Added on_updated to services to call a callback
+  * Added cache to plugin checker
+  * Do not give the option of keep logged in
+  * Can delete rules
+  * Added rules tab to service details
+  * Fixes to author name at deb package and CI vars
+  * Improvements to version update get version and publish
+  * Reworked version gathering and update
+  * Publish automatically to the unstable channel
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+
+ -- David Moreno <dmoreno@coralbits.com>  Fri, 02 Jun 2017 16:48:41 +0200
+
 serverboards (17.07.0~alpha.16) unstable; urgency=medium
 
   * Conflated two log history search tests into one
