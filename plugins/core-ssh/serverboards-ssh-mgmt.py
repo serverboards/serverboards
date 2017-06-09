@@ -20,7 +20,7 @@ def ssh_urlparse(url):
     return (u.hostname, str(port))
 
 
-def get_fingerprint(url, options):
+def get_fingerprint(url, **kwargs):
     if not url:
         return None
     (hostname, port) = ssh_urlparse(url)
