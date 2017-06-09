@@ -20,7 +20,7 @@ def ssh_urlparse(url):
     return (u.hostname, str(port))
 
 
-def get_fingerprint(url, options=""):
+def get_fingerprint(url, **kwargs):
     if not url:
         return None
     (hostname, port) = ssh_urlparse(url)
@@ -35,8 +35,8 @@ def get_fingerprint(url, options=""):
         return None
 
 @serverboards.rpc_method
-def remote_fingerprint(url=None, options="", **kwargs):
-    # serverboards.info(repr(kwargs))
+def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
+    serverboards.info(repr(kwargs))
     fingerprint=get_fingerprint(url, options)
     if not fingerprint:
         return {
@@ -66,13 +66,12 @@ def remote_fingerprint(url=None, options="", **kwargs):
         "fingerprint_orig" : fingerprint,
         "fingerprint": fingerprint_text,
         "toggle" : "Disable host" if enabled else "Enable host",
-        "className" : "red" if enabled else "yellow",
-        "enabled": enabled
+        "className" : "red" if enabled else "yellow"
     }
 
 @serverboards.rpc_method
-def toggle_remote_fingerprint(url=None, status=None, options=None, **args):
-    fingerprint=get_fingerprint(url, options)
+def toggle_remote_fingerprint(url=None, status=None, **args):
+    fingerprint=get_fingerprint(url)
 
     enabled=False
 
@@ -90,7 +89,8 @@ def toggle_remote_fingerprint(url=None, status=None, options=None, **args):
             with open(KNOWN_HOSTS_FILE, "r") as rd:
                 with open(KNOWN_HOSTS_FILE+".bak", "w") as wd:
                     for l in rd.readlines():
-                        # serverboards.debug(repr((l[:10], hostname, l.startswith(hostname))))
+                        serverboards.debug(repr((l[:10], hostname, l.startswith(hostname))))
+
                         if not l.startswith(hostname):
                             wd.write(l)
                         else:
