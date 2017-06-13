@@ -5,7 +5,7 @@ import {i18n} from 'app/utils/i18n'
 
 function UserMenu(props){
   return (
-    <div className="menu transition visible">
+    <div>
       <a className="item" href="#/user/profile" id="user">
         <span>{props.user.name}</span>
         <i className="ui icon user"></i>

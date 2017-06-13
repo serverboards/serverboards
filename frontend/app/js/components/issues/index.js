@@ -91,21 +91,23 @@ const Issues= React.createClass({
       this.props.setSectionMenuProps(nprops)
   },
   render_menu(props){
+    if (!props) props={}
+    const filter = props.filter || []
     return (
       <div className="menu">
         <div className="ui attached tabular menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
           <a
-            className={`item ${ props.filter.indexOf("status:open")>=0 ? "active" : ""}`}
+            className={`item ${ filter.indexOf("status:open")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:open")}>
               {i18n("Open")}&nbsp;<span className="ui meta"> ({props.open_count})</span>
           </a>
           <a
-            className={`item ${ props.filter.indexOf("status:closed")>=0 ? "active" : ""}`}
+            className={`item ${ filter.indexOf("status:closed")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:closed")}>
               {i18n("Closed")}&nbsp;<span className="ui meta"> ({props.closed_count})</span>
           </a>
           <a
-            className={`item ${ props.filter.indexOf("status:*")>=0 ? "active" : ""}`}
+            className={`item ${ filter.indexOf("status:*")>=0 ? "active" : ""}`}
             onClick={() => props.setFilter("status:*")}>
               {i18n("All")}&nbsp;<span className="ui meta">({props.all_count})</span>
           </a>

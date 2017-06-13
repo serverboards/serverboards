@@ -32,6 +32,7 @@ const Top = React.createClass({
       on: 'hover',
       hoverable: true,
       position: 'bottom center',
+      lastResort: true,
       delay: {
         show: 100,
         hide: 300
@@ -52,6 +53,7 @@ const Top = React.createClass({
       on: 'hover',
       hoverable: true,
       position: 'bottom center',
+      lastResort: true,
       onVisible(){
         self.setState({show_popup: 'actions'})
       },
@@ -65,19 +67,20 @@ const Top = React.createClass({
       on: 'hover',
       hoverable: true,
       position: 'bottom right',
+      lastResort: 'bottom right'
     })
     $(this.refs.el).find("[data-content]").popup()
   },
   handleGotoProjects(){
     get_last_project()
-      .then( project => project ? goto(`/project/${project}/`) : null )
+      .then( project => project ? goto(`/project/${project}/`) : goto(`/`) )
   },
   render(){
     const props=this.props
     const section=props.section
     let logo=require("../../../imgs/favicon.png")
     return (
-      <nav className="ui top menu" ref="el">
+      <nav className="ui top menu" id="top-menu" ref="el">
         <div className="item logo">
           <a href="#/">
             <img src={logo}/>
@@ -90,9 +93,10 @@ const Top = React.createClass({
         <a
             className={`item ${ section == "project" ? "active" : ""}`}
             onClick={this.handleGotoProjects}
-            ref="issues"
+            ref="projects"
             data-content={i18n("Project")}
             data-position="bottom center"
+            id="projects"
             >
           {i18n("Projects")}
         </a>
@@ -102,6 +106,7 @@ const Top = React.createClass({
               className={`item ${ section == "issues" ? "active" : ""}`}
               onClick={() => goto("/issues/")}
               ref="issues"
+              id="issues"
               data-content={i18n("Issues")}
               data-position="bottom center"
               >
@@ -118,6 +123,7 @@ const Top = React.createClass({
             className={`item ${section == 'notifications' ? "active" : ""}`}
             onClick={() => goto("/notifications/list")}
             ref="notifications_item"
+            id="notifications"
             >
             {i18n("Notifications")}
             {((props.notifications||[]).length > 0) ? (
@@ -146,6 +152,7 @@ const Top = React.createClass({
             className={`item ${section == 'process' ? "active" : ""}`}
             onClick={() => goto('/process/history')}
             ref="actions"
+            id="actions"
             >
             {i18n("Processes")}
             {props.actions.length>0 ? (
@@ -162,6 +169,7 @@ const Top = React.createClass({
         <Restricted perm="settings.view">
           <a
               ref="settings"
+              id="settings"
               onClick={() => goto("/settings/")}
               className={`item icon ${( section == 'settings' ) ? "active" : ""}`}
               data-content={i18n("Settings")}
@@ -180,7 +188,7 @@ const Top = React.createClass({
           <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
             data-tooltip={props.user.email}/>
         </a>
-        <div className="ui popup" ref="profile_menu" style={{padding:0}}>
+        <div className="ui popup" id="profile_menu" ref="profile_menu" style={{padding:0}}>
           <UserMenu/>
         </div>
       </nav>
