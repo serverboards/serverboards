@@ -3,7 +3,7 @@ defmodule Serverboards.Mixfile do
 
   def project do
     [app: :serverboards,
-     version: "17.04.1-g90249",
+     version: "17.4.10-ge5502",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
      deps_path: "../../deps",

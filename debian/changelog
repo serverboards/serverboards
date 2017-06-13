@@ -1,3 +1,17 @@
+serverboards (17.4.10-ge5502) unstable; urgency=medium
+
+  * Fix semver does not allow 17.04.xx but 17.4.xx
+  * Fix use proper base url for reset password link
+  * Another fix to add SSH fingerprints
+  * Fix add fingerprint
+  * CI publishes on stable channel
+  * Fix manifest for actions and triggers for HTTP services
+  * Notifications body at db is text
+  * Fixed http timeout test and added preset for http
+  * Fixes to version script
+
+ -- David Moreno <dmoreno@coralbits.com>  Tue, 13 Jun 2017 13:14:27 +0200
+
 serverboards (17.04.1-g90249) unstable; urgency=medium
 
   * Updated version to 17.04 final.
