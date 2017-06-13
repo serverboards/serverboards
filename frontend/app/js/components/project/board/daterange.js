@@ -45,6 +45,7 @@ const TimePicker=React.createClass({
             <option key={h} value={h}>{h}</option>
           )}
         </select>
+        <div style={{width: 10}}/>
         <select ref="m" className="ui dropdown" defaultValue={value.format("m")}>
           {this.range(60).map( (m) =>
             <option key={m} value={m}>{m}</option>
@@ -68,19 +69,9 @@ const DatetimePicker=React.createClass({
       value: this.props.value
     })
   },
-  componentDidMount(){
-    let position=$(this.refs.el).offset()
-    $(this.refs.calendar).css({
-      top: position.top+5,
-      left: position.left-20
-    })
-  },
   isDateDisabled(date){
-    return date.diff(this.state.now) > (24*60*60);
-  },
-  handleClickBackground(ev){
-    if (ev.target == this.refs.background)
-      this.props.onClose()
+    if (date)
+      return date.diff(this.state.now) > (24*60*60);
   },
   handleDateSelect(value){
     this.setState({value})
@@ -96,35 +87,31 @@ const DatetimePicker=React.createClass({
   render(){
     const props=this.props
     return (
-      <span ref="el">
-        <div ref="background" className="ui menu full background" onClick={this.handleClickBackground}>
-          <div ref="calendar" className="ui calendar">
-            <label>Date:</label>
-            <Calendar
-              value={this.state.value}
-              onSelect={this.handleDateSelect}
-              onChange={this.handleDateSelect}
-              disabledDate={this.isDateDisabled}
-              showToday={false}
-              />
-            <label>Time:</label>
-            <TimePicker
-              value={this.state.value}
-              onSelect={this.handleDateSelect}
-              />
-            <div className="ui right" style={{marginTop: 10}}>
-              <button
-                className="ui button"
-                onClick={this.setToday}
-                >{i18n("Set now")}</button>
-              <button
-                className="ui button yellow"
-                onClick={this.handleOk}
-                >{i18n("Set selected")}</button>
-            </div>
-          </div>
+      <div ref="calendar" className="ui calendar">
+        <label>Date:</label>
+        <Calendar
+          value={this.state.value}
+          onSelect={this.handleDateSelect}
+          onChange={this.handleDateSelect}
+          disabledDate={this.isDateDisabled}
+          showToday={false}
+          />
+        <label>Time:</label>
+        <TimePicker
+          value={this.state.value}
+          onSelect={this.handleDateSelect}
+          />
+        <div className="ui right" style={{marginTop: 10}}>
+          <button
+            className="ui button"
+            onClick={this.setToday}
+            >{i18n("Set now")}</button>
+          <button
+            className="ui button yellow"
+            onClick={this.handleOk}
+            >{i18n("Set selected")}</button>
         </div>
-      </span>
+      </div>
     )
   }
 })
@@ -134,15 +121,7 @@ const DatetimeItem=React.createClass({
   propTypes:{
     value: React.PropTypes.object.isRequired,
     now: React.PropTypes.object.isRequired,
-    onSelect: React.PropTypes.func.isRequired,
-  },
-  getInitialState(){
-    return {
-      open_calendar: false
-    }
-  },
-  onToggleCalendar(){
-    this.setState({open_calendar: !this.state.open_calendar})
+    onClick: React.PropTypes.func.isRequired,
   },
   render(){
     const props=this.props
@@ -150,42 +129,64 @@ const DatetimeItem=React.createClass({
 
     return (
       <div title={props.value.format("YYYY-MM-DD HH:mm")}>
-        <a className="item" onClick={this.onToggleCalendar}>
-          <label>{props.label}</label>
+        <a className={`item ui vertical split area ${this.props.className || ""}`} onClick={props.onClick}>
+          <label style={{alignSelf: "flex-start", fontWeight: "bold", paddingBottom: 10}}>{props.label}</label>
           <div className="value">
             {pretty}<br/>
             <span className="meta" style={{color: "#bbb", fontWeight: "normal"}}>{i18n.i18n_c("date range", "at")} {props.value.format("HH:mm")}</span>
             </div>
         </a>
-        {this.state.open_calendar ? (
-          <DatetimePicker
-            value={props.value}
-            onClose={this.onToggleCalendar}
-            onSelect={(value) => props.onSelect(moment(value))}
-            />
-        ) : null }
       </div>
     )
   }
 })
 
-const DateRange=function(props){
-  return (
-    <div className="menu" id="daterange">
-      <DatetimeItem
-        label={i18n_c("date range","From")}
-        value={props.start}
-        onSelect={props.onStartChange}
-        now={props.now}
-        />
-      <DatetimeItem
-        label={i18n_c("date range", "to")}
-        value={props.end}
-        onSelect={props.onEndChange}
-        now={props.now}
-        />
-    </div>
-  )
-}
+const DateRange=React.createClass({
+  getInitialState(){
+    return {
+      value: null,
+      onSelect: null,
+      selected: null
+    }
+  },
+  handleOpenCalendar(selected, value, onSelect){
+    const handleSelect=(value) => {
+      this.setState({selected:null, value: null, onSelect: null})
+      onSelect(value)
+    }
+    this.setState({selected, value, onSelect: handleSelect})
+  },
+  render(){
+    const props = this.props
+    const state = this.state
+    return (
+      <div className="menu" id="daterange">
+        <div className="ui horizontal split area" style={{justifyContent: "space-around", width: 280}}>
+          <DatetimeItem
+            label={i18n_c("date range","From")}
+            value={props.start}
+            now={props.now}
+            onClick={() => this.handleOpenCalendar( 'start', props.start, props.onStartChange )}
+            className={state.selected == 'start' ? "active" : null}
+            />
+          <DatetimeItem
+            label={i18n_c("date range", "to")}
+            value={props.end}
+            now={props.now}
+            onClick={() => this.handleOpenCalendar( 'end', props.end, props.onEndChange )}
+            className={state.selected == 'end' ? "active" : null}
+            />
+        </div>
+        {state.value ? (
+          <DatetimePicker
+            value={state.value}
+            onClose={state.onToggleCalendar}
+            onSelect={(value) => state.onSelect(moment(value))}
+            />
+        ) : null}
+      </div>
+    )
+  }
+})
 
 export default DateRange

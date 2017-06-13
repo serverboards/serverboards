@@ -39,7 +39,7 @@ const Default=React.createClass({
     return (
       <div>
         <div className="ui top header secondary menu">
-          <h2 className="ui header">{i18n("General information")}</h2>
+          <h3 className="ui header">{i18n("General information")}</h3>
           <div className="right menu">
             <GenericForm fields={state.buttons}/>
           </div>

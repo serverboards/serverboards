@@ -35,7 +35,8 @@ const ExternalScreen = React.createClass({
     const context = {
       plugin_id: plugin,
       component_id: component,
-      screen_id: `${plugin}/${component}`
+      screen_id: `${plugin}/${component}`,
+      setSectionMenu: props.setSectionMenu,
     }
 
     const load_js = () => {

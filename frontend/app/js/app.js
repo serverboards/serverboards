@@ -17,6 +17,7 @@ import event from 'app/utils/event'
 import cache from 'app/utils/cache'
 import i18n from 'app/utils/i18n'
 import {set_lang} from 'app/actions/i18n'
+import lodash from 'lodash'
 
 require('moment-range');
 
@@ -57,7 +58,8 @@ window.Serverboards = {
   graphs,
   perms,
   cache,
-  event
+  event,
+  lodash
 }
 
 let root = ReactDOM.render(

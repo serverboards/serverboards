@@ -15,7 +15,7 @@ function Column({h1, t1, h2, t2, img}){
       <div>
         {t1}
       </div>
-      <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img}/></div>
+      <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img} style={{maxWidth: "100%"}}/></div>
       <h2 className="ui small header">{i18n("TIP")}</h2>
       <div className="ui grey text">
         {t2}

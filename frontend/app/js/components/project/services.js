@@ -32,6 +32,7 @@ let Services=React.createClass({
   },
   componentDidMount(){
     let self = this
+    this.props.setSectionMenu(this.render_menu)
     Command.add_command_search("sbds-services", (Q, context) => ([
         {id: 'add-service', title: i18n("Add Service"), description: i18n("Add a new service"), run: () => self.openAddServiceModal()},
       ]), 2)
@@ -43,6 +44,22 @@ let Services=React.createClass({
      const desc=this.props.service_catalog.find((d) => d.type == tpe)
      return desc
   },
+  render_menu(){
+    const state = this.state
+    return (
+      <div className="menu">
+        <div className="item stretch"/>
+        <div className="ui attached tabular menu">
+          <a className={`${state.mode == "list" ? "active" : ""} item`} onClick={() => this.setListMode("list")}>
+            <i className="ui icon list"/>
+          </a>
+          <a className={`${state.mode == "grid" ? "active" : ""} item`} onClick={() => this.setListMode("grid")}>
+            <i className="ui icon grid layout"/>
+          </a>
+        </div>
+      </div>
+    )
+  },
   render(){
     let props=this.props
     let state=this.state
@@ -52,21 +69,6 @@ let Services=React.createClass({
       )
     return (
       <div>
-        <div className="ui top secondary header menu">
-          <h3 className="ui header">
-            {i18n("Services")}
-          </h3>
-          <div className="right menu">
-            <div className="ui secondary pointing menu">
-              <a className={`${state.mode == "list" ? "active" : ""} item`} onClick={() => this.setListMode("list")}>
-                <i className="ui icon list"/>
-              </a>
-              <a className={`${state.mode == "grid" ? "active" : ""} item`} onClick={() => this.setListMode("grid")}>
-                <i className="ui icon grid layout"/>
-              </a>
-            </div>
-          </div>
-        </div>
         <div style={{padding: 20}}>
           <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
         </div>

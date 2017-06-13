@@ -14,7 +14,6 @@ const skip_nodes={
 const CommandSearch = React.createClass({
   getInitialState(){
     return {
-      is_open: false,
     }
   },
   getContext(){
@@ -30,12 +29,7 @@ const CommandSearch = React.createClass({
     let self=this
     $(window).on('keyup', function(ev){
       if (ev.keyCode==27)
-        self.handleToggleOpen()
-      if (!self.state.is_open)
-        return
-      if (skip_nodes[ev.target.nodeName])
-        return
-      $search.find('input').focus()
+        $search.find('input').focus()
     })
     $search.search({
       cache: false,
@@ -76,32 +70,15 @@ const CommandSearch = React.createClass({
       }
     })
   },
-  handleToggleOpen(set_open){
-    if (set_open == undefined)
-      set_open=!this.state.is_open
-    if (set_open){
-      setTimeout(() =>
-        $(this.refs.search).find('input').focus().select()
-        , 20
-      )
-    }
-    this.setState({is_open: set_open})
-  },
   render(){
-    const is_open=this.state.is_open
     return (
-      <div className="menu">
-        <div ref="search" className={`ui search ${ is_open ? "" : "hidden"}`}>
-          <div className="ui icon input">
-            <input className="prompt" type="text" placeholder={i18n("Search and execute commands...")}/>
-            <i className="terminal icon" onClick={() => this.handleToggleOpen(false)}></i>
-          </div>
-          <div className="results">
-          </div>
+      <div ref="search" className={`ui search item`}>
+        <div className="ui icon input">
+          <input className="prompt" type="text" placeholder={i18n("Search and execute commands...")}/>
+          <i className="search icon"/>
         </div>
-        <a className={`item right aligned ${is_open ? "hidden" : ""}`} onClick={() => this.handleToggleOpen()}>
-          <i className="ui icon terminal"/>
-        </a>
+        <div className="results">
+        </div>
       </div>
     )
   }

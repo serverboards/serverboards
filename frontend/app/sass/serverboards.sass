@@ -5,7 +5,7 @@
 @import fixes
 @import sidebar
 
-$top-height: 70px
+$top-height: 75px
 
 .serverboards.background.diagonal
   background: #22a397 /* Old browsers */
@@ -60,59 +60,7 @@ h2.ui.header, h3.ui.header, h3.ui.item.header
 
 body
   height: auto !important
-  padding-top: $top-height
-
-div.ui.main
-  height: calc( 100vh - 69px )
-  max-height: calc( 100vh - 69px )
   overflow: hidden
-  margin: #{($top-height - 1)} 0 0 0
-
-  display: flex
-  overflow: hidden
-  align-items: stretch
-  align-content: stretch
-  width: 100%
-
-  > .ui.menu
-    flex-grow: 0
-    width: 300px
-    max-height: calc( 100vh - #{$top-height} )
-
-  > .ui.central
-    flex-grow: 1
-    margin: 0
-    height: calc( 100vh - #{$top-height} )
-    overflow: auto
-    display: flex
-    flex-direction: row
-    .ui.central
-      flex-grow: 1
-      display: flex
-      flex-direction: column
-      max-width: 100%
-
-    > .ui.container
-      padding-top: 20px
-      padding: 0 2em
-
-  > .ui.central.with.menu
-    display: flex
-    padding-top: 0
-    border: 0
-    border-radius: 0
-    > .ui.central
-      flex-grow: 1
-      overflow: auto
-  .ui.container.centered
-    display: flex
-    flex-direction: column
-    flex-grow: 1
-    justify-content: center
-  .ui.central > .ui.container, .ui.central > div > .ui.container,
-        padding: 20px 2em 80px 2em
-        margin-top: 20px
-
 
 .top.secondary.menu
   padding: 0
@@ -150,6 +98,8 @@ div.ui.main
 
 .ui.scroll
   overflow: auto
+  width: 100%
+  height: 100%
 
 .ui.button.floating.massive.add, .ui.button.floating.massive._add
   position: fixed
@@ -161,9 +111,9 @@ div.ui.main
   width: 80px
   height: 80px
 
-  padding-top: 26px
-  padding-left: 24px
-  font-size: 30px
+  padding-top: 20px
+  padding-left: 15px
+  font-size: 45px
   color: white !important
   z-index: 20
 
@@ -237,18 +187,20 @@ code
     background-color: lighten($yellow, $hover-lighten)
 
 .ui.main.area
+  width: 100vw
+  height: calc( 100vh - #{$top-height - 5})
   .ui.dimmer
-    top: $top-height !important
-  .ui.central .ui.dimmer
-    top: $top-height !important
-    left: 85px !important
-  .ui.central.with.menu .ui.dimmer
-    top: $top-height !important
-    left: 260px !important
-    width: calc( 100vw - 272px)
-    position: absolute
-    height: calc( 100vh - #{$top-height})
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    position: relative
+    width: 100%
+    height: 100%
     z-index: 10
+    padding-bottom: 20%
+    h1
+      margin-top: 0px
 .ui.basic.plain.label
   border: 0
   background: none !important
@@ -334,4 +286,3 @@ body [data-variation=narrow]:hover:after
   max-width: 13em
   min-width: 13em
   white-space: normal
-  

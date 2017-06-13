@@ -58,7 +58,7 @@ def t02_ssh_add_fingerprints_test():
     # Enable finger print if not enabled
     remote_fingerprint = mgmt.remote_fingerprint(url="localhost")
     serverboards.debug("remote fingerprint %s"%repr(remote_fingerprint))
-    if not remote_fingerprint["enabled"]:
+    if not remote_fingerprint.get("enabled"):
         ok = mgmt.toggle_remote_fingerprint(url="localhost", status=remote_fingerprint)
         serverboards.debug("add fingerprint? %s"%ok)
         assert ok == "Fingerprint added"

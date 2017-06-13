@@ -1,0 +1,45 @@
+import React from 'react'
+import { connect } from 'react-redux'
+import TopView from 'app/components/project/top'
+import { project_update_all } from 'app/actions/project'
+import _ from 'lodash'
+import {merge} from 'app/utils'
+import {i18n, i18n_nop} from 'app/utils/i18n'
+import {match_traits} from 'app/components/service/utils'
+
+const SECTIONS = [
+  {id: 'dashboard', name: i18n_nop('Dashboard')},
+  {id: 'services',  name: i18n_nop('Services')},
+  {id: 'rules',  name: i18n_nop('Rules')},
+  {id: 'settings',  name: i18n_nop('Settings')},
+  {id: 'issues',  name: i18n_nop('Issues')},
+]
+
+var Top=connect(
+  (state, props) => {
+    let extra_screens = state.project.project.screens
+    const services = state.project.project.services || []
+
+    extra_screens = extra_screens.map( s => (
+      merge(s, {
+        candidates: services.filter((c) => match_traits(c.traits, s.traits))
+      })
+    ))
+    extra_screens.sort( (a,b) => a.name.localeCompare(b.name) )
+    const params = props.params
+
+    return {
+      projects: _.sortBy(state.project.projects || [], 'name'),
+      sections: SECTIONS.concat(extra_screens),
+      project_name: state.project.project.name,
+      section: params.section || 'dashboard' ,
+      subsection: params.subsection,
+      project_shortname: state.project.current,
+      service: params.service,
+    }
+  },
+  (dispatch) => ({
+  })
+)(TopView)
+
+export default Top

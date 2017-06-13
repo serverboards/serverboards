@@ -1,0 +1,23 @@
+.ui.split.area
+  display: flex
+  align-items: stretch
+  height: 100%
+  width: 100%
+  &.horizontal
+    flex-flow: row
+  &.vertical
+    flex-flow: column
+
+  &.expand, > .expand
+    flex-grow: 1
+    > .ui.central
+      display: flex
+      flex-direction: column
+      align-items: stretch
+      flex-grow: 1
+
+  &.with.scroll, > .with.scroll
+    overflow: auto
+    position: relative
+  &.padding, > .padding
+    padding: 1em

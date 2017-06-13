@@ -1,5 +1,4 @@
 import React from 'react'
-import HoldButton from '../holdbutton'
 import Link from 'app/router'
 import i18n from 'app/utils/i18n'
 
@@ -49,22 +48,11 @@ var Settings=React.createClass({
   render(){
     let props=this.props
 
-    let extra_buttons=[]
-    if (props.edit)
-      extra_buttons=(
-        <HoldButton className="ui item" onHoldClick={props.onDelete}>{i18n("Delete project")} <i className="ui icon trash"/></HoldButton>
-      )
-
     let state=this.state
     let project=this.props.project || { tags: [], name: '', description: ''}
 
     return (
       <div className="ui background white central">
-        <div className="ui top secondary menu">
-          <div className="right menu">
-            {extra_buttons}
-          </div>
-        </div>
         <div className="ui text container" style={{marginTop:20}}>
           <form className="ui form" ref="form">
             <div className="field">

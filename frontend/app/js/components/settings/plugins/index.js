@@ -95,8 +95,8 @@ const Plugins=React.createClass({
     }
 
     return (
-      <div>
-        <div className="ui top secondary header menu">
+      <div className="ui vertical split area">
+        <div className="ui top secondary menu">
           <h3 className="ui header">{i18n("Plugins")}</h3>
           <div className="item">
             <div className="ui form">
@@ -110,27 +110,28 @@ const Plugins=React.createClass({
               </div>
             </div>
           </div>
-          <div className="right menu">
-            <div className="item">
-              <a
-                  className="ui teal medium button"
-                  href="https://serverboards.io/downloads/plugins/"
-                  target="_blank"
-                  data-tooltip={i18n("View the full plugin list at https://serverboards.io")}
-                  data-position="bottom right"
-                  style={{fontSize: 14}}
-                  >
-                {i18n("Get Plugins")}
-              </a>
-            </div>
+          <div className="item stretch"/>
+          <div className="item">
+            <a
+                className="ui teal medium button"
+                href="https://serverboards.io/downloads/plugins/"
+                target="_blank"
+                data-tooltip={i18n("View the full plugin list at https://serverboards.io")}
+                data-position="bottom right"
+                style={{fontSize: 14}}
+                >
+              {i18n("Get Plugins")}
+            </a>
           </div>
         </div>
 
-        <div className="ui container">
-          <div className="ui cards">
-            {plugins.map((p) => (
-              <PluginCard key={p.id} plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
-            ))}
+        <div className="expand with scroll and padding">
+          <div className="ui container">
+            <div className="ui cards">
+              {plugins.map((p) => (
+                <PluginCard key={p.id} plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
+              ))}
+            </div>
           </div>
           {popup}
         </div>
