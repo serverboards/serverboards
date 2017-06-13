@@ -234,7 +234,9 @@ defmodule Serverboards.Auth do
 					{:ok, me} ->
 						Logger.info("Password reset link requested for #{email}")
 						token = Serverboards.Auth.User.Token.create(me, ["auth.reset_password"])
-						link="http://localhost:3000/#?pr=#{token}"
+						base_url=Serverboards.Settings.get("serverboards.core.settings/base","base_url")
+							|> Map.get("base_url", "http://localhost:8080")
+						link="#{base_url}/#?pr=#{token}"
 						Serverboards.Notifications.notify(
 							email,
 							"Password reset link",
