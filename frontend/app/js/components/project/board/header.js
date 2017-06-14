@@ -13,6 +13,14 @@ const HeaderMenu = React.createClass({
       popup: this.refs.filters,
       on: 'click'
     })
+    $(this.refs.rt).checkbox({
+      onChecked: () => this.props.setRealtime(true),
+      onUnchecked: () => this.props.setRealtime(false),
+    })
+    if (this.props.realtime)
+      $(this.refs.rt).checkbox('check')
+    else
+      $(this.refs.rt).checkbox('uncheck')
   },
   setFilter(seconds){
     $(this.refs.filter_selector).popup('hide')
@@ -46,13 +54,23 @@ const HeaderMenu = React.createClass({
           <i className="ui icon filter"/>
         </a>
         <div className="ui popup" ref="filters">
-          <div className="header">{i18n("Preset filters")}</div>
+          <div className="item">
+            <div className="ui toggle checkbox" ref="rt">
+              <input type="checkbox" name="realtime_update"/>
+              <label>{i18n("Realtime updates")}</label>
+            </div>
+          </div>
+
+          <hr className="ui divider"></hr>
+
           <a className="item" onClick={() => this.setFilter(300)}>{i18n("5 minutes")}</a>
           <a className="item" onClick={() => this.setFilter(60*60*2)}>{i18n("2 hours")}</a>
           <a className="item" onClick={() => this.setFilter(60*60*24)}>{i18n("24 hours")}</a>
           <a className="item" onClick={() => this.setFilter(60*60*24*7)}>{i18n("1 week")}</a>
           <a className="item" onClick={() => this.setFilter(60*60*24*30)}>{i18n("30 days")}</a>
-          <div className="header">{i18n("Custom range")}</div>
+
+          <hr className="ui divider"></hr>
+
           <DateRange/>
         </div>
         <div className="ui item separator"/>

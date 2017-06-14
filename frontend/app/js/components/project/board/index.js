@@ -10,9 +10,12 @@ import {object_is_equal} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
 import Empty from './empty'
+import moment from 'moment'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
+
+const RT_INTERVAL = 30
 
 const Board = React.createClass({
   handleEdit(uuid){
@@ -29,7 +32,8 @@ const Board = React.createClass({
   getInitialState(){
     return {
       layout: this.getLayout(this.props),
-      interval_id: undefined,
+      update_now_label_timer_id: undefined,
+      update_realtime_timer_id: undefined,
     }
   },
   handleLayoutChange(layout){
@@ -49,6 +53,16 @@ const Board = React.createClass({
       const layout = this.getLayout(newprops)
       this.setState({ layout })
     }
+    if (newprops.realtime != this.props.realtime){
+      if (newprops.realtime){
+        const update_realtime_timer_id = setInterval(this.updateRealtime, RT_INTERVAL * 1000)
+        this.setState({update_realtime_timer_id})
+      }
+      else{
+        clearInterval(this.state.update_realtime_timer_id)
+        this.setState({update_realtime_timer_id: undefined})
+      }
+    }
   },
   componentDidMount(){
     let self=this
@@ -56,16 +70,29 @@ const Board = React.createClass({
       {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: this.handleAddWidget }
     ], 2)
     this.setState({
-      interval_id: setInterval(() => this.props.updateDaterangeNow(), 60 * 1000)
+      update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), 60 * 1000)
     })
     // jquery hack, may be better using some property at redux
     $('.ui.central.with.menu.white.background').removeClass("white").addClass("grey")
+    if (this.props.realtime){
+      const update_realtime_timer_id = setInterval(this.updateRealtime, RT_INTERVAL * 1000)
+      this.setState({update_realtime_timer_id})
+    }
   },
   componentWillUnmount(){
     Command.remove_command_search('add-widget')
-    clearInterval(this.state.interval_id)
+    clearInterval(this.state.update_now_label_timer_id)
+    if (update_realtime_timer_id)
+      clearInterval(update_realtime_timer_id)
     // jquery hack, may be better using some property at redux
     $('.ui.central.with.menu.grey.background').removeClass("grey").addClass("white")
+  },
+  updateRealtime(){
+    console.log("Update RT!")
+    const end = moment()
+    const secs = moment(this.props.time_slice[1]).diff(this.props.time_slice[0], 'seconds')
+    const start = end.subtract(secs, "seconds")
+    this.props.updateDaterange(start, end)
   },
   getLayout(wid){
     const layout = this.state && (this.state.layout || []).find( l => l.i == wid )

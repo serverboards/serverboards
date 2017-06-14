@@ -105,6 +105,13 @@ function board_update_now(end){
   }
 }
 
+function board_set_realtime(enabled){
+  return {
+    type: "BOARD_REALTIME",
+    payload: enabled
+  }
+}
+
 export {
   project_add,
   project_update_all,
@@ -117,5 +124,6 @@ export {
   board_set_daterange_end,
   board_set_daterange_start,
   board_set_daterange_start_and_end,
-  board_update_now
+  board_update_now,
+  board_set_realtime
 }
