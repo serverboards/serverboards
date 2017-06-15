@@ -88,10 +88,9 @@ const Board = React.createClass({
     $('.ui.central.with.menu.grey.background').removeClass("grey").addClass("white")
   },
   updateRealtime(){
-    console.log("Update RT!")
     const end = moment()
     const secs = moment(this.props.time_slice[1]).diff(this.props.time_slice[0], 'seconds')
-    const start = end.subtract(secs, "seconds")
+    const start = moment(end).subtract(secs, "seconds")
     this.props.updateDaterange(start, end)
   },
   getLayout(wid){
