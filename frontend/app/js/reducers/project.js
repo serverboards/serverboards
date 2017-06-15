@@ -1,6 +1,26 @@
 import {merge} from 'app/utils'
 import moment from 'moment'
 
+function previous_start(){
+  if (localStorage.dashboard_realtime)
+    return moment().subtract(localStorage.dashboard_realtime, "seconds")
+  if (localStorage.dashboard_start)
+    return moment(localStorage.dashboard_start)
+  else
+    return moment().subtract(7,"days")
+}
+function previous_end(){
+  if (localStorage.dashboard_realtime)
+    return moment()
+  if (localStorage.dashboard_end)
+    return moment(localStorage.dashboard_end)
+  else
+    return moment()
+}
+function previous_realtime(){
+  return localStorage.dashboard_realtime || false
+}
+
 var default_state={
   projects: [],
   current: undefined,
@@ -9,9 +29,10 @@ var default_state={
   widgets: undefined,
   widget_catalog: undefined,
   external_urls: undefined,
+  realtime: previous_realtime(),
   daterange: {
-    start: (moment().subtract(7,"days")),
-    end: moment(),
+    start: previous_start(),
+    end: previous_end(),
     now: moment()
   }
 }
@@ -88,9 +109,21 @@ function project(state=default_state, action){
         return merge(state, {project: action.info})
       return state
     case "UPDATE_DATERANGE":
-      return merge(state, {daterange: merge(state.daterange, action.daterange)})
+    {
+      const daterange = merge(state.daterange, action.daterange)
+      state = merge(state, {daterange})
+      localStorage.dashboard_start=daterange.start
+      localStorage.dashboard_end=daterange.end
+      if (state.realtime){
+        localStorage.dashboard_realtime=moment(daterange.end).diff(daterange.start,'seconds')
+      }
+      return state
+    }
     case "UPDATE_EXTERNAL_URL_COMPONENTS":
       return merge(state, {external_urls: action.components})
+    case "BOARD_REALTIME":
+      localStorage.dashboard_realtime=moment(state.daterange.end).diff(state.daterange.start,'seconds')
+      return merge(state, {realtime: action.payload})
   }
   return state
 }

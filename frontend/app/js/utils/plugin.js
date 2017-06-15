@@ -147,7 +147,7 @@ class PluginCaller{
   }
   call(method, params){
     return rpc.call(`${this.uuid}.${method}`, params).catch( (e) => {
-      if (e=='unknown_method')
+      if (e=='unknown_method' || e=="exit")
         return this.maybe_reconnect(e).then( () => this.call(method, params) )
       throw(e)
     })
