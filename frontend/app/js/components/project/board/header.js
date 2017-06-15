@@ -3,6 +3,7 @@ import DateRange from 'app/containers/project/board/daterange'
 import { request_fullscreen } from 'app/utils/fullscreen'
 import i18n from 'app/utils/i18n'
 import moment from 'moment'
+import {set_modal} from 'app/utils/store'
 
 const HeaderMenu = React.createClass({
   getInitialState(){
@@ -37,24 +38,29 @@ const HeaderMenu = React.createClass({
     console.log("%o to %o", start, end)
     this.setState({filter})
   },
+  handleDashboardChange(ds){
+    this.props.onDashboardChange(ds)
+  },
+  handleAddDashboard(){
+    set_modal('dashboard.create',{project: this.props.project})
+  },
   render(){
+    const props = this.props
     const filter = this.state.filter
+    const current = props.dashboard_current || {}
     return (
       <div className="menu">
         <div style={{width: 30}}/>
         <div className="ui attached tabular menu">
-          <a className="active item">
-            Monitoring
-          </a>
-          {/*
-          <a className="item">
-            Tools
-          </a>
+          {props.dashboard_list.map( d => (
+            <a key={d.uuid} className={`item ${d.uuid == current.uuid ? "active" : ""}`} onClick={() => this.handleDashboardChange(d.uuid)}>
+              {d.name}
+            </a>
+          ))}
           <div className="ui item separator"/>
-          <a className="item">
+          <a className="item" onClick={this.handleAddDashboard}>
             <i className="ui icon add teal"/>
           </a>
-          */}
         </div>
         <div className="ui item stretch"/>
         <div className="ui item separator"/>

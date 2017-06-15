@@ -37,13 +37,45 @@ defmodule Serverboards.Project.RPC do
     end, [required_perm: "project.get", context: true]
 
 
+    RPC.MethodCaller.add_method mc, "dashboard.create", fn attr, context ->
+      me = Context.get(context, :user)
+      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"project name order")
+      Serverboards.Project.Dashboard.dashboard_add(attr, me)
+    end, [required_perm: "dashboard.create", context: true]
+    RPC.MethodCaller.add_method mc, "dashboard.update", fn attr, context ->
+      me = Context.get(context, :user)
+      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"uuid name order")
+      Serverboards.Project.Dashboard.dashboard_update(attr, me)
+    end, [required_perm: "dashboard.update", context: true]
+    RPC.MethodCaller.add_method mc, "dashboard.remove", fn attr, context ->
+      me = Context.get(context, :user)
+      Serverboards.Project.Dashboard.dashboard_remove( attr["uuid"], me )
+    end, [required_perm: "dashboard.remove", context: true]
+    RPC.MethodCaller.add_method mc, "dashboard.list", fn attr, context ->
+      me = Context.get(context, :user)
+      Serverboards.Project.Dashboard.dashboard_list(%{ project: attr["project"] }, me)
+        |> Enum.map( &Map.take(&1, ~w"uuid order name"a))
+    end, [required_perm: "project.get", context: true]
+    RPC.MethodCaller.add_method mc, "dashboard.get", fn attr ->
+      Serverboards.Project.Dashboard.dashboard_get( attr["uuid"] )
+       |> Map.take(~w"uuid name updated_at inserted_at config order widgets"a)
+    end, [required_perm: "project.get"]
+
     RPC.MethodCaller.add_method mc, "dashboard.widget.create", fn attr, context ->
       me = Context.get(context, :user)
-      Serverboards.Project.Widget.widget_add(attr["project"], %{
-        config: attr["config"],
-        ui: attr["ui"],
-        widget: attr["widget"]
-        }, me)
+      if attr["project"] do
+        Serverboards.Project.Widget.widget_add(attr["project"], %{
+          config: attr["config"],
+          ui: attr["ui"],
+          widget: attr["widget"]
+          }, me) # DEPRECATED 17.04
+      else
+        Serverboards.Project.Widget.widget_add_v2(attr["dashboard"], %{
+          config: attr["config"],
+          ui: attr["ui"],
+          widget: attr["widget"]
+          }, me)
+      end
     end, [required_perm: "dashboard.widget.create", context: true]
 
     RPC.MethodCaller.add_method mc, "dashboard.widget.remove", fn [uuid], context ->

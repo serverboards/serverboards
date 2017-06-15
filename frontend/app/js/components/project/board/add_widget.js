@@ -31,7 +31,7 @@ const AddWidget = React.createClass({
     const state=this.state
     const data={
       widget: state.widget.id,
-      project: this.props.project,
+      dashboard: this.props.dashboard,
       config: state.config
     }
     console.log(data, this)
@@ -65,7 +65,7 @@ const AddWidget = React.createClass({
             <select name="widget">
               <option value="">{i18n("Select a widget")}</option>
               {catalog.map( (w) => (
-                <option value={w.id}>{w.name}</option>
+                <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
           </div>

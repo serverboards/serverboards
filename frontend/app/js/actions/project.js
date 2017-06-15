@@ -46,22 +46,13 @@ function project_attach_service(project_shortname, service_uuid){
   }
 }
 
-function projects_widget_list(project){
-  return function(dispatch){
-    dispatch({type:"UPDATE_PROJECT_WIDGETS", project, widgets: undefined})
-    if (project)
-      rpc.call("dashboard.widget.list", [project]).then((widgets) => {
-        dispatch({type:"UPDATE_PROJECT_WIDGETS", project, widgets})
-      })
-  }
-}
-
 function projects_update_info(project){
   return function(dispatch){
     dispatch({type:"UPDATE_PROJECT_INFO", project, info: undefined})
     if (project){
       rpc.call("project.get", [project]).then( (info) => {
         dispatch({type:"UPDATE_PROJECT_INFO", project, info})
+        dispatch( project_get_dashboard(info.dashboards[0].uuid) )
       })
     }
   }
@@ -112,15 +103,25 @@ function board_set_realtime(enabled){
   }
 }
 
+function project_get_dashboard(uuid){
+  return function(dispatch){
+    dispatch({type: "BOARD_SET", payload: undefined })
+    if (uuid)
+      rpc.call("dashboard.get", {uuid}).then( d => {
+        dispatch({type: "BOARD_SET", payload: d})
+      })
+  }
+}
+
 export {
   project_add,
   project_update_all,
   project_delete,
   project_update,
   project_attach_service,
-  projects_widget_list,
   projects_update_info,
   project_update_widget_catalog,
+  project_get_dashboard,
   board_set_daterange_end,
   board_set_daterange_start,
   board_set_daterange_start_and_end,

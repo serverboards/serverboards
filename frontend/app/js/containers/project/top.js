@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import TopView from 'app/components/project/top'
 import { project_update_all } from 'app/actions/project'
 import _ from 'lodash'
-import {merge} from 'app/utils'
+import {merge, map_get} from 'app/utils'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import {match_traits} from 'app/components/service/utils'
 
@@ -15,10 +15,11 @@ const SECTIONS = [
   {id: 'issues',  name: i18n_nop('Issues')},
 ]
 
-var Top=connect(
-  (state, props) => {
-    let extra_screens = state.project.project.screens
-    const services = state.project.project.services || []
+var Top=connect({
+  state(state, props){
+    let current_project = map_get(state, ["project", "project"]) || {}
+    let extra_screens = current_project.screens || []
+    const services = current_project.services || []
 
     extra_screens = extra_screens.map( s => (
       merge(s, {
@@ -31,10 +32,10 @@ var Top=connect(
     return {
       projects: _.sortBy(state.project.projects || [], 'name'),
       sections: SECTIONS.concat(extra_screens),
-      project_name: state.project.project.name,
+      project_name: current_project.name,
       section: params.section || 'dashboard' ,
       subsection: params.subsection,
-      project_shortname: state.project.current,
+      project_shortname: current_project.shortname,
       service: params.service,
     }
   },

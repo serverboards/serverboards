@@ -59,6 +59,23 @@ export function map_drop(map, keys){
   return r
 }
 
+/// Gets a deep value from a map, following a path. If any if null/undefined, returns that, not continuing the path. Path is a list
+export function map_get(obj, path){
+  let v = obj[path[0]]
+  if (v && path.length>1)
+    return map_get(v, path.slice(1))
+  return v
+}
+
+/// Updates a dict path element with the given value. Path is a list of tranversal.
+export function map_set(orig, path, value){
+  if (path.length==0)
+    return value
+  const head = path[0]
+  const rest = path.slice(1)
+  return merge(orig, {[head]: map_set( orig[head], rest, value )})
+}
+
 const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
 const fixed_colors={
   "stopped" : "_grey",

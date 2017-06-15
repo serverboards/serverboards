@@ -1,5 +1,4 @@
 import ServerboardView from 'app/components/project'
-import { push } from 'react-router-redux'
 import store from 'app/utils/store'
 import { projects_update_info } from 'app/actions/project'
 
@@ -16,7 +15,7 @@ var Project=store.connect({
   },
   handlers: (dispatch, props) => ({
     goto(url){ dispatch( push(url) ) },
-    onAdd(){ dispatch( push("/project/add") ) },
+    onAdd(){ dispatch( store.set_modal("project.add") ) },
     onUpdate(){ dispatch( projects_update_info(props.params.project) ) }
   }),
   store_enter: (state, props) => [
