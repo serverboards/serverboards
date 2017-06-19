@@ -6,3 +6,4 @@ node_modules
 .semantic
 dist/
 npm-debug.log
+shots/
