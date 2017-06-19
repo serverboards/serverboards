@@ -16,8 +16,10 @@ function Main(props){
     const Modal = get_modal(mod.modal)
     if (Modal){
       console.log("Render Modal %o -> %o", mod.modal, Modal)
+      const dispatch = require('app/utils/store').default.dispatch
+      const goBack = require('react-router-redux').goBack
       modal=(
-        <Modal {...mod.data}/>
+        <Modal {...mod.data} onClose={ () => dispatch( goBack() ) }/>
       )
     }
     else{
