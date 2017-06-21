@@ -1,5 +1,6 @@
 import React from 'react'
 import {merge} from 'app/utils'
+import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
 import ScreensMenu from 'app/components/service/screensmenu'
 import {get_service_data} from 'app/components/service/utils'
@@ -7,6 +8,14 @@ import ServerboardSelector from 'app/containers/project/projectselector'
 import i18n from 'app/utils/i18n'
 
 const serverboards_logo = require('app/../imgs/007-logo_serverboards_font.svg')
+
+const SPECIAL_ITEM_STYLE = {
+  borderTop:"1px solid #aaa",
+  height: 60,
+  lineHeight: "30px",
+  margin: 0,
+  textTransform: "uppercase"
+}
 
 function ProjectHeader(props){
   return (
@@ -112,11 +121,13 @@ const SidebarSections = React.createClass({
           <MenuItem section="settings">{i18n("Settings")}</MenuItem>
         </div>
 
-        <div className="stretch"/>
-
-        <a className="item" onClick={this.toggleShowServerboardSelector} style={{borderTop:"1px solid #aaa", height: 60, lineHeight: "30px"}}>
-          View all projects
+        <a className="item" onClick={this.toggleShowServerboardSelector} style={SPECIAL_ITEM_STYLE}>
+          {i18n("View all projects")}
           <i className={`icon folder`}/>
+        </a>
+        <a className="item" onClick={() => set_modal("project.create")} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
+          {i18n("Create new project")}
+          <i className={`icon yellow add`}/>
         </a>
 
         {this.state.show_project_selector ? (
