@@ -24,7 +24,7 @@ const ServiceMenu = React.createClass({
           {service.name}
           <i className="ui icon chevron down"/>
         </a>
-        <div className="ui popup" id="service_selector_menu" key="service_selector_menu" ref="service_selector_menu">
+        <div className="ui popup with scroll" id="service_selector_menu" key="service_selector_menu" ref="service_selector_menu">
           {(candidates || []).map( c => (
             <a key={c.shortname} className={`item ${ c.uuid == service.uuid ? "bold teal" : ""}`} onClick={() => this.handleChangeSection(section, c.uuid)}>
               {c.name}
@@ -85,7 +85,8 @@ const ProjectMenu = React.createClass({
   componentDidMount(){
     $(this.refs.project_selector).popup({
       popup: this.refs.project_selector_menu,
-      on: 'click'
+      on: 'click',
+      lastResort: 'bottom left'
     })
   },
   handleChangeProject(shortname){
@@ -96,10 +97,15 @@ const ProjectMenu = React.createClass({
     const { project_shortname, project_name, projects } = this.props
     return (
       <div>
-        <a className="item selector" style={{textTransform:"none"}} ref="project_selector">
+        <a className="item selector" style={{textTransform:"none"}} ref="project_selector" id="project_selector">
           {project_name} <i className="ui icon chevron down"/>
         </a>
-        <div className="ui popup" id="project_selector_menu" key="project_selector_menu" ref="project_selector_menu">
+        <div className="ui popup with scroll"
+            id="project_selector_menu"
+            key="project_selector_menu"
+            ref="project_selector_menu"
+            >
+          <a className="item" onClick={() => goto(`/project/add`)} style={{borderBottom: "1px solid #eee", width: 200}} id="add_project">{i18n("Add project")}</a>
           {(projects || []).map( p => (
             <a key={p.shortname} className={`item ${p.shortname == project_shortname ? "bold teal" : null}`} onClick={() => this.handleChangeProject(p.shortname)}>
               {p.name}
