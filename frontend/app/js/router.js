@@ -9,7 +9,6 @@ import DashBoard from 'app/containers/dashboard'
 import Profile from 'app/containers/profile'
 import Settings from 'app/components/settings'
 import Project from 'app/containers/project'
-import ProjectAdd from 'app/containers/project/add'
 import ProcessesHistory from 'app/containers/processes'
 import ProcessView from 'app/containers/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
@@ -32,7 +31,6 @@ var ServerboardsRouter = React.createClass({
           <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
           <Route path="/project/">
-            <Route path="add" component={ProjectAdd}/>
             <Route path=":project/" component={Project}/>
             <Route path=":project/:section" component={Project}/>
             <Route path=":project/:section/:subsection" component={Project}/>

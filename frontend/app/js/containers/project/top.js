@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import connect from 'app/containers/connect'
 import TopView from 'app/components/project/top'
 import { project_update_all } from 'app/actions/project'
 import _ from 'lodash'
@@ -39,8 +39,7 @@ var Top=connect({
       service: params.service,
     }
   },
-  (dispatch) => ({
-  })
-)(TopView)
+  subscriptions: ['project.created', 'project.removed']
+})(TopView)
 
 export default Top

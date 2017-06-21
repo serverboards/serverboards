@@ -1,6 +1,7 @@
 import React from 'react'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
+import { set_modal } from 'app/utils/store'
 
 const img1 = require('app/../imgs/008-Button+.png')
 const img2 = require('app/../imgs/009-mid-nocontent-services.png')
@@ -72,7 +73,7 @@ function DashBoard(props){
     <div className="ui central" style={{width: "100%", height: "calc( 100vh - 45px )"}}>
       <Empty/>
       <Restricted perm="project.create">
-        <a href="#/project/add" className="ui massive button _add icon floating yellow">
+        <a onClick={() => set_modal("project.add")} className="ui massive button _add icon floating yellow" id="add_project">
           <i className="add icon"></i>
         </a>
       </Restricted>
