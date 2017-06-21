@@ -76,55 +76,6 @@ defmodule ProjectTest do
     assert {:error, :not_found} == project_get "SBDS-TST3", user
   end
 
-
-  test "Create project and widgets, no ES" do
-    import Serverboards.Project
-    import Serverboards.Project.Widget
-
-    user = Test.User.system
-
-    project_add "SBDS-TST12", %{ "name" => "Test 12" }, user
-    {:ok, widget} = widget_add("SBDS-TST12", %{ config: %{}, widget: "test/widget"}, user)
-    #Logger.debug(inspect list)
-
-    {:ok, list} = widget_list("SBDS-TST12")
-
-    Logger.debug(inspect widget)
-    Logger.info("List of widgets at SBDS-TST12#{Serverboards.Utils.table_layout(list)}")
-
-    assert Enum.any?(list, &(&1.uuid == widget))
-    assert Enum.any?(list, &(&1.widget == "test/widget"))
-    assert Enum.any?(list, &(&1.config == %{}))
-
-    :ok = widget_update(widget, %{config: %{ "test" => true }}, user)
-    {:ok, list} = widget_list("SBDS-TST12")
-    Logger.info("List of widgets at SBDS-TST12#{Serverboards.Utils.table_layout(list)}")
-    assert Enum.any?(list, &(&1.config == %{ "test" => true }))
-  end
-
-  test "Project and widgets via RPC" do
-    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    Test.Client.call(client, "event.subscribe", ["dashboard.widget.created", "dashboard.widget.updated"])
-    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST13", %{}] )
-    {:ok, uuid} = Test.Client.call(client, "dashboard.widget.create", %{ project: "SBDS-TST13", widget: "test"})
-    :timer.sleep(300)
-    assert Test.Client.expect(client, method: "dashboard.widget.created")
-
-    {:ok, _ } = Test.Client.call(client, "dashboard.widget.list", [sbds])
-
-    {:ok, _uuid} = Test.Client.call(client, "dashboard.widget.update", %{ uuid: uuid, widget: "test2"})
-    :timer.sleep(300)
-
-    assert Test.Client.expect(client, method: "dashboard.widget.updated")
-    {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "dashboard.widget.list", [sbds])
-
-    # just dont fail
-    {:ok, _catalog} = Test.Client.call(client, "dashboard.widget.catalog", ["SBDS-TST13"])
-
-    {:ok, _} = Test.Client.call(client, "dashboard.widget.remove", [uuid])
-    {:ok, []} = Test.Client.call(client, "dashboard.widget.list", [sbds])
-  end
-
   test "Update serverboards tags", %{ system: system } do
     import Serverboards.Project
 

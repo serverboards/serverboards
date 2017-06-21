@@ -183,6 +183,14 @@ $blacktext: #333
     margin: 0
     padding: 15px 20px
 
+// popup with scroll does not allow anything outside (will be captured by the
+// scroll, no matter which), so only on linear menus.
+.ui.popup.with.scroll
+  max-height: calc( 100vh - 200px )
+  overflow: auto
+  height: auto
+  width: auto
+
 .ui.top.menu
   #processes_menu
     min-height: 50px

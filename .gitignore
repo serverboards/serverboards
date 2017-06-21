@@ -4,3 +4,4 @@ serverboards.tar.gz
 *.map
 *.kdev4
 log
+local/

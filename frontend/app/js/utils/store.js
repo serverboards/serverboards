@@ -23,10 +23,18 @@ if (__DEV__){
 }
 //console.log(redux_extra)
 
+// From the redux manual, resolves promised actions
+const promise_middleware = store => next => action => {
+  if (typeof action.then !== 'function') {
+    return next(action)
+  }
+  return Promise.resolve(action).then(store.dispatch)
+}
+
 let store = createStore(
   redux_reducers, {},
   compose(
-    applyMiddleware(thunk, routerMiddleware(hashHistory)),
+    applyMiddleware(promise_middleware, thunk, routerMiddleware(hashHistory)),
     redux_extra
   )
 )

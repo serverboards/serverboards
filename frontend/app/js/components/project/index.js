@@ -19,7 +19,7 @@ const Project=React.createClass({
   componentWillReceiveProps(nprops){
     const params = this.props.params
     const nparams = nprops.params
-    console.log("Component will receive props! %o %o", params, nparams)
+    // console.log("Component will receive props! %o %o", params, nparams)
     if (params.section != nparams.section){
       this.setState({section_menu: null})
     }

@@ -47,8 +47,47 @@ set +e
 rm -rf shots/*
 mkdir -p shots
 
+BACKUPDB=$( mktemp )
+
 if [ "$WATCH" ]; then
+  function restart_backend_and_db(){
+    psql template1 > /dev/null <<EOF
+SELECT pg_terminate_backend(pid)
+  FROM pg_stat_activity
+  WHERE datname = '$DBNAME';
+
+DROP DATABASE $DBNAME;
+CREATE DATABASE $DBNAME;
+
+\c $DBNAME
+\i $BACKUPDB
+EOF
+    kill $BACKEND_PID
+    sleep 1
+    kill -9 $BACKEND_PID
+    sleep 1
+    pushd ../backend
+    mix run --no-halt 2>&1 > $BASEDIR/log/serverboards.log &
+    popd
+    BACKEND_PID=$!
+  }
+
+  function setup_db_backup(){
+    pg_dump $SERVERBOARDS_DATABASE_URL > $BACKUPDB
+    local PREVEXIT=$( trap -p EXIT )
+    function remove_backupdb(){
+      rm $BACKUPDB
+      $PREVEXIT
+    }
+    trap remove_backupdb EXIT
+  }
+
+  setup_db_backup
+
   while true; do
+    echo "Restart backend"
+    restart_backend_and_db
+
     echo "Compiling frontend"
     make compile 2>&1 >> $BASEDIR/log/compile.log
     echo

@@ -30,6 +30,10 @@ export function get_modal(name){
       return require('app/containers/rules/edit').default
     case "rule.edit":
       return require('app/containers/rules/edit').default
+    case "dashboard.create":
+      return require('app/components/project/board/add_dashboard').default
+    case "project.add":
+      return require('app/containers/project/add').default
   }
 }
 

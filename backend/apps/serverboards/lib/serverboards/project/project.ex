@@ -5,6 +5,7 @@ defmodule Serverboards.Project do
 
   alias Serverboards.Repo
   alias Serverboards.Project.Model.Project, as: ProjectModel
+  alias Serverboards.Project.Model.Dashboard, as: DashboardModel
   alias Serverboards.Project.Model.ProjectTag, as: ProjectTagModel
 
   def start_link(_options) do
@@ -16,6 +17,7 @@ defmodule Serverboards.Project do
 
     setup_eventsourcing(es)
     Serverboards.Project.Widget.setup_eventsourcing(es)
+    Serverboards.Project.Dashboard.setup_eventsourcing(es)
 
     {:ok, es}
   end
@@ -36,6 +38,18 @@ defmodule Serverboards.Project do
         updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.updated_at)
       }
       Serverboards.Event.emit("project.created", %{ project: project}, ["project.get"])
+
+      dashboard_attrs = %{
+        project_id: project.id,
+        name: "Monitoring",
+        order: 0,
+        config: %{},
+        uuid: UUID.uuid4
+      }
+
+      {:ok, dashboard} = Repo.insert(DashboardModel.changeset(%DashboardModel{}, dashboard_attrs))
+      Serverboards.Event.emit("dashboard.created", %{ dashboard: dashboard}, ["project.get"])
+
       project.shortname
     end, name: :project
 
@@ -216,8 +230,15 @@ defmodule Serverboards.Project do
 
     services = Serverboards.Service.service_list [project: project.shortname]
     project = Map.put(project, :services, services)
-
     project = Map.put(project, :screens, project_screens(project))
+    dashboards = Serverboards.Project.Dashboard.dashboard_list(%{ project: project.shortname} )
+      |> Enum.map(&(%{
+        uuid: &1.uuid,
+        name: &1.name,
+        order: &1.order
+        }))
+
+    project = Map.put(project, :dashboards, dashboards )
 
     #Logger.info("Got project #{inspect project}")
     {:ok, project}

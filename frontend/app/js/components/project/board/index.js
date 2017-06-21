@@ -82,8 +82,8 @@ const Board = React.createClass({
   componentWillUnmount(){
     Command.remove_command_search('add-widget')
     clearInterval(this.state.update_now_label_timer_id)
-    if (update_realtime_timer_id)
-      clearInterval(update_realtime_timer_id)
+    if (this.state.update_realtime_timer_id)
+      clearInterval(this.state.update_realtime_timer_id)
     // jquery hack, may be better using some property at redux
     $('.ui.central.with.menu.grey.background').removeClass("grey").addClass("white")
   },

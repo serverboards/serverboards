@@ -1,4 +1,4 @@
-import {merge} from 'app/utils'
+import {merge, map_set, map_get} from 'app/utils'
 import moment from 'moment'
 
 function previous_start(){
@@ -26,7 +26,6 @@ var default_state={
   current: undefined,
   project: undefined,
   catalog: undefined,
-  widgets: undefined,
   widget_catalog: undefined,
   external_urls: undefined,
   realtime: previous_realtime(),
@@ -34,6 +33,10 @@ var default_state={
     start: previous_start(),
     end: previous_end(),
     now: moment()
+  },
+  dashboard:{
+    list: [],
+    current: undefined
   }
 }
 
@@ -88,25 +91,36 @@ function project(state=default_state, action){
           current_services.push(action.service)
         return merge(state, {project: merge(state.project, {services: current_services})})
       }
-    case 'UPDATE_PROJECT_WIDGETS':
-      const widgets=action.widgets
-      return merge(state, {widgets})
     case 'UPDATE_WIDGET_CATALOG':
       const widget_catalog=action.widget_catalog
       return merge(state, {widget_catalog})
     case "@RPC_EVENT/dashboard.widget.created":
-      return merge(state, {widgets: state.widgets.concat(action)})
+    {
+      let widgets = map_get(state,["dashboard","current","widgets"])
+      return map_set(state, ["dashboard","current","widgets"], widgets.concat(action))
+    }
     case "@RPC_EVENT/dashboard.widget.updated":
-      return merge(state, {widgets: state.widgets.map( (w) => {
+    {
+      let widgets = map_get(state,["dashboard","current","widgets"])
+      widgets = widgets.map( (w) => {
         if (w.uuid==action.uuid && action.config)
-          return merge(w, {config: action.config})
+          return merge(w, {config: action.config, ui: action.ui})
         return w
-      }) } )
+      })
+      return map_set(state, ["dashboard","current","widgets"], widgets)
+    }
     case "@RPC_EVENT/dashboard.widget.removed":
-      return merge(state, {widgets: state.widgets.filter( (w) => (w.uuid != action.uuid ) )} )
+    {
+      let widgets = map_get(state,["dashboard","current","widgets"])
+      widgets = widgets.filter( w => w.uuid != action.uuid )
+      return map_set(state, ["dashboard","current","widgets"], widgets)
+    }
     case "UPDATE_PROJECT_INFO":
-      if (action.project == state.current)
-        return merge(state, {project: action.info})
+      if (action.project == state.current){
+        let ret = merge(state, {project: action.info})
+        ret = map_set(ret, ["dashboard", "list"], action.info && action.info.dashboards || [] )
+        return ret
+      }
       return state
     case "UPDATE_DATERANGE":
     {
@@ -124,6 +138,15 @@ function project(state=default_state, action){
     case "BOARD_REALTIME":
       localStorage.dashboard_realtime=moment(state.daterange.end).diff(state.daterange.start,'seconds')
       return merge(state, {realtime: action.payload})
+    case "BOARD_LIST":
+      return map_set(state, ["dashboard", "list"], action.payload)
+    case "@RPC_EVENT/dashboard.created":
+    {
+      let list = map_get(state, ["dashboard", "list"])
+      return map_set(state, ["dashboard", "list"], list.concat(action))
+    }
+    case "BOARD_SET":
+      return map_set(state, ["dashboard", "current"], action.payload)
   }
   return state
 }
