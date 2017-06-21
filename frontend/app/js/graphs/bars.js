@@ -19,7 +19,7 @@
 import Plotly from './plotly'
 import 'sass/graphs/index.sass'
 import moment from 'moment'
-import {create_error} from './utils'
+import {create_error, COLORS} from './utils'
 
 const config = {
   displaylogo: false,
@@ -61,6 +61,7 @@ class BarGraph{
    */
   set_data(data){
     let pldata=[]
+    let n=0
     data.map( ({name, values}) => {
       let vx=[], vy=[]
       values.map(([x,y]) => {
@@ -70,8 +71,10 @@ class BarGraph{
       pldata.push({
         name,
         x: vx, y: vy,
-        type: "bar"
+        type: "bar",
+        marker: { color: COLORS[n%(COLORS.length)] }
       })
+      n+=1
     })
 
     const layout = {
