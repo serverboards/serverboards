@@ -27,6 +27,7 @@ function create_temporal_db(){
   local PREVEXIT=$( trap -p EXIT )
 
   atexit(){
+    echo "Removing temporal DDBB and close backend $*"
     set +e
     [ "$BACKEND_PID" ] && kill $BACKEND_PID
     sleep 1
