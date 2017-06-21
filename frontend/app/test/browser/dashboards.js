@@ -92,6 +92,7 @@ describe("Dashboard", () => {
     $('.board .card h1').waitForExist()
 
     $('#project_selector').click()
+    $('=TEST-02').waitForExist()
     $('=TEST-02').click()
     $('.board .card h1').waitForExist(500, true) // not exists
   })
