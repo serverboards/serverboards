@@ -58,7 +58,7 @@ const HeaderMenu = React.createClass({
             </a>
           ))}
           <div className="ui item separator"/>
-          <a className="item" onClick={this.handleAddDashboard}>
+          <a className="item" onClick={this.handleAddDashboard} id="add_dashboard">
             <i className="ui icon add teal"/>
           </a>
         </div>

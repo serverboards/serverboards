@@ -74,6 +74,6 @@ describe("Login", () => {
 
       $("input[name=email]").waitForExist()
 
-      browser.saveScreenshot("./shots/999-logged-out.png")
+      browser.saveScreenshot("./shots/009-logged-out.png")
     })
 })

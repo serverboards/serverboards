@@ -73,7 +73,7 @@ const AddWidget = React.createClass({
             <div>
               <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
               <GenericForm fields={widget.params} updateForm={this.setFormData}/>
-              <button className="ui button yellow" style={{marginTop:20}} onClick={this.addWidget}>
+              <button type="button" className="ui button yellow" style={{marginTop:20}} onClick={this.addWidget}>
                 {i18n("Add widget")}
               </button>
             </div>

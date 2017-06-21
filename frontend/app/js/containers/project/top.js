@@ -39,7 +39,8 @@ var Top=connect({
       service: params.service,
     }
   },
-  subscriptions: ['project.created', 'project.removed']
+  subscriptions: ['project.created', 'project.removed'],
+  store_enter: [project_update_all]
 })(TopView)
 
 export default Top
