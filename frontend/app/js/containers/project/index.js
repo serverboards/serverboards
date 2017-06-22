@@ -14,7 +14,10 @@ var Project=store.connect({
     }
   },
   handlers: (dispatch, props) => ({
-    goto(url){ dispatch( push(url) ) },
+    goto(url){
+      console.log(url)
+      store.goto(url.pathname, url.state)
+    },
     onAdd(){ dispatch( store.set_modal("project.add") ) },
     onUpdate(){ dispatch( projects_update_info(props.params.project) ) }
   }),
