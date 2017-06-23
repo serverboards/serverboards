@@ -32,3 +32,28 @@ export function clear_issues(){
     dispatch({type: "ISSUES_LIST", payload: {issues: undefined}})
   }
 }
+
+export function get_issues_count_since(timestamp){
+  return rpc
+    .call("issues.list", {"return": "count", since: timestamp})
+    .then( i => ({
+      type: "ISSUES_COUNT",
+      payload: {
+        count: i,
+        timestamp: timestamp
+      }
+    }))
+}
+
+export function clear_issues_count(){
+  const timestamp = (new Date()).toISOString()
+  localStorage.issues_check_timestamp = timestamp
+
+  return {
+    type: "ISSUES_COUNT",
+    payload:{
+      count: 0,
+      timestamp: timestamp
+    }
+  }
+}
