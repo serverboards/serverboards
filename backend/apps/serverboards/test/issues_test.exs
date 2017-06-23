@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.IssuesTest do
   use ExUnit.Case
-  @moduletag :capture_log
+  # @moduletag :capture_log
 
   alias Serverboards.Issues.Issue
   alias Serverboards.Issues
@@ -122,6 +122,44 @@ defmodule Serverboards.IssuesTest do
       ]])
     {:ok, issue} = Test.Client.call(client, "issues.get", [issue_id])
     assert Enum.map(issue["labels"], &(&1["name"])) == ["two"]
+  end
+
+  test "Complex lists" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    Test.Client.call(client, "event.subscribe", ["issue.created", "issue.updated"])
+    {:ok, issue_id} = Test.Client.call(client, "issues.create", %{ title: "At least one for tests", description: "Test issue", aliases: ["project/TEST"] })
+
+    res = Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", return: "count" })
+    Logger.debug(inspect res)
+    assert {:ok, 1} == res
+
+    {:ok, list} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", project: "TEST" })
+    Logger.debug(inspect list)
+    issue = List.first(list)
+
+    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2050-01-01", project: "TEST" })
+    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
+    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", count: 0, project: "TEST" })
+
+    {:ok, _issue_id} = Test.Client.call(client, "issues.create", %{ title: "Second one for since test", description: "Test since issue", aliases: ["project/TEST"] })
+    {:ok, [issue2]} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
+    assert Test.Client.expect(client, method: "issue.created")
+
+    # update issue1 with a comment, should update updated_at.
+    {:ok, _issue} = Test.Client.call(client, "issues.update", [issue_id, [
+        %{ type: :comment, data: "Set labels"},
+        %{ type: :set_labels, data: ["one"]}
+      ]])
+    assert Test.Client.expect(client, method: "issue.updated")
+
+    {:ok, since_items} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
+    Logger.info("Got #{Enum.count(since_items)} // #{inspect since_items} from #{inspect issue["updated_at"]}")
+    # {:ok, res} = Test.Client.call(client, "issues.list", %{ project: "TEST", project: "TEST" })
+    # Logger.debug("All #{inspect res} from #{inspect issue["updated_at"]}")
+    {:ok, count} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], return: "count" })
+    Logger.info("Count #{inspect count}")
+    assert 2 == count
   end
 
 end

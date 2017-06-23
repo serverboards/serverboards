@@ -3,7 +3,7 @@ import IssuesView from 'app/components/issues'
 import rpc from 'app/rpc'
 import {flatmap, dedup} from 'app/utils'
 import connect from 'app/containers/connect'
-import { load_issues, clear_issues } from 'app/actions/issues'
+import { load_issues, clear_issues, clear_issues_count } from 'app/actions/issues'
 import i18n from 'app/utils/i18n'
 
 const Issues = connect({
@@ -74,7 +74,8 @@ const Issues = connect({
       filter = state.issues.filter
 
     return [
-      () => load_issues(filter)
+      () => load_issues(filter),
+      clear_issues_count
     ]
   },
   store_exit: [ clear_issues ],

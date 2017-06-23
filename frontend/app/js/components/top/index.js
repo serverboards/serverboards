@@ -111,7 +111,7 @@ const Top = React.createClass({
               data-position="bottom center"
               >
             {i18n("Issues")}
-            {((props.issues || []).length > 0) ? (
+            {props.new_issues ? (
               <span
                 className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
                 />

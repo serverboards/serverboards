@@ -92,7 +92,7 @@ const SidebarSections = React.createClass({
         )
       }
       return (
-        <a className={klass} onClick={() => self.handleSectionChange(menu_props.section, menu_props.data)}>
+        <a style={menu_props.style} className={klass} onClick={() => self.handleSectionChange(menu_props.section, menu_props.data)}>
         {menu_props.children}
         {current}
         </a>
@@ -108,7 +108,11 @@ const SidebarSections = React.createClass({
           <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
           <MenuItem section="services">{i18n("Services")}</MenuItem>
           <MenuItem section="rules">{i18n("Rules")}</MenuItem>
-          <MenuItem section="issues">{i18n("Issues")}</MenuItem>
+          <MenuItem section="issues" style={{display:"flex"}}><span>{i18n("Issues")}</span>
+            {props.new_issues ? (
+              <span className={`ui micro label circular blue`}/>
+            ) : null }
+          </MenuItem>
         </div>
         <ScreensMenu
           services={props.project.services}
