@@ -70,18 +70,15 @@ defmodule Serverboards.Issues.Issue do
         )
       "set_labels" ->
         set_labels(issue_id, data["__data__"])
-        update_updated_at(issue_id)
       "unset_labels" ->
         unset_labels(issue_id, data["__data__"])
-        update_updated_at(issue_id)
       "alias" ->
         set_alias(issue_id, data["__data__"])
-        update_updated_at(issue_id)
       "unalias" ->
         unset_alias(issue_id, data["__data__"])
-        update_updated_at(issue_id)
       _ -> :ok
     end
+    update_updated_at(issue_id)
 
     {:ok, issue} = get(issue_id)
     Serverboards.Event.emit("issue.updated", %{ issue: issue}, ["issues.view"])
