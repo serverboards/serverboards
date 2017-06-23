@@ -25,7 +25,6 @@ export function issues(state=default_state, action){
     case "@RPC_EVENT/issue.created":
     {
       const now = (new Date()).toISOString()
-      localStorage.issues_check_timestamp=now
       return merge(state, {
         new_issues_timestamp: now,
         new_issues: true,
