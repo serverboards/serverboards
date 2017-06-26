@@ -20,6 +20,7 @@ defmodule Serverboards.Rules do
       worker(GenServer, [__MODULE__, :ok, [name: Serverboards.Rules] ++ options] ),
       worker(__MODULE__, [], function: :start_eventsourcing),
       worker(Serverboards.ProcessRegistry, [[name: Serverboards.Rules.Registry]]),
+      worker(Serverboards.Rules.RuleV2, [[name: Serverboards.Rules.RuleV2]]),
       supervisor(Serverboards.Rules.Supervisor,[])
     ]
 
