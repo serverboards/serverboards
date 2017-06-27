@@ -16,6 +16,15 @@ defmodule Serverboards.RuleV2Test do
   test "Create rule v2" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
+    {:ok, "SBDS-TST15"} = Test.Client.call client, "project.create", [
+      "SBDS-TST15",
+      %{
+        "name" => "Serverboards test",
+        "tags" => []
+      }
+    ]
+
+
     {:ok, uuid } = Test.Client.call(client, "rules_v2.create", %{
         name: "Test Rule",
         description: "Description",
@@ -39,8 +48,23 @@ defmodule Serverboards.RuleV2Test do
     Logger.debug("Created rule with uuid #{inspect uuid}")
 
     {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{})
+    Logger.debug("Rules all #{inspect rules}")
+    assert Enum.count(rules) == 1
 
-    Logger.debug("Rules #{inspect rules}")
+    {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})
+    Logger.debug("Rules SBDS-TST15 0 #{inspect rules}")
+    assert Enum.count(rules) == 0
+
+
+    {:ok, _} = Test.Client.call(client, "rules_v2.update", [uuid, %{ project: "SBDS-TST15" }])
+    {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})
+    Logger.debug("Rules SBDS-TST15 1 #{inspect rules}")
+    assert Enum.count(rules) == 1
+
+    {:ok, _} = Test.Client.call(client, "rules_v2.delete", [uuid])
+    {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})
+    Logger.debug("Rules SBDS-TST15 d0 #{inspect rules}")
+    assert Enum.count(rules) == 0
 
   end
 end

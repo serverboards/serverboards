@@ -52,6 +52,7 @@ defmodule Serverboards.RulesV2.Rules do
 
   def start_eventsourcing(options \\ []) do
     {:ok, es} = EventSourcing.start_link( [name: Serverboards.RulesV2.EventSourcing] ++ options )
+    EventSourcing.Model.subscribe es, :rules_v2, Serverboards.Repo
 
     EventSourcing.subscribe es, :create, fn %{ uuid: uuid, data: data }, me ->
       rule = create_real(uuid, data)
@@ -59,6 +60,15 @@ defmodule Serverboards.RulesV2.Rules do
       project = get_project(uuid)
       if (project != nil) do
         Serverboards.Event.emit("rules_v2.created[#{project}]", %{ rule: rule }, ["rules.view"])
+      end
+    end
+
+    EventSourcing.subscribe es, :update, fn %{ uuid: uuid, changes: changes }, me ->
+      rule = update_real(uuid, changes)
+      Serverboards.Event.emit("rules_v2.updated", %{ rule: rule }, ["rules.view"])
+      project = get_project(uuid)
+      if (project != nil) do
+        Serverboards.Event.emit("rules_v2.updated[#{project}]", %{ rule: rule }, ["rules.view"])
       end
     end
 
@@ -82,12 +92,25 @@ defmodule Serverboards.RulesV2.Rules do
     {:ok, _} = Repo.insert( Model.RuleState.changeset( %Model.RuleState{}, %{ rule_id: rule.id, state: %{} } ) )
     rule
   end
+
+  def update(uuid, changes, me) do
+    EventSourcing.dispatch(
+      Serverboards.RulesV2.EventSourcing,
+      :update,
+      %{ uuid: uuid, changes: changes },
+      me.email )
+    :ok
+  end
+
   def update_real(uuid, %{} = data) do
     case get_rule_id(uuid) do
       nil ->
         Logger.error("Unknown rule #{inspect uuid}")
       rule_id ->
         rule = Repo.get_by( Model.Rule, id: rule_id )
+        data = if data[:project] do
+          Map.put( data, :project_id, get_project_id_by_shortname(data.project))
+        else data end
         Repo.update( Model.Rule.changeset( rule, data) )
     end
     :ok
@@ -142,8 +165,17 @@ defmodule Serverboards.RulesV2.Rules do
   def list(%{} = filter \\ %{}) do
     import Ecto.Query
     q = (
-      from r in Model.Rule
+      from r in Model.Rule,
+      where: r.deleted == false
     )
+
+    q = if filter[:project] do
+      q
+        |> join(:inner, [r],
+                p in Serverboards.Project.Model.Project,
+                r.project_id == p.id)
+        |> where([_r, p], p.shortname == ^filter[:project])
+    else q end
 
     for r <- Repo.all(q) do
       decorate(r)
@@ -159,6 +191,16 @@ defmodule Serverboards.RulesV2.Rules do
         on: p.id == r.project_id,
       where: r.uuid == ^uuid,
       select: p.shortname
+    )
+  end
+
+  defp get_project_id_by_shortname(shortname) do
+    import Ecto.Query
+
+    Repo.one(
+      from p in Serverboards.Project.Model.Project,
+      where: p.shortname == ^shortname,
+      select: p.id
     )
   end
 
