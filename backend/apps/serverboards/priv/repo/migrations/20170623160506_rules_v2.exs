@@ -2,7 +2,7 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.RulesV2" do
   use Ecto.Migration
 
   def change do
-    create table :rules_rule_v2 do
+    create table :rules_v2_rule do
       add :uuid, :uuid
       add :is_active, :boolean
       add :deleted, :boolean
@@ -18,18 +18,18 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.RulesV2" do
 
       timestamps()
     end
-    create unique_index(:rules_rule_v2, [:uuid])
-    create index(:rules_rule_v2, [:is_active])
-    create index(:rules_rule_v2, [:deleted])
-    create index(:rules_rule_v2, [:project_id])
-    create index(:rules_rule_v2, [:uuid, :is_active])
+    create unique_index(:rules_v2_rule, [:uuid])
+    create index(:rules_v2_rule, [:is_active])
+    create index(:rules_v2_rule, [:deleted])
+    create index(:rules_v2_rule, [:project_id])
+    create index(:rules_v2_rule, [:uuid, :is_active])
 
-    create table :rules_rule_v2_state do
+    create table :rules_v2_rule_state do
       add :rule_id, :id
       add :state, :map
 
       timestamps()
     end
-    create unique_index(:rules_rule_v2_state, [:rule_id])
+    create unique_index(:rules_v2_rule_state, [:rule_id])
   end
 end

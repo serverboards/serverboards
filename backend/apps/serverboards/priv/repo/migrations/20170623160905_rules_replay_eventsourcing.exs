@@ -3,7 +3,7 @@ require Logger
 defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
   use Ecto.Migration
 
-  alias Serverboards.Rules.Model
+  alias Serverboards.RulesV2.Model
 
   defp all_rules_events do
     import Ecto.Query
@@ -18,7 +18,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
   defp exists_uuid?(uuid) do
     import Ecto.Query
     Serverboards.Repo.aggregate(
-      (from e in Model.RuleV2,
+      (from e in Model.Rule,
       where: e.uuid == ^uuid), :count, :id
     ) > 0
   end
@@ -98,19 +98,19 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
     }
 
     if exists_uuid?(uuid) do
-      Serverboards.Rules.RulesV2.update_real( uuid, data_v2 )
+      Serverboards.RulesV2.Rules.update_real( uuid, data_v2 )
     else
-      Serverboards.Rules.RulesV2.insert_real( uuid, data_v2 )
+      Serverboards.RulesV2.Rules.create_real( uuid, data_v2 )
     end
   end
 
   def set_state(r, state) do
     uuid = r.data["rule"]
-    case Serverboards.Rules.RulesV2.get_rule_id( uuid ) do
+    case Serverboards.RulesV2.Rules.get_rule_id( uuid ) do
       nil ->
         case  :ets.lookup(state, :last) do
           [{:last, wrong_uuid}] ->
-            Serverboards.Rules.RulesV2.update_real( wrong_uuid, %{ uuid: uuid })
+            Serverboards.RulesV2.Rules.update_real( wrong_uuid, %{ uuid: uuid })
             Logger.warn("Fixed rule UUID from #{inspect wrong_uuid} to #{inspect uuid}")
             :ets.delete(state, :last)
           _ -> :none
@@ -118,19 +118,20 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
       _ -> :ok
     end
 
-    Serverboards.Rules.RulesV2.set_state_real( uuid, %{ A: %{ state: r.data["state"] }})
+    Serverboards.RulesV2.Rules.set_state_real( uuid, %{ A: %{ state: r.data["state"] }})
   end
 
   def delete(%{ data: %{ "uuid" => nil }}, _state), do: false
   def delete(r, _state) when is_map(r) do
     Logger.debug("Delete #{inspect r}")
-    Serverboards.Rules.RulesV2.delete_real( r.data["uuid"] )
+    Serverboards.RulesV2.Rules.delete_real( r.data["uuid"] )
   end
 
   def up do
     state = :ets.new(:update_state, [:set, :private])
 
-    Serverboards.Rules.RulesV2.start_link()
+    Serverboards.RulesV2.Rules.start_ets_table()
+
     for r <- all_rules_events() do
       case r.type do
         "upsert" -> upsert( r, state )
@@ -146,9 +147,9 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
 
   def down do
     import Ecto.Query
-
-    Serverboards.Repo.delete_all( Serverboards.Rules.Model.RuleV2State )
-    Serverboards.Repo.delete_all( Serverboards.Rules.Model.RuleV2 )
+    #
+    # Serverboards.Repo.delete_all( Serverboards.Rules.Model.RuleV2State )
+    # Serverboards.Repo.delete_all( Serverboards.Rules.Model.RuleV2 )
     :ok
   end
 end

@@ -30,7 +30,7 @@ defmodule Serverboards.Setup do
     "notifications.create", "notifications.create_all",
     "notifications.list",
     "action.trigger", "action.watch", "action.update",
-    "rules.update", "rules.view", "rules.trigger", "rules.delete",
+    "rules.update", "rules.view", "rules.trigger", "rules.delete", "rules.create",
     "logs.view",
     "issues.view", "issues.create", "issues.update"
     ]
