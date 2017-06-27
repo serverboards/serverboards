@@ -7,11 +7,11 @@ const icon = require("../../../imgs/rules.svg")
 
 function find_by_id(id, catalog){
   if (!catalog)
-    return undefined
+    return { id, name: id} // not found
   for(let tr of catalog)
     if (tr.id==id)
       return tr
-  return undefined
+  return { id, name: id} // not found
 }
 function find_by_uuid(uuid, catalog){
   if (!catalog)
@@ -69,7 +69,6 @@ function ActionDetails({action, state, action_catalog}){
 function Rule(props){
   const rule = props.rule
   const trigger_template = find_by_id(rule.trigger.trigger, props.trigger_catalog)
-
   return (
     <div className="rule card">
       <div className="extra content">

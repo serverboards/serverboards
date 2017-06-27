@@ -33,6 +33,15 @@ defmodule Serverboards.RulesV2.RPC do
     end, required_perm: "rules.delete", context: true
 
 
+    # both v1 and v2
+    add_method mc, "rules.catalog", fn
+      [filter] -> Serverboards.Rules.Trigger.find filter
+      [] -> Serverboards.Rules.Trigger.find
+      %{} -> Serverboards.Rules.Trigger.find
+    end, required_perm: "rules.view"
+
+    setup_rpc_v1(mc)
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       Logger.warn("Rules V2 RPC subscribed")
@@ -42,4 +51,94 @@ defmodule Serverboards.RulesV2.RPC do
 
     {:ok, mc}
   end
+
+
+  def setup_rpc_v1(mc) do
+    import MOM.RPC.MethodCaller
+    add_method mc, "rules.list", fn
+      [filter] ->
+        if filter["service"]!=nil or filter["trigger"]!=nil do
+          Logger.warn("Compatibility problem! V2 rules do not support this filter yet!")
+        end
+        key_list = ~w(project uuid is_active)
+        filter_a = Map.to_list(filter)
+          |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
+          |> Enum.into(%{})
+        Serverboards.RulesV2.Rules.list(filter_a)
+          |> Enum.map(&transform_rule_to_v1/1)
+      [] -> Serverboards.Rules.list
+      filter ->
+        if filter["service"]!=nil or filter["trigger"]!=nil do
+          Logger.warn("Compatibility problem! V2 rules do not support this filter yet!")
+        end
+        key_list = ~w(project uuid is_active)
+        filter_a = Map.to_list(filter)
+          |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
+          |> Enum.into(%{})
+        Serverboards.RulesV2.Rules.list(filter_a)
+          |> Enum.map(&transform_rule_to_v1/1)
+    end, required_perm: "rules.view"
+  end
+
+  def transform_rule_to_v1(rule) do
+    # Logger.debug("Transform #{inspect rule} #{inspect rule.rule["when"]}")
+    state = Serverboards.RulesV2.Rules.get_state( rule.uuid )
+    last_state = get_deep( state, ["A","state"], nil)
+
+    %{
+      uuid: rule.uuid,
+      name: rule.name || "",
+      is_active: rule.is_active,
+      description: rule.description || "",
+      from_template: rule.from_template,
+      trigger: %{
+        trigger: rule.rule["when"]["trigger"],
+        params: rule.rule["when"]["params"]
+        },
+      project: rule.project,
+      last_state: last_state,
+      # FIXME more data transforms
+      service: find_deep( rule.rule, "service_id", nil ),
+      states: [],
+      actions: %{},
+    }
+  end
+
+  # traverses the map using the list as routes to follow, or return default
+  def get_deep( map, [], _default), do: map
+  def get_deep( map, _, default) when map == %{}, do: default
+  def get_deep( map, [head | rest], default) do
+    case Map.get(map, head, nil) do
+      m when is_map(m) ->
+        get_deep(m, rest, default)
+      nil -> default
+      other -> other # could not get to the end of the list, return what I have.
+    end
+  end
+
+  # finds any key that matches and returns the value, to return for example a related service
+  def find_deep(map, key) do
+    # Logger.debug("Find deep #{inspect map} #{inspect key}??")
+    Enum.find_value(map, nil, fn
+      {^key, v} ->
+        # Logger.debug("Got it! #{inspect v}")
+        v
+      {_k, v} when is_map(v) ->
+        # Logger.debug("Go deeper: #{inspect v} find #{inspect key}")
+        find_deep(v, key)
+      {k, v} ->
+        # Logger.debug("Bad path: #{inspect k}/#{inspect v}")
+        false
+    end)
+  end
+
+  def find_deep(map, key, default) do
+    res = case find_deep(map, key) do
+      nil -> default
+      other -> other
+    end
+    # Logger.debug("Find deep #{inspect map} #{inspect key} -> #{inspect res}")
+    res
+  end
+
 end

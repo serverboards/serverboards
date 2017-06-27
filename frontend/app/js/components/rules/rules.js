@@ -38,14 +38,14 @@ const Rules=React.createClass({
         acc.push(id)
       return acc
     },[])
-      .map( (id) => props.trigger_catalog.find( (tc) => tc.id == id ))
+      .map( (id) => (props.trigger_catalog || []).find( (tc) => tc.id == id ))
       .filter( (x) => x )
 
     return (
       <div className="right menu">
         <div className="ui inline form fields">
           <label>{i18n("Filter by trigger type")}: </label>
-          <select ref="filter" className="ui search dropdown">
+          <select className="ui search dropdown">
             <option value="all">{i18n("Show all")}</option>
             {trigger_catalog_in_use.map( (t) => (
               <option key={t.id} value={t.id}>{t.name}</option>

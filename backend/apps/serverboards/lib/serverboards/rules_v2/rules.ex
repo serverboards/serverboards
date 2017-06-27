@@ -88,6 +88,9 @@ defmodule Serverboards.RulesV2.Rules do
   def create_real(uuid, %{} = data) do
     data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"name description rule is_active deleted")
     data = Map.put(data, :uuid, uuid)
+    data = if data[:project] do
+      Map.put( data, :project_id, get_project_id_by_shortname(data.project))
+    else data end
     {:ok, rule} = Repo.insert( Model.Rule.changeset( %Model.Rule{}, data ) )
     {:ok, _} = Repo.insert( Model.RuleState.changeset( %Model.RuleState{}, %{ rule_id: rule.id, state: %{} } ) )
     rule
@@ -143,9 +146,7 @@ defmodule Serverboards.RulesV2.Rules do
 
     case :ets.lookup(:rules_rule_id_cache, uuid) do
       [] ->
-        Logger.debug("Get rule id for #{inspect uuid}")
         id = Repo.one( from r in Model.Rule, where: r.uuid == ^uuid, select: r.id )
-        Logger.debug("it is #{id}")
         if id do
           :ets.insert(:rules_rule_id_cache, {uuid, id})
         end
@@ -162,12 +163,22 @@ defmodule Serverboards.RulesV2.Rules do
       |> Map.put(:project, project)
   end
 
-  def list(%{} = filter \\ %{}) do
+  def list(filter \\ %{}) when is_map(filter) do
     import Ecto.Query
     q = (
       from r in Model.Rule,
-      where: r.deleted == false
+      select: r
     )
+
+    # By default show not deleted, may show only deleted, or both.
+    q = case Map.get(filter, :deleted, false) do
+      true ->
+        where(q, [rule], rule.deleted)
+      false ->
+        where(q, [rule], not rule.deleted)
+      :both ->
+        q
+    end
 
     q = if filter[:project] do
       q
@@ -182,14 +193,14 @@ defmodule Serverboards.RulesV2.Rules do
     end
   end
 
-  defp get_project(uuid) do
+  defp get_project(shortname) do
     import Ecto.Query
 
     Repo.one(
       from r in Model.Rule,
       join: p in Serverboards.Project.Model.Project,
         on: p.id == r.project_id,
-      where: r.uuid == ^uuid,
+      where: r.uuid == ^shortname,
       select: p.shortname
     )
   end
@@ -201,6 +212,18 @@ defmodule Serverboards.RulesV2.Rules do
       from p in Serverboards.Project.Model.Project,
       where: p.shortname == ^shortname,
       select: p.id
+    )
+  end
+
+  def get_state( uuid ) do
+    import Ecto.Query
+
+    Repo.one(
+      from s in Model.RuleState,
+      join: r in Model.Rule,
+        on: r.id == s.rule_id,
+      select: s.state,
+      where: r.uuid == ^uuid
     )
   end
 

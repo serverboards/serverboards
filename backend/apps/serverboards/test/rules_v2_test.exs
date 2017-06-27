@@ -21,8 +21,9 @@ defmodule Serverboards.RuleV2Test do
       %{
         "name" => "Serverboards test",
         "tags" => []
-      }
+      },
     ]
+    {:ok, service_id} = Test.Client.call(client, "service.create", %{ name: "test", type: "serverboards.test.auth/server"})
 
 
     {:ok, uuid } = Test.Client.call(client, "rules_v2.create", %{
@@ -32,7 +33,8 @@ defmodule Serverboards.RuleV2Test do
           trigger: %{
             type: "trigger",
             trigger: "test.trigger",
-            params: %{}
+            params: %{},
+            service_id: service_id
           },
           actions: %{
             type: "action",
@@ -60,6 +62,14 @@ defmodule Serverboards.RuleV2Test do
     {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})
     Logger.debug("Rules SBDS-TST15 1 #{inspect rules}")
     assert Enum.count(rules) == 1
+    assert (List.first rules)["uuid"] == uuid
+
+    # check 1 compat
+    {:ok, rules_v1} = Test.Client.call(client, "rules.list", %{project: "SBDS-TST15"})
+    Logger.debug("Rules v1 #{inspect rules_v1}")
+    assert Enum.count(rules) == 1
+    assert (List.first rules_v1)["service"] == service_id
+
 
     {:ok, _} = Test.Client.call(client, "rules_v2.delete", [uuid])
     {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})

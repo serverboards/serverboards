@@ -77,6 +77,16 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
     end
 
     data = r.data["data"]
+
+    Logger.debug("#{inspect r}")
+    trigger_params = if data["service"] do
+      # Logger.warn("Set trigger params service: #{inspect data["service"]}")
+      data["trigger"]["params"]
+        |> Map.put("service_id", data["service"])
+    else
+      data["trigger"]["params"]
+    end
+
     data_v2 = %{
       uuid: data["uuid"],
       name: data["name"],
@@ -91,7 +101,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
           name: "A",
           type: "trigger",
           trigger: data["trigger"]["trigger"],
-          params: data["trigger"]["params"]
+          params: trigger_params
         },
         actions: parse_actions(data["actions"])
       }
@@ -118,7 +128,29 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
       _ -> :ok
     end
 
-    Serverboards.RulesV2.Rules.set_state_real( uuid, %{ A: %{ state: r.data["state"] }})
+    :ets.insert(state, {uuid, r.data["state"]})
+  end
+
+  def set_state_final(state) do
+    :ets.delete(state, :last)
+    for_all_ets(state, fn uuid, state ->
+      Logger.debug("Fix state for #{inspect uuid} -> #{inspect state}")
+      Serverboards.RulesV2.Rules.set_state_real( uuid, %{ A: %{ state: state }})
+    end)
+  end
+
+  def for_all_ets(state, f) do
+    first = :ets.first(state)
+    for_all_ets(state, first, f)
+  end
+  def for_all_ets(state, :"$end_of_table", f) do
+    :ok
+  end
+  def for_all_ets(state, current, f) do
+    # Logger.debug("for all ets #{inspect current}")
+    [{k,v}] = :ets.lookup(state, current)
+    f.( k, v )
+    for_all_ets(state, :ets.next(state, current), f)
   end
 
   def delete(%{ data: %{ "uuid" => nil }}, _state), do: false
@@ -140,16 +172,16 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
       end
     end
 
-    :ets.delete(state)
+    set_state_final(state)
 
-    :error == :ok
+    :ets.delete(state)
   end
 
-  def down do
+  def down() do
     import Ecto.Query
     #
-    # Serverboards.Repo.delete_all( Serverboards.Rules.Model.RuleV2State )
-    # Serverboards.Repo.delete_all( Serverboards.Rules.Model.RuleV2 )
+    Serverboards.Repo.delete_all( Serverboards.RulesV2.Model.RuleState )
+    Serverboards.Repo.delete_all( Serverboards.RulesV2.Model.Rule )
     :ok
   end
 end
