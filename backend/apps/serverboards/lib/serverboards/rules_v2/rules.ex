@@ -55,9 +55,10 @@ defmodule Serverboards.RulesV2.Rules do
 
     EventSourcing.subscribe es, :create, fn %{ uuid: uuid, data: data }, me ->
       rule = create_real(uuid, data)
-      Serverboards.Event.emit("rules_v2.update", %{ rule: rule }, ["rules.view"])
-      if (data.project != nil) do
-        Serverboards.Event.emit("rules_v2.update[#{data.project}]", %{ rule: rule }, ["rules.view"])
+      Serverboards.Event.emit("rules_v2.created", %{ rule: rule }, ["rules.view"])
+      project = get_project(uuid)
+      if (project != nil) do
+        Serverboards.Event.emit("rules_v2.created[#{project}]", %{ rule: rule }, ["rules.view"])
       end
     end
 
@@ -66,7 +67,7 @@ defmodule Serverboards.RulesV2.Rules do
 
   def create( %{} = data, me ) do
     uuid = UUID.uuid4
-    {:ok, _ } = EventSourcing.dispatch(
+    EventSourcing.dispatch(
       Serverboards.RulesV2.EventSourcing,
       :create,
       %{ uuid: uuid, data: data },
@@ -129,6 +130,36 @@ defmodule Serverboards.RulesV2.Rules do
       [{^uuid, id}] ->
         id
     end
+  end
+
+  def decorate(rule) do
+    project = get_project(rule.uuid)
+    rule
+      |> Map.drop([:__meta__, :project_id])
+      |> Map.put(:project, project)
+  end
+
+  def list(%{} = filter \\ %{}) do
+    import Ecto.Query
+    q = (
+      from r in Model.Rule
+    )
+
+    for r <- Repo.all(q) do
+      decorate(r)
+    end
+  end
+
+  defp get_project(uuid) do
+    import Ecto.Query
+
+    Repo.one(
+      from r in Model.Rule,
+      join: p in Serverboards.Project.Model.Project,
+        on: p.id == r.project_id,
+      where: r.uuid == ^uuid,
+      select: p.shortname
+    )
   end
 
   # Server impl
