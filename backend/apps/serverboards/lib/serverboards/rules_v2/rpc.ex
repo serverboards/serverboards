@@ -21,9 +21,16 @@ defmodule Serverboards.RulesV2.RPC do
       Serverboards.RulesV2.Rules.update(uuid, changes, me)
     end, required_perm: "rules.update", context: true
 
-    add_method mc, "rules_v2.list", fn filter ->
+    add_method mc, "rules_v2.list", fn filter when is_map(filter) ->
       filter = filter |> Serverboards.Utils.keys_to_atoms_from_list(~w"project")
       Serverboards.RulesV2.Rules.list(filter)
+    end, required_perm: "rules.view"
+
+    add_method mc, "rules_v2.get", fn [uuid] ->
+      case Serverboards.RulesV2.Rules.get(uuid) do
+        nil -> {:error, :not_found}
+        rule -> rule
+      end
     end, required_perm: "rules.view"
 
     # only difference with update is that delete require a specific permission

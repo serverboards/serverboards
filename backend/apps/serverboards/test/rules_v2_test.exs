@@ -72,11 +72,14 @@ defmodule Serverboards.RuleV2Test do
     assert Enum.count(rules) == 1
     assert (List.first rules_v1)["service"] == service_id
 
+    {:ok, rule2} = Test.Client.call(client, "rules_v2.get", [uuid])
+    assert rule2["uuid"] == uuid
 
     {:ok, _} = Test.Client.call(client, "rules_v2.delete", [uuid])
     {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})
     Logger.debug("Rules SBDS-TST15 d0 #{inspect rules}")
     assert Enum.count(rules) == 0
+
 
   end
 end
