@@ -193,6 +193,15 @@ defmodule Serverboards.RulesV2.Rules do
     end
   end
 
+  def get(uuid) do
+    import Ecto.Query
+    q = (
+      from r in Model.Rule,
+      where: r.uuid == ^uuid,
+      select: r
+    ) |> Repo.one |> decorate
+  end
+
   defp get_project(shortname) do
     import Ecto.Query
 

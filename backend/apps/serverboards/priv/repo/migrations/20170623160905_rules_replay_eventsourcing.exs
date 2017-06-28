@@ -23,17 +23,19 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
     ) > 0
   end
 
+  def parse_actions(actions), do: parse_actions(actions, "status")
+
   # one action, there is no status change
-  def parse_actions([action]) do
-    parse_actions(action)
+  def parse_actions([action], default_id) do
+    parse_actions(action, default_id)
   end
 
   # several, only on status change
-  def parse_actions(actions) do
+  def parse_actions(actions, default_id) do
     if Enum.count(actions) == 1 do
       for {status, action} <- actions do # use for for easy deconstructing
         %{
-          id: "status",
+          id: default_id,
           type: "action",
           action: action["action"],
           params: action["params"]
@@ -42,10 +44,10 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
     else
       actions = for {status, action}  <- actions do
         %{
-           id: status,
+           id: "#{status}-check",
            type: "condition",
-           condition: "A.state == #{status}",
-           then: parse_actions([ %{ status => action} ]),
+           condition: "A.state == '#{status}'",
+           then: parse_actions([ %{ status => action} ], status),
            else: []
          }
       end
@@ -87,6 +89,8 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
       data["trigger"]["params"]
     end
 
+    actions = parse_actions(data["actions"])
+
     data_v2 = %{
       uuid: data["uuid"],
       name: data["name"],
@@ -103,7 +107,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
           trigger: data["trigger"]["trigger"],
           params: trigger_params
         },
-        actions: parse_actions(data["actions"])
+        actions: actions
       }
     }
 
@@ -175,6 +179,8 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
     set_state_final(state)
 
     :ets.delete(state)
+
+    # :fail = :ok
   end
 
   def down() do

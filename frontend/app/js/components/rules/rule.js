@@ -40,7 +40,7 @@ function ActionDetails({action, state, action_catalog}){
   let action_template=find_by_id(action.action, action_catalog)
   let params
   if (action_template)
-    params=action_template.extra.call.params.filter( (p) => p.card )
+    params=(((action_template.extra || {}).call || {}).params || []).filter( (p) => p.card )
   else {
     params = []
     action_template={name: action.action}

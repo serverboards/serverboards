@@ -31,12 +31,14 @@ defmodule Serverboards.RuleV2Test do
         description: "Description",
         rule: %{
           trigger: %{
+            id: "A",
             type: "trigger",
             trigger: "test.trigger",
             params: %{},
             service_id: service_id
           },
-          actions: %{
+          actions: [%{
+            id: "B",
             type: "action",
             action: "serverboards.core.actions/notify",
             params: %{
@@ -44,7 +46,7 @@ defmodule Serverboards.RuleV2Test do
               subject: "This is an action test",
               body: "This is the test body, with some data {{A.extra_data}}"
             }
-          }
+          }]
         }
       })
     Logger.debug("Created rule with uuid #{inspect uuid}")

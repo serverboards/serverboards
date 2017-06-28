@@ -78,14 +78,19 @@ defmodule Serverboards.RulesV2.RPC do
         Serverboards.RulesV2.Rules.list(filter_a)
           |> Enum.map(&transform_rule_to_v1/1)
     end, required_perm: "rules.view"
+
+    add_method mc, "rules.get", fn [uuid] ->
+      Serverboards.RulesV2.Rules.get(uuid) |> transform_rule_to_v1
+    end, required_perm: "rules.view"
   end
 
   def transform_rule_to_v1(rule) do
-    # Logger.debug("Transform #{inspect rule} #{inspect rule.rule["when"]}")
+    # Logger.debug("Transform #{inspect rule}\n    #{inspect rule.rule["actions"]}")
     state = Serverboards.RulesV2.Rules.get_state( rule.uuid )
     last_state = get_deep( state, ["A","state"], nil)
+    actions = get_actions( rule.rule["actions"] )
 
-    %{
+    res = %{
       uuid: rule.uuid,
       name: rule.name || "",
       is_active: rule.is_active,
@@ -99,9 +104,24 @@ defmodule Serverboards.RulesV2.RPC do
       last_state: last_state,
       # FIXME more data transforms
       service: find_deep( rule.rule, "service_id", nil ),
-      states: [],
-      actions: %{},
+      actions: actions,
     }
+    # Logger.debug("-->> #{inspect res}")
+    res
+  end
+
+  def get_actions([]), do: %{}
+  def get_actions([action | rest]) do
+    # Logger.debug("Get actions from #{inspect action}")
+    actions = if action["type"] == "condition" do
+      Map.merge(
+        get_actions(action["then"]),
+        get_actions(action["else"])
+        )
+    else
+      Map.put(%{}, action["id"], %{ params: action["params"], action: action["action"] })
+    end
+    Map.merge(actions, get_actions(rest))
   end
 
   # traverses the map using the list as routes to follow, or return default
