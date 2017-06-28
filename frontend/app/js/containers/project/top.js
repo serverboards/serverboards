@@ -11,6 +11,7 @@ const SECTIONS = [
   {id: 'dashboard', name: i18n_nop('Dashboard')},
   {id: 'services',  name: i18n_nop('Services')},
   {id: 'rules',  name: i18n_nop('Rules')},
+  {id: 'rules_v2',  name: i18n_nop('Rules V2')},
   {id: 'settings',  name: i18n_nop('Settings')},
   {id: 'issues',  name: i18n_nop('Issues')},
 ]
