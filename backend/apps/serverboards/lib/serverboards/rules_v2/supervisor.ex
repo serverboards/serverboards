@@ -12,7 +12,8 @@ defmodule Serverboards.RulesV2.Supervisor do
       worker(Serverboards.RulesV2.Rules, [], function: :start_eventsourcing),
       #worker(Serverboards.ProcessRegistry, [[name: Serverboards.Rules.Registry]]),
       # worker(Serverboards.RulesV2.Rules, [[name: Serverboards.RulesV2.Rules]]),
-      supervisor(Serverboards.RulesV2.Rule.Supervisor,[])
+      supervisor(Serverboards.RulesV2.Rule.Supervisor,[]),
+      supervisor(Registry, [:unique, :rules_registry])
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Serverboards.RulesV2.Supervisor)

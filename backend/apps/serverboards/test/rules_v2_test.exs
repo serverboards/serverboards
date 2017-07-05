@@ -79,7 +79,52 @@ defmodule Serverboards.RuleV2Test do
     {:ok, rules} = Test.Client.call(client, "rules_v2.list", %{project: "SBDS-TST15"})
     Logger.debug("Rules SBDS-TST15 d0 #{inspect rules}")
     assert Enum.count(rules) == 0
+  end
 
+  test "Simple rule run" do
+    rule = %{
+      "uuid" => UUID.uuid4(),
+      "when" => %{
+        "type" => "trigger",
+        "trigger" => "serverboards.test.auth/periodic.timer",
+        "params" => %{
+          "period" => "0.1"
+        }
+      },
+      "actions" => [
+        %{
+          "type" => "action",
+          "action" => "serverboards.test.auth/touchfile",
+          "params" => %{
+            "filename" => "/tmp/rule-v2.test"
+          }
+        },
+        %{
+          "type" => "action",
+          "action" => "serverboards.test.auth/touchfile",
+          "params" => %{
+            "filename" => "/tmp/rule-v2-2.test"
+          }
+        },
+      ]
+    }
+
+    File.rm("/tmp/rule-v2.test")
+    File.rm("/tmp/rule-v2-2.test")
+
+    {:ok, pid} = Serverboards.RulesV2.Rule.start_link(rule)
+
+    :timer.sleep(1000)
+    Logger.info("Running: #{inspect Serverboards.Action.ps(1)}")
+
+    {res1, _} = File.stat("/tmp/rule-v2.test")
+    File.rm("/tmp/rule-v2.test")
+    {res2, _} = File.stat("/tmp/rule-v2-2.test")
+    File.rm("/tmp/rule-v2-2.test")
+
+    assert res1 == :ok
+    assert res2 == :ok
 
   end
+
 end

@@ -173,12 +173,15 @@ defmodule Serverboards.Action do
     36
 
   """
+  def trigger(action_id, params, user) when is_map(user) do
+    trigger(action_id, params, user.email)
+  end
   def trigger(action_id, params, me) do
     action = Plugin.Registry.find(action_id)
     if action do
       uuid = UUID.uuid4
       EventSourcing.dispatch :action, :trigger,
-        %{ uuid: uuid, action: action_id, params: params }, me.email
+        %{ uuid: uuid, action: action_id, params: params }, me
       {:ok, uuid}
     else
       {:error, :unknown_action}
@@ -315,7 +318,7 @@ defmodule Serverboards.Action do
     end
     ret = case ret do
       %{} -> ret
-      _s -> %{ data: ret }
+      _s -> %{ result: ret }
     end
     action = Map.merge(action, %{
       elapsed: elapsed,
