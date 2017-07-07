@@ -71,26 +71,61 @@ defmodule Serverboards.RulesV2.Rule do
 
 
   def handle_cast({:trigger, params}, state) do
+    when_id = Map.get(state.rule["when"], "id", "A")
+    params = Map.merge( state.rule["when"]["params"], params )
+    uuid = state.rule["uuid"]
+    trigger_state = Map.put(%{ "uuid" => uuid}, when_id, params)
+
     Logger.info("Trigger! #{inspect params} #{inspect state}")
-    for action <- state.rule["actions"] do
-      execute_action(state.uuid, action, %{ "A" => params})
-    end
+    {:ok, rule_final_state} = execute_actions(uuid, state.rule["actions"], trigger_state)
+    Logger.info("Final state: #{inspect rule_final_state}")
+
     {:noreply, state}
+  end
+
+  def execute_actions(_uuid, [], state), do: {:ok, state}
+  def execute_actions(uuid, [ action | rest ], state) do
+    {:ok, state} = execute_action(uuid, action, state)
+    execute_actions(uuid, rest, state)
   end
 
   def execute_action(uuid, %{
       "type" => "action",
       "action" => action,
       "params" => params
-      }, state) do
+      } = actiondef, state) do
     Logger.info("Execute action: #{inspect action}(#{inspect params}) // #{inspect state}")
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
     result = if Enum.count(result)==1 and Map.has_key?(result, :result) do
       result[:result] else result end
 
-    Logger.info("Result is #{inspect result}")
-    {:ok, result}
+    action_id = Map.get(actiondef, "id")
+    Logger.info("Result #{inspect action_id} is #{inspect result}")
+    state = if action_id do Map.put(state, action_id, result)
+      else state end
+
+    {:ok, state}
   end
 
+
+  def execute_action(uuid, %{
+      "type" => "condition",
+      "condition" => condition,
+      "then" => then_actions,
+      "else" => else_actions
+      }, state) do
+    {:ok, condition_result} = ExEval.eval(condition, [state])
+    if condition_result do
+      Logger.debug("#{inspect condition} -> true")
+      state = execute_actions(uuid, then_actions, state)
+    else
+      Logger.debug("#{inspect condition} -> false")
+      state = execute_actions(uuid, else_actions, state)
+    end
+  end
+
+  def terminate(reason, state) do
+    Logger.error("Terminate #{inspect reason}")
+  end
 end

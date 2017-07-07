@@ -127,4 +127,54 @@ defmodule Serverboards.RuleV2Test do
 
   end
 
+  test "Rule with conditionals" do
+    rule = %{
+      "uuid" => UUID.uuid4(),
+      "when" => %{
+        "type" => "trigger",
+        "trigger" => "serverboards.test.auth/periodic.timer",
+        "params" => %{
+          "period" => "0.1",
+          "tick" => "tick"
+        }
+      },
+      "actions" => [
+        %{
+          "type" => "condition",
+          "condition" => "A.tick == 'tick'",
+          "then" =>  [%{
+              "id" => "B",
+              "type" => "action",
+              "action" => "serverboards.test.auth/touchfile",
+              "params" => %{
+                "filename" => "/tmp/rule-then.test"
+              }
+            } ],
+          "else" => [%{
+            "id" => "C",
+            "type" => "action",
+            "action" => "serverboards.test.auth/touchfile",
+            "params" => %{
+              "filename" => "/tmp/rule-else.test"
+            }
+          } ],
+        }
+      ]
+    }
+
+    File.rm("/tmp/rule-then.test")
+    File.rm("/tmp/rule-else.test")
+
+    {:ok, pid} = Serverboards.RulesV2.Rule.start_link(rule)
+    :timer.sleep(1000)
+
+    {res1, _} = File.stat("/tmp/rule-then.test")
+    File.rm("/tmp/rule-v2.test")
+    {res2, _} = File.stat("/tmp/rule-else.test")
+    File.rm("/tmp/rule-v2-2.test")
+
+    assert res1 == :ok
+    assert res2 == :error
+  end
+
 end

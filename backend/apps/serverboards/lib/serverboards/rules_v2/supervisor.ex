@@ -16,7 +16,7 @@ defmodule Serverboards.RulesV2.Supervisor do
       supervisor(Registry, [:unique, :rules_registry])
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one, name: Serverboards.RulesV2.Supervisor)
+    Supervisor.start_link(children, [strategy: :one_for_one, name: Serverboards.RulesV2.Supervisor] ++ options)
   end
 
 end
