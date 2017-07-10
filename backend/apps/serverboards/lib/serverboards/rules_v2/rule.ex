@@ -1,9 +1,10 @@
 require Logger
 
 defmodule Serverboards.RulesV2.Rule do
-  def start_link(rule, options \\ []) do
+  use GenServer
 
-    options = [name: via(rule["uuid"])] ++ options
+  def start_link(rule, options \\ []) do
+    options = [name: via(rule.uuid)] ++ options
 
     GenServer.start_link(__MODULE__, rule, options)
   end
@@ -16,13 +17,24 @@ defmodule Serverboards.RulesV2.Rule do
     GenServer.cast(rule_id, {:trigger, params})
   end
 
+  def stop(what), do: stop(what, :normal, :infinity)
+  def stop(what, reason), do: stop(what, reason, :infinity)
+  def stop(pid, reason, timeout) when is_pid(pid) do
+    # Logger.info("STOP #{inspect pid}")
+    GenServer.stop(pid, reason, timeout)
+  end
+  def stop(uuid, reason, timeout) when is_binary(uuid) do
+    # Logger.info("STOP #{inspect uuid}")
+    GenServer.stop(via(uuid), reason, timeout)
+  end
+
   ## Server impl
 
   def init(rule) do
     Logger.info("Starting rule #{inspect rule}")
-    uuid = rule["uuid"]
+    uuid = rule.uuid
 
-    {:ok, trigger} = start_trigger(uuid, rule["when"])
+    {:ok, trigger} = start_trigger(uuid, rule.rule["when"])
 
     Logger.debug("Got trigger #{inspect trigger}")
 
@@ -30,6 +42,8 @@ defmodule Serverboards.RulesV2.Rule do
       trigger: trigger,
       rule: rule,
       uuid: uuid,
+      running: false,
+      state: %{}
       }}
   end
 
@@ -51,6 +65,7 @@ defmodule Serverboards.RulesV2.Rule do
     stop_id = if stop_id do stop_id else uuid end
 
     {:ok, %{
+      trigger: trigger,
       plugin_id: plugin_id,
       stop_id: stop_id,
     }}
@@ -69,45 +84,94 @@ defmodule Serverboards.RulesV2.Rule do
     end
   end
 
+  @doc ~S"""
+  Prepares the state to start executing acitons at next :continue mesage.
 
+  It does not execute the actions straight away, as it blocks the process whicle
+  executing the acitons. So there should be some checking of the messages just
+  in case there is a special event, as stop.
+
+  Also it must discard and log extra triggers while executing, or the message
+  queue will force execution after execution.
+
+  So it sets at :running the list of actions to perform. The first item will be
+  next action and so on. If the aciton is a conditional, it will place the
+  proper branch on top of the list of actions to execute.
+
+  When the list is empty, all actions have been executed.
+
+  For all this to work, the :continue message has to be inserted after every
+  action is performed.
+
+  """
   def handle_cast({:trigger, params}, state) do
-    when_id = Map.get(state.rule["when"], "id", "A")
-    params = Map.merge( state.rule["when"]["params"], params )
-    uuid = state.rule["uuid"]
-    trigger_state = Map.put(%{ "uuid" => uuid}, when_id, params)
+    if state.running == false do
+      Logger.debug("Trigger action: #{inspect state, pretty: true}")
+      when_id = Map.get(state.rule.rule["when"], "id", "A")
+      params = Map.merge( state.rule.rule["when"]["params"], params )
+      uuid = state.rule.uuid
+      trigger_state = Map.put(%{ "uuid" => uuid}, when_id, params)
 
-    Logger.info("Trigger! #{inspect params} #{inspect state}")
-    {:ok, rule_final_state} = execute_actions(uuid, state.rule["actions"], trigger_state)
-    Logger.info("Final state: #{inspect rule_final_state}")
+      state = %{ state |
+        running: state.rule.rule["actions"],
+        state: trigger_state,
+        }
+      GenServer.cast(self(), :continue) # yields execution of actions.
+
+      #Logger.info("Trigger! #{inspect params} #{inspect state}")
+      #{:ok, rule_final_state} = execute_actions(uuid, state.rule.rule["actions"], trigger_state)
+      #Logger.info("Final state: #{inspect rule_final_state}")
+
+      {:noreply, state}
+    else
+      Logger.info("Ignoring retrigger of #{inspect state.uuid}. Already executing actions.", rule: state.rule)
+      {:noreply, state}
+    end
+  end
+
+  def handle_cast(:continue, %{ running: [] } = state) do
+    # Logger.debug("Action chain finished. Final state is #{inspect state.state, pretty: true}")
+
+    state = %{ state |
+      running: false,
+    }
 
     {:noreply, state}
   end
+  def handle_cast(:continue, state ) do
+    %{ running: [ action | rest], uuid: uuid, state: rule_state} = state
+    # Logger.debug("#{inspect self()}: Continue executing actions: now: #{inspect action, pretty: true},\n   later: #{inspect rest, pretty: true}")
 
-  def execute_actions(_uuid, [], state), do: {:ok, state}
-  def execute_actions(uuid, [ action | rest ], state) do
-    {:ok, state} = execute_action(uuid, action, state)
-    execute_actions(uuid, rest, state)
+
+    { head, rule_state } = execute_action( uuid, action, rule_state)
+
+    state = %{ state |
+      running: head ++ rest,
+      state: rule_state
+    }
+    # Logger.debug("Running queue is now: #{inspect state.running, pretty: true}")
+    GenServer.cast(self(), :continue)
+
+    {:noreply, state}
   end
-
   def execute_action(uuid, %{
       "type" => "action",
       "action" => action,
       "params" => params
       } = actiondef, state) do
-    Logger.info("Execute action: #{inspect action}(#{inspect params}) // #{inspect state}")
+    # Logger.info("Execute action: #{inspect action}(#{inspect params}) // #{inspect state}")
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
     result = if Enum.count(result)==1 and Map.has_key?(result, :result) do
       result[:result] else result end
 
     action_id = Map.get(actiondef, "id")
-    Logger.info("Result #{inspect action_id} is #{inspect result}")
+    # Logger.info("Result #{inspect action_id} is #{inspect result}")
     state = if action_id do Map.put(state, action_id, result)
       else state end
 
-    {:ok, state}
+    {[], state}
   end
-
 
   def execute_action(uuid, %{
       "type" => "condition",
@@ -117,15 +181,31 @@ defmodule Serverboards.RulesV2.Rule do
       }, state) do
     {:ok, condition_result} = ExEval.eval(condition, [state])
     if condition_result do
-      Logger.debug("#{inspect condition} -> true")
-      state = execute_actions(uuid, then_actions, state)
+      # Logger.debug("#{inspect condition} -> true")
+      { then_actions, state }
     else
-      Logger.debug("#{inspect condition} -> false")
-      state = execute_actions(uuid, else_actions, state)
+      # Logger.debug("#{inspect condition} -> false")
+      { else_actions, state }
     end
   end
 
   def terminate(reason, state) do
-    Logger.error("Terminate #{inspect reason}")
+    case reason do
+      :normal ->
+        Logger.info("Rule #{inspect state.uuid} stopped.", rule_id: state.uuid)
+      other ->
+        Logger.error("Terminate #{inspect reason}")
+    end
+
+    plugin_id=state.trigger.plugin_id
+
+    case state.trigger[:stop] do
+      nil -> :ok
+      stop_method ->
+        stop_id=state.trigger.stop_id
+        Serverboards.Plugin.call(plugin_id, stop_method, stop_id)
+    end
+
+    Serverboards.Plugin.Runner.stop(plugin_id)
   end
 end
