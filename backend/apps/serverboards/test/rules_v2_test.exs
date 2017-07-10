@@ -4,8 +4,6 @@ defmodule Serverboards.RuleV2Test do
   use ExUnit.Case
   # @moduletag :capture_log
 
-  alias Serverboards.Rules.RulesV2
-
   setup do
     # Explicitly get a connection before each test
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
@@ -24,7 +22,6 @@ defmodule Serverboards.RuleV2Test do
       },
     ]
     {:ok, service_id} = Test.Client.call(client, "service.create", %{ name: "test", type: "serverboards.test.auth/server"})
-
 
     {:ok, uuid } = Test.Client.call(client, "rules_v2.create", %{
         name: "Test Rule",
@@ -83,30 +80,32 @@ defmodule Serverboards.RuleV2Test do
 
   test "Simple rule run" do
     rule = %{
-      "uuid" => UUID.uuid4(),
-      "when" => %{
-        "type" => "trigger",
-        "trigger" => "serverboards.test.auth/periodic.timer",
-        "params" => %{
-          "period" => "0.1"
-        }
-      },
-      "actions" => [
-        %{
-          "type" => "action",
-          "action" => "serverboards.test.auth/touchfile",
+      uuid: UUID.uuid4(),
+      rule: %{
+        "when" => %{
+          "type" => "trigger",
+          "trigger" => "serverboards.test.auth/periodic.timer",
           "params" => %{
-            "filename" => "/tmp/rule-v2.test"
+            "period" => "0.1"
           }
         },
-        %{
-          "type" => "action",
-          "action" => "serverboards.test.auth/touchfile",
-          "params" => %{
-            "filename" => "/tmp/rule-v2-2.test"
-          }
-        },
-      ]
+        "actions" => [
+          %{
+            "type" => "action",
+            "action" => "serverboards.test.auth/touchfile",
+            "params" => %{
+              "filename" => "/tmp/rule-v2.test"
+            }
+          },
+          %{
+            "type" => "action",
+            "action" => "serverboards.test.auth/touchfile",
+            "params" => %{
+              "filename" => "/tmp/rule-v2-2.test"
+            }
+          },
+        ]
+      }
     }
 
     File.rm("/tmp/rule-v2.test")
@@ -125,41 +124,44 @@ defmodule Serverboards.RuleV2Test do
     assert res1 == :ok
     assert res2 == :ok
 
+    Serverboards.RulesV2.Rule.stop( rule.uuid )
   end
 
   test "Rule with conditionals" do
     rule = %{
-      "uuid" => UUID.uuid4(),
-      "when" => %{
-        "type" => "trigger",
-        "trigger" => "serverboards.test.auth/periodic.timer",
-        "params" => %{
-          "period" => "0.1",
-          "tick" => "tick"
-        }
-      },
-      "actions" => [
-        %{
-          "type" => "condition",
-          "condition" => "A.tick == 'tick'",
-          "then" =>  [%{
-              "id" => "B",
+      uuid: UUID.uuid4(),
+      rule: %{
+        "when" => %{
+          "type" => "trigger",
+          "trigger" => "serverboards.test.auth/periodic.timer",
+          "params" => %{
+            "period" => "0.1",
+            "tick" => "tick"
+          }
+        },
+        "actions" => [
+          %{
+            "type" => "condition",
+            "condition" => "A.tick == 'tick'",
+            "then" =>  [%{
+                "id" => "B",
+                "type" => "action",
+                "action" => "serverboards.test.auth/touchfile",
+                "params" => %{
+                  "filename" => "/tmp/rule-then.test"
+                }
+              } ],
+            "else" => [%{
+              "id" => "C",
               "type" => "action",
               "action" => "serverboards.test.auth/touchfile",
               "params" => %{
-                "filename" => "/tmp/rule-then.test"
+                "filename" => "/tmp/rule-else.test"
               }
             } ],
-          "else" => [%{
-            "id" => "C",
-            "type" => "action",
-            "action" => "serverboards.test.auth/touchfile",
-            "params" => %{
-              "filename" => "/tmp/rule-else.test"
-            }
-          } ],
-        }
-      ]
+          }
+        ]
+      }
     }
 
     File.rm("/tmp/rule-then.test")
@@ -175,6 +177,64 @@ defmodule Serverboards.RuleV2Test do
 
     assert res1 == :ok
     assert res2 == :error
+
+    Serverboards.RulesV2.Rule.stop(pid)
   end
 
+  test "Add rule to db and start it" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, uuid} = Test.Client.call(client, "rules_v2.create", %{
+        name: "Rule test",
+        description: "Long description of a rule to test",
+        is_active: true,
+        rule: %{
+          "when" => %{
+            "type" => "trigger",
+            "trigger" => "serverboards.test.auth/periodic.timer",
+            "params" => %{
+              "period" => "0.1"
+            }
+          },
+          "actions" => [
+            %{
+              "type" => "action",
+              "action" => "serverboards.test.auth/touchfile",
+              "params" => %{
+                "filename" => "/tmp/rule-v2-3.test"
+              }
+            },
+            %{
+              "type" => "action",
+              "action" => "serverboards.test.auth/touchfile",
+              "params" => %{
+                "filename" => "/tmp/rule-v2-32.test"
+              }
+            },
+          ]
+        }
+      } )
+    :timer.sleep(1_500)
+
+    {res1, _} = File.stat("/tmp/rule-then.test")
+    File.rm("/tmp/rule-v2.test")
+    {res2, _} = File.stat("/tmp/rule-else.test")
+    File.rm("/tmp/rule-v2-2.test")
+
+    assert res1 == :ok
+    assert res2 == :error
+
+
+    {:ok, rule} = Test.Client.call(client, "rules_v2.get", [uuid])
+    Logger.info("Rule state: #{inspect rule["state"]}")
+    assert rule["state"] != nil
+    assert rule["state"] != %{}
+    assert rule["state"]["uuid"] == uuid
+    assert rule["state"]["A"]["id"] == uuid
+    assert rule["state"]["A"]["period"] == "0.1"
+    assert rule["state"]["A"]["state"] == "tick"
+    assert is_number(rule["state"]["A"]["count"])
+    assert rule["state"]["A"]["count"] >= 1
+
+  end
 end

@@ -27,10 +27,17 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
   restarted
   """
   use Supervisor
+  import Supervisor.Spec
 
   def start_link(options \\ []) do
-    Supervisor.start_link(__MODULE__, :ok, [name: Serverboards.RulesV2.Rule.Supervisor] ++ options)
+    {:ok, pid} = Supervisor.start_link(__MODULE__, :ok, [name: Serverboards.RulesV2.Rule.Supervisor] ++ options)
+    for r <- Serverboards.RulesV2.Rules.list(%{ is_active: true }) do
+      {:ok, pid} = start(r)
+    end
+
+    {:ok, pid }
   end
+
   def init(:ok) do
     children = [
       worker(Serverboards.RulesV2.Rule, [], restart: :temporary)
@@ -40,7 +47,7 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
   end
 
   def start(ruledef) do
-    #Logger.debug("Start rule #{inspect ruledef}")
+    Logger.debug("Start rule #{inspect ruledef}")
     Supervisor.start_child(Serverboards.RulesV2.Rule.Supervisor, [ruledef, []])
   end
 

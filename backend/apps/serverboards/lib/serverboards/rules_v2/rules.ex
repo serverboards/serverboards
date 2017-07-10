@@ -45,6 +45,7 @@ defmodule Serverboards.RulesV2.Rules do
   ```
 
   """
+  alias Serverboards.RulesV2.Rule
 
   def start_ets_table() do
     :ets.new(:rules_rule_id_cache, [:set, :public, :named_table])
@@ -72,6 +73,10 @@ defmodule Serverboards.RulesV2.Rules do
       end
     end
 
+    EventSourcing.subscribe es, :set_state, fn %{ uuid: uuid, state: state }, _me ->
+      set_state_real(uuid, state)
+    end
+
     {:ok, es}
   end
 
@@ -93,6 +98,11 @@ defmodule Serverboards.RulesV2.Rules do
     else data end
     {:ok, rule} = Repo.insert( Model.Rule.changeset( %Model.Rule{}, data ) )
     {:ok, _} = Repo.insert( Model.RuleState.changeset( %Model.RuleState{}, %{ rule_id: rule.id, state: %{} } ) )
+
+    if rule.is_active do
+      Rule.ensure_running(rule)
+    end
+
     rule
   end
 
@@ -115,13 +125,28 @@ defmodule Serverboards.RulesV2.Rules do
           Map.put( data, :project_id, get_project_id_by_shortname(data.project))
         else data end
         Repo.update( Model.Rule.changeset( rule, data) )
+
+        if rule.is_active do
+          Rule.ensure_running(rule)
+        else
+          Rule.ensure_not_running(rule)
+        end
     end
+    :ok
+  end
+
+  def set_state( uuid, state, me ) do
+    EventSourcing.dispatch(
+      Serverboards.RulesV2.EventSourcing,
+      :set_state,
+      %{ uuid: uuid, state: state },
+      me.email )
     :ok
   end
 
   def set_state_real(uuid, state) when is_map(state) do
     import Ecto.Query
-    # Logger.debug("Set state #{inspect uuid} #{inspect state}")
+    Logger.debug("Set state #{inspect uuid} #{inspect state}")
     case get_rule_id( uuid ) do
       nil ->
         Logger.error("Unknown rule to set state to #{inspect uuid}", rule_id: uuid)
@@ -158,9 +183,11 @@ defmodule Serverboards.RulesV2.Rules do
 
   def decorate(rule) do
     project = get_project(rule.uuid)
+    state = get_state(rule.uuid)
     rule
       |> Map.drop([:__meta__, :project_id])
       |> Map.put(:project, project)
+      |> Map.put(:state, state)
   end
 
   def list(filter \\ %{}) when is_map(filter) do
@@ -179,6 +206,14 @@ defmodule Serverboards.RulesV2.Rules do
       :both ->
         q
     end
+
+    q = case Map.get(filter, :is_active, nil) != nil do
+      true ->
+        where(q, [rule], rule.is_active)
+      false ->
+        where(q, [rule], not rule.is_active)
+    end
+
 
     q = if filter[:project] do
       q

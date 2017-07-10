@@ -13,6 +13,23 @@ defmodule Serverboards.RulesV2.Rule do
     {:via, Registry, {:rules_registry, rule_uuid}}
   end
 
+  def is_running?(uuid) do
+    Registry.lookup(:rules_registry, uuid) != []
+  end
+  def ensure_running( rule ) do
+    if not is_running?(rule.uuid) do
+      Serverboards.RulesV2.Rule.Supervisor.start(rule)
+    end
+  end
+  def ensure_not_running( rule ) do
+    if is_running?(rule.uuid) do
+      stop(rule.uuid)
+    end
+  end
+  def set_state(uuid, state) do
+    Serverboards.RulesV2.Rules.set_state(uuid, state, %{ email: "rule/#{uuid}"})
+  end
+
   def trigger(rule_id, params) do
     GenServer.cast(rule_id, {:trigger, params})
   end
@@ -131,6 +148,9 @@ defmodule Serverboards.RulesV2.Rule do
 
   def handle_cast(:continue, %{ running: [] } = state) do
     # Logger.debug("Action chain finished. Final state is #{inspect state.state, pretty: true}")
+
+    # Store the state in the DB
+    set_state(state.uuid, state.state)
 
     state = %{ state |
       running: false,
