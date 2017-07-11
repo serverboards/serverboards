@@ -137,7 +137,11 @@ defmodule ExEval do
     {:ok, v}
   end
   def eval_ast({:var, v}, context) do
-    get_var(String.split(v,"."), context)
+    case get_var(String.split(v,"."), context) do
+      {:error, :unknown_var} ->
+        {:error, {:unknown_var, v, context}}
+      other -> other
+    end
   end
   def eval_ast({:equal, op1, op2}, context) do
     with {:ok, op1} <- eval_ast(op1, context),
