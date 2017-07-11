@@ -51,51 +51,62 @@ defmodule Serverboards.RulesV2.Rule do
     Logger.info("Starting rule #{inspect rule}")
     uuid = rule.uuid
 
-    {:ok, trigger} = start_trigger(uuid, rule.rule["when"])
+    case start_trigger(uuid, rule.rule["when"]) do
+      {:ok, trigger} ->
+        # Logger.debug("Got trigger #{inspect trigger}")
 
-    Logger.debug("Got trigger #{inspect trigger}")
-
-    {:ok, %{
-      trigger: trigger,
-      rule: rule,
-      uuid: uuid,
-      running: false,
-      state: %{}
-      }}
+        {:ok, %{
+          trigger: trigger,
+          rule: rule,
+          uuid: uuid,
+          running: false,
+          state: %{}
+          }}
+      {:error, error} ->
+        Logger.error("Error starting trigger: #{inspect error}", rule: rule.rule)
+        {:stop, :cant_start_trigger}
+    end
   end
 
   def start_trigger(uuid, w) do
     [trigger] = Serverboards.Rules.Trigger.find(id: w["trigger"])
-    {:ok, plugin_id} = Serverboards.Plugin.Runner.start(trigger.command, "system/rule_v2")
+    with {:ok, plugin_id} <- Serverboards.Plugin.Runner.start(trigger.command, "system/rule_v2"),
+         {:ok, client} <- Serverboards.Plugin.Runner.client plugin_id
+    do
+      setup_client_for_rules(self(), uuid, client)
 
-    {:ok, client} = Serverboards.Plugin.Runner.client plugin_id
-    setup_client_for_rules(self(), uuid, client)
+      default_params = %{
+        id: uuid,
+      }
 
-    default_params = %{
-      id: uuid,
-    }
+      params = Map.merge(w["params"], default_params)
+      paramsdef = [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", [])
+      method = Map.put( trigger.start, "params", paramsdef )
+      # Logger.debug("Call #{inspect plugin_id}.#{inspect method["method"]}(#{inspect params})")
+      case Serverboards.Plugin.Runner.call( plugin_id, method, params ) do
+        {:ok, stop_id} ->
+          stop_id = if stop_id do stop_id else uuid end
 
-    params = Map.merge(w["params"], default_params)
-    paramsdef = [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", [])
-    method = Map.put( trigger.start, "params", paramsdef )
-    {:ok, stop_id} = Serverboards.Plugin.Runner.call( plugin_id, method, params )
-    stop_id = if stop_id do stop_id else uuid end
-
-    {:ok, %{
-      trigger: trigger,
-      plugin_id: plugin_id,
-      stop_id: stop_id,
-    }}
+          {:ok, %{
+            trigger: trigger,
+            plugin_id: plugin_id,
+            stop_id: stop_id,
+            }}
+        {:error, error} -> {:error, error}
+      end
+    else
+      error -> error
+    end
   end
 
   def setup_client_for_rules(pid, uuid, %MOM.RPC.Client{} = client) do
     MOM.RPC.Client.add_method client, "trigger", fn
-      [params] ->
-        if uuid == (List.first(params)) do
+      [%{} = params] ->
+        if uuid == params["id"] do
           trigger(pid, params)
         end
-      %{} = params ->
-        if uuid == params["id"] do
+      [params] ->
+        if uuid == (List.first(params)) do
           trigger(pid, params)
         end
     end

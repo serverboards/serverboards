@@ -12,8 +12,9 @@ defmodule Serverboards.RulesV2.Supervisor do
       worker(Serverboards.RulesV2.Rules, [], function: :start_eventsourcing),
       #worker(Serverboards.ProcessRegistry, [[name: Serverboards.Rules.Registry]]),
       # worker(Serverboards.RulesV2.Rules, [[name: Serverboards.RulesV2.Rules]]),
+      supervisor(Registry, [:unique, :rules_registry]),
+
       supervisor(Serverboards.RulesV2.Rule.Supervisor,[]),
-      supervisor(Registry, [:unique, :rules_registry])
     ]
 
     Supervisor.start_link(children, [strategy: :one_for_one, name: Serverboards.RulesV2.Supervisor] ++ options)
@@ -31,9 +32,25 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
 
   def start_link(options \\ []) do
     {:ok, pid} = Supervisor.start_link(__MODULE__, :ok, [name: Serverboards.RulesV2.Rule.Supervisor] ++ options)
-    for r <- Serverboards.RulesV2.Rules.list(%{ is_active: true }) do
-      {:ok, pid} = start(r)
+
+    rules = Serverboards.RulesV2.Rules.list(%{ is_active: true })
+    Logger.info("Started rule supervisor. Starting #{Enum.count(rules)} rules.")
+
+    success? = for {r, n} <- Enum.with_index(rules, 1) do
+      case start(r) do
+        {:ok, pid} ->
+          Logger.info("#{n}. Rule #{inspect r.uuid} started", rule: r)
+          :ok
+        {:error, code} ->
+          Logger.error("#{n}. Rule #{inspect r.uuid} error starting: #{inspect code}", rule: r)
+          :error
+      end
     end
+    success_count = Enum.reduce(success?, 0, fn
+      (:ok, acc) -> acc+1
+      (:error, acc) -> acc
+    end)
+    Logger.info("Started #{success_count} or #{Enum.count(rules)} rules.")
 
     {:ok, pid }
   end
@@ -47,7 +64,7 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
   end
 
   def start(ruledef) do
-    Logger.debug("Start rule #{inspect ruledef}")
+    # Logger.debug("Start rule #{inspect ruledef}")
     Supervisor.start_child(Serverboards.RulesV2.Rule.Supervisor, [ruledef, []])
   end
 
