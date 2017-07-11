@@ -48,7 +48,7 @@ defmodule Serverboards.RulesV2.Rule do
   ## Server impl
 
   def init(rule) do
-    Logger.info("Starting rule #{inspect rule}")
+    # Logger.info("Starting rule #{inspect rule}")
     uuid = rule.uuid
 
     case start_trigger(uuid, rule.rule["when"]) do
@@ -60,7 +60,7 @@ defmodule Serverboards.RulesV2.Rule do
           rule: rule,
           uuid: uuid,
           running: false,
-          state: %{}
+          state: Serverboards.RulesV2.Rules.get_state(uuid) || %{}
           }}
       {:error, error} ->
         Logger.error("Error starting trigger: #{inspect error}", rule: rule.rule)
@@ -101,6 +101,10 @@ defmodule Serverboards.RulesV2.Rule do
 
   def setup_client_for_rules(pid, uuid, %MOM.RPC.Client{} = client) do
     MOM.RPC.Client.add_method client, "trigger", fn
+      %{} = params ->
+        if uuid == params["id"] do
+          trigger(pid, params)
+        end
       [%{} = params] ->
         if uuid == params["id"] do
           trigger(pid, params)
@@ -134,11 +138,14 @@ defmodule Serverboards.RulesV2.Rule do
   """
   def handle_cast({:trigger, params}, state) do
     if state.running == false do
-      Logger.debug("Trigger action: #{inspect state, pretty: true}\n")
+      # Logger.debug("Trigger action: #{inspect state, pretty: true}\n")
       when_id = Map.get(state.rule.rule["when"], "id", "A")
       params = Map.merge( state.rule.rule["when"]["params"], params )
       uuid = state.rule.uuid
       trigger_state = Map.put(%{ "uuid" => uuid}, when_id, params)
+
+      prev_state = Map.drop(state.state, ["prev"])
+      trigger_state = Map.put(trigger_state, "prev", prev_state)
 
       state = %{ state |
         running: state.rule.rule["actions"],
@@ -210,13 +217,18 @@ defmodule Serverboards.RulesV2.Rule do
       "then" => then_actions,
       "else" => else_actions
       }, state) do
-    {:ok, condition_result} = ExEval.eval(condition, [state])
-    if condition_result do
-      # Logger.debug("#{inspect condition} -> true")
-      { then_actions, state }
-    else
-      # Logger.debug("#{inspect condition} -> false")
-      { else_actions, state }
+    case ExEval.eval(condition, [state]) do
+      {:ok, condition_result} ->
+        if condition_result do
+          # Logger.debug("#{inspect condition} -> true")
+          { then_actions, state }
+        else
+          # Logger.debug("#{inspect condition} -> false")
+          { else_actions, state }
+        end
+      {:error, {:unknown_var, varname, _context}} ->
+        Logger.warn("Invalid variable #{inspect varname} used. Please check the condition #{inspect condition}. Resolving as false.", rule_id: uuid)
+        { else_actions, state }
     end
   end
 
