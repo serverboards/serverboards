@@ -56,7 +56,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
        %{
          id: "status_change",
          type: "condition",
-         condition: "A.status != prev.A.status", # only on status change
+         condition: "A.state != prev.A.state", # only on status change
          then: actions,
          else: []
        }
@@ -112,9 +112,9 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
     }
 
     if exists_uuid?(uuid) do
-      Serverboards.RulesV2.Rules.update_real( uuid, data_v2 )
+      Serverboards.RulesV2.Rules.update_real( uuid, data_v2, start: false )
     else
-      Serverboards.RulesV2.Rules.create_real( uuid, data_v2 )
+      Serverboards.RulesV2.Rules.create_real( uuid, data_v2, start: false )
     end
   end
 
@@ -124,7 +124,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
       nil ->
         case  :ets.lookup(state, :last) do
           [{:last, wrong_uuid}] ->
-            Serverboards.RulesV2.Rules.update_real( wrong_uuid, %{ uuid: uuid })
+            Serverboards.RulesV2.Rules.update_real( wrong_uuid, %{ uuid: uuid }, start: false)
             Logger.warn("Fixed rule UUID from #{inspect wrong_uuid} to #{inspect uuid}")
             :ets.delete(state, :last)
           _ -> :none
@@ -160,13 +160,14 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
   def delete(%{ data: %{ "uuid" => nil }}, _state), do: false
   def delete(r, _state) when is_map(r) do
     Logger.debug("Delete #{inspect r}")
-    Serverboards.RulesV2.Rules.delete_real( r.data["uuid"] )
+    Serverboards.RulesV2.Rules.delete_real( r.data["uuid"], start: false )
   end
 
   def up do
     state = :ets.new(:update_state, [:set, :private])
 
     Serverboards.RulesV2.Rules.start_ets_table()
+    Registry.start_link(:unique, :rules_registry)
 
     for r <- all_rules_events() do
       case r.type do

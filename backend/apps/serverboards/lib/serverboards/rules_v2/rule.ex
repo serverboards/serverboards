@@ -134,7 +134,7 @@ defmodule Serverboards.RulesV2.Rule do
   """
   def handle_cast({:trigger, params}, state) do
     if state.running == false do
-      Logger.debug("Trigger action: #{inspect state, pretty: true}")
+      Logger.debug("Trigger action: #{inspect state, pretty: true}\n")
       when_id = Map.get(state.rule.rule["when"], "id", "A")
       params = Map.merge( state.rule.rule["when"]["params"], params )
       uuid = state.rule.uuid

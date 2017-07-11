@@ -90,7 +90,7 @@ defmodule Serverboards.RulesV2.Rules do
     {:ok, uuid}
   end
 
-  def create_real(uuid, %{} = data) do
+  def create_real(uuid, %{} = data, options \\ []) do
     data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"name description rule is_active deleted")
     data = Map.put(data, :uuid, uuid)
     data = if data[:project] do
@@ -99,7 +99,7 @@ defmodule Serverboards.RulesV2.Rules do
     {:ok, rule} = Repo.insert( Model.Rule.changeset( %Model.Rule{}, data ) )
     {:ok, _} = Repo.insert( Model.RuleState.changeset( %Model.RuleState{}, %{ rule_id: rule.id, state: %{} } ) )
 
-    if rule.is_active do
+    if options[:start]!=false and rule.is_active do
       Rule.ensure_running(rule)
     end
 
@@ -115,7 +115,7 @@ defmodule Serverboards.RulesV2.Rules do
     :ok
   end
 
-  def update_real(uuid, %{} = data) do
+  def update_real(uuid, %{} = data, options \\ []) do
     case get_rule_id(uuid) do
       nil ->
         Logger.error("Unknown rule #{inspect uuid}")
@@ -126,10 +126,12 @@ defmodule Serverboards.RulesV2.Rules do
         else data end
         Repo.update( Model.Rule.changeset( rule, data) )
 
-        if rule.is_active do
-          Rule.ensure_running(rule)
-        else
-          Rule.ensure_not_running(rule)
+        if options[:start]!=false do
+          if rule.is_active do
+            Rule.ensure_running(rule)
+          else
+            Rule.ensure_not_running(rule)
+          end
         end
     end
     :ok
@@ -161,8 +163,8 @@ defmodule Serverboards.RulesV2.Rules do
       :ok
     end
   end
-  def delete_real(uuid) do
-    update_real(uuid, %{ deleted: true })
+  def delete_real(uuid, options \\ []) do
+    update_real(uuid, %{ deleted: true }, options)
     :ok
   end
 
