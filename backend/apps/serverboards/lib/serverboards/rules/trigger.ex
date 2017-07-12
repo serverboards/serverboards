@@ -29,7 +29,7 @@ defmodule Serverboards.Rules.Trigger do
 
        %{
          name: tr.name,
-         description: tr.extra["description"],
+         description: tr.description,
          traits: tr.traits,
          command: command,
          start: tr.extra["start"],

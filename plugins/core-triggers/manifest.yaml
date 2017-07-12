@@ -7,8 +7,10 @@ description: >
 
 components:
   - name: Server is running / Ping
+    description: Performs an ICMP ping to check if the server is alive.
     id: ping
     type: trigger
+    traits: cloud server
     states: down up
     command: daemon
     stop: stop_trigger
@@ -31,9 +33,13 @@ components:
     traits: ip
 
   - name: HTTP Response time limit
+    description: |
+      Checks periodically if the connection time to the given server
+      enters into an allowed range.
     id: http
     type: trigger
     command: daemon
+    traits: cloud
     states: down up
     stop: stop_trigger
     start:
@@ -59,10 +65,12 @@ components:
     traits: web
 
   - name: Socket is receiving connections
+    description: Checks periodically the given server and port connectivity.
     id: socket.is_up
     type: trigger
     states: down up
     command: daemon
+    traits: server
     stop: stop_trigger
     start:
       method: socket_is_up
@@ -89,6 +97,9 @@ components:
     traits: url
 
   - name: Periodic trigger
+    description: |
+      Periodically triggers. Used for recurring actions wihtout a very
+      strict schedule.
     id: periodic
     type: trigger
     states: tick

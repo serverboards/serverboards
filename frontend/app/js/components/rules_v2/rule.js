@@ -6,6 +6,8 @@ import Error from '../error'
 
 import Description from './edit/description'
 import Service from './edit/service'
+import Trigger from './edit/trigger'
+
 
 class Rule extends React.Component{
   constructor(props){
@@ -38,6 +40,8 @@ class Rule extends React.Component{
         return Description
       case "when:service":
         return Service
+      case "when:trigger":
+        return Trigger
     }
     return () => (
       <Error>{i18n(`Unknown section ${this.state.section.section}`)}</Error>
