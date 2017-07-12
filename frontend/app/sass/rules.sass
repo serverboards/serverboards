@@ -18,8 +18,10 @@
     border: 1px solid #eee
     display: flex
     flex-direction: column
-    > .extend
+    .extend
       flex-grow: 1
+      display: flex
+      flex-direction: column
 
     .ui.attached.top.form
       border-bottom: 1px solid #eee
@@ -62,6 +64,15 @@
       margin: 10px 2em 2em 0em
       width: calc( 100% - 3em )
       padding: 1em
+      a
+        color: #333
+        &:hover
+          color: $blue
+      .active a
+        color: $blue
+        &:hover
+          color: #333
+
     .connected
       margin-top: 20px
       margin-left: 17px
@@ -100,12 +111,8 @@
       padding-top: 20px
 
 
-  .card
-    a
+  .ui.right.pane
+    .card
+      width: 100%
+    a.card
       color: #333
-      &:hover
-        color: $blue
-    .active a
-      color: $blue
-      &:hover
-        color: #333

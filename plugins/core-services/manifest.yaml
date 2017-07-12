@@ -13,7 +13,7 @@ description: >
 components:
   - name: Web Site
     type: service
-    traits: url web
+    traits: url web server
     id: web_server
     icon: world
     description: A web URL to be monitored.
@@ -28,7 +28,7 @@ components:
 
   - name: Email Account
     type: service
-    traits: email
+    traits: email cloud
     id: email
     icon: mail
     fields:
@@ -47,7 +47,7 @@ components:
 
   - name: Server
     type: service
-    traits: ip
+    traits: ip server
     id: server
     icon: server
     fields:

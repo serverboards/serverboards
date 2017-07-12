@@ -1,9 +1,11 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
-import Description from './edit/description'
 import Action from './action'
 import When from './when'
 import Error from '../error'
+
+import Description from './edit/description'
+import Service from './edit/service'
 
 class Rule extends React.Component{
   constructor(props){
@@ -21,13 +23,21 @@ class Rule extends React.Component{
     }
     this.handleChangeSection = (section, id, data) => {
       console.log(section, id, data)
-      this.setState({section: {id, section, data}})
+      if (this.state.section.section == section &&
+          this.state.section.id == id){
+        this.setState({section: {id: "description", section: "description", data: {}}})
+      }
+      else{
+        this.setState({section: {id, section, data}})
+      }
     }
   }
   getCurrentSection(){
     switch(this.state.section.section){
       case "description":
         return Description
+      case "when:service":
+        return Service
     }
     return () => (
       <Error>{i18n(`Unknown section ${this.state.section.section}`)}</Error>
@@ -63,12 +73,12 @@ class Rule extends React.Component{
           </div>
         </div>
         <div className="column">
-          <div className="ui round pane white background">
+          <div className="ui round right pane white background">
             <Section
-              data={section.data}
               id={section.id}
               rule={rule}
-              update={this.handleUpdate}
+              onUpdate={this.handleUpdate}
+              {...section.data}
               />
           </div>
         </div>

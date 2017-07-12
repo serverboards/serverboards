@@ -18,7 +18,7 @@ components:
     type: service
     name: Cloud node
     description: A node in a cloud service, as an AWS instance or libvirt virtual machine.
-    traits: core.cloud.node
+    traits: core.cloud.node cloud
     fields:
       - name: connection
         description: Connection UUID
@@ -31,7 +31,7 @@ components:
     type: service
     name: Libvirt
     description: Management of [libvirt](https://libvirt.org) based clouds.
-    traits: core.cloud.compute
+    traits: core.cloud.compute server cloud
     icon: libvirtLogo.png
     virtual:
       command: serverboards.core.cloud/daemon
@@ -52,7 +52,7 @@ components:
     type: service
     name: Digital Ocean
     description: Management of [Digital Ocean](https://digitalocean.com) clouds.
-    traits: core.cloud.compute
+    traits: core.cloud.compute cloud
     icon: digitalocean.svg
     virtual:
       command: serverboards.core.cloud/daemon
