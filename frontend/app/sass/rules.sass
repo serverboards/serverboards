@@ -1,3 +1,5 @@
+@import colors
+
 .ui.cards .rule.card
   h2
     margin: 0
@@ -16,6 +18,8 @@
     border: 1px solid #eee
     display: flex
     flex-direction: column
+    > .extend
+      flex-grow: 1
 
     .ui.attached.top.form
       border-bottom: 1px solid #eee
@@ -94,3 +98,14 @@
       position: absolute
     .ui.connected > .legend:first-child + .action
       padding-top: 20px
+
+
+  .card
+    a
+      color: #333
+      &:hover
+        color: $blue
+    .active a
+      color: $blue
+      &:hover
+        color: #333
