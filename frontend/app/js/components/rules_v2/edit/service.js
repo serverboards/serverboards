@@ -6,6 +6,7 @@ import Selector from './selector'
 function Service(props){
   return (
     <Selector
+      {...props}
       get_items={cache.service_catalog}
       icon="cloud"
       title={i18n("Select a service")}

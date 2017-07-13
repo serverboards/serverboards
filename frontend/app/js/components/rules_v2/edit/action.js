@@ -6,6 +6,7 @@ import Selector from './selector'
 function Action(props){
   return (
     <Selector
+      {...props}
       get_items={cache.action_catalog}
       icon="lightning"
       title={i18n("Select an action")}

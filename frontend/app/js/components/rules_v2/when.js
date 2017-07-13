@@ -7,6 +7,7 @@ class When extends React.Component{
     super(props)
     this.state={
       service_name: undefined,
+      service_type: undefined,
       trigger_name: undefined,
       params_resume: undefined
     }
@@ -15,7 +16,13 @@ class When extends React.Component{
     const {when} = this.props
     cache
       .service(when.params.service_id)
-      .then( s => this.setState({service_name: s.name}) )
+      .then( s =>{
+        console.log(s)
+        this.setState({
+          service_name: s.name,
+          service_type: s.type,
+        })
+      })
     cache
       .trigger(when.trigger)
       .then( t => {
@@ -33,7 +40,7 @@ class When extends React.Component{
   }
   render(){
     const {onChangeSection, when, section} = this.props
-    const {service_name, trigger_name, params_resume} = this.state
+    const {service_name, service_type, trigger_name, params_resume} = this.state
     return (
       <div className="">
         <div className="legend">
@@ -42,13 +49,13 @@ class When extends React.Component{
         </div>
         <div className="ui card">
           <div className={`${section.section=="when:service" ? "active" : ""}`}>
-            <a onClick={() => onChangeSection("when:service", null, {service_id: when.params.service_id})}>
+            <a onClick={() => onChangeSection("when:service", null, {current: [when.params.service_id, service_type]})}>
               <i className="ui cloud icon"/>
               {service_name || i18n("Select related service")}
             </a>
           </div>
           <div className={`${section.section=="when:trigger" ? "active" : ""}`}>
-            <a onClick={() => onChangeSection("when:trigger", null, {trigger: when.trigger})}>
+            <a onClick={() => onChangeSection("when:trigger", null, {current: when.trigger})}>
               <i className="ui toggle on icon"/> {trigger_name || i18n("Select a trigger")}
             </a>
           </div>

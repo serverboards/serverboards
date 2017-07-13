@@ -6,6 +6,7 @@ import Selector from './selector'
 function Trigger(props){
   return (
     <Selector
+      {...props}
       get_items={cache.trigger_catalog}
       icon="toggle on"
       title={i18n("Setup the trigger")}

@@ -19,12 +19,18 @@ function default_icon_for(item, section){
   return DEFAULT_ICON[section]
 }
 
+function match_current(current, id){
+  if (typeof(current)=='object')
+    return current.includes(id)
+  return current==id
+}
 
-function Card({item, default_icon, onClick}){
+
+function Card({item, default_icon, onClick, className}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
   const icon = item.icon || default_icon
   return (
-    <a className="ui card" style={{padding: 5}} onClick={onClick}>
+    <a className={`ui card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
       <h3 className="ui header">
         <Icon className="mini" icon={icon} plugin={plugin}/>
         {item.name}
@@ -110,6 +116,7 @@ class Selector extends React.Component{
                 <div className="ui meta">{i18n("No matches found")}</div>
               ) : filtered.map( (s) => (
                 <Card
+                  className={match_current(props.current, s.id || s.type) ? "active" : null}
                   key={s.id || s.type}
                   item={s}
                   default_icon={default_icon_for(s, tab)}
@@ -128,7 +135,8 @@ Selector.propTypes={
   get_items: PropTypes.func.isRequired,
   icon: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  description: PropTypes.string
+  description: PropTypes.string,
+  current: PropTypes.string
 }
 
 export default Selector
