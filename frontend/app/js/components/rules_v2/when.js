@@ -9,7 +9,7 @@ function params_resume(params){
   return ret.join('; ')
 }
 
-function When({when, section, onChangeSection}){
+function When({when, section, onChangeSection, rule}){
   return (
     <div className="">
       <div className="legend">
@@ -29,7 +29,7 @@ function When({when, section, onChangeSection}){
           </a>
         </div>
         <div>
-          <a onClick={() => onChangeSection("when:params", null, {params: when.params})}>
+          <a onClick={() => onChangeSection("params", ["when", "params"], {data: when.params, trigger: when.trigger } ) }>
             <i className="ui wrench icon"/> {params_resume(when.params) || i18n("Setup trigger")}
           </a>
         </div>

@@ -7,7 +7,7 @@ import Error from '../error'
 import Description from './edit/description'
 import Service from './edit/service'
 import Trigger from './edit/trigger'
-
+import Params from './edit/params'
 
 class Rule extends React.Component{
   constructor(props){
@@ -38,6 +38,8 @@ class Rule extends React.Component{
     switch(this.state.section.section){
       case "description":
         return Description
+      case "params":
+        return Params
       case "when:service":
         return Service
       case "when:trigger":
