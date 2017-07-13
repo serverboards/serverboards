@@ -10,6 +10,7 @@ import Trigger from './edit/trigger'
 import Params from './edit/params'
 import Condition from './edit/condition'
 import ActionEdit from './edit/action'
+import {map_set} from 'app/utils'
 
 class Rule extends React.Component{
   constructor(props){
@@ -34,6 +35,10 @@ class Rule extends React.Component{
       else{
         this.setState({section: {id, section, data}})
       }
+    }
+    this.handleUpdate = (what, value) => {
+      const rule = map_set( this.state.rule, ["rule", ...what], value )
+      this.setState({rule})
     }
   }
   getCurrentSection(){
@@ -76,6 +81,7 @@ class Rule extends React.Component{
                   when={rule.rule.when}
                   section={section}
                   onChangeSection={this.handleChangeSection}
+                  onUpdate={this.handleUpdate}
                   />
                 {rule.rule.actions.map( (action, index) => (
                   <Action
@@ -83,6 +89,7 @@ class Rule extends React.Component{
                     action={action}
                     section={section}
                     onChangeSection={this.handleChangeSection}
+                    onUpdate={this.handleUpdate}
                     />
                 ))}
               </div>

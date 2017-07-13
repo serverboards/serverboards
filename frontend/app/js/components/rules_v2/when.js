@@ -1,6 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import {object_is_equal} from 'app/utils'
 
 class When extends React.Component{
   constructor(props){
@@ -11,8 +12,22 @@ class When extends React.Component{
       trigger_name: undefined,
       params_resume: undefined
     }
+
+    this.handleGotoParams = () => {
+      const {when} = this.props
+      this.props.onChangeSection("params", ["when", "params"], {data: when.params, trigger: when.trigger } )
+    }
+
+    this.handleTriggerChange = (t) => {
+      props.onUpdate(["when","trigger"], t.id)
+      this.handleGotoParams()
+    }
   }
   componentDidMount(){
+    this.updateServiceName()
+    this.updateTrigger()
+  }
+  updateServiceName(){
     const {when} = this.props
     cache
       .service(when.params.service_id)
@@ -23,6 +38,9 @@ class When extends React.Component{
           service_type: s.type,
         })
       })
+  }
+  updateTrigger(next){
+    const {when} = (next || this.props)
     cache
       .trigger(when.trigger)
       .then( t => {
@@ -38,6 +56,21 @@ class When extends React.Component{
         this.setState({trigger_name: t.name, params_resume})
       })
   }
+  componentWillReceiveProps(next){
+    console.log(this.props, next)
+    if (next.when.trigger!=this.props.when.trigger)
+      this.updateTrigger(next)
+    if (next.when.params.service_id!=this.props.when.params.service_id)
+      this.updateServiceName(next)
+    if (next.section.section=='params'){
+      if (!object_is_equal(next.when, this.props.when))
+        this.props.onChangeSection(
+          "params",
+          ["when", "params"],
+          {data: next.when.params, trigger: next.when.trigger }
+        )
+    }
+  }
   render(){
     const {onChangeSection, when, section} = this.props
     const {service_name, service_type, trigger_name, params_resume} = this.state
@@ -49,18 +82,18 @@ class When extends React.Component{
         </div>
         <div className="ui card">
           <div className={`${section.section=="when:service" ? "active" : ""}`}>
-            <a onClick={() => onChangeSection("when:service", null, {current: [when.params.service_id, service_type]})}>
+            <a onClick={() => onChangeSection("when:service", null, {service_id: when.params.service_id, type: service_type})}>
               <i className="ui cloud icon"/>
               {service_name || i18n("Select related service")}
             </a>
           </div>
           <div className={`${section.section=="when:trigger" ? "active" : ""}`}>
-            <a onClick={() => onChangeSection("when:trigger", null, {current: when.trigger})}>
+            <a onClick={() => onChangeSection("when:trigger", null, {current: when.trigger, onSelect: this.handleTriggerChange})}>
               <i className="ui toggle on icon"/> {trigger_name || i18n("Select a trigger")}
             </a>
           </div>
           <div className={`${section.section=="params" ? "active" : ""}`}>
-            <a onClick={() => onChangeSection("params", ["when", "params"], {data: when.params, trigger: when.trigger } ) }>
+            <a onClick={() => this.handleGotoParams() }>
               <i className="ui wrench icon"/> {params_resume || i18n("Setup trigger")}
             </a>
           </div>
