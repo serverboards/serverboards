@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Icon from '../../iconicon'
@@ -19,11 +20,11 @@ function default_icon_for(item, section){
 }
 
 
-function Card({item, default_icon}){
+function Card({item, default_icon, onClick}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
   const icon = item.icon || default_icon
   return (
-    <a className="ui card" style={{padding: 5}}>
+    <a className="ui card" style={{padding: 5}} onClick={onClick}>
       <h3 className="ui header">
         <Icon className="mini" icon={icon} plugin={plugin}/>
         {item.name}
@@ -108,13 +109,26 @@ class Selector extends React.Component{
               {filtered.length==0 ? (
                 <div className="ui meta">{i18n("No matches found")}</div>
               ) : filtered.map( (s) => (
-                <Card key={s.id || s.type} item={s} default_icon={default_icon_for(s, tab)}/>
+                <Card
+                  key={s.id || s.type}
+                  item={s}
+                  default_icon={default_icon_for(s, tab)}
+                  onClick={() => props.onSelect(s)}
+                  />
             ))}
           </div>
         </div>
       </div>
     )
   }
+}
+
+Selector.propTypes={
+  onSelect: PropTypes.func.isRequired,
+  get_items: PropTypes.func.isRequired,
+  icon: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string
 }
 
 export default Selector
