@@ -7,8 +7,10 @@ function IconIcon(props){
     const servername=localStorage.servername || window.location.origin
     const imgurl=`${servername}/static/${props.plugin}/${props.icon}`
     return (
-      <span className="ui iconicon">
-        <img src={props.src} className="base"/>
+      <span className={`ui iconicon ${props.className}`}>
+        {props.src ? (
+          <img src={props.src} className="base"/>
+        ) : null}
         <span className="icon">
           <img src={imgurl}/>
         </span>
@@ -16,8 +18,10 @@ function IconIcon(props){
     )
   }
   return (
-    <span className="ui iconicon">
-      <img src={props.src} className="base"/>
+    <span className={`ui iconicon ${props.className}`}>
+      {props.src ? (
+        <img src={props.src} className="base"/>
+      ) : null}
       <i className={`ui ${props.icon} icon`}/>
     </span>
   )

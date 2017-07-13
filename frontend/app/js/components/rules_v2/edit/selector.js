@@ -1,11 +1,17 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import Icon from '../../iconicon'
 
 function Card({item}){
+  const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
+  const icon = item.icon || ""
   return (
-    <a className="ui card">
-      <h3 className="ui header">{item.name}</h3>
+    <a className="ui card" style={{padding: 5}}>
+      <h3 className="ui header">
+        <Icon className="mini" icon={icon} plugin={plugin}/>
+        {item.name}
+      </h3>
       <div className="description">{item.description}</div>
     </a>
   )
@@ -86,7 +92,7 @@ class Selector extends React.Component{
               {filtered.length==0 ? (
                 <div className="ui meta">{i18n("No matches found")}</div>
               ) : filtered.map( (s) => (
-                <Card key={s.id} item={s}/>
+                <Card key={s.id || s.type} item={s}/>
             ))}
           </div>
         </div>
