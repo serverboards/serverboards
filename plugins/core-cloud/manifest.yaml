@@ -85,6 +85,8 @@ components:
         - name: node
   - id: shutdown
     name: Shutdown node
+    description: |
+      Shuts down the selected node
     type: action
     traits: core.cloud.node running cloud server
     command: serverboards.core.cloud/daemon
@@ -97,6 +99,8 @@ components:
   - id: force_stop
     name: Force stop node
     type: action
+    description: |
+      Forces shut down the selected node
     traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: stop circle outline
@@ -107,6 +111,8 @@ components:
         - name: node
   - id: reboot
     name: Reboot node
+    description: |
+      Do a soft reset of the node; a Crtl-Alt-Supr.
     type: action
     traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
