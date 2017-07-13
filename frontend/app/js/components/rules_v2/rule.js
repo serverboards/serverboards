@@ -8,6 +8,7 @@ import Description from './edit/description'
 import Service from './edit/service'
 import Trigger from './edit/trigger'
 import Params from './edit/params'
+import Condition from './edit/condition'
 
 class Rule extends React.Component{
   constructor(props){
@@ -44,6 +45,8 @@ class Rule extends React.Component{
         return Service
       case "when:trigger":
         return Trigger
+      case "condition":
+        return Condition
     }
     return () => (
       <Error>{i18n(`Unknown section ${this.state.section.section}`)}</Error>
@@ -72,7 +75,12 @@ class Rule extends React.Component{
                   onChangeSection={this.handleChangeSection}
                   />
                 {rule.rule.actions.map( (action, index) => (
-                  <Action key={index} action={action}/>
+                  <Action
+                    key={index}
+                    action={action}
+                    section={section}
+                    onChangeSection={this.handleChangeSection}
+                    />
                 ))}
               </div>
             </div>
