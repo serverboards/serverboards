@@ -75,7 +75,7 @@ components:
   - id: start
     name: Start node
     type: action
-    traits: core.cloud.node stopped
+    traits: core.cloud.node stopped cloud server
     command: serverboards.core.cloud/daemon
     icon: play
     call:
@@ -86,7 +86,7 @@ components:
   - id: shutdown
     name: Shutdown node
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running cloud server
     command: serverboards.core.cloud/daemon
     icon: stop
     call:
@@ -97,7 +97,7 @@ components:
   - id: force_stop
     name: Force stop node
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: stop circle outline
     call:
@@ -108,7 +108,7 @@ components:
   - id: reboot
     name: Reboot node
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: undo
     call:

@@ -26,7 +26,7 @@ function Action({action, onChangeSection}){
   return (
     <div className="action">
       <div className="ui card">
-        {action.id} -> {action.action}
+        <a onClick={() => onChangeSection("action", action.id ,{})}>{action.id} -> {action.action}</a>
       </div>
     </div>
   )

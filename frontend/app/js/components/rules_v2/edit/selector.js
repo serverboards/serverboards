@@ -3,9 +3,25 @@ import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Icon from '../../iconicon'
 
-function Card({item}){
+const DEFAULT_ICON={
+  cloud: "cloud",
+  server: "server",
+  other: "hourglass full",
+  filter: "lab"
+}
+
+function default_icon_for(item, section){
+  if (item.traits.indexOf("cloud")!=-1)
+    return "cloud"
+  if (item.traits.indexOf("server")!=-1)
+    return "server"
+  return DEFAULT_ICON[section]
+}
+
+
+function Card({item, default_icon}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
-  const icon = item.icon || ""
+  const icon = item.icon || default_icon
   return (
     <a className="ui card" style={{padding: 5}}>
       <h3 className="ui header">
@@ -46,7 +62,7 @@ class Selector extends React.Component{
   render(){
     const props = this.props
     const tab = this.state.tab
-    let filtered = this.state.items
+    let filtered = this.state.items.filter( s => s.traits.indexOf("hidden")==-1 )
 
     switch(tab){
       case "other":
@@ -92,7 +108,7 @@ class Selector extends React.Component{
               {filtered.length==0 ? (
                 <div className="ui meta">{i18n("No matches found")}</div>
               ) : filtered.map( (s) => (
-                <Card key={s.id || s.type} item={s}/>
+                <Card key={s.id || s.type} item={s} default_icon={default_icon_for(s, tab)}/>
             ))}
           </div>
         </div>

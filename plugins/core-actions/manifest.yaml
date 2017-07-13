@@ -18,7 +18,7 @@ components:
           label: Remote IP address or DNS name
           type: text
       returns: ms
-    traits: ip url # this means any of `ip` or `url`
+    traits: ip url server # this means any of `ip` or `url`
 
   - name: Webhook call
     id: webhook.call
@@ -36,7 +36,7 @@ components:
         code: int
         ms: ms
         text: text
-    traits: url
+    traits: url cloud server
 
   - name: Service tag change
     id: set-tags

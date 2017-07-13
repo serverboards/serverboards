@@ -9,6 +9,7 @@ import Service from './edit/service'
 import Trigger from './edit/trigger'
 import Params from './edit/params'
 import Condition from './edit/condition'
+import ActionEdit from './edit/action'
 
 class Rule extends React.Component{
   constructor(props){
@@ -47,6 +48,8 @@ class Rule extends React.Component{
         return Trigger
       case "condition":
         return Condition
+      case "action":
+        return ActionEdit
     }
     return () => (
       <Error>{i18n(`Unknown section ${this.state.section.section}`)}</Error>
