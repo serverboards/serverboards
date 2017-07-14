@@ -110,9 +110,25 @@
 
 
   .ui.right.pane
-    .card
+    .wide.card
       width: 100%
-    a.card
+    a.wide.card
       color: #333
-    .card.active
+    .wide.card.active
       box-shadow: 0 1px 3px 0 $blue, 0 0 1px 1px $blue
+
+    h2.centered.header
+      display: flex
+      align-items: center
+      margin-left: 20px
+
+
+  .buttons
+    box-shadow: 0 1px 3px #aaa, 0 0 1px #666
+    border-radius: 4px
+  .right.aligned
+    min-height: 35px
+    display: flex
+    flex-direction: row
+    justify-content: flex-end
+    margin: 20px

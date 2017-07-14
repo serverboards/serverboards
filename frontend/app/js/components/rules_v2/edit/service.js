@@ -2,6 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Selector from './selector'
+import ServiceSelector from './serviceselector'
 
 class Service extends React.Component{
   constructor(render){
@@ -33,12 +34,14 @@ class Service extends React.Component{
     }
     else{
       return (
-        <div>WIP</div>
+        <ServiceSelector
+          type={this.state.type}
+          onSelect={this.selectService}
+          onPrevious={() => this.setState({step: 1})}
+        />
       )
     }
   }
-}
-function Service(props){
 }
 
 export default Service

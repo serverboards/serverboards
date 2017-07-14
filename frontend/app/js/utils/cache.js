@@ -46,6 +46,9 @@ const cache={
   trigger(trigger_id){
     return cache.trigger_catalog().then( tc => tc.find( t => t.id == trigger_id ) )
   },
+  service_type(type){
+    return cache.service_catalog().then( sc => sc.find( s => s.type == type ) )
+  },
   projects: cache_builder({
     store_get: () => store.getState().project.projects,
     store_update: require('app/actions/project').project_update_all(),

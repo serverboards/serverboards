@@ -23,7 +23,7 @@ function Card({item, default_icon, onClick, className}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
   const icon = item.icon || default_icon
   return (
-    <a className={`ui card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
+    <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
       <h3 className="ui header">
         <Icon className="mini" icon={icon} plugin={plugin}/>
         {item.name}
