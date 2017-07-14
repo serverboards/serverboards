@@ -38,7 +38,12 @@ class Params extends React.Component{
         <div className="separator" style={{height: 40}}/>
         <GenericForm fields={this.state.fields} data={this.state.data} updateForm={this.updateForm}/>
         <div className="separator" style={{height: 40}}/>
-        <button className="ui teal button">{i18n("Save and Continue")}</button>
+        <div className="ui right aligned">
+          <div className="ui buttons">
+            <button className="ui button basic" onClick={this.props.onPrevious}>{i18n("Previous step")}</button>
+            <button className="ui teal button">{i18n("Save and Continue")}</button>
+          </div>
+        </div>
       </div>
     )
   }

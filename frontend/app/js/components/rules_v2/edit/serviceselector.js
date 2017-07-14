@@ -1,9 +1,11 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import store from 'app/utils/store'
 import Loading from 'app/components/loading'
 import Icon from '../../iconicon'
 import Card from 'app/components/card'
+import {MarkdownPreview} from 'react-marked-markdown'
 
 class ServiceSelector extends React.Component{
   constructor(props){
@@ -15,9 +17,10 @@ class ServiceSelector extends React.Component{
     }
   }
   componentDidMount(){
+    const current_project = store.getState().project.current
     cache.service_type(this.props.type).then( type => this.setState({type}) )
     cache.services().then( services => {
-      services = services.filter( s=> this.props.type == s.type && s.projects.includes("SBDS") )
+      services = services.filter( s=> this.props.type == s.type && s.projects.includes(current_project) )
       this.setState({services})
     })
   }
@@ -42,7 +45,7 @@ class ServiceSelector extends React.Component{
           <span>{i18n(`Select a ${type.name} or create one`)}</span>
         </h2>
         <div className="ui padding">
-          <div className="description">{type.description}</div>
+          <MarkdownPreview value={type.description}/>
         </div>
 
         <div className="ui cards v2 with scroll and padding">
@@ -61,7 +64,7 @@ class ServiceSelector extends React.Component{
         <div className="right aligned">
           <span className="ui buttons">
             <button className="ui button basic" onClick={this.props.onPrevious}>{i18n("Previous step")}</button>
-            <button className="ui button teal">{i18n("Create one and continue")}</button>
+            <button className="ui button teal">{i18n("Create new {type} connection", {type: type.name})}</button>
           </span>
         </div>
       </div>

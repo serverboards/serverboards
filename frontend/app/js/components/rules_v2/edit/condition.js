@@ -1,7 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 
-function Condition({condition}){
+function Condition({condition, onPrevious}){
   return (
     <div className="ui extend with padding">
       <h2 className="ui centered header">
@@ -17,7 +17,12 @@ function Condition({condition}){
         </div>
       </div>
       <div className="separator" style={{height: 40}}/>
-      <button className="ui teal button">{i18n("Save and Continue")}</button>
+      <div className="ui right aligned">
+        <div className="ui buttons">
+          <button className="ui button basic" onClick={onPrevious}>{i18n("Previous step")}</button>
+          <button className="ui teal button">{i18n("Save and Continue")}</button>
+        </div>
+      </div>
     </div>
   )
 }

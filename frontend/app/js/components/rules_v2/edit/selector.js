@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Icon from '../../iconicon'
+import {MarkdownPreview} from 'react-marked-markdown'
 
 const DEFAULT_ICON={
   cloud: "cloud",
@@ -28,7 +29,9 @@ function Card({item, default_icon, onClick, className}){
         <Icon className="mini" icon={icon} plugin={plugin}/>
         {item.name}
       </h3>
-      <div className="description">{item.description}</div>
+      <div className="description">
+        <MarkdownPreview value={item.description}/>
+      </div>
     </a>
   )
 }
