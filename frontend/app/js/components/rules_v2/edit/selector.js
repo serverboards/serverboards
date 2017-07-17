@@ -30,7 +30,7 @@ function Card({item, default_icon, onClick, className}){
         {item.name}
       </h3>
       <div className="description">
-        <MarkdownPreview value={item.description}/>
+        <MarkdownPreview value={item.description || ""}/>
       </div>
     </a>
   )
@@ -120,6 +120,18 @@ class Selector extends React.Component{
                   />
             ))}
           </div>
+          {this.props.prevStep||this.props.nextStep ? (
+            <div className="right aligned">
+            <span className="ui buttons">
+            {this.props.prevStep ? (
+              <button className="ui button basic" onClick={this.props.prevStep}>{i18n("Previous step")}</button>
+            ) : null}
+            {this.props.nextStep ? (
+              <button className="ui button basic" onClick={this.props.nextStep}>{i18n("Next step")}</button>
+            ) : null}
+            </span>
+            </div>
+          ) : null}
         </div>
       </div>
     )

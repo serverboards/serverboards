@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import store from 'app/utils/store'
@@ -9,7 +10,7 @@ import {MarkdownPreview} from 'react-marked-markdown'
 
 class ServiceSelector extends React.Component{
   constructor(props){
-    super(constructor)
+    super(props)
     this.state={
       filter: "",
       type: undefined,
@@ -45,7 +46,7 @@ class ServiceSelector extends React.Component{
           <span>{i18n(`Select a ${type.name} or create one`)}</span>
         </h2>
         <div className="ui padding">
-          <MarkdownPreview value={type.description}/>
+          <MarkdownPreview value={type.description || ""}/>
         </div>
 
         <div className="ui cards v2 with scroll and padding">
@@ -58,12 +59,13 @@ class ServiceSelector extends React.Component{
               plugin={plugin_id}
               title={s.name}
               description={s.description}
+              onClick={() => this.props.onSelect(s)}
               />
           )) }
         </div>
         <div className="right aligned">
           <span className="ui buttons">
-            <button className="ui button basic" onClick={this.props.onPrevious}>{i18n("Previous step")}</button>
+            <button className="ui button basic" onClick={this.props.prevStep}>{i18n("Previous step")}</button>
             <button className="ui button teal">{i18n("Create new {type} connection", {type: type.name})}</button>
           </span>
         </div>
@@ -71,5 +73,13 @@ class ServiceSelector extends React.Component{
     )
   }
 }
+
+ServiceSelector.propTypes={
+  onSelect: PropTypes.func.isRequired,
+  prevStep: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
+  current: PropTypes.string
+}
+
 
 export default ServiceSelector

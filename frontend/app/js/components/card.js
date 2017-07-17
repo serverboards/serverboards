@@ -30,9 +30,9 @@ function Card(props){
     default:
       console.warn("Unknown container type for card: %o", props.container)
   }
-  
+
   return (
-    <Container className={`ui card ${props.className || ""}`}>
+    <Container className={`ui card ${props.className || ""}`} onClick={props.onClick}>
       <div className="ui attached top">
         <Icon icon={props.icon} plugin={props.plugin}/>
         <div className="right">

@@ -2,6 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import GenericForm from 'app/components/genericform'
 import cache from 'app/utils/cache'
+import PropTypes from 'prop-types'
 
 class Params extends React.Component{
   constructor(props){
@@ -16,16 +17,23 @@ class Params extends React.Component{
   }
   componentDidMount(){
     cache.trigger_catalog().then( catalog => {
-      console.log("Got catalog %o", catalog)
+      // console.log("Got catalog %o", catalog)
       const trigger = catalog.find( t => t.id == this.props.trigger )
-      console.log("Trigger is %o", trigger)
+      // console.log("Trigger is %o", trigger)
+      let fields = trigger.start.params || []
+      const toskip = this.props.skip_fields || []
+      fields = fields.filter( f => !toskip.includes(f.name) )
       if (trigger){
         this.setState({
-          fields: trigger.start.params || [],
+          fields,
           description: trigger.description,
         })
       }
     })
+  }
+  componentWillReceiveProps(next){
+    if (next.props.trigger != this.props.trigger)
+      this.componentDidMount()
   }
   render(){
     return (
@@ -40,13 +48,20 @@ class Params extends React.Component{
         <div className="separator" style={{height: 40}}/>
         <div className="ui right aligned">
           <div className="ui buttons">
-            <button className="ui button basic" onClick={this.props.onPrevious}>{i18n("Previous step")}</button>
+            <button className="ui button basic" onClick={this.props.prevStep}>{i18n("Previous step")}</button>
             <button className="ui teal button">{i18n("Save and Continue")}</button>
           </div>
         </div>
       </div>
     )
   }
+}
+Params.propTypes={
+  onSelect: PropTypes.func.isRequired,
+  prevStep: PropTypes.func.isRequired,
+  data: PropTypes.object.isRequired,
+  skip_fields: PropTypes.array.isRequired,
+  trigger: PropTypes.string.isRequired
 }
 
 export default Params

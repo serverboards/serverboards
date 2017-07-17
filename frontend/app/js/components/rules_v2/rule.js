@@ -37,7 +37,10 @@ class Rule extends React.Component{
       }
     }
     this.handleUpdate = (what, value) => {
+      console.log("Update %o with %o/%o", this.state.rule, what, value)
+      console.log(this.state.rule.rule.when.params.service_id)
       const rule = map_set( this.state.rule, ["rule", ...what], value )
+      console.log(rule.rule.when.params.service_id)
       this.setState({rule})
     }
   }

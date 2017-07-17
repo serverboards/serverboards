@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Selector from './selector'
@@ -36,12 +37,20 @@ class Service extends React.Component{
       return (
         <ServiceSelector
           type={this.state.type}
-          onSelect={this.selectService}
-          onPrevious={() => this.setState({step: 1})}
+          onSelect={this.props.onSelect}
+          prevStep={() => this.setState({step: 1})}
         />
       )
     }
   }
+}
+
+Service.propTypes={
+  onSelect: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
+  service_id: PropTypes.string.isRequired,
+
+  current: PropTypes.string
 }
 
 export default Service
