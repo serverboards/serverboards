@@ -18,11 +18,13 @@ components:
         description: IP address or DNS name of the SMTP Server
         type: text
         validation: empty
+        class: half column
       - label: Port
         name: port
         type: text
         description: Port of communication
         placeholder: Leave empty to use defaults
+        class: half column
       - label: Email from
         name: from
         placeholder: eg. noreply@test.serverboards.io
@@ -31,10 +33,12 @@ components:
         name: username
         description: Username if required of the SMTP Server
         type: text
+        class: half column
       - label: Password
         name: password_pw
         description: Password if required to use the SMTP Server
         type: password
+        class: half column
   - id: email
     type: notification
     name: Email notifications

@@ -6,6 +6,15 @@ import RichDescription from './richdescription'
 import GenericButton from './genericbutton'
 import i18n from 'app/utils/i18n'
 
+function class_sbds_to_sui(klass){
+  switch(klass){
+    case "half column":
+      return "half"
+    default:
+      return ""
+  }
+}
+
 const GenericField=React.createClass({
   getInitialState(){
     return {
@@ -49,7 +58,7 @@ const GenericField=React.createClass({
       case '':
       case 'text':
         return (
-          <div className="field">
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="text"
@@ -61,7 +70,7 @@ const GenericField=React.createClass({
         )
       case 'url':
         return (
-          <div className="field">
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="url"
@@ -73,7 +82,7 @@ const GenericField=React.createClass({
         )
       case 'textarea':
         return (
-          <div className="field">
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <textarea
@@ -85,7 +94,7 @@ const GenericField=React.createClass({
         )
       case 'password':
         return (
-          <div className="field">
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="password"
@@ -97,7 +106,7 @@ const GenericField=React.createClass({
         )
       case 'description':
         return (
-          <div className="field">
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
           </div>
@@ -108,7 +117,7 @@ const GenericField=React.createClass({
         )
       case 'select':
         return (
-          <div className="field">
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
             <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
@@ -120,15 +129,15 @@ const GenericField=React.createClass({
         )
       case 'button':
         return (
-          <GenericButton {...props}/>
+          <GenericButton {...props} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'select call':
         return (
-          <SelectCall {...props} onChange={this.handleChange}/>
+          <SelectCall {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'service':
         return (
-          <SelectService {...props} onChange={this.handleChange}/>
+          <SelectService {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       default:
         return (

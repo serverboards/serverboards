@@ -24,10 +24,12 @@ components:
           description: Time between checks in seconds
           default: 60
           card: true
+          class: half column
         - name: grace
           label: Grace period
           description: Seconds that connectivity can be lost without triggering
           default: 60
+          class: half column
     traits: ip
 
   - name: HTTP Response time limit
@@ -47,15 +49,18 @@ components:
           label: Maximum response time (s)
           description: Trigger if response time is greater than the given value in seconds for longer that grace period.
           default: 5
+          class: half column
         - name: frequency
           label: Check frequency (s)
           description: Time between checks in seconds
           default: 60
           card: true
+          class: half column
         - name: grace
           label: Grace period (s)
           description: Seconds that connectivity can be lost without triggering
           default: 60
+          class: half column
     traits: web
 
   - name: Socket is receiving connections
@@ -79,11 +84,13 @@ components:
           placeholder: 60s
           default: 60
           card: true
+          class: half column
         - name: grace
           label: Grace period
           description: Seconds that connectivity can be lost without triggering
           placeholder: 60s
           default: 60
+          class: half column
     stop:
       method: stop_trigger
     traits: url
@@ -100,6 +107,7 @@ components:
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
           card: true
+          class: half column
 
   - name: Service tags changed
     description: Triggers when a specific tag appears or disappears from service tags, as UP or DOWN
@@ -119,6 +127,7 @@ components:
           label: Label
           placeholder: eg. UP, DOWN, UNKNOWN
           card: true
+          class: half column
     stop: tag_change_stop
 
   - name: Server socket is up
