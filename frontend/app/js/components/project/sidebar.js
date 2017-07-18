@@ -28,7 +28,7 @@ function ProjectHeader(props){
           <i className="ui icon content" style={{fontSize: 22}}/>
         </a>
       </div>
-      <h2 className="ui header teal" style={{margin: "15px 0 0 15px"}}>{props.project.name}</h2>
+      <h2 className="ui header teal" style={{margin: "0 0 0 15px"}}>{props.project.name}</h2>
     </div>
   )
 }

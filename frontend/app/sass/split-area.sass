@@ -1,14 +1,16 @@
 .ui.split.area
   display: flex
   align-items: stretch
-  height: 100%
-  width: 100%
   &.horizontal
     flex-flow: row
+    height: 100%
   &.vertical
     flex-flow: column
+    width: 100%
 
   &.expand, > .expand
+    height: 100%
+    width: 100%
     flex-grow: 1
     > .ui.central
       display: flex
