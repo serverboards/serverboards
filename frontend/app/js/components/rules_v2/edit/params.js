@@ -16,10 +16,7 @@ class Params extends React.Component{
     this.updateForm = (data) => this.setState({data})
   }
   componentDidMount(){
-    cache.trigger_catalog().then( catalog => {
-      // console.log("Got catalog %o", catalog)
-      const trigger = catalog.find( t => t.id == this.props.trigger )
-      // console.log("Trigger is %o", trigger)
+    cache.trigger(this.props.trigger).then( trigger => {
       let fields = trigger.start.params || []
       const toskip = this.props.skip_fields || []
       fields = fields.filter( f => !toskip.includes(f.name) )
@@ -32,7 +29,7 @@ class Params extends React.Component{
     })
   }
   componentWillReceiveProps(next){
-    if (next.props.trigger != this.props.trigger)
+    if (next.trigger != this.props.trigger)
       this.componentDidMount()
   }
   render(){
@@ -49,7 +46,7 @@ class Params extends React.Component{
         <div className="ui right aligned">
           <div className="ui buttons">
             <button className="ui button basic" onClick={this.props.prevStep}>{i18n("Previous step")}</button>
-            <button className="ui teal button">{i18n("Save and Continue")}</button>
+            <button className="ui teal button" onClick={() => this.props.onUpdate(this.state.data)}>{i18n("Save and Continue")}</button>
           </div>
         </div>
       </div>
