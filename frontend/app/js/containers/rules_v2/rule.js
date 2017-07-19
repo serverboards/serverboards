@@ -2,7 +2,7 @@ import React from 'react'
 import View from 'app/components/rules_v2/rule'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
-import {object_is_equal, merge, map_set} from 'app/utils'
+import {object_is_equal, merge, map_set, concat} from 'app/utils'
 import cache from 'app/utils/cache'
 
 import Description from 'app/components/rules_v2/edit/description'
@@ -12,6 +12,14 @@ import Params from 'app/components/rules_v2/edit/params'
 import Condition from 'app/components/rules_v2/edit/condition'
 import ActionEdit from 'app/components/rules_v2/edit/action'
 import Error from 'app/components/error'
+
+function find_action(actions, path){
+  if (path.length==0)
+    return actions
+  let head = path[0]
+  let rest = path.slice(1)
+  return find_action(actions[path[0]], rest)
+}
 
 
 class Model extends React.Component {
@@ -71,15 +79,53 @@ class Model extends React.Component {
           })
           break;
         case "when:params":
-          onChangeSection("params", ["when", "params"], {
-            data: when.params,
-            trigger: when.trigger,
-            skip_fields: service_params.concat("service_id"),
-            prevStep: () => this.gotoStep("when:trigger")
-          } )
+          if (when.params.service_id){
+            cache.service(when.params.service_id).then( s =>{
+              console.log(s)
+              onChangeSection("params", ["when", "params"], {
+                data: when.params,
+                trigger: when.trigger,
+                skip_fields: Object.keys(s.config).concat("service_id").concat("service"),
+                prevStep: () => this.gotoStep("when:trigger"),
+                onUpdate: (data) => {
+                  this.updateRule(["when","params"], data)
+                  this.gotoStep("action:"+rule.rule.actions[0].id)
+                }
+              } )
+            })
+          }
+          else{
+            onChangeSection("params", ["when", "params"], {
+              data: when.params,
+              trigger: when.trigger,
+              skip_fields: [],
+              prevStep: () => this.gotoStep("when:trigger"),
+              onUpdate: (data) => {
+                this.updateRule(["when","params"], data)
+                this.gotoStep("action:"+rule.rule.actions[0].id)
+              }
+            } )
+          }
           break;
         default:
-          console.error("Unknown step %o", step)
+          const action = find_action(rule.rule.actions, step)
+          if (action){
+            if (action.type=="action"){
+              onChangeSection("action", step, {
+                action
+              })
+            }
+            else{
+              onChangeSection("condition", step, {
+                action,
+                condition: action.condition
+              })
+            }
+          }
+          else{
+            console.error("Unknown step %o", step)
+          }
+          break;
       }
     }
   }

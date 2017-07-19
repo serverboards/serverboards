@@ -31,6 +31,7 @@ function Rule(props){
               {rule.rule.actions.map( (action, index) => (
                 <Action
                   key={index}
+                  path={[index]}
                   action={action}
                   section={section}
                   gotoStep={props.gotoStep}
