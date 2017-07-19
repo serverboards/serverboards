@@ -42,6 +42,11 @@ function PluginCard(props){
       </div>
       <div className="extra content" style={{padding:0}}>
         <div className="ui inverted yellow menu bottom attached">
+          {props.onOpenSettings ? (
+            <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenSettings()}}>
+              {i18n("Settings")}
+            </a>
+          ) : null }
           <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenDetails()}}>
             {i18n("View details")} <i className="ui angle right icon"/>
           </a>

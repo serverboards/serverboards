@@ -39,6 +39,12 @@ defmodule Serverboards.Issues.Issue do
       set_alias(issue.id, alias_)
     end)
 
+    {:ok, issue} = get(issue.id)
+    Serverboards.Event.emit("issue.created", %{ issue: issue}, ["issues.view"])
+    for a <- issue.aliases do
+      Serverboards.Event.emit("issue.created[#{a}]", %{ issue: issue}, ["issues.view"])
+    end
+
     issue.id
   end
   def update_real(issue_id, %{ data: data } = update, me) when not is_map(data) do
@@ -72,11 +78,32 @@ defmodule Serverboards.Issues.Issue do
         unset_alias(issue_id, data["__data__"])
       _ -> :ok
     end
+    update_updated_at(issue_id)
+
+    {:ok, issue} = get(issue_id)
+    Serverboards.Event.emit("issue.updated", %{ issue: issue}, ["issues.view"])
+    Serverboards.Event.emit("issue.updated[#{issue_id}]", %{ issue: issue}, ["issues.view"])
+    for a <- issue.aliases do
+      Serverboards.Event.emit("issue.updated[#{a}]", %{ issue: issue}, ["issues.view"])
+    end
+    :ok
   end
   def update_real(alias_id, data, me) do
     alias_to_ids(alias_id) |> Enum.map(fn issue_id ->
       update_real(issue_id, data, me)
     end)
+  end
+
+  def update_updated_at(issue_id) do
+    import Ecto.Query
+    Logger.info("Update updated at")
+
+    (from i in Model.Issue,
+      where: i.id == ^issue_id,
+      update: [set: [updated_at: fragment("?", "NOW()")]]
+    ) |>  Repo.update_all([])
+
+    Logger.info("DONE Update updated at")
   end
 
   def set_labels(issue_id, labels) do

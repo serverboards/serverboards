@@ -70,7 +70,7 @@ const GenericButton= React.createClass({
     const props = this.props
     const state = this.state
     return (
-      <div className="field">
+      <div className={`field ${props.className || ""}`}>
         <label>{i18n(props.label)}</label>
         {state.loading ? (
           <div><i className="ui loading notched circle icon"/></div>

@@ -34,6 +34,11 @@ export function get_modal(name){
       return require('app/components/project/board/add_dashboard').default
     case "project.add":
       return require('app/containers/project/add').default
+    case "plugin.details":
+      return require('app/components/settings/plugins/details').default
+    case "plugin.settings":
+      return require('app/components/settings/plugins/settings').default
+
   }
 }
 

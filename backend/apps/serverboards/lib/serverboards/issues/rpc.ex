@@ -12,7 +12,7 @@ defmodule Serverboards.Issues.RPC do
     RPC.MethodCaller.add_method mc, "issues.list", fn
       [] -> Serverboards.Issues.list
       filter when is_map(filter) ->
-        filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"alias")
+        filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"alias project return since start count")
         Serverboards.Issues.list filter
     end, [required_perm: "issues.view"]
     RPC.MethodCaller.add_method mc, "issues.get", fn [issue_id] ->

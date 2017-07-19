@@ -41,9 +41,11 @@ components:
         name: smtp_username
         type: text
         card: true
+        class: half column
       - label: SMTP Password
         name: smtp_pw
         type: password
+        class: half column
 
   - name: Server
     type: service

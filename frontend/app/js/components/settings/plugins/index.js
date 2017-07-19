@@ -6,13 +6,17 @@ import plugin from 'app/utils/plugin'
 import {merge} from 'app/utils'
 import event from 'app/utils/event'
 import i18n from 'app/utils/i18n'
+import {set_modal} from 'app/utils/store'
 
 require('sass/cards.sass')
 import PluginCard from './card'
 
 const Plugins=React.createClass({
   getInitialState(){
-    return { plugins: [] }
+    return {
+      plugins: [],
+      settings: {}
+    }
   },
   componentDidMount(){
     rpc.call("plugin.catalog",[]).then((pluginsd)=>{
@@ -28,6 +32,14 @@ const Plugins=React.createClass({
       event.on("plugin.update.required", this.updateRequired)
       return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
     } )
+    rpc.call("plugin.component.catalog", {type: "settings"})
+      .then( formlist => {
+        let settings = {}
+        for (let f of formlist){
+          settings[f.plugin]=(settings[f.plugin] || []).concat(f)
+        }
+        this.setState({settings})
+      })
   },
   componentWillUnmount(){
     event.off("plugin.update.required", this.updateRequired)
@@ -45,22 +57,6 @@ const Plugins=React.createClass({
     rpc
       .call("settings.update", ["plugins", plugin_id, is_active])
       .then( () => this.componentDidMount() )
-  },
-  setModal(modal, data){
-    let state
-    if (data){
-      state={ modal, service: this.props.service, data }
-    }
-    else{
-      state={ modal, service: this.props.service }
-    }
-    this.context.router.push( {
-      pathname: this.props.location.pathname,
-      state: state
-    } )
-  },
-  closeModal(){
-    this.setModal(false)
   },
   contextTypes: {
     router: React.PropTypes.object
@@ -81,18 +77,7 @@ const Plugins=React.createClass({
   },
   render(){
     const plugins=this.state.plugins
-    let popup=[]
-    let modal = (
-      this.props.location.state &&
-      this.props.location.state.modal
-    )
-    switch(modal){
-      case "details":
-      popup=(
-        <PluginDetails {...this.props.location.state.data} setActive={this.handleSetActive} updateAll={() => this.componentDidMount()}/>
-      )
-      break;
-    }
+    const settings=this.state.settings
 
     return (
       <div className="ui vertical split area">
@@ -129,11 +114,17 @@ const Plugins=React.createClass({
           <div className="ui container">
             <div className="ui cards">
               {plugins.map((p) => (
-                <PluginCard key={p.id} plugin={p} onOpenDetails={() => {this.setModal('details',{plugin: p})}}/>
+                <PluginCard
+                  key={p.id}
+                  plugin={p}
+                  onOpenDetails={() => {set_modal('plugin.details',{plugin: p})}}
+                  onOpenSettings={settings[p.id] ? (
+                    () => set_modal('plugin.settings',{plugin: p, settings: settings[p.id] })
+                  ) : null }
+                  />
               ))}
             </div>
           </div>
-          {popup}
         </div>
       </div>
     )

@@ -37,6 +37,10 @@ var default_state={
   dashboard:{
     list: [],
     current: undefined
+  },
+  issues: {
+    new: false,
+    timestamp: undefined
   }
 }
 
@@ -147,6 +151,20 @@ function project(state=default_state, action){
     }
     case "BOARD_SET":
       return map_set(state, ["dashboard", "current"], action.payload)
+    case "ISSUES_COUNT_PROJECT":
+      return merge(state, {issues: {
+        new: action.payload.count > 0,
+        timestamp: action.payload.timestamp
+      } } )
+    case "@RPC_EVENT/issue.updated":
+    case "@RPC_EVENT/issue.created":
+      if (action.issue.aliases.includes(`project/${ state.current }`)){
+        const now = (new Date()).toISOString()
+        return merge(state, {issues: {
+          timestamp: now,
+          new: true,
+        } } )
+      }
   }
   return state
 }

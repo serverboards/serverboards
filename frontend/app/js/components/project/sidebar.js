@@ -28,7 +28,7 @@ function ProjectHeader(props){
           <i className="ui icon content" style={{fontSize: 22}}/>
         </a>
       </div>
-      <h2 className="ui header teal" style={{margin: "15px 0 0 15px"}}>{props.project.name}</h2>
+      <h2 className="ui header teal" style={{margin: "0 0 0 15px"}}>{props.project.name}</h2>
     </div>
   )
 }
@@ -92,7 +92,7 @@ const SidebarSections = React.createClass({
         )
       }
       return (
-        <a className={klass} onClick={() => self.handleSectionChange(menu_props.section, menu_props.data)}>
+        <a style={menu_props.style} className={klass} onClick={() => self.handleSectionChange(menu_props.section, menu_props.data)}>
         {menu_props.children}
         {current}
         </a>
@@ -108,8 +108,6 @@ const SidebarSections = React.createClass({
           <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
           <MenuItem section="services">{i18n("Services")}</MenuItem>
           <MenuItem section="rules">{i18n("Rules")}</MenuItem>
-          <MenuItem section="rules_v2">{i18n("Rules V2")}</MenuItem>
-          <MenuItem section="issues">{i18n("Issues")}</MenuItem>
         </div>
         <ScreensMenu
           services={props.project.services}
