@@ -21,6 +21,32 @@ function find_action(actions, path){
   return find_action(actions[path[0]], rest)
 }
 
+function update_rule(rule, path, value){
+  if (path.length==0){
+      switch (rule.type){
+        case "action":
+          return merge(rule, {config: value})
+        case "condition":
+          return merge(rule, {condition: value})
+        default:
+          console.error("Invalid rule leaf node for updating: %o", rule)
+          return rule
+      }
+  }
+  const head = path[0]
+  const rest = path.slice(1)
+  if (!isNaN(head)){ // an index of an array
+    const before=(head>0) ? rule.slice(0, head) : []
+    const after=rule.slice(head+1)
+    const item = update_rule(rule[head], rest, value)
+    const ret = [...before, item, ...after]
+    console.assert(ret.length==rule.length, ret.length, rule.length, rule, before, head, after)
+    return ret
+  }
+  else{
+    return merge(rule, {[head]: update_rule(rule[head], rest, value)})
+  }
+}
 
 class Model extends React.Component {
   constructor(props){
@@ -34,7 +60,14 @@ class Model extends React.Component {
       },
     }
     this.updateRule = (what, value) => {
-      const rule = map_set( this.state.rule, ["rule", ...what], value )
+      let rule = this.state.rule
+      if (!isNaN(what[0])){
+        console.log("Update %o => %o", what, value)
+        rule = update_rule(rule, ["rule", "actions", ...what], value)
+      }
+      else{
+        rule = map_set( rule, ["rule", ...what], value )
+      }
       this.setState({rule})
       return rule
     }
@@ -118,7 +151,10 @@ class Model extends React.Component {
             else{
               onChangeSection("condition", step, {
                 action,
-                condition: action.condition
+                condition: action.condition,
+                onUpdate: (data) => {
+                  this.updateRule(step, data)
+                }
               })
             }
           }

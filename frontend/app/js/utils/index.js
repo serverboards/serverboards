@@ -76,13 +76,13 @@ export function map_set(orig, path, value){
   return merge(orig, {[head]: map_set( orig[head], rest, value )})
 }
 
-/// Concatenates two lists returning a new one
-export function concat(a, b){
+/// Concatenates lists returning a new one
+export function concat(/* arguments */){
   let ret = []
-  for (let x of a)
-    ret.push(x)
-  for (let x of b)
-    ret.push(x)
+  for (let l of arguments){
+    for (let x of l)
+      ret.push(x)
+  }
   return ret
 }
 
