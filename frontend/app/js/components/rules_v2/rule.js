@@ -44,6 +44,7 @@ function Rule(props){
       <div className="column">
         <div className="ui round right pane white background">
           <Section
+            key={section.id}
             id={section.id}
             rule={rule}
             onUpdate={props.onUpdate}

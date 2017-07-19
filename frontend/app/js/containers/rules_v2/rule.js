@@ -60,9 +60,9 @@ class Model extends React.Component {
       },
     }
     this.updateRule = (what, value) => {
+      console.log("Update rule %o <= %o", what, value)
       let rule = this.state.rule
       if (!isNaN(what[0])){
-        console.log("Update %o => %o", what, value)
         rule = update_rule(rule, ["rule", "actions", ...what], value)
       }
       else{
@@ -145,7 +145,10 @@ class Model extends React.Component {
           if (action){
             if (action.type=="action"){
               onChangeSection("action", step, {
-                action
+                action,
+                onUpdate: (data) => {
+                  this.updateRule(step, data)
+                }
               })
             }
             else{

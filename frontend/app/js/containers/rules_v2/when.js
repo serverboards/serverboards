@@ -18,7 +18,6 @@ class WhenModel extends React.Component{
     cache
       .service(when.params.service_id)
       .then( s =>{
-        console.log(s)
         this.setState({
           service_name: s.name,
           service_type: s.type,

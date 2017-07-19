@@ -1,7 +1,20 @@
 import React from 'react'
 import {concat, object_is_equal} from 'app/utils'
+import cache from 'app/utils/cache'
 
 class Action extends React.Component{
+  constructor(props){
+    super(props)
+    const {action} = props
+    this.state={
+      description: `${action.action}`
+    }
+  }
+  componentDidMount(){
+    cache.action(this.props.action.action).then( ac => {
+      this.setState({description: ac.name})
+    })
+  }
   render(){
     const {gotoStep, action, section, path} = this.props
     return (
@@ -10,7 +23,7 @@ class Action extends React.Component{
           <a
             className={object_is_equal(section.id, path) ? "active" : null}
             onClick={() => gotoStep(path)}
-            >{action.id} -> {action.action}</a>
+            >{this.state.description}</a>
         </div>
       </div>
     )

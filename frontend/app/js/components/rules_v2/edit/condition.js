@@ -9,7 +9,7 @@ function Condition(props){
     <div className="ui extend with padding">
       <h2 className="ui centered header">
         <i className="ui icon help circle"/>
-        {i18n("Condition")} {id.join('.')}
+        {i18n("Condition")}
       </h2>
 
       <div className="separator" style={{height: 40}}/>

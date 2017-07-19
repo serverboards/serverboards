@@ -49,6 +49,9 @@ const cache={
   service_type(type){
     return cache.service_catalog().then( sc => sc.find( s => s.type == type ) )
   },
+  action(action_id){
+    return cache.action_catalog().then( ac => ac.find( a => a.id == action_id ))
+  },
   projects: cache_builder({
     store_get: () => store.getState().project.projects,
     store_update: require('app/actions/project').project_update_all(),
