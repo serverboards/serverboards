@@ -23,7 +23,7 @@ function Condition(props){
       <div className="ui right aligned">
         <div className="ui buttons">
           <button className="ui button basic" onClick={onPrevious}>{i18n("Previous step")}</button>
-          <button className="ui teal button" onClick={() => onUpdate($('#'+input_id).val()) }>{i18n("Save and Continue")}</button>
+          <button className="ui teal button" onClick={() => onUpdate({condition: $('#'+input_id).val()}) }>{i18n("Save and Continue")}</button>
         </div>
       </div>
     </div>

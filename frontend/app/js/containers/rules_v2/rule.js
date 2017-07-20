@@ -2,7 +2,7 @@ import React from 'react'
 import View from 'app/components/rules_v2/rule'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
-import {object_is_equal, merge, map_set, concat} from 'app/utils'
+import {object_is_equal, merge, map_set, map_get, concat} from 'app/utils'
 import cache from 'app/utils/cache'
 
 import Description from 'app/components/rules_v2/edit/description'
@@ -25,9 +25,8 @@ function update_rule(rule, path, value){
   if (path.length==0){
       switch (rule.type){
         case "action":
-          return merge(rule, {config: value})
         case "condition":
-          return merge(rule, {condition: value})
+          return merge(rule, value)
         default:
           console.error("Invalid rule leaf node for updating: %o", rule)
           return rule
@@ -60,7 +59,6 @@ class Model extends React.Component {
       },
     }
     this.updateRule = (what, value) => {
-      console.log("Update rule %o <= %o", what, value)
       let rule = this.state.rule
       if (!isNaN(what[0])){
         rule = update_rule(rule, ["rule", "actions", ...what], value)
