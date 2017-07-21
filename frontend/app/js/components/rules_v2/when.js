@@ -6,7 +6,7 @@ function When(props){
   const {service_name, trigger_name, params_resume} = props
   return (
     <div className="">
-      <div className="legend">
+      <div className="top legend">
         <i className="ui big icon power circle"/>
         {i18n("WHEN")}
       </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
-import Action from './action'
+import {ActionList} from './action'
 import When from 'app/containers/rules_v2/when'
 
 function Rule(props){
@@ -28,15 +28,12 @@ function Rule(props){
                 section={section}
                 gotoStep={props.gotoStep}
                 />
-              {rule.rule.actions.map( (action, index) => (
-                <Action
-                  key={index}
-                  path={[index]}
-                  action={action}
-                  section={section}
-                  gotoStep={props.gotoStep}
-                  />
-              ))}
+              <ActionList
+                actions={rule.rule.actions}
+                path={[]}
+                section={section}
+                gotoStep={props.gotoStep}
+                />
             </div>
           </div>
         </div>

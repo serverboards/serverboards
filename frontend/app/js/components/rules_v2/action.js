@@ -2,7 +2,7 @@ import React from 'react'
 import {concat, object_is_equal} from 'app/utils'
 import cache from 'app/utils/cache'
 
-class Action extends React.Component{
+export class Action extends React.Component{
   constructor(props){
     super(props)
     const {action} = props
@@ -30,7 +30,30 @@ class Action extends React.Component{
   }
 }
 
-function Condition(props){
+function ActionMore(props){
+  return (
+    <div className="legend circle"><i className="ui large icon plus"/></div>
+  )
+}
+
+
+export function ActionList(props){
+  const {actions, path} = props
+  return (
+    <div>
+      {actions.map( (a, i) =>
+        <ActionOrCondition
+          {...props}
+          key={i}
+          action={a}
+          path={[...path, i]}/>
+        )}
+      <ActionMore path={[...path, actions.length]}/>
+    </div>
+  )
+}
+
+export function Condition(props){
   const {action, gotoStep, section, path} = props
   return (
     <div className="condition">
@@ -43,21 +66,17 @@ function Condition(props){
       </div>
       <div className="ui connected">
         <div className="legend"><i className="ui large icon thumbs outline up circle"/> THEN</div>
-        {action.then.map( (a, i) => (
-          <ActionOrCondition {...props} key={i} action={a} path={concat(path, ["then", i])}/>
-        ))}
+        <ActionList {...props} actions={action.then} path={[...path, "then"]}/>
       </div>
       <div className="ui connected">
         <div className="legend"><i className="ui large icon thumbs outline down circle"/> ELSE</div>
-        {action.else.map( (a, i) => (
-          <ActionOrCondition {...props} key={i} action={a} path={concat(path, ["else", i])}/>
-        ))}
+        <ActionList {...props} actions={action.else} path={[...path, "else"]}/>
       </div>
     </div>
   )
 }
 
-function ActionOrCondition(props){
+export function ActionOrCondition(props){
   if (props.action.type == "condition" ){
     return (
       <Condition {...props}/>
