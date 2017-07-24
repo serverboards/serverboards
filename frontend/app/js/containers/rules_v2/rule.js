@@ -86,12 +86,13 @@ function get_next(current, path){
 }
 function get_prev(current, path){
   const nl = prepare_node_list(current)
-  let prev=[0]
+  let prev="when:params"
   for (let i of nl){
     if (object_is_equal(i,path))
       return prev
+    prev=i
   }
-  return [0]
+  return "when:params"
 }
 
 class Model extends React.Component {
