@@ -67,7 +67,7 @@ export function Condition(props){
         <a
           className={object_is_equal(section.id, path) ? "active" : null}
           onClick={() => gotoStep(path)}
-          >{action.condition}</a>
+          >{action.condition || i18n("Please set a condition")}</a>
       </div>
       {action.then.length>0 ? (
         <div className="ui connected">
