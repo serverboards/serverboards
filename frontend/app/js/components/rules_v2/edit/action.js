@@ -3,6 +3,7 @@ import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Selector from './selector'
 import GenericForm from 'app/components/genericform'
+import Loading from 'app/components/loading'
 
 class ActionParams extends React.Component{
   constructor(props){
@@ -48,7 +49,7 @@ class Action extends React.Component{
     this.state = {
       step: 1,
       data: props.action.params,
-      action: props.action,
+      action: undefined,
     }
     this.setType = (action) => {
       console.log("Set type: %o", action)
@@ -64,11 +65,19 @@ class Action extends React.Component{
       })
     }
   }
-
+  componentDidMount(){
+    cache
+      .action(this.props.action.action)
+      .then( action => this.setState({action}))
+  }
   render(){
     const props = this.props
     const state = this.state
     const {action} = state
+    if (!action)
+      return (
+        <Loading>{i18n("Action description")}</Loading>
+      )
     if (state.step==1){
       return (
         <Selector
@@ -78,6 +87,8 @@ class Action extends React.Component{
           icon="lightning"
           title={i18n("Select an action")}
           description={i18n("Select an action (1/2)")}
+          nextStep={() => this.setState({step:2})}
+          prevStep={() => props.gotoStep("prev", undefined, props.id)}
           onSelect={this.setType}
           />
       )

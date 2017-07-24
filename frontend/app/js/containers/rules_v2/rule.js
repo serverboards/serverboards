@@ -47,6 +47,53 @@ function update_rule(rule, path, value){
   }
 }
 
+function prepare_node_list(current){
+  if (!current)
+    return []
+  if (current.type=="condition"){
+    let ret=[[]] // condition is a terminal in itself
+    for (let y of prepare_node_list(current.then)){
+      ret.push(["then", ...y])
+    }
+    for (let y of prepare_node_list(current.else)){
+      ret.push(["else", ...y])
+    }
+    return ret
+  }
+  if (current.type=="action"){
+
+    return [[]] // this is a terminal, empty list to append at the end of the path
+  }
+  let ret = []
+  for (let x in current){
+    for (let y of prepare_node_list(current[x])){
+      ret.push([x, ...y])
+    }
+  }
+  return ret
+}
+
+function get_next(current, path){
+  const nl = prepare_node_list(current)
+  let stop=false // mark stop on next iteration
+  for (let i of nl){
+    if (stop)
+      return i
+    if (object_is_equal(i,path))
+      stop=true
+  }
+  return [0]
+}
+function get_prev(current, path){
+  const nl = prepare_node_list(current)
+  let prev=[0]
+  for (let i of nl){
+    if (object_is_equal(i,path))
+      return prev
+  }
+  return [0]
+}
+
 class Model extends React.Component {
   constructor(props){
     super(props)
@@ -58,112 +105,127 @@ class Model extends React.Component {
         section: "description"
       },
     }
-    this.updateRule = (what, value) => {
-      let rule = this.state.rule
-      if (!isNaN(what[0])){
-        rule = update_rule(rule, ["rule", "actions", ...what], value)
-      }
-      else{
-        rule = map_set( rule, ["rule", ...what], value )
-      }
-      this.setState({rule})
-      return rule
+    this.updateRule = this.updateRule.bind(this)
+    this.gotoStep = this.gotoStep.bind(this)
+  }
+  updateRule(what, value){
+    let rule = this.state.rule
+    if (!isNaN(what[0])){
+      rule = update_rule(rule, ["rule", "actions", ...what], value)
     }
-    // Passing the optional rule is necesary when updating state and changing section
-    // if not, by the wayt react apply state, will not realize of the updated
-    // data on section change. Maybe on next gotoStep.
-    this.gotoStep = (step, rule=undefined) => {
-      const {section} = this.state
-      if (!rule)
-        rule=this.state.rule
-      const {when} = rule.rule
-      const onChangeSection = (section, id, data) =>
-        this.setState({section: {id, section, data}})
+    else{
+      rule = map_set( rule, ["rule", ...what], value )
+    }
+    this.setState({rule})
+    return rule
+  }
+  // Passing the optional rule is necesary when updating state and changing section
+  // if not, by the wayt react apply state, will not realize of the updated
+  // data on section change. Maybe on next gotoStep.
+  gotoStep(step, rule=undefined, extra=undefined){
+    console.log(step)
+    const section = this.state.section
+    if (!rule)
+      rule=this.state.rule
+    const when = rule.rule.when
+    const onChangeSection = (section, id, data) =>
+      this.setState({section: {id, section, data}})
 
-      switch(step){
-        case "description":
-          onChangeSection("description")
-          break;
-        case "when:service":
-          cache.service(when.params.service_id).then( s =>
-            onChangeSection("when:service", null, {
-              service_id: s.uuid,
-              onSelect: (s) => {
-                console.log("Selected service %o", s)
-                const rule = this.updateRule(["when", "params", "service_id"], s.uuid )
-                this.gotoStep("when:trigger", rule)
-              },
-              type: s.type,
-              nextStep: () => this.gotoStep("when:trigger")
-            })
-          )
-          break;
-        case "when:trigger":
-          onChangeSection("when:trigger", null, {
-            current: when.trigger,
-            onSelect: (t) => {
-              const rule = this.updateRule(["when","trigger"], t.id)
-              this.gotoStep("when:params", rule)
+    switch(step){
+      case "description":
+        onChangeSection("description")
+        break;
+      case "when:service":
+        cache.service(when.params.service_id).then( s =>
+          onChangeSection("when:service", null, {
+            service_id: s.uuid,
+            onSelect: (s) => {
+              console.log("Selected service %o", s)
+              const rule = this.updateRule(["when", "params", "service_id"], s.uuid )
+              this.gotoStep("when:trigger", rule)
             },
-            prevStep: () => this.gotoStep("when:service"),
-            nextStep: () => this.gotoStep("when:params")
+            type: s.type,
+            nextStep: () => this.gotoStep("when:trigger")
           })
-          break;
-        case "when:params":
-          if (when.params.service_id){
-            cache.service(when.params.service_id).then( s =>{
-              console.log(s)
-              onChangeSection("params", ["when", "params"], {
-                data: when.params,
-                trigger: when.trigger,
-                skip_fields: Object.keys(s.config).concat("service_id").concat("service"),
-                prevStep: () => this.gotoStep("when:trigger"),
-                onUpdate: (data) => {
-                  this.updateRule(["when","params"], data)
-                  this.gotoStep("action:"+rule.rule.actions[0].id)
-                }
-              } )
-            })
-          }
-          else{
+        )
+        break;
+      case "when:trigger":
+        onChangeSection("when:trigger", null, {
+          current: when.trigger,
+          onSelect: (t) => {
+            const rule = this.updateRule(["when","trigger"], t.id)
+            this.gotoStep("when:params", rule)
+          },
+          prevStep: () => this.gotoStep("when:service"),
+          nextStep: () => this.gotoStep("when:params")
+        })
+        break;
+      case "when:params":
+        if (when.params.service_id){
+          cache.service(when.params.service_id).then( s =>{
+            console.log(s)
             onChangeSection("params", ["when", "params"], {
               data: when.params,
               trigger: when.trigger,
-              skip_fields: [],
+              skip_fields: Object.keys(s.config).concat("service_id").concat("service"),
               prevStep: () => this.gotoStep("when:trigger"),
               onUpdate: (data) => {
                 this.updateRule(["when","params"], data)
-                this.gotoStep("action:"+rule.rule.actions[0].id)
+                this.gotoStep([0])
               }
             } )
-          }
-          break;
-        default:
-          const action = find_action(rule.rule.actions, step)
-          if (action){
-            if (action.type=="action"){
-              onChangeSection("action", step, {
-                action,
-                onUpdate: (data) => {
-                  this.updateRule(step, data)
-                }
-              })
+          })
+        }
+        else{
+          onChangeSection("params", ["when", "params"], {
+            data: when.params,
+            trigger: when.trigger,
+            skip_fields: [],
+            prevStep: () => this.gotoStep("when:trigger"),
+            onUpdate: (data) => {
+              this.updateRule(["when","params"], data)
+              this.gotoStep("action:"+rule.rule.actions[0].id)
             }
-            else{
-              onChangeSection("condition", step, {
-                action,
-                condition: action.condition,
-                onUpdate: (data) => {
-                  this.updateRule(step, data)
-                }
-              })
-            }
+          } )
+        }
+        break;
+      case "next":
+        const next = get_next(rule.rule.actions, extra)
+        console.warn("from %o to %o", extra, next)
+        this.gotoStep(next)
+        break;
+      case "prev":
+        const prev = get_prev(rule.rule.actions, extra)
+        console.warn("from %o to %o", extra, next)
+        this.gotoStep(prev)
+        break;
+      default:
+        const action = find_action(rule.rule.actions, step)
+        if (action){
+          if (action.type=="action"){
+            onChangeSection("action", step, {
+              action,
+              onUpdate: (data) => {
+                this.updateRule(step, data)
+                this.gotoStep("next", undefined, step)
+              }
+            })
           }
           else{
-            console.error("Unknown step %o", step)
+            onChangeSection("condition", step, {
+              action,
+              condition: action.condition,
+              onUpdate: (data) => {
+                this.updateRule(step, data)
+                this.gotoStep("next", undefined, step)
+              }
+            })
           }
-          break;
-      }
+        }
+        else{
+          console.error("Unknown step %o", step)
+        }
+        break;
     }
   }
   getCurrentSection(){
