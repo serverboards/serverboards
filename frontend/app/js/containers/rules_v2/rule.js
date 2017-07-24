@@ -11,6 +11,7 @@ import Trigger from 'app/components/rules_v2/edit/trigger'
 import Params from 'app/components/rules_v2/edit/params'
 import Condition from 'app/components/rules_v2/edit/condition'
 import ActionEdit from 'app/components/rules_v2/edit/action'
+import AddNode from 'app/components/rules_v2/edit/addnode'
 import Error from 'app/components/error'
 
 function find_action(actions, path){
@@ -27,13 +28,14 @@ function update_rule(rule, path, value){
         case "action":
         case "condition":
           return merge(rule, value)
+        case "add":
+          return value
         default:
           console.error("Invalid rule leaf node for updating: %o", rule)
           return rule
       }
   }
-  const head = path[0]
-  const rest = path.slice(1)
+  const [head, ...rest] = path
   if (!isNaN(head)){ // an index of an array
     const before=(head>0) ? rule.slice(0, head) : []
     const after=rule.slice(head+1)
@@ -42,9 +44,25 @@ function update_rule(rule, path, value){
     console.assert(ret.length==rule.length, ret.length, rule.length, rule, before, head, after)
     return ret
   }
-  else{
-    return merge(rule, {[head]: update_rule(rule[head], rest, value)})
+
+  return merge(rule, {[head]: update_rule(rule[head], rest, value)})
+}
+
+function insert_add(rule, path){
+  if (path.length == 1){
+    return rule.concat({type: "add"})
   }
+  const [head, ...rest] = path
+  if (!isNaN(head)){
+    const before=(head>0) ? rule.slice(0, head) : []
+    const after=rule.slice(head+1)
+    const item = insert_add(rule[head], rest)
+    const ret = [...before, item, ...after]
+    console.assert(ret.length==rule.length, ret.length, rule.length, rule, before, head, after)
+    return ret
+  }
+
+  return {...rule, [head]: insert_add(rule[head], rest) }
 }
 
 function prepare_node_list(current){
@@ -61,8 +79,10 @@ function prepare_node_list(current){
     return ret
   }
   if (current.type=="action"){
-
     return [[]] // this is a terminal, empty list to append at the end of the path
+  }
+  if (current.type=="add"){
+    return [[]] // this is a terminal
   }
   let ret = []
   for (let x in current){
@@ -95,11 +115,26 @@ function get_prev(current, path){
   return "when:params"
 }
 
+function decorate_actions(actions){
+  if (actions.length!=undefined){
+    let ret = actions.map( a => decorate_actions(a) )
+    ret.push({type: 'add'})
+    return ret
+  }
+  if (actions.type=="condition")
+    return {
+      ...actions,
+      then: decorate_actions(actions.then),
+      else: decorate_actions(actions.else),
+    }
+  return actions
+}
+
 class Model extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      rule: this.props.rule,
+      rule: map_set( this.props.rule, ['rule','actions'], decorate_actions(this.props.rule.rule.actions) ),
       section: {
         id: "description",
         data: {},
@@ -117,6 +152,15 @@ class Model extends React.Component {
     else{
       rule = map_set( rule, ["rule", ...what], value )
     }
+    this.setState({rule})
+    return rule
+  }
+  insertAdd(path, rule=undefined){
+    if (!rule)
+      rule = this.state.rule
+    console.log("pre %o", rule)
+    rule = insert_add(rule, ["rule", "actions", ...path])
+    console.log("post %o", rule)
     this.setState({rule})
     return rule
   }
@@ -212,13 +256,32 @@ class Model extends React.Component {
               }
             })
           }
-          else{
+          else if (action.type=="condition"){
             onChangeSection("condition", step, {
               action,
               condition: action.condition,
               onUpdate: (data) => {
                 this.updateRule(step, data)
                 this.gotoStep("next", undefined, step)
+              }
+            })
+          }
+          else if (action.type=="add"){
+            onChangeSection("add", step, {
+              action,
+              addNode: (type) => {
+                console.log("Add node %o, %o", step, type)
+                let rule
+                switch(type){
+                  case "action":
+                    rule = this.updateRule(step, {type: type})
+                    break;
+                  case "condition":
+                    rule = this.updateRule(step, decorate_actions( {type: type, then: [], else: []} ))
+                    break;
+                }
+                rule = this.insertAdd(step, rule)
+                this.gotoStep(step, rule)
               }
             })
           }
@@ -243,6 +306,8 @@ class Model extends React.Component {
         return Condition
       case "action":
         return ActionEdit
+      case "add":
+        return AddNode
     }
     return () => (
       <Error>{i18n(`Unknown section ${this.state.section.section}`)}</Error>
@@ -262,6 +327,7 @@ class Model extends React.Component {
         Section={this.getCurrentSection()}
         // onUpdate={this.updateRule}
         gotoStep={this.gotoStep}
+        addNode={this.addNode}
         />
     )
   }

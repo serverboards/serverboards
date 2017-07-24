@@ -1,6 +1,7 @@
 import React from 'react'
 import {concat, object_is_equal} from 'app/utils'
 import cache from 'app/utils/cache'
+import i18n from 'app/utils/i18n'
 
 export class Action extends React.Component{
   constructor(props){
@@ -12,7 +13,7 @@ export class Action extends React.Component{
   }
   componentDidMount(){
     cache.action(this.props.action.action).then( ac => {
-      this.setState({description: ac.name})
+      this.setState({description: ac ? ac.name : i18n("Select action")})
     })
   }
   render(){
@@ -32,7 +33,10 @@ export class Action extends React.Component{
 
 function ActionMore(props){
   return (
-    <div className="legend circle"><i className="ui large icon plus"/></div>
+    <a className={`legend circle ${object_is_equal(props.section.id, props.path) ? "active" : ""}`}
+        onClick={() => props.gotoStep(props.path)}>
+      <i className="ui large icon plus"/>
+    </a>
   )
 }
 
@@ -48,12 +52,13 @@ export function ActionList(props){
           action={a}
           path={[...path, i]}/>
         )}
-      <ActionMore path={[...path, actions.length]}/>
+      {/*<ActionMore path={[...path, actions.length]}/>*/}
     </div>
   )
 }
 
 export function Condition(props){
+  console.log(props)
   const {action, gotoStep, section, path} = props
   return (
     <div className="condition">
@@ -64,27 +69,38 @@ export function Condition(props){
           onClick={() => gotoStep(path)}
           >{action.condition}</a>
       </div>
-      <div className="ui connected">
-        <div className="legend"><i className="ui large icon thumbs outline up circle"/> THEN</div>
-        <ActionList {...props} actions={action.then} path={[...path, "then"]}/>
-      </div>
-      <div className="ui connected">
-        <div className="legend"><i className="ui large icon thumbs outline down circle"/> ELSE</div>
-        <ActionList {...props} actions={action.else} path={[...path, "else"]}/>
-      </div>
+      {action.then.length>0 ? (
+        <div className="ui connected">
+          <div className="legend"><i className="ui large icon thumbs outline up circle"/> THEN</div>
+          <ActionList {...props} actions={action.then} path={[...path, "then"]}/>
+        </div>
+      ) : null}
+      {action.else.length>0 ? (
+        <div className="ui connected">
+          <div className="legend"><i className="ui large icon thumbs outline down circle"/> ELSE</div>
+          <ActionList {...props} actions={action.else} path={[...path, "else"]}/>
+        </div>
+      ) : null}
     </div>
   )
 }
 
 export function ActionOrCondition(props){
-  if (props.action.type == "condition" ){
-    return (
-      <Condition {...props}/>
-    )
+  switch (props.action.type){
+    case "condition":
+      return (
+        <Condition {...props}/>
+      )
+    case "add":
+      return (
+        <ActionMore {...props}/>
+      )
+    case "action":
+    default:
+      return (
+        <Action key={props.action.action} {...props}/>
+      )
   }
-  return (
-    <Action key={props.action.action} {...props}/>
-  )
 }
 
 export default ActionOrCondition

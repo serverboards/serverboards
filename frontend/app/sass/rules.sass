@@ -108,6 +108,11 @@ $black: #666
       align-items: center
       &.corner
         pad
+    a.legend
+      color: $black !important
+    .legend.circle.active
+      color: $blue !important
+      border-color: $blue
     .legend.circle
       width: 30px
       height: 30px
@@ -133,6 +138,14 @@ $black: #666
       color: #333
     .wide.card.active
       box-shadow: 0 1px 3px 0 $blue, 0 0 1px 1px $blue
+
+    .form.one.narrow.column.form
+      display: flex
+      flex-direction: column
+      .button
+        width: 20em
+        margin: auto
+        margin-top: 20px
 
     h2.centered.header
       display: flex

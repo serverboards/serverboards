@@ -68,7 +68,12 @@ class Action extends React.Component{
   componentDidMount(){
     cache
       .action(this.props.action.action)
-      .then( action => this.setState({action}))
+      .then( action => {
+        if (action)
+          this.setState({action})
+        else
+          this.setState({action: {type: action, action: undefined, id: "", params: {}}})
+      })
   }
   render(){
     const props = this.props
