@@ -8,7 +8,7 @@ function RuleMenu(props){
         <a onClick={props.gotoRules} className="ui button basic">{i18n("Back to rules")}</a>
       </div>
       <div className="item">
-        <a onClick={props.saveRule} className="ui button teal">{i18n("Save rule")}</a>
+        <a onClick={props.saveRule} className={`ui button teal ${props.saveRule ? "" : "disabled"}`}>{i18n("Save rule")}</a>
       </div>
     </div>
   )

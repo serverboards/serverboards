@@ -198,7 +198,6 @@ class Model extends React.Component {
     props.setSectionMenu(Menu)
     props.setSectionMenuProps({
       gotoRules: () => { goto(`/project/${props.project.shortname}/rules_v2/`) },
-      saveRule: () => this.saveRule()
     })
   }
   componentWillUnmount(){
@@ -224,6 +223,10 @@ class Model extends React.Component {
       rule = map_set( rule, ["rule", ...what], value )
     }
     this.setState({rule})
+    this.props.setSectionMenuProps({
+      gotoRules: () => { goto(`/project/${this.props.project.shortname}/rules_v2/`) },
+      saveRule: () => this.saveRule(), // added this to signal it has been modified
+    })
     return rule
   }
   insertAdd(path, rule=undefined){
