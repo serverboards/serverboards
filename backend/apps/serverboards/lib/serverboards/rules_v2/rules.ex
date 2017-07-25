@@ -211,7 +211,9 @@ defmodule Serverboards.RulesV2.Rules do
         q
     end
 
-    q = case Map.get(filter, :is_active, nil) != nil do
+    q = case Map.get(filter, :is_active, nil) do
+      nil ->
+        q
       true ->
         where(q, [rule], rule.is_active)
       false ->
