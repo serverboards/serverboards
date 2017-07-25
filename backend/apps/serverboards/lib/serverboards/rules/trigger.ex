@@ -35,7 +35,8 @@ defmodule Serverboards.Rules.Trigger do
          start: tr.extra["start"],
          stop: tr.extra["stop"],
          id: tr.id,
-         states: states
+         states: states,
+         icon: tr.extra["icon"]
        }
       end)
   end

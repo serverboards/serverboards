@@ -2,14 +2,22 @@
 $black: #666
 
 .ui.cards .rule.card
-  h2
-    margin: 0
-  > .header.content
-    min-height: 6em
-    max-height: 6em
+  width: 200px
+  .header, .extra.content
+    display: flex
+    flex-direction: row
+    align-items: baseline
+    .right
+      display: flex
+      flex-direction: row
+      flex-grow: 1
+      justify-content: flex-end
+      .ellipsis.icon
+        font-size: 23px
+  > .content, > .extra.content
+    border-top: 0px !important
+  > .content
     overflow: hidden
-  > .extra.content
-    padding: 0
 
 
 #rule
@@ -163,7 +171,6 @@ $black: #666
       display: flex
       align-items: center
       margin-left: 20px
-
 
   .buttons
     box-shadow: 0 1px 3px #aaa, 0 0 1px #666
