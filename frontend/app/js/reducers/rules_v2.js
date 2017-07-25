@@ -5,8 +5,13 @@ const default_state={
 }
 
 function rules_v2(state=default_state, action){
-  if (action.type=="RULES_V2_LIST"){
-    return merge(state, {rules: action.payload})
+  switch(action.type){
+    case "RULES_V2_LIST":
+      return merge(state, {rules: action.payload})
+    case "@RPC_EVENT/rules_v2.updated":
+      return {...state, rules: state.rules.map(
+        r => r.uuid==action.rule.uuid ? action.rule : r
+      )}
   }
   return state
 }

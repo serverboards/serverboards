@@ -56,7 +56,8 @@ defmodule Serverboards.RulesV2.Rules do
     EventSourcing.Model.subscribe es, :rules_v2, Serverboards.Repo
 
     EventSourcing.subscribe es, :create, fn %{ uuid: uuid, data: data }, me ->
-      rule = create_real(uuid, data)
+      create_real(uuid, data)
+      rule = get(uuid)
       Serverboards.Event.emit("rules_v2.created", %{ rule: rule }, ["rules.view"])
       project = get_project(uuid)
       if (project != nil) do
@@ -65,7 +66,8 @@ defmodule Serverboards.RulesV2.Rules do
     end
 
     EventSourcing.subscribe es, :update, fn %{ uuid: uuid, changes: changes }, me ->
-      rule = update_real(uuid, changes)
+      update_real(uuid, changes)
+      rule = get(uuid)
       Serverboards.Event.emit("rules_v2.updated", %{ rule: rule }, ["rules.view"])
       project = get_project(uuid)
       if (project != nil) do
@@ -124,8 +126,6 @@ defmodule Serverboards.RulesV2.Rules do
         data = if data[:project] do
           Map.put( data, :project_id, get_project_id_by_shortname(data.project))
         else data end
-        Logger.debug("Update #{inspect rule}")
-        Logger.debug("with #{inspect data}")
         Repo.update( Model.Rule.changeset( rule, data) )
 
         if options[:start]!=false do

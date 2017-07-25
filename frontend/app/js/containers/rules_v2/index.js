@@ -32,6 +32,12 @@ export default connect({
       rules_v2_list_clear
     ]
   },
+  subscriptions(state, props){
+    let subs = []
+    if (props.project)
+      subs.push(`rules_v2.updated[${props.project.shortname}]`)
+    return subs
+  },
   loading(state){
     if (!state.rules_v2.rules)
       return i18n("Rules")
