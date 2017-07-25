@@ -65,6 +65,27 @@ function insert_add(rule, path){
   return {...rule, [head]: insert_add(rule[head], rest) }
 }
 
+function remove_step(rule, path){
+  const [head, ...rest] = path
+  if (path.length==1){ // can only remove from arrays. conditionals make no sense no then branch.
+    console.assert(!isNaN(head), "%o is not a number", head)
+    const before=(head>0) ? rule.slice(0, head) : []
+    const after=rule.slice(head+1)
+    return [...before, ...after]
+  }
+  const item = remove_step(rule[head], rest)
+  if (!isNaN(head)){ // Replace (or remove) the element
+    const before=(head>0) ? rule.slice(0, head) : []
+    const after=rule.slice(head+1)
+    const ret = [...before, item, ...after]
+    console.assert(ret.length==rule.length, ret.length, rule.length, rule, before, head, after)
+    return ret
+  }
+  else{ // is a conditional, change the branch
+    return {...rule, [head]: item}
+  }
+}
+
 function prepare_node_list(current){
   if (!current)
     return []
@@ -143,6 +164,7 @@ class Model extends React.Component {
     }
     this.updateRule = this.updateRule.bind(this)
     this.gotoStep = this.gotoStep.bind(this)
+    this.removeStep = this.removeStep.bind(this)
   }
   updateRule(what, value){
     let rule = this.state.rule
@@ -292,6 +314,12 @@ class Model extends React.Component {
         break;
     }
   }
+  removeStep(path){
+    console.log("Remove step %o", path)
+    const rule = remove_step(this.state.rule, ["rule", "actions", ...path])
+    this.setState({rule})
+    return rule
+  }
   getCurrentSection(){
     switch(this.state.section.section){
       case "description":
@@ -327,6 +355,7 @@ class Model extends React.Component {
         Section={this.getCurrentSection()}
         // onUpdate={this.updateRule}
         gotoStep={this.gotoStep}
+        removeStep={this.removeStep}
         addNode={this.addNode}
         />
     )

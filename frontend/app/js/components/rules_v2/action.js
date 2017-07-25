@@ -2,6 +2,7 @@ import React from 'react'
 import {concat, object_is_equal} from 'app/utils'
 import cache from 'app/utils/cache'
 import i18n from 'app/utils/i18n'
+import HoldButton from 'app/components/holdbutton'
 
 export class Action extends React.Component{
   constructor(props){
@@ -17,12 +18,17 @@ export class Action extends React.Component{
     })
   }
   render(){
-    const {gotoStep, action, section, path} = this.props
+    const {gotoStep, action, section, path, removeStep} = this.props
     const active = object_is_equal(section.id, path) ? "active" : ""
 
     return (
       <div className="action">
-        <div className={`ui card ${active}`}>
+        <div
+            className={`ui card ${active}`}
+            onClick={() => gotoStep(path)}
+          >
+          <HoldButton className="ui right floating icon trash"
+             onHoldClick={(ev) => { removeStep(path) }}/>
           <a
             className={active}
             onClick={() => gotoStep(path)}
@@ -61,12 +67,17 @@ export function ActionList(props){
 
 export function Condition(props){
   console.log(props)
-  const {action, gotoStep, section, path} = props
+  const {action, gotoStep, section, path, removeStep} = props
   const active = object_is_equal(section.id, path) ? "active" : ""
   return (
     <div className="condition">
       <div className="legend"><i className="ui large icon help circle"/> IF</div>
-      <div className={`ui card ${active}`}>
+      <div
+          className={`ui card ${active}`}
+          onClick={() => gotoStep(path)}
+        >
+        <HoldButton className="ui right floating icon trash"
+           onHoldClick={(ev) => { removeStep(path) }}/>
         <a
           className={active}
           onClick={() => gotoStep(path)}
@@ -101,7 +112,7 @@ export function ActionOrCondition(props){
     case "action":
     default:
       return (
-        <Action key={props.action.action} {...props}/>
+        <Action {...props}/>
       )
   }
 }

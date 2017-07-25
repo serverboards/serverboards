@@ -33,6 +33,7 @@ function Rule(props){
                 path={[]}
                 section={section}
                 gotoStep={props.gotoStep}
+                removeStep={props.removeStep}
                 />
             </div>
           </div>
