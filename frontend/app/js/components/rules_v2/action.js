@@ -18,11 +18,13 @@ export class Action extends React.Component{
   }
   render(){
     const {gotoStep, action, section, path} = this.props
+    const active = object_is_equal(section.id, path) ? "active" : ""
+
     return (
       <div className="action">
-        <div className="ui card">
+        <div className={`ui card ${active}`}>
           <a
-            className={object_is_equal(section.id, path) ? "active" : null}
+            className={active}
             onClick={() => gotoStep(path)}
             >{this.state.description}</a>
         </div>
@@ -60,12 +62,13 @@ export function ActionList(props){
 export function Condition(props){
   console.log(props)
   const {action, gotoStep, section, path} = props
+  const active = object_is_equal(section.id, path) ? "active" : ""
   return (
     <div className="condition">
       <div className="legend"><i className="ui large icon help circle"/> IF</div>
-      <div className="ui card">
+      <div className={`ui card ${active}`}>
         <a
-          className={object_is_equal(section.id, path) ? "active" : null}
+          className={active}
           onClick={() => gotoStep(path)}
           >{action.condition || i18n("Please set a condition")}</a>
       </div>
