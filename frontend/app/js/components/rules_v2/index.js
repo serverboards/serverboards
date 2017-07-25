@@ -2,6 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import { goto } from 'app/utils/store'
 import Rule from 'app/containers/rules_v2/rule'
+import { sort_by_name } from 'app/utils'
 
 const Rules = React.createClass({
   gotoRule(rule){
@@ -17,7 +18,7 @@ const Rules = React.createClass({
       )
     }
 
-    const rules = this.props.rules || []
+    const rules = sort_by_name(this.props.rules || [])
     return (
       <div className="ui padding container">
         <div className="ui rule cards">

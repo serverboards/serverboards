@@ -86,6 +86,10 @@ export function concat(/* arguments */){
   return ret
 }
 
+export function sort_by_name(list){
+  return list.slice().sort( (a,b) => (a.name || "").localeCompare(b.name || "") )
+}
+
 const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
 const fixed_colors={
   "stopped" : "_grey",
