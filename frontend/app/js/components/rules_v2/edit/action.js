@@ -4,15 +4,19 @@ import cache from 'app/utils/cache'
 import Selector from './selector'
 import GenericForm from 'app/components/genericform'
 import Loading from 'app/components/loading'
+import {object_is_equal} from 'app/utils'
 
 class ActionParams extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      data: props.data
+      data: props.data,
+      modified: false
     }
     this.updateForm = (data) => {
-      this.setState({data})
+      console.log("modified?", data, props.data, object_is_equal(data, props.data))
+      const modified = !object_is_equal(data, props.data)
+      this.setState({data, modified})
     }
   }
   render(){
@@ -35,7 +39,11 @@ class ActionParams extends React.Component{
         <div className="ui right aligned">
           <div className="ui buttons">
             <button className="ui button basic" onClick={props.prevStep}>{i18n("Previous step")}</button>
-            <button className="ui teal button" onClick={() => props.onUpdate(state.data)}>{i18n("Save and Continue")}</button>
+            {state.modified ? (
+              <button className="ui teal button" onClick={() => props.onUpdate(state.data)}>{i18n("Save and Continue")}</button>
+            ) : (
+              <button className="ui button basic" onClick={props.nextStep}>{i18n("Next step")}</button>
+            )}
           </div>
         </div>
       </div>
@@ -105,6 +113,7 @@ class Action extends React.Component{
           fields={action.extra.call.params}
           data={state.data}
           prevStep={() => this.setState({step: 1})}
+          nextStep={() => props.gotoStep("next", undefined, props.id)}
           onUpdate={this.handleUpdate}
           />
       )
