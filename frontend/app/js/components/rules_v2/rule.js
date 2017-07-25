@@ -18,6 +18,7 @@ function Rule(props){
                 placeholder={i18n("Rule name")}
                 defaultValue={rule.name}
                 onClick={() => props.gotoStep("description")}
+                onChange={(ev) => props.onUpdate("name", ev.target.value)}
                 />
             </div>
           </div>

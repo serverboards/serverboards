@@ -1,9 +1,13 @@
 import React from 'react'
 import View from 'app/components/rules_v2/rule'
+import Menu from 'app/components/rules_v2/rulemenu'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
 import {object_is_equal, merge, map_set, map_get, concat} from 'app/utils'
 import cache from 'app/utils/cache'
+import rpc from 'app/rpc'
+import Flash from 'app/flash'
+import { goto } from 'app/utils/store'
 
 import Description from 'app/components/rules_v2/edit/description'
 import Service from 'app/components/rules_v2/edit/service'
@@ -151,6 +155,29 @@ function decorate_actions(actions){
   return actions
 }
 
+function prepare_for_save(rule){
+  switch(rule.type){
+    case "condition":
+      return {
+        ...rule,
+        then: prepare_for_save(rule.then),
+        else: prepare_for_save(rule.else)
+      }
+      break;
+    case "action":
+    case "trigger":
+      return rule
+      break;
+    case "add":
+      return undefined
+      break;
+    default:
+      return rule
+        .map( prepare_for_save )
+        .filter( r => r != undefined )
+  }
+}
+
 class Model extends React.Component {
   constructor(props){
     super(props)
@@ -166,10 +193,32 @@ class Model extends React.Component {
     this.gotoStep = this.gotoStep.bind(this)
     this.removeStep = this.removeStep.bind(this)
   }
+  componentDidMount(){
+    const props = this.props
+    props.setSectionMenu(Menu)
+    props.setSectionMenuProps({
+      gotoRules: () => { goto(`/project/${props.project.shortname}/rules_v2/`) },
+      saveRule: () => this.saveRule()
+    })
+  }
+  componentWillUnmount(){
+    const props = this.props
+    props.setSectionMenu(null)
+    props.setSectionMenuProps({})
+  }
   updateRule(what, value){
     let rule = this.state.rule
-    if (!isNaN(what[0])){
-      rule = update_rule(rule, ["rule", "actions", ...what], value)
+    if (what=="name"){
+      rule = map_set( rule, ["name"], value )
+    }
+    else if (what=="description"){
+      rule = map_set( rule, ["description"], value )
+    }
+    else if (what=="is_active"){
+      rule = map_set( rule, ["is_active"], value )
+    }
+    else if (!isNaN(what[0])){
+      rule = update_rule(rule, ["rule", "actions", ...what], value )
     }
     else{
       rule = map_set( rule, ["rule", ...what], value )
@@ -180,9 +229,7 @@ class Model extends React.Component {
   insertAdd(path, rule=undefined){
     if (!rule)
       rule = this.state.rule
-    console.log("pre %o", rule)
     rule = insert_add(rule, ["rule", "actions", ...path])
-    console.log("post %o", rule)
     this.setState({rule})
     return rule
   }
@@ -320,6 +367,22 @@ class Model extends React.Component {
     this.setState({rule})
     return rule
   }
+  saveRule(){
+    const r = this.state.rule
+    const rule = {
+      uuid: r.uuid,
+      description: r.description,
+      name: r.name,
+      project: r.project,
+      rule: {
+        when: prepare_for_save(r.rule.when),
+        actions: prepare_for_save(r.rule.actions),
+      }
+    }
+    rpc.call("rules_v2.update", [r.uuid, rule]).then(() => {
+      Flash.success(i18n("Updated rule *{name}*", {name: r.name}))
+    })
+  }
   getCurrentSection(){
     switch(this.state.section.section){
       case "description":
@@ -353,7 +416,7 @@ class Model extends React.Component {
         {...props}
         {...state}
         Section={this.getCurrentSection()}
-        // onUpdate={this.updateRule}
+        onUpdate={this.updateRule}
         gotoStep={this.gotoStep}
         removeStep={this.removeStep}
         addNode={this.addNode}

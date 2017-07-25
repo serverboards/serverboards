@@ -17,7 +17,7 @@ defmodule Serverboards.RulesV2.RPC do
       me = MOM.RPC.Context.get context, :user
       changes = changes
         |> Serverboards.Utils.keys_to_atoms_from_list(~w"name is_active rule description project")
-        |> Map.drop(["deleted"])
+        |> Map.take(~w"name is_active rule description project"a)
       Serverboards.RulesV2.Rules.update(uuid, changes, me)
     end, required_perm: "rules.update", context: true
 

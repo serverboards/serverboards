@@ -124,6 +124,8 @@ defmodule Serverboards.RulesV2.Rules do
         data = if data[:project] do
           Map.put( data, :project_id, get_project_id_by_shortname(data.project))
         else data end
+        Logger.debug("Update #{inspect rule}")
+        Logger.debug("with #{inspect data}")
         Repo.update( Model.Rule.changeset( rule, data) )
 
         if options[:start]!=false do

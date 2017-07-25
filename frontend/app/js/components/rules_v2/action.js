@@ -66,7 +66,6 @@ export function ActionList(props){
 }
 
 export function Condition(props){
-  console.log(props)
   const {action, gotoStep, section, path, removeStep} = props
   const active = object_is_equal(section.id, path) ? "active" : ""
   return (

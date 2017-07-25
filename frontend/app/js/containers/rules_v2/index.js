@@ -11,7 +11,6 @@ export default connect({
     }
   },
   store_enter(state, props){
-    console.log(state, props)
     return [
       () => rules_v2_list(state.project.current)
     ]
