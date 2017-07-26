@@ -53,11 +53,6 @@ const Plugins=React.createClass({
     })
     this.setState({plugins})
   },
-  handleSetActive(plugin_id, is_active){
-    rpc
-      .call("settings.update", ["plugins", plugin_id, is_active])
-      .then( () => this.componentDidMount() )
-  },
   contextTypes: {
     router: React.PropTypes.object
   },
