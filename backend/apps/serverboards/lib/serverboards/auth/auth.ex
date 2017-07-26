@@ -113,14 +113,14 @@ defmodule Serverboards.Auth do
 	defp ensure_exists_in_db(user, creator) do
 		Logger.debug("Ensure in db #{inspect user}")
 		# check if exists, or create
-		nuser = case Serverboards.Repo.get_by(Serverboards.Auth.Model.User, email: user.email) do
-			nil ->
+		nuser = case Serverboards.Auth.User.user_info(user.email) do
+			{:error, :unknown_user} ->
 				Logger.info("Automatically creating the user #{inspect user.email}", user: user)
 				Serverboards.Auth.User.user_add(user, %{ email: creator, perms: ["auth.create_user"]})
 				%{ user | groups: [] }
-			nuser ->
+			{:ok, user} ->
 				# If exists, check it is active, nuser here only for test
-				if nuser.is_active do
+				if user.is_active do
 					user
 				else
 					nil
@@ -192,7 +192,7 @@ defmodule Serverboards.Auth do
 					email: user["email"],
 					name: user["name"],
 					perms: user["perms"],
-					groups: user["groups"],
+					groups: ["user"] ++ user["groups"],
 					is_active: true
 				}
 			o ->
