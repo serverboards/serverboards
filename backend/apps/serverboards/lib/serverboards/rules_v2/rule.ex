@@ -144,8 +144,11 @@ defmodule Serverboards.RulesV2.Rule do
       uuid = state.rule.uuid
       trigger_state = Map.put(%{ "uuid" => uuid}, when_id, params)
 
-      prev_state = Map.drop(state.state, ["prev"])
-      trigger_state = Map.put(trigger_state, "prev", prev_state)
+      prev_state = Map.drop(state.state, ["prev", "changes"])
+      changes = Serverboards.Utils.map_diff( prev_state, trigger_state )
+
+      trigger_state = Map.merge(trigger_state, %{ "prev" => prev_state, "changes" => changes })
+      # Logger.debug("Start trigger with state #{inspect trigger_state, pretty: true}")
 
       state = %{ state |
         running: state.rule.rule["actions"],
