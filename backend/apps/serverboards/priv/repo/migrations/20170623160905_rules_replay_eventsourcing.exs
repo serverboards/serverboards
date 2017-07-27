@@ -46,21 +46,13 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
         %{
            id: "#{status}-check",
            type: "condition",
-           condition: "A.state == '#{status}'",
+           condition: "changes.A.state == '#{status}'",
            then: parse_actions([ %{ status => action} ], status),
            else: []
          }
       end
-
-      [
-       %{
-         id: "status_change",
-         type: "condition",
-         condition: "A.state != prev.A.state", # only on status change
-         then: actions,
-         else: []
-       }
-     ]
+      
+      actions
     end
   end
 
