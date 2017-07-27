@@ -65,6 +65,7 @@ const cache={
 // Returns the function to be called to update the cache and get the promise
 function cache_builder(props){
   const {store_get, store_update, subscriptions} = props
+  let pending=undefined
   return function(){
     let promise=new Promise((accept, reject) => {
       const data = store_get()
@@ -72,19 +73,30 @@ function cache_builder(props){
         accept(data)
       }
       else{
-        try{
-          store_update( data => {
-            try{
-              if (subscriptions)
-                event.subscribe(subscriptions)
-              store.dispatch(data)
-              accept(store_get())
-            } catch(e){
+        if (pending)
+          pending.push({accept, reject})
+        else{
+          pending=[{accept, reject}]
+          try{
+            store_update( data => {
+              try{
+                if (subscriptions)
+                  event.subscribe(subscriptions)
+                store.dispatch(data)
+                for (let {accept} of pending)
+                  accept(store_get())
+                pending=undefined
+              } catch(e){
+                for (let {reject} of pending)
+                  reject(e)
+                pending=undefined
+              }
+            })
+          } catch(e) {
+            for (let {reject} of pending)
               reject(e)
-            }
-          })
-        } catch(e) {
-          reject(e)
+            pending=undefined
+          }
         }
       }
     })
