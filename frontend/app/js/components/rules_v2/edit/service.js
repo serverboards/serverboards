@@ -30,6 +30,8 @@ class Service extends React.Component{
           title={i18n("Select a service")}
           description={i18n("Select a service type (1/2)")}
           onSelect={this.selectType}
+          onSkip={() => this.props.onSelect(null) }
+          skip_label={i18n("No related service")}
           />
         )
     }

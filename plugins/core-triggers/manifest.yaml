@@ -125,6 +125,7 @@ components:
     type: trigger
     states: added removed
     command: daemon
+    traits: service
     start:
       method: tag_change
       params:

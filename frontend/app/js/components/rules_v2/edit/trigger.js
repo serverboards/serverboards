@@ -11,8 +11,13 @@ function get_triggers(service_id){
     cache.trigger_catalog(),
     cache.service(service_id)
   ]).then( ([tc,s]) =>  {
-    const straits = s.traits.filter( t => !BLACKLIST.includes(t) ) // remove those on blacklist
-    console.log(JSON.stringify(tc.map( t => [t.name, t.traits] )), straits)
+    let straits = []
+    if (s){
+      straits = s.traits.filter( t => !BLACKLIST.includes(t) ).concat("service") // remove those on blacklist
+    }
+    else{
+      straits = ["no-service"] // Show only those that require no service selected
+    }
     return tc.filter( t => match_traits({has: straits, any: t.traits}) )
   } )
 }

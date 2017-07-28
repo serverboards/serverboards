@@ -1,6 +1,7 @@
 import React from 'react'
 import View from 'app/components/rules_v2/when'
 import cache from 'app/utils/cache'
+import i18n from 'app/utils/i18n'
 
 class WhenModel extends React.Component{
   constructor(props){
@@ -15,15 +16,24 @@ class WhenModel extends React.Component{
   }
   updateWhen(props){
     const when = (props || this.props).when
-    cache
-      .service(when.params.service_id)
-      .then( s =>{
-        this.setState({
-          service_name: s.name,
-          service_type: s.type,
-          service_params: s.fields.map( s => s.name )
+    if (when.params.service_id){
+      cache
+        .service(when.params.service_id)
+        .then( s =>{
+          this.setState({
+            service_name: s.name,
+            service_type: s.type,
+            service_params: s.fields.map( s => s.name )
+          })
         })
+    }
+    else{
+      this.setState({
+        service_name: i18n("No related service"),
+        service_type: undefined,
+        service_params: {}
       })
+    }
     cache
       .trigger(when.trigger)
       .then( t => {

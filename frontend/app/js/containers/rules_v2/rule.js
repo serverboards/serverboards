@@ -255,13 +255,13 @@ class Model extends React.Component {
       case "when:service":
         cache.service(when.params.service_id).then( s =>
           onChangeSection("when:service", null, {
-            service_id: s.uuid,
+            service_id: s && s.uuid,
             onSelect: (s) => {
               console.log("Selected service %o", s)
-              const rule = this.updateRule(["when", "params", "service_id"], s.uuid )
+              const rule = this.updateRule(["when", "params", "service_id"], s && s.uuid )
               this.gotoStep("when:trigger", rule)
             },
-            type: s.type,
+            type: s && s.type,
             nextStep: () => this.gotoStep("when:trigger")
           })
         )

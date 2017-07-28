@@ -129,6 +129,9 @@ class Selector extends React.Component{
             {this.props.nextStep ? (
               <button className="ui button basic" onClick={this.props.nextStep}>{i18n("Next step")}</button>
             ) : null}
+            {this.props.onSkip ? (
+              <button className="ui button basic" onClick={this.props.onSkip}>{this.props.skip_label}</button>
+            ) : null}
             </span>
             </div>
           ) : null}
@@ -144,7 +147,9 @@ Selector.propTypes={
   icon: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
-  current: PropTypes.string
+  current: PropTypes.string,
+  onSkip: PropTypes.func,
+  skip_label: PropTypes.string,
 }
 
 export default Selector
