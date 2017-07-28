@@ -105,7 +105,7 @@ components:
 
   - name: Periodic trigger
     description: |
-      Periodically triggers. Used for recurring actions wihtout a very
+      Periodically triggers. Used for recurring actions without a very
       strict schedule.
     id: periodic
     type: trigger
