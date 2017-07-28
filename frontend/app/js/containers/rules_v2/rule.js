@@ -274,7 +274,8 @@ class Model extends React.Component {
             this.gotoStep("when:params", rule)
           },
           prevStep: () => this.gotoStep("when:service"),
-          nextStep: () => this.gotoStep("when:params")
+          nextStep: () => this.gotoStep("when:params"),
+          service_id: when.params.service_id,
         })
         break;
       case "when:params":
