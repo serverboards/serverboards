@@ -20,6 +20,17 @@ function default_icon_for(item, section){
   return DEFAULT_ICON[section]
 }
 
+function filter_items(items, filter){
+  let filtered = items
+  for(let filter of filter.split(' ')){
+    filtered = filtered.filter( s => (
+      (s.name || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
+      (s.description || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase())
+    ) )
+  }
+  return filtered
+}
+
 function Card({item, default_icon, onClick, className}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
   const icon = item.icon || default_icon
@@ -40,9 +51,14 @@ class Selector extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      tab: "cloud",
+      tab: undefined,
       items: [],
-      filter: ""
+      filter: "",
+      tabs: {
+        cloud: [],
+        server: [],
+        other: [],
+      }
     }
     this.setTab = (tab) => this.setState({tab})
     this.onFilter = (filter) => {
@@ -58,29 +74,60 @@ class Selector extends React.Component{
   componentDidMount(){
     this.props.get_items().then( catalog => {
       catalog=catalog.slice().sort( (a,b) => a.name.localeCompare(b.name) )
-      console.log(catalog)
-      this.setState({items: catalog})
+      // console.log(catalog)
+
+      // get current selected item tab
+      let tab = "other"
+      let current = catalog.find( c => (c.id || c.type) == this.props.current )
+      if (current){
+        if (current.traits.indexOf("cloud")!=-1)
+          tab="cloud"
+        else if (current.traits.indexOf("server")!=-1)
+          tab="server"
+      }
+
+      // sort items by tab
+      let server = [], cloud = [], other = []
+      for (let s of catalog){
+        const traits = s.traits || []
+        if (traits.indexOf("server")!=-1)
+          server.push(s)
+        else if (traits.indexOf("cloud")!=-1)
+          cloud.push(s)
+        else
+          other.push(s)
+      }
+      const tabs = {server, cloud, other}
+
+      this.setState({items: catalog, tab, tabs})
     } )
   }
   render(){
     const props = this.props
     const tab = this.state.tab
     let filtered = this.state.items.filter( s => s.traits.indexOf("hidden")==-1 )
+    const {server, cloud, other} = this.state.tabs
+    const has_server = server.length>0
+    const has_cloud = cloud.length>0
+    const has_other = other.length>0
 
-    switch(tab){
-      case "other":
-        filtered = filtered.filter( s => s.traits.indexOf("server")==-1 && s.traits.indexOf("cloud")==-1 )
-        break;
-      case "filter":
-        let filter = this.state.filter
-        filtered = filtered.filter( s => (
-          (s.name || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
-          (s.description || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase())
-        ) )
-        break;
-      default:
-        filtered = filtered.filter( s => s.traits.indexOf(tab)>=0 )
-        break;
+    if (tab == "filter"){
+      filtered = filter_items( filtered, this.state.filter )
+    }
+    else{
+      switch(tab){
+        case "server":
+          filtered=server
+          break;
+        case "cloud":
+          filtered=cloud
+          break;
+        case "other":
+          filtered=other
+          break;
+        default:
+          filtered=[]
+      }
     }
 
     return (
@@ -101,9 +148,18 @@ class Selector extends React.Component{
 
           { tab == "filter" ? null : (
             <div className="ui pointing secondary menu">
-              <a className={`item ${tab=="cloud" ? "active" : ""}`} onClick={() => this.setTab("cloud")}>Cloud</a>
-              <a className={`item ${tab=="server" ? "active" : ""}`} onClick={() => this.setTab("server")}>Server</a>
-              <a className={`item ${tab=="other" ? "active" : ""}`} onClick={() => this.setTab("other")}>Other</a>
+              <a
+                className={`item ${tab=="cloud" ? "active" : ""} ${has_cloud ? "" : "disabled"}`}
+                onClick={() => has_cloud && this.setTab("cloud")}
+                >Cloud</a>
+              <a
+                className={`item ${tab=="server" ? "active" : ""} ${has_server ? "" : "disabled"}`}
+                onClick={() => has_server && this.setTab("server")}
+                >Server</a>
+              <a
+                className={`item ${tab=="other" ? "active" : ""} ${has_other ? "" : "disabled"}`}
+                onClick={() => has_other && this.setTab("other")}
+                >Other</a>
             </div>
           )}
 

@@ -240,7 +240,7 @@ class Model extends React.Component {
   // if not, by the wayt react apply state, will not realize of the updated
   // data on section change. Maybe on next gotoStep.
   gotoStep(step, rule=undefined, extra=undefined){
-    console.log(step)
+    // console.log(step)
     const section = this.state.section
     if (!rule)
       rule=this.state.rule
