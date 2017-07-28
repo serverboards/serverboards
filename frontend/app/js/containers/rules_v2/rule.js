@@ -302,19 +302,19 @@ class Model extends React.Component {
             prevStep: () => this.gotoStep("when:trigger"),
             onUpdate: (data) => {
               this.updateRule(["when","params"], data)
-              this.gotoStep("action:"+rule.rule.actions[0].id)
+              this.gotoStep([0])
             }
           } )
         }
         break;
       case "next":
         const next = get_next(rule.rule.actions, extra)
-        console.warn("from %o to %o", extra, next)
+        // console.warn("from %o to %o", extra, next)
         this.gotoStep(next)
         break;
       case "prev":
         const prev = get_prev(rule.rule.actions, extra)
-        console.warn("from %o to %o", extra, next)
+        // console.warn("from %o to %o", extra, next)
         this.gotoStep(prev)
         break;
       default:
