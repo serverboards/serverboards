@@ -17,14 +17,6 @@ const Overview = React.createClass({
           Serverboard data
         </Loading>
       )
-    function tag(tagname){
-      return (
-        <span key={tagname} className={`ui label ${random_color(tagname)}`}>
-          {tagname}
-        </span>
-      )
-    }
-
     return (
       <div className="ui central board" id="dashboard">
         <Board location={props.location} project={props.project.shortname}/>
