@@ -7,6 +7,7 @@ import ServiceDetails from 'app/containers/service/details'
 import Restricted from 'app/restricted'
 import { set_modal } from 'app/utils/store'
 import i18n from 'app/utils/i18n'
+import AddButton from './addbutton'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -73,15 +74,7 @@ let Services=React.createClass({
           <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
         </div>
 
-        <Restricted perm="service.create">
-          <a href="#"
-              onClick={this.openAddServiceModal}
-              className="ui massive button _add icon floating yellow"
-              title={i18n("Add a service")}
-              >
-            <i className="add icon"></i>
-          </a>
-        </Restricted>
+        <AddButton project={this.props.project.shortname}/>
       </div>
     )
   }

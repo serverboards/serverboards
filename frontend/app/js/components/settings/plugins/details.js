@@ -43,11 +43,15 @@ const PluginDetails=React.createClass({
     $(this.refs.is_active).checkbox({
       onChange(ev){
         const is_active = $(self.refs.is_active).is('.checked')
-        console.log("Changed: %o", is_active)
-        self.props.setActive(self.props.plugin.id, is_active)
+        self.handleSetActive(self.props.plugin.id, is_active)
         self.setState({is_active})
       }
     })
+  },
+  handleSetActive(plugin_id, is_active){
+    rpc
+      .call("settings.update", ["plugins", plugin_id, is_active])
+      .then( () => this.componentDidMount() )
   },
   handleUpdate(){
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {

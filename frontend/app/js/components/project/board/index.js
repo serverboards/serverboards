@@ -11,6 +11,7 @@ import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
 import Empty from './empty'
 import moment from 'moment'
+import AddButton from 'app/components/project/addbutton'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
@@ -144,11 +145,7 @@ const Board = React.createClass({
             </ReactGridLayout>
           </div>
           )}
-        <Restricted perm="dashboard.widget.create">
-          <a onClick={this.handleAddWidget} className="ui massive button _add icon floating teal">
-            <i className="add icon"></i>
-          </a>
-        </Restricted>
+        <AddButton project={this.props.project.shortname}/>
       </div>
     )
   }

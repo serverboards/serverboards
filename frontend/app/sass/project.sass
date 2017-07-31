@@ -1,0 +1,46 @@
+@import colors
+
+.ui.massive.button.icon
+  background: #22a397
+  box-shadow: 0 3px 3px rgba(0,0,0,0.5)
+  border-radius: 300px
+  width: 80px
+  height: 80px
+  max-width: 80px
+  max-height: 80px
+  font-size: 50px
+  color: white !important
+  z-index: 20
+  display: flex
+  justify-content: center
+  align-items: center
+
+  &.mid
+    font-size: 40px
+
+  +background-colors-hover
+
+
+.ui.floating.bottom.right.add
+  position: fixed
+  top: calc( 100vh - 120px )
+  right: 30px
+  display: flex
+  flex-direction: row
+  a
+    display: flex
+    flex-direction: column
+    justify-content: top
+    align-items: center
+    padding-left: 25px
+    i.button.icon
+      margin: 0 !important
+    div
+      cursor: pointer
+      color: #333
+      margin-top: 10px
+      font-size: 15px
+      text-transform: uppercase
+.ui.clear.background
+  background: rgba(255,255,255,0.7)
+  border-radius: 4px

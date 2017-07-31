@@ -3,6 +3,7 @@ import Rule from './rule'
 import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
 import Empty from './empty'
+import AddButton from 'app/components/project/addbutton'
 
 require('sass/rules.sass')
 
@@ -84,9 +85,7 @@ const Rules=React.createClass({
             </div>
           )}
         </div>
-        <a onClick={() => this.handleAdd()} className="ui massive button add icon floating yellow">
-          <i className="add icon"></i>
-        </a>
+        <AddButton project={props.project.shortname}/>
       </div>
     )
   }
