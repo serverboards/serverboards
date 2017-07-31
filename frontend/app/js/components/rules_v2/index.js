@@ -40,6 +40,8 @@ class RuleCard extends React.Component{
   constructor(props){
     super(props)
     this.state={
+      name: this.props.rule.name,
+      description: this.props.rule.description,
       icons: []
     }
   }
@@ -63,10 +65,21 @@ class RuleCard extends React.Component{
     $(this.refs.toggle).checkbox({
       onChange: (ev) => props.updateActive(this.refs.toggle_input.checked)
     })
+    if (!this.state.name || !this.state.description){
+      cache.trigger(props.rule.rule.when.trigger).then( t => {
+        let changes = {}
+        if (!this.state.name)
+          changes["name"]=t.name
+        if (!this.state.description)
+          changes["description"]=t.description
+        this.setState(changes)
+      })
+    }
   }
   render(){
     const {rule, gotoRule} = this.props
-    const {icons} = this.state
+    const state = this.state
+    const {icons} = state
     let status
     if (rule.status){
       status=rule.status
@@ -96,8 +109,8 @@ class RuleCard extends React.Component{
           </div>
         </div>
         <div className="content">
-          <h3 className="ui header">{rule.name || rule.rule.when.trigger || rule.uuid}</h3>
-          <div>{rule.description}</div>
+          <h3 className="ui header">{state.name}</h3>
+          <div>{state.description}</div>
         </div>
 
         <div className="extra content">
