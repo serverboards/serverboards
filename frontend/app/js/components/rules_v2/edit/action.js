@@ -14,7 +14,7 @@ class ActionParams extends React.Component{
       modified: false
     }
     this.updateForm = (data) => {
-      console.log("modified?", data, props.data, object_is_equal(data, props.data))
+      // console.log("modified?", data, props.data, object_is_equal(data, props.data))
       const modified = !object_is_equal(data, props.data)
       this.setState({data, modified})
     }

@@ -37,6 +37,9 @@ class WhenModel extends React.Component{
     cache
       .trigger(when.trigger)
       .then( t => {
+        if (!t){
+          return
+        }
         let params = []
         const data = when.params
         for (let p of t.start.params){

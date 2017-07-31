@@ -3,6 +3,7 @@ import i18n from 'app/utils/i18n'
 import { goto } from 'app/utils/store'
 import cache from 'app/utils/cache'
 import Rule from 'app/containers/rules_v2/rule'
+import RuleAdd from 'app/containers/rules_v2/add'
 import { sort_by_name, colorize } from 'app/utils'
 import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
@@ -121,6 +122,10 @@ const Rules = React.createClass({
   },
   render(){
     if (this.props.subsection){
+      if (this.props.subsection=="add")
+        return (
+          <RuleAdd {...this.props}/>
+        )
       const subsection = this.props.subsection
       const rule = this.props.rules.find( r => r.uuid == subsection)
       return (

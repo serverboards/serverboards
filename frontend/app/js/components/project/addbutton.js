@@ -1,7 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import Restricted from 'app/restricted'
-import { set_modal } from 'app/utils/store'
+import { set_modal, goto } from 'app/utils/store'
 
 require("sass/project.sass")
 
@@ -41,7 +41,7 @@ class AddButton extends React.Component{
           </Restricted>
           <Restricted perm="rules.create">
             <a
-                onClick={() => set_modal_and_close("rule.create", {project})}
+                onClick={() => goto(`/project/${project}/rules_v2/add`)}
                 title={i18n("Add a rule")}
                 >
               <i className="ui massive button lab violet icon"></i>

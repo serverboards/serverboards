@@ -12,6 +12,8 @@ function rules_v2(state=default_state, action){
       return {...state, rules: state.rules.map(
         r => r.uuid==action.rule.uuid ? action.rule : r
       )}
+    case "@RPC_EVENT/rules_v2.created":
+      return {...state, rules: state.rules.concat( action.rule )}
   }
   return state
 }

@@ -11,7 +11,7 @@ export default connect({
     return {
       rules: state.rules_v2.rules,
       updateActive: (uuid, is_active) => {
-        console.log("Update active?", uuid, is_active)
+        // console.log("Update active?", uuid, is_active)
         rpc.call("rules_v2.update", [uuid, {is_active}])
           .then( () => Flash.success(
             is_active ?
@@ -34,8 +34,10 @@ export default connect({
   },
   subscriptions(state, props){
     let subs = []
-    if (props.project)
+    if (props.project){
       subs.push(`rules_v2.updated[${props.project.shortname}]`)
+      subs.push(`rules_v2.created[${props.project.shortname}]`)
+    }
     return subs
   },
   loading(state){

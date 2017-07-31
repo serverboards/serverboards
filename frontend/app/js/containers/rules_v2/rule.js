@@ -195,15 +195,17 @@ class Model extends React.Component {
   }
   componentDidMount(){
     const props = this.props
-    props.setSectionMenu(Menu)
-    props.setSectionMenuProps({
+    props.setSectionMenu && props.setSectionMenu(Menu)
+    props.setSectionMenuProps && props.setSectionMenuProps({
       gotoRules: () => { goto(`/project/${props.project.shortname}/rules_v2/`) },
+      cancel_label: props.cancel_label,
+      save_label: props.save_label,
     })
   }
   componentWillUnmount(){
     const props = this.props
-    props.setSectionMenu(null)
-    props.setSectionMenuProps({})
+    props.setSectionMenu && props.setSectionMenu(null)
+    props.setSectionMenuProps && props.setSectionMenuProps({})
   }
   updateRule(what, value){
     let rule = this.state.rule
@@ -223,9 +225,11 @@ class Model extends React.Component {
       rule = map_set( rule, ["rule", ...what], value )
     }
     this.setState({rule})
-    this.props.setSectionMenuProps({
+    this.props.setSectionMenuProps && this.props.setSectionMenuProps({
       gotoRules: () => { goto(`/project/${this.props.project.shortname}/rules_v2/`) },
       saveRule: () => this.saveRule(), // added this to signal it has been modified
+      cancel_label: this.props.cancel_label,
+      save_label: this.props.save_label,
     })
     return rule
   }
@@ -383,9 +387,17 @@ class Model extends React.Component {
         actions: prepare_for_save(r.rule.actions),
       }
     }
-    rpc.call("rules_v2.update", [r.uuid, rule]).then(() => {
-      Flash.success(i18n("Updated rule *{name}*", {name: r.name}))
-    })
+    if (r.uuid){
+      rpc.call("rules_v2.update", [r.uuid, rule]).then(() => {
+        Flash.success(i18n("Updated rule *{name}*", {name: r.name}))
+      })
+    }
+    else{
+      rpc.call("rules_v2.create", rule).then(() => {
+        Flash.success(i18n("Created rule *{name}*", {name: r.name}))
+      })
+      goto(`/project/${this.props.project.shortname}/rules_v2/`)
+    }
   }
   getCurrentSection(){
     switch(this.state.section.section){

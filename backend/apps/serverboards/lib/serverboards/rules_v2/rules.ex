@@ -93,7 +93,7 @@ defmodule Serverboards.RulesV2.Rules do
   end
 
   def create_real(uuid, %{} = data, options \\ []) do
-    data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"name description rule is_active deleted")
+    data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"name description rule is_active deleted project")
     data = Map.put(data, :uuid, uuid)
     data = if data[:project] do
       Map.put( data, :project_id, get_project_id_by_shortname(data.project))
