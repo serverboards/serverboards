@@ -5,6 +5,7 @@ import cache from 'app/utils/cache'
 import Rule from 'app/containers/rules_v2/rule'
 import { sort_by_name, colorize } from 'app/utils'
 import Icon from '../iconicon'
+import AddButton from 'app/components/project/addbutton'
 
 function get_services_id(node){
   if (!node){
@@ -142,6 +143,7 @@ const Rules = React.createClass({
             />
         ) ) }
       </div>
+      <AddButton project={this.props.project.shortname}/>
     </div>
     )
   }
