@@ -111,7 +111,7 @@ export function ActionOrCondition(props){
     case "action":
     default:
       return (
-        <Action {...props}/>
+        <Action key={props.action.action} {...props}/>
       )
   }
 }
