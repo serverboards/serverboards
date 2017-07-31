@@ -145,7 +145,7 @@ const Board = React.createClass({
             </ReactGridLayout>
           </div>
           )}
-        <AddButton project={this.props.project.shortname}/>
+        <AddButton project={this.props.project}/>
       </div>
     )
   }
