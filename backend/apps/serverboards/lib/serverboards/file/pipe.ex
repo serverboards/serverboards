@@ -14,13 +14,11 @@ defmodule Serverboards.File.Pipe do
     rfd = UUID.uuid4
 
     #Logger.debug("ew #{inspect Registry.lookup(__MODULE__, wfd)} !-> #{inspect self()}")
-    parent = Keyword.get(options, :parent, self())
-    options = Keyword.take(options, [:parent])
+    options = Enum.into(options, %{})
+    parent = Map.get(options, :parent, self())
+    options = Map.put(options, :parent, parent)
 
-    {:ok, pid} = GenServer.start_link(__MODULE__, {wfd, rfd, parent}, options )
-
-    Logger.debug("w #{inspect Registry.whereis_name({__MODULE__, wfd})}")
-    Logger.debug("r #{inspect Registry.whereis_name({__MODULE__, rfd})}")
+    {:ok, pid} = GenServer.start_link(__MODULE__, {wfd, rfd, options}, [] )
 
     {:ok, wfd, rfd}
   end
@@ -34,19 +32,26 @@ defmodule Serverboards.File.Pipe do
 
   def write(fd, data, options \\ []) when is_binary(data) do
     options = Enum.into(options, %{})
-    Logger.debug("me #{inspect self()}")
-    if byte_size(data) > @max_buf_size do
-      {:error, :buffer_too_large}
-    else
-      with {:write, pid} <- lookup(fd) do
-         GenServer.call( pid, {:write, data, options})
-      end
+    cond do
+      byte_size(data) > @max_buf_size ->
+        {:error, :buffer_too_large}
+      data == "" ->
+        {:error, :empty_data}
+      true ->
+        with {:write, pid} <- lookup(fd) do
+           GenServer.call( pid, {:write, data, options})
+        end
     end
   end
   def read(fd, options \\ []) do
     options = Enum.into(options, %{})
     with {:read, pid} <- lookup(fd) do
       GenServer.call( pid, {:read, options})
+    end
+  end
+  def sync(fd) do
+    with {:read, pid} <- lookup(fd) do
+      GenServer.call(pid, {:sync})
     end
   end
 
@@ -63,21 +68,28 @@ defmodule Serverboards.File.Pipe do
   end
 
   ## Server IMPL
-  def init({wfd, rfd, parent}) do
-    Process.monitor(parent)
+  def init({wfd, rfd, options}) do
+    Process.monitor(options.parent)
     {:ok, _} = Registry.register( __MODULE__, wfd, {:write, self()})
     {:ok, _} = Registry.register( __MODULE__, rfd, {:read, self()})
 
     {:ok, %{
       buffers: [],
       wait_read: [],
-      open_fds: [wfd, rfd] # when empty, terminate
+      open_fds: [wfd, rfd], # when empty, terminate
+      rfd: rfd,
+      wfd: wfd,
+      wait_empty: [], # to wake up when buffers are empty
+      async: options[:async]
     }}
   end
 
   def handle_call({:write, data, options}, from, state) do
     state = case state.wait_read do
       [] -> # nobody waiting, store the write
+        if state.async do
+          Serverboards.Event.emit("file.ready[#{inspect state.rfd}]", %{})
+        end
         %{ state |
           buffers: state.buffers ++ [data]
         }
@@ -92,6 +104,17 @@ defmodule Serverboards.File.Pipe do
   end
   def handle_call({:read, %{ async: true }}, from, state) do
     case state.buffers do
+      [head] ->
+        for wait_empty <- state.wait_empty do
+          GenServer.reply(wait_empty, :empty)
+        end
+        {:reply,
+          {:ok, head},
+          %{ state |
+            buffers: [],
+            wait_empty: []
+          }
+        }
       [head | tail ] ->
         {:reply,
           {:ok, head},
@@ -123,6 +146,9 @@ defmodule Serverboards.File.Pipe do
     end
   end
   def handle_call({:close, fd}, _from, state) do
+    if state.async do
+      Serverboards.Event.emit("file.closed[#{fd}]", %{})
+    end
     state = %{ state |
       open_fds: List.delete( state.open_fds, fd )
     }
@@ -133,18 +159,28 @@ defmodule Serverboards.File.Pipe do
       {:reply, :ok, state}
     end
   end
+  def handle_call({:sync, fd}, from, state) do
+    if state.wait_empty == [] do
+      {:reply, :empty, state}
+    else
+      {:noreply, %{ state |
+        wait_empty: state.wait_empty ++ [from]
+      }}
+    end
+  end
   def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
-    Logger.warn("handle info DOWN")
     {:stop, :normal, state}
   end
   def handle_info(data, state) do
-    Logger.warn("handle info: #{inspect data}")
+    Logger.warn("Unhandled file.pipe info: #{inspect data}")
     {:noreply, state}
   end
 
   def terminate(reason, state) do
-    Logger.debug("Terminate file pipe #{inspect reason}")
     for fd <- state.open_fds do
+      if state.async do
+        Serverboards.Event.emit("file.closed[#{fd}]", %{})
+      end
       :ok == Registry.unregister(__MODULE__, fd)
     end
   end
