@@ -54,6 +54,12 @@ defmodule Serverboards.File.Pipe do
       GenServer.call(pid, {:sync})
     end
   end
+  def fcntl(fd, options) do
+    options = Enum.into(options, %{})
+    with {_, pid} <- lookup(fd) do
+      GenServer.call(pid, {:fcntl, options})
+    end
+  end
 
   @doc ~S"""
   Closes one end of the connection. Both ends must be closed.
@@ -167,6 +173,11 @@ defmodule Serverboards.File.Pipe do
         wait_empty: state.wait_empty ++ [from]
       }}
     end
+  end
+  def handle_call({:fcntl, options}, from, state) do
+    {:reply, :ok, %{ state |
+      async: Map.get(options, :async, state[:async])
+      }}
   end
   def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
     {:stop, :normal, state}

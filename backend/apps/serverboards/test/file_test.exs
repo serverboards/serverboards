@@ -88,7 +88,7 @@ defmodule FileTest do
   end
 
   test "Wirte some, close, then read it" do
-    {:ok, wfd, rfd} = Pipe.pipe(async: true)
+    {:ok, wfd, rfd} = Pipe.pipe(async: false)
 
     task1 = Task.async(fn ->
       Logger.debug("Write 1")
@@ -103,6 +103,8 @@ defmodule FileTest do
 
       Pipe.close(wfd)
     end)
+
+    Pipe.fcntl(wfd, async: true)
 
     task2 = Task.async(fn ->
       :timer.sleep(50)
