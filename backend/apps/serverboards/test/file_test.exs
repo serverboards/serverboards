@@ -55,4 +55,36 @@ defmodule FileTest do
     assert :ok == Pipe.write(wfd, "test7")
     Task.await(task) == ["test5", "test6", "test7"]
   end
+
+  test "When parent die, I die" do
+    task = Task.async(fn ->
+      Pipe.pipe() # when task finishes, the fds should not be valid.
+    end)
+    {:ok, wfd, rfd} = Task.await(task)
+    :timer.sleep(100)
+    {:error, :not_found} = Pipe.close(wfd)
+  end
+
+  test "Set a specific parent, whenit dies, it dies" do
+    parent = Task.async(fn ->
+      receive do
+        :stop -> :ok
+      end
+    end)
+
+    {:ok, wfd, rfd} = Pipe.pipe(parent: parent.pid)
+
+    :ok = Pipe.write(wfd, "test8")
+    :ok = Pipe.write(wfd, "test9")
+
+    Logger.debug("Now stop it")
+    send(parent.pid, :stop)
+    Task.await(parent)
+    :timer.sleep(100)
+
+    Logger.debug("Try to write")
+    {:error, :not_found} = Pipe.write(wfd, "test8")
+    {:error, :not_found} = Pipe.read(rfd)
+  end
+
 end
