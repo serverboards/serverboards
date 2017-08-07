@@ -11,3 +11,9 @@ Internally serverboards template will gather all data into brackets (plugin-id,
 plugin-name and so on), and ask the user for the values to fill in.
 
 It will install everything in the given installation dir.
+
+# I18N
+
+Use `serverboards i18n update` and `serverboards i18n compile` to update and
+compile strings. from .js, .py and manifest.yaml. With `serverboards i1n compile`
+a json file is compiled that is loaded using the `i18n` component.

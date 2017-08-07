@@ -7,6 +7,14 @@ defmodule FileTest do
   # alias Test.Client
   alias Serverboards.File.Pipe
 
+
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+  end
+
   doctest Pipe, import: true
   test "Simple write and read" do
     {:ok, wfd, rfd} = Pipe.pipe()
@@ -121,6 +129,50 @@ defmodule FileTest do
 
     assert Task.await(task1) == :ok
     assert Task.await(task2) == :ok
+  end
+
+  test "Using RPC, two different clients" do
+    # we create the pipe in one client, write ther, and read from another
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client2} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    Logger.debug("CREATE")
+
+    {:ok, [wfd, rfd]} = Test.Client.call(client, "file.pipe", %{async: true})
+    Logger.debug("Wfd #{inspect wfd}, rfd #{inspect rfd}")
+
+    Logger.debug("WRITE")
+
+    # write at client A
+    {:ok, :ok} = Test.Client.call(client, "file.write", [wfd, "asdfgasdfg"])
+
+    Logger.debug("READ")
+
+    # read from B
+    {:ok, data} = Test.Client.call(client2, "file.read", [rfd])
+
+    assert data == "asdfgasdfg"
+
+    Logger.debug("STOP")
+    # close A, should terminate the pipe
+    #Test.Client.stop(client)
+    GenServer.stop(client.pid)
+    Logger.debug("#{inspect client.pid}")
+
+    # as owner is dead, the pipe is closed, all data lost.
+    assert {:error, "not_found"} == Test.Client.call(client2, "file.read", [rfd])
+  end
+
+  test "Using RPC, API test" do
+    # we create the pipe in one client, write ther, and read from another
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, [wfd, rfd]} = Test.Client.call(client, "file.pipe", %{async: true})
+    {:ok, :ok} = Test.Client.call(client, "file.write", [wfd, "asdfgasdfg"])
+    {:ok, data} = Test.Client.call(client, "file.read", [rfd])
+    {:ok, :ok} = Test.Client.call(client, "file.fcntl", [wfd, %{ async: false} ])
+    {:ok, :ok} = Test.Client.call(client, "file.close", [wfd])
+    {:ok, :ok} = Test.Client.call(client, "file.close", [rfd])
   end
 
 end

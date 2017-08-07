@@ -4,7 +4,8 @@ defmodule Serverboards.File.Supervisor do
   def start_link( opts ) do
     import Supervisor.Spec
     children = [
-      supervisor(Registry, [:unique, Serverboards.File.Pipe])
+      supervisor(Registry, [:unique, Serverboards.File.Pipe]),
+      worker(Serverboards.File.RPC, [[name: Serverboards.File.RPC]]),
     ]
 
     Logger.debug("Starting file  supervisor")

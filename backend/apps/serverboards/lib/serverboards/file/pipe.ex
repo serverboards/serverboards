@@ -46,7 +46,7 @@ defmodule Serverboards.File.Pipe do
   def read(fd, options \\ []) do
     options = Enum.into(options, %{})
     with {:read, pid} <- lookup(fd) do
-      GenServer.call( pid, {:read, options})
+      GenServer.call( pid, {:read, options}, 600_000)
     end
   end
   def sync(fd) do
