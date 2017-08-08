@@ -107,7 +107,6 @@ defmodule Serverboards.File.Pipe do
   end
 
   def handle_call({:write, data, options}, from, state) do
-    Logger.debug("#{inspect state}")
     if state.max_buffers == 0 do
       if options[:nonblock] do
         {:reply, :full, state}
@@ -138,24 +137,24 @@ defmodule Serverboards.File.Pipe do
   def handle_call({:read, options}, from, state) do
     case state.buffers do
       [head] -> # have only one buffer left
+        # wake up sync calls
         for wait_empty <- state.wait_empty do
           GenServer.reply(wait_empty, :empty)
         end
-        state = wakeup_write(state)
+        # and process read
+        state = wakeup_write(%{ state | buffers: [] })
         {:reply,
           {:ok, head},
           %{ state |
-            buffers: [],
             wait_empty: [],
             max_buffers: state.max_buffers + 1
           }
         }
       [head | tail ] -> # have several buffers left
-        state = wakeup_write(state)
+        state = wakeup_write(%{ state | buffers: tail })
         {:reply,
           {:ok, head},
           %{ state |
-            buffers: tail,
             max_buffers: state.max_buffers + 1
           }
         }

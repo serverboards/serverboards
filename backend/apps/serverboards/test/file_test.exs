@@ -75,7 +75,7 @@ defmodule FileTest do
     assert Pipe.read(rfd, nonblock: true) == {:ok, nil}
 
     # ready to read fast
-    Task.async(fn ->
+    task = Task.async(fn ->
       Pipe.read(rfd)
       Pipe.read(rfd)
       Pipe.read(rfd)
@@ -87,6 +87,37 @@ defmodule FileTest do
     Pipe.sync(wfd)
     assert Pipe.write(wfd, "nonblock6", nonblock: true) == :ok
     Pipe.sync(wfd)
+
+    assert Task.await(task) == {:ok, "nonblock6"}
+
+    # test blocking write
+    task = Task.async(fn ->
+      Logger.debug("write 1")
+      Pipe.write(wfd,"block1") # should unblock as reading
+      Logger.debug("wrote 1")
+
+      Logger.debug("write 2")
+      Pipe.write(wfd,"block2")
+      Logger.debug("wrote 2")
+
+      :timer.sleep(100)
+
+      Logger.debug("write 3")
+      Pipe.write(wfd,"block3")
+      Logger.debug("wrote 3")
+    end)
+
+    :timer.sleep(300)
+    Logger.debug("read 1")
+    assert Pipe.read(rfd) == {:ok, "block1"}
+    Logger.debug("read 2")
+    assert Pipe.read(rfd) == {:ok, "block2"}
+    Logger.debug("no read 3")
+    assert Pipe.read(rfd, nonblock: true) == {:ok, nil}
+    :timer.sleep(300)
+    Logger.debug("read 3")
+    assert Pipe.read(rfd, nonblock: true) == {:ok, "block3"}
+
   end
 
   test "When parent die, I die" do
