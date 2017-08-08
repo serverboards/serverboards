@@ -19,14 +19,14 @@ defmodule FileTest do
   test "Simple write and read" do
     {:ok, wfd, rfd} = Pipe.pipe()
 
-    assert :ok == Pipe.write(wfd, "test")
+    assert 4 == Pipe.write(wfd, "test")
     assert {:ok, "test"} == Pipe.read(rfd)
 
     # and in order and by packet
 
-    assert :ok == Pipe.write(wfd, "test1")
-    assert :ok == Pipe.write(wfd, "test2")
-    assert :ok == Pipe.write(wfd, "test3")
+    assert 5 == Pipe.write(wfd, "test1")
+    assert 5 == Pipe.write(wfd, "test2")
+    assert 5 == Pipe.write(wfd, "test3")
 
     assert {:ok, "test1"} == Pipe.read(rfd)
     assert {:ok, "test2"} == Pipe.read(rfd)
@@ -40,8 +40,8 @@ defmodule FileTest do
 
   test "Out of order, async" do
     {:ok, wfd, rfd} = Pipe.pipe()
-    assert {:ok, nil} == Pipe.read(rfd, nonblock: true)
-    assert :ok == Pipe.write(wfd, "test4")
+    assert {:ok, ""} == Pipe.read(rfd, nonblock: true)
+    assert 5 == Pipe.write(wfd, "test4")
     assert {:ok, "test4"} == Pipe.read(rfd, nonblock: true)
   end
 
@@ -58,21 +58,21 @@ defmodule FileTest do
     assert Task.yield( task, 100) == nil
 
     # write it, should be received
-    assert :ok == Pipe.write(wfd, "test5")
-    assert :ok == Pipe.write(wfd, "test6")
-    assert :ok == Pipe.write(wfd, "test7")
+    assert 5 == Pipe.write(wfd, "test5")
+    assert 5 == Pipe.write(wfd, "test6")
+    assert 5 == Pipe.write(wfd, "test7")
     assert Task.await(task) == ["test5", "test6", "test7"]
   end
 
   test "Write async and blocking" do
     {:ok, wfd, rfd} = Pipe.pipe(max_buffers: 1)
 
-    assert Pipe.write(wfd, "nonblock1", nonblock: true) == :ok
-    assert Pipe.write(wfd, "nonblock2", nonblock: true) == :full
-    assert Pipe.write(wfd, "nonblock3", nonblock: true) == :full
+    assert Pipe.write(wfd, "nonblock1", nonblock: true) == 9
+    assert Pipe.write(wfd, "nonblock2", nonblock: true) == 0
+    assert Pipe.write(wfd, "nonblock3", nonblock: true) == 0
 
     assert Pipe.read(rfd, nonblock: true) == {:ok, "nonblock1"}
-    assert Pipe.read(rfd, nonblock: true) == {:ok, nil}
+    assert Pipe.read(rfd, nonblock: true) == {:ok, ""}
 
     # ready to read fast
     task = Task.async(fn ->
@@ -81,11 +81,11 @@ defmodule FileTest do
       Pipe.read(rfd)
     end)
     # write slow, no problems, waiting for empty
-    assert Pipe.write(wfd, "nonblock4", nonblock: true) == :ok
+    assert Pipe.write(wfd, "nonblock4", nonblock: true) == 9
     Pipe.sync(wfd)
-    assert Pipe.write(wfd, "nonblock5", nonblock: true) == :ok
+    assert Pipe.write(wfd, "nonblock5", nonblock: true) == 9
     Pipe.sync(wfd)
-    assert Pipe.write(wfd, "nonblock6", nonblock: true) == :ok
+    assert Pipe.write(wfd, "nonblock6", nonblock: true) == 9
     Pipe.sync(wfd)
 
     assert Task.await(task) == {:ok, "nonblock6"}
@@ -113,7 +113,7 @@ defmodule FileTest do
     Logger.debug("read 2")
     assert Pipe.read(rfd) == {:ok, "block2"}
     Logger.debug("no read 3")
-    assert Pipe.read(rfd, nonblock: true) == {:ok, nil}
+    assert Pipe.read(rfd, nonblock: true) == {:ok, ""}
     :timer.sleep(300)
     Logger.debug("read 3")
     assert Pipe.read(rfd, nonblock: true) == {:ok, "block3"}
@@ -138,8 +138,8 @@ defmodule FileTest do
 
     {:ok, wfd, rfd} = Pipe.pipe(parent: parent.pid)
 
-    :ok = Pipe.write(wfd, "test8")
-    :ok = Pipe.write(wfd, "test9")
+    5 = Pipe.write(wfd, "test8")
+    5 = Pipe.write(wfd, "test9")
 
     Logger.debug("Now stop it")
     send(parent.pid, :stop)
@@ -147,19 +147,19 @@ defmodule FileTest do
     :timer.sleep(100)
 
     Logger.debug("Try to write")
-    {:error, :not_found} = Pipe.write(wfd, "test8")
-    {:error, :not_found} = Pipe.read(rfd)
+    assert {:ok, -1} == Pipe.write(wfd, "test8")
+    assert {:ok, -1} == Pipe.read(rfd)
   end
 
-  test "Wirte some, close, then read it" do
+  test "Write some, close, then read it" do
     {:ok, wfd, rfd} = Pipe.pipe(async: false)
 
     task1 = Task.async(fn ->
       Logger.debug("Write 1")
-      :ok = Pipe.write(wfd, "test9")
+      assert 5 == Pipe.write(wfd, "test9")
       :timer.sleep(100)
       Logger.debug("Write 2")
-      :ok = Pipe.write(wfd, "test10")
+      assert 6 == Pipe.write(wfd, "test10")
       :timer.sleep(100)
       Logger.debug("Wait for all read")
       Pipe.sync(wfd)
@@ -200,7 +200,8 @@ defmodule FileTest do
     Logger.debug("WRITE")
 
     # write at client A
-    {:ok, :ok} = Test.Client.call(client, "file.write", [wfd, "asdfgasdfg"])
+    data = "asdfgasdfg"
+    assert {:ok, byte_size(data)} == Test.Client.call(client, "file.write", [wfd, data])
 
     Logger.debug("READ")
 
@@ -216,19 +217,21 @@ defmodule FileTest do
     Logger.debug("#{inspect client.pid}")
 
     # as owner is dead, the pipe is closed, all data lost.
-    assert {:error, "not_found"} == Test.Client.call(client2, "file.read", [rfd])
+    assert {:ok, -1} == Test.Client.call(client2, "file.read", [rfd])
   end
 
   test "Using RPC, API test" do
     # we create the pipe in one client, write ther, and read from another
+    data = "asdfgasdfg"
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
     {:ok, [wfd, rfd]} = Test.Client.call(client, "file.pipe", %{async: true})
-    {:ok, :ok} = Test.Client.call(client, "file.write", [wfd, "asdfgasdfg"])
-    {:ok, data} = Test.Client.call(client, "file.read", [rfd])
-    {:ok, :ok} = Test.Client.call(client, "file.fcntl", [wfd, %{ async: false} ])
-    {:ok, :ok} = Test.Client.call(client, "file.close", [wfd])
-    {:ok, :ok} = Test.Client.call(client, "file.close", [rfd])
+    assert {:ok, byte_size(data)} == Test.Client.call(client, "file.write", [wfd, data])
+    assert {:ok, data} == Test.Client.call(client, "file.read", [rfd])
+    assert {:ok, :ok} == Test.Client.call(client, "file.fcntl", [wfd, %{ async: false} ])
+    assert {:ok, :ok} == Test.Client.call(client, "file.sync", [wfd])
+    assert {:ok, :ok} == Test.Client.call(client, "file.close", [wfd])
+    assert {:ok, :ok} == Test.Client.call(client, "file.close", [rfd])
   end
 
 end

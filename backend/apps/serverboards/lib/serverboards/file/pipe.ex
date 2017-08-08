@@ -42,7 +42,7 @@ defmodule Serverboards.File.Pipe do
           GenServer.call( pid, {:write, data, options})
         else
           {:error, :not_found} -> {:ok, -1}
-          {:read, pid} -> {:ok, -1} # write to read 
+          {:read, pid} -> {:ok, -1} # write to read
           other -> other
         end
     end
@@ -58,7 +58,7 @@ defmodule Serverboards.File.Pipe do
     end
   end
   def sync(fd) do
-    with {:read, pid} <- lookup(fd) do
+    with {_, pid} <- lookup(fd) do
       GenServer.call(pid, {:sync})
     end
   end
@@ -147,7 +147,7 @@ defmodule Serverboards.File.Pipe do
       [head] -> # have only one buffer left
         # wake up sync calls
         for wait_empty <- state.wait_empty do
-          GenServer.reply(wait_empty, :empty)
+          GenServer.reply(wait_empty, :ok)
         end
         # and process read
         state = wakeup_write(%{ state | buffers: [] })
@@ -194,9 +194,9 @@ defmodule Serverboards.File.Pipe do
       {:reply, :ok, state}
     end
   end
-  def handle_call({:sync, fd}, from, state) do
+  def handle_call({:sync}, from, state) do
     if state.wait_empty == [] do
-      {:reply, :empty, state}
+      {:reply, :ok, state}
     else
       {:noreply, %{ state |
         wait_empty: state.wait_empty ++ [from]

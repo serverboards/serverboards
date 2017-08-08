@@ -18,7 +18,6 @@ defmodule Serverboards.File.RPC do
         {:ok, [wfd, rfd]}
       options, context ->
         client = MOM.RPC.Context.get(context, :client).pid
-        Logger.debug("Client #{inspect client}")
 
         options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"async")
         options = Map.put(options, :parent, client)
@@ -35,14 +34,21 @@ defmodule Serverboards.File.RPC do
     end, required_perm: "file.pipe"
     add_method mc, "file.write", fn
       [fd, data, options] ->
+        Logger.debug("Write data to pipe #{inspect data}")
         options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"nonblock")
         Pipe.write(fd, data, options)
-      [fd, data] -> Pipe.write(fd, data)
+      [fd, data] ->
+        Logger.debug("Write data to pipe #{inspect data}")
+        Pipe.write(fd, data)
     end, required_perm: "file.pipe"
 
     add_method mc, "file.close", fn
       [fd] -> Pipe.close(fd)
     end, required_perm: "file.pipe"
+    add_method mc, "file.sync", fn
+      [fd] -> Pipe.sync(fd)
+    end, required_perm: "file.pipe"
+
     add_method mc, "file.fcntl", fn
       [fd, options] ->
         options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"async")
