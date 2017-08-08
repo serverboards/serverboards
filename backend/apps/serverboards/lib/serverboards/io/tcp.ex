@@ -57,6 +57,7 @@ defmodule Serverboards.IO.TCP do
 				RPC.Client.parse_line(client, line)
 				serve(client, socket)
 			{:error, :closed} ->
+				RPC.Client.stop(client)
 				nil
 		end
 	end
