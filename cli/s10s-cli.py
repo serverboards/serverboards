@@ -167,7 +167,7 @@ class CoreClient(IOClient):
                 yield cmd
 
     def readcmds_unfiltered(self):
-        data = self.socket.recv(1024).decode('utf8')
+        data = self.socket.recv(32*1024).decode('utf8')
         self.debug("read>>> %s"%(data))
         if '\n' in data:
             datal=data.split("\n")
@@ -693,7 +693,7 @@ class CliClient(IOClient):
 
     def cli_loop(self, timeout=0.3):
         while True:
-            printc("Wait max T %s"%timeout, color="purple")
+            #debugc("Wait max T %s"%timeout, color="purple")
             self.cli_loop_select(timeout)
             try:
                 lid = self.maxid
