@@ -11,15 +11,20 @@ defmodule Serverboards.File.RPC do
     Serverboards.Utils.Decorators.permission_method_caller mc
 
 
-    add_method mc, "file.pipe", fn options, context ->
-      client = MOM.RPC.Context.get(context, :client).pid
-      Logger.debug("Client #{inspect client}")
+    add_method mc, "file.pipe", fn
+      [], context ->
+        client = MOM.RPC.Context.get(context, :client).pid
+        {:ok, wfd, rfd} = Pipe.pipe(%{ parent: client })
+        {:ok, [wfd, rfd]}
+      options, context ->
+        client = MOM.RPC.Context.get(context, :client).pid
+        Logger.debug("Client #{inspect client}")
 
-      options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"async")
-      options = Map.put(options, :parent, client)
+        options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"async")
+        options = Map.put(options, :parent, client)
 
-      {:ok, wfd, rfd} = Pipe.pipe(options)
-      {:ok, [wfd, rfd]}
+        {:ok, wfd, rfd} = Pipe.pipe(options)
+        {:ok, [wfd, rfd]}
     end, context: true, required_perm: "file.pipe"
 
     add_method mc, "file.read", fn
