@@ -40,9 +40,9 @@ defmodule FileTest do
 
   test "Out of order, async" do
     {:ok, wfd, rfd} = Pipe.pipe()
-    assert {:ok, nil} == Pipe.read(rfd, async: true)
+    assert {:ok, nil} == Pipe.read(rfd, nonblock: true)
     assert :ok == Pipe.write(wfd, "test4")
-    assert {:ok, "test4"} == Pipe.read(rfd, async: true)
+    assert {:ok, "test4"} == Pipe.read(rfd, nonblock: true)
   end
 
   test "Out of order, sync" do

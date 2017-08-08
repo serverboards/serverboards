@@ -108,7 +108,7 @@ defmodule Serverboards.File.Pipe do
 
     {:reply, :ok, state }
   end
-  def handle_call({:read, %{ async: true }}, from, state) do
+  def handle_call({:read, %{ nonblock: true }}, from, state) do
     case state.buffers do
       [head] ->
         for wait_empty <- state.wait_empty do
