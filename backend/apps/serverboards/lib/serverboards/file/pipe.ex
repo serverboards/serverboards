@@ -82,73 +82,95 @@ defmodule Serverboards.File.Pipe do
     {:ok, %{
       buffers: [],
       wait_read: [],
+      wait_write: [],
       open_fds: [wfd, rfd], # when empty, terminate
       rfd: rfd,
       wfd: wfd,
       wait_empty: [], # to wake up when buffers are empty
-      async: options[:async]
+      async: options[:async],
+      max_buffers: Map.get(options, :max_buffers, @max_buffers),
     }}
   end
 
-  def handle_call({:write, data, options}, from, state) do
-    state = case state.wait_read do
-      [] -> # nobody waiting, store the write
-        if state.async do
-          Serverboards.Event.emit("file.ready[#{inspect state.rfd}]", %{})
-        end
+  # If there is any write waiting, wake it up, add data to queues
+  defp wakeup_write(state) do
+    case state.wait_write do
+      [ {from, data} | tail ] ->
+        GenServer.reply(from, :ok)
         %{ state |
+          wait_write: tail,
           buffers: state.buffers ++ [data]
         }
-      [ head | tail ] -> # somebody waiting, give answer
-        GenServer.reply(head, {:ok, data})
-        %{ state |
-          wait_read: tail
-        }
-    end
-
-    {:reply, :ok, state }
-  end
-  def handle_call({:read, %{ nonblock: true }}, from, state) do
-    case state.buffers do
-      [head] ->
-        for wait_empty <- state.wait_empty do
-          GenServer.reply(wait_empty, :empty)
-        end
-        {:reply,
-          {:ok, head},
-          %{ state |
-            buffers: [],
-            wait_empty: []
-          }
-        }
-      [head | tail ] ->
-        {:reply,
-          {:ok, head},
-          %{ state |
-            buffers: tail
-          }
-        }
       [] ->
-        {
-          :reply,
-          {:ok, nil},
-          state
-        }
+        state
+    end
+  end
+
+  def handle_call({:write, data, options}, from, state) do
+    Logger.debug("#{inspect state}")
+    if state.max_buffers == 0 do
+      if options[:nonblock] do
+        {:reply, :full, state}
+      else
+        {:noreply, %{ state |
+          wait_write: state.wait_write ++ [{from, data}]
+        }}
+      end
+    else
+      state = case state.wait_read do
+        [] -> # nobody waiting, store the write
+          if state.async do
+            Serverboards.Event.emit("file.ready[#{inspect state.rfd}]", %{})
+          end
+          %{ state |
+            buffers: state.buffers ++ [data],
+            max_buffers: state.max_buffers - 1
+          }
+        [ head | tail ] -> # somebody waiting, give answer
+          GenServer.reply(head, {:ok, data})
+          %{ state |
+            wait_read: tail,
+          }
+      end
+      {:reply, :ok, state }
     end
   end
   def handle_call({:read, options}, from, state) do
     case state.buffers do
-      [head | tail ] ->
+      [head] -> # have only one buffer left
+        for wait_empty <- state.wait_empty do
+          GenServer.reply(wait_empty, :empty)
+        end
+        state = wakeup_write(state)
         {:reply,
           {:ok, head},
           %{ state |
-            buffers: tail
+            buffers: [],
+            wait_empty: [],
+            max_buffers: state.max_buffers + 1
           }
         }
-      [] ->
-        {:noreply, %{ state |
-          wait_read: state.wait_read ++ [from]
-        } }
+      [head | tail ] -> # have several buffers left
+        state = wakeup_write(state)
+        {:reply,
+          {:ok, head},
+          %{ state |
+            buffers: tail,
+            max_buffers: state.max_buffers + 1
+          }
+        }
+      [] -> # no data ready, may block or not
+        if options[:nonblock] do
+          {
+            :reply,
+            {:ok, nil},
+            state
+          }
+        else
+          {:noreply, %{ state |
+            wait_read: state.wait_read ++ [from]
+          } }
+        end
     end
   end
   def handle_call({:close, fd}, _from, state) do

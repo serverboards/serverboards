@@ -64,6 +64,31 @@ defmodule FileTest do
     assert Task.await(task) == ["test5", "test6", "test7"]
   end
 
+  test "Write async and blocking" do
+    {:ok, wfd, rfd} = Pipe.pipe(max_buffers: 1)
+
+    assert Pipe.write(wfd, "nonblock1", nonblock: true) == :ok
+    assert Pipe.write(wfd, "nonblock2", nonblock: true) == :full
+    assert Pipe.write(wfd, "nonblock3", nonblock: true) == :full
+
+    assert Pipe.read(rfd, nonblock: true) == {:ok, "nonblock1"}
+    assert Pipe.read(rfd, nonblock: true) == {:ok, nil}
+
+    # ready to read fast
+    Task.async(fn ->
+      Pipe.read(rfd)
+      Pipe.read(rfd)
+      Pipe.read(rfd)
+    end)
+    # write slow, no problems, waiting for empty
+    assert Pipe.write(wfd, "nonblock4", nonblock: true) == :ok
+    Pipe.sync(wfd)
+    assert Pipe.write(wfd, "nonblock5", nonblock: true) == :ok
+    Pipe.sync(wfd)
+    assert Pipe.write(wfd, "nonblock6", nonblock: true) == :ok
+    Pipe.sync(wfd)
+  end
+
   test "When parent die, I die" do
     task = Task.async(fn ->
       Pipe.pipe() # when task finishes, the fds should not be valid.
