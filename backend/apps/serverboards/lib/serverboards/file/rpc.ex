@@ -24,13 +24,13 @@ defmodule Serverboards.File.RPC do
 
     add_method mc, "file.read", fn
       [fd, options] ->
-        options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"async")
+        options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"nonblock")
         Pipe.read(fd, options)
       [fd] -> Pipe.read(fd)
     end, required_perm: "file.pipe"
     add_method mc, "file.write", fn
       [fd, data, options] ->
-        options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"async")
+        options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"nonblock")
         Pipe.write(fd, data, options)
       [fd, data] -> Pipe.write(fd, data)
     end, required_perm: "file.pipe"
