@@ -39,7 +39,11 @@ defmodule Serverboards.File.Pipe do
         {:error, :empty_data}
       true ->
         with {:write, pid} <- lookup(fd) do
-           GenServer.call( pid, {:write, data, options})
+          GenServer.call( pid, {:write, data, options})
+        else
+          {:error, :not_found} -> {:ok, -1}
+          {:read, pid} -> {:ok, -1} # write to read 
+          other -> other
         end
     end
   end
@@ -47,6 +51,10 @@ defmodule Serverboards.File.Pipe do
     options = Enum.into(options, %{})
     with {:read, pid} <- lookup(fd) do
       GenServer.call( pid, {:read, options}, 600_000)
+    else
+      {:error, :not_found} -> {:ok, -1}
+      {:write, pid} -> {:ok, -1} # read from write
+      other -> other
     end
   end
   def sync(fd) do
@@ -96,7 +104,7 @@ defmodule Serverboards.File.Pipe do
   defp wakeup_write(state) do
     case state.wait_write do
       [ {from, data} | tail ] ->
-        GenServer.reply(from, :ok)
+        GenServer.reply(from, byte_size(data))
         %{ state |
           wait_write: tail,
           buffers: state.buffers ++ [data]
@@ -109,7 +117,7 @@ defmodule Serverboards.File.Pipe do
   def handle_call({:write, data, options}, from, state) do
     if state.max_buffers == 0 do
       if options[:nonblock] do
-        {:reply, :full, state}
+        {:reply, 0, state}
       else
         {:noreply, %{ state |
           wait_write: state.wait_write ++ [{from, data}]
@@ -131,7 +139,7 @@ defmodule Serverboards.File.Pipe do
             wait_read: tail,
           }
       end
-      {:reply, :ok, state }
+      {:reply, byte_size(data), state }
     end
   end
   def handle_call({:read, options}, from, state) do
@@ -162,7 +170,7 @@ defmodule Serverboards.File.Pipe do
         if options[:nonblock] do
           {
             :reply,
-            {:ok, nil},
+            {:ok, ""},
             state
           }
         else
