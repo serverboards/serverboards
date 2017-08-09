@@ -76,8 +76,8 @@ defmodule Serverboards.Logger do
 
   defp should_log?(metadata, level) do
     cond do
-      level == :debug -> false
       metadata[:application] == :ecto -> false
+      level == :debug -> Application.get_env(:serverboards, :debug) # only store when in debug mode.
       true -> true
     end
   end
