@@ -35,7 +35,7 @@ defmodule FileTest do
     :ok = Pipe.close(rfd)
     :ok = Pipe.close(wfd)
 
-    {:error, :not_found} = Pipe.close(rfd)
+    {:ok, "already_closed"} = Pipe.close(rfd)
   end
 
   test "Out of order, async" do
@@ -126,7 +126,7 @@ defmodule FileTest do
     end)
     {:ok, wfd, _rfd} = Task.await(task)
     :timer.sleep(100)
-    {:error, :not_found} = Pipe.close(wfd)
+    {:ok, "already_closed"} = Pipe.close(wfd)
   end
 
   test "Set a specific parent, when it dies, it dies" do
@@ -147,8 +147,8 @@ defmodule FileTest do
     :timer.sleep(100)
 
     Logger.debug("Try to write")
-    assert {:ok, -1} == Pipe.write(wfd, "test8")
-    assert {:ok, -1} == Pipe.read(rfd)
+    assert {:ok, false} == Pipe.write(wfd, "test8")
+    assert {:ok, false} == Pipe.read(rfd)
   end
 
   test "Write some, close, then read it" do
@@ -217,7 +217,7 @@ defmodule FileTest do
     Logger.debug("#{inspect client.pid}")
 
     # as owner is dead, the pipe is closed, all data lost.
-    assert {:ok, -1} == Test.Client.call(client2, "file.read", [rfd])
+    assert {:ok, false} == Test.Client.call(client2, "file.read", [rfd])
   end
 
   test "Using RPC, API test" do

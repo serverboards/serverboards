@@ -41,8 +41,8 @@ defmodule Serverboards.File.Pipe do
         with {:write, pid} <- lookup(fd) do
           GenServer.call( pid, {:write, data, options})
         else
-          {:error, :not_found} -> {:ok, -1}
-          {:read, pid} -> {:ok, -1} # write to read
+          {:error, :not_found} -> {:ok, false}
+          {:read, pid} -> {:ok, false} # write to read
           other -> other
         end
     end
@@ -52,8 +52,8 @@ defmodule Serverboards.File.Pipe do
     with {:read, pid} <- lookup(fd) do
       GenServer.call( pid, {:read, options}, 600_000)
     else
-      {:error, :not_found} -> {:ok, -1}
-      {:write, pid} -> {:ok, -1} # read from write
+      {:error, :not_found} -> {:ok, false}
+      {:write, pid} -> {:error, :write_only} # read from write
       other -> other
     end
   end
