@@ -65,11 +65,23 @@ defmodule Serverboards.Plugin.RPC do
       end
     end, context: true
 
-    RPC.MethodCaller.add_method method_caller, "plugin.kill", fn [uuid], context ->
+    RPC.MethodCaller.add_method method_caller, "plugin.kill", fn [uuid_or_id], context ->
       if has_perm_for_plugin(context, :any) do
         user = RPC.Context.get(context, :user)
-        Logger.warn("Plugin #{inspect uuid} killed by #{inspect user.email}", plugin_uuid: uuid, user: user.email)
-        Plugin.Runner.kill uuid
+        uuid = case UUID.info(uuid_or_id) do
+          {:ok, _info} -> uuid_or_id
+          _ ->
+            case Plugin.Runner.get_by_component_id(uuid_or_id) do
+              {:ok, uuid} -> uuid
+              _ -> nil
+            end
+        end
+        if uuid do
+          Logger.warn("Plugin #{inspect uuid_or_id} killed by #{inspect user.email}", plugin_uuid: uuid, user: user.email)
+          Plugin.Runner.kill uuid
+        else
+          {:error, :not_running}
+        end
       else
         {:error, :unknown_method}
       end

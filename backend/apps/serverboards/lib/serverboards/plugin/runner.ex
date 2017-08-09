@@ -60,7 +60,7 @@ defmodule Serverboards.Plugin.Runner do
       %{ id: id } -> id
     end
 
-    case GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component.id}) do
+    case get_by_component_id(component.id) do
       {:ok, uuid} ->
         #Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
         ping(uuid)
@@ -129,6 +129,10 @@ defmodule Serverboards.Plugin.Runner do
       other ->
         {:error, other}
     end
+  end
+
+  def get_by_component_id(component_id) do
+    GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component_id})
   end
 
   @doc ~S"""
