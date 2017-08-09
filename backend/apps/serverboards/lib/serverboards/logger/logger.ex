@@ -22,6 +22,7 @@ defmodule Serverboards.Logger do
   """
   def history(options \\ %{}) do
     import Ecto.Query
+    Serverboards.Logger.Server.flush(Serverboards.Logger.Server)
 
     # Prepare the main query
     q = from l in Model.Line
@@ -52,6 +53,10 @@ defmodule Serverboards.Logger do
     qlines = case options[:start] do
       nil -> qlines
       id -> where(qlines, [l], l.id < ^id )
+    end
+    qlines = case options[:until] do
+      nil -> qlines
+      id -> where(qlines, [l], l.id > ^id )
     end
     qlines = case options[:offset] do
       nil -> qlines

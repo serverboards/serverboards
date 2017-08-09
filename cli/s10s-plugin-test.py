@@ -4,10 +4,20 @@ import os, json, sys
 s10s_cli = __import__('s10s-cli')
 printc=s10s_cli.printc
 
+LEVEL_COLOR={
+  "warn": "yellow",
+  "error": "red",
+  "info": "white",
+  "debug": "blue"
+}
+
 def maybe_list(l):
     if type(l) == list:
         return l
     return [l]
+
+def fix_identation(str, ident):
+  return str.replace('\n', "\n"+" "*ident)
 
 def main():
     import argparse
@@ -54,18 +64,32 @@ def main():
             ]
         tests_count = len(tests)
         for n, test in enumerate(tests):
-            printc("* %s (%d/%d) ...\r"%(test, n+1, tests_count), end="", flush=True)
+            cli.call("@log.info", "Start plugin test %s:%s"%(command,test), {"file": "s10s plugin-test", "line":"--"})
+            logl=cli.call("logs.list", count=1)["lines"]
+            start_log_id = logl[-1]["id"]-1 # Show the "Start plugin test message"
+
+            printc("* %s (%d/%d)...\r"%(test, n+1, tests_count), end="", flush=True)
             try:
-                cli.call("@log.info", "Start plugin test %s:%s"%(plugin,test))
                 result = cli.call("plugin.call",plugin, test)
             except Exception as e:
                 result = e
             if result == True or result == None:
-                cli.call("@log.info", "Finish plugin test %s:%s OK"%(plugin,test))
+                cli.call("@log.info", "Finish plugin test %s:%s OK"%(command,test), {"file": "s10s plugin-test", "line":"--"})
                 printc("* %-48s OK"%(test), color="green")
             else:
-                cli.call("@log.info", "Finish plugin test %s:%s NOK"%(plugin,test))
+                cli.call("@log.error", "Finish plugin test %s:%s NOK"%(command,test), {"file": "s10s plugin-test", "line":"--"})
                 printc("* %-48s NOK -> %s"%(test, result), color="red")
+                for l in reversed( cli.call("logs.list", until=start_log_id)["lines"] ):
+                  printc("        [%-5s %s] [%-16s:%s] %s"%(
+                      l["level"].upper(),
+                      l["timestamp"][11:],
+
+                      l["meta"].get("file", "--")[-16:], l["meta"].get("line", "--"),
+                      fix_identation(l["message"], 16)
+                    ), color=LEVEL_COLOR[l["level"]])
+                print("\n")
+
+
                 allok = False
         try:
             cli.call("plugin.stop", plugin)
