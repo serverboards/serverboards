@@ -4,6 +4,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
 from common import *
+from serverboards import print
 
 @serverboards.rpc_method
 def ssh_public_key(**kwargs):
@@ -28,7 +29,7 @@ def get_fingerprint(url, *args, **kwargs):
         output = str(subprocess.check_output(["ssh-keyscan", "-p", port, hostname]), 'utf8')
         output=output.strip().split('\n')
         output.sort()
-        serverboards.debug(repr(output))
+        # serverboards.debug(repr(output))
         return '\n'.join(output)
     except:
         import traceback; traceback.print_exc()
@@ -75,9 +76,9 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
 
     enabled=False
 
-    serverboards.debug(repr(status["fingerprint_orig"]))
-    serverboards.debug(repr(fingerprint))
-    serverboards.debug(repr(status["fingerprint_orig"]==fingerprint))
+    #serverboards.debug(repr(status["fingerprint_orig"]))
+    #serverboards.debug(repr(fingerprint))
+    #serverboards.debug(repr(status["fingerprint_orig"]==fingerprint))
 
     if status["fingerprint_orig"]==fingerprint:
         if os.path.exists(KNOWN_HOSTS_FILE):
@@ -89,7 +90,7 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
             with open(KNOWN_HOSTS_FILE, "r") as rd:
                 with open(KNOWN_HOSTS_FILE+".bak", "w") as wd:
                     for l in rd.readlines():
-                        serverboards.debug(repr((l[:10], hostname, l.startswith(hostname))))
+                        #serverboards.debug(repr((l[:10], hostname, l.startswith(hostname))))
 
                         if not l.startswith(hostname):
                             wd.write(l)
