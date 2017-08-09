@@ -76,16 +76,20 @@ class RPC:
         caller.update(extra)
         return caller
 
-    def debug(self, msg, extra={}, level=0):
+    def debug(self, *msg, extra={}, level=0):
+        msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.debug", str(msg), self.__decorate_log(extra, level=2+level))
-    def error(self, msg, extra={}, level=0):
+    def error(self, *msg, extra={}, level=0):
+        msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.error", str(msg), self.__decorate_log(extra, level=2+level))
-    def info(self, msg, extra={}, level=0):
+    def info(self, *msg, extra={}, level=0):
+        msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.info", str(msg), self.__decorate_log(extra, level=2+level))
-    def warning(self, msg, extra={}, level=0):
+    def warning(self, *msg, extra={}, level=0):
+        msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.warning", str(msg), self.__decorate_log(extra, level=2+level))
 
@@ -388,14 +392,14 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
-def debug(s, extra={}):
-    rpc.debug(s, extra=extra, level=1)
-def info(s, extra={}):
-    rpc.info(s, extra=extra, level=1)
-def warning(s, extra={}):
-    rpc.warning(s, extra=extra, level=1)
-def error(s, extra={}):
-    rpc.error(s, extra=extra, level=1)
+def debug(*s, extra={}):
+    rpc.debug(*s, extra=extra, level=1)
+def info(*s, extra={}):
+    rpc.info(*s, extra=extra, level=1)
+def warning(*s, extra={}):
+    rpc.warning(*s, extra=extra, level=1)
+def error(*s, extra={}):
+    rpc.error(*s, extra=extra, level=1)
 
 class Config:
     def __init__(self):
