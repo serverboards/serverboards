@@ -41,9 +41,10 @@ def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
     fingerprint=get_fingerprint(url, options)
     if not fingerprint:
         return {
-            "fingerprint":"Cant connect to server at <%s>. Set a valid SSH address."%url,
-            "className":"grey disabled",
-            "toggle":"Select a valid SSH address"
+            "fingerprint": "Cant connect to server at <%s>. Set a valid SSH address."%url,
+            "className": "grey disabled",
+            "toggle": "Select a valid SSH address",
+            "enabled": False
         }
     fingerprintb = bytes(fingerprint, 'utf8')
 
@@ -67,7 +68,8 @@ def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
         "fingerprint_orig" : fingerprint,
         "fingerprint": fingerprint_text,
         "toggle" : "Disable host" if enabled else "Enable host",
-        "className" : "red" if enabled else "yellow"
+        "className" : "red" if enabled else "yellow",
+        "enabled": enabled
     }
 
 @serverboards.rpc_method
