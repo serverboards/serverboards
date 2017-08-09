@@ -81,7 +81,7 @@ def main():
             else:
                 cli.call("@log.error", "Finish plugin test %s:%s NOK"%(command,test), {"file": "s10s plugin-test", "line":"--"})
                 printc("* %-48s NOK -> %s"%(test, result), color="red")
-                for l in reversed( cli.call("logs.list", until=start_log_id)["lines"] ):
+                for l in reversed( cli.call("logs.list", count=500, until=start_log_id)["lines"] ):
                   printc("        [%-5s %s] [%-16s:%s] %s"%(
                       l["level"].upper(),
                       l["timestamp"][11:],
