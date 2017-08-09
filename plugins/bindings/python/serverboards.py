@@ -349,11 +349,13 @@ class RPC:
         """
         Unsubscribes from an event.
         """
-        self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
-        (event, callback) = self.subscriptions_ids[subscription_id]
-        self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
-        self.debug("Removed subscription %s id %s"%(event, subscription_id))
-        del self.subscriptions_ids[subscription_id]
+        if subscription_id in self.subscriptions:
+          self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
+          (event, callback) = self.subscriptions_ids[subscription_id]
+          self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
+          self.debug("Removed subscription %s id %s"%(event, subscription_id))
+          self.call("event.unsubscribe",event)
+          del self.subscriptions_ids[subscription_id]
 
 rpc=RPC(sys.stdin, sys.stdout)
 sys.stdout=sys.stderr # allow debugging by print
