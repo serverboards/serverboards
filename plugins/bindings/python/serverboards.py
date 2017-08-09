@@ -459,7 +459,7 @@ class Plugin:
       return self
 
     def __exit__(self, _type, _value, _traceback):
-      pass
+      self.stop()
 
 class RPCWrapper:
     """
