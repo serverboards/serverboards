@@ -485,3 +485,5 @@ project = RPCWrapper("project")
 rules = RPCWrapper("rules")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
+file = RPCWrapper("file")
+print = debug
