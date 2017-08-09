@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import readline, sys, shlex, json, select, os, atexit, time, math, socket
-import subprocess, fcntl, getpass
+import subprocess, fcntl, getpass, base64
 from io import StringIO
 DEBUG=False
 PENDING="66509317-642c-4670-a2ef-78155e32c4a9" # to be unique, not confuse with any response
@@ -326,7 +326,9 @@ class CliClient(IOClient):
             'command':self.run_command,
             'sleep':self.builtin_sleep,
             'pending':self.builtin_pending,
-            'assert':self.builtin_assert
+            'assert':self.builtin_assert,
+            'b64decode':lambda data, _id: base64.b64decode(data.encode('ascii')).decode('ascii'),
+            'b64encode':lambda data, _id: base64.b64encode(data.encode('ascii')).decode('ascii'),
         }
         self.internal={
             'log.error':self.internal_log('red'),
