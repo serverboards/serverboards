@@ -6,11 +6,11 @@ defmodule Serverboards.IO.Cmd do
   alias MOM.RPC
 
   @ratelimit_bucket_size 100 # 100 slots
-  @ratelimit_bucket_rate 1000 # ms
+  @ratelimit_bucket_rate 100 # ms
   @ratelimit_bucket_add 50 # add X buckets every rate ms, lower better latency,
                            # more means more burstines alas uses lees resources.
 
-  # check https://en.wikipedia.org/wiki/Token_bucket forthe algorithm details
+  # check https://en.wikipedia.org/wiki/Token_bucket for the algorithm details
   # rate is variable from a max of (rate / size) to min of (rate / add)
 
   @doc ~S"""
