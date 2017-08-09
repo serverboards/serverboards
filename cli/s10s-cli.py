@@ -64,6 +64,7 @@ class IOClient:
     >>> client.call_line('method.unknown params')['error']
     'unknown_method'
     >>> client.call_line('!version') # event call
+    >>> client.call_line('@dir') # force remote call, if name collision with internal
 
     """
     def __init__(self):
@@ -188,6 +189,10 @@ class CoreClient(IOClient):
     def send(self, cmd, replyf):
         method = cmd.get('method')
         assert method
+        if method[0]=="@":
+          method=method[1:]
+          cmd=dict(cmd)
+          cmd["method"]=method
 
         if not '.' in method and not method in self.METHOD_WHITELIST:
             return None # ignore if no .
@@ -204,6 +209,7 @@ class CoreClient(IOClient):
 
 class CmdClient(IOClient):
     def __init__(self, command):
+        super().__init__()
         self.process=subprocess.Popen(
             command,
             bufsize=1, # line buffered
@@ -218,8 +224,6 @@ class CmdClient(IOClient):
 
         self.pending_cmds={}
         self.buffer = StringIO()
-
-        super().__init__()
 
     def fileno(self):
         return self.process.stdout.fileno()
@@ -529,7 +533,7 @@ class CliClient(IOClient):
         }
 
     def internal_log(self, color, **kwargs):
-        def real_log(msg, params={}):
+        def real_log(msg, params={}, **kwargs):
             file=os.path.basename(params.get('file','--'))[-20:]
             line=params.get('line','--')
             for m in msg.split('\n'):
@@ -618,6 +622,8 @@ class CliClient(IOClient):
 
     def call_line(self, line):
         cmd = self.parse_line(line)
+        if not cmd:
+          return
         cmd['id'] = self.maxid
         self.maxid+=1
 
@@ -681,7 +687,7 @@ class CliClient(IOClient):
         parsed_some = True # requires thight loop, as it may be sending messages core<->cmd
         while parsed_some:
             parsed_some = False
-            # self.debug("Cheching if data ready: %s // to %s"%(repr(self.filenos()), timeout) )
+            self.debug("Checking if data ready: %s // to %s"%(repr(self.filenos()), timeout) )
             for n, clients_ready in enumerate(select.select(self.filenos(),[],[], timeout)):
                 # self.debug("Clients ready[%s]: "%n, clients_ready)
                 for c in clients_ready:

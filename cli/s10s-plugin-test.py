@@ -13,7 +13,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description='Connect to Serverboards CORE or a command line plugin.')
     parser.add_argument('suites', metavar='SUITES', type=str, nargs='*',
-        help='suite names to run')
+        help='Suite names to run')
     parser.add_argument('--one-line-help', action='store_true',
         help='Shows brief description.')
     parser.add_argument('--auth-token', type=str,
@@ -56,12 +56,15 @@ def main():
         for n, test in enumerate(tests):
             printc("* %s (%d/%d) ...\r"%(test, n+1, tests_count), end="", flush=True)
             try:
+                cli.call("@log.info", "Start plugin test %s:%s"%(plugin,test))
                 result = cli.call("plugin.call",plugin, test)
             except Exception as e:
                 result = e
             if result == True or result == None:
+                cli.call("@log.info", "Finish plugin test %s:%s OK"%(plugin,test))
                 printc("* %-48s OK"%(test), color="green")
             else:
+                cli.call("@log.info", "Finish plugin test %s:%s NOK"%(plugin,test))
                 printc("* %-48s NOK -> %s"%(test, result), color="red")
                 allok = False
         try:
