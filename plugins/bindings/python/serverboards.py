@@ -447,6 +447,12 @@ class Plugin:
         rpc.call("plugin.stop", self.uuid)
         self.uuid = None
 
+    def __enter__(self):
+      return self
+
+    def __exit__(self, _type, _value, _traceback):
+      pass
+
 class RPCWrapper:
     """
     Wraps any module or function to be able to be called.
