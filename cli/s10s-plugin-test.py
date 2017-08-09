@@ -71,6 +71,8 @@ def main():
             printc("* %s (%d/%d)...\r"%(test, n+1, tests_count), end="", flush=True)
             try:
                 result = cli.call("plugin.call",plugin, test)
+            except KeyboardInterrupt:
+              result = "keyboard_interrupted"
             except Exception as e:
                 result = e
             if result == True or result == None:
