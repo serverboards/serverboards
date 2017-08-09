@@ -75,7 +75,7 @@ defmodule Serverboards.File.Pipe do
   def close(fd) do
     case lookup( fd ) do
       {:error, :not_found} ->
-        {:error, :not_found}
+        {:ok, "already_closed"} # if already cloed, do nothing, idempotent
       {_, pid} ->
         GenServer.call( pid, {:close, fd})
     end
