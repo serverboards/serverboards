@@ -246,6 +246,9 @@ defmodule FileTest do
 
     Task.await(task1, 100)
 
+    # now try to read again, should get closed
+    assert Pipe.read(rfd) == {:ok, false}
+
     Pipe.close(rfd)
   end
 end

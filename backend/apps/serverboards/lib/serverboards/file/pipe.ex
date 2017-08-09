@@ -174,9 +174,14 @@ defmodule Serverboards.File.Pipe do
             state
           }
         else
-          {:noreply, %{ state |
-            wait_read: state.wait_read ++ [from]
-          } }
+          # if already write closed, return closed, else queue
+          if state.wfd == nil do
+            {:reply, {:ok, false}, state}
+          else
+            {:noreply, %{ state |
+              wait_read: state.wait_read ++ [from]
+            } }
+          end
         end
     end
   end
@@ -184,16 +189,14 @@ defmodule Serverboards.File.Pipe do
     if state.async do
       Serverboards.Event.emit("file.closed[#{fd}]", %{})
     end
-    state = if fd == state.wfd do # all waiting read items will be returned a closed fd signal
-      for wrd <- state.wait_read do
-        GenServer.reply(wrd, {:ok, false})
-      end
-      state = %{ state | wait_read: [] }
-    else
-      state
+    # all waiting read items will be returned a closed any fd.
+    for wrd <- state.wait_read do
+      GenServer.reply(wrd, {:ok, false})
     end
     state = %{ state |
-      open_fds: List.delete( state.open_fds, fd )
+      wait_read: [],
+      open_fds: List.delete( state.open_fds, fd ),
+      wfd: nil
     }
     :ok == Registry.unregister(__MODULE__, fd)
     if state.open_fds == [] do
