@@ -234,4 +234,18 @@ defmodule FileTest do
     assert {:ok, :ok} == Test.Client.call(client, "file.close", [rfd])
   end
 
+  test "Close write end when reading returns inmediately" do
+    {:ok, wfd, rfd} = Pipe.pipe
+
+    task1 = Task.async(fn ->
+      Pipe.read(rfd) # should block until somthing is written, or closed w
+    end)
+
+    :timer.sleep(50) # allow task1 to start
+    Pipe.close(wfd)
+
+    Task.await(task1, 100)
+
+    Pipe.close(rfd)
+  end
 end

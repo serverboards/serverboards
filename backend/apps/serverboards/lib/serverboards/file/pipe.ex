@@ -127,7 +127,7 @@ defmodule Serverboards.File.Pipe do
       state = case state.wait_read do
         [] -> # nobody waiting, store the write
           if state.async do
-            Serverboards.Event.emit("file.ready[#{inspect state.rfd}]", %{})
+            Serverboards.Event.emit("file.ready[#{state.rfd}]", %{})
           end
           %{ state |
             buffers: state.buffers ++ [data],
@@ -183,6 +183,14 @@ defmodule Serverboards.File.Pipe do
   def handle_call({:close, fd}, _from, state) do
     if state.async do
       Serverboards.Event.emit("file.closed[#{fd}]", %{})
+    end
+    state = if fd == state.wfd do # all waiting read items will be returned a closed fd signal
+      for wrd <- state.wait_read do
+        GenServer.reply(wrd, {:ok, false})
+      end
+      state = %{ state | wait_read: [] }
+    else
+      state
     end
     state = %{ state |
       open_fds: List.delete( state.open_fds, fd )
