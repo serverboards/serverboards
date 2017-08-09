@@ -168,7 +168,7 @@ defmodule Serverboards.IO.Cmd do
   defp rate_limit_wait(state) do
     #Logger.debug("Ratelimit count #{state.ratelimit}")
     {ratelimit, skip} = if state.ratelimit <= 0 do
-      Logger.debug("Messages arriving too fast from CMD #{inspect state.cmd}. Wait #{inspect @ratelimit_bucket_rate} ms", cmd: state.cmd)
+      #Logger.debug("Messages arriving too fast from CMD #{inspect state.cmd}. Wait #{inspect @ratelimit_bucket_rate} ms", cmd: state.cmd)
       :timer.sleep(@ratelimit_bucket_rate) # sleep here.
       # set the state as one has been processed, added the buckets, but also
       # mark skip later add.
