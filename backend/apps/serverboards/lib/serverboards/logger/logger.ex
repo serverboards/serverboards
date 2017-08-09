@@ -179,7 +179,7 @@ defmodule Serverboards.Logger.Server do
       :timer.cancel(state.timer)
     end
 
-    entries = for {message, timestamp, metadata, level} <- state.queue do
+    entries = for {message, timestamp, metadata, level} <- Enum.reverse(state.queue) do
       {ymd, {h,m,s, _}} = timestamp
       timestamp = {ymd, {h,m,s}}
       %{
