@@ -49,7 +49,7 @@ class RPC:
                       self.buffer.append(txt)
                   else:
                       self.buffer.append(txt)
-                      self.rpc.error('\n'.join(self.buffer), extra=dict(file="EXCEPTION", line="--"))
+                      self.rpc.error(''.join(self.buffer), extra=dict(file="EXCEPTION", line="--"))
                       self.buffer=[]
               else:
                   self.rpc.error(txt.rstrip())
@@ -123,7 +123,7 @@ class RPC:
                     'id' : call_id
                     }
             except Exception as e:
-                import traceback; traceback.print_exc(file=self.write_to_log)
+                self.log_traceback(e)
                 return {
                     'error': str(e),
                     'id' : call_id
@@ -134,8 +134,8 @@ class RPC:
             for f in self.subscriptions[method]:
                 try:
                     f(*args, **kwargs)
-                except:
-                    import traceback; traceback.print_exc(file=self.write_to_log)
+                except Exception as e:
+                    self.log_traceback(e)
             return None
 
         return { 'error':'unknown_method %s'%method, 'id': call_id }
@@ -171,8 +171,8 @@ class RPC:
                 self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
                 try:
                     timeout_cont()
-                except:
-                    import traceback; traceback.print_exc(file=self.write_to_log)
+                except Exception as e:
+                  self.log_traceback(e)
 
         self.loop_status=prev_status
 
@@ -208,6 +208,12 @@ class RPC:
           self.debug("--- EOF ---")
         self.loop_status='EXIT'
 
+    def log_traceback(self, e = None):
+      if e:
+        self.error("Exception: %s"%str(e))
+        import traceback
+        traceback.print_exc(file=self.write_to_log)
+
     def __process_request(self, rpc):
         self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
@@ -215,8 +221,8 @@ class RPC:
             if res.get("id") not in self.manual_replies:
                 try:
                     self.println(json.dumps(res))
-                except:
-                    import traceback; traceback.print_exc(file=self.write_to_log)
+                except Exception as e:
+                    self.log_traceback(e)
                     sys.stderr.write(repr(res)+'\n')
                     self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
             else:
