@@ -159,8 +159,11 @@ class CoreClient(IOClient):
                 continue
             if 'result' in cmd or 'error' in cmd:
                 id = cmd.get('id')
-                self.pending_replies[id](cmd)
-                del self.pending_replies[id]
+                if id in self.pending_replies:
+                  self.pending_replies[id](cmd)
+                  del self.pending_replies[id]
+                else:
+                  printc("Error, received not expeceted reply for message %s. Waiting for %s"%(id, list(self.pending_replies.keys())))
                 yield None # mark something hapened, not a command
             else:
                 if 'id' in cmd:
