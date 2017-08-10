@@ -125,7 +125,11 @@ defmodule Serverboards.Plugin.Runner do
     case get(uuid) do
       %{ pid: pid } = data when is_pid(pid) ->
         Logger.info("Kill process #{uuid} / #{ inspect data.component.id }")
-        Serverboards.IO.Cmd.stop pid
+        GenServer.call(Serverboards.Plugin.Runner,  {:exit, uuid})
+        if Process.alive?(pid) do # should be running, but have found the bug in the wild.
+          Serverboards.IO.Cmd.stop pid
+        end
+        :ok
       other ->
         {:error, other}
     end
@@ -237,6 +241,7 @@ defmodule Serverboards.Plugin.Runner do
         #Logger.debug("Plugin runner call #{inspect method}(#{inspect(params)})")
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
+            Logger.error("Unexpected exit process while calling #{id}.#{method}")
             GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
             {:error, :exit}
           other -> other
@@ -421,7 +426,6 @@ defmodule Serverboards.Plugin.Runner do
     {:reply, status, state}
   end
   def handle_call({:exit, uuid}, _from, state) do
-    Logger.error("Unexpected exit process #{uuid}")
     state=case state.running[uuid] do
       nil ->
         state
