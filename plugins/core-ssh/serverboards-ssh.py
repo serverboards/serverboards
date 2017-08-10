@@ -474,7 +474,6 @@ def popen(service_uuid, command):
       return
     onwait=True
     block = file.read(write_out_fd, { "nonblock": True })
-    decoded =  base64.b64decode( block.encode('ascii') )
     # print("Write to %s %d bytes, read from %s %s"%(command[0], len(block), write_out_fd, decoded[0:5]))
     closed=False
     if block == -1:
