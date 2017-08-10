@@ -137,7 +137,7 @@ class RPC:
                     'error': str(e),
                     'id' : call_id
                 }
-        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
+        #self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         if method in self.subscriptions:
             assert call_id is None
             for f in self.subscriptions[method]:
@@ -175,7 +175,10 @@ class RPC:
             #self.debug("Ready fds: %s // maybe_timer %s"%([x for x in read_ready], timeout_id))
             if read_ready:
                 for ready in read_ready:
-                    self.events[ready]()
+                    try:
+                      self.events[ready]()
+                    except Exception as e:
+                      self.log_traceback(e)
             else: # timeout
                 self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
                 try:
