@@ -99,22 +99,22 @@ def t04_ssh_backup_test():
       pass
 
     [_wfd, rfd] = ssh.popen(service_uuid, ["cat", file_orig])
-    print("Popen1 done")
+    #print("Popen1 done")
     [wfd, _rfd] = ssh.popen(service_uuid, ["dd", "bs=1k", "of=%s"%file_dest])
-    print("Popen2 done")
+    #print("Popen2 done")
 
-    print(rpc.call("dir"))
+    #print(rpc.call("dir"))
 
-    print("Read first block")
+    #print("Read first block")
     block = file.read(rfd) ### not kill read when file is closed.
     while block:
-      print("Readed block of size %d from %s"%(len(block), rfd))
+      #print("Readed block of size %d from %s"%(len(block), rfd))
       w = file.write(wfd, block)
-      print("Writed block of size %s to %s"%(w, wfd))
+      #print("Writed block of size %s to %s"%(w, wfd))
       block = file.read(rfd)
 
     file.sync(wfd)
-    print("EOF")
+    #print("EOF")
     file.close(wfd)
     file.close(_wfd)
     file.close(rfd)
@@ -128,7 +128,7 @@ def t04_ssh_backup_test():
     sha_orig = hashlib.sha1(open(file_orig,'rb').read()).hexdigest()
     sha_dest = hashlib.sha1(open(file_dest,'rb').read()).hexdigest()
     assert sha_orig == sha_dest, "%s != %s"%(sha_orig, sha_dest)
-    print("Done!")
+    #print("Done!")
 
 
 @serverboards.rpc_method
