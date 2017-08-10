@@ -85,50 +85,54 @@ def t03_ssh_scp_test_():
 
 @serverboards.rpc_method
 def t04_ssh_backup_test():
-  # should not be necesary, but might be dead before we get here
-  with serverboards.Plugin("serverboards.core.ssh/sshcmd") as ssh:
+  url_orig = "localhost"
+  url_dest = "localhost"
+  file_orig = "/etc/services"
+  file_dest = "/tmp/services.tmp"
+  try:
+     os.unlink(file_dest)
+  except:
+    pass
 
-    print = serverboards.info
-    url_orig = "localhost"
-    url_dest = "localhost"
-    file_orig = "/etc/services"
-    file_dest = "/tmp/services.tmp"
-    try:
-       os.unlink(file_dest)
-    except:
-      pass
+  [_wfd, rfd] = ssh.popen(service_uuid, ["cat", file_orig])
+  #print("Popen1 done")
+  [wfd, _rfd] = ssh.popen(service_uuid, ["dd", "bs=1k", "of=%s"%file_dest])
+  #print("Popen2 done")
 
-    [_wfd, rfd] = ssh.popen(service_uuid, ["cat", file_orig])
-    #print("Popen1 done")
-    [wfd, _rfd] = ssh.popen(service_uuid, ["dd", "bs=1k", "of=%s"%file_dest])
-    #print("Popen2 done")
+  #print(rpc.call("dir"))
 
-    #print(rpc.call("dir"))
+  #print("Read first block")
+  block = file.read(rfd) ### not kill read when file is closed.
+  while block:
+    #print("Readed block of size %d from %s"%(len(block), rfd))
+    w = file.write(wfd, block)
+    #print("Writed block of size %s to %s"%(w, wfd))
+    block = file.read(rfd)
+  #print("EOF?")
 
-    #print("Read first block")
-    block = file.read(rfd) ### not kill read when file is closed.
-    while block:
-      #print("Readed block of size %d from %s"%(len(block), rfd))
-      w = file.write(wfd, block)
-      #print("Writed block of size %s to %s"%(w, wfd))
-      block = file.read(rfd)
+  file.sync(wfd)
+  #print("EOF")
+  file.close(_wfd)
+  file.close(wfd)
+  file.close(_rfd)
+  file.close(rfd)
+  #print("Closed all")
 
-    file.sync(wfd)
-    #print("EOF")
-    file.close(wfd)
-    file.close(_wfd)
-    file.close(rfd)
-    file.close(_rfd)
+  time.sleep(1) # wait to settle
 
-    assert os.stat(file_dest)
+  assert os.stat(file_dest)
 
-    size_orig = os.path.getsize(file_orig)
-    size_dest = os.path.getsize(file_dest)
-    assert size_orig == size_dest, "%s != %s"%(size_orig, size_dest)
-    sha_orig = hashlib.sha1(open(file_orig,'rb').read()).hexdigest()
-    sha_dest = hashlib.sha1(open(file_dest,'rb').read()).hexdigest()
-    assert sha_orig == sha_dest, "%s != %s"%(sha_orig, sha_dest)
-    #print("Done!")
+  import subprocess
+  psoutput = subprocess.check_output("ps aux | grep [o]f=/tmp/ || true", shell=True)
+  assert not psoutput, "dd still running\n%s"%psoutput
+
+  size_orig = os.path.getsize(file_orig)
+  size_dest = os.path.getsize(file_dest)
+  assert size_orig == size_dest, "%s != %s"%(size_orig, size_dest)
+  sha_orig = hashlib.sha1(open(file_orig,'rb').read()).hexdigest()
+  sha_dest = hashlib.sha1(open(file_dest,'rb').read()).hexdigest()
+  assert sha_orig == sha_dest, "%s != %s"%(sha_orig, sha_dest)
+  #print("Done!")
 
 
 @serverboards.rpc_method
