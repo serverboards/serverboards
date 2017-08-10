@@ -448,12 +448,15 @@ def popen(service_uuid, command):
   write_in_fd, write_out_fd = file.pipe(async=True)
   read_in_fd, read_out_fd = file.pipe(async=True)
 
-  print("Write fds: ", write_in_fd, write_out_fd)
-  print("Read fds: ", read_in_fd, read_out_fd)
+  #print("Write fds: ", write_in_fd, write_out_fd)
+  #print("Read fds: ", read_in_fd, read_out_fd)
+  print("Starting SSH popen:", command[0])
   # store all subscriptions, to unsubscribe at closed
   subscriptions=[]
+  write_count=0
+  read_count=0
 
-  onwait=False # to avoid recursion on write_to_ssh.
+  onwait=0 # to avoid recursion on write_to_ssh.
   #
   # This is needed as when on write_to_ssh reading, more "ready" may arrive,
   # wich will make the new calls async but answered before due to the way
@@ -469,45 +472,55 @@ def popen(service_uuid, command):
   # FIXME so this hack is not needed.
   #
   def write_to_ssh():
-    nonlocal onwait
+    nonlocal onwait, write_count
     if onwait:
       return
-    onwait=True
+    onwait+=1
     block = file.read(write_out_fd, { "nonblock": True })
     # print("Write to %s %d bytes, read from %s %s"%(command[0], len(block), write_out_fd, decoded[0:5]))
     closed=False
     if block == -1:
       closed=True
     while block and block!=-1:
+      write_count+=len(block)
       decoded =  base64.b64decode( block.encode('ascii') )
       ssh.stdin.write( decoded )
       ssh.stdin.flush()
       block = file.read(write_out_fd, { "nonblock": True })
       # print("cont Write to %s %d bytes, read from %s %s"%(command[0], len(block), write_out_fd, decoded[0:5]))
+    onwait-=1
+
+    # now it might close
     if closed:
       file.close(write_out_fd)
       close_all()
-    onwait=False
 
   MAX_SIZE=24*1024
-  counter=0
   def read_from_ssh():
+    #print("Data ready?")
     block = ssh.stdout.read(MAX_SIZE)
-    nonlocal counter
+    nonlocal read_count
     closed = False
     if not block: # if nothing to read on first call, the fd is closed
       closed = True
     while block:
-      counter+=1
       # print("Read from %s %d bytes, write to %s"%(command[0], len(block), read_in_fd))
+      read_count+=len(block)
       file.write(read_in_fd, base64.b64encode( block ).decode('ascii') )
       block = ssh.stdout.read(MAX_SIZE)
     if closed:
-      file.sync(read_in_fd)
-      file.close(read_in_fd)
       close_all()
 
+  closedone=0
   def close_all():
+    if onwait:
+      return # do not close while writing to SSH
+    nonlocal closedone
+    if closedone:
+      return
+    closedone+=1
+
+    #print("Close all", command[0])
     file.close(write_out_fd)
     serverboards.rpc.remove_event( ssh.stdout )
     file.close(read_in_fd)
@@ -515,21 +528,36 @@ def popen(service_uuid, command):
       serverboards.rpc.unsubscribe(s)
     # print("Flush and terminate")
     ssh.stdin.flush()
-    if ssh.poll() != None:
+    if ssh.poll() == None:
+      #print("Terminate", command[0])
       try:
+        write_to_ssh() # force write pending, will not recurse because of closedone
         ssh.terminate()
         #time.sleep(1)
         #ssh.kill()
       except:
         pass
-      # print("SSH command %s terminated"%(command[0]))
+    else:
+      #print("Cant terminate (already terminated?)", ssh.poll(), command[0])
+      pass
+    print("SSH command %s terminated (%d in/%d out)"%(command[0], write_count, read_count))
 
-  s=serverboards.rpc.subscribe( "file.ready[%s]"%write_out_fd, write_to_ssh )
-  subscriptions.append(s)
-  s=serverboards.rpc.subscribe( "file.closed[%s]"%read_in_fd, close_all )
-  subscriptions.append(s)
-  s=serverboards.rpc.subscribe( "file.closed[%s]"%write_out_fd, close_all )
-  subscriptions.append(s)
+  close_count=0
+  def close_one():
+    """
+    Closed one of the remote ends. If both are closed, nobody will read, no
+    point in having it open.
+    """
+    #print("Close one", command[0])
+    nonlocal close_count
+    close_count += 1
+    if close_count >= 2:
+      close_all()
+
+  r_id=serverboards.rpc.subscribe( "file.ready[%s]"%write_out_fd, write_to_ssh )
+  cw_id=serverboards.rpc.subscribe( "file.closed[%s]"%write_in_fd, close_one )
+  cr_id=serverboards.rpc.subscribe( "file.closed[%s]"%read_out_fd, close_one )
+  subscriptions=[r_id, cw_id, cr_id]
 
   serverboards.rpc.add_event( ssh.stdout, read_from_ssh )
 
