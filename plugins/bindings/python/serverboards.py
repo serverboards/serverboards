@@ -57,11 +57,14 @@ class RPC:
         self.write_to_log=WriteToLog(self)
 
     def set_debug(self, debug):
+        show_begin = not self.stderr
         if debug is True:
             self.stderr=sys.stderr
         else:
             self.stderr=debug
-        self.debug("--- BEGIN ---")
+        if show_begin:
+            self.debug("--- BEGIN ---")
+
 
     def __decorate_log(self, extra, level=2):
         import inspect

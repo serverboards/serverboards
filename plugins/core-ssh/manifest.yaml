@@ -109,7 +109,15 @@ components:
     type: cmd
     timeout: 24h
     strategy: singleton
-    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings] service.get
+    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings] service.get file.pipe
+    command: serverboards-ssh.py
+
+  - name: SSH
+    id: sshcmd
+    type: cmd
+    timeout: 10m
+    strategy: one_for_one
+    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings] service.get file.pipe
     command: serverboards-ssh.py
 
   - name: SSH Management
@@ -187,6 +195,7 @@ components:
       service.update
       service.create
       plugin
+      file.pipe
     command: test.py
 
   - id: test

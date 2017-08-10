@@ -7,6 +7,7 @@ import base64
 import time
 from cache_ttl import cache_ttl
 from common import *
+from serverboards import file, print
 
 td_to_s_multiplier=[
     ("ms", 0.001),
@@ -15,6 +16,12 @@ td_to_s_multiplier=[
     ("h", 60*60),
     ("d", 24*60*60),
 ]
+
+def try_or(fn, _else):
+  try:
+    fn()
+  except:
+    return _else
 
 def time_description_to_seconds(td):
     if type(td) in (int, float):
@@ -377,7 +384,10 @@ def __get_service(uuid):
 
 @cache_ttl(ttl=300)
 def __get_global_options():
-    options = (serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings") or {}).get("options","").split('\n')
+    options = try_or(
+        lambda: serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings"),
+        {}
+      ).get("options","").split('\n')
     options = [ o.strip() for o in options ]
     options = [ o for o in options if o ]
     return options
@@ -399,10 +409,11 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
     serverboards.info("Copy from %s:%s to %s:%s"%(fromservice, fromfile, toservice, tofile))
     opts=[]
     if fromservice:
-        opts, _url = url_to_opts(__get_service_url(toservice))
+        url = __get_service_url(fromservice)
+        opts, _url = url_to_opts(url)
         url=opts[0]
         opts=opts[1:]
-        urla = "%s:%s"%(__get_service_url(fromservice), fromfile)
+        urla = "%s:%s"%(url, fromfile)
     else:
         urla=fromfile
 
@@ -427,6 +438,81 @@ def run(url=None, command=None, service=None):
     assert service and command
     serverboards.info("Run %s:'%s'"%(service, command))
     return ssh_exec(service=service, command=command)
+
+@serverboards.rpc_method
+def popen(service_uuid, command):
+  url,opts = __get_service_url_and_opts(service_uuid)
+  opts=opts+["--"]+command
+  ssh = subprocess.Popen(["ssh"]+opts, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+  # adapter from pipe at the ssh to the s10s pipes, one for each stdin/out
+  write_in_fd, write_out_fd = file.pipe(async=True)
+  read_in_fd, read_out_fd = file.pipe(async=True)
+
+  print("Write fds: ", write_in_fd, write_out_fd)
+  print("Read fds: ", read_in_fd, read_out_fd)
+  # store all subscriptions, to unsubscribe at closed
+  subscriptions=[]
+
+  def write_to_ssh():
+    block = file.read(write_out_fd, { "nonblock": True })
+    closed=False
+    if block == -1:
+      closed=True
+    while block and block!=-1:
+      print("Write to %s %d bytes, read from %s"%(command[0], len(block), write_out_fd))
+      ssh.stdin.write( base64.b64decode( block.encode('ascii') ) )
+      ssh.stdin.flush()
+      block = file.read(write_out_fd, { "nonblock": True })
+    if closed:
+      file.close(write_out_fd)
+      close_all()
+
+  MAX_SIZE=16*1024
+  counter=0
+  def read_from_ssh():
+    block = ssh.stdout.read(MAX_SIZE)
+    nonlocal counter
+    closed = False
+    if not block: # if nothing to read on first call, the fd is closed
+      closed = True
+    while block:
+      counter+=1
+      print("Read from %s %d bytes, write to %s"%(command[0], len(block), read_in_fd))
+      ## BUG They are being read on the other popen in the wrong order! maybe queuing at the pipe in the wrong order
+      file.write(read_in_fd, base64.b64encode( b"\n[[%d]]\n%s"%(counter, block) ).decode('ascii') )
+      block = ssh.stdout.read(MAX_SIZE)
+    if closed:
+      file.sync(read_in_fd)
+      file.close(read_in_fd)
+      close_all()
+
+  def close_all():
+    file.close(write_out_fd)
+    serverboards.rpc.remove_event( ssh.stdout )
+    file.close(read_in_fd)
+    for s in subscriptions:
+      serverboards.rpc.unsubscribe(s)
+    print("Flush and terminate")
+    ssh.stdin.flush()
+    if ssh.poll() != None:
+      try:
+        ssh.terminate()
+        #time.sleep(1)
+        #ssh.kill()
+      except:
+        pass
+      print("SSH command %s terminated"%(command[0]))
+
+  s=serverboards.rpc.subscribe( "file.ready[%s]"%write_out_fd, write_to_ssh )
+  subscriptions.append(s)
+  s=serverboards.rpc.subscribe( "file.closed[%s]"%read_in_fd, close_all )
+  subscriptions.append(s)
+  s=serverboards.rpc.subscribe( "file.closed[%s]"%write_out_fd, close_all )
+  subscriptions.append(s)
+
+  serverboards.rpc.add_event( ssh.stdout, read_from_ssh )
+
+  return [write_in_fd, read_out_fd]
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
