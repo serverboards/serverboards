@@ -144,21 +144,18 @@ defmodule Serverboards.File.Pipe do
   end
   def handle_call({:read, options}, from, state) do
     case state.buffers do
-      [head] -> # have only one buffer left
-        # wake up sync calls
-        for wait_empty <- state.wait_empty do
-          GenServer.reply(wait_empty, :ok)
-        end
-        # and process read
-        state = wakeup_write(%{ state | buffers: [] })
-        {:reply,
-          {:ok, head},
+      [head | tail ] -> # have data to return
+        state = if tail == [] do # but only one buffer, wake up sync
+          # wake up sync calls
+          for wait_empty <- state.wait_empty do
+            GenServer.reply(wait_empty, :ok)
+          end
           %{ state |
             wait_empty: [],
-            max_buffers: state.max_buffers + 1
           }
-        }
-      [head | tail ] -> # have several buffers left
+        else
+          state
+        end
         state = wakeup_write(%{ state | buffers: tail })
         {:reply,
           {:ok, head},
