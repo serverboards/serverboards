@@ -5,6 +5,12 @@ try:
 except:
     pass
 
+def ellipsis_str(str, maxs=50):
+  if len(str)<maxs:
+    return str
+  else:
+    return "%s...%s"%(str[:30], str[-20:])
+
 class RPC:
     """
     Manages all the RPC status and calls.
@@ -184,7 +190,7 @@ class RPC:
         if not l:
             self.loop_stop()
             return
-        self.debug_stdout("< %s"%l)
+        self.debug_stdout("< %s"%ellipsis_str(l, 50))
         rpc = json.loads(l)
         self.__process_request(rpc)
 
@@ -232,7 +238,7 @@ class RPC:
                 self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
-        self.debug_stdout("> %s"%line)
+        self.debug_stdout("> %s"%ellipsis_str(line, 50))
         try:
           self.stdout.write(line + '\n')
           self.stdout.flush()
@@ -285,7 +291,7 @@ class RPC:
 
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
-            self.debug_stdout("call res? < %s"%res)
+            self.debug_stdout("call res? < %s"%ellipsis_str(res))
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
