@@ -204,6 +204,8 @@ class RPC:
     def remove_event(self, fd):
         if fd in self.events:
             del self.events[fd]
+            return True
+        return False
 
     def add_timer(self, interval, cont):
         tid=self.timer_id
