@@ -130,7 +130,7 @@ defmodule Serverboards.Logger.Server do
     GenServer.start_link __MODULE__, [], options
   end
   def log(lg, msg) do
-    GenServer.call(lg, {:log, msg})
+    GenServer.cast(lg, {:log, msg})
     :ok
   end
   def flush(lg) do
@@ -154,11 +154,11 @@ defmodule Serverboards.Logger.Server do
     {:ok, %{ count: 0, queue: [], timer: nil}}
   end
 
-  def handle_call({:log, msg}, from, state) do
+  def handle_cast({:log, msg}, state) do
     state = %{ state | count: state.count+1, queue: [msg | state.queue] }
     state = try do
       if state.count >= @max_queue_size do
-        {_reply, _, state} = handle_call(:flush, from, state)
+        {_reply, _, state} = handle_call(:flush, nil, state)
         state
       else
         state
@@ -176,7 +176,7 @@ defmodule Serverboards.Logger.Server do
     {:ok, timer} = :timer.apply_after(1000, __MODULE__, :flush, [__MODULE__])
     state = %{ state | timer: timer }
 
-    {:reply, :ok, state}
+    {:noreply, state}
   end
 
   def handle_call(:flush, _from, state) do
