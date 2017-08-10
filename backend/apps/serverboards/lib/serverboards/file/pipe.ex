@@ -58,7 +58,7 @@ defmodule Serverboards.File.Pipe do
     end
   end
   def sync(fd) do
-    with {_, pid} <- lookup(fd) do
+    with {_, pid} when is_pid(pid) <- lookup(fd) do
       GenServer.call(pid, {:sync})
     end
   end
