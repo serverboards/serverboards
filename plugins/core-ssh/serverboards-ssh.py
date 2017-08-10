@@ -453,21 +453,44 @@ def popen(service_uuid, command):
   # store all subscriptions, to unsubscribe at closed
   subscriptions=[]
 
+  onwait=False # to avoid recursion on write_to_ssh.
+  #
+  # This is needed as when on write_to_ssh reading, more "ready" may arrive,
+  # wich will make the new calls async but answered before due to the way
+  # the serverboards python rpc bindings work. This makes each call get the proper
+  # data they asked, but in diferent orders, so that the second call may get the
+  # data before the first call does. This makes it write the data in the worng order.
+  #
+  # With this hack, this prevents the second call until the first is answered.
+  # A possibe solution would be to disallow reentry on events until previous
+  # event calls to the same function has returned, for example queing for later
+  # to do a delayed event signaling.
+  #
+  # FIXME so this hack is not needed.
+  #
   def write_to_ssh():
+    nonlocal onwait
+    if onwait:
+      return
+    onwait=True
     block = file.read(write_out_fd, { "nonblock": True })
+    decoded =  base64.b64decode( block.encode('ascii') )
+    # print("Write to %s %d bytes, read from %s %s"%(command[0], len(block), write_out_fd, decoded[0:5]))
     closed=False
     if block == -1:
       closed=True
     while block and block!=-1:
-      print("Write to %s %d bytes, read from %s"%(command[0], len(block), write_out_fd))
-      ssh.stdin.write( base64.b64decode( block.encode('ascii') ) )
+      decoded =  base64.b64decode( block.encode('ascii') )
+      ssh.stdin.write( decoded )
       ssh.stdin.flush()
       block = file.read(write_out_fd, { "nonblock": True })
+      # print("cont Write to %s %d bytes, read from %s %s"%(command[0], len(block), write_out_fd, decoded[0:5]))
     if closed:
       file.close(write_out_fd)
       close_all()
+    onwait=False
 
-  MAX_SIZE=16*1024
+  MAX_SIZE=24*1024
   counter=0
   def read_from_ssh():
     block = ssh.stdout.read(MAX_SIZE)
@@ -477,9 +500,8 @@ def popen(service_uuid, command):
       closed = True
     while block:
       counter+=1
-      print("Read from %s %d bytes, write to %s"%(command[0], len(block), read_in_fd))
-      ## BUG They are being read on the other popen in the wrong order! maybe queuing at the pipe in the wrong order
-      file.write(read_in_fd, base64.b64encode( b"\n[[%d]]\n%s"%(counter, block) ).decode('ascii') )
+      # print("Read from %s %d bytes, write to %s"%(command[0], len(block), read_in_fd))
+      file.write(read_in_fd, base64.b64encode( block ).decode('ascii') )
       block = ssh.stdout.read(MAX_SIZE)
     if closed:
       file.sync(read_in_fd)
@@ -492,7 +514,7 @@ def popen(service_uuid, command):
     file.close(read_in_fd)
     for s in subscriptions:
       serverboards.rpc.unsubscribe(s)
-    print("Flush and terminate")
+    # print("Flush and terminate")
     ssh.stdin.flush()
     if ssh.poll() != None:
       try:
@@ -501,7 +523,7 @@ def popen(service_uuid, command):
         #ssh.kill()
       except:
         pass
-      print("SSH command %s terminated"%(command[0]))
+      # print("SSH command %s terminated"%(command[0]))
 
   s=serverboards.rpc.subscribe( "file.ready[%s]"%write_out_fd, write_to_ssh )
   subscriptions.append(s)
