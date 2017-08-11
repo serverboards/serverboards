@@ -127,7 +127,7 @@ defmodule Serverboards.File.Pipe do
       state = case state.wait_read do
         [] -> # nobody waiting, store the write
           if state.async do
-            Serverboards.Event.emit("file.ready[#{state.rfd}]", %{})
+            Serverboards.Event.emit("file.ready[#{state.rfd}]", %{ fd: state.rfd })
           end
           %{ state |
             buffers: state.buffers ++ [data],
@@ -184,7 +184,7 @@ defmodule Serverboards.File.Pipe do
   end
   def handle_call({:close, fd}, _from, state) do
     if state.async do
-      Serverboards.Event.emit("file.closed[#{fd}]", %{})
+      Serverboards.Event.emit("file.closed[#{fd}]", %{ fd: fd })
     end
     # all waiting read items will be returned a closed any fd.
     for wrd <- state.wait_read do
@@ -227,7 +227,7 @@ defmodule Serverboards.File.Pipe do
   def terminate(reason, state) do
     for fd <- state.open_fds do
       if state.async do
-        Serverboards.Event.emit("file.closed[#{fd}]", %{})
+        Serverboards.Event.emit("file.closed[#{fd}]", %{ fd: fd })
       end
       :ok == Registry.unregister(__MODULE__, fd)
     end
