@@ -137,17 +137,22 @@ class RPC:
                     'error': str(e),
                     'id' : call_id
                 }
+        if not call_id:
+          self.perform_event(method, *args, **kwargs)
+        else:
+          return { 'error':'unknown_method %s'%method, 'id': call_id }
+
+    def perform_event(self, method, *args, **kwargs):
         #self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         if method in self.subscriptions:
-            assert call_id is None
             for f in self.subscriptions[method]:
-                try:
-                    f(*args, **kwargs)
-                except Exception as e:
-                    self.log_traceback(e)
+                if f:
+                    try:
+                        f(*args, **kwargs)
+                    except Exception as e:
+                        self.log_traceback(e)
             return None
 
-        return { 'error':'unknown_method %s'%method, 'id': call_id }
     def loop(self):
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -293,7 +298,9 @@ class RPC:
         self.send_id+=1
         rpc = json.dumps(dict(method=method, params=params or kparams, id=id))
         self.println(rpc)
+        return self.inner_loop(id)
 
+    def inner_loop(self, id):
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
             self.debug_stdout("call res? < %s"%ellipsis_str(res))
@@ -314,8 +321,7 @@ class RPC:
                     else:
                         if rpc["error"]=="unknown_method":
                             raise Exception("unknown_method %s"%(method))
-                        else:
-                            raise Exception(rpc["error"])
+                        raise Exception(rpc["error"])
                 else:
                     self.debug_stdout("Keep it for later, im waiting for %s"%id)
                     self.replyq[rpc['id']]=rpc
@@ -333,7 +339,6 @@ class RPC:
                         else:
                             if rpc["error"] == "unknown_method":
                                 raise Exception("unknown_method %s"%method)
-
                             raise Exception(rpc["error"])
                 else:
                     self.debug_stdout("Waiting for reply; Queue for later: %s"% res)
