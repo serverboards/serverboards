@@ -319,9 +319,16 @@ class RPC:
         self.send_id+=1
         rpc = json.dumps(dict(method=method, params=params or kparams, id=id))
         self.println(rpc)
-        return self.inner_loop(id)
+        return self.inner_loop(id, method=method)
 
-    def inner_loop(self, id):
+    def inner_loop(self, id, method=None):
+        """
+        Performs an inner loop to be done whiel calling into the server.
+        It is as the other loop, but until it get the proper reply.
+
+        Requires the id of the reply to wait for, and the name of the mehtod for
+        error reporting.
+        """
         while True: # mini loop, may request calls while here
             res = sys.stdin.readline()
             self.debug_stdout("call res? < %s"%ellipsis_str(res))
