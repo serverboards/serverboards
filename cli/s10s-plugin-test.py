@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import os, json, sys
+import os, json, sys, time
 s10s_cli = __import__('s10s-cli')
 printc=s10s_cli.printc
 
@@ -69,18 +69,20 @@ def main():
             start_log_id = logl[-1]["id"]-1 # Show the "Start plugin test message"
 
             printc("* %s (%d/%d)...\r"%(test, n+1, tests_count), end="", flush=True)
+            startt=time.time()
             try:
                 result = cli.call("plugin.call",plugin, test)
             except KeyboardInterrupt:
               result = "keyboard_interrupted"
             except Exception as e:
                 result = e
+            total_time=time.time()-startt
             if result == True or result == None:
                 cli.call("@log.info", "Finish plugin test %s:%s OK"%(command,test), {"file": "s10s plugin-test", "line":"--"})
-                printc("* %-48s OK"%(test), color="green")
+                printc("* %-48s OK (%.2fs)"%(test,total_time), color="green")
             else:
                 cli.call("@log.error", "Finish plugin test %s:%s NOK"%(command,test), {"file": "s10s plugin-test", "line":"--"})
-                printc("* %-48s NOK -> %s"%(test, result), color="red")
+                printc("* %-48s NOK (%.2fs) -> %s"%(test, total_time, result), color="red")
                 for l in reversed( cli.call("logs.list", count=500, until=start_log_id)["lines"] ):
                   printc("        [%-5s %s] [%-16s:%s] %s"%(
                       l["level"].upper(),
