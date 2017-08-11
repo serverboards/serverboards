@@ -33,6 +33,7 @@ class RPC:
         self.subscriptions={}
         self.subscriptions_ids={}
         self.subscription_id=1
+        self.pending_events_queue=[]
         self.last_rpc_id=0
 
         class WriteToLog:
@@ -138,20 +139,40 @@ class RPC:
                     'id' : call_id
                 }
         if not call_id:
-          self.perform_event(method, *args, **kwargs)
+          self.emit_event(method, *args, **kwargs)
         else:
           return { 'error':'unknown_method %s'%method, 'id': call_id }
 
-    def perform_event(self, method, *args, **kwargs):
+    def emit_event(self, method, *args, **kwargs):
+        """
+        Emits the event to the subscription watchers.
+
+        It takes care of not doing reentries, at it leads to bugs, as
+        for example processing data from one event, do some remote call, another
+        event arrives, and finished before the first.
+
+        This is a real ase of race condition writing to a file.
+
+        The code here avoids the situation making events not reentrable; if
+        processing an event, it queues newer to be delivered later.
+        """
+        do_later = len(self.pending_events_queue) > 0
+        self.pending_events_queue.append( (method, args, kwargs) )
+        if do_later:
+            return
         #self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
-        if method in self.subscriptions:
-            for f in self.subscriptions[method]:
-                if f:
-                    try:
-                        f(*args, **kwargs)
-                    except Exception as e:
-                        self.log_traceback(e)
-            return None
+        # do all the items on the queue
+        while len(self.pending_events_queue)>0:
+          (method, args, kwargs) = self.pending_events_queue[0]
+          if method in self.subscriptions:
+              for f in self.subscriptions[method]:
+                  if f:
+                      try:
+                          f(*args, **kwargs)
+                      except Exception as e:
+                          self.log_traceback(e)
+          # pop from top
+          self.pending_events_queue=self.pending_events_queue[1:]
 
     def loop(self):
         prev_status=self.loop_status
