@@ -43,6 +43,15 @@ const cache={
     }
     return Promise.resolve( services.find( s => s.uuid == service_id ) )
   },
+  trigger(trigger_id){
+    return cache.trigger_catalog().then( tc => tc.find( t => t.id == trigger_id ) )
+  },
+  service_type(type){
+    return cache.service_catalog().then( sc => sc.find( s => s.type == type ) )
+  },
+  action(action_id){
+    return cache.action_catalog().then( ac => ac.find( a => a.id == action_id ))
+  },
   projects: cache_builder({
     store_get: () => store.getState().project.projects,
     store_update: require('app/actions/project').project_update_all(),
@@ -56,6 +65,7 @@ const cache={
 // Returns the function to be called to update the cache and get the promise
 function cache_builder(props){
   const {store_get, store_update, subscriptions} = props
+  let pending=undefined
   return function(){
     let promise=new Promise((accept, reject) => {
       const data = store_get()
@@ -63,19 +73,30 @@ function cache_builder(props){
         accept(data)
       }
       else{
-        try{
-          store_update( data => {
-            try{
-              if (subscriptions)
-                event.subscribe(subscriptions)
-              store.dispatch(data)
-              accept(store_get())
-            } catch(e){
+        if (pending)
+          pending.push({accept, reject})
+        else{
+          pending=[{accept, reject}]
+          try{
+            store_update( data => {
+              try{
+                if (subscriptions)
+                  event.subscribe(subscriptions)
+                store.dispatch(data)
+                for (let {accept} of pending)
+                  accept(store_get())
+                pending=undefined
+              } catch(e){
+                for (let {reject} of pending)
+                  reject(e)
+                pending=undefined
+              }
+            })
+          } catch(e) {
+            for (let {reject} of pending)
               reject(e)
-            }
-          })
-        } catch(e) {
-          reject(e)
+            pending=undefined
+          }
         }
       }
     })

@@ -93,8 +93,12 @@ def data_gete(k):
 @serverboards.rpc_method
 def periodic_timer(id, period=10):
     period=float(period)
+    count = 0
     def tick():
-        serverboards.rpc.event("trigger", state="tick", id=id)
+        nonlocal count
+        count+=1
+        state = { "state" : "tick", "count": count }
+        serverboards.rpc.event("trigger", **state, id=id)
     timer_id = serverboards.rpc.add_timer(period, tick)
     return timer_id
 

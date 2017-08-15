@@ -65,7 +65,7 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
         SELECT project_id
           FROM project_dashboard
          WHERE project_widget.dashboard_id = project_dashboard.id
-         ORDER BY order
+         ORDER BY "order"
          LIMIT 1
        );
     """)

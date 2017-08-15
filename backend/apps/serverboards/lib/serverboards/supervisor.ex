@@ -32,7 +32,8 @@ defmodule Serverboards.Supervisor do
       worker(Task, [Serverboards.IO.TCP, :start_accept, []], restart: :transient),
 
       # this should be the last, as it may use others
-      worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
+      # worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
+      supervisor(Serverboards.RulesV2.Supervisor, [ [name: Serverboards.RulesV2.Supervisor] ]),
     ]
 
     opts = [strategy: :one_for_one]

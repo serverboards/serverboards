@@ -18,7 +18,7 @@ components:
     type: service
     name: Cloud node
     description: A node in a cloud service, as an AWS instance or libvirt virtual machine.
-    traits: core.cloud.node
+    traits: core.cloud.node cloud
     fields:
       - name: connection
         description: Connection UUID
@@ -31,7 +31,7 @@ components:
     type: service
     name: Libvirt
     description: Management of [libvirt](https://libvirt.org) based clouds.
-    traits: core.cloud.compute
+    traits: core.cloud.compute server cloud
     icon: libvirtLogo.png
     virtual:
       command: serverboards.core.cloud/daemon
@@ -52,7 +52,7 @@ components:
     type: service
     name: Digital Ocean
     description: Management of [Digital Ocean](https://digitalocean.com) clouds.
-    traits: core.cloud.compute
+    traits: core.cloud.compute cloud
     icon: digitalocean.svg
     virtual:
       command: serverboards.core.cloud/daemon
@@ -75,7 +75,7 @@ components:
   - id: start
     name: Start node
     type: action
-    traits: core.cloud.node stopped
+    traits: core.cloud.node stopped cloud server
     command: serverboards.core.cloud/daemon
     icon: play
     call:
@@ -85,8 +85,10 @@ components:
         - name: node
   - id: shutdown
     name: Shutdown node
+    description: |
+      Shuts down the selected node
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running cloud server
     command: serverboards.core.cloud/daemon
     icon: stop
     call:
@@ -97,7 +99,9 @@ components:
   - id: force_stop
     name: Force stop node
     type: action
-    traits: core.cloud.node running
+    description: |
+      Forces shut down the selected node
+    traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: stop circle outline
     call:
@@ -107,8 +111,10 @@ components:
         - name: node
   - id: reboot
     name: Reboot node
+    description: |
+      Do a soft reset of the node; a Crtl-Alt-Supr.
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: undo
     call:

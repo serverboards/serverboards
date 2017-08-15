@@ -76,6 +76,20 @@ export function map_set(orig, path, value){
   return merge(orig, {[head]: map_set( orig[head], rest, value )})
 }
 
+/// Concatenates lists returning a new one
+export function concat(/* arguments */){
+  let ret = []
+  for (let l of arguments){
+    for (let x of l)
+      ret.push(x)
+  }
+  return ret
+}
+
+export function sort_by_name(list){
+  return list.slice().sort( (a,b) => (a.name || "").localeCompare(b.name || "") )
+}
+
 const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
 const fixed_colors={
   "stopped" : "_grey",

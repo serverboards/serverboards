@@ -56,8 +56,8 @@ const GenericForm=React.createClass({
         ref="form"
         className={`ui form ${props.className || ""}`}
         onSubmit={(ev) => { ev.preventDefault(); props.onSubmit && props.onSubmit(ev) }}>
-        {(props.fields || []).map((f) => (
-            <GenericField key={f.name} setValue={this.setValue} value={this.state[f.name]} fields={props.fields} form_data={this.state} {...f}/>
+        {(props.fields || []).map((f, i) => (
+            <GenericField key={f.name || i} setValue={this.setValue} value={this.state[f.name]} fields={props.fields} form_data={this.state} {...f}/>
         ))}
         {props.children}
       </form>

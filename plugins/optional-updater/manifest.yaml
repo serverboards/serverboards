@@ -39,7 +39,7 @@ components:
     perms: event.emit action.update
 
   - id: check_plugin_updates
-    traits: plugins
+    traits: plugins hidden
     type: action
     name: Check if any plugin require updating
     command: updater
@@ -49,7 +49,7 @@ components:
         - name: action_id
 
   - id: update_plugin
-    traits: plugins
+    traits: plugins hidden
     type: action
     name: Plugin update
     command: updater

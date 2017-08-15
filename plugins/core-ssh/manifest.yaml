@@ -10,7 +10,7 @@ description: >
 components:
   - name: SSH access
     type: service
-    traits: ssh url
+    traits: ssh url server
     id: ssh
     description: Access via SSH to any server
     icon: terminal
@@ -90,7 +90,7 @@ components:
     type: action
     command: daemon
     description: Executes a remote command. It is recommended that the key exchange is configured prior, so no ssh passwords are stored on the database.
-    traits: ssh
+    traits: ssh server
     icon: terminal
     call:
       method: ssh_exec
@@ -152,7 +152,7 @@ components:
     name: SSH Remote command
     description: If a remote command fails, it executes an action.
     type: trigger
-    traits: ssh
+    traits: ssh server
     states: nok ok
     command: daemon
     start:

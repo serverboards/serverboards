@@ -8,6 +8,7 @@ url: https://serverboards.io
 
 components:
   - name: Ping server
+    description: Performs an ICMP ping to the server.
     id: ping
     type: action
     command: serverboards.core.actions/cmd
@@ -18,9 +19,11 @@ components:
           label: Remote IP address or DNS name
           type: text
       returns: ms
-    traits: ip url # this means any of `ip` or `url`
+    traits: ip url server # this means any of `ip` or `url`
 
   - name: Webhook call
+    description: |
+      Calls a remote HTTP or HTTPS endpoint via a GET request.
     id: webhook.call
     type: action
     command: serverboards.core.actions/cmd
@@ -36,9 +39,10 @@ components:
         code: int
         ms: ms
         text: text
-    traits: url
+    traits: url cloud server
 
   - name: Service tag change
+    description: Changes the service status tags
     id: set-tags
     type: action
     command: serverboards.core.actions/cmd
@@ -57,6 +61,9 @@ components:
           card: true
 
   - name: Send notification
+    description: |
+      Sends a notification to the selected user or group using their default
+      notification channel.
     id: send-notification
     type: action
     command: cmd
@@ -79,6 +86,8 @@ components:
         - name: service
 
   - name: Issue Open
+    description: |
+      Opens a new issue with the given parameters.
     type: action
     id: open-issue
     command: cmd
@@ -87,11 +96,8 @@ components:
       method: open_issue
       extra: true
       params:
-        - label: Description
-          type: description
+        - type: description
           description: |
-            Opens a new issue with the given parameters.
-
             Depending on where the action is invoked it may use one or several
             placeholders with context sensitive data, as rule name, id, description,
             related service and so on.
@@ -115,6 +121,8 @@ components:
           placeholder: "eg. rule/{{rule.uuid}}"
 
   - name: Issue Close
+    description: |
+      Closes the given issue by alias or id.
     type: action
     id: close-issue
     command: cmd
@@ -132,6 +140,8 @@ components:
           label: Issue comment
 
   - name: Notify all users
+    description: |
+      Notifies all users in the @user group.
     type: action template
     id: action.notify_user_template
     actions:

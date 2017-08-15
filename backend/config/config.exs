@@ -22,7 +22,7 @@ config :serverboards, ecto_repos: [Serverboards.Repo]
 config :serverboards, Serverboards.Repo,
   [
     adapter: Ecto.Adapters.Postgres,
-    url: "ecto://serverboards:serverboards@localhost/serverboards"
+    url: "ecto://serverboards:serverboards@localhost/sbds"
   ]
 
 config :serverboards,
@@ -37,6 +37,7 @@ config :serverboards,
     "{{HOME}}/.local/serverboards/serverboards.ini"
   ]
 
+config :eventsourcing, ecto_repos: [Serverboards.Repo]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

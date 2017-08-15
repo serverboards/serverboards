@@ -20,7 +20,7 @@ let HoldButton = React.createClass({
   propTypes:{
     onHoldClick: React.PropTypes.func.isRequired,
     className: React.PropTypes.string,
-    children: React.PropTypes.string.isRequired,
+    children: React.PropTypes.array, // not required when class has `icon`
     type: React.PropTypes.string
   },
   getInitialState(){

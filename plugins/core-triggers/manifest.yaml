@@ -7,8 +7,10 @@ description: >
 
 components:
   - name: Server is running / Ping
+    description: Performs an ICMP ping to check if the server is alive.
     id: ping
     type: trigger
+    traits: cloud server
     states: down up
     command: daemon
     stop: stop_trigger
@@ -33,9 +35,13 @@ components:
     traits: ip
 
   - name: HTTP Response time limit
+    description: |
+      Checks periodically if the connection time to the given server
+      enters into an allowed range.
     id: http
     type: trigger
     command: daemon
+    traits: www cloud
     states: down up
     stop: stop_trigger
     start:
@@ -61,13 +67,14 @@ components:
           description: Seconds that connectivity can be lost without triggering
           default: 60
           class: half column
-    traits: web
 
   - name: Socket is receiving connections
+    description: Checks periodically the given server and port connectivity.
     id: socket.is_up
     type: trigger
     states: down up
     command: daemon
+    traits: server url
     stop: stop_trigger
     start:
       method: socket_is_up
@@ -96,6 +103,9 @@ components:
     traits: url
 
   - name: Periodic trigger
+    description: |
+      Periodically triggers. Used for recurring actions without a very
+      strict schedule.
     id: periodic
     type: trigger
     states: tick
@@ -115,6 +125,7 @@ components:
     type: trigger
     states: added removed
     command: daemon
+    traits: service
     start:
       method: tag_change
       params:
@@ -154,7 +165,7 @@ components:
     description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
     id: rule.http.is_up
     type: rule template
-    traits: web
+    traits: www
     trigger:
       trigger: http
       params:
@@ -174,7 +185,6 @@ components:
     description: Monitors server tags to know when a server is DOWN or UP and notifies all users
     id: rule.server.open-issue
     type: rule template
-    traits: url
     trigger:
       trigger: tag_change
       params:
