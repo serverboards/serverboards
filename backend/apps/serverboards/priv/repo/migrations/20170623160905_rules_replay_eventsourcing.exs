@@ -51,7 +51,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
            else: []
          }
       end
-      
+
       actions
     end
   end
@@ -87,7 +87,7 @@ defmodule Serverboards.Repo.Migrations.RulesReplayEventsourcing do
       uuid: data["uuid"],
       name: data["name"],
       description: data["description"],
-      is_active: data["is_active"],
+      is_active: if Map.get(data, "is_active", false) do true else false end,
       deleted: false,
       state: %{},
       from_template: data["from_template"],
