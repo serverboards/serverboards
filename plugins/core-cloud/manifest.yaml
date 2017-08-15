@@ -122,3 +122,20 @@ components:
       params:
         - name: connection
         - name: node
+
+  - id: test-daemon
+    name: Test Daemon
+    type: cmd
+    command: ./cloud_test.py
+    strategy: one_for_one
+    perms:
+      event.emit
+      service.get
+      service.update
+      service.create
+      plugin
+
+  - id: test
+    name: Test Cloud Services
+    type: test
+    command: serverboards.core.cloud/test-daemon
