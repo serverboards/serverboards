@@ -168,6 +168,7 @@ class RPC:
               for f in self.subscriptions[method]:
                   if f:
                       try:
+                          #self.debug("Calling %s b/o event %s(%s)"%(f, method, args or kwargs))
                           f(*args, **kwargs)
                       except Exception as e:
                           self.log_traceback(e)
@@ -304,7 +305,7 @@ class RPC:
         self.manual_replies.add(self.last_rpc_id)
         self.println(json.dumps({"id": self.last_rpc_id, "result": result}))
 
-    def call(self, method, *params, **kparams):
+    def call(self, method, *params, **kwparams):
         """
         Calls a method on the other side and waits until answer.
 
@@ -315,9 +316,10 @@ class RPC:
 
         This allows to setup the environment.
         """
+        assert not params or not kwparams, "Use only *params(%s) or only **kwparams(%s)"%(params, kwparams)
         id=self.send_id
         self.send_id+=1
-        rpc = json.dumps(dict(method=method, params=params or kparams, id=id))
+        rpc = json.dumps(dict(method=method, params=params or kwparams, id=id))
         self.println(rpc)
         return self.inner_loop(id, method=method)
 
