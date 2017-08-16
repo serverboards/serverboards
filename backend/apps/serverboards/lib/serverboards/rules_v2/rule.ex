@@ -69,8 +69,8 @@ defmodule Serverboards.RulesV2.Rule do
   end
 
   def start_trigger(uuid, w) do
-    [trigger] = Serverboards.Rules.Trigger.find(id: w["trigger"])
-    with {:ok, plugin_id} <- Serverboards.Plugin.Runner.start(trigger.command, "system/rule_v2"),
+    with [trigger] <- Serverboards.Rules.Trigger.find(id: w["trigger"]),
+         {:ok, plugin_id} <- Serverboards.Plugin.Runner.start(trigger.command, "system/rule_v2"),
          {:ok, client} <- Serverboards.Plugin.Runner.client plugin_id
     do
       setup_client_for_rules(self(), uuid, client)
@@ -95,6 +95,7 @@ defmodule Serverboards.RulesV2.Rule do
         {:error, error} -> {:error, error}
       end
     else
+      [] -> {:error, :not_found}
       error -> error
     end
   end
@@ -230,7 +231,7 @@ defmodule Serverboards.RulesV2.Rule do
           { else_actions, state }
         end
       {:error, {:unknown_var, varname, _context}} ->
-        Logger.warn("Invalid variable #{inspect varname} used. Please check the condition #{inspect condition}. Resolving as false.", rule_id: uuid)
+        #Logger.debug("Unknown variable #{inspect varname} at condition #{inspect condition}. Resolving as false.", rule_id: uuid)
         { else_actions, state }
     end
   end
