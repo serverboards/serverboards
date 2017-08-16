@@ -15,8 +15,12 @@ class Connection:
     driver = None
     if type == 'libvirt':
       cls=get_driver(Provider.LIBVIRT)
-      url="qemu+ssh://%s/system"%config['server']
-      serverboards.debug("Connect to libvirt // %s"%url)
+
+      ssh_server = serverboards.service.get(config['server'])
+      keyfile=os.path.join(os.environ["HOME"],"../serverboards.core.ssh/id_rsa")
+      url="qemu+ssh://%s/system?keyfile=%s"%(ssh_server["config"]['url'], keyfile)
+
+      #serverboards.debug("Connect to libvirt // %s"%url)
       driver=cls( url )
     elif type == 'digitalocean':
       cls=get_driver(Provider.DIGITAL_OCEAN)
@@ -40,8 +44,6 @@ class Connection:
     if 'linux' in nodename:
         return 'linux'
     return None
-
-
 
 @serverboards.rpc_method("list")
 def _list(service):

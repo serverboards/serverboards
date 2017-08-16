@@ -9,7 +9,7 @@ components:
   - id: daemon
     name: Cloud services daemon
     type: cmd
-    perms: settings.view[serverboards.core.cloud] event.emit
+    perms: settings.view[serverboards.core.cloud] event.emit service.get plugin
     strategy: singleton
     timeout: 24h
     command: ./serverboards-cloud.py
@@ -50,7 +50,6 @@ components:
   - id: digital.ocean
     name: Digital Ocean
     type: service
-    name: Digital Ocean
     description: Management of [Digital Ocean](https://digitalocean.com) clouds.
     traits: core.cloud.compute cloud
     icon: digitalocean.svg
@@ -66,6 +65,17 @@ components:
       - name: type
         type: hidden
         value: digitalocean
+  - id: lxc
+    name: LXC
+    type: service
+    description: Management of LXC Containers
+    traits: core.cloud.compute cloud
+    icon: cloud
+    fields:
+      - name: server
+        type: service
+        traits: ssh
+        label: Server with the LXC nodes
 
   - id: list
     name: List nodes
@@ -123,6 +133,31 @@ components:
         - name: connection
         - name: node
 
+
+  ## libvirt
+  - id: libcloud-daemon
+    name: Libvirt Daemon
+    type: cmd
+    command: serverboards_libcloud.py
+    perms: service.get
+  - id: libvirt-vmc
+    type: vmc
+    for: serverboards.core.cloud/libvirt
+    name: Libvirt Management
+    command: serverboards.core.cloud/libcloud-daemon
+  # LXC
+  - id: lxc-daemon
+    name: LXC Daemon
+    type: cmd
+    command: serverboards_lxc.py
+    perms: service.get plugin
+  - id: lxc-vmc
+    type: vmc
+    for: serverboards.core.cloud/lxc
+    name: LXC Management
+    command: serverboards.core.cloud/lxc-daemon
+
+  ## Test
   - id: test-daemon
     name: Test Daemon
     type: cmd
@@ -133,7 +168,9 @@ components:
       service.get
       service.update
       service.create
+      service.attach
       plugin
+      project.create
 
   - id: test
     name: Test Cloud Services

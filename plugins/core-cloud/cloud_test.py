@@ -3,22 +3,36 @@
 import sys, os, uuid, time, re, yaml
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-from serverboards import rpc, service, print, Plugin
+from serverboards import rpc, service, project, print, plugin, Plugin
 
 service_ssh, service_libvirt = None, None
+me = os.environ["USER"]
 
-cloud = Plugin("serverboards.core.cloud/daemon")
+cloud = None
 
 @serverboards.rpc_method
 def t00_setup_test():
+  global cloud
+  try: plugin.kill("serverboards.core.cloud/daemon")
+  except: pass
+  try: plugin.kill("serverboards.core.ssh/daemon")
+  except: pass
+  time.sleep(1)
+  cloud = Plugin("serverboards.core.cloud/daemon")
+
   global service_ssh, service_libvirt
+  project.create(
+    shortname="TCLOUD",
+    name="Test Cloud"
+  )
   service_ssh = service.create(
     name = "ssh localhost",
-    type = "serverboards.core.ssh/server",
+    type = "serverboards.core.ssh/ssh",
     config = {
-      "url": "localhost",
+      "url": "%s@localhost"%me,
       "options": "",
-      }
+      },
+    project = "TCLOUD",
     )
   service_libvirt = service.create(
     name = "libvirt",
@@ -26,18 +40,40 @@ def t00_setup_test():
     config = {
       "type":"libvirt",
       "server": service_ssh
-      }
+      },
+    project = "TCLOUD",
     )
+  service_lxc = service.create(
+    name = "lxc",
+    type = "serverboards.core.cloud/lxc",
+    config = {
+      "server": service_ssh
+      },
+    project = "TCLOUD",
+    )
+  service.attach("TCLOUD", service_libvirt)
+  service.attach("TCLOUD", service_ssh)
+  service.attach("TCLOUD", service_lxc)
+
+  ssh_public_key = Plugin("serverboards.core.ssh/mgmt").ssh_public_key()
+  authorized_keys_path = "/home/%s/.ssh/authorized_keys"%os.environ["USER"]
+  if ssh_public_key not in open(authorized_keys_path,"r").read():
+    with open(authorized_keys_path, "a") as wd:
+      serverboards.debug("Adding the SSH key to curent user keys, will try to connect using ssh")
+      wd.write("%s\n"%ssh_public_key)
 
 @serverboards.rpc_method
 def t01_list_nodes_test():
-  l = cloud.list( service_libvirt )
+  l = cloud.list( project="TCLOUD" )
   print("Listed nodes from localhost libvirt: %s"%l)
+  assert l != [], str(l)
+  assert [x for x in l if x["type"] == "serverboards.core.cloud/lxc"]
 
 
 @serverboards.rpc_method
 def t99_cleanup_services_test():
   service.delete(service_ssh)
   service.delete(service_libvirt)
+  project.delete("TCLOUD")
 
 serverboards.loop()
