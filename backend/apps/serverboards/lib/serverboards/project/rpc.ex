@@ -13,8 +13,13 @@ defmodule Serverboards.Project.RPC do
     Serverboards.Utils.Decorators.permission_method_caller mc
 
     # Serverboards
-    RPC.MethodCaller.add_method mc, "project.create", fn [projectname, options], context ->
-      project_add projectname, options, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "project.create", fn
+      [projectname, options], context ->
+        project_add projectname, options, Context.get(context, :user)
+      %{} = attr, context ->
+        projectname = attr["shortname"]
+        options = Map.take(attr, ["shortname"])
+        project_add projectname, options, Context.get(context, :user)
     end, [required_perm: "project.create", context: true]
 
     RPC.MethodCaller.add_method mc, "project.delete", fn [project_id], context ->
