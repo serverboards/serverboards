@@ -51,7 +51,6 @@ defmodule Serverboards.RulesV2.RPC do
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
-      Logger.warn("Rules V2 RPC subscribed")
       MOM.RPC.Client.add_method_caller client, mc
       :ok
     end)
