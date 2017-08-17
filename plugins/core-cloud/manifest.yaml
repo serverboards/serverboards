@@ -27,56 +27,6 @@ components:
         description: Node UUID
         type: text
 
-  - id: libvirt
-    type: service
-    name: Libvirt
-    description: Management of [libvirt](https://libvirt.org) based clouds.
-    traits: core.cloud.compute server cloud
-    icon: libvirtLogo.png
-    virtual:
-      command: serverboards.core.cloud/daemon
-      call: virtual_nodes
-      subscribe: virtual_nodes_subscribe
-      unsubscribe: virtual_nodes_unsubscribe
-    fields:
-      - name: server
-        type: text
-        label: Remote Server Address
-        placeholder: ie. 192.168.1.200, api.example.com...
-        card: true
-      - name: type
-        type: hidden
-        value: libvirt
-  - id: digital.ocean
-    name: Digital Ocean
-    type: service
-    description: Management of [Digital Ocean](https://digitalocean.com) clouds.
-    traits: core.cloud.compute cloud
-    icon: digitalocean.svg
-    virtual:
-      command: serverboards.core.cloud/daemon
-      call: virtual_nodes
-    fields:
-      - name: token
-        type: text
-        label: Access Token
-        description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
-        placeholder: ""
-      - name: type
-        type: hidden
-        value: digitalocean
-  - id: lxc
-    name: LXC
-    type: service
-    description: Management of LXC Containers
-    traits: core.cloud.compute cloud
-    icon: cloud
-    fields:
-      - name: server
-        type: service
-        traits: ssh
-        label: Server with the LXC nodes
-
   - id: list
     name: List nodes
     type: screen
@@ -135,6 +85,36 @@ components:
 
 
   ## libvirt
+  - id: libvirt
+    type: service
+    name: Libvirt
+    description: Management of [libvirt](https://libvirt.org) based clouds.
+    traits: core.cloud.compute server cloud
+    icon: libvirtLogo.png
+    fields:
+      - name: server
+        type: text
+        label: Remote Server Address
+        placeholder: ie. 192.168.1.200, api.example.com...
+        card: true
+      - name: type
+        type: hidden
+        value: libvirt
+  - id: digital.ocean
+    name: Digital Ocean
+    type: service
+    description: Management of [Digital Ocean](https://digitalocean.com) clouds.
+    traits: core.cloud.compute cloud
+    icon: digitalocean.svg
+    fields:
+      - name: token
+        type: text
+        label: Access Token
+        description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
+        placeholder: ""
+      - name: type
+        type: hidden
+        value: digitalocean
   - id: libcloud-daemon
     name: Libvirt Daemon
     type: cmd
@@ -145,7 +125,29 @@ components:
     for: serverboards.core.cloud/libvirt
     name: Libvirt Management
     command: serverboards.core.cloud/libcloud-daemon
+
   # LXC
+  - id: lxc
+    name: LXC
+    type: service
+    description: Management of LXC Containers
+    traits: core.cloud.compute cloud
+    icon: cloud
+    fields:
+      - name: server
+        type: service
+        traits: ssh
+        label: Server with the LXC nodes
+      - name: sudo
+        type: checkbox
+        default: false
+        label: Requires `sudo`.
+        description: |
+          If SSH connection is not as `root` it may require sudo. To make it
+          work you must give permission to the user to execute `lxc-start`,
+          `lxc-stop` and `lxc-ls` with sudo and no password.
+
+          Check https://forum.serverboards.io for more information.
   - id: lxc-daemon
     name: LXC Daemon
     type: cmd

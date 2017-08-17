@@ -3,11 +3,15 @@
 import sys, os, uuid, time, re
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-from serverboards import rpc
+from serverboards import rpc, cache_ttl
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 
 connections = {} # UUID of a service to a connection
+
+state_trans = {
+  "terminated" : "stopped",
+}
 
 class Connection:
   def __init__(self, config):
@@ -45,25 +49,40 @@ class Connection:
         return 'linux'
     return None
 
+@cache_ttl(60)
+def get_connection(service):
+  conn = connections.get(service["uuid"], None)
+  if conn:
+    return conn
+
+  conn = Connection( service["config"] )
+  connections[service["uuid"]] = conn
+  return conn
+
+def details(conn, node, extra_info=False, ):
+  return {
+    "name" : node.name,
+    "description" : conn.describe(node),
+    "id" : node.uuid,
+    "state" : state_trans.get(node.state, node.state),
+    "icon" : conn.guess_icon(node),
+    "props" : {
+        'private_ips':node.private_ips,
+        'public_ips':node.public_ips,
+        'created_at':str(node.created_at),
+    }
+  }
+
+@serverboards.rpc_method("details")
+def _details(service, vmc):
+  conn = get_connection(service)
+  return details(conn, conn.driver.ex_get_node_by_uuid(vmc), True)
+
 @serverboards.rpc_method("list")
 def _list(service):
   conn = get_connection(service)
 
-  def decorate(node):
-    return {
-      "name" : node.name,
-      "description" : conn.describe(node),
-      "id" : node.uuid,
-      "state" : node.state,
-      "icon" : conn.guess_icon(node),
-      "props" : {
-          'private_ips':node.private_ips,
-          'public_ips':node.public_ips,
-          'created_at':str(node.created_at),
-      }
-    }
-
-  return [decorate(node) for node in conn.driver.list_nodes()]
+  return [details(conn, node) for node in conn.driver.list_nodes()]
 
 @serverboards.rpc_method
 def start(service, vmc):
@@ -89,16 +108,6 @@ def stop(service, vmc, force = False):
 def pause(service, vmc):
   conn = get_connection(service)
   pass
-
-def get_connection(service):
-  conn = connections.get(service["uuid"], None)
-  if conn:
-    return conn
-
-  conn = Connection( service["config"] )
-  connections[service["uuid"]] = conn
-  return conn
-
 
 def printy( data ):
   import yaml

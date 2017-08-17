@@ -17,7 +17,6 @@ def t00_setup_test():
   except: pass
   try: plugin.kill("serverboards.core.ssh/daemon")
   except: pass
-  time.sleep(1)
   cloud = Plugin("serverboards.core.cloud/daemon")
 
   global service_ssh, service_libvirt
@@ -47,7 +46,8 @@ def t00_setup_test():
     name = "lxc",
     type = "serverboards.core.cloud/lxc",
     config = {
-      "server": service_ssh
+      "server": service_ssh,
+      "sudo": True,
       },
     project = "TCLOUD",
     )
@@ -62,13 +62,35 @@ def t00_setup_test():
       serverboards.debug("Adding the SSH key to curent user keys, will try to connect using ssh")
       wd.write("%s\n"%ssh_public_key)
 
+first_node = None
 @serverboards.rpc_method
 def t01_list_nodes_test():
+  global first_node
+
   l = cloud.list( project="TCLOUD" )
   print("Listed nodes from localhost libvirt: %s"%l)
   assert l != [], str(l)
+  first_node = l[0]
+  assert [x for x in l if x["type"] == "serverboards.core.cloud/libvirt"]
   assert [x for x in l if x["type"] == "serverboards.core.cloud/lxc"]
 
+@serverboards.rpc_method
+def t02_start_node_test():
+  assert first_node
+  ok = cloud.start(first_node["parent"], first_node["id"])
+  print( yaml.dump(cloud.details(first_node["parent"], first_node["id"])) )
+
+@serverboards.rpc_method
+def t03_pause_node_test():
+  assert first_node
+  ok = cloud.pause(first_node["parent"], first_node["id"])
+  print( yaml.dump(cloud.details(first_node["parent"], first_node["id"])) )
+
+@serverboards.rpc_method
+def t04_stop_node_test():
+  assert first_node
+  ok = cloud.call('stop', service=first_node["parent"], vmc=first_node["id"])
+  print( yaml.dump(cloud.details(first_node["parent"], first_node["id"])) )
 
 @serverboards.rpc_method
 def t99_cleanup_services_test():
