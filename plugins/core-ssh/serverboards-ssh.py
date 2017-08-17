@@ -5,9 +5,8 @@ import serverboards, pexpect, shlex, re, subprocess, random, sh
 import urllib.parse as urlparse
 import base64
 import time
-from cache_ttl import cache_ttl
 from common import *
-from serverboards import file, print, rpc
+from serverboards import file, print, rpc, cache_ttl
 
 td_to_s_multiplier=[
     ("ms", 0.001),
