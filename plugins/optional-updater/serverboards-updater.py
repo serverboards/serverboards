@@ -3,7 +3,10 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-import requests, subprocess, yaml, time
+import requests, subprocess, yaml, time, urllib.request, gzip
+from serverboards import print
+
+PLUGINS_YAML_URL="https://serverboards.io/downloads/plugins.yaml.gz"
 
 @serverboards.rpc_method
 def latest_version(**args):
@@ -85,6 +88,61 @@ def update_plugin(action_id=None, plugin_id=None):
             update_at(pl)
             return "ok"
     raise Exception("not-found")
+
+
+@serverboards.rpc_method("plugin_catalog")
+@serverboards.cache_ttl(60)
+def plugin_catalog():
+  plugins_yaml_gz = urllib.request.urlopen(PLUGINS_YAML_URL)
+
+  plugins_yaml_raw = gzip.GzipFile(fileobj = plugins_yaml_gz).read()
+  plugins = yaml.load(plugins_yaml_raw)
+
+  return plugins
+
+# Direct trans from util.js
+def match_traits(has=[], any=[], all=[]):
+  if all:
+    for a in all:
+      if a not in has:
+        return False
+  if any:
+    for a in any:
+      if a in has:
+        return True
+    return False
+  return True
+
+def maybe_list(l):
+  """
+  Returns the same list as received, or splits a string into a list.
+  """
+  if type(l)==list:
+    return l
+  return l.split(' ')
+
+@serverboards.rpc_method
+def component_filter(type=None, traits=None):
+  plugins = plugin_catalog()
+  components = []
+  traits = maybe_list(traits or [])
+  for pl in plugins:
+    for co in pl.get("components",[]):
+      # countdown, counts how many not None
+      matched_filters = len([x for x in [type, traits] if x])
+
+      if type and co.get("type")==type:
+        matched_filters-=1
+      if traits and match_traits(has=maybe_list(co.get("traits",[])), all=traits):
+        matched_filters-=1
+
+      if matched_filters==0:
+        co["id"]="%s/%s"%(pl["id"], co["id"])
+        co["plugin"]=pl["id"]
+        co["giturl"]=pl["giturl"]
+        components.append(co)
+  return components
+
 
 def update_at(path):
     serverboards.info("Updating plugin at %s"%path)

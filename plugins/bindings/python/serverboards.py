@@ -544,6 +544,9 @@ class Plugin:
     Wraps a plugin to easily call the methods in it.
 
     It has no recovery in it.
+
+    Can specify to ensure it is dead (kill_and_restart=True) before use. This
+    is only useful at tests.
     """
     class Method:
         def __init__(self, plugin, method):
@@ -551,19 +554,30 @@ class Plugin:
             self.method=method
         def __call__(self, *args, **kwargs):
             return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs)
-    def __init__(self, plugin_id):
+
+    def __init__(self, plugin_id, kill_and_restart = False):
         self.plugin_id = plugin_id
+        if kill_and_restart:
+          try:
+            rpc.call("plugin.kill", plugin_id)
+            time.sleep(1)
+          except:
+            pass
         self.uuid=rpc.call("plugin.start", plugin_id)
+
     def __getattr__(self, method):
         if not self.uuid:
             self.uuid=rpc.call("plugin.start", plugin_id)
         return Plugin.Method(self, method)
+
     def stop(self):
         """
         Stops the plugin.
         """
         rpc.call("plugin.stop", self.uuid)
         self.uuid = None
+        return self
+
     def call(self, method, *args, **kwargs):
         """
         Call a method by name.
