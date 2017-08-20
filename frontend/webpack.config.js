@@ -1,16 +1,11 @@
-var webpack = require('webpack');
-var path = require('path')
+const webpack = require('webpack');
+const path = require('path')
 
 // To Reqrite index.html with proper bundle js
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: __dirname + '/app/index.html',
-  filename: 'index.html',
-  inject: 'body'
-});
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var __DEV__ = process.env.NODE_ENV !== 'production'
+const __DEV__ = process.env.NODE_ENV !== 'production'
 console.log("Building for %s", __DEV__ ? "development" : "production")
 
 var entry=[]
@@ -37,24 +32,61 @@ module.exports = {
     },
     devtool: __DEV__ ? "source-map" : "cheap-module-source-map",
     module: {
-        loaders: [
+        rules: [
             //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
-            { test: /\.js$/, exclude: /node_modules/, loaders: ["react-hot", "babel"] },
-            { test: /\.css$/, loader: "style!css" },
-            { test: /\.sass$/, exclude: /node_modules/, loader: "style!css!sass"},
+            { test: /\.js$/, exclude: /node_modules/, use: ["react-hot-loader", "babel-loader"] },
+            { test: /\.css$/, use: ["style-loader","css"] },
+            {
+              test: /\.sass$/,
+              use: [{
+                loader: "style-loader"
+              }, {
+                loader: "css-loader"
+              }, {
+                loader: "sass-loader",
+                options : {
+                  includePaths: ["./"]
+                }
+              }]
+            },
             { test: /\.(jpe?g|png|gif|svg)$/i,
-                    loaders: [
-                        'file?hash=sha512&digest=hex&name=[hash].[ext]',
-                        'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
-                    ]
-                  },
-            { test: /\.json$/, loader: "json" },
+              loaders: [
+                'file-loader',
+                {
+                  loader: 'image-webpack-loader',
+                  query: {
+                    mozjpeg: {
+                      progressive: true,
+                    },
+                    gifslice: {
+                      interlaced: false,
+                    },
+                    optipng: {
+                      optimizationLevel: 7,
+                    },
+                    pngquant: {
+                      quality: '65-90',
+                      speed: 4
+                    }
+                  }
+                }
+              ]
+            }
         ]
     },
     plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
-      new webpack.NoErrorsPlugin(),
-      HTMLWebpackPluginConfig,
+      new webpack.NoEmitOnErrorsPlugin(),
+      new HtmlWebpackPlugin({
+        template: __dirname + '/app/index.html',
+        filename: 'index.html',
+        inject: 'body'
+      }),
+      new webpack.optimize.UglifyJsPlugin({
+        sourceMap: true,
+        compress: !__DEV__,
+        minimize: !__DEV__,
+        parallel: true
+      }),
       new CopyWebpackPlugin([
         {from:'lang/*.json', to:'lang'},
         {from:'app/css', to:'css'},
@@ -70,6 +102,7 @@ module.exports = {
         }
       })
     ],
+    /*
     sassLoader: {
       includePaths: [path.resolve("./sass")]
     },
@@ -88,5 +121,5 @@ module.exports = {
           }
         ]
       }
-    }
+    }*/
   };
