@@ -1,7 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
-import Selector from './selector'
+import Selector from 'app/components/selector'
 import {match_traits} from 'app/utils'
 
 const BLACKLIST=["cloud","server"]
