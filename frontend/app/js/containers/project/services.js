@@ -1,5 +1,7 @@
 import ServicesView from 'app/components/project/services'
+import ServiceAdd from 'app/components/service/add'
 import connect from 'app/containers/connect'
+import React from 'react'
 
 var Services = connect({
   state: (state) => ({
@@ -10,4 +12,11 @@ var Services = connect({
   subcriptions: ["service.updated", "projects.updated"]
 })(ServicesView)
 
-export default Services
+function ServicesOrAdd(props){
+  if (props.subsection=="add"){
+    return <ServiceAdd {...props}/>
+  }
+  return <Services {...props}/>
+}
+
+export default ServicesOrAdd
