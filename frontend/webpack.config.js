@@ -71,7 +71,7 @@ module.exports = {
       })
     ],
     sassLoader: {
-      includePaths: [path.resolve("./sass")]
+      includePaths: [path.resolve("./sass"), path.resolve(".")]
     },
     imageWebpackLoader: {
       pngquant:{
