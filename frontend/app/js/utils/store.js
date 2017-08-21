@@ -2,17 +2,18 @@ import redux_reducers from '../reducers'
 import thunk from 'redux-thunk';
 import rpc from '../rpc'
 import { createStore, applyMiddleware, compose } from 'redux'
-import { hashHistory } from 'react-router'
 import { routerMiddleware, push } from 'react-router-redux'
 import { merge, object_is_equal } from 'app/utils'
 import React from 'react'
 const react_redux_connect = require('react-redux').connect
 import serverboards_connect from 'app/containers/connect'
-
+import createHistory from 'history/createBrowserHistory'
 
 import AsyncPromises from 'app/containers/asyncpromises'
 import Subscribed from 'app/containers/subscribed'
 import Updaters from 'app/containers/updaters'
+
+const history = createHistory()
 
 var redux_extra=f => f
 
@@ -34,7 +35,7 @@ const promise_middleware = store => next => action => {
 let store = createStore(
   redux_reducers, {},
   compose(
-    applyMiddleware(promise_middleware, thunk, routerMiddleware(hashHistory)),
+    applyMiddleware(promise_middleware, thunk, routerMiddleware(history)),
     redux_extra
   )
 )

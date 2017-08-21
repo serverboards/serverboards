@@ -1,9 +1,8 @@
 // using an ES6 transpiler, like babel
 import React from 'react';
-import { Router, Route, Link, hashHistory } from 'react-router'
-import { connect } from 'react-redux'
-import { syncHistoryWithStore } from 'react-router-redux'
+import { Router, Route, Link } from 'react-router'
 import store from 'app/utils/store'
+import { ConnectedRouter } from 'react-router-redux'
 
 import DashBoard from 'app/containers/dashboard'
 import Profile from 'app/containers/profile'
@@ -21,13 +20,11 @@ import IssuesView from 'app/containers/issues/details'
 import ServiceDetails from 'app/containers/service/details'
 import RuleDetails from 'app/containers/rules/edit'
 
-const history = syncHistoryWithStore(hashHistory, store)
-
 var ServerboardsRouter = React.createClass({
   render(){
     //console.log("Router Props: %o", this.props)
     return (
-        <Router history={history}>
+        <ConnectedRouter store={store}>
           <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
           <Route path="/project/">
@@ -66,7 +63,7 @@ var ServerboardsRouter = React.createClass({
           <Route path="/s/">
             <Route path=":plugin/:component" component={PluginScreen}/>
           </Route>
-        </Router>
+        </ConnectedRouter>
       )
     }
 })
