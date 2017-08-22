@@ -32,7 +32,7 @@ class AddButton extends React.Component{
           */}
           <Restricted perm="service.create">
             <a
-                onClick={() => set_modal_and_close("service.create", {project})}
+                onClick={() => goto(`/project/${project}/services/add`)}
                 title={i18n("Add a service")}
                 >
               <i className="ui mid massive button id card blue icon"></i>
