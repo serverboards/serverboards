@@ -7,6 +7,7 @@ import {merge} from 'app/utils'
 import event from 'app/utils/event'
 import i18n from 'app/utils/i18n'
 import {set_modal} from 'app/utils/store'
+import cache from 'app/utils/cache'
 
 require('sass/cards.sass')
 import PluginCard from './card'
@@ -19,7 +20,7 @@ const Plugins=React.createClass({
     }
   },
   componentDidMount(){
-    rpc.call("plugin.catalog",[]).then((pluginsd)=>{
+    cache.plugins().then((pluginsd)=>{
       let plugins=[]
       for (let k in pluginsd){
         plugins.push(pluginsd[k])

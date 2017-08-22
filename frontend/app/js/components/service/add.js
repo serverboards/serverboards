@@ -1,8 +1,11 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import Selector from 'app/components/selector'
+import Flash from 'app/flash'
 import GenericForm from 'app/components/genericform'
+import Loading from 'app/components/loading'
 import cache from 'app/utils/cache'
+import plugin from 'app/utils/plugin'
 import {MarkdownPreview} from 'react-marked-markdown'
 import ServiceSelect from 'app/components/service/select'
 
@@ -76,6 +79,33 @@ function AddServiceNewOrOldTabs(props){
   )
 }
 
+function AddServiceHeader({openMarket}){
+  return (
+    <div className="menu">
+      <div className="item stretch"></div>
+      <a className="ui button teal" onClick={openMarket}>{i18n("Go to market")}</a>
+    </div>
+  )
+}
+
+function get_service_market_catalog(){
+  return Promise.all([
+      plugin.start_call_stop(
+            "serverboards.optional.update/updater",
+            "component_filter",
+            {type: "service"}
+          )
+      , cache.plugins()
+    ]).then( (cp) => {
+      const catalog = cp[0]
+      const plugin_list = cp[1]
+
+      console.log("Got catalog %o // %o", catalog, plugin_list)
+      return catalog.filter( c => !plugin_list[c.plugin] )
+    })
+}
+
+
 class AddService extends React.Component{
   constructor(props){
     super(props)
@@ -86,14 +116,22 @@ class AddService extends React.Component{
     }
   }
   handleSelectServiceType(service){
-    console.log(service)
     this.setState({step:2, service})
+  }
+  componentDidMount(){
+    this.props.setSectionMenu(AddServiceHeader)
+    this.props.setSectionMenuProps({openMarket: () => this.setState({step: 10})})
+  }
+  componentWillUmount(){
+    this.props.setSectionMenu(null)
+    this.props.setSectionMenuProps({})
   }
   render(){
     var section = null
     switch (this.state.step){
       case 1:
         section = (<Selector
+                    key="installed"
                     icon="cloud"
                     title={i18n("Create a new service")}
                     description={i18n("Select which service type to create")}
@@ -110,6 +148,30 @@ class AddService extends React.Component{
                       setTab={(tab) => this.setState({tab})}
                       project={this.props.project.shortname}
                       />)
+        break;
+      case 10:
+        section = (<Selector
+                    key="marketplace"
+                    icon="cloud"
+                    title={i18n("Install add-on")}
+                    description={i18n("Select a service type from the Serverboards marketplace and it will be ready to use. Just one click.")}
+                    get_items={get_service_market_catalog}
+                    current={(this.state.service || {}).type}
+                    onSkip={() => this.setState({step:1})}
+                    skip_label={i18n("Back to already installed services")}
+                    onSelect={(s) => {
+                      this.setState({step:11})
+                      plugin.install(s.giturl).then(() => {
+                        this.handleSelectServiceType(s)
+                      }).catch(() => {
+                        this.setState({step:1})
+                        Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
+                      })
+                    }}
+                    />)
+        break;
+      case 11:
+        section = <Loading>{i18n("Installing plugin")}</Loading>
         break;
     }
 
