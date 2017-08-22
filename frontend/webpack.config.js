@@ -32,6 +32,7 @@ module.exports = {
       alias:{
         app : path.resolve("./app/js"),
         sass : path.resolve("./app/sass"),
+        imgs : path.resolve("./app/imgs"),
         lang : path.resolve("./lang")
       }
     },
