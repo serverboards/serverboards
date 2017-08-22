@@ -106,6 +106,7 @@ var RPC = function(options={}){
 
   rpc.onerror = function(){
     console.error("Error WS connection. %o", rpc.status)
+    console.warn("You can change the backend server address at the JS console with `localStorage.servername='http://localhost:8080'`")
 
   }
   rpc.reconnect = function(){
