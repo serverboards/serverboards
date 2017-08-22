@@ -4,13 +4,13 @@ import Selector from 'app/components/selector'
 import GenericForm from 'app/components/genericform'
 import cache from 'app/utils/cache'
 import {MarkdownPreview} from 'react-marked-markdown'
+import ServiceSelect from 'app/components/service/select'
 
 require('sass/panes.sass')
 
 function AddServiceDetailsForm({service, gotoStep, onSave}){
   return (
-    <div className="ui with padding">
-      <h2>{i18n("Create {service_type} service", {service_type: service.name})}</h2>
+    <div className="ui with padding extend">
       <MarkdownPreview value={service.description}/>
 
       <div className="separator" style={{height: 40}}/>
@@ -35,12 +35,54 @@ function AddServiceDetailsForm({service, gotoStep, onSave}){
   )
 }
 
+function AddServiceButton({service}){
+  return (
+    <a className="ui button teal">{i18n("Attach to this project")}</a>
+  )
+}
+
+function AddServiceNewOrOldTabs(props){
+  const {tab, service, setTab, setStep} = props
+  const my_type = service.type
+  const my_project = props.project
+  return (
+    <div className="ui padding extend">
+      <h2>{i18n("Add {service_type} service to project", {service_type: service.name})}</h2>
+      <div className="ui pointing secondary menu">
+        <a
+          className={`item ${tab=="new" ? "active" : ""}`}
+          onClick={() => setTab("new")}
+          >Create new</a>
+        <a
+          className={`item ${tab=="existing" ? "active" : ""}`}
+          onClick={() => setTab("existing")}
+          >Select existing</a>
+      </div>
+      <div className="ui with scroll">
+      {tab == "new" ? (
+        <AddServiceDetailsForm {...props}/>
+      ) : (
+        <div className="ui padding extend">
+          <ServiceSelect
+            filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
+            onBack={() => gotoStep(1)}
+            onSelect={(s) => console.log("Select %o",s)}
+            bottomElement={AddServiceButton}
+            />
+        </div>
+      )}
+      </div>
+    </div>
+  )
+}
+
 class AddService extends React.Component{
   constructor(props){
     super(props)
     this.state={
       step: 1,
-      service: undefined
+      service: undefined,
+      tab: "new"
     }
   }
   handleSelectServiceType(service){
@@ -57,12 +99,16 @@ class AddService extends React.Component{
                     description={i18n("Select which service type to create")}
                     get_items={cache.service_catalog}
                     onSelect={(what) => this.handleSelectServiceType(what)}
+                    current={this.state.service.type}
                     />)
         break;
       case 2:
-        section = (<AddServiceDetailsForm
+        section = (<AddServiceNewOrOldTabs
                       service={this.state.service}
                       gotoStep={(step) => this.setState({step})}
+                      tab={this.state.tab}
+                      setTab={(tab) => this.setState({tab})}
+                      project={this.props.project.shortname}
                       />)
         break;
     }

@@ -59,3 +59,25 @@
       font-size: 16px
     .description
       margin: 0 5px 5px 5px
+
+.ui.cards .narrow.card
+  width: 200px
+  overflow: hidden
+  .header, .extra.content
+    display: flex
+    flex-direction: row
+    align-items: baseline
+    .ui.text.label
+      margin: 0
+      padding: 0
+    .right
+      display: flex
+      flex-direction: row
+      flex-grow: 1
+      justify-content: flex-end
+      .ellipsis.icon
+        font-size: 23px
+  > .content, > .extra.content
+    border-top: 0px !important
+  > .content
+    overflow: hidden
