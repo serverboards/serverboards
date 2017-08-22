@@ -99,7 +99,7 @@ class AddService extends React.Component{
                     description={i18n("Select which service type to create")}
                     get_items={cache.service_catalog}
                     onSelect={(what) => this.handleSelectServiceType(what)}
-                    current={this.state.service.type}
+                    current={(this.state.service || {}).type}
                     />)
         break;
       case 2:

@@ -77,13 +77,15 @@ class Selector extends React.Component{
       // console.log(catalog)
 
       // get current selected item tab
-      let tab = "other"
+      let tab = "cloud"
       let current = catalog.find( c => (c.id || c.type) == this.props.current )
       if (current){
         if (current.traits.indexOf("cloud")!=-1)
           tab="cloud"
         else if (current.traits.indexOf("server")!=-1)
           tab="server"
+        else
+          tab="other"
       }
 
       // sort items by tab
