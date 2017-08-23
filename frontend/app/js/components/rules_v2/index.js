@@ -7,6 +7,7 @@ import RuleAdd from 'app/containers/rules_v2/add'
 import { sort_by_name, colorize } from 'app/utils'
 import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
+import Selector from 'app/components/selector'
 
 function get_services_id(node){
   if (!node){
@@ -67,12 +68,14 @@ class RuleCard extends React.Component{
     })
     if (!this.state.name || !this.state.description){
       cache.trigger(props.rule.rule.when.trigger).then( t => {
-        let changes = {}
-        if (!this.state.name)
-          changes["name"]=t.name
-        if (!this.state.description)
-          changes["description"]=t.description
-        this.setState(changes)
+        if (t){
+          let changes = {}
+          if (!this.state.name)
+            changes["name"]=t.name
+          if (!this.state.description)
+            changes["description"]=t.description
+          this.setState(changes)
+        }
       })
     }
   }
@@ -89,7 +92,7 @@ class RuleCard extends React.Component{
     else
       status = ["disabled"]
     return (
-      <div className="rule card">
+      <div className="narrow rule card">
         <div className="header">
           {icons.map( (icon, i) => (i == 0) ? (
             <Icon key={i} icon={icon} className="ui mini"/>
@@ -133,6 +136,9 @@ const Rules = React.createClass({
     const project = this.props.project.shortname
     goto(`/project/${project}/rules_v2/${rule.uuid}`)
   },
+  get_rule_presets(){
+    return cache.plugin_component({type: "rule template"})
+  },
   render(){
     if (this.props.subsection){
       if (this.props.subsection=="add")
@@ -150,16 +156,29 @@ const Rules = React.createClass({
     rules = rules.filter( r => !r.from_template )
     rules = sort_by_name(rules)
     return (
-      <div className="ui padding container">
-        <div className="ui rule cards">
-        {rules.map( (r) => (
-          <RuleCard
-            key={r.uuid}
-            rule={r}
-            gotoRule={this.gotoRule}
-            updateActive={(v) => this.props.updateActive(r.uuid, v)}
-            />
-        ) ) }
+      <div className="ui expand two column grid grey background" style={{margin:0}}>
+        <div className="ui column">
+          <div className="ui round pane white background with padding and scroll">
+            <div className="ui rule cards">
+            {rules.map( (r) => (
+              <RuleCard
+                key={r.uuid}
+                rule={r}
+                gotoRule={this.gotoRule}
+                updateActive={(v) => this.props.updateActive(r.uuid, v)}
+                />
+            ) ) }
+          </div>
+        </div>
+      </div>
+      <div className="ui column">
+        <div className="ui round pane white background">
+          <Selector
+            title={i18n("Fast add a rule")}
+            description={i18n("Use these presets to fast add rules to your projects for most common tasks. Use the 'Create new rule' button on the menu bar to create one from scratch.")}
+            get_items={this.get_rule_presets}
+          />
+        </div>
       </div>
       <AddButton project={this.props.project.shortname}/>
     </div>

@@ -145,7 +145,7 @@ components:
     description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
     id: rule.socket.is_up
     type: rule template
-    traits: url
+    traits: url server
     trigger:
       trigger: socket.is_up
       params:
@@ -165,7 +165,7 @@ components:
     description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
     id: rule.http.is_up
     type: rule template
-    traits: www
+    traits: www server
     trigger:
       trigger: http
       params:

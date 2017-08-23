@@ -72,9 +72,22 @@ const cache={
     }
     return Promise.resolve(data)
   },
+  plugin_component({type}){
+    const cache_key = `plugin_component+${type}`
+    var data = cache_data[cache_key]
+    if (!data){
+      return rpc
+        .call("plugin.component.catalog", {type})
+        .then( data => {
+          cache_data[cache_key] = data
+          return data
+        })
+    }
+    return Promise.resolve(data)
+  },
   invalidate_all(){
     store.dispatch({type: "CACHE_CLEAN_ALL"})
-    cache_data["plugins"]=undefined
+    cache_data={}
   }
 }
 
