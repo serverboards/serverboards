@@ -60,7 +60,7 @@ class AddButton extends React.Component{
           <a
             onClick={() => this.setState({open:false})}
             className="ui icon teal">
-            <i className="ui massive button grey close icon"></i>
+            <i className="ui massive button grey remove icon"></i>
             <div className="ui clear background">{i18n("Back")}</div>
           </a>
         </div>
