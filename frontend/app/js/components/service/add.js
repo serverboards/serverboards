@@ -11,31 +11,67 @@ import ServiceSelect from 'app/components/service/select'
 
 require('sass/panes.sass')
 
-function AddServiceDetailsForm({service, gotoStep, onSave}){
-  return (
-    <div className="ui with padding extend">
-      <MarkdownPreview value={service.description}/>
+class AddServiceDetailsForm extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      data: {},
+      name: "",
+      descritpion: ""
+    }
 
-      <div className="separator" style={{height: 40}}/>
-      <GenericForm fields={service.fields}/>
-      <div className="separator" style={{height: 40}}/>
+    this.handleAddService = () => {
+      const props = this.props
+      const state = this.state
+      const service = {
+        name: state.name,
+        type: props.service.type,
+        description: state.description,
+        config: state.data
+      }
+      console.log("Save %o %o", props.project, service)
+      props.onAddService(props.project, service)
+    }
+  }
+  render(){
+    const {service, gotoStep} = this.props
+    return (
+      <div className="ui with padding extend">
+        <MarkdownPreview value={service.description}/>
 
-      <div className="ui right aligned">
-        <div className="ui buttons">
-          <button
-            className="ui button basic"
-            onClick={() => gotoStep(1)}>
-              {i18n("Previous step")}
-          </button>
-          <button
-            className="ui teal button"
-            onClick={onSave}>
-              {i18n("Save and Continue")}
-          </button>
+        <form className="ui form">
+          <label>{i18n("Service name")}</label>
+          <input
+            onChange={(ev) => this.setState({name: ev.target.value})}
+            defaultValue={this.state.name}
+            />
+          <label>{i18n("Description")}</label>
+          <textarea
+            onChange={(ev) => this.setState({description: ev.target.value})}
+            defaultValue={this.state.description}
+            />
+        </form>
+        <div className="separator" style={{height: 40}}/>
+        <GenericForm fields={service.fields} updateForm={(data) => this.setState({data})}/>
+        <div className="separator" style={{height: 40}}/>
+
+        <div className="ui right aligned">
+          <div className="ui buttons">
+            <button
+              className="ui button basic"
+              onClick={() => gotoStep(1)}>
+                {i18n("Previous step")}
+            </button>
+            <button
+              className="ui teal button"
+              onClick={this.handleAddService}>
+                {i18n("Save and Continue")}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 function AddServiceButton({service}){
@@ -147,6 +183,7 @@ class AddService extends React.Component{
                       tab={this.state.tab}
                       setTab={(tab) => this.setState({tab})}
                       project={this.props.project.shortname}
+                      onAddService={this.props.handleAddService}
                       />)
         break;
       case 10:

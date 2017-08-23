@@ -35,7 +35,7 @@ var DetailsWithExternalUrls = connect({
   ],
   loading(state){
     if (this.state(state).external_urls == undefined)
-      return "External screens"
+      return i18n("External screens")
     return false
   }
 })(View)

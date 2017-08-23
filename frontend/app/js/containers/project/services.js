@@ -1,5 +1,5 @@
 import ServicesView from 'app/components/project/services'
-import ServiceAdd from 'app/components/service/add'
+import ServiceAdd from 'app/containers/service/add'
 import connect from 'app/containers/connect'
 import React from 'react'
 
