@@ -5,7 +5,6 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 
 function service_add_future(sbds, service){
-  console.log("Try to add service %o %o", sbds, service)
   return rpc.call("service.create", service).then(function(service_uuid){
     if (sbds){
       return rpc.call("service.attach",[sbds, service_uuid]).then(function(){
@@ -16,16 +15,24 @@ function service_add_future(sbds, service){
       Flash.warning(i18n("Added DETACHED service"))
       return service_uuid
     }
-  }).catch( e => {
-    Flash.error(i18n("Error creating service. {error}", {error: e}))
+  }).catch( error => {
+    Flash.error(i18n("Error creating service. {error}", {error}))
   })
 }
 
 const Model = connect({
   handlers(dispatch, props){
     return {
-      handleAddService(project, service){
+      onAddService(project, service){
         return service_add_future(project, service)
+      },
+      onAttachService(project, service_uuid){
+        console.log("Attach service %o %o", project, service_uuid)
+        return rpc.call("service.attach", [project, service_uuid]).then(function(){
+          Flash.success(i18n("Service attached to current project"))
+        }).catch(error => {
+          Flash.error(i18n("Could not attach service to current project: {error}", {error}))
+        })
       }
     }
   }

@@ -8,6 +8,7 @@ import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
 import {MarkdownPreview} from 'react-marked-markdown'
 import ServiceSelect from 'app/components/service/select'
+import {goto} from 'app/utils/store'
 
 require('sass/panes.sass')
 
@@ -29,8 +30,9 @@ class AddServiceDetailsForm extends React.Component{
         description: state.description,
         config: state.data
       }
-      console.log("Save %o %o", props.project, service)
-      props.onAddService(props.project, service)
+      props
+        .onAddService(props.project, service)
+        .then( (uuid) => goto(`/project/${props.project}/services/${uuid}`))
     }
   }
   render(){
@@ -81,6 +83,12 @@ function AddServiceButton({service}){
 }
 
 function AddServiceNewOrOldTabs(props){
+  function attach_service(uuid){
+    props
+      .onAttachService(props.project, uuid)
+      .then( () => goto(`/project/${props.project}/services/${uuid}`))
+  }
+
   const {tab, service, setTab, setStep} = props
   const my_type = service.type
   const my_project = props.project
@@ -105,7 +113,7 @@ function AddServiceNewOrOldTabs(props){
           <ServiceSelect
             filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
             onBack={() => gotoStep(1)}
-            onSelect={(s) => console.log("Select %o",s)}
+            onSelect={(s) => attach_service(s.uuid)}
             bottomElement={AddServiceButton}
             />
         </div>
@@ -183,7 +191,8 @@ class AddService extends React.Component{
                       tab={this.state.tab}
                       setTab={(tab) => this.setState({tab})}
                       project={this.props.project.shortname}
-                      onAddService={this.props.handleAddService}
+                      onAddService={this.props.onAddService}
+                      onAttachService={this.props.onAttachService}
                       />)
         break;
       case 10:
