@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
-import Selector from './selector'
+import Selector from 'app/components/selector'
 import ServiceSelector from './serviceselector'
 
 class Service extends React.Component{

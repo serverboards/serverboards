@@ -33,10 +33,11 @@ export function logged_in_as(user){
       event.subscribe(["user.updated"])
       dispatch({type:"AUTH_LOGIN", user: user})
       rpc.call("settings.user.get", ["profile_avatar"]).then( (d) => {
-        if (d.avatar)
+        if (d && d.avatar)
           dispatch( user_update_avatar(d.avatar) )
       })
-      rpc.call("settings.user.get", ["language"]).then( ({lang}) => {
+      rpc.call("settings.user.get", ["language"]).then( (props) => {
+        let lang = props && props.lang
         if (lang){
           set_lang(lang)(dispatch)
         }

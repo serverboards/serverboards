@@ -2,7 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
-import Icon from '../../iconicon'
+import Icon from './iconicon'
+import Loading from './loading'
+import Error from './error'
 import {MarkdownPreview} from 'react-marked-markdown'
 
 const DEFAULT_ICON={
@@ -52,7 +54,7 @@ class Selector extends React.Component{
     super(props)
     this.state={
       tab: undefined,
-      items: [],
+      items: undefined,
       filter: "",
       tabs: {
         cloud: [],
@@ -77,13 +79,15 @@ class Selector extends React.Component{
       // console.log(catalog)
 
       // get current selected item tab
-      let tab = "other"
+      let tab = "cloud"
       let current = catalog.find( c => (c.id || c.type) == this.props.current )
       if (current){
         if (current.traits.indexOf("cloud")!=-1)
           tab="cloud"
         else if (current.traits.indexOf("server")!=-1)
           tab="server"
+        else
+          tab="other"
       }
 
       // sort items by tab
@@ -100,9 +104,23 @@ class Selector extends React.Component{
       const tabs = {server, cloud, other}
 
       this.setState({items: catalog, tab, tabs})
-    } )
+    } ).catch( e => {
+      console.error(e)
+      this.setState({error: i18n("Error loading items. Maybe connectivity problems? {error_msg}.",{error_msg: e})})
+    })
   }
   render(){
+    if (this.state.error){
+      return (
+        <Error>{this.state.error}</Error>
+      )
+    }
+
+    if (!this.state.items){
+      return (
+        <Loading>{this.props.title}</Loading>
+      )
+    }
     const props = this.props
     const tab = this.state.tab
     let filtered = this.state.items.filter( s => s.traits.indexOf("hidden")==-1 )

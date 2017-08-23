@@ -25,7 +25,11 @@ help:
 watch:
 	npm run-script watch
 
-setup: node_modules
+setup: node_modules node_modules/gifsicle/vendor/gifscle
+
+node_modules/gifsicle/vendor/gifscle:
+	cd node_modules/pngquant-bin ; node lib/install.js
+	cd node_modules/gifsicle ; node lib/install.js
 
 node_modules: yarn.lock package.json
 	yarn --no-progress

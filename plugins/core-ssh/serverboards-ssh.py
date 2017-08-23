@@ -5,9 +5,8 @@ import serverboards, pexpect, shlex, re, subprocess, random, sh
 import urllib.parse as urlparse
 import base64
 import time
-from cache_ttl import cache_ttl
 from common import *
-from serverboards import file, print, rpc
+from serverboards import file, print, rpc, cache_ttl
 
 td_to_s_multiplier=[
     ("ms", 0.001),
@@ -50,7 +49,7 @@ def url_to_opts(url):
 
 @serverboards.rpc_method
 def ssh_exec(url=None, command="test", options=None, service=None):
-    serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
+    #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
         serverboards.warning("ssh_exec options deprecated. Better use ssh_exec by ssh service uuid. Currently ignored.")
@@ -239,6 +238,7 @@ def __get_service_url_and_opts(service_uuid):
     assert service_uuid, "Need service UUID"
     service = __get_service(service_uuid)
     if not service or service["type"] != "serverboards.core.ssh/ssh":
+        print(service)
         raise Exception("Could not get information about service")
     url = service["config"]["url"]
 

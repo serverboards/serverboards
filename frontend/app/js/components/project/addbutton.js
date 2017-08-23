@@ -32,7 +32,7 @@ class AddButton extends React.Component{
           */}
           <Restricted perm="service.create">
             <a
-                onClick={() => set_modal_and_close("service.create", {project})}
+                onClick={() => goto(`/project/${project}/services/add`)}
                 title={i18n("Add a service")}
                 >
               <i className="ui mid massive button id card blue icon"></i>
@@ -60,7 +60,7 @@ class AddButton extends React.Component{
           <a
             onClick={() => this.setState({open:false})}
             className="ui icon teal">
-            <i className="ui massive button grey close icon"></i>
+            <i className="ui massive button grey remove icon"></i>
             <div className="ui clear background">{i18n("Back")}</div>
           </a>
         </div>

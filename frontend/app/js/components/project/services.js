@@ -1,6 +1,5 @@
 import React from 'react'
 import Loading from '../loading'
-import AddServiceModal from 'app/containers/project/addservice'
 import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
 import ServiceDetails from 'app/containers/service/details'
@@ -23,11 +22,6 @@ let Services=React.createClass({
     localStorage.service_view_mode=mode
     this.setState({mode})
   },
-  openAddServiceModal(ev){
-    ev && ev.preventDefault()
-    this.setModal('service.create', {project: this.props.project.shortname})
-  },
-  setModal: (modal, data) => set_modal(modal, data),
   contextTypes: {
     router: React.PropTypes.object
   },

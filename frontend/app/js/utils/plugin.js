@@ -1,5 +1,6 @@
 import {merge} from 'app/utils'
 import rpc from 'app/rpc'
+import cache from 'app/utils/cache'
 
 var screens = {}
 var widgets = {}
@@ -183,5 +184,17 @@ export function start_call_stop(pluginid, method, args){
   ))
 }
 
+export function install(giturl){
+  console.log("Install plugin from %s", giturl)
+  return rpc.call("plugin.install", [giturl])
+    .then(res => {
+      cache.invalidate_all()
+      return res
+    })
+}
 
-export default {load, add_screen, do_screen, add_widget, do_widget, join_path, start, start_call_stop}
+export default {
+  load, add_screen, do_screen, add_widget, do_widget, join_path,
+  start, start_call_stop,
+  install
+}

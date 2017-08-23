@@ -1,5 +1,8 @@
 import store from './store'
 import event from './event'
+import rpc from 'app/rpc'
+
+var cache_data = {}
 
 /**
  * @short Uses the store for caching some data.
@@ -56,8 +59,23 @@ const cache={
     store_get: () => store.getState().project.projects,
     store_update: require('app/actions/project').project_update_all(),
     subscriptions: ["project.updated"]
-  })
-
+  }),
+  plugins(){
+    var data = cache_data["plugins"]
+    if (!data){
+      return rpc
+        .call("plugin.catalog",[])
+        .then( data => {
+          cache_data["plugins"] = data
+          return data
+        })
+    }
+    return Promise.resolve(data)
+  },
+  invalidate_all(){
+    store.dispatch({type: "CACHE_CLEAN_ALL"})
+    cache_data["plugins"]=undefined
+  }
 }
 
 

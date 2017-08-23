@@ -138,7 +138,7 @@ defmodule Serverboards.Project do
   def project_add(shortname, attributes, me) do
     EventSourcing.dispatch :project, :add_project, %{
       shortname: shortname,
-      creator_id: me.id,
+      creator_id: Map.get(me, :id),
       name: Map.get(attributes,"name", shortname),
       description: Map.get(attributes, "description", ""),
       priority: Map.get(attributes, "priority", 50),

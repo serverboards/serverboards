@@ -150,6 +150,7 @@ defmodule Serverboards.Plugin.Registry do
     true
 
   """
+  def find(nil), do: nil
   def find(id) do
     alias Serverboards.Plugin
 
