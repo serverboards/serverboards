@@ -129,13 +129,17 @@ class Selector extends React.Component{
             <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
           </div>
         </div>
-        <h2 className="ui centered header">
-          <i className={`icon ${props.icon}`}/>
-          {props.title}
-        </h2>
+        {props.title ? (
+          <h2 className="ui centered header">
+            <i className={`icon ${props.icon}`}/>
+            {props.title}
+          </h2>
+        ) : null}
 
         <div className="ui padding extend">
-          <div className="description">{props.description}</div>
+          {props.description ? (
+            <div className="description">{props.description}</div>
+          ) : null }
 
           <div className="ui with scroll and padding">
               {sections.length==0 ? (

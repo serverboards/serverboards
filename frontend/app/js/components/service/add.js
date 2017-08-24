@@ -149,6 +149,62 @@ function get_service_market_catalog(){
     })
 }
 
+class ServiceFromExistingOrMarket extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      tab: 1
+    }
+  }
+  render(){
+    const props = this.props
+    const tab= this.state.tab
+    return (
+      <div className="extend">
+        <h2 className="ui centered header">
+          <i className={`icon cloud`}/>
+          {i18n("Add a service to this project")}
+        </h2>
+        <div>
+          {i18n("First select the service type. If not available at the already installed services, there are many more available to install at the marketplace.")}
+        </div>
+        <div className="ui attached tabular menu">
+          <a className={`item ${tab==1 ? "active" : ""}`} onClick={() => this.setState({tab:1})}>
+            {i18n("Available services")}
+          </a>
+          <a className={`item ${tab==2 ? "active" : ""}`} onClick={() => this.setState({tab:2})}>
+            {i18n("Marketplace")}
+          </a>
+        </div>
+        { tab==1 ? (
+          <Selector
+            key="installed"
+            get_items={cache.service_catalog}
+            onSelect={(what) => props.handleSelectServiceType(what)}
+            current={(props.service || {}).type}
+            />
+        ) : (tab == 2) ? (
+          <Selector
+            key="marketplace"
+            get_items={get_service_market_catalog}
+            current={(props.service || {}).type}
+            onSelect={(s) => {
+              this.setState({tab:3})
+              plugin.install(s.giturl).then(() => {
+                this.handleSelectServiceType(s)
+              }).catch(() => {
+                this.setState({step:2})
+                Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
+              })
+            }}
+            />
+        ) : (
+          <Loading>{i18n("Installing the required add-on")}</Loading>
+        ) }
+      </div>
+    )
+  }
+}
 
 class AddService extends React.Component{
   constructor(props){
@@ -174,15 +230,9 @@ class AddService extends React.Component{
     var section = null
     switch (this.state.step){
       case 1:
-        section = (<Selector
-                    key="installed"
-                    icon="cloud"
-                    title={i18n("Create a new service")}
-                    description={i18n("Select which service type to create")}
-                    get_items={cache.service_catalog}
-                    onSelect={(what) => this.handleSelectServiceType(what)}
-                    current={(this.state.service || {}).type}
-                    />)
+        section = (
+          <ServiceFromExistingOrMarket service={this.state.service} {...this.props}/>
+        )
         break;
       case 2:
         section = (<AddServiceNewOrOldTabs
@@ -194,30 +244,6 @@ class AddService extends React.Component{
                       onAddService={this.props.onAddService}
                       onAttachService={this.props.onAttachService}
                       />)
-        break;
-      case 10:
-        section = (<Selector
-                    key="marketplace"
-                    icon="cloud"
-                    title={i18n("Install add-on")}
-                    description={i18n("Select a service type from the Serverboards marketplace and it will be ready to use. Just one click.")}
-                    get_items={get_service_market_catalog}
-                    current={(this.state.service || {}).type}
-                    onSkip={() => this.setState({step:1})}
-                    skip_label={i18n("Back to already installed services")}
-                    onSelect={(s) => {
-                      this.setState({step:11})
-                      plugin.install(s.giturl).then(() => {
-                        this.handleSelectServiceType(s)
-                      }).catch(() => {
-                        this.setState({step:1})
-                        Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
-                      })
-                    }}
-                    />)
-        break;
-      case 11:
-        section = <Loading>{i18n("Installing plugin")}</Loading>
         break;
     }
 
