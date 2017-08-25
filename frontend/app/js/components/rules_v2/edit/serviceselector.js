@@ -7,6 +7,8 @@ import Loading from 'app/components/loading'
 import Icon from '../../iconicon'
 import Card from 'app/components/card'
 import {MarkdownPreview} from 'react-marked-markdown'
+import {service_add_future} from 'app/containers/service/add'
+import {AddServiceDetailsForm} from 'app/components/service/add'
 
 class ServiceSelector extends React.Component{
   constructor(props){
@@ -15,6 +17,14 @@ class ServiceSelector extends React.Component{
       filter: "",
       type: undefined,
       services: []
+    }
+
+    this.handleRealAddService = (project, service) => {
+      return service_add_future(project, service)
+        .then(uuid => {
+          service = {...service, uuid, type: service.id}
+          return this.props.onSelect(service)
+        })
     }
   }
   componentDidMount(){
@@ -25,14 +35,30 @@ class ServiceSelector extends React.Component{
       this.setState({services})
     })
   }
+  handleCreateNew(){
+    this.setState({create_new:true})
+  }
   render(){
-    const {type} = this.state
+    const state = this.state
+    const props = this.props
+    const {type} = state
+
     if (!type)
       return (
         <Loading>{i18n("Services")}</Loading>
       )
+    if (state.create_new){
+      return (
+        <AddServiceDetailsForm 
+          service={state.type}
+          onAddService={this.handleRealAddService}
+          project={props.project}
+          />
+        )
+    }
+
     const plugin_id = type.type.split('/')[0]
-    console.log("Type is %o", type)
+
     return (
       <div className="extend">
         <div className="ui attached top form">
@@ -66,7 +92,9 @@ class ServiceSelector extends React.Component{
         <div className="right aligned">
           <span className="ui buttons">
             <button className="ui button basic" onClick={this.props.prevStep}>{i18n("Previous step")}</button>
-            <button className="ui button teal">{i18n("Create new {type} connection", {type: type.name})}</button>
+            <button className="ui button teal" onClick={() => this.handleCreateNew()}>
+              {i18n("Create new {type} connection", {type: type.name})}
+            </button>
           </span>
         </div>
       </div>

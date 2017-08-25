@@ -41,6 +41,7 @@ class Service extends React.Component{
           type={this.state.type}
           onSelect={this.props.onSelect}
           prevStep={() => this.setState({step: 1})}
+          project={this.props.rule.project}
         />
       )
     }

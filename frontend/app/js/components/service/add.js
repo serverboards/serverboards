@@ -12,7 +12,7 @@ import {goto} from 'app/utils/store'
 
 require('sass/panes.sass')
 
-class AddServiceDetailsForm extends React.Component{
+export class AddServiceDetailsForm extends React.Component{
   constructor(props){
     super(props)
     this.state={
@@ -32,7 +32,6 @@ class AddServiceDetailsForm extends React.Component{
       }
       props
         .onAddService(props.project, service)
-        .then( (uuid) => goto(`/project/${props.project}/services/${uuid}`))
     }
   }
   render(){
@@ -78,58 +77,80 @@ class AddServiceDetailsForm extends React.Component{
 
 function AddServiceButton({service}){
   return (
-    <a className="ui button teal">{i18n("Attach to this project")}</a>
+    <a className="ui button teal" style={{width:"100%"}}>{i18n("Attach")}</a>
   )
 }
 
-function AddServiceNewOrOldTabs(props){
-  function attach_service(uuid){
-    props
-      .onAttachService(props.project, uuid)
-      .then( () => goto(`/project/${props.project}/services/${uuid}`))
+class AddServiceNewOrOld extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      tab: 1
+    }
+
+    this.handleAttachService = (uuid) => {
+      props
+        .onAttachService(props.project, uuid)
+        .then( () => goto(`/project/${props.project}/services/${uuid}`))
+    }
   }
-
-  const {tab, service, setTab, setStep} = props
-  const my_type = service.type
-  const my_project = props.project
-  return (
-    <div className="ui padding extend">
-      <h2>{i18n("Add {service_type} service to project", {service_type: service.name})}</h2>
-      <div className="ui pointing secondary menu">
-        <a
-          className={`item ${tab=="new" ? "active" : ""}`}
-          onClick={() => setTab("new")}
-          >Create new</a>
-        <a
-          className={`item ${tab=="existing" ? "active" : ""}`}
-          onClick={() => setTab("existing")}
-          >Select existing</a>
-      </div>
-      <div className="ui with scroll">
-      {tab == "new" ? (
-        <AddServiceDetailsForm {...props}/>
-      ) : (
-        <div className="ui padding extend">
-          <ServiceSelect
-            filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
-            onBack={() => gotoStep(1)}
-            onSelect={(s) => attach_service(s.uuid)}
-            bottomElement={AddServiceButton}
-            />
+  componentDidMount(){
+    let self = this
+    $(this.refs.checkboxes).find('.checkbox').checkbox({
+      onChange(ev){
+        console.log("Enable %o", this)
+        self.setState({tab: this.value})
+      }
+    })
+  }
+  render(){
+    const props = this.props
+    const tab = this.state.tab
+    const {service} = props
+    const my_type = service.type
+    const my_project = props.project
+    return (
+      <div className="ui extend">
+        <div className="ui padding" style={{paddingBottom:0}}>
+          <h2>{i18n("Add {service_type} service to project", {service_type: service.name})}</h2>
+          <div className="ui form">
+            <div className="inline fields" ref="checkboxes">
+              <div className="field">
+                <div className="ui radio checkbox">
+                  <input name="new_or_create" value="1" type="radio" checked={tab==1 && "checked"}/>
+                  <label>{i18n("Create new")}</label>
+                </div>
+              </div>
+              <div className="field">
+                <div className="ui radio checkbox">
+                  <input name="new_or_create" value="2" type="radio" checked={tab==2 && "checked"}/>
+                  <label>{i18n("Select existing")}</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+        <div className="ui with scroll">
+        {tab == 1 ? (
+          <AddServiceDetailsForm {...props}/>
+        ) : (
+          <div className="ui padding extend">
+            <div className="description">
+              {i18n("This services are used on other projects but may be attached to the current one, so they will be shared between the projects.")}
+            </div>
+            <div className="ui separator" style={{height: 10}}/>
+            <ServiceSelect
+              filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
+              onBack={() => gotoStep(1)}
+              onSelect={(s) => attach_service(s.uuid)}
+              bottomElement={AddServiceButton}
+              />
+          </div>
+        )}
+        </div>
       </div>
-    </div>
-  )
-}
-
-function AddServiceHeader({openMarket}){
-  return (
-    <div className="menu">
-      <div className="item stretch"></div>
-      <a className="ui button teal" onClick={openMarket}>{i18n("Go to market")}</a>
-    </div>
-  )
+    )
+  }
 }
 
 function get_service_market_catalog(){
@@ -149,6 +170,79 @@ function get_service_market_catalog(){
     })
 }
 
+class ServiceFromExistingOrMarket extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      tab: 1,
+      filter: ""
+    }
+  }
+  render(){
+    const props = this.props
+    const state = this.state
+    const tab= state.tab
+    return (
+      <div className="extend">
+        <div className="ui attached top form">
+          <div className="ui input seamless white">
+            <i className="icon search"/>
+            <input type="text" onChange={(ev) => this.setState({filter:ev.target.value})} placeholder={i18n("Filter...")}/>
+          </div>
+        </div>
+        <div className="ui padding">
+          <h2 className="ui centered header">
+            <i className={`icon cloud`}/>
+            {i18n("Add a service to this project")}
+          </h2>
+          <div>
+            {i18n("First select the service type. If not available at the already installed services, there are many more available to install at the marketplace.")}
+          </div>
+        </div>
+        <div className="ui separator" style={{height:10}}/>
+        <div className="ui pointing secondary menu">
+          <a className={`item ${tab==1 ? "active" : ""}`} onClick={() => this.setState({tab:1})}>
+            {i18n("Available services")}
+          </a>
+          <a className={`item ${tab==2 ? "active" : ""}`} onClick={() => this.setState({tab:2})}>
+            {i18n("Marketplace")}
+          </a>
+        </div>
+        { tab==1 ? (
+          <Selector
+            key="installed"
+            show_filter={false}
+            filter={state.filter}
+            get_items={cache.service_catalog}
+            onSelect={(what) => props.onSelectServiceType(what)}
+            current={(props.service || {}).type}
+            />
+        ) : (tab == 2) ? (
+          <Selector
+            key="marketplace"
+            show_filter={false}
+            filter={state.filter}
+            get_items={get_service_market_catalog}
+            current={(props.service || {}).type}
+            onSelect={(s) => {
+              this.setState({tab:3})
+              plugin.install(s.giturl).then(() => {
+                s = {...s, type: s.id} // I need the component id in the type field.
+                props.onSelectServiceType(s)
+              }).catch((e) => {
+                console.error(e)
+                this.setState({tab:2})
+                Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
+              })
+            }}
+            />
+        ) : (
+          <Loading>{i18n("Installing the required add-on")}</Loading>
+        ) }
+      </div>
+    )
+  }
+}
 
 class AddService extends React.Component{
   constructor(props){
@@ -156,68 +250,37 @@ class AddService extends React.Component{
     this.state={
       step: 1,
       service: undefined,
-      tab: "new"
+    }
+
+    this.handleAddService = (project, service) => {
+      return this.props.onAddService(project, service)
+        .then( (uuid) => goto(`/project/${props.project}/services/${uuid}`))
     }
   }
   handleSelectServiceType(service){
     this.setState({step:2, service})
   }
-  componentDidMount(){
-    this.props.setSectionMenu(AddServiceHeader)
-    this.props.setSectionMenuProps({openMarket: () => this.setState({step: 10})})
-  }
-  componentWillUmount(){
-    this.props.setSectionMenu(null)
-    this.props.setSectionMenuProps({})
-  }
   render(){
     var section = null
     switch (this.state.step){
       case 1:
-        section = (<Selector
-                    key="installed"
-                    icon="cloud"
-                    title={i18n("Create a new service")}
-                    description={i18n("Select which service type to create")}
-                    get_items={cache.service_catalog}
-                    onSelect={(what) => this.handleSelectServiceType(what)}
-                    current={(this.state.service || {}).type}
-                    />)
+        section = (
+          <ServiceFromExistingOrMarket
+            onSelectServiceType={(s) => this.handleSelectServiceType(s)}
+            service={this.state.service}
+            {...this.props}
+            />
+        )
         break;
       case 2:
-        section = (<AddServiceNewOrOldTabs
-                      service={this.state.service}
-                      gotoStep={(step) => this.setState({step})}
-                      tab={this.state.tab}
-                      setTab={(tab) => this.setState({tab})}
-                      project={this.props.project.shortname}
-                      onAddService={this.props.onAddService}
-                      onAttachService={this.props.onAttachService}
-                      />)
-        break;
-      case 10:
-        section = (<Selector
-                    key="marketplace"
-                    icon="cloud"
-                    title={i18n("Install add-on")}
-                    description={i18n("Select a service type from the Serverboards marketplace and it will be ready to use. Just one click.")}
-                    get_items={get_service_market_catalog}
-                    current={(this.state.service || {}).type}
-                    onSkip={() => this.setState({step:1})}
-                    skip_label={i18n("Back to already installed services")}
-                    onSelect={(s) => {
-                      this.setState({step:11})
-                      plugin.install(s.giturl).then(() => {
-                        this.handleSelectServiceType(s)
-                      }).catch(() => {
-                        this.setState({step:1})
-                        Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
-                      })
-                    }}
-                    />)
-        break;
-      case 11:
-        section = <Loading>{i18n("Installing plugin")}</Loading>
+        section = (
+          <AddServiceNewOrOld
+            service={this.state.service}
+            gotoStep={(step) => this.setState({step})}
+            project={this.props.project.shortname}
+            onAddService={this.handleAddService}
+            onAttachService={this.props.onAttachService}
+            />)
         break;
     }
 

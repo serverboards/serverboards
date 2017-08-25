@@ -137,7 +137,7 @@ const Top = React.createClass({
     const candidates = section_data && section_data.candidates
 
     return (
-      <div className="ui top menu secondary">
+      <div className="ui serverboards top menu secondary">
         {!show_sidebar ? (
           <a className="item" onClick={() => onShowSidebar( !show_sidebar )}>
           <i className={`ui big icon content`}/>

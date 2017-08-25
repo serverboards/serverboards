@@ -6,6 +6,7 @@ import Icon from './iconicon'
 import Loading from './loading'
 import Error from './error'
 import {MarkdownPreview} from 'react-marked-markdown'
+import {match_traits} from 'app/utils'
 
 const DEFAULT_ICON={
   cloud: "cloud",
@@ -53,61 +54,71 @@ class Selector extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      tab: undefined,
-      items: undefined,
-      filter: "",
-      tabs: {
-        cloud: [],
-        server: [],
-        other: [],
-      }
+      all_items: undefined, // Dict with category name and items in that category
+      show_items: undefined,
+      delayed_filter: undefined // Delays search filters a bit to coalesce multiple keystrokes
     }
-    this.setTab = (tab) => this.setState({tab})
     this.onFilter = (filter) => {
-      this.setState({filter})
-      if (filter!=""){
-        this.setState({tab:"filter"})
+      if (this.state.delayed_filter){
+        clearTimeout(this.state.delayed_filter)
       }
-      else{
-        this.setState({tab:"cloud"})
-      }
+      const delayed_filter = setTimeout( () => {
+        let show_items
+        if (filter=="")
+          show_items = this.categorize(this.state.all_items)
+        else
+          show_items = this.categorize(filter_items( this.state.all_items, filter ))
+        this.setState({show_items, delayed_filter: undefined})
+      }, 200)
+      this.setState({delayed_filter})
     }
   }
+  categorize(items){
+    let cloud=[]
+    let server=[]
+    let other=[]
+    for (const i of items){
+      if (match_traits({has: i.traits, all: ["cloud"]}))
+        cloud.push(i)
+      else if (match_traits({has: i.traits, all: ["server"]}))
+        server.push(i)
+      else
+        other.push(i)
+    }
+
+    let by_category = {}
+    if (cloud.length>0)
+      by_category[i18n("Cloud")] = cloud
+    if (server.length>0)
+      by_category[i18n("Server")] = server
+    if (other.length>0)
+      by_category[i18n("Other")] = other
+
+    return by_category
+  }
   componentDidMount(){
-    this.props.get_items().then( catalog => {
-      catalog=catalog.slice().sort( (a,b) => a.name.localeCompare(b.name) )
-      // console.log(catalog)
+    this.props.get_items().then( items => {
+      const all_items=items
+        .filter( s => s.traits.indexOf("hidden")==-1 )
+        .sort( (a,b) => a.name.localeCompare(b.name) )
 
-      // get current selected item tab
-      let tab = "cloud"
-      let current = catalog.find( c => (c.id || c.type) == this.props.current )
-      if (current){
-        if (current.traits.indexOf("cloud")!=-1)
-          tab="cloud"
-        else if (current.traits.indexOf("server")!=-1)
-          tab="server"
-        else
-          tab="other"
-      }
+      const filter = this.props.filter
+      let show_items
+      if (!filter || filter=="")
+        show_items = this.categorize(all_items)
+      else
+        show_items = this.categorize(filter_items( all_items, filter ))
 
-      // sort items by tab
-      let server = [], cloud = [], other = []
-      for (let s of catalog){
-        const traits = s.traits || []
-        if (traits.indexOf("server")!=-1)
-          server.push(s)
-        else if (traits.indexOf("cloud")!=-1)
-          cloud.push(s)
-        else
-          other.push(s)
-      }
-      const tabs = {server, cloud, other}
-
-      this.setState({items: catalog, tab, tabs})
+      this.setState({all_items, show_items})
     } ).catch( e => {
       console.error(e)
       this.setState({error: i18n("Error loading items. Maybe connectivity problems? {error_msg}.",{error_msg: e})})
     })
+  }
+  componentWillReceiveProps(newprops){
+    if (newprops.filter != this.props.filter){
+      this.onFilter(newprops.filter)
+    }
   }
   render(){
     if (this.state.error){
@@ -116,83 +127,55 @@ class Selector extends React.Component{
       )
     }
 
-    if (!this.state.items){
+    if (!this.state.show_items){
       return (
         <Loading>{this.props.title}</Loading>
       )
     }
     const props = this.props
-    const tab = this.state.tab
-    let filtered = this.state.items.filter( s => s.traits.indexOf("hidden")==-1 )
-    const {server, cloud, other} = this.state.tabs
-    const has_server = server.length>0
-    const has_cloud = cloud.length>0
-    const has_other = other.length>0
-
-    if (tab == "filter"){
-      filtered = filter_items( filtered, this.state.filter )
-    }
-    else{
-      switch(tab){
-        case "server":
-          filtered=server
-          break;
-        case "cloud":
-          filtered=cloud
-          break;
-        case "other":
-          filtered=other
-          break;
-        default:
-          filtered=[]
-      }
-    }
+    const show_items = this.state.show_items
+    const sections = Object.keys(show_items)
 
     return (
       <div className="extend">
-        <div className="ui attached top form">
-          <div className="ui input seamless white">
-            <i className="icon search"/>
-            <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
-          </div>
-        </div>
-        <h2 className="ui centered header">
-          <i className={`icon ${props.icon}`}/>
-          {props.title}
-        </h2>
-
-        <div className="ui padding extend">
-          <div className="description">{props.description}</div>
-
-          { tab == "filter" ? null : (
-            <div className="ui pointing secondary menu">
-              <a
-                className={`item ${tab=="cloud" ? "active" : ""} ${has_cloud ? "" : "disabled"}`}
-                onClick={() => has_cloud && this.setTab("cloud")}
-                >Cloud</a>
-              <a
-                className={`item ${tab=="server" ? "active" : ""} ${has_server ? "" : "disabled"}`}
-                onClick={() => has_server && this.setTab("server")}
-                >Server</a>
-              <a
-                className={`item ${tab=="other" ? "active" : ""} ${has_other ? "" : "disabled"}`}
-                onClick={() => has_other && this.setTab("other")}
-                >Other</a>
+        {props.show_filter && (
+          <div className="ui attached top form">
+            <div className="ui input seamless white">
+              <i className="icon search"/>
+              <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")} defaultValue={props.filter}/>
             </div>
-          )}
+          </div>
+        )}
+        {props.title ? (
+          <h2 className="ui centered header" style={{marginTop:25}}>
+            <i className={`icon ${props.icon}`}/>
+            {props.title}
+          </h2>
+        ) : null}
+
+        <div className="ui extend">
+          {props.description ? (
+            <div className="ui description with padding">{props.description}</div>
+          ) : null }
 
           <div className="ui with scroll and padding">
-              {filtered.length==0 ? (
+              {sections.length==0 ? (
                 <div className="ui meta">{i18n("No matches found")}</div>
-              ) : filtered.map( (s) => (
-                <Card
-                  className={props.current==(s.id || s.type) ? "active" : null}
-                  key={s.id || s.type}
-                  item={s}
-                  default_icon={default_icon_for(s, tab)}
-                  onClick={() => props.onSelect(s)}
-                  />
-            ))}
+              ) : sections.map( (s) => (
+                <div key={s}>
+                  <h3 className="ui teal header">{s}</h3>
+                  { show_items[s].map( i => (
+                    <Card
+                      className={props.current==(i.id || i.type) ? "active" : null}
+                      key={i.id || i.type}
+                      item={i}
+                      default_icon={default_icon_for(i, "cloud")}
+                      onClick={() => props.onSelect(i)}
+                      />
+                  ))}
+                  <div className="ui separator" style={{height: 10}}/>
+                </div>
+              ) ) }
           </div>
           {this.props.prevStep||this.props.nextStep ? (
             <div className="right aligned">
@@ -224,6 +207,12 @@ Selector.propTypes={
   current: PropTypes.string,
   onSkip: PropTypes.func,
   skip_label: PropTypes.string,
+  show_filter: PropTypes.bool, // Whether to show the filter line
+  filter: PropTypes.string, // Current filter, may be out of the view itself
+}
+
+Selector.defaultProps={
+  show_filter: true
 }
 
 export default Selector
