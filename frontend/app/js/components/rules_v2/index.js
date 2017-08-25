@@ -8,6 +8,7 @@ import { sort_by_name, colorize } from 'app/utils'
 import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
 import Selector from 'app/components/selector'
+import RuleAddTemplate from './addtemplate'
 
 function get_services_id(node){
   if (!node){
@@ -97,9 +98,9 @@ class RuleCard extends React.Component{
           {icons.map( (icon, i) => (i == 0) ? (
             <Icon key={i} icon={icon} className="ui mini"/>
           ) : (
-            <span>
+            <span key={i}>
               +
-              <Icon key={i} icon={icon} className="ui mini"/>
+              <Icon icon={icon} className="ui mini"/>
             </span>
           ))}
           <div className="right">
@@ -141,10 +142,19 @@ const Rules = React.createClass({
   },
   render(){
     if (this.props.subsection){
-      if (this.props.subsection=="add")
+      if (this.props.subsection=="add"){
+        if (this.props.location.state.template)
+          return (
+            <RuleAddTemplate 
+              template={this.props.location.state.template} 
+              prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
+              {...this.props}
+              />
+          )
         return (
           <RuleAdd {...this.props}/>
         )
+      }
       const subsection = this.props.subsection
       const rule = this.props.rules.find( r => r.uuid == subsection)
       return (
@@ -174,9 +184,11 @@ const Rules = React.createClass({
       <div className="ui column">
         <div className="ui round pane white background">
           <Selector
+            icon="lab"
             title={i18n("Fast add a rule")}
             description={i18n("Use these presets to fast add rules to your projects for most common tasks. Use the 'Create new rule' button on the menu bar to create one from scratch.")}
             get_items={this.get_rule_presets}
+            onSelect={(rt) => goto(`/project/${this.props.project.shortname}/rules_v2/add`, {template: rt})}
           />
         </div>
       </div>

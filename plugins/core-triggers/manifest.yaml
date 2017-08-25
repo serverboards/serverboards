@@ -146,6 +146,11 @@ components:
     id: rule.socket.is_up
     type: rule template
     traits: url server
+    fields:
+      - name: service
+        label: Service to monitor
+        type: service
+        traits: ip url
     trigger:
       trigger: socket.is_up
       params:
