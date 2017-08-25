@@ -175,14 +175,22 @@ class ServiceFromExistingOrMarket extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      tab: 1
+      tab: 1,
+      filter: ""
     }
   }
   render(){
     const props = this.props
-    const tab= this.state.tab
+    const state = this.state
+    const tab= state.tab
     return (
       <div className="extend">
+        <div className="ui attached top form">
+          <div className="ui input seamless white">
+            <i className="icon search"/>
+            <input type="text" onChange={(ev) => this.setState({filter:ev.target.value})} placeholder={i18n("Filter...")}/>
+          </div>
+        </div>
         <div className="ui padding">
           <h2 className="ui centered header">
             <i className={`icon cloud`}/>
@@ -204,6 +212,8 @@ class ServiceFromExistingOrMarket extends React.Component{
         { tab==1 ? (
           <Selector
             key="installed"
+            show_filter={false}
+            filter={state.filter}
             get_items={cache.service_catalog}
             onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
@@ -211,6 +221,8 @@ class ServiceFromExistingOrMarket extends React.Component{
         ) : (tab == 2) ? (
           <Selector
             key="marketplace"
+            show_filter={false}
+            filter={state.filter}
             get_items={get_service_market_catalog}
             current={(props.service || {}).type}
             onSelect={(s) => {

@@ -31,7 +31,6 @@ function filter_items(items, filter){
       (s.description || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase())
     ) )
   }
-  console.log("Filter for %o is %o (%d)", filter, filtered, filtered.length)
   return filtered
 }
 
@@ -55,17 +54,23 @@ class Selector extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      filter: "", // A filter to show
       all_items: undefined, // Dict with category name and items in that category
       show_items: undefined,
+      delayed_filter: undefined // Delays search filters a bit to coalesce multiple keystrokes
     }
     this.onFilter = (filter) => {
-      let show_items
-      if (filter=="")
-        show_items = this.categorize(this.state.all_items)
-      else
-        show_items = this.categorize(filter_items( this.state.all_items, filter ))
-      this.setState({show_items})
+      if (this.state.delayed_filter){
+        clearTimeout(this.state.delayed_filter)
+      }
+      const delayed_filter = setTimeout( () => {
+        let show_items
+        if (filter=="")
+          show_items = this.categorize(this.state.all_items)
+        else
+          show_items = this.categorize(filter_items( this.state.all_items, filter ))
+        this.setState({show_items, delayed_filter: undefined})
+      }, 200)
+      this.setState({delayed_filter})
     }
   }
   categorize(items){
@@ -97,13 +102,23 @@ class Selector extends React.Component{
         .filter( s => s.traits.indexOf("hidden")==-1 )
         .sort( (a,b) => a.name.localeCompare(b.name) )
 
-        const show_items=this.categorize(all_items)
+      const filter = this.props.filter
+      let show_items
+      if (!filter || filter=="")
+        show_items = this.categorize(all_items)
+      else
+        show_items = this.categorize(filter_items( all_items, filter ))
 
       this.setState({all_items, show_items})
     } ).catch( e => {
       console.error(e)
       this.setState({error: i18n("Error loading items. Maybe connectivity problems? {error_msg}.",{error_msg: e})})
     })
+  }
+  componentWillReceiveProps(newprops){
+    if (newprops.filter != this.props.filter){
+      this.onFilter(newprops.filter)
+    }
   }
   render(){
     if (this.state.error){
@@ -123,12 +138,14 @@ class Selector extends React.Component{
 
     return (
       <div className="extend">
-        <div className="ui attached top form">
-          <div className="ui input seamless white">
-            <i className="icon search"/>
-            <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+        {props.show_filter && (
+          <div className="ui attached top form">
+            <div className="ui input seamless white">
+              <i className="icon search"/>
+              <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")} defaultValue={props.filter}/>
+            </div>
           </div>
-        </div>
+        )}
         {props.title ? (
           <h2 className="ui centered header">
             <i className={`icon ${props.icon}`}/>
@@ -190,6 +207,8 @@ Selector.propTypes={
   current: PropTypes.string,
   onSkip: PropTypes.func,
   skip_label: PropTypes.string,
+  show_filter: PropTypes.boolean, // Whether to show the filter line
+  filter: PropTypes.string, // Current filter, may be out of the view itself
 }
 
 export default Selector
