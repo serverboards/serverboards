@@ -147,7 +147,7 @@ class Selector extends React.Component{
           </div>
         )}
         {props.title ? (
-          <h2 className="ui centered header">
+          <h2 className="ui centered header" style={{marginTop:25}}>
             <i className={`icon ${props.icon}`}/>
             {props.title}
           </h2>
@@ -209,6 +209,10 @@ Selector.propTypes={
   skip_label: PropTypes.string,
   show_filter: PropTypes.boolean, // Whether to show the filter line
   filter: PropTypes.string, // Current filter, may be out of the view itself
+}
+
+Selector.defaultProps={
+  show_filter: true
 }
 
 export default Selector
