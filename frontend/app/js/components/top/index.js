@@ -80,7 +80,7 @@ const Top = React.createClass({
     const section=props.section
     let logo=require("../../../imgs/favicon.png")
     return (
-      <nav className="ui primary top menu" id="top-menu" ref="el">
+      <nav className="ui serverboards top menu" id="top-menu" ref="el">
         <div className="item logo">
           <a href="#/">
             <img src={logo}/>
