@@ -4,7 +4,7 @@ import i18n from 'app/utils/i18n'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 
-function service_add_future(sbds, service){
+export function service_add_future(sbds, service){
   return rpc.call("service.create", service).then(function(service_uuid){
     if (sbds){
       return rpc.call("service.attach",[sbds, service_uuid]).then(function(){

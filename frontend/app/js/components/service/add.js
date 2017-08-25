@@ -12,7 +12,7 @@ import {goto} from 'app/utils/store'
 
 require('sass/panes.sass')
 
-class AddServiceDetailsForm extends React.Component{
+export class AddServiceDetailsForm extends React.Component{
   constructor(props){
     super(props)
     this.state={
@@ -32,7 +32,6 @@ class AddServiceDetailsForm extends React.Component{
       }
       props
         .onAddService(props.project, service)
-        .then( (uuid) => goto(`/project/${props.project}/services/${uuid}`))
     }
   }
   render(){
@@ -252,6 +251,11 @@ class AddService extends React.Component{
       step: 1,
       service: undefined,
     }
+
+    this.handleAddService = (project, service) => {
+      return this.props.onAddService(project, service)
+        .then( (uuid) => goto(`/project/${props.project}/services/${uuid}`))
+    }
   }
   handleSelectServiceType(service){
     this.setState({step:2, service})
@@ -274,7 +278,7 @@ class AddService extends React.Component{
             service={this.state.service}
             gotoStep={(step) => this.setState({step})}
             project={this.props.project.shortname}
-            onAddService={this.props.onAddService}
+            onAddService={this.handleAddService}
             onAttachService={this.props.onAttachService}
             />)
         break;

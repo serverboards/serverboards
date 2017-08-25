@@ -207,7 +207,7 @@ Selector.propTypes={
   current: PropTypes.string,
   onSkip: PropTypes.func,
   skip_label: PropTypes.string,
-  show_filter: PropTypes.boolean, // Whether to show the filter line
+  show_filter: PropTypes.bool, // Whether to show the filter line
   filter: PropTypes.string, // Current filter, may be out of the view itself
 }
 
