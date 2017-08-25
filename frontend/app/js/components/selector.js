@@ -136,9 +136,9 @@ class Selector extends React.Component{
           </h2>
         ) : null}
 
-        <div className="ui padding extend">
+        <div className="ui extend">
           {props.description ? (
-            <div className="description">{props.description}</div>
+            <div className="ui description with padding">{props.description}</div>
           ) : null }
 
           <div className="ui with scroll and padding">

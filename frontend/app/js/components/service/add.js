@@ -161,14 +161,17 @@ class ServiceFromExistingOrMarket extends React.Component{
     const tab= this.state.tab
     return (
       <div className="extend">
-        <h2 className="ui centered header">
-          <i className={`icon cloud`}/>
-          {i18n("Add a service to this project")}
-        </h2>
-        <div>
-          {i18n("First select the service type. If not available at the already installed services, there are many more available to install at the marketplace.")}
+        <div className="ui padding">
+          <h2 className="ui centered header">
+            <i className={`icon cloud`}/>
+            {i18n("Add a service to this project")}
+          </h2>
+          <div>
+            {i18n("First select the service type. If not available at the already installed services, there are many more available to install at the marketplace.")}
+          </div>
         </div>
-        <div className="ui attached tabular menu">
+        <div className="ui separator" style={{height:10}}/>
+        <div className="ui pointing secondary menu">
           <a className={`item ${tab==1 ? "active" : ""}`} onClick={() => this.setState({tab:1})}>
             {i18n("Available services")}
           </a>
@@ -180,7 +183,7 @@ class ServiceFromExistingOrMarket extends React.Component{
           <Selector
             key="installed"
             get_items={cache.service_catalog}
-            onSelect={(what) => props.handleSelectServiceType(what)}
+            onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
             />
         ) : (tab == 2) ? (
@@ -191,9 +194,10 @@ class ServiceFromExistingOrMarket extends React.Component{
             onSelect={(s) => {
               this.setState({tab:3})
               plugin.install(s.giturl).then(() => {
-                this.handleSelectServiceType(s)
-              }).catch(() => {
-                this.setState({step:2})
+                props.onSelectServiceType(s)
+              }).catch((e) => {
+                console.error(e)
+                this.setState({tab:2})
                 Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
               })
             }}
@@ -231,7 +235,11 @@ class AddService extends React.Component{
     switch (this.state.step){
       case 1:
         section = (
-          <ServiceFromExistingOrMarket service={this.state.service} {...this.props}/>
+          <ServiceFromExistingOrMarket
+            onSelectServiceType={(s) => this.handleSelectServiceType(s)}
+            service={this.state.service}
+            {...this.props}
+            />
         )
         break;
       case 2:
