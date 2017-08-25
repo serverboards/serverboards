@@ -78,49 +78,80 @@ class AddServiceDetailsForm extends React.Component{
 
 function AddServiceButton({service}){
   return (
-    <a className="ui button teal">{i18n("Attach to this project")}</a>
+    <a className="ui button teal" style={{width:"100%"}}>{i18n("Attach")}</a>
   )
 }
 
-function AddServiceNewOrOldTabs(props){
-  function attach_service(uuid){
-    props
-      .onAttachService(props.project, uuid)
-      .then( () => goto(`/project/${props.project}/services/${uuid}`))
-  }
+class AddServiceNewOrOld extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      tab: 1
+    }
 
-  const {tab, service, setTab, setStep} = props
-  const my_type = service.type
-  const my_project = props.project
-  return (
-    <div className="ui padding extend">
-      <h2>{i18n("Add {service_type} service to project", {service_type: service.name})}</h2>
-      <div className="ui pointing secondary menu">
-        <a
-          className={`item ${tab=="new" ? "active" : ""}`}
-          onClick={() => setTab("new")}
-          >Create new</a>
-        <a
-          className={`item ${tab=="existing" ? "active" : ""}`}
-          onClick={() => setTab("existing")}
-          >Select existing</a>
-      </div>
-      <div className="ui with scroll">
-      {tab == "new" ? (
-        <AddServiceDetailsForm {...props}/>
-      ) : (
-        <div className="ui padding extend">
-          <ServiceSelect
-            filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
-            onBack={() => gotoStep(1)}
-            onSelect={(s) => attach_service(s.uuid)}
-            bottomElement={AddServiceButton}
-            />
+    this.handleAttachService = (uuid) => {
+      props
+        .onAttachService(props.project, uuid)
+        .then( () => goto(`/project/${props.project}/services/${uuid}`))
+    }
+  }
+  componentDidMount(){
+    let self = this
+    $(this.refs.checkboxes).find('.checkbox').checkbox({
+      onChange(ev){
+        console.log("Enable %o", this)
+        self.setState({tab: this.value})
+      }
+    })
+  }
+  render(){
+    const props = this.props
+    const tab = this.state.tab
+    const {service} = props
+    const my_type = service.type
+    const my_project = props.project
+    return (
+      <div className="ui extend">
+        <div className="ui padding" style={{paddingBottom:0}}>
+          <h2>{i18n("Add {service_type} service to project", {service_type: service.name})}</h2>
+          <div className="ui form">
+            <div className="inline fields" ref="checkboxes">
+              <div className="field">
+                <div className="ui radio checkbox">
+                  <input name="new_or_create" value="1" type="radio" checked={tab==1 && "checked"}/>
+                  <label>{i18n("Create new")}</label>
+                </div>
+              </div>
+              <div className="field">
+                <div className="ui radio checkbox">
+                  <input name="new_or_create" value="2" type="radio" checked={tab==2 && "checked"}/>
+                  <label>{i18n("Select existing")}</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+        <div className="ui with scroll">
+        {tab == 1 ? (
+          <AddServiceDetailsForm {...props}/>
+        ) : (
+          <div className="ui padding extend">
+            <div className="description">
+              {i18n("This services are used on other projects but may be attached to the current one, so they will be shared between the projects.")}
+            </div>
+            <div className="ui separator" style={{height: 10}}/>
+            <ServiceSelect
+              filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
+              onBack={() => gotoStep(1)}
+              onSelect={(s) => attach_service(s.uuid)}
+              bottomElement={AddServiceButton}
+              />
+          </div>
+        )}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 function AddServiceHeader({openMarket}){
@@ -216,7 +247,6 @@ class AddService extends React.Component{
     this.state={
       step: 1,
       service: undefined,
-      tab: "new"
     }
   }
   handleSelectServiceType(service){
@@ -243,11 +273,9 @@ class AddService extends React.Component{
         )
         break;
       case 2:
-        section = (<AddServiceNewOrOldTabs
+        section = (<AddServiceNewOrOld
                       service={this.state.service}
                       gotoStep={(step) => this.setState({step})}
-                      tab={this.state.tab}
-                      setTab={(tab) => this.setState({tab})}
                       project={this.props.project.shortname}
                       onAddService={this.props.onAddService}
                       onAttachService={this.props.onAttachService}
