@@ -154,15 +154,6 @@ class AddServiceNewOrOld extends React.Component{
   }
 }
 
-function AddServiceHeader({openMarket}){
-  return (
-    <div className="menu">
-      <div className="item stretch"></div>
-      <a className="ui button teal" onClick={openMarket}>{i18n("Go to market")}</a>
-    </div>
-  )
-}
-
 function get_service_market_catalog(){
   return Promise.all([
       plugin.start_call_stop(
@@ -225,6 +216,7 @@ class ServiceFromExistingOrMarket extends React.Component{
             onSelect={(s) => {
               this.setState({tab:3})
               plugin.install(s.giturl).then(() => {
+                s = {...s, type: s.id} // I need the component id in the type field.
                 props.onSelectServiceType(s)
               }).catch((e) => {
                 console.error(e)
@@ -252,14 +244,6 @@ class AddService extends React.Component{
   handleSelectServiceType(service){
     this.setState({step:2, service})
   }
-  componentDidMount(){
-    this.props.setSectionMenu(AddServiceHeader)
-    this.props.setSectionMenuProps({openMarket: () => this.setState({step: 10})})
-  }
-  componentWillUmount(){
-    this.props.setSectionMenu(null)
-    this.props.setSectionMenuProps({})
-  }
   render(){
     var section = null
     switch (this.state.step){
@@ -273,13 +257,14 @@ class AddService extends React.Component{
         )
         break;
       case 2:
-        section = (<AddServiceNewOrOld
-                      service={this.state.service}
-                      gotoStep={(step) => this.setState({step})}
-                      project={this.props.project.shortname}
-                      onAddService={this.props.onAddService}
-                      onAttachService={this.props.onAttachService}
-                      />)
+        section = (
+          <AddServiceNewOrOld
+            service={this.state.service}
+            gotoStep={(step) => this.setState({step})}
+            project={this.props.project.shortname}
+            onAddService={this.props.onAddService}
+            onAttachService={this.props.onAttachService}
+            />)
         break;
     }
 
