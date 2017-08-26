@@ -3,6 +3,7 @@ import i18n from 'app/utils/i18n'
 import GenericForm from 'app/components/genericform'
 import {MarkdownPreview} from 'react-marked-markdown'
 import cache from 'app/utils/cache'
+import Tip from 'app/components/tip'
 
 class AddTemplate extends React.Component{
   constructor(props){
@@ -49,24 +50,19 @@ class AddTemplate extends React.Component{
   	return (
         <div className="ui expand two column grid grey background" style={{margin:0}}>
           <div className="ui column">
-            <div className="ui round pane white background with padding">
-              <img src={require("imgs/024-illustration-addaddons.svg")} style={{height: 150}}/>
-              <h2 className="ui header centered">{i18n("Add a simple rule to your project.")}</h2>
-              <img src={require("imgs/019-illustration-tips.svg")} style={{height: 80}}/>
-              <div className="ui text container">
-                <h3 className="ui header centered">
-                  {i18n("Fill the form on the right and you will be adding this rule to this project. Simple.")}
-                </h3>
-                <div className="ui content">
-                <MarkdownPreview value={i18n(`
-  Using the rule templates it is very easy to add rules to your project for the most common tasks.
+            <Tip
+              className="ui round pane white background with padding"
+              top_img={require("imgs/024-illustration-addaddons.svg")}
+              middle_img={require("imgs/019-illustration-tips.svg")}
+              title={i18n("Add a simple rule to your project.")}
+              subtitle={i18n("Fill the form on the right and you will be adding this rule to this project. Simple.")}
+              description={i18n(`
+Using the rule templates it is very easy to add rules to your project for the most common tasks.
 
-  Watching uptimes and creating issues has never been easier. Check out the marketplace for many more
-  simple rules. If you have any idea, don't hesitate to [contact us](mailto:connect@serverboards.io)!
-  `)}/>
-                </div>
-              </div>
-            </div>
+Watching uptimes and creating issues has never been easier. Check out the marketplace for many more
+simple rules. If you have any idea, don't hesitate to [contact us](mailto:connect@serverboards.io)!
+`)}
+              />
         	</div>
           <div className="ui column">
             <div className="ui round pane white background">
