@@ -4,14 +4,21 @@ import GenericForm from 'app/components/genericform'
 import {MarkdownPreview} from 'react-marked-markdown'
 import cache from 'app/utils/cache'
 import Tip from 'app/components/tip'
+import Loading from 'app/components/loading'
 
 class AddTemplate extends React.Component{
   constructor(props){
     super(props)
 
     this.state = {
-      data: {}
+      data: props.data || {},
+      template: undefined
     }
+  }
+  componentDidMount(){
+    cache
+      .plugin_component({type: "rule template", id: this.props.template})
+      .then( template => this.setState({template}))
   }
   handleAddRule(){
     const {template, project} = this.props
@@ -43,9 +50,21 @@ class AddTemplate extends React.Component{
       this.props.addTemplate(rule)
     })
   }
+  handleUpdateRule(){
+    const props = this.props
+    const newrule = {
+      ...props.edit,
+      rule: {template_data: this.state.data}
+    }
+    props.updateTemplate(props.edit.uuid, newrule)
+  }
   render(){
     const props = this.props
-  	const {template} = props
+  	const {template} = this.state
+
+    if (!template){
+      return <Loading>{i18n("Template definition")}</Loading>
+    }
 
   	return (
         <div className="ui expand two column grid grey background" style={{margin:0}}>
@@ -74,6 +93,7 @@ simple rules. If you have any idea, don't hesitate to [contact us](mailto:connec
             	</div>
             	<div className="ui expanding with padding and scroll">
             		<GenericForm 
+                  data={props.data}
                   fields={template.extra.fields}
                   updateForm={(data) => this.setState({data})}
                   />
@@ -82,9 +102,15 @@ simple rules. If you have any idea, don't hesitate to [contact us](mailto:connec
   	          			<a className="ui button basic" onClick={props.prevStep}>
   	          				{i18n("Cancel")}
   	          			</a>
-  	          			<a className="ui teal button" onClick={() => this.handleAddRule()}>
-  	          				{i18n("Create rule")}
-  	          			</a>
+                    {props.edit ? (
+                        <a className="ui teal button" onClick={() => this.handleUpdateRule()}>
+                          {i18n("Modify rule")}
+                        </a>
+                      ) : (
+                        <a className="ui teal button" onClick={() => this.handleAddRule()}>
+                          {i18n("Create rule")}
+                        </a>
+                      )}
   	          		</div>
   	          	</div>
             	</div>

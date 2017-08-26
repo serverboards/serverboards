@@ -13,10 +13,16 @@ const Model = connect({
         return rpc.call("rules_v2.create", rule).then((uuid) => {
           console.log("Created with UUID %o", uuid)
           Flash.success(i18n("Created rule *{name}*", {name: rule.name}))
-        }).then( () => {
+          goto(`/project/${rule.project}/rules_v2/`)
+        })
+      },
+      updateTemplate(uuid, rule){
+        return rpc.call("rules_v2.update", [uuid, rule]).then(() => {
+          Flash.success(i18n("Updated rule *{name}*", {name: rule.name}))
           goto(`/project/${rule.project}/rules_v2/`)
         })
       }
+
     }
   }
 })(View)

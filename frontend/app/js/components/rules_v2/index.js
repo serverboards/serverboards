@@ -9,7 +9,7 @@ import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
 import Selector from 'app/components/selector'
 import RuleAddTemplate from 'app/containers/rules_v2/addtemplate'
-import RuleTemplate from 'app/components/rules_v2/edittemplate'
+//import RuleTemplate from 'app/components/rules_v2/edittemplate'
 
 function get_services_id(node){
   if (!node){
@@ -162,7 +162,7 @@ const Rules = React.createClass({
         if (this.props.location.state.template)
           return (
             <RuleAddTemplate 
-              template={this.props.location.state.template} 
+              template={this.props.location.state.template.id} 
               prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
               {...this.props}
               />
@@ -173,9 +173,15 @@ const Rules = React.createClass({
       }
       const subsection = this.props.subsection
       const rule = this.props.rules.find( r => r.uuid == subsection)
-      if (r.from_template)
+      if (rule.from_template)
         return (
-          <RuleTemplate {...this.props} rule={rule}/>
+          <RuleAddTemplate 
+            template={rule.from_template} 
+            prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
+            data={rule.rule.template_data || {}}
+            edit={rule}
+            {...this.props} 
+            />
         )
     else
         return (
