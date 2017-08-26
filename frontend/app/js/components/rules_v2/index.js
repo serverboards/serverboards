@@ -9,6 +9,7 @@ import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
 import Selector from 'app/components/selector'
 import RuleAddTemplate from 'app/containers/rules_v2/addtemplate'
+import RuleTemplate from 'app/components/rules_v2/edittemplate'
 
 function get_services_id(node){
   if (!node){
@@ -172,9 +173,14 @@ const Rules = React.createClass({
       }
       const subsection = this.props.subsection
       const rule = this.props.rules.find( r => r.uuid == subsection)
-      return (
-        <Rule {...this.props} rule={rule}/>
-      )
+      if (r.from_template)
+        return (
+          <RuleTemplate {...this.props} rule={rule}/>
+        )
+    else
+        return (
+          <Rule {...this.props} rule={rule}/>
+        )
     }
 
     let rules = (this.props.rules || [])
