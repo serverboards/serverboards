@@ -4,16 +4,19 @@ import { goto } from 'app/utils/store'
 import cache from 'app/utils/cache'
 import Rule from 'app/containers/rules_v2/rule'
 import RuleAdd from 'app/containers/rules_v2/add'
-import { sort_by_name, colorize } from 'app/utils'
+import { sort_by_name, colorize, map_get } from 'app/utils'
 import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
 import Selector from 'app/components/selector'
-import RuleAddTemplate from './addtemplate'
+import RuleAddTemplate from 'app/containers/rules_v2/addtemplate'
 
 function get_services_id(node){
   if (!node){
     console.warn("Trying to get services ids from %o", node)
     return []
+  }
+  if (node.template_data){
+    return [node.template_data.service]
   }
   if (node.when){
     return [...get_services_id(node.when), ...get_services_id(node.actions)]
@@ -49,9 +52,16 @@ class RuleCard extends React.Component{
   }
   componentDidMount(){
     const props = this.props
-    const trigger_icon = cache
-      .trigger(props.rule.rule.when.trigger)
-      .then( t => t && t.icon )
+    const trigger_name = map_get(props, ["rule","rule","when","trigger"])
+    let trigger_icon
+
+    if (trigger_name)
+      trigger_icon = cache
+        .trigger(trigger_name)
+        .then( t => t && t.icon )
+    else
+      trigger_icon = Promise.resolve(null)
+
     const service_icons = get_services_id( props.rule.rule )
       .map( uuid => cache.service(uuid).then( s => s.icon ) )
     Promise
@@ -68,16 +78,17 @@ class RuleCard extends React.Component{
       onChange: (ev) => props.updateActive(this.refs.toggle_input.checked)
     })
     if (!this.state.name || !this.state.description){
-      cache.trigger(props.rule.rule.when.trigger).then( t => {
-        if (t){
-          let changes = {}
-          if (!this.state.name)
-            changes["name"]=t.name
-          if (!this.state.description)
-            changes["description"]=t.description
-          this.setState(changes)
-        }
-      })
+      if (trigger_name)
+        cache.trigger(trigger_name).then( t => {
+          if (t){
+            let changes = {}
+            if (!this.state.name)
+              changes["name"]=t.name
+            if (!this.state.description)
+              changes["description"]=t.description
+            this.setState(changes)
+          }
+        })
     }
   }
   render(){
@@ -86,12 +97,16 @@ class RuleCard extends React.Component{
     const {icons} = state
     let status
     if (rule.status){
-      status=rule.status
+      status=[...rule.status]
     }
     else if (rule.is_active)
       status = ["enabled"]
     else
       status = ["disabled"]
+
+    if (rule.from_template)
+      status.push("template")
+
     return (
       <div className="narrow rule card">
         <div className="header">
@@ -163,7 +178,6 @@ const Rules = React.createClass({
     }
 
     let rules = (this.props.rules || [])
-    rules = rules.filter( r => !r.from_template )
     rules = sort_by_name(rules)
     return (
       <div className="ui expand two column grid grey background" style={{margin:0}}>
