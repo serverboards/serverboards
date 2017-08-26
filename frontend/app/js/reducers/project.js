@@ -130,8 +130,8 @@ function project(state=default_state, action){
     {
       const daterange = merge(state.daterange, action.daterange)
       state = merge(state, {daterange})
-      localStorage.dashboard_start=daterange.start
-      localStorage.dashboard_end=daterange.end
+      localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
+      localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
       if (state.realtime){
         localStorage.dashboard_realtime=moment(daterange.end).diff(daterange.start,'seconds')
       }
