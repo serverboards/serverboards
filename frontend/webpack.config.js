@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const __DEV__ = process.env.NODE_ENV !== 'production'
+const __PROD__ = !__DEV__
 console.log("Building for %s", __DEV__ ? "development" : "production")
 
 var entry=[]
@@ -30,11 +31,15 @@ module.exports = {
         lang : path.resolve("./lang")
       }
     },
-    devtool: __DEV__ ? "source-map" : "cheap-module-source-map",
+    //devtool: __DEV__ ? "cheap-eval-source-map" : "cheap-module-source-map",
     module: {
         rules: [
             //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
-            { test: /\.js$/, exclude: /node_modules/, use: ["react-hot-loader", "babel-loader"] },
+            { 
+              test: /\.js$/, 
+              exclude: /node_modules/, 
+              use: ["react-hot-loader", "babel-loader"] 
+            },
             { test: /\.css$/, use: ["style-loader","css"] },
             {
               test: /\.sass$/,
@@ -54,7 +59,7 @@ module.exports = {
                 'file-loader',
                 {
                   loader: 'image-webpack-loader',
-                  query: {
+                  query: { /*
                     mozjpeg: {
                       progressive: true,
                     },
@@ -68,7 +73,7 @@ module.exports = {
                       quality: '65-90',
                       speed: 4
                     }
-                  }
+                  */}
                 }
               ]
             }
@@ -81,12 +86,12 @@ module.exports = {
         filename: 'index.html',
         inject: 'body'
       }),
-      new webpack.optimize.UglifyJsPlugin({
+      __PROD__ && (new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
-        compress: !__DEV__,
-        minimize: !__DEV__,
+        compress: true,
+        minimize: true,
         parallel: true
-      }),
+      })),
       new CopyWebpackPlugin([
         {from:'lang/*.json', to:'lang'},
         {from:'app/css', to:'css'},
@@ -98,8 +103,12 @@ module.exports = {
         __DEV__: JSON.stringify(__DEV__),
         SERVERBOARDS_VERSION: JSON.stringify(require("./package.json").version),
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-      })
-    ],
+      }),
+      new webpack.SourceMapDevToolPlugin({
+        filename: '[file].js.map',
+        exclude: /node_modules/
+      }),
+    ].filter(function(l){ return l }),
     /*
     sassLoader: {
       includePaths: [path.resolve("./sass")]
