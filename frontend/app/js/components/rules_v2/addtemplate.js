@@ -33,7 +33,7 @@ simple rules. If you have any idea, don't hesitate to [contact us](mailto:connec
           <div className="ui round pane white background">
           	<div className="ui padding">
           		<h2 className="ui header">{template.name}</h2>
-          		<div class="description">
+          		<div className="description">
           			<MarkdownPreview value={template.description}/>
           		</div>
           	</div>

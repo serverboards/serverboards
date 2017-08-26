@@ -104,8 +104,8 @@ class RuleCard extends React.Component{
             </span>
           ))}
           <div className="right">
-            {status.map( s => (
-              <span className="ui text label">
+            {status.map( (s, i) => (
+              <span key={i} className="ui text label">
                 {s}&nbsp;
                 <i className={`ui rectangular label ${ colorize( s ) }`}/>
               </span>
@@ -185,7 +185,7 @@ const Rules = React.createClass({
         <div className="ui round pane white background">
           <Selector
             icon="lab"
-            title={i18n("Fast add a rule")}
+            title={i18n("Create rule from template")}
             description={i18n("Use these presets to fast add rules to your projects for most common tasks. Use the 'Create new rule' button on the menu bar to create one from scratch.")}
             get_items={this.get_rule_presets}
             onSelect={(rt) => goto(`/project/${this.props.project.shortname}/rules_v2/add`, {template: rt})}
