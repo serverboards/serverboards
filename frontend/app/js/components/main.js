@@ -11,7 +11,7 @@ import Piwik from 'app/containers/piwik.js'
 function Main(props){
   //console.log("Main component props %o", props.location)
   let modal = []
-  if (props.location.state && props.location.state.modal){
+  if (props.location && props.location.state && props.location.state.modal){
     const mod = props.location.state
     const Modal = get_modal(mod.modal)
     if (Modal){

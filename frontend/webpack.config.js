@@ -1,16 +1,12 @@
-var webpack = require('webpack');
-var path = require('path')
+const webpack = require('webpack');
+const path = require('path')
 
 // To Reqrite index.html with proper bundle js
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: __dirname + '/app/index.html',
-  filename: 'index.html',
-  inject: 'body'
-});
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var __DEV__ = process.env.NODE_ENV !== 'production'
+const __DEV__ = process.env.NODE_ENV !== 'production'
+const __PROD__ = !__DEV__
 console.log("Building for %s", __DEV__ ? "development" : "production")
 
 var entry=[]
@@ -26,7 +22,7 @@ module.exports = {
     ].concat(entry),
     output: {
         path: path.resolve('dist/'),
-        filename: "js/bundle-[hash].js"
+        filename: "js/[name]-[hash].js"
     },
     resolve: {
       alias:{
@@ -36,26 +32,67 @@ module.exports = {
         lang : path.resolve("./lang")
       }
     },
-    devtool: __DEV__ ? "source-map" : "cheap-module-source-map",
+    //devtool: __DEV__ ? "cheap-eval-source-map" : "cheap-module-source-map",
     module: {
-        loaders: [
+        rules: [
             //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
-            { test: /\.js$/, exclude: /node_modules/, loaders: ["react-hot", "babel"] },
-            { test: /\.css$/, loader: "style!css" },
-            { test: /\.sass$/, exclude: /node_modules/, loader: "style!css!sass"},
+            { 
+              test: /\.js$/, 
+              exclude: /node_modules/, 
+              use: ["react-hot-loader", "babel-loader"] 
+            },
+            { test: /\.css$/, use: ["style-loader","css"] },
+            {
+              test: /\.sass$/,
+              use: [{
+                loader: "style-loader"
+              }, {
+                loader: "css-loader"
+              }, {
+                loader: "sass-loader",
+                options : {
+                  includePaths: ["./"]
+                }
+              }]
+            },
             { test: /\.(jpe?g|png|gif|svg)$/i,
-                    loaders: [
-                        'file?hash=sha512&digest=hex&name=[hash].[ext]',
-                        'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
-                    ]
-                  },
-            { test: /\.json$/, loader: "json" },
+              loaders: [
+                'file-loader',
+                {
+                  loader: 'image-webpack-loader',
+                  query: { 
+                    mozjpeg: {
+                      progressive: true,
+                    },
+                    gifslice: {
+                      interlaced: false,
+                    },
+                    optipng: {
+                      optimizationLevel: 7,
+                    },
+                    pngquant: {
+                      quality: '65-90',
+                      speed: 4
+                    }
+                  }
+                }
+              ]
+            }
         ]
     },
     plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
-      new webpack.NoErrorsPlugin(),
-      HTMLWebpackPluginConfig,
+      new webpack.NoEmitOnErrorsPlugin(),
+      new HtmlWebpackPlugin({
+        template: __dirname + '/app/index.html',
+        filename: 'index.html',
+        inject: 'body'
+      }),
+      __PROD__ && (new webpack.optimize.UglifyJsPlugin({
+        sourceMap: true,
+        compress: true,
+        minimize: true,
+        parallel: true,
+      })),
       new CopyWebpackPlugin([
         {from:'lang/*.json', to:'lang'},
         {from:'app/css', to:'css'},
@@ -66,28 +103,22 @@ module.exports = {
       new webpack.DefinePlugin({
         __DEV__: JSON.stringify(__DEV__),
         SERVERBOARDS_VERSION: JSON.stringify(require("./package.json").version),
-        'process.env': {
-          'NODE_ENV': __DEV__ ? JSON.stringify("development") : JSON.stringify("production")
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+      }),
+      new webpack.SourceMapDevToolPlugin({
+        filename: '[file].map',
+        exclude: /vendor/,
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        name: "vendor",
+        minChunks: function(module){
+          return module.context && module.context.indexOf("node_modules") !== -1;
         }
-      })
-    ],
-    sassLoader: {
-      includePaths: [path.resolve("./sass"), path.resolve(".")]
-    },
-    imageWebpackLoader: {
-      pngquant:{
-        quality: "65-90",
-        speed: 4
-      },
-      svgo:{
-        plugins: [
-          {
-            removeViewBox: false
-          },
-          {
-            removeEmptyAttrs: false
-          }
-        ]
-      }
-    }
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        name: "manifest",
+        minChunks: Infinity
+      }),
+
+    ].filter(function(l){ return l }),
   };

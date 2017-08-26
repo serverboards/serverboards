@@ -68,10 +68,6 @@ function ConnectionBanner(props){
           </div>
         </div>
       )
-    console.error("Unknown status at ConnectionBanner %o", props.status)
-    return (
-      <div className="ui message red">Unknown Error at ConnectionBanner</div>
-    )
   }
 }
 

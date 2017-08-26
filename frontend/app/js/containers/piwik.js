@@ -27,7 +27,7 @@ function PiwikView(props){
 
 const Piwik = connect(
   (state) => ({
-    url: `${window.location.protocol}//${window.location.host}${state.routing.locationBeforeTransitions.pathname}`
+    url: `${window.location.protocol}//${window.location.host}${state.routing.locationBeforeTransitions && state.routing.locationBeforeTransitions.pathname}`
   }),
   (dispatch) => ({})
 )(PiwikView)
