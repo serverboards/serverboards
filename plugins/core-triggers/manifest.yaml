@@ -150,7 +150,7 @@ components:
       - name: service
         label: Service to monitor
         type: service
-        traits: ip url
+        traits: url
     trigger:
       trigger: socket.is_up
       params:
