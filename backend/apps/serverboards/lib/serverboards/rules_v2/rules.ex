@@ -44,6 +44,11 @@ defmodule Serverboards.RulesV2.Rules do
                body: Check it out ASAP
   ```
 
+  Rules can come also from templates. In this case the template id is stored 
+  at `from_template` and then store at the `rule`a dictionary with 
+  `template_data` data. At execution time, the form will be filled with the 
+  template form data, and the rule will start appropiately.
+
   """
   alias Serverboards.RulesV2.Rule
 
@@ -93,7 +98,7 @@ defmodule Serverboards.RulesV2.Rules do
   end
 
   def create_real(uuid, %{} = data, options \\ []) do
-    data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"name description rule is_active deleted project")
+    data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"name description rule is_active deleted project from_template")
     data = Map.put(data, :uuid, uuid)
     data = if data[:project] do
       Map.put( data, :project_id, get_project_id_by_shortname(data.project))
@@ -104,6 +109,8 @@ defmodule Serverboards.RulesV2.Rules do
     if options[:start]!=false and rule.is_active do
       Rule.ensure_running(rule)
     end
+
+    Logger.info("Rule #{rule.uuid} created", rule: rule)
 
     rule
   end
