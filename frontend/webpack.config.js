@@ -22,7 +22,7 @@ module.exports = {
     ].concat(entry),
     output: {
         path: path.resolve('dist/'),
-        filename: "js/bundle-[hash].js"
+        filename: "js/[name]-[hash].js"
     },
     resolve: {
       alias:{
@@ -59,7 +59,7 @@ module.exports = {
                 'file-loader',
                 {
                   loader: 'image-webpack-loader',
-                  query: { /*
+                  query: { 
                     mozjpeg: {
                       progressive: true,
                     },
@@ -73,7 +73,7 @@ module.exports = {
                       quality: '65-90',
                       speed: 4
                     }
-                  */}
+                  }
                 }
               ]
             }
@@ -105,28 +105,19 @@ module.exports = {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
       }),
       new webpack.SourceMapDevToolPlugin({
-        filename: '[file].js.map',
-        exclude: /node_modules/
+        filename: '[file].map',
+        exclude: /vendor/,
       }),
+      new webpack.optimize.CommonsChunkPlugin({
+        name: "vendor",
+        minChunks: function(module){
+          return module.context && module.context.indexOf("node_modules") !== -1;
+        }
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        name: "manifest",
+        minChunks: Infinity
+      }),
+
     ].filter(function(l){ return l }),
-    /*
-    sassLoader: {
-      includePaths: [path.resolve("./sass")]
-    },
-    imageWebpackLoader: {
-      pngquant:{
-        quality: "65-90",
-        speed: 4
-      },
-      svgo:{
-        plugins: [
-          {
-            removeViewBox: false
-          },
-          {
-            removeEmptyAttrs: false
-          }
-        ]
-      }
-    }*/
   };
