@@ -141,6 +141,8 @@ function get_prev(current, path){
 }
 
 function decorate_actions(actions){
+  if (!actions)
+    return []
   if (actions.length!=undefined){
     let ret = actions.map( a => decorate_actions(a) )
     ret.push({type: 'add'})
