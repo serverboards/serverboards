@@ -75,7 +75,7 @@ class RuleCard extends React.Component{
       trigger_icon = Promise.resolve(null)
 
     const service_icons = get_services_id( props.rule.rule )
-      .map( uuid => cache.service(uuid).then( s => s.icon ) )
+      .map( uuid => cache.service(uuid).then( s => s && s.icon ) )
     Promise
       .all(
         [
@@ -152,7 +152,7 @@ class RuleCard extends React.Component{
 
         <div className="extra content">
           <div className="ui input checkbox toggle" ref="toggle">
-            <input type="checkbox" checked={rule.is_active} ref="toggle_input"/>
+            <input type="checkbox" defaultChecked={rule.is_active} ref="toggle_input"/>
           </div>
           <div className="right">
             <a className="ui text teal" onClick={() => gotoRule(rule)} >
