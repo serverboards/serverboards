@@ -21,8 +21,8 @@ class AddTemplate extends React.Component{
       .then( template => this.setState({template}))
   }
   handleAddRule(){
-    const {template, project} = this.props
-    const data = this.state.data
+    const {project} = this.props
+    const {data, template} = this.state
 
     console.log("Create template rule %o %o", template.id, data)
 
@@ -37,8 +37,8 @@ class AddTemplate extends React.Component{
     name_promise.then( name => {
       const rule = {
         name,
-        description: template.description, 
-        is_active: true, 
+        description: template.description,
+        is_active: true,
         project: project.shortname,
         from_template: template.id,
         rule: {
@@ -46,7 +46,7 @@ class AddTemplate extends React.Component{
         }
       }
       console.log("Create rule %o", rule)
-      
+
       this.props.addTemplate(rule)
     })
   }
@@ -92,7 +92,7 @@ simple rules. If you have any idea, don't hesitate to [contact us](mailto:connec
             		</div>
             	</div>
             	<div className="ui expanding with padding and scroll">
-            		<GenericForm 
+            		<GenericForm
                   data={props.data}
                   fields={template.extra.fields}
                   updateForm={(data) => this.setState({data})}
