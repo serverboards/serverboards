@@ -42,6 +42,17 @@ function get_services_id(node){
   return ret
 }
 
+/**
+ * All filters must be presetn at text.
+ */
+function match_filter_all(text, filters){
+  for (let f of filters){
+    if (!text.toLocaleLowerCase().includes(f))
+      return false
+  }
+  return true
+}
+
 class RuleCard extends React.Component{
   constructor(props){
     super(props)
@@ -93,7 +104,7 @@ class RuleCard extends React.Component{
     }
   }
   render(){
-    const {rule, gotoRule} = this.props
+    const {rule, gotoRule, filter} = this.props
     const state = this.state
     const {icons} = state
     let status
@@ -107,6 +118,12 @@ class RuleCard extends React.Component{
 
     if (rule.from_template)
       status.push("template")
+
+    // each card filters out itself if required. This is done here, and not in the listing, as each card has the real data to show.
+    if (filter){
+      if (!match_filter_all([state.name, state.description, ...status].join(' '), filter))
+        return null
+    }
 
     return (
       <div className="narrow rule card">
@@ -148,21 +165,40 @@ class RuleCard extends React.Component{
   }
 }
 
-const Rules = React.createClass({
+class Rules extends React.Component{
+  constructor(props){
+    super(props)
+
+    this.state={
+      filter: "",
+      filterTimeout: null
+    }
+  }
+  setFilter(filter){
+    if (this.state.filterTimeout)
+      clearTimeout(this.state.filterTimeout)
+    let filterTimeout = setTimeout( () => {
+      this.setState({
+        filter: filter.toLocaleLowerCase().split(' '),
+        filterTimeout: null
+      })
+    }, 300)
+    this.setState({filterTimeout})
+  }
   gotoRule(rule){
     const project = this.props.project.shortname
     goto(`/project/${project}/rules_v2/${rule.uuid}`)
-  },
+  }
   get_rule_presets(){
     return cache.plugin_component({type: "rule template"})
-  },
+  }
   render(){
     if (this.props.subsection){
       if (this.props.subsection=="add"){
         if (this.props.location.state.template)
           return (
-            <RuleAddTemplate 
-              template={this.props.location.state.template.id} 
+            <RuleAddTemplate
+              template={this.props.location.state.template.id}
               prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
               {...this.props}
               />
@@ -175,12 +211,12 @@ const Rules = React.createClass({
       const rule = this.props.rules.find( r => r.uuid == subsection)
       if (rule.from_template)
         return (
-          <RuleAddTemplate 
-            template={rule.from_template} 
+          <RuleAddTemplate
+            template={rule.from_template}
             prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
             data={rule.rule.template_data || {}}
             edit={rule}
-            {...this.props} 
+            {...this.props}
             />
         )
     else
@@ -194,16 +230,25 @@ const Rules = React.createClass({
     return (
       <div className="ui expand two column grid grey background" style={{margin:0}}>
         <div className="ui column">
-          <div className="ui round pane white background with padding and scroll">
-            <div className="ui rule cards">
-            {rules.map( (r) => (
-              <RuleCard
-                key={r.uuid}
-                rule={r}
-                gotoRule={this.gotoRule}
-                updateActive={(v) => this.props.updateActive(r.uuid, v)}
-                />
-            ) ) }
+          <div className="ui round pane white background">
+            <div className="ui attached top form">
+              <div className="ui input seamless white">
+                <i className="icon search"/>
+                <input type="text" onChange={(ev) => this.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+              </div>
+            </div>
+            <div className="ui scroll extend with padding">
+              <div className="ui rule cards">
+              {rules.map( (r) => (
+                <RuleCard
+                  key={r.uuid}d
+                  rule={r}
+                  gotoRule={this.gotoRule.bind(this)}
+                  updateActive={(v) => this.props.updateActive(r.uuid, v)}
+                  filter={this.state.filter}
+                  />
+              ) ) }
+            </div>
           </div>
         </div>
       </div>
@@ -213,7 +258,7 @@ const Rules = React.createClass({
             icon="lab"
             title={i18n("Create rule from template")}
             description={i18n("Use these presets to fast add rules to your projects for most common tasks. Use the 'Create new rule' button on the menu bar to create one from scratch.")}
-            get_items={this.get_rule_presets}
+            get_items={this.get_rule_presets.bind(this)}
             onSelect={(rt) => goto(`/project/${this.props.project.shortname}/rules_v2/add`, {template: rt})}
           />
         </div>
@@ -222,6 +267,6 @@ const Rules = React.createClass({
     </div>
     )
   }
-})
+}
 
 export default Rules
