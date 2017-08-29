@@ -36,15 +36,17 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
     rules = Serverboards.RulesV2.Rules.list(%{ is_active: true })
     Logger.info("Started rule supervisor. Starting #{Enum.count(rules)} rules.")
 
-    success? = for {r, n} <- Enum.with_index(rules, 1) do
-      case start(r) do
+    success? = for {rule, n} <- Enum.with_index(rules, 1) do
+      case start(rule) do
         {:ok, pid} ->
           #Logger.info("#{n}. Rule #{inspect r.uuid} started", rule: r)
           :ok
         {:error, :cant_start_trigger} ->
-          Logger.error("#{n}. Rule #{inspect r.uuid} cant start trigger: #{inspect get_in(r.rule,["when","trigger"])}", rule: r)
+          Serverboards.RulesV2.Rules.update(rule.uuid, %{ is_active: false }, %{ email: "rule/#{rule.uuid}"})
+          Logger.error("#{n}. Rule #{inspect rule.uuid} cant start trigger: #{inspect get_in(rule.rule,["when","trigger"])}. Disabling rule.", rule: rule)
         {:error, code} ->
-          Logger.error("#{n}. Rule #{inspect r.uuid} error starting: #{inspect code}", rule: r)
+          Serverboards.RulesV2.Rules.update(rule.uuid, %{ is_active: false }, %{ email: "rule/#{rule.uuid}"})
+          Logger.error("#{n}. Rule #{inspect rule.uuid} error starting: #{inspect code}. Disabling rule.", rule: rule)
           :error
       end
     end
