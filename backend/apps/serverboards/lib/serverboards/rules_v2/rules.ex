@@ -44,9 +44,9 @@ defmodule Serverboards.RulesV2.Rules do
                body: Check it out ASAP
   ```
 
-  Rules can come also from templates. In this case the template id is stored 
-  at `from_template` and then store at the `rule`a dictionary with 
-  `template_data` data. At execution time, the form will be filled with the 
+  Rules can come also from templates. In this case the template id is stored
+  at `from_template` and then store at the `rule`a dictionary with
+  `template_data` data. At execution time, the form will be filled with the
   template form data, and the rule will start appropiately.
 
   """
@@ -157,7 +157,7 @@ defmodule Serverboards.RulesV2.Rules do
 
   def set_state_real(uuid, state) when is_map(state) do
     import Ecto.Query
-    Logger.debug("Set state #{inspect uuid} #{inspect state}")
+    # Logger.debug("Set state #{inspect uuid} #{inspect state}")
     case get_rule_id( uuid ) do
       nil ->
         Logger.error("Unknown rule to set state to #{inspect uuid}", rule_id: uuid)
