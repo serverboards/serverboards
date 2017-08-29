@@ -9,7 +9,8 @@ import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
 import Selector from 'app/components/selector'
 import RuleAddTemplate from 'app/containers/rules_v2/addtemplate'
-//import RuleTemplate from 'app/components/rules_v2/edittemplate'
+import plugin from 'app/utils/plugin'
+import Flash from 'app/flash'
 
 function get_services_id(node){
   if (!node){
@@ -165,6 +166,90 @@ class RuleCard extends React.Component{
   }
 }
 
+class ExistingOrMarketplaceTemplate extends React.Component{
+  constructor(props){
+    super(props)
+
+    this.state = {
+      tab: 1,
+      filter: ""
+    }
+  }
+  get_rule_presets(){
+    return cache.plugin_component({type: "rule template"})
+  }
+  get_rule_template_market_catalog(){
+    return Promise.all([
+        plugin.start_call_stop(
+              "serverboards.optional.update/updater",
+              "component_filter",
+              {type: "rule template"}
+            )
+        , cache.plugins()
+      ]).then( (cp) => {
+        const catalog = cp[0]
+        const plugin_list = cp[1]
+
+        console.log("Got catalog %o // %o", catalog, plugin_list)
+        return catalog.filter( c => !plugin_list[c.plugin] )
+      })
+  }
+  render(){
+    const props = this.props
+    const {tab, filter} = this.state
+    return (
+      <div className="extend">
+        <div className="ui attached top form">
+          <div className="ui input seamless white">
+            <i className="icon search"/>
+            <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")} defaultValue={filter}/>
+          </div>
+        </div>
+        <div className="ui padding">
+          <h2 className="ui centered header">{i18n("Create rule from template")}</h2>
+          <div>{i18n("Use these presets to fast add rules to your projects for most common tasks. Use the 'Create new rule' button on the menu bar to create one from scratch.")}</div>
+        </div>
+        <div className="ui pointing secondary menu">
+          <a className={`item ${tab==1 ? "active" : ""}`} onClick={() => this.setState({tab:1})}>
+            {i18n("Available templates")}
+          </a>
+          <a className={`item ${tab==2 ? "active" : ""}`} onClick={() => this.setState({tab:2})}>
+            {i18n("Marketplace")}
+          </a>
+        </div>
+        { tab == 1 ? (
+          <Selector
+            get_items={this.get_rule_presets.bind(this)}
+            filter={filter}
+            onSelect={(rt) => goto(`/project/${props.project.shortname}/rules_v2/add`, {template: rt})}
+            show_filter={false}
+          />
+        ) : (
+          <Selector
+            key="marketplace"
+            show_filter={false}
+            filter={filter}
+            get_items={this.get_rule_template_market_catalog}
+            onSelect={(rt) => {
+              this.setState({tab:3})
+              plugin.install(rt.giturl).then(() => {
+                cache.invalidate_all()
+                rt = {...rt, type: rt.id} // I need the component id in the type field.
+                goto(`/project/${props.project.shortname}/rules_v2/add`, {template: rt})
+              }).catch((error) => {
+                console.error(error)
+                this.setState({tab:2})
+                Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.\n\n{error}", {plugin:rt.name, error}))
+              })
+            }}
+            />
+        )}
+      </div>
+    )
+  }
+}
+
+
 class Rules extends React.Component{
   constructor(props){
     super(props)
@@ -188,9 +273,6 @@ class Rules extends React.Component{
   gotoRule(rule){
     const project = this.props.project.shortname
     goto(`/project/${project}/rules_v2/${rule.uuid}`)
-  }
-  get_rule_presets(){
-    return cache.plugin_component({type: "rule template"})
   }
   render(){
     if (this.props.subsection){
@@ -254,12 +336,8 @@ class Rules extends React.Component{
       </div>
       <div className="ui column">
         <div className="ui round pane white background">
-          <Selector
-            icon="lab"
-            title={i18n("Create rule from template")}
-            description={i18n("Use these presets to fast add rules to your projects for most common tasks. Use the 'Create new rule' button on the menu bar to create one from scratch.")}
-            get_items={this.get_rule_presets.bind(this)}
-            onSelect={(rt) => goto(`/project/${this.props.project.shortname}/rules_v2/add`, {template: rt})}
+          <ExistingOrMarketplaceTemplate
+            {...this.props}
           />
         </div>
       </div>

@@ -201,8 +201,8 @@ class Selector extends React.Component{
 Selector.propTypes={
   onSelect: PropTypes.func.isRequired,
   get_items: PropTypes.func.isRequired,
-  icon: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
+  icon: PropTypes.string,
+  title: PropTypes.string,
   description: PropTypes.string,
   current: PropTypes.string,
   onSkip: PropTypes.func,
