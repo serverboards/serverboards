@@ -151,20 +151,24 @@ components:
         label: Service to monitor
         type: service
         traits: url
-    trigger:
-      trigger: socket.is_up
-      params:
-        frequency: 5m
-        grace: 10m
-    actions:
-      up:
-        action: serverboards.core.actions/set-tags
+    rule:
+      when:
+        trigger: socket.is_up
         params:
-          tags: UP -DOWN
-      down:
-        action: serverboards.core.actions/set-tags
-        params:
-          tags: -UP DOWN
+          frequency: 5m
+          grace: 10m
+          url: {{service.url}}
+      actions:
+        - action: serverboards.core.actions/set-tags
+          type: action
+          params:
+            tags: UP -DOWN
+            service: {{service.uuid}}
+        - action: serverboards.core.actions/set-tags
+          type: action
+          params:
+            tags: -UP DOWN
+            service: {{service.uuid}}
 
   - name: HTTP server is up
     description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
