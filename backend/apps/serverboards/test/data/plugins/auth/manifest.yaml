@@ -250,3 +250,38 @@ components:
     type: init
     command: serverboards.test.auth/init.cmd
     call: fail
+
+  - id: rule.template
+    type: rule template
+    name: Rule template example
+    fields:
+      - id: period
+        type: string
+        label: Period for checks
+      - id: randomp
+        label: Random probability (0-1)
+      - id: filename
+        label: Which file to create/delete
+    rule:
+      when:
+        trigger: serverboards.test.auth/periodic.timer
+        params:
+          period: "{{period}}"
+      actions:
+        - id: A
+          type: action
+          action: serverboards.test.auth/random
+          params: {}
+        - type: condition
+          condition: "A.result < {{randomp}}"
+          then:
+            - type: action
+              action: serverboards.test.auth/writetofile
+              params:
+                filename: "{{filename}}"
+                content: "{{A.result}}"
+          else:
+            - type: action
+              action: serverboards.test.auth/rmfile
+              params:
+                filename: "{{filename}}"

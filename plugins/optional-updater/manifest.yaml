@@ -36,7 +36,7 @@ components:
     requires: perms[update]
     strategy: singleton
     timeout: 5m
-    perms: event.emit action.update
+    perms: event.emit action.update settings.view[serverboards.optional.updater]
 
   - id: check_plugin_updates
     traits: plugins hidden

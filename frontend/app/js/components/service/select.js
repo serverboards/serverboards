@@ -34,6 +34,7 @@ class ServiceSelect extends React.Component{
       <div className="ui service cards">
         {services.map( s => (
           <Card
+            key={s.uuid}
             service={s}
             onClick={() => this.props.onSelect(s)}
             bottomElement={this.props.bottomElement}

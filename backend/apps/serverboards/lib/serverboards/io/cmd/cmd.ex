@@ -90,7 +90,7 @@ defmodule Serverboards.IO.Cmd do
     server = self()
 
     cmdopts = cmdopts ++ [:stream, :line, :use_stdio, args: args]
-    Logger.debug("Start command with opts: #{inspect cmdopts}")
+    # Logger.debug("Start command with opts: #{inspect cmdopts}")
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Port.connect(port, server)
     #Logger.debug("Starting command #{cmd} at port. pid #{inspect self()}")

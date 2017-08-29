@@ -70,7 +70,7 @@ defmodule Serverboards.Plugin.Runner do
         {:ok, pid } ->
           require UUID
           uuid = UUID.uuid4
-          Logger.debug("Adding runner #{uuid} #{inspect component.id}")
+          # Logger.debug("Adding runner #{uuid} #{inspect component.id}")
           try do
             client = Serverboards.IO.Cmd.client(pid)
             MOM.RPC.Client.set(client, :plugin, %{ plugin_id: plugin_id, component_id: component.id })

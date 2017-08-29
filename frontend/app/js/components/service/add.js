@@ -9,6 +9,7 @@ import plugin from 'app/utils/plugin'
 import {MarkdownPreview} from 'react-marked-markdown'
 import ServiceSelect from 'app/components/service/select'
 import {goto} from 'app/utils/store'
+import Tip from 'app/components/tip'
 
 require('sass/panes.sass')
 
@@ -142,7 +143,7 @@ class AddServiceNewOrOld extends React.Component{
             <ServiceSelect
               filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
               onBack={() => gotoStep(1)}
-              onSelect={(s) => attach_service(s.uuid)}
+              onSelect={(s) => this.handleAttachService(s.uuid)}
               bottomElement={AddServiceButton}
               />
           </div>
@@ -287,26 +288,21 @@ class AddService extends React.Component{
     return (
       <div className="ui expand two column grid grey background" style={{margin:0}}>
         <div className="ui column">
-          <div className="ui round pane white background with padding">
-            <img src={require("imgs/024-illustration-addaddons.svg")} style={{height: 150}}/>
-            <h2 className="ui header centered">{i18n("Add Services to your project.")}</h2>
-            <img src={require("imgs/019-illustration-tips.svg")} style={{height: 80}}/>
-            <div className="ui text container">
-              <h3 className="ui header centered">
-                {i18n("Add services you are already subscribed to manage, monitor or automate tasks with them.")}
-              </h3>
-              <div className="ui content">
-              <MarkdownPreview value={i18n(`
+          <Tip 
+            className="ui round pane white background with padding"
+            top_img={require("imgs/024-illustration-addaddons.svg")}
+            title={i18n("Add Services to your project.")}
+            middle_img={require("imgs/019-illustration-tips.svg")}
+            subtitle={i18n("Add services you are already subscribed to manage, monitor or automate tasks with them.")}
+            description={i18n(`
 Serverboards core elements are services. Services are definitions of how to connect
 to services and servers. This may mean required credentials, url addresses and so
 on.
 
 Here you can select the type of service you want to add, or check out at the store
 to find more service types to use in Serverboards.
-`)}/>
-              </div>
-            </div>
-          </div>
+`)}
+              />
         </div>
 
         <div className="ui column">

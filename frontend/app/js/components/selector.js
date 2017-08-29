@@ -36,7 +36,7 @@ function filter_items(items, filter){
 
 function Card({item, default_icon, onClick, className}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
-  const icon = item.icon || default_icon
+  const icon = item.icon || (item.extra || {}).icon || default_icon
   return (
     <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
       <h3 className="ui header">
@@ -177,17 +177,17 @@ class Selector extends React.Component{
                 </div>
               ) ) }
           </div>
-          {this.props.prevStep||this.props.nextStep ? (
+          {props.prevStep||props.nextStep ? (
             <div className="right aligned">
             <span className="ui buttons">
-            {this.props.prevStep ? (
-              <button className="ui button basic" onClick={this.props.prevStep}>{i18n("Previous step")}</button>
+            {props.prevStep ? (
+              <button className="ui button basic" onClick={props.prevStep}>{props.prev_label || i18n("Previous step")}</button>
             ) : null}
-            {this.props.nextStep ? (
-              <button className="ui button basic" onClick={this.props.nextStep}>{i18n("Next step")}</button>
+            {props.nextStep ? (
+              <button className="ui button basic" onClick={props.nextStep}>{props.next_label || i18n("Next step")}</button>
             ) : null}
-            {this.props.onSkip ? (
-              <button className="ui button basic" onClick={this.props.onSkip}>{this.props.skip_label}</button>
+            {props.onSkip ? (
+              <button className="ui button basic" onClick={props.onSkip}>{props.skip_label}</button>
             ) : null}
             </span>
             </div>
@@ -201,12 +201,17 @@ class Selector extends React.Component{
 Selector.propTypes={
   onSelect: PropTypes.func.isRequired,
   get_items: PropTypes.func.isRequired,
-  icon: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
+  icon: PropTypes.string,
+  title: PropTypes.string,
   description: PropTypes.string,
   current: PropTypes.string,
   onSkip: PropTypes.func,
   skip_label: PropTypes.string,
+  prevStep: PropTypes.func,
+  prev_label: PropTypes.func,
+  nextStep: PropTypes.func,
+  next_label: PropTypes.func,
+
   show_filter: PropTypes.bool, // Whether to show the filter line
   filter: PropTypes.string, // Current filter, may be out of the view itself
 }

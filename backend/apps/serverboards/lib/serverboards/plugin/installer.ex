@@ -29,14 +29,18 @@ defmodule Serverboards.Plugin.Installer do
     end
   end
   def execute_postinst(finalpath) do
-
     if File.exists?("#{finalpath}/manifest.yaml") do
       {:ok, yaml} = File.read("#{finalpath}/manifest.yaml")
       data = YamlElixir.read_from_string(yaml)
 
-      plugin_id=data["id"]
-      if data["postinst"] do
-        cmd = "#{finalpath}/#{data["postinst"]}"
+      if is_list(data) do
+        raise "Manifest at #{finalpath} is a list. It should return a map."
+      end
+
+      plugin_id = Map.get(data, "id")
+      postinst = Map.get(data, "postinst")
+      if postinst do
+        cmd = "#{finalpath}/#{postinst}"
 
         env = Serverboards.Plugin.Component.get_env(plugin_id) |> Enum.map(fn {k,v} ->
           {to_string(k), to_string(v)}

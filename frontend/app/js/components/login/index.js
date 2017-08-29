@@ -30,7 +30,7 @@ var LoginView = React.createClass({
     router: React.PropTypes.object
   },
   componentDidMount( ){
-    self=this
+    let self=this
 
     $(this.refs.el).form({
       on: 'blur',

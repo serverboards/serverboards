@@ -11,6 +11,25 @@ defmodule Serverboards.Utils.Template do
     {:ok, res}
   end
 
+  def render_map(orig, nil) do
+    {:ok, orig}
+  end
+  def render_map(orig, context) when is_map(orig) do
+    nmap = Enum.map( orig , fn {k,v} ->
+      {:ok, nv} = render_map(v, context)
+      {k, nv}
+    end) |> Map.new
+    {:ok, nmap}
+  end
+  def render_map(orig, context) when is_list(orig) do
+    nlist = Enum.map( orig , fn v ->
+      {:ok, nv} = render_map(v, context)
+      nv
+    end)
+    {:ok, nlist}
+  end
+  def render_map(orig, context) when is_binary(orig), do: render( orig, context )
+
   def re_find_and_replace("", context) do # nice for debugging: {{}}
     inspect context
   end
@@ -22,12 +41,16 @@ defmodule Serverboards.Utils.Template do
     case res do
       txt when is_binary(txt) -> txt
       num when is_number(num) -> to_string(num)
+      :unknown_var -> "{{#{var}}}"
       other -> inspect other
     end
   end
 
   def re_find_and_replace_leaf(var, nil) do
-    "[UNKNOWN #{var}]"
+    :unknown_var
+  end
+  def re_find_and_replace_leaf(var, :unknown_var) do
+    :unknown_var
   end
   def re_find_and_replace_leaf(_var, s) when is_binary(s) do
     s
@@ -57,7 +80,7 @@ defmodule Serverboards.Utils.Template do
         _ -> nil
       end)
     case maybe_var do
-      nil -> "[UNKNOWN #{var}]"
+      nil -> :unknown_var
       {_k, v} -> v
     end
   end

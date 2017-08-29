@@ -72,9 +72,30 @@ const cache={
     }
     return Promise.resolve(data)
   },
+  plugin_component({type, id}){
+    const cache_key = `plugin_component+${type}`
+    var data = cache_data[cache_key]
+    let ret
+    if (!data){
+      ret = rpc
+        .call("plugin.component.catalog", {type})
+        .then( data => {
+          cache_data[cache_key] = data
+          return data
+        })
+    }
+    else
+      ret = Promise.resolve(data)
+
+    // Can look for a specific id
+    if (id)
+      ret = ret.then( items => items.find( i => i.id == id ) )
+
+    return ret
+  },
   invalidate_all(){
     store.dispatch({type: "CACHE_CLEAN_ALL"})
-    cache_data["plugins"]=undefined
+    cache_data={}
   }
 }
 

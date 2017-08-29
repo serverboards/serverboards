@@ -4,7 +4,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 import requests, subprocess, yaml, time, urllib.request, gzip
-from serverboards import print
+from serverboards import print, settings
 
 PLUGINS_YAML_URL="https://serverboards.io/downloads/plugins.yaml.gz"
 
@@ -93,9 +93,14 @@ def update_plugin(action_id=None, plugin_id=None):
 @serverboards.rpc_method("plugin_catalog")
 @serverboards.cache_ttl(60)
 def plugin_catalog():
-  plugins_yaml_gz = urllib.request.urlopen(PLUGINS_YAML_URL)
+  url = settings.get("serverboards.optional.updater", {}).get("market_catalog_url", PLUGINS_YAML_URL)
 
-  plugins_yaml_raw = gzip.GzipFile(fileobj = plugins_yaml_gz).read()
+  plugins_yaml_url = urllib.request.urlopen(url)
+  if url.endswith(".gz"):
+      plugins_yaml_raw = gzip.GzipFile(fileobj = plugins_yaml_url).read()
+  else:
+      plugins_yaml_raw = plugins_yaml_url.read()
+
   plugins = yaml.load(plugins_yaml_raw)
 
   return plugins
