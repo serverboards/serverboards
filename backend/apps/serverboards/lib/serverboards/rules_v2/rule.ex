@@ -47,7 +47,7 @@ defmodule Serverboards.RulesV2.Rule do
 
   ## Server impl
 
-  def init(rule) do
+  def init(%{ from_template: nil} = rule) do
     # Logger.info("Starting rule #{inspect rule}")
     uuid = rule.uuid
 
@@ -66,6 +66,21 @@ defmodule Serverboards.RulesV2.Rule do
         Logger.error("Error starting trigger: #{inspect error}", rule: rule.rule)
         {:stop, :cant_start_trigger}
     end
+  end
+  def init(rule) do
+    template = Serverboards.Plugin.Registry.find(rule.from_template) |> Map.drop([:plugin])
+
+    Logger.info("Starting rule from template. Reconstructing. #{inspect rule.from_template}, #{inspect template, pretty: true}")
+
+    {:ok, final_rule} = Serverboards.Utils.Template.render_map( template.extra["rule"], rule.rule["template_data"] )
+
+    rule = %{ rule |
+      rule: final_rule,
+      from_template: nil
+    }
+    Logger.info("Rule is #{inspect rule, pretty: true}")
+
+    init(rule)
   end
 
   def start_trigger(uuid, w) do

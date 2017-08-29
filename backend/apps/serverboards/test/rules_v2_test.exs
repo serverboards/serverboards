@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.RuleV2Test do
   use ExUnit.Case
-  # @moduletag :capture_log
+  @moduletag :capture_log
 
   setup do
     # Explicitly get a connection before each test
@@ -235,6 +235,32 @@ defmodule Serverboards.RuleV2Test do
     assert rule["state"]["A"]["state"] == "tick"
     assert is_number(rule["state"]["A"]["count"])
     assert rule["state"]["A"]["count"] >= 1
+
+  end
+
+  test "Rule templates" do
+    uuid = UUID.uuid4
+    rule = %{
+      uuid: uuid,
+      name: "test",
+      description: "description",
+      from_template: "serverboards.test.auth/rule.template",
+      rule: %{
+        "template_data" => %{
+          "period" => 1,
+          "randomp" => 1.0,
+          "filename" => "/tmp/s10s-rule-template-test.tmp"
+        }
+      }
+    }
+
+    template = Serverboards.Plugin.Registry.find("serverboards.test.auth/rule.template")
+    {:ok, pid} = Serverboards.RulesV2.Rule.start_link(rule)
+
+    :timer.sleep(1_500)
+    # there must be an error in the state
+
+    flunk "Hwo to get it?"
 
   end
 end
