@@ -202,7 +202,7 @@ class ExistingOrMarketplaceTemplate extends React.Component{
         <div className="ui attached top form">
           <div className="ui input seamless white">
             <i className="icon search"/>
-            <input type="text" onChange={(ev) => this.onFilter(ev.target.value)} placeholder={i18n("Filter...")} defaultValue={filter}/>
+            <input type="text" onChange={(ev) => this.setState({filter:ev.target.value})} placeholder={i18n("Filter...")} defaultValue={filter}/>
           </div>
         </div>
         <div className="ui padding">
