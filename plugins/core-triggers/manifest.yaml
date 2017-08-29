@@ -157,18 +157,18 @@ components:
         params:
           frequency: 5m
           grace: 10m
-          url: {{service.url}}
+          url: "{{service.url}}"
       actions:
         - action: serverboards.core.actions/set-tags
           type: action
           params:
             tags: UP -DOWN
-            service: {{service.uuid}}
+            service: "{{service.uuid}}"
         - action: serverboards.core.actions/set-tags
           type: action
           params:
             tags: -UP DOWN
-            service: {{service.uuid}}
+            service: "{{service.uuid}}"
 
   - name: HTTP server is up
     description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
