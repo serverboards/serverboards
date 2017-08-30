@@ -4,11 +4,6 @@
 	(factory());
 }(this, (function () { 'use strict';
 
-var _Serverboards$2=Serverboards;
-var React$2=_Serverboards$2.React;
-var i18n$2=_Serverboards$2.i18n;
-var colorize=Serverboards.utils.colorize;function CloudCard(a){var b=a.item;return React$2.createElement("div",{className:"ui narrow card"},React$2.createElement("div",{className:"header"},React$2.createElement("div",{className:"right"},React$2.createElement("span",{className:"ui text label"},b.state,"\xA0",React$2.createElement("i",{className:"ui rectangular label "+colorize(b.state)})))),React$2.createElement("div",{className:"ui padding"},React$2.createElement("h3",{className:"ui header"},b.name),React$2.createElement("div",{className:"ui meta"},b.description),b.type))}function ListView(a){var b=this,c=a.items;return React$2.createElement("div",{className:"ui expand two column grid grey background",style:{flexGrow:1,margin:0}},React$2.createElement("div",{className:"ui column"},React$2.createElement("div",{className:"ui round pane white background"},React$2.createElement("div",{className:"ui attached top form"},React$2.createElement("div",{className:"ui input seamless white"},React$2.createElement("i",{className:"icon search"}),React$2.createElement("input",{type:"text",onChange:function onChange(a){return b.setFilter(a.target.value)},placeholder:i18n$2("Filter...")}))),React$2.createElement("div",{className:"ui scroll extend with padding"},0==c.length?React$2.createElement("div",{className:"ui meta"},"No items"):React$2.createElement("div",{className:"ui cards"},c.map(function(a){return React$2.createElement(CloudCard,{item:a})}))))),React$2.createElement("div",{className:"ui column"},React$2.createElement("div",{className:"ui round pane white background"})))}
-
 var babelHelpers = {};
 
 
@@ -218,6 +213,19 @@ var possibleConstructorReturn = function (self, call) {
 
 
 babelHelpers;
+
+var _Serverboards$3=Serverboards;
+var React$3=_Serverboards$3.React;
+var i18n$3=_Serverboards$3.i18n;
+var cache=_Serverboards$3.cache;
+var Components=_Serverboards$3.Components;
+var colorize=Serverboards.utils.colorize;
+var Loading$1=Components.Loading;
+var CloudCard=function(a){function b(a){classCallCheck(this,b);var c=possibleConstructorReturn(this,(b.__proto__||Object.getPrototypeOf(b)).call(this,a));return c.state={template:void 0},c}return inherits(b,a),createClass(b,[{key:"componentDidMount",value:function componentDidMount(){var a=this;cache.service_type(this.props.item.type).then(function(b){return a.setState({template:b})});}},{key:"render",value:function render(){if(!this.state.template)return React$3.createElement("div",{className:"ui narrow card"},React$3.createElement(Loading$1,null,i18n$3("Node information...")));var a=this.props.item,b=this.state.template;return React$3.createElement("div",{className:"ui narrow card"},React$3.createElement("div",{className:"header"},b.name,React$3.createElement("div",{className:"right"},React$3.createElement("span",{className:"ui text label"},a.state,"\xA0",React$3.createElement("i",{className:"ui rectangular label "+colorize(a.state)})))),React$3.createElement("div",{className:"ui padding"},React$3.createElement("h3",{className:"ui header"},a.name),React$3.createElement("div",{className:"ui meta"},a.description)))}}]),b}(React$3.Component);
+
+var _Serverboards$2=Serverboards;
+var React$2=_Serverboards$2.React;
+var i18n$2=_Serverboards$2.i18n;function ListView(a){var b=this,c=a.items;return React$2.createElement("div",{className:"ui expand two column grid grey background",style:{flexGrow:1,margin:0}},React$2.createElement("div",{className:"ui column"},React$2.createElement("div",{className:"ui round pane white background"},React$2.createElement("div",{className:"ui attached top form"},React$2.createElement("div",{className:"ui input seamless white"},React$2.createElement("i",{className:"icon search"}),React$2.createElement("input",{type:"text",onChange:function onChange(a){return b.setFilter(a.target.value)},placeholder:i18n$2("Filter...")}))),React$2.createElement("div",{className:"ui scroll extend with padding"},0==c.length?React$2.createElement("div",{className:"ui meta"},"No items"):React$2.createElement("div",{className:"ui cards"},c.map(function(a){return React$2.createElement(CloudCard,{item:a})}))))),React$2.createElement("div",{className:"ui column"},React$2.createElement("div",{className:"ui round pane white background"})))}
 
 var _Serverboards$1=Serverboards;
 var plugin=_Serverboards$1.plugin;

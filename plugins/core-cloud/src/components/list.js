@@ -1,25 +1,5 @@
 const {React, i18n} = Serverboards
-const colorize = Serverboards.utils.colorize
-
-function CloudCard({item}){
-  return (
-    <div className="ui narrow card">
-      <div className="header">
-        <div className="right">
-          <span className="ui text label">
-            {item.state}&nbsp;
-            <i className={`ui rectangular label ${colorize(item.state)}`}/>
-          </span>
-        </div>
-      </div>
-      <div className="ui padding">
-        <h3 className="ui header">{item.name}</h3>
-        <div className="ui meta">{item.description}</div>
-        {item.type}
-      </div>
-    </div>
-  )
-}
+import CloudCard from './card'
 
 function ListView(props){
   const {items} = props
