@@ -114,6 +114,56 @@ components:
       - name: type
         type: hidden
         value: digitalocean
+  - id: aws.ec2
+    name: AWS EC2
+    type: service
+    description: Management of [Amazon AWS EC2](https://aws.amazon.com) nodes.
+    traits: core.cloud.compute cloud
+    icon: aws.svg
+    fields:
+      - type: description
+        description:
+          To access AWS EC2 it is required to obtain access key and secret.
+
+          To get them you have to create an IAM account, provide the appropiate
+          access, and get the key and secret from
+          https://console.aws.amazon.com/iam/home .
+
+          1. Select the `Users` tab
+
+          2. Select the appropiate user
+
+          3. `Security credentials` tab.
+
+          4. Can create new `Access keys` which will provide you the required data.
+
+
+          Obtain more information at https://forum.serverboards.io.
+      - name: access_key
+        type: text
+        label: Access Key
+      - name: access_secret
+        type: password
+        label: Access Secret
+      - name: region
+        type: select
+        label: Region
+        description: Each region on AWS must have its own associated service
+        options:
+          - ap-northeast-2
+          - ap-northeast-1
+          - ap-south-1
+          - ap-southeast-1
+          - ap-southeast-2
+          - eu-central-1
+          - eu-west-1
+          - sa-east-1
+          - us-east-1
+          - us-west-1
+          - us-west-2
+      - name: type
+        type: hidden
+        value: aws.ec2
   - id: libcloud-daemon
     name: Libvirt Daemon
     type: cmd
@@ -123,6 +173,11 @@ components:
     type: vmc
     for: serverboards.core.cloud/libvirt
     name: Libvirt Management
+    command: serverboards.core.cloud/libcloud-daemon
+  - id: libvirt-aws
+    type: vmc
+    for: serverboards.core.cloud/aws.ec2
+    name: AWS Management
     command: serverboards.core.cloud/libcloud-daemon
 
   # LXC

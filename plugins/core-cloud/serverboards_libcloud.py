@@ -29,6 +29,9 @@ class Connection:
     elif type == 'digitalocean':
       cls=get_driver(Provider.DIGITAL_OCEAN)
       driver=cls(config['token'], api_version='v2')
+    elif type == 'aws.ec2':
+      cls=get_driver(Provider.EC2)
+      driver=cls(config["access_key"], config["access_secret"], region=config["region"])
     if not driver:
       raise Exception("Could not create connexion to remote cloud provider")
     self.driver = driver

@@ -50,7 +50,6 @@ def list(project=None):
           x["parent"]=suuid
           l.append(x)
       except Exception as e:
-        print(s)
         serverboards.error("Error listing nodes from %s / %s: %s"%(s["uuid"], s["name"], str(e)))
 
   print("List", yaml.dump(l) )
