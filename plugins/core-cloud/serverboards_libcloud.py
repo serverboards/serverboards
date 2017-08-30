@@ -3,7 +3,7 @@
 import sys, os, uuid, time, re
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-from serverboards import rpc, cache_ttl
+from serverboards import rpc, cache_ttl, print
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 
@@ -15,7 +15,7 @@ state_trans = {
 
 class Connection:
   def __init__(self, config):
-    type = config["type"]
+    type = config.get("type")
     driver = None
     if type == 'libvirt':
       cls=get_driver(Provider.LIBVIRT)

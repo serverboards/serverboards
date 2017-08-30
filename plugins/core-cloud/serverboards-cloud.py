@@ -11,7 +11,11 @@ def get_catalog():
 
 @cache_ttl(60)
 def get_cloud_services_from(project):
-  return service.list(traits="core.cloud.compute", project=project)
+  if project:
+    return service.list(traits="core.cloud.compute", project=project)
+  else:
+    return service.list(traits="core.cloud.compute")
+
 
 @cache_ttl(60)
 def get_provider(s):

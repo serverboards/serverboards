@@ -18,7 +18,7 @@ td_to_s_multiplier=[
 
 def try_or(fn, _else):
   try:
-    fn()
+    return fn()
   except:
     return _else
 
@@ -384,10 +384,11 @@ def __get_service(uuid):
 
 @cache_ttl(ttl=300)
 def __get_global_options():
-    options = try_or(
-        lambda: serverboards.rpc.call("settings.get","serverboards.core.ssh/ssh.settings"),
-        {}
-      ).get("options","").split('\n')
+    options = (
+        serverboards
+            .rpc.call("settings.get","serverboards.core.ssh/ssh.settings", {})
+            .get("options","").split('\n')
+        )
     options = [ o.strip() for o in options ]
     options = [ o for o in options if o ]
     return options
