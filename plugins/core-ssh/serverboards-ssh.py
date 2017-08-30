@@ -69,7 +69,7 @@ def ssh_exec(url=None, command="test", options=None, service=None):
     else:
         url, args = __get_service_url_and_opts(service)
     args += ['--', command]
-    serverboards.debug("Executing SSH command: [ssh] %s"%(args))
+    serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     sp=pexpect.spawn("/usr/bin/ssh", args)
