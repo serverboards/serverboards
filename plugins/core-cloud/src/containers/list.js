@@ -23,6 +23,7 @@ class List extends React.Component{
     return (
       <View
         items={this.state.items}
+        reloadAll={this.componentDidMount.bind(this)}
         />
     )
   }

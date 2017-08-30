@@ -23,7 +23,8 @@ class CloudCard extends React.Component{
         </div>
       )
     }
-    const {item} = this.props
+    const props = this.props
+    const {item} = props
     const {template} = this.state
     return (
       <div className="ui narrow card">
@@ -39,6 +40,11 @@ class CloudCard extends React.Component{
         <div className="ui padding">
           <h3 className="ui header">{item.name}</h3>
           <div className="ui meta">{item.description}</div>
+        </div>
+        <div className="ui bottom buttons">
+          <a className="ui teal button" onClick={props.onStart}><i className="ui icon play"/></a>
+          <a className="ui button" onClick={props.onPause}><i className="ui icon pause"/></a>
+          <a className="ui button" onClick={props.onStop}><i className="ui icon stop"/></a>
         </div>
       </div>
     )

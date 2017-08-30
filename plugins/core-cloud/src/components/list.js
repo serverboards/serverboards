@@ -1,5 +1,5 @@
 const {React, i18n} = Serverboards
-import CloudCard from './card'
+import CloudCard from '../containers/card'
 
 function ListView(props){
   const {items} = props
@@ -20,7 +20,10 @@ function ListView(props){
             ) : (
               <div className="ui cards">
               {items.map( i => (
-                <CloudCard item={i}/>
+                <CloudCard
+                  {...props}
+                  item={i}
+                  />
               ))}
               </div>
             )}

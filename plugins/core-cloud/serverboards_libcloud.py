@@ -52,6 +52,13 @@ class Connection:
         return 'linux'
     return None
 
+  def get_node(self, uuid):
+      if hasattr(self.driver, "ex_get_node_by_uuid"):
+        return self.driver.ex_get_node_by_uuid(uuid)
+      else:
+        nodes = self.driver.list_nodes()
+        return next(x for x in nodes if x.uuid == uuid)
+
 @cache_ttl(60)
 def get_connection(service):
   conn = connections.get(service["uuid"], None)
@@ -79,7 +86,7 @@ def details(conn, node, extra_info=False, ):
 @serverboards.rpc_method("details")
 def _details(service, vmc):
   conn = get_connection(service)
-  return details(conn, conn.driver.ex_get_node_by_uuid(vmc), True)
+  return details(conn, conn.get_node(vmc), True)
 
 @serverboards.rpc_method("list")
 def _list(service):
@@ -91,7 +98,8 @@ def _list(service):
 def start(service, vmc):
   conn = get_connection(service)
   try:
-    conn.driver.ex_start_node( conn.driver.ex_get_node_by_uuid(vmc) )
+    node = conn.get_node(vmc)
+    conn.driver.ex_start_node( node  )
   except Exception as e:
     if "already running" in str(e):
       return False # already running
@@ -105,7 +113,7 @@ def stop(service, vmc, force = False):
       n = driver.connection.lookupByUUIDString(vmc)
       n.destroy()
       return True
-  return driver.ex_stop_node( driver.ex_get_node_by_uuid(vmc) )
+  return driver.ex_stop_node( conn.get_node(vmc) )
 
 @serverboards.rpc_method
 def pause(service, vmc):
