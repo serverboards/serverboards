@@ -68,7 +68,7 @@ def ssh_exec(url=None, command="test", options=None, service=None):
         args = [x for x in args if x] # remove empty
     else:
         url, args = __get_service_url_and_opts(service)
-    args += ['--', command]
+    args = args + ['--', command]
     serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
