@@ -3,8 +3,7 @@ import sys, os, pty
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, re, subprocess, random, sh
 import urllib.parse as urlparse
-import base64
-import time
+import base64, re, time
 from common import *
 from serverboards import file, print, rpc, cache_ttl
 
@@ -66,9 +65,10 @@ def ssh_exec(url=None, command="test", options=None, service=None):
             for arg in ['-o',option]
             ]
         args = [x for x in args if x] # remove empty
+        precmd = []
     else:
-        url, args = __get_service_url_and_opts(service)
-    args = args + ['--', command]
+        url, args, precmd = __get_service_url_and_opts(service)
+    args = args + ['--', precmd, command]
     serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
@@ -233,6 +233,8 @@ def recv(uuid, start=None, encoding='utf8'):
 port_to_pexpect={}
 open_ports={}
 
+envvar_re=re.compile(r'^[A-Z_]*=.*')
+
 @cache_ttl(ttl=60)
 def __get_service_url_and_opts(service_uuid):
     assert service_uuid, "Need service UUID"
@@ -244,6 +246,8 @@ def __get_service_url_and_opts(service_uuid):
 
     options = [ x.strip() for x in service["config"].get("options","").split('\n') if x ]
     options = __get_global_options() + options
+    envs = [i for i in options if envvar_re.match(i)]
+    options = [i for i in options if not envvar_re.match(i)]
     options = [
         arg
         for option in options
@@ -253,7 +257,12 @@ def __get_service_url_and_opts(service_uuid):
     conn_opts, url = url_to_opts(url)
     options += conn_opts
 
-    return (url, options)
+    if envs:
+        precmd=';'.join(envs)+' ; '
+    else:
+        precmd=''
+
+    return (url, options, precmd)
 
 @serverboards.rpc_method
 def open_port(url=None, ssh_service=None, hostname="localhost", port="22"):
@@ -280,7 +289,7 @@ def open_port(url=None, ssh_service=None, hostname="localhost", port="22"):
         (opts, url) = url_to_opts(url)
     else:
         assert ssh_service
-        (url, opts) = __get_service_url_and_opts(ssh_service)
+        (url, opts, _precmd) = __get_service_url_and_opts(ssh_service)
         serverboards.debug("Service %s url is %s"%(ssh_service, url))
 
     if url in open_ports:
@@ -454,8 +463,8 @@ def popen(service_uuid, command, stdin=None, stdout=None):
 
   The caller writes to stdin and reads from stdout.
   """
-  url,opts = __get_service_url_and_opts(service_uuid)
-  opts=opts+["--"]+command
+  url,opts,precmd = __get_service_url_and_opts(service_uuid)
+  opts=opts+["--", precmd]+command
   ssh = subprocess.Popen(["ssh"]+opts, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
   # adapter from pipe at the ssh to the s10s pipes, one for each stdin/out
 
