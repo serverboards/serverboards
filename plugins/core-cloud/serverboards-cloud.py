@@ -52,7 +52,6 @@ def list(project=None):
       except Exception as e:
         serverboards.error("Error listing nodes from %s / %s: %s"%(s["uuid"], s["name"], str(e)))
 
-  print("List", yaml.dump(l) )
   return l
 
 @serverboards.rpc_method
