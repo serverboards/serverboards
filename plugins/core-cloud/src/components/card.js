@@ -1,4 +1,4 @@
-const {React, i18n, cache, Components} = Serverboards
+const {React, i18n, cache, store, Components} = Serverboards
 const colorize = Serverboards.utils.colorize
 const {Loading} = Components
 
@@ -8,15 +8,20 @@ class CloudCard extends React.Component{
 
     this.state = {
       template: undefined,
+      parent: undefined,
     }
   }
   componentDidMount(){
     cache
       .service_type(this.props.item.type)
       .then( (template) => this.setState({template}) )
+    cache
+      .service( this.props.item.parent )
+      .then( (parent) => this.setState({parent}))
   }
   render(){
-    if (!this.state.template){
+    const {template, parent} = this.state
+    if (!template || !parent){
       return (
         <div className="ui narrow card">
           <Loading>{i18n("Node information...")}</Loading>
@@ -25,11 +30,10 @@ class CloudCard extends React.Component{
     }
     const props = this.props
     const {item} = props
-    const {template} = this.state
     return (
       <div className="ui narrow card">
         <div className="header">
-          {template.name}
+          {template.name} | <a onClick={() => store.goto(`/services/${parent.uuid}/`)}>{parent.name}</a>
           <div className="right">
             <span className="ui text label">
               {item.state}&nbsp;
