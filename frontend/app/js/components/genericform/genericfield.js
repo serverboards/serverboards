@@ -25,6 +25,9 @@ const GenericField=React.createClass({
   handleChange: function(ev){
     this.props.setValue(this.props.name, ev.target.value)
   },
+  handleChecked: function(ev){
+    this.props.setValue(this.props.name, ev.target.checked)
+  },
   componentDidMount(){
     // Some may need post initialization
     switch (this.props.type){
@@ -102,6 +105,14 @@ const GenericField=React.createClass({
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
               onChange={this.handleChange}/>
+          </div>
+        )
+      case "checkbox":
+        return (
+          <div className="ui checkbox">
+            <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked}/>
+            <label htmlFor={props.name}>{props.label}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
           </div>
         )
       case 'description':
