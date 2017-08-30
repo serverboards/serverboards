@@ -10,13 +10,15 @@ node_modules/.bin/rollupnode_modules/.bin/rollup: node_modules/
 node_modules/: package.json
 	yarn
 
-compile: static/console.js
+compile: static/node_list.js
 
-static/console.js: src/index.js
+static/node_list.js: src/index.js
 	node_modules/.bin/rollup -c
 
 clean:
-	rm static/index.js
+	rm -rf static/node_list.js
+	rm -rf node_modules
+	
 
 watch:
 	node_modules/.bin/rollup -w -c -m
