@@ -6,7 +6,6 @@ import List from './containers/list'
 
 
 function main(el, config){
-  console.log("Component is %o", List, config)
   Serverboards.ReactDOM.render((
       <List project={config.project.shortname}/>
     ), el)
