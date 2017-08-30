@@ -27,10 +27,9 @@ components:
         description: Node UUID
         type: text
 
-  - id: list
-    name: List nodes
+  - id: node_list
+    name: Cloud nodes
     type: screen
-    traits: core.cloud.compute
 
   - id: start
     name: Start node
@@ -93,9 +92,9 @@ components:
     icon: libvirtLogo.png
     fields:
       - name: server
-        type: text
-        label: Remote Server Address
-        placeholder: ie. 192.168.1.200, api.example.com...
+        type: service
+        label: Remote Server
+        traits: ssh server
         card: true
       - name: type
         type: hidden
