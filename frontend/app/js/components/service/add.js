@@ -11,8 +11,6 @@ import ServiceSelect from 'app/components/service/select'
 import {goto} from 'app/utils/store'
 import Tip from 'app/components/tip'
 
-require('sass/panes.sass')
-
 export class AddServiceDetailsForm extends React.Component{
   constructor(props){
     super(props)
@@ -254,8 +252,9 @@ class AddService extends React.Component{
     }
 
     this.handleAddService = (project, service) => {
+      console.log("Add service to project %o", project)
       return this.props.onAddService(project, service)
-        .then( (uuid) => goto(`/project/${props.project}/services/${uuid}`))
+        .then( (uuid) => goto(`/project/${project}/services/${uuid}`))
     }
   }
   handleSelectServiceType(service){
@@ -288,7 +287,7 @@ class AddService extends React.Component{
     return (
       <div className="ui expand two column grid grey background" style={{margin:0}}>
         <div className="ui column">
-          <Tip 
+          <Tip
             className="ui round pane white background with padding"
             top_img={require("imgs/024-illustration-addaddons.svg")}
             title={i18n("Add Services to your project.")}
