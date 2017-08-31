@@ -28,7 +28,7 @@ def t00_setup_test():
     name = "ssh localhost",
     type = "serverboards.core.ssh/ssh",
     config = {
-      "url": "%s@localhost"%me,
+      "url": "root@localhost",
       "options": "",
       },
     project = "TCLOUD",
@@ -71,8 +71,9 @@ def t01_list_nodes_test():
   print("Listed nodes from localhost libvirt: %s"%l)
   assert l != [], str(l)
   first_node = l[0]
-  assert [x for x in l if x["type"] == "serverboards.core.cloud/libvirt"]
-  assert [x for x in l if x["type"] == "serverboards.core.cloud/lxc"]
+  types = [x["type"] for x in l]
+  assert [x for x in types if x == "serverboards.core.cloud/libvirt"], types
+  assert [x for x in types if x == "serverboards.core.cloud/lxc"], types
 
 @serverboards.rpc_method
 def t02_start_node_test():

@@ -7,9 +7,12 @@ from serverboards import rpc, Plugin, print
 
 ssh = Plugin("serverboards.core.ssh/daemon")
 
+def maybe_sudo(service):
+    return "sudo " if service["config"].get("sudo") else ""
+
 @serverboards.rpc_method("list")
 def _list( service ):
-  sudo = "sudo " if service["config"].get("sudo") else ""
+  sudo = maybe_sudo(service)
   lxc_raw = ssh.run(service=service["config"]["server"], command="%slxc-ls -f"%(sudo))["stdout"]
   guests = []
   for l in lxc_raw.split('\n')[1:]:
@@ -31,8 +34,8 @@ def _list( service ):
 
 @serverboards.rpc_method("details")
 def details(service, vmc):
-  sudo = "sudo " if service["config"].get("sudo") else ""
-  lxc_raw = ssh.run(service=service["config"]["server"], command="%slxc-info --name %s"%(sudo))["stdout"]
+  sudo = maybe_sudo(service)
+  lxc_raw = ssh.run(service=service["config"]["server"], command="%slxc-info --name %s"%(sudo, vmc))["stdout"]
   props = {}
   for l in lxc_raw.split('\n'):
     k,v = [x.strip() for x in l.split(':')]
@@ -48,12 +51,14 @@ def details(service, vmc):
 
 @serverboards.rpc_method
 def start( service, vmc ):
-  res = ssh.run(service["service"], ["lxc-start", "--name", vmc])
+  sudo = maybe_sudo(service)
+  res = ssh.run(service = service["config"]["server"], command = "%slxc-start --name %s"%(sudo, vmc))["stdout"]
   return res
 
 @serverboards.rpc_method
 def stop( service, vmc, force=False ):
-  res = ssh.run(service["service"], ["lxc-stop", "--name", vmc])
+  sudo = maybe_sudo(service)
+  res = ssh.run(service = service["config"]["server"], command = "%slxc-stop --name %s"%(sudo, vmc))["stdout"]
   return res
 
 @serverboards.rpc_method

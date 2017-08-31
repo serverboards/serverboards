@@ -3,7 +3,7 @@
 import sys, os, uuid, time, re
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-from serverboards import rpc, cache_ttl
+from serverboards import rpc, cache_ttl, print
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 
@@ -15,7 +15,7 @@ state_trans = {
 
 class Connection:
   def __init__(self, config):
-    type = config["type"]
+    type = config.get("type")
     driver = None
     if type == 'libvirt':
       cls=get_driver(Provider.LIBVIRT)
@@ -29,6 +29,9 @@ class Connection:
     elif type == 'digitalocean':
       cls=get_driver(Provider.DIGITAL_OCEAN)
       driver=cls(config['token'], api_version='v2')
+    elif type == 'aws.ec2':
+      cls=get_driver(Provider.EC2)
+      driver=cls(config["access_key"], config["access_secret"], region=config["region"])
     if not driver:
       raise Exception("Could not create connexion to remote cloud provider")
     self.driver = driver
@@ -48,6 +51,13 @@ class Connection:
     if 'linux' in nodename:
         return 'linux'
     return None
+
+  def get_node(self, uuid):
+      if hasattr(self.driver, "ex_get_node_by_uuid"):
+        return self.driver.ex_get_node_by_uuid(uuid)
+      else:
+        nodes = self.driver.list_nodes()
+        return next(x for x in nodes if x.uuid == uuid)
 
 @cache_ttl(60)
 def get_connection(service):
@@ -76,7 +86,7 @@ def details(conn, node, extra_info=False, ):
 @serverboards.rpc_method("details")
 def _details(service, vmc):
   conn = get_connection(service)
-  return details(conn, conn.driver.ex_get_node_by_uuid(vmc), True)
+  return details(conn, conn.get_node(vmc), True)
 
 @serverboards.rpc_method("list")
 def _list(service):
@@ -88,7 +98,8 @@ def _list(service):
 def start(service, vmc):
   conn = get_connection(service)
   try:
-    conn.driver.ex_start_node( conn.driver.ex_get_node_by_uuid(vmc) )
+    node = conn.get_node(vmc)
+    conn.driver.ex_start_node( node  )
   except Exception as e:
     if "already running" in str(e):
       return False # already running
@@ -102,7 +113,7 @@ def stop(service, vmc, force = False):
       n = driver.connection.lookupByUUIDString(vmc)
       n.destroy()
       return True
-  return driver.ex_stop_node( driver.ex_get_node_by_uuid(vmc) )
+  return driver.ex_stop_node( conn.get_node(vmc) )
 
 @serverboards.rpc_method
 def pause(service, vmc):

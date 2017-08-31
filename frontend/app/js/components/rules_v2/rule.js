@@ -3,8 +3,6 @@ import i18n from 'app/utils/i18n'
 import {ActionList} from './action'
 import When from 'app/containers/rules_v2/when'
 
-require('sass/panes.sass')
-
 function Rule(props){
   const {rule, section, Section} = props
 

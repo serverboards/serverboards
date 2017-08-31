@@ -11,7 +11,11 @@ def get_catalog():
 
 @cache_ttl(60)
 def get_cloud_services_from(project):
-  return service.list(traits="core.cloud.compute", project=project)
+  if project:
+    return service.list(traits="core.cloud.compute", project=project)
+  else:
+    return service.list(traits="core.cloud.compute")
+
 
 @cache_ttl(60)
 def get_provider(s):
@@ -46,10 +50,8 @@ def list(project=None):
           x["parent"]=suuid
           l.append(x)
       except Exception as e:
-        print(s)
         serverboards.error("Error listing nodes from %s / %s: %s"%(s["uuid"], s["name"], str(e)))
 
-  print("List", yaml.dump(l) )
   return l
 
 @serverboards.rpc_method

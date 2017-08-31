@@ -1,12 +1,12 @@
 {
-  "name": "serverboards.optional.quickactions",
+  "name": "serverboards.core.cloud.viewer",
   "version": "1.0.0",
-  "description": "Viewer and editor of quick actions",
+  "description": "[description]",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "David Moreno",
+  "author": "David Moreno Montero <dmoreno@serverboards.io>",
   "license": "Apache-2.0",
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",

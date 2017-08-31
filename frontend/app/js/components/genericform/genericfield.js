@@ -25,6 +25,9 @@ const GenericField=React.createClass({
   handleChange: function(ev){
     this.props.setValue(this.props.name, ev.target.value)
   },
+  handleChecked: function(ev){
+    this.props.setValue(this.props.name, ev.target.checked)
+  },
   componentDidMount(){
     // Some may need post initialization
     switch (this.props.type){
@@ -104,6 +107,14 @@ const GenericField=React.createClass({
               onChange={this.handleChange}/>
           </div>
         )
+      case "checkbox":
+        return (
+          <div className="ui checkbox">
+            <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked}/>
+            <label htmlFor={props.name}>{props.label}</label>
+            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
+          </div>
+        )
       case 'description':
         return (
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
@@ -121,9 +132,11 @@ const GenericField=React.createClass({
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
             <select ref="select" name={props.name} defaultValue={props.value} className={`ui fluid ${props.search ? "search" : ""} dropdown`} onChange={this.handleChange}>
-              {props.options.map((o) => (
+              {props.options.map((o) => ( o.value ? (
                 <option key={o.value} value={o.value}>{o.label || o.name}</option>
-              ))}
+              ) : (
+                <option key={o} value={o}>{o}</option>
+              ) ) ) }
             </select>
           </div>
         )
