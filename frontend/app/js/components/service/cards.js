@@ -18,55 +18,101 @@ function CardBottom(props){
   )
 }
 
-function Cards(props){
-  if (!props.catalog)
+function match_service(s, filter){
+  for (const f of filter){
+    let ret = false
+    if ((s.name || "").toLowerCase().includes(f))
+      ret = true
+    if ((s.description || "").toLowerCase().includes(f))
+      ret = true
+    if ((s.type || "").toLowerCase().includes(f))
+      ret = true
+    for (const s of (s.status || []))
+      if (s.toLowerCase().includes(f))
+        ret = true
+    if (!ret)
+      return false
+  }
+  return true
+}
+
+class Cards extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      filter: "",
+      filterTimeout: undefined
+    }
+  }
+  setFilter(filter){
+    if (this.state.filterTimeout){
+      clearTimeout(this.state.filterTimeout)
+    }
+    const filterTimeout = setTimeout( () => {
+      this.setState({filter: filter.toLowerCase().split(' ').filter( x => x), filterTimeout: undefined})
+    }, 300)
+
+    this.setState({filterTimeout})
+  }
+  render(){
+    const props = this.props
+    if (!props.catalog)
+      return (
+        <Loading>{i18n("Service catalog")}</Loading>
+      )
+    let services = props.services
+    const filter = this.state.filter
+
+    if (filter != ""){
+      services = services.filter( s => match_service(s, filter) )
+    }
+
+    services = sort_by_name(services)
+
     return (
-      <Loading>{i18n("Service catalog")}</Loading>
-    )
-  let services = props.services
-
-  services = sort_by_name(services)
-
-  return (
-    <div className="ui expand two column grid grey background" style={{margin:0}}>
-      <div className="ui column">
-        <div className="ui round pane white background">
-          <div className="ui attached top form">
-            <div className="ui input seamless white">
-              <i className="icon search"/>
-              <input type="text" onChange={(ev) => this.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+      <div className="ui expand two column grid grey background" style={{margin:0}}>
+        <div className="ui column">
+          <div className="ui round pane white background">
+            <div className="ui attached top form">
+              <div className="ui input seamless white">
+                <i className="icon search"/>
+                <input type="text" onChange={(ev) => this.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+              </div>
             </div>
-          </div>
-          <div className="ui scroll extend with padding">
-            <div className="ui cards">
-              {services.map((p) => (
-                <Card
-                  key={p.uuid}
-                  service={p}
-                  onClick={() => goto(`/project/${props.project.shortname}/services/${p.uuid}`)}
-                  bottomElement={CardBottom}
-                  />
-              ))}
+            <div className="ui scroll extend with padding">
+              <div className="ui cards">
+                {services.length==0 ? (
+                  <div className="ui meta with padding">{i18n("No items found.")}</div>
+                ) : services.map((p) => (
+                    <Card
+                      key={p.uuid}
+                      service={p}
+                      onClick={() => goto(`/project/${props.project.shortname}/services/${p.uuid}`)}
+                      bottomElement={CardBottom}
+                      />
+                  ))
+                }
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="ui column">
-        <div className="ui round pane white background">
-          <Tip
-            subtitle={i18n("Use account connections to manage your services.")}
-            description={i18n(`
+        <div className="ui column">
+          <div className="ui round pane white background">
+            <Tip
+              subtitle={i18n("Use account connections to manage your services.")}
+              description={i18n(`
 Select a service to manage from the left list, or create a new one pressing the
 add button on bottom left corner.
 
 Clicking over a service shows you more options to perform on the service, as
 update the details, or directly access to related tools.
 `)}
-            />
+              />
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 export default Cards
