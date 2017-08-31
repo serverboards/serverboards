@@ -63,10 +63,8 @@ let Services=React.createClass({
         <Loading>Services</Loading>
       )
     return (
-      <div>
-        <div style={{padding: 20}}>
-          <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
-        </div>
+      <div className="ui expand">
+        <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
 
         <AddButton project={this.props.project.shortname}/>
       </div>
