@@ -21,13 +21,13 @@ class Card extends React.Component{
     const {service} = props
     const description = service.description || this.state.description
     return (
-      <div key={service.uuid} className="ui narrow card" onClick={props.onClick}
+      <div key={service.uuid} className={`ui narrow card`} onClick={props.onClick}
            style={{cursor: props.onClick ? "pointer" : "cursor"}}>
         <div className="header">
           <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini"/>
           <div className="right">
             {(service.tags || []).map( s => (
-              <span className="ui text label">
+              <span key={s} className="ui text label">
                 {s}&nbsp;
                 <i className={`ui rectangular label ${ colorize( s ) }`}/>
               </span>
@@ -39,10 +39,8 @@ class Card extends React.Component{
           <MarkdownPreview value={description}/>
         </div>
         <div className="extra content">
-          {props.bottomElement ? (
+          {props.bottomElement && (
             <props.bottomElement service={service}/>
-          ) : (
-            "Extra content"
           )}
         </div>
       </div>
