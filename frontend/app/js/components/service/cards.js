@@ -5,6 +5,7 @@ import {i18n} from 'app/utils/i18n'
 import {goto} from 'app/utils/store'
 import {sort_by_name} from 'app/utils'
 import Tip from '../tip'
+import ServiceDetails from 'app/containers/service/details'
 
 export function service_definition(service_type, service_catalog){
   return service_catalog.find( (c) => c.type == service_type )
@@ -41,7 +42,8 @@ class Cards extends React.Component{
     super(props)
     this.state={
       filter: "",
-      filterTimeout: undefined
+      filterTimeout: undefined,
+      selected_service: undefined
     }
   }
   setFilter(filter){
@@ -61,7 +63,7 @@ class Cards extends React.Component{
         <Loading>{i18n("Service catalog")}</Loading>
       )
     let services = props.services
-    const filter = this.state.filter
+    const {filter, selected_service} = this.state
 
     if (filter != ""){
       services = services.filter( s => match_service(s, filter) )
@@ -85,9 +87,10 @@ class Cards extends React.Component{
                   <div className="ui meta with padding">{i18n("No items found.")}</div>
                 ) : services.map((p) => (
                     <Card
+                      className={ selected_service && selected_service.uuid==p.uuid ? "selected" : ""}
                       key={p.uuid}
                       service={p}
-                      onClick={() => goto(`/project/${props.project.shortname}/services/${p.uuid}`)}
+                      onClick={() => this.setState({selected_service: p})}
                       bottomElement={CardBottom}
                       />
                   ))
@@ -98,16 +101,23 @@ class Cards extends React.Component{
         </div>
         <div className="ui column">
           <div className="ui round pane white background">
-            <Tip
-              subtitle={i18n("Use account connections to manage your services.")}
-              description={i18n(`
+            {selected_service ? (
+              <ServiceDetails
+                key={selected_service.uuid}
+                service={selected_service}
+                />
+            ) : (
+              <Tip
+                subtitle={i18n("Use account connections to manage your services.")}
+                description={i18n(`
 Select a service to manage from the left list, or create a new one pressing the
 add button on bottom left corner.
 
 Clicking over a service shows you more options to perform on the service, as
 update the details, or directly access to related tools.
-`)}
-              />
+                  `)}
+                />
+            ) }
           </div>
         </div>
       </div>

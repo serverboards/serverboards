@@ -18,10 +18,10 @@ class Card extends React.Component{
   }
   render(){
     const props = this.props
-    const {service} = props
+    const {service, className} = props
     const description = service.description || this.state.description
     return (
-      <div key={service.uuid} className={`ui narrow card`} onClick={props.onClick}
+      <div key={service.uuid} className={`ui narrow card ${className || ""}`} onClick={props.onClick}
            style={{cursor: props.onClick ? "pointer" : "cursor"}}>
         <div className="header">
           <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini"/>

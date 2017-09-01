@@ -23,7 +23,7 @@ function DetailsTab(props){
           <MarkdownPreview className="ui grey text" value={i18n(props.service_template.description)}/>
         ) : null}
         <h3 className="ui header">{i18n("Related projects")}</h3>
-        <div className="ui vertical secondary menu">
+        <div className="ui vertical secondary menu" style={{width:"100%"}}>
           {props.service.projects.map( (s) => (
             <div key={s} className={`item ${is_current_project(s) ? "active" : ""}`} onClick={() => goto(`/project/${s}/`)} style={{cursor: "pointer"}}>
               {s} - {project_name(s)}

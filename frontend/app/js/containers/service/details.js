@@ -44,10 +44,11 @@ var Container = connect({
   state(state, props){
     const locstate = state.routing.locationBeforeTransitions.state || {}
     let service, screens, service_template
-    if (state.services.current){
-      service=state.services.current.service
-      screens=state.services.current.screens
-      service_template = state.services.current.template
+    let current = state.services.current
+    if (current){
+      service=props.service || current.service
+      screens=current.screens
+      service_template = current.template
     }
     return {
       service,
@@ -56,11 +57,11 @@ var Container = connect({
     }
   },
   subscriptions(state, props){
-    const serviceid = props.subsection || props.routeParams.id
+    const serviceid = (props.service && props.service.uuid) || props.subsection || (props.routeParams && props.routeParams.id)
     return [`service.updated[${serviceid}]`]
   },
   store_enter(state, props){
-    const serviceid = props.subsection || props.routeParams.id
+    const serviceid = (props.service && props.service.uuid) || props.subsection || (props.routeParams && props.routeParams.id)
     let updates = [
       () => service_load_current(serviceid),
     ]

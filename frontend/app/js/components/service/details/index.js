@@ -156,7 +156,7 @@ const Details = React.createClass({
       handleClose = () => goto(`/project/${props.project.shortname}/services`)
 
     return (
-      <Modal className="wide" onClose={handleClose}>
+      <div className="extend">
         <div className="ui top secondary pointing menu" style={{paddingBottom: 0}}>
           {props.service.icon ? (
             <IconIcon src={icon} icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
@@ -185,7 +185,7 @@ const Details = React.createClass({
         <div className="ui full height">
           <CurrentTab {...props} service={props.service} onClose={handleClose} />
         </div>
-      </Modal>
+      </div>
     )
   }
 })
