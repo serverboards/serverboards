@@ -12,7 +12,7 @@ const Add = React.createClass({
     const props = this.props
 
     return (
-      <Modal className="wide">
+      <div className="ui expand">
         <div className="ui top secondary menu header">
           <h3 className="ui header">{i18n("Add Issue")}</h3>
         </div>
@@ -31,7 +31,7 @@ const Add = React.createClass({
             </button>
           </div>
         </div>
-      </Modal>
+      </div>
     )
   }
 })

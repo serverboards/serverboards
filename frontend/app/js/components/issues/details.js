@@ -160,11 +160,11 @@ const Details = React.createClass({
     const issue = props.issue
     if (!issue)
       return (
-        <Loading>Issue #{props.params.id}</Loading>
+        <Loading>Issue #{props.issue_id}</Loading>
       )
 
     return (
-      <Modal className="wide" id="issues">
+      <div id="issues">
         <div className="ui top secondary menu">
           <h3 className="ui header">{i18n("Issues")}</h3>
           <div className="right menu">
@@ -220,7 +220,7 @@ const Details = React.createClass({
             </div>
           </div>
         </div>
-      </Modal>
+      </div>
     )
   }
 })

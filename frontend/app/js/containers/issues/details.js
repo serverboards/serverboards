@@ -7,38 +7,41 @@ import {merge} from 'app/utils'
 
 const Details = React.createClass({
   getInitialState(){
-    return {issue: undefined}
+    return {
+      issue: undefined,
+      issue_id: this.props.issue_id || this.props.params.id
+    }
   },
   componentDidMount(){
     console.log(this.props)
-    rpc.call("issues.get", [this.props.params.id]).then( (issue) => {
+    rpc.call("issues.get", [this.state.issue_id]).then( (issue) => {
       this.setState({issue})
     })
   },
   addComment(comment){
-    return update_issue_multi(this.props.params.id, parse_comment(comment))
+    return update_issue_multi(this.state.issue_id, parse_comment(comment))
       .then( () => this.componentDidMount() )
   },
   handleAddCommentAndClose(comment){
-    return update_issue_multi(this.props.params.id, parse_comment(comment).concat( {type: "change_status", data: "closed"} ))
+    return update_issue_multi(this.state.issue_id, parse_comment(comment).concat( {type: "change_status", data: "closed"} ))
       .then( () => {
         Flash.info("Added new comment and reopened issue")
         this.setState({issue: merge(this.state.issue, {status: "closed"})})
       })
   },
   handleAddCommentAndReopen(comment){
-    return update_issue_multi(this.props.params.id, parse_comment(comment).concat( {type: "change_status", data: "open"} ))
+    return update_issue_multi(this.state.issue_id, parse_comment(comment).concat( {type: "change_status", data: "open"} ))
       .then( () => {
         Flash.info("Added new comment and reopened issue")
         this.setState({issue: merge(this.state.issue, {status: "open"})})
       })
   },
   handleAddLabel(tags){
-    return update_issue(this.props.params.id, {type:"set_labels", data:tags})
+    return update_issue(this.state.issue_id, {type:"set_labels", data:tags})
       .then( () => this.componentDidMount() )
   },
   handleRemoveLabel(tag){
-    return update_issue(this.props.params.id, {type:"unset_labels", data:[tag]})
+    return update_issue(this.state.issue_id, {type:"unset_labels", data:[tag]})
       .then( () => this.componentDidMount() )
   },
   render(){
