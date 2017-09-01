@@ -12,6 +12,18 @@ function is_current_project(shortname){
   return (store.getState().project.current ==  shortname)
 }
 
+function value_to_show(f, val){
+  if (f.type=="password")
+    return "********"
+  if (val)
+    return val
+  return (
+    <div className="ui meta">
+      {f.value || i18n(f.placeholder)}
+    </div>
+  )
+}
+
 function DetailsTab(props){
   return (
     <div className="ui grid" style={{flexGrow:1, margin: 0}}>
@@ -41,10 +53,8 @@ function DetailsTab(props){
             <div key={f.name} className="row">
               <label className="four wide column" style={{fontWeight:"bold"}}>{i18n(f.label || f.name)}</label>
               <div className="twelve wide column">
-                {props.service.config[f.name] ? (props.service.config[f.name].name || props.service.config[f.name]) : (
-                  <div className="ui meta">{i18n(f.value || f.placeholder)}</div>
-                )}
-                </div>
+                {value_to_show(f, props.service.config[f.name])}
+              </div>
             </div>
           ))}
         </div>
