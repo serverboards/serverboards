@@ -27,18 +27,22 @@ class TabBar extends React.Component{
   }
   componentDidMount(){
     $(window).on( "resize.tabbar", () => {
-      this.reflow(this.props.tabs.length)
+      this.setState({visible_items: this.props.tabs.length})
+      setTimeout(
+        () => this.reflow(this.props.tabs.length),
+        300
+      )
     } )
     this.reflow()
   }
   componentWillUnmount(){
     $(window).off('.tabbar')
   }
-  reflow(n){
+  reflow(){
     console.log("reflow")
     const tabbar = this.refs.tabbar
     if (tabbar.clientWidth < tabbar.scrollWidth){
-      const visible_items = (n || (this.state.visible_items-1))
+      const visible_items = this.state.visible_items-1
       if (visible_items>0){
         console.log("New visible items: %o", visible_items)
         this.setState({visible_items})
