@@ -16,6 +16,7 @@ import DetailsTab from './detailstab'
 import Rules from './rules'
 import ExternalUrl from './externalurl'
 import {i18n} from 'app/utils/i18n'
+import TabBar from 'app/components/tabbar'
 
 const tab_options={
   details: DetailsTab,
@@ -168,19 +169,14 @@ const Details = React.createClass({
             <h3 className="ui header" style={{paddingRight: 50, marginBottom: 0}}>{i18n(props.service.name)}</h3>
             <span className="ui meta">{i18n(props.service_template.name)}</span>
           </div>
-          {sections.map( (s) => (
-            <a
-              key={s.id}
-              className={`item ${(s.id == current_tab) ? "active" : ""}`}
-              onClick={() => this.handleTabChange(s.id, s.type)}
-              title={s.description}
-              >
-                {s.name}
-                {s.icon ? (
-                  <i className={`ui icon ${s.icon}`}/>
-                ) : null}
-            </a>
-          ))}
+          <TabBar tabs={sections.map( s => ({
+            key: s.id,
+            label: s.name,
+            icon: s.icon,
+            onClick: () => this.handleTabChange(s.id, s.type),
+            active: (s.id == current_tab),
+            description: s.title
+          }) ) } />
         </div>
         <div className="ui full height">
           <CurrentTab {...props} service={props.service} onClose={handleClose} />
