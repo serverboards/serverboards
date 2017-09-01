@@ -11,7 +11,7 @@ const ServicesView=React.createClass({
       (props.services.length == 0) ? (
         <Empty/>
       ) : (
-        <div>
+        <div className="ui expand">
           {props.mode == "list" ? (
             <ServiceTable services={props.services} project={props.project}/>
           ) : (

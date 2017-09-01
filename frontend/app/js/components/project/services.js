@@ -2,7 +2,7 @@ import React from 'react'
 import Loading from '../loading'
 import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
-import ServiceDetails from 'app/containers/service/details'
+import ServiceDetails from 'app/components/service/details/modal'
 import Restricted from 'app/restricted'
 import { set_modal } from 'app/utils/store'
 import i18n from 'app/utils/i18n'
@@ -63,10 +63,8 @@ let Services=React.createClass({
         <Loading>Services</Loading>
       )
     return (
-      <div>
-        <div style={{padding: 20}}>
-          <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
-        </div>
+      <div className="ui expand">
+        <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
 
         <AddButton project={this.props.project.shortname}/>
       </div>

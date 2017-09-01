@@ -3,6 +3,7 @@ import store from 'app/utils/store'
 import {goto} from 'app/utils/store'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {i18n} from 'app/utils/i18n'
+import ServiceLink from 'app/components/servicelink'
 
 function project_name(shortname){
   return (store.getState().project.projects.find( (s) => s.shortname == shortname) || {}).name
@@ -10,6 +11,46 @@ function project_name(shortname){
 
 function is_current_project(shortname){
   return (store.getState().project.current ==  shortname)
+}
+
+function DataField({field, value}){
+  let inner = null
+
+  switch(field.type){
+    case "description":
+    case "button":
+      return null
+    case "password":
+      inner = "********"
+      break;
+    case "service":
+      inner = (
+        <ServiceLink service={value}/>
+      )
+      break;
+    default:
+      if (value)
+        inner = (
+          <span className="ui oneline" style={{maxWidth: "30vw", display: "block"}}>{value}</span>
+        )
+      else
+        inner = (
+          <div className="ui meta">
+            {field.value || i18n(field.placeholder)}
+          </div>
+        )
+      break;
+  }
+
+
+  return (
+    <div className="row">
+      <label className="four wide column" style={{fontWeight:"bold"}}>{i18n(field.label || field.name)}</label>
+      <div className="ui twelve wide column with oneline">
+        {inner}
+      </div>
+    </div>
+  )
 }
 
 function DetailsTab(props){
@@ -23,7 +64,7 @@ function DetailsTab(props){
           <MarkdownPreview className="ui grey text" value={i18n(props.service_template.description)}/>
         ) : null}
         <h3 className="ui header">{i18n("Related projects")}</h3>
-        <div className="ui vertical secondary menu">
+        <div className="ui vertical secondary menu" style={{width:"100%"}}>
           {props.service.projects.map( (s) => (
             <div key={s} className={`item ${is_current_project(s) ? "active" : ""}`} onClick={() => goto(`/project/${s}/`)} style={{cursor: "pointer"}}>
               {s} - {project_name(s)}
@@ -32,20 +73,13 @@ function DetailsTab(props){
           ))}
         </div>
       </div>
-      <div className="ten wide column">
+      <div className="ten wide column" style={{overflow: "hidden"}}>
         <h3 className="ui header">{i18n("Description")}</h3>
         <MarkdownPreview className="ui grey text" value={props.service.description || i18n("Not provided")}/>
         <h3 className="ui header">{i18n("Config Details")}</h3>
         <div className="ui grid">
           {((props.service_template || {}).fields || []).map( (f) => (
-            <div key={f.name} className="row">
-              <label className="four wide column" style={{fontWeight:"bold"}}>{i18n(f.label || f.name)}</label>
-              <div className="twelve wide column">
-                {props.service.config[f.name] ? (props.service.config[f.name].name || props.service.config[f.name]) : (
-                  <div className="ui meta">{i18n(f.value || f.placeholder)}</div>
-                )}
-                </div>
-            </div>
+            <DataField key={f.name} field={f} value={props.service.config[f.name]}/>
           ))}
         </div>
       </div>

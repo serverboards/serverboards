@@ -1,3 +1,5 @@
+@import colors
+
 .cards .card
   h2.ui.header
     margin: 0
@@ -63,6 +65,8 @@
 .ui.cards .narrow.card
   width: 200px
   overflow: hidden
+  &.selected
+    box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
   .header, .extra.content
     display: flex
     flex-direction: row
