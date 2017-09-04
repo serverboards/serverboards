@@ -78,6 +78,7 @@ def test(test):
         return True
 
 def main():
+    sh.mkdir("-p","log")
     try:
         os.unlink("logfile.txt")
     except:
