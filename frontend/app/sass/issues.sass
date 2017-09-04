@@ -87,7 +87,8 @@
     display: flex
     flex-direction: column
     > .ui.top.attached.menu
-      border-radius: 5px 5px 0 0
+      border-radius: 5px 0 0 0
+      border: 0
     .ui.header
       margin: 0
       .ui.header
@@ -177,3 +178,20 @@
             margin-top: 0px
           .ui.tag:first-child
             margin-top: 13px
+
+  .with.right.side.menu
+    position: relative
+    display: flex
+    flex-direction: row
+    max-width: 100%
+    overflow: hidden
+    border: 0
+    > *
+      flex-grow: 1
+      max-width: calc( 100% - 50px )
+    > .side.menu
+      flex-grow: 0
+      display: flex
+      flex-direction: column
+      border: 0
+      border-radius: 0

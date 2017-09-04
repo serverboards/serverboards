@@ -159,9 +159,13 @@ class Details extends React.Component{
     addfuture
       .then( () => { this.refs.new_comment.value="" })
   }
-  handleFocusComment(){
-    $("#issues > .content").scrollTop($("#issues > .content").height())
-    $(this.refs.new_comment).focus()
+  handleFocus(refname){
+    const $el = $(this.refs[refname])
+    const $parent = $el.closest('.scroll')
+    const scrollTop = $parent.scrollTop() + $el.offset().top - $parent.offset().top - 14
+    console.log($el, $parent, scrollTop)
+    $parent.scrollTop(scrollTop)
+    $el.find('textarea').focus()
   }
   componentDidMount(){
     let self = this
@@ -178,77 +182,87 @@ class Details extends React.Component{
     const {props} = this
     const issue = props.issue
     return (
-      <div id="issues" className="ui issue details expands">
-        <div className={`ui attached colored top menu ${status_color(issue.status)} background`}>
-          <h3 className="ui header centered stretch white text">{issue.status == "open" ? i18n("Issue open") : i18n("Issue closed")}</h3>
-          <div className="ui right checkbox toggle" ref="reopen">
-            <label style={{color:"white"}}>{issue.status == "open" ? i18n("Close") : i18n("Re-open") }</label>
-            <input type="checkbox" defaultChecked={issue.status=="open"}/>
-          </div>
-        </div>
-
-        <div className="ui padding">
-          <h4 className="ui header">
-            <span className="ui meta big text"># {issue.id}</span>
-            {issue.labels.map( l => (
-              <span key={l.name} className={`ui text ${l.color}`} style={{paddingLeft: 5}}> {l.name} </span>
-            ))}
-          </h4>
-          <h3 className="ui big header">
-            <span className="ui content">
-              {issue.title}
-            </span>
-          </h3>
-
-          <div className="">
-            <span className="ui circular image small"><Avatar email={(issue.creator || {}).email}/></span>
-            &nbsp;
-            <div style={{display: "inline-block", paddingLeft: 10}}>
-              <MarkdownPreview
-                value={i18n("**{name}** created this issue {date}",
-                        {name: (issue.creator || {}).name || i18n("System"),
-                        date: pretty_ago(issue.inserted_at)})
-                      }
-                />
+      <div className="ui expands with right side menu">
+        <div id="issues" className="ui issue details expands">
+          <div className={`ui attached colored top menu ${status_color(issue.status)} background`}>
+            <h3 className="ui header centered stretch white text">{issue.status == "open" ? i18n("Issue open") : i18n("Issue closed")}</h3>
+            <div className="ui right checkbox toggle" ref="reopen">
+              <label style={{color:"white"}}>{issue.status == "open" ? i18n("Close") : i18n("Re-open") }</label>
+              <input type="checkbox" defaultChecked={issue.status=="open"}/>
             </div>
           </div>
-        </div>
-        <div className="ui divider"></div>
-        <div className="ui scroll">
-          <div className="ui container with padding">
-            <div className="details">
-              {issue.events.map( (ev, i) =>  (
-                <IssueEvent key={i} event={ev} issue={issue} connected={i!=0}/>
+
+          <div className="ui padding">
+            <h4 className="ui header">
+              <span className="ui meta big text"># {issue.id}</span>
+              {issue.labels.map( l => (
+                <span key={l.name} className={`ui text ${l.color}`} style={{paddingLeft: 5}}> {l.name} </span>
               ))}
+            </h4>
+            <h3 className="ui big header">
+              <span className="ui content">
+                {issue.title}
+              </span>
+            </h3>
+
+            <div className="">
+              <span className="ui circular image small"><Avatar email={(issue.creator || {}).email}/></span>
+              &nbsp;
+              <div style={{display: "inline-block", paddingLeft: 10}}>
+                <MarkdownPreview
+                  value={i18n("**{name}** created this issue {date}",
+                          {name: (issue.creator || {}).name || i18n("System"),
+                          date: pretty_ago(issue.inserted_at)})
+                        }
+                  />
+              </div>
             </div>
           </div>
           <div className="ui divider"></div>
-          <div className="ui padding">
-            <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
-              <div className="field">
-                <label>{i18n("New comment")}</label>
-                <textarea ref="new_comment" placeholder={i18n("Write your comment here...")}></textarea>
+          <div className="ui scroll">
+            <div className="ui container with padding">
+              <div className="details" ref="comments">
+                {issue.events.map( (ev, i) =>  (
+                  <IssueEvent key={i} event={ev} issue={issue} connected={i!=0}/>
+                ))}
               </div>
-              <div className="ui inline fields form" style={{marginBottom: 30}}>
+            </div>
+            <div className="ui divider"></div>
+            <div className="ui padding" ref="new_comment">
+              <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
                 <div className="field">
-                  <button className="ui button yellow" onClick={() => this.handleAddComment()}>{i18n("Add comment")}</button>
+                  <label>{i18n("New comment")}</label>
+                  <textarea placeholder={i18n("Write your comment here...")}></textarea>
                 </div>
-                <div className="field">
-                  {issue.status == "open" ? (
-                    <div className="ui checkbox close">
-                      <input type="checkbox" ref="close_issue" id="close_issue"/>
-                      <label htmlFor="close_issue" style={{cursor:"pointer"}}> {i18n("Close issue")}</label>
-                    </div>
-                  ) : (
-                    <div className="ui checkbox reopen">
-                      <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
-                      <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> {i18n("Reopen issue")}</label>
-                    </div>
-                  )}
+                <div className="ui inline fields form" style={{marginBottom: 30}}>
+                  <div className="field">
+                    <button className="ui button yellow" onClick={() => this.handleAddComment()}>{i18n("Add comment")}</button>
+                  </div>
+                  <div className="field">
+                    {issue.status == "open" ? (
+                      <div className="ui checkbox close">
+                        <input type="checkbox" ref="close_issue" id="close_issue"/>
+                        <label htmlFor="close_issue" style={{cursor:"pointer"}}> {i18n("Close issue")}</label>
+                      </div>
+                    ) : (
+                      <div className="ui checkbox reopen">
+                        <input type="checkbox" ref="reopen_issue" id="reopen_issue"/>
+                        <label htmlFor="reopen_issue" style={{cursor:"pointer"}}> {i18n("Reopen issue")}</label>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+        <div className="ui side menu">
+          <a className="item" onClick={() => this.handleFocus('comments')}>
+            <i className="ui comments icon"/>
+          </a>
+          <a className="item" onClick={() => this.handleFocus('new_comment')}>
+            <i className="ui file text outline icon"/>
+          </a>
         </div>
       </div>
     )
