@@ -7,27 +7,29 @@ const img3 = require('app/../imgs/015-right-nocontent-issues.png')
 
 function Column({h1, t1, h2, t2, img}){
   return (
-    <div className="ui column">
-      <h2 className="ui header">{h1}</h2>
-      <h3 className="ui grey header">{h2}</h3>
-      <div>
-        {t1}
+    <div className="ui two columns grid">
+      <div className="ui column">
+        <h3 className="ui grey header">{h1}</h3>
+        <div>
+          {t1}
+        </div>
+        <div style={{textAlign: "center", height: 25, margin: "5px 0 50px 0"}}><img src={img}/></div>
       </div>
-      <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img}/></div>
-      <h2 className="ui small header">{i18n("TIP")}</h2>
-      <div className="ui grey text">
-        {t2}
+      <div className="ui column">
+        <h4 className="ui small header">{i18n("TIP")}</h4>
+        <div className="ui grey text">
+          {t2}
+        </div>
       </div>
     </div>
-
   )
 }
 
 function Empty(props){
   return (
-    <div className="ui nocontent container centered">
+    <div className="ui nocontent container centered with padding">
       <h1 className="ui centered grey huge header">{i18n("Improve your projects using \"issues\"")}</h1>
-      <div className="ui grid three columns" style={{marginTop: 40}}>
+      <div className="ui" style={{marginTop: 20}}>
 
         <Column
           h1={i18n("Create issues for problems or tasks")}
@@ -38,7 +40,7 @@ function Empty(props){
           />
 
         <Column
-          h1={i18n("Manual or autoamtic issues")}
+          h1={i18n("Manual or automatic issues")}
           h2={i18n("Rules can create and close issues")}
           t1={i18n("Isses can be open manyally to better manage your project needs, but to ease your jobs they can also be created or closed using automatic rules.")}
           t2={i18n("To be able to close or open automatic issues you must create rules. Just select the trigger and the action to open or close the issue depending on your case. If one issue has related rules they will be properly linked from the issue details for quick access and modification.")}

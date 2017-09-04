@@ -24,6 +24,19 @@ function tag_color(status){
   return "grey"
 }
 
+const img1 = require('imgs/008-Button+.png')
+
+function EmptyFilter(props){
+  return (
+    <div className="ui fill centered">
+      <img src={img1} style={{height:"50%"}}/>
+      <h2 className="ui header" style={{margin: 0}}>{i18n("There are no issues to show.")}</h2>
+      <h3 className="ui grey text header" style={{marginTop: 0}}>
+        {i18n("Try diferent filters to look beyond, or create a new issue.")}
+      </h3>
+    </div>
+  )
+}
 
 function IssueCard(props){
   return (
@@ -134,14 +147,9 @@ class Issues extends React.Component{
   get_current_section(selected){
     if (!selected)
       return (
-        <Tip
-          subtitle={i18n("Add issues to manage your workflow")}
-          description={i18n(`
-Any task that has to be performed can be converted into an issue. Any problem
-in your infrastructure can create an issue. This way it easy to manage pending
-work, and later review how were problems and tasks solved.
-            `)}
-          />
+        <div className="ui scroll">
+          <Empty/>
+        </div>
       )
     if (selected=='add')
       return (
@@ -150,8 +158,6 @@ work, and later review how were problems and tasks solved.
     return (
       <IssueDetails key={selected} issue_id={selected}/>
     )
-
-
   }
   handleSelect(issue){
     this.setState({selected: issue})
@@ -185,7 +191,7 @@ work, and later review how were problems and tasks solved.
               </div>
               <div className="ui scroll extend with padding">
                 {(props.issues.length == 0) ? (
-                  <Empty/>
+                  <EmptyFilter/>
                 ) : ( issues_by_day.length == 0 ) ? (
                   <div className="ui centered text">
                     <img src={noissues} alt=""/>
