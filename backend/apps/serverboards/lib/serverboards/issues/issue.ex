@@ -28,7 +28,7 @@ defmodule Serverboards.Issues.Issue do
       title: data.title,
       status: "open"
       } )
-    {:ok, _description} = Repo.insert( %Model.Event{
+    {:ok, _description} = Repo.insert( %{
       creator_id: creator_id,
       issue_id: issue.id,
       type: "new_issue",
@@ -56,7 +56,7 @@ defmodule Serverboards.Issues.Issue do
       {:ok, creator_id} -> creator_id
       _ -> nil
     end
-    {:ok, _description} = Repo.insert( %Model.Event{
+    {:ok, _description} = Repo.insert( %{
       creator_id: creator_id,
       issue_id: issue_id,
       type: type,
@@ -126,7 +126,7 @@ defmodule Serverboards.Issues.Issue do
     Enum.map(aliases, &set_alias(issue_id, &1))
   end
   def set_alias(issue_id, alias_) do
-    {:ok, _description} = Repo.insert( %Model.Alias{
+    {:ok, _description} = Repo.insert( %{
       issue_id: issue_id,
       alias: alias_,
       } )
@@ -144,7 +144,7 @@ defmodule Serverboards.Issues.Issue do
   @colors ~w(red orange yellow olive green teal blue violet purple pink brown grey black)
   def set_label(issue_id, label) do
     labelm = Repo.get_or_create(Model.Label, [name: label], %{ color: Enum.random(@colors) })
-    {:ok, _} = Repo.insert( %Model.IssueLabel{ issue_id: issue_id, label_id: labelm.id } )
+    {:ok, _} = Repo.insert( %{ issue_id: issue_id, label_id: labelm.id } )
     :ok
   end
 
