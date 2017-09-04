@@ -16,7 +16,7 @@ backend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - scripts/backend-test.sh
+    - scripts/backend-test.py
   artifacts:
     paths:
       - log
