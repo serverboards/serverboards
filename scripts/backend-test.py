@@ -58,7 +58,7 @@ def compile(logfile=sys.stdout):
 
 def test(test):
     testname = os.path.join(TEST_DIR,test)
-    logfile = open("log/%s.log"%test,"w")
+    logfile = open("log/%s.log"%test,"wb")
 
     dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
     printc("test \t%32s \t\t db %s"%(test, dbname), color="blue")
@@ -83,7 +83,7 @@ def main():
         os.unlink("logfile.txt")
     except:
         pass
-    compile(logfile=open("log/compile.log","w"))
+    compile(logfile=open("log/compile.log","wb"))
     tests = [x for x in os.listdir(TEST_DIR) if x.endswith('_test.exs')]
     failures=0
     with Pool() as p:
