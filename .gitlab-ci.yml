@@ -21,6 +21,7 @@ backend-test:
     paths:
       - log
     expire_in: 1 week
+    when: always
   cache:
     paths:
       - backend/_build
