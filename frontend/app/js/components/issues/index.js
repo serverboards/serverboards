@@ -27,7 +27,7 @@ function tag_color(status){
 
 function IssueCard(props){
   return (
-    <a className="ui card" onClick={() => props.onSelect(props.id)}>
+    <a className={`ui card ${ props.id == props.selected ? "selected" : ""}`} onClick={() => props.onSelect(props.id)}>
       <div className="ui oneline text">{props.title}</div>
       <div>
         <span>#{props.id}</span>
@@ -61,7 +61,7 @@ function IssueDay(props){
       <h3 data-tooltip={props.label}>{pretty_ago(props.label,undefined,"day")}</h3>
       <div className="data">
         {props.issues.map( (i) => (
-          <IssueRow key={i.id} {...i} onSelect={props.onSelect}/>
+          <IssueRow key={i.id} {...i} selected={props.selected} onSelect={props.onSelect}/>
         ))}
       </div>
     </div>
@@ -148,13 +148,12 @@ work, and later review how were problems and tasks solved.
         <AddIssue />
       )
     return (
-      <IssueDetails issue_id={selected}/>
+      <IssueDetails key={selected} issue_id={selected}/>
     )
 
 
   }
   handleSelect(issue){
-    console.log("Selected issue %o", issue)
     this.setState({selected: issue})
   }
   render(){
@@ -196,7 +195,13 @@ work, and later review how were problems and tasks solved.
                 ) : (
                   <div className="issues">
                     {issues_by_day.map( ([date, issues]) => (
-                      <IssueDay key={date} label={date} issues={issues} onSelect={this.handleSelect.bind(this)}/>
+                      <IssueDay
+                        key={date}
+                        label={date}
+                        issues={issues}
+                        selected={this.state.selected}
+                        onSelect={this.handleSelect.bind(this)}
+                        />
                     ))}
                   </div>
                 )}

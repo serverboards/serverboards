@@ -6,7 +6,8 @@
     border: 2px solid #eee
     width: 48px
     height: 48px
-    display: flex
+    display: inline-flex
+    margin: 0
     align-items: center
     justify-content: center
     img
@@ -50,6 +51,8 @@
           color: black
           padding: 10px 15px
           flex-grow: 1
+          &.selected
+            box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
   .filters
     flex-grow: 0
     margin-left: 100px
@@ -81,9 +84,12 @@
           height: 10px
 
   .ui.issue.details
-    padding: 0 20px
+    display: flex
+    flex-direction: column
+    > .ui.top.attached.menu
+      border-radius: 5px 5px 0 0
     .ui.header
-      margin: 10px 20px
+      margin: 0
       .ui.header
         font-size: 20px
       > div
@@ -100,7 +106,6 @@
         flex-grow: 5
         position: relative
         > *
-          margin-left: 100px
           width: 100%
           &.connected:before
             border: 1px solid #ddd
@@ -113,9 +118,21 @@
       .filters
         flex-grow: 1
 
+      .ui.rail
+        height: auto
+        position: inherit
+        top: inherit
+        width: auto
+      .with.side.rail
+        padding: 5px 10px
+        margin-left: 60px
+        width: calc( 100% - 60px )
+        .side.rail
+          margin-left: -60px
       .ui.card
+        &.invisible
+          box-shadow: none
         position: relative
-        padding: 5px 10px 5px 60px
         min-height: 64px
         display: flex
         flex-direction: column
