@@ -54,6 +54,7 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
 def compile(logfile=sys.stdout):
     print("Compiling...")
     with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
+        res=sh.mix("deps.get", _out=logfile, _err=logfile)
         res=sh.mix("compile", _out=logfile, _err=logfile)
 
 def test(args):
