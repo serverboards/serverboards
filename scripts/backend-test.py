@@ -8,7 +8,7 @@ This allows them to run in parallel, and save a lot of time.
 """
 
 
-import sh, os, random, sys
+import sh, os, random, sys, time
 from multiprocessing import Pool
 
 TEST_DIR='backend/apps/serverboards/test/'
@@ -53,29 +53,42 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
 
 def compile(logfile=sys.stdout):
     print("Compiling...")
-    with chdir("backend"), envset(MIX_ENV="test"):
-        res=sh.make("compile", _out=logfile, _err=logfile)
+    with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
+        res=sh.mix("compile", _out=logfile, _err=logfile)
 
 def test(test):
+    end=0
+    start=0
     with open("log/%s.txt"%test,"wb") as logfile:
-        testname = os.path.join(TEST_DIR,test)
+        testname = os.path.join("test/",test)
 
         dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
-        printc("test \t%32s \t\t db %s"%(test, dbname), color="blue")
+        printc("test \t%32s \t\tDB %s"%(test, dbname), color="blue")
         envs = dict(
             MIX_ENV="test",
             SERVERBOARDS_PATH=os.getcwd()+"/local/",
             SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/"+dbname
             )
-        with tmpdb(dbname), chdir("backend"), envset(**envs):
+        with tmpdb(dbname), chdir("backend/apps/serverboards/"), envset(**envs):
+            start = time.time()
             try:
-                sh.mix.run("apps/serverboards/priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
+                sh.mix.run("priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
                 sh.mix.test(testname, _out=logfile, _err=logfile)
             except:
-                printc("FAIL \t%32s"%test, color="red")
-                return False
-            printc("PASS \t%32s"%test, color="green")
-            return True
+                end = time.time()
+                printc("FAIL \t%32s\t\t%.2f s"%(test, end-start), color="red")
+                return (False, end-start)
+            end = time.time()
+
+    with open("log/%s.txt"%test,"r") as logfile:
+        output=logfile.read()
+        if "Compiling" in output:
+            printc("WARNING \t%32s\tRECOMPILATION", color="yellow")
+        if "Test patterns did not match any file:" in output:
+            printc("FAIL \t%32s\t\tMAY NOT HAVE BEEN RUN"%test, color="red")
+            return (False, end-start)
+    printc("PASS \t%32s\t\t%.2f s"%(test, end-start), color="green")
+    return (True, end-start)
 
 def main():
     sh.mkdir("-p","log")
@@ -84,6 +97,7 @@ def main():
     except:
         pass
 
+    start = time.time()
     try:
         compile(logfile=open("log/compile.txt","wb"))
     except:
@@ -91,14 +105,19 @@ def main():
         with open("log/compile.txt") as fd:
             print( fd.read() )
             sys.exit(1)
+    end = time.time()
 
     tests = [x for x in os.listdir(TEST_DIR) if x.endswith('_test.exs')]
     failures=0
     allok = []
+    accumulated_time=(end-start) # count also compilation time
     with Pool() as p:
         allok = p.map(test, tests)
+        accumulated_time=sum( x[1] for x in allok )
+        allok = [x[0] for x in allok]
         print( allok )
         failures = len( [x for x in allok if not x] )
+    end = time.time()
     if failures>0:
         print()
         ff = tests[ allok.index(False) ]
@@ -106,9 +125,9 @@ def main():
         print("----------------------------------------------------------------------")
         print(open( "log/%s.txt"%ff ).read())
         print("----------------------------------------------------------------------")
-        printc("FAILURES %s"%failures, color="red")
+        printc("FAILURES %s\tTOTAL TIME %.2f s / SAVED %.2f s"%(failures, end-start, accumulated_time-(end-start)), color="red")
         sys.exit(1)
-    printc("ALL PASS"%failures, color="green")
+    printc("ALL PASS\tTOTAL TIME %.2f s / SAVED %.2f s"%(end-start, accumulated_time-(end-start)), color="green")
     print()
     sys.exit(0)
 
