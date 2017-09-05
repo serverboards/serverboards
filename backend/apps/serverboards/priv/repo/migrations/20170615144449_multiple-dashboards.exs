@@ -24,14 +24,9 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
     flush()
 
     execute("""
-    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-    """)
-    flush()
-
-    execute("""
     INSERT INTO project_dashboard
                (uuid, project_id, name, "order", config, inserted_at, updated_at)
-         SELECT gen_random_uuid(), id, 'Monitoring', 0, '{}', now(), now()
+         SELECT md5(random()::text || clock_timestamp()::text)::uuid, id, 'Monitoring', 0, '{}', now(), now()
            FROM project_project;
     """)
     flush()
