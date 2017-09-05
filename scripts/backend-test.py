@@ -56,7 +56,8 @@ def compile(logfile=sys.stdout):
     with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
         res=sh.mix("compile", _out=logfile, _err=logfile)
 
-def test(test):
+def test(args):
+    test, origdb = args
     end=0
     start=0
     with open("log/%s.txt"%test,"wb") as logfile:
@@ -69,7 +70,7 @@ def test(test):
             SERVERBOARDS_PATH=os.getcwd()+"/local/",
             SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/"+dbname
             )
-        with tmpdb(dbname), chdir("backend/apps/serverboards/"), envset(**envs):
+        with copytmpdb(origdb, dbname), chdir("backend/apps/serverboards/"), envset(**envs):
             start = time.time()
             try:
                 sh.mix.run("priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
@@ -112,7 +113,9 @@ def main():
     allok = []
     accumulated_time=(end-start) # count also compilation time
     with Pool() as p:
-        allok = p.map(test, tests)
+        dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
+        with tmpdb(dbname):
+            allok = p.map(test, [(t, dbname) for t in tests])
         accumulated_time=sum( x[1] for x in allok )
         allok = [x[0] for x in allok]
         print( allok )
@@ -125,7 +128,7 @@ def main():
         print("----------------------------------------------------------------------")
         print(open( "log/%s.txt"%ff ).read())
         print("----------------------------------------------------------------------")
-        printc("FAILURES %s\tTOTAL TIME %.2f s / SAVED %.2f s"%(failures, end-start, accumulated_time-(end-start)), color="red")
+        printc("FAILURES %d/%d\tTOTAL TIME %.2f s / SAVED %.2f s"%(failures, len(tests), end-start, accumulated_time-(end-start)), color="red")
         sys.exit(1)
     printc("ALL PASS\tTOTAL TIME %.2f s / SAVED %.2f s"%(end-start, accumulated_time-(end-start)), color="green")
     print()
@@ -165,6 +168,15 @@ class tmpdb:
     def __enter__(self):
         sh.createdb(self.dbname)
         sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql")
+    def __exit__(self, *args):
+        # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
+        sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
+class copytmpdb:
+    def __init__(self, orig, dbname):
+        self.orig=orig
+        self.dbname=dbname
+    def __enter__(self):
+        sh.createdb(self.dbname,"-T",self.orig)
     def __exit__(self, *args):
         # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
         sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
