@@ -128,6 +128,7 @@ def main():
         print("----------------------------------------------------------------------")
         print(open( "log/%s.txt"%ff ).read())
         print("----------------------------------------------------------------------")
+        printc("Fail at: ", ' '.join([t for t, ok in zip(tests, allok) if not ok]), color="red")
         printc("FAILURES %d/%d\tTOTAL TIME %.2f s / SAVED %.2f s"%(failures, len(tests), end-start, accumulated_time-(end-start)), color="red")
         sys.exit(1)
     printc("ALL PASS\tTOTAL TIME %.2f s / SAVED %.2f s"%(end-start, accumulated_time-(end-start)), color="green")
@@ -168,6 +169,8 @@ class tmpdb:
     def __enter__(self):
         sh.createdb(self.dbname)
         sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql")
+        with envset(MIX_ENV="test"), chdir("backend"):
+            sh.mix("run")
     def __exit__(self, *args):
         # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
         sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
