@@ -55,7 +55,7 @@ defmodule Serverboards.RuleV2Test do
 
     assert ExEval.eval("D == 'more contexts'", context) == {:ok, true}
 
-    assert ExEval.eval("Z == 'test'", context) == {:error, :unknown_var}
+    assert ExEval.eval("Z == 'test'", context) == {:error, {:unknown_var, "Z", context}}
 
 
   end
