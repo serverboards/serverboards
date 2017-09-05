@@ -63,7 +63,7 @@ defmodule Serverboards.Mixfile do
       {:mom, "~> 0.5"},
       {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
-      {:ecto, "~> 2.1"},
+      {:ecto, "~> 2.2"},
       {:postgrex, "~> 0.13"},
       {:comeonin, "~> 3.0"},
       {:timex, "~> 3.1"},
