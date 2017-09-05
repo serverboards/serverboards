@@ -171,8 +171,8 @@ class tmpdb:
     def __init__(self, dbname):
         self.dbname=dbname
     def __enter__(self):
-        sh.createdb(self.dbname)
-        sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql")
+        sh.createdb(self.dbname, _out="log/create-tmpdb.txt")
+        sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql", _out="log/create-tmpdb.txt")
         with envset(MIX_ENV="test"), chdir("backend"):
             sh.mix("run")
     def __exit__(self, *args):
@@ -183,7 +183,7 @@ class copytmpdb:
         self.orig=orig
         self.dbname=dbname
     def __enter__(self):
-        sh.createdb(self.dbname,"-T",self.orig)
+        sh.createdb(self.dbname,"-T",self.orig, _out="log/create-copytmpdb.txt")
     def __exit__(self, *args):
         # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
         sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
