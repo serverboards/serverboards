@@ -173,6 +173,7 @@ class tmpdb:
     def __enter__(self):
         sh.createdb(self.dbname, _out="log/create-tmpdb.txt")
         sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql", _out="log/create-tmpdb.txt")
+        printc("UPDATE TEMPLATE DB", color="blue")
         with envset(MIX_ENV="test"), chdir("backend"):
             sh.mix("run")
     def __exit__(self, *args):
