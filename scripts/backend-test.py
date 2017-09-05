@@ -50,6 +50,7 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
         print("\033[{hl};{color}m{text}\033[1;m".format(hl=hl, text=text, color=code), **kwargs)
     else:
         print(text, **kwargs)
+    sys.stdout.flush()
 
 def compile(logfile=sys.stdout):
     with chdir("backend/"), envset(MIX_ENV="test"):
