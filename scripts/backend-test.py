@@ -57,25 +57,25 @@ def compile(logfile=sys.stdout):
         res=sh.make("compile", _out=logfile, _err=logfile)
 
 def test(test):
-    testname = os.path.join(TEST_DIR,test)
-    logfile = open("log/%s.txt"%test,"wb")
+    with open("log/%s.txt"%test,"wb") as logfile:
+        testname = os.path.join(TEST_DIR,test)
 
-    dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
-    printc("test \t%32s \t\t db %s"%(test, dbname), color="blue")
-    envs = dict(
-        MIX_ENV="test",
-        SERVERBOARDS_PATH=os.getcwd()+"/local/",
-        SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/"+dbname
-        )
-    with tmpdb(dbname), chdir("backend"), envset(**envs):
-        try:
-            sh.mix.run("apps/serverboards/priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
-            sh.mix.test(testname, _out=logfile, _err=logfile)
-        except:
-            printc("FAIL \t%32s"%test, color="red")
-            return False
-        printc("PASS \t%32s"%test, color="green")
-        return True
+        dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
+        printc("test \t%32s \t\t db %s"%(test, dbname), color="blue")
+        envs = dict(
+            MIX_ENV="test",
+            SERVERBOARDS_PATH=os.getcwd()+"/local/",
+            SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/"+dbname
+            )
+        with tmpdb(dbname), chdir("backend"), envset(**envs):
+            try:
+                sh.mix.run("apps/serverboards/priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
+                sh.mix.test(testname, _out=logfile, _err=logfile)
+            except:
+                printc("FAIL \t%32s"%test, color="red")
+                return False
+            printc("PASS \t%32s"%test, color="green")
+            return True
 
 def main():
     sh.mkdir("-p","log")
@@ -86,13 +86,22 @@ def main():
     compile(logfile=open("log/compile.txt","wb"))
     tests = [x for x in os.listdir(TEST_DIR) if x.endswith('_test.exs')]
     failures=0
+    allok = []
     with Pool() as p:
         allok = p.map(test, tests)
         print( allok )
         failures = len( [x for x in allok if not x] )
-    print("Failures %s"%failures)
     if failures>0:
+        print()
+        ff = tests[ allok.index(False) ]
+        printc("\n-- FIRST FAILURE %s --"%ff, color="red", bg=True)
+        print("----------------------------------------------------------------------")
+        print(open( "log/%s.txt"%ff ).read())
+        print("----------------------------------------------------------------------")
+        printc("Failures %s"%failures, color="red")
         sys.exit(1)
+    printc("ALL PASS"%failures, color="green")
+    print()
     sys.exit(0)
 
 class chdir:
