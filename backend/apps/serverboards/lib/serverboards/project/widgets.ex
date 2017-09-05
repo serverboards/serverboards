@@ -1,4 +1,5 @@
 require Logger
+require Serverboards.Project.Model
 
 defmodule Serverboards.Project.Widget do
   @moduledoc ~S"""

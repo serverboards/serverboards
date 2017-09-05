@@ -1,4 +1,5 @@
 require Logger
+require Serverboards.Project.Model
 alias Serverboards.Project.Model
 alias Serverboards.Repo
 
