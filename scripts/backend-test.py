@@ -139,7 +139,7 @@ def main():
         printc("Fail at: ", ' '.join([t for t, ok in zip(tests, allok) if not ok]), color="red")
         printc("FAILURES %d/%d\tTOTAL TIME %.2f s / SAVED %.2f s"%(failures, len(tests), end-start, accumulated_time-(end-start)), color="red")
         sys.exit(1)
-    printc("ALL PASS\tTOTAL TIME %.2f s / SAVED %.2f s"%(end-start, accumulated_time-(end-start)), color="green")
+    printc("ALL PASS\tTOTAL TIME %.2f s / %.2f s (%.2f%%)"%(end-start, accumulated_time, (end-start)*100/accumulated_time ), color="green")
     print()
     sys.exit(0)
 
