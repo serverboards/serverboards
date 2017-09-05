@@ -52,7 +52,6 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
         print(text, **kwargs)
 
 def compile(logfile=sys.stdout):
-    print("Compiling...")
     with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
         res=sh.mix("deps.get", _out=logfile, _err=logfile)
         res=sh.mix("compile", _out=logfile, _err=logfile)
@@ -99,6 +98,7 @@ def main():
     except:
         pass
 
+    printc("COMPILING", color="blue")
     start = time.time()
     try:
         compile(logfile=open("log/compile.txt","wb"))
@@ -115,7 +115,9 @@ def main():
     accumulated_time=(end-start) # count also compilation time
     with Pool() as p:
         dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
+        printc("TEMPORAL DB TEMPLATE", color="blue")
         with tmpdb(dbname):
+            printc("%d TESTS"%len(tests), color="blue")
             allok = p.map(test, [(t, dbname) for t in tests])
         accumulated_time=sum( x[1] for x in allok )
         allok = [x[0] for x in allok]
@@ -125,9 +127,10 @@ def main():
     if failures>0:
         print()
         ff = tests[ allok.index(False) ]
+        output = [x for x in open( "log/%s.txt"%ff ).readlines() if x.startswith(" ")][-40:]
         printc("\n-- FIRST FAILURE %s --"%ff, color="red", bg=True)
         print("----------------------------------------------------------------------")
-        print(open( "log/%s.txt"%ff ).read())
+        print(''.join(output))
         print("----------------------------------------------------------------------")
         printc("Fail at: ", ' '.join([t for t, ok in zip(tests, allok) if not ok]), color="red")
         printc("FAILURES %d/%d\tTOTAL TIME %.2f s / SAVED %.2f s"%(failures, len(tests), end-start, accumulated_time-(end-start)), color="red")
