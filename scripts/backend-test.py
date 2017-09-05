@@ -83,7 +83,15 @@ def main():
         os.unlink("logfile.txt")
     except:
         pass
-    compile(logfile=open("log/compile.txt","wb"))
+
+    try:
+        compile(logfile=open("log/compile.txt","wb"))
+    except:
+        printc("ERROR COMPILING", color="red")
+        with open("log/compile.txt") as fd:
+            print( fd.read() )
+            sys.exit(1)
+
     tests = [x for x in os.listdir(TEST_DIR) if x.endswith('_test.exs')]
     failures=0
     allok = []
@@ -98,7 +106,7 @@ def main():
         print("----------------------------------------------------------------------")
         print(open( "log/%s.txt"%ff ).read())
         print("----------------------------------------------------------------------")
-        printc("Failures %s"%failures, color="red")
+        printc("FAILURES %s"%failures, color="red")
         sys.exit(1)
     printc("ALL PASS"%failures, color="green")
     print()
