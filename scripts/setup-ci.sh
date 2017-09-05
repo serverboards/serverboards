@@ -26,6 +26,10 @@ systemctl enable postgresql
 sudo sudo -u postgres psql << EOF
 CREATE USER "gitlab-runner";
 ALTER USER "gitlab-runner" WITH CREATEDB;
+
+CREATE USER "serverboards";
+ALTER ROLE "serverboards" WITH PASSWORD 'serverboards';
+ALTER USER "serverboards" CREATEDB;
 EOF
 
 echo
