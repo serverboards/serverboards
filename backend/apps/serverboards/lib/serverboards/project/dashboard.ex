@@ -100,7 +100,7 @@ defmodule Serverboards.Project.Dashboard do
     attr = Map.put(attr, :project_id, project.id )
     attr = Map.put(attr, :order, dashboard_count( project.shortname ) )
     {:ok, _dashboard} = Repo.insert(
-      Model.Dashboard.changeset( %{}, attr )
+      Model.Dashboard.changeset( %Model.Dashboard{}, attr )
     )
     Serverboards.Event.emit("dashboard.created[#{project.shortname}]", attr, ["project.get"])
   end
