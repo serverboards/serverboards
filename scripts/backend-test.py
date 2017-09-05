@@ -52,9 +52,11 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
         print(text, **kwargs)
 
 def compile(logfile=sys.stdout):
+    with chdir("backend/"), envset(MIX_ENV="test"):
+        sh.make("-f", "Makefile.hacks", "compile", _out=logfile, _err=logfile)
     with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
-        res=sh.mix("deps.get", _out=logfile, _err=logfile)
-        res=sh.mix("compile", _out=logfile, _err=logfile)
+        sh.mix("deps.get", _out=logfile, _err=logfile)
+        sh.mix("compile", _out=logfile, _err=logfile)
 
 def test(args):
     test, origdb = args
@@ -175,7 +177,7 @@ class tmpdb:
         sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql", _out="log/create-tmpdb.txt")
         printc("UPDATE TEMPLATE DB", color="blue")
         with envset(MIX_ENV="test"), chdir("backend"):
-            sh.mix("run")
+            sh.mix("run", "backend/apps/serverboards/priv/repo/test_seeds.exs", _out="../log/create-tmpdb.txt")
     def __exit__(self, *args):
         # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
         sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
