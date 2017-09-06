@@ -4,13 +4,14 @@ set -x
 
 sudo apt update
 sudo apt install -y wget
-wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
-sudo dpkg -i erlang-solutions_1.0_all.deb
 
+wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+wget -q -O - https://deb.nodesource.com/setup_6.x | sudo -E bash -
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-
 wget -LO- https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash
+
+sudo dpkg -i erlang-solutions_1.0_all.deb
 
 sudo apt update
 sudo apt install -y debhelper esl-erlang elixir nodejs libpam-dev \
@@ -19,7 +20,7 @@ sudo apt install -y debhelper esl-erlang elixir nodejs libpam-dev \
   postgresql postgresql-client inotify-tools git nginx \
   python3-venv python3-sh pwgen uuid-runtime parallel \
   openjdk-9-jre-headless xvfb google-chrome-stable firefox \
-  gitlab-ci-multi-runner psmisc npm
+  gitlab-ci-multi-runner psmisc
 
 systemctl enable postgresql
 
