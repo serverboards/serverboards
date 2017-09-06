@@ -105,6 +105,7 @@ class running:
     def __enter__(self):
         self.process=sh.Command(self.command)(*self.args, **self.kwargs, _bg=True, _ok_code=range(16))
     def __exit__(self, *args):
+        printc("terminating %s..."%(self.command), color="grey", hl=True)
         try:
             tmp = sh._SelfWrapper__self_module.SIGNALS_THAT_SHOULD_THROW_EXCEPTION # hack do not throw, please
             sh._SelfWrapper__self_module.SIGNALS_THAT_SHOULD_THROW_EXCEPTION=set([])
@@ -130,24 +131,35 @@ def wait_for_port(port, timeout=300):
     sock.close()
     raise Exception("Port did not appear in %d seconds"%timeout)
 
-def create_user(database_url, token):
-    sql = """
+def create_user(database_url, token, logfile="log/createuser.txt"):
+    sqls = ["""
 INSERT INTO auth_user (id, email, name, is_active, inserted_at, updated_at)
   VALUES
   (1, '{username}', 'Test User', true, NOW(), NOW());
-
+""","""
+SELECT * FROM auth_user;
+""","""
 INSERT INTO auth_user_password (user_id, password, inserted_at, updated_at)
   VALUES
-  (1, '\$bcrypt\$\$2b\$12\$mFXChDI63yh1WPR./gJjk.vq7U3Q/r1xjtgmLJhDhPoaZd650pAny', NOW(), NOW());
-
-INSERT INTO auth_user_group (user_id, group_id)
-  VALUES
-  (1, 1),
-  (1, 2);
-
+  (1, '$bcrypt$$2b$12$mFXChDI63yh1WPR./gJjk.vq7U3Q/r1xjtgmLJhDhPoaZd650pAny', NOW(), NOW());
+SELECT * FROM auth_user_password
+""","""
 INSERT INTO auth_user_token
   (user_id, token, perms, time_limit, inserted_at, updated_at)
   VALUES
   (1, '{token}', NULL, NOW() + '30 minutes'::interval, NOW(), NOW());
-        """.format(username="test@serverboards.io", token=token)
-    sh.psql(database_url, _in=sql)
+""","""
+SELECT * FROM auth_user_token;
+""","""
+INSERT INTO auth_user_group
+  (user_id, group_id)
+  VALUES
+  (1, 1),
+  (1, 2);
+
+SELECT * FROM auth_user_group;
+"""]
+    for sql in sqls:
+        sql = sql.format(username="test@serverboards.io", token=token)
+        #printc(sql, color="blue")
+        sh.psql(database_url, _in=sql, _out=logfile, _err=logfile)
