@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.IssuesTest do
   use ExUnit.Case
-  # @moduletag :capture_log
+  @moduletag :capture_log
 
   alias Serverboards.Issues.Issue
   alias Serverboards.Issues
@@ -159,7 +159,7 @@ defmodule Serverboards.IssuesTest do
     # Logger.debug("All #{inspect res} from #{inspect issue["updated_at"]}")
     {:ok, count} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], return: "count" })
     Logger.info("Count #{inspect count}")
-    assert 2 == count
+    assert 1 == count
   end
 
 end

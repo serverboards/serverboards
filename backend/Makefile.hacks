@@ -2,8 +2,12 @@
 
 compile: journald_api
 
-journald_api: _build/prod/lib/ejournald/priv/journald_api.so
+journald_api: _build/prod/lib/ejournald/priv/journald_api.so _build/test/lib/ejournald/priv/journald_api.so
 
+
+_build/test/lib/ejournald/priv/journald_api.so: deps/ejournald/priv/journald_api.so
+	mkdir -p $(shell dirname $@ )
+	cp $^ $@
 
 _build/prod/lib/ejournald/priv/journald_api.so: deps/ejournald/priv/journald_api.so
 	mkdir -p $(shell dirname $@ )
@@ -14,4 +18,5 @@ deps/ejournald/priv/journald_api.so: deps/ejournald/c_src/journald_api.c
 
 clean:
 	rm -rf deps/ejournald/priv/
-	rm -f _build/prod/lib/ejournald/priv/journald_api.so_build/prod/lib/ejournald/priv/journald_api.so
+	rm -f _build/prod/lib/ejournald/priv/journald_api.so
+	rm -f _build/test/lib/ejournald/priv/journald_api.so

@@ -26,7 +26,7 @@ BACKEND_PID=$!
 popd >/dev/null
 
 echo "Backend at $BACKEND_PID. Waiting for port 4040 UP..."
-wait_for_port 4040
+wait_for_port 4040 $BACKEND_PID
 echo "Done."
 set -e
 

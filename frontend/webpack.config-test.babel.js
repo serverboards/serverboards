@@ -5,19 +5,51 @@ export default {
   target: 'node',
   externals: [nodeExternals()],
   module: {
-    loaders: [
-        //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
-        { test: /\.js$/, exclude: /node_modules/, loaders: ["react-hot", "babel"] },
-        { test: /\.css$/, loader: "style!css" },
-        { test: /\.sass$/, exclude: /node_modules/, loader: "style!css!sass"},
-        { test: /\.(jpe?g|png|gif|svg)$/i,
-                loaders: [
-                    'file?hash=sha512&digest=hex&name=[hash].[ext]',
-                    'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
-                ]
-              },
-        { test: /\.json$/, loader: "json" },
-    ]
+      rules: [
+          //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: ["react-hot-loader", "babel-loader"]
+          },
+          { test: /\.css$/, use: ["style-loader","css"] },
+          {
+            test: /\.sass$/,
+            use: [{
+              loader: "style-loader"
+            }, {
+              loader: "css-loader"
+            }, {
+              loader: "sass-loader",
+              options : {
+                includePaths: ["./"]
+              }
+            }]
+          },
+          { test: /\.(jpe?g|png|gif|svg)$/i,
+            loaders: [
+              'file-loader',
+              {
+                loader: 'image-webpack-loader',
+                query: {
+                  mozjpeg: {
+                    progressive: true,
+                  },
+                  gifslice: {
+                    interlaced: false,
+                  },
+                  optipng: {
+                    optimizationLevel: 7,
+                  },
+                  pngquant: {
+                    quality: '65-90',
+                    speed: 4
+                  }
+                }
+              }
+            ]
+          }
+      ]
   },
   devtool: "cheap-module-source-map",
   resolve: {

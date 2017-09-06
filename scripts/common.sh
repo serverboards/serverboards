@@ -1,11 +1,20 @@
 function wait_for_port(){
   set +e
   WAIT="1"
+  PORT="$1"
+  WAITPID="$2"
   while [ "$WAIT" ]; do
     sleep 2
-    fuser -n tcp $1
+    fuser -n tcp $PORT
     if [ "$?" == "0" ]; then
       WAIT=""
+    fi
+    if [ "$WAITPID" ]; then
+      if [ ! -d "/proc/$WAITPID" ]; then
+        WAIT=""
+        echo "Server PID exitted. Aborting tests."
+        exit 1
+      fi
     fi
   done
   set -e

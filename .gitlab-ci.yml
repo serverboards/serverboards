@@ -16,11 +16,12 @@ backend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - scripts/backend-test.sh
+    - scripts/backend-test.py
   artifacts:
     paths:
       - log
     expire_in: 1 week
+    when: always
   cache:
     paths:
       - backend/_build
@@ -30,7 +31,7 @@ frontend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - scripts/frontend-test.sh
+    - scripts/frontend-test.py
   cache:
     paths:
       - backend/_build
@@ -40,6 +41,7 @@ frontend-test:
   artifacts:
     paths:
       - frontend/shots
+      - log
     expire_in: 1 week
     when: always
 
@@ -47,7 +49,12 @@ plugins-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - scripts/plugin-test.sh
+    - scripts/plugin-test.py
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
+    when: always
   cache:
     paths:
       - backend/_build

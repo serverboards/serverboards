@@ -53,7 +53,9 @@ defmodule Serverboards.RulesV2.Rules do
   alias Serverboards.RulesV2.Rule
 
   def start_ets_table() do
-    :ets.new(:rules_rule_id_cache, [:set, :public, :named_table])
+    if :ets.info(:rules_rule_id_cache) == :undefined do
+      :ets.new(:rules_rule_id_cache, [:set, :public, :named_table])
+    end
   end
 
   def start_eventsourcing(options \\ []) do

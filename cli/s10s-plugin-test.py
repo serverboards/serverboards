@@ -66,7 +66,7 @@ def main():
         for n, test in enumerate(tests):
             cli.call("@log.info", "Start plugin test %s:%s"%(command,test), {"file": "s10s plugin-test", "line":"--"})
             logl=cli.call("logs.list", count=1)["lines"]
-            start_log_id = logl[-1]["id"]-1 # Show the "Start plugin test message"
+            start_log_id = (logl[-1]["id"]-1) if logl else 0 # Show the "Start plugin test message"
 
             printc("* %s (%d/%d)...\r"%(test, n+1, tests_count), end="", flush=True)
             startt=time.time()

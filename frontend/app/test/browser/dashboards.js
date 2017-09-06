@@ -40,7 +40,9 @@ describe("Dashboard", () => {
   })
 
   it("Adds a widget", function(){
-    $('a.massive._add.button').click()
+    $('.ui.floating.bottom.right.add a').click()
+    $('.ui.mid.massive.button.add.area.chart.yellow.icon').waitForExist()
+    $('.ui.mid.massive.button.add.area.chart.yellow.icon').click()
 
     browser.saveScreenshot("./shots/012-add-widget.png")
     $('div.selection.ui.dropdown').click()
@@ -65,7 +67,7 @@ describe("Dashboard", () => {
     $('.ui.attached.tabular.menu').$('=test').waitForExist()
     $('.ui.attached.tabular.menu').$('=test').click()
     // now has not
-    $('.board .card h1').waitForExist(500, true) // not exists
+    $('.board .card h1').waitForExist(500, true) // not exists. May fail if previous test failed.
 
     $('.ui.attached.tabular.menu').$('=Monitoring').click()
     // now has it
@@ -74,7 +76,8 @@ describe("Dashboard", () => {
   })
 
   it("Another project, change of widgets", function(){
-    $('#project_selector').click()
+    $('#side_menu_toggle').click()
+
     $('#add_project').waitForExist()
     $('#add_project').click()
     $('input[name=name]').waitForExist()
@@ -82,6 +85,7 @@ describe("Dashboard", () => {
     $('textarea[name=description]').setValue("This is the TEST nr 02")
     $('button[type=submit]').click()
     $$('.message .close.icon').map( f => f.click() ) // Close messages
+
 
     $('#project_selector').click()
     $('=TEST-01').waitForExist()

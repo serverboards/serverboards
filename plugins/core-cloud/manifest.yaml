@@ -230,5 +230,5 @@ components:
 
   - id: test
     name: Test Cloud Services
-    type: test
+    type: test disabled
     command: serverboards.core.cloud/test-daemon

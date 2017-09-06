@@ -22,7 +22,11 @@ defmodule Serverboards.Logger do
   """
   def history(options \\ %{}) do
     import Ecto.Query
-    Serverboards.Logger.Server.flush(Serverboards.Logger.Server)
+    try do
+      Serverboards.Logger.Server.flush(Serverboards.Logger.Server)
+    catch
+      :exit, _ -> nil
+    end
 
     # Prepare the main query
     q = from l in Model.Line

@@ -81,6 +81,7 @@ defmodule Serverboards.RuleV2Test do
   test "Simple rule run" do
     rule = %{
       uuid: UUID.uuid4(),
+      from_template: nil,
       rule: %{
         "when" => %{
           "type" => "trigger",
@@ -130,6 +131,7 @@ defmodule Serverboards.RuleV2Test do
   test "Rule with conditionals" do
     rule = %{
       uuid: UUID.uuid4(),
+      from_template: nil,
       rule: %{
         "when" => %{
           "type" => "trigger",

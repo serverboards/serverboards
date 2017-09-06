@@ -169,7 +169,7 @@ defmodule Serverboards.Plugin.Registry do
         do
            %Plugin.Component{ component | plugin: plugin, id: "#{plugin.id}/#{component.id}" }
         else
-           nil
+          _ -> nil
         end
     end
   end

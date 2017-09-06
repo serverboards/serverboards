@@ -9,8 +9,10 @@ defmodule Serverboards.Plugin.Monitor do
   @timeout 5000 # batch changes to until no changes in 1s
 
   def start_link(options \\ []) do
-    paths = Serverboards.Plugin.Registry.plugin_paths()
-    GenServer.start_link __MODULE__, paths, options
+    if Serverboards.Config.get(:plugins, :watch, true) do
+      paths = Serverboards.Plugin.Registry.plugin_paths()
+      GenServer.start_link __MODULE__, paths, options
+    end
   end
 
 
