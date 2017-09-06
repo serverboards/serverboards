@@ -40,8 +40,8 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
         print(text, **kwargs)
     sys.stdout.flush()
 
-def compile(logfile=sys.stdout):
-    with chdir("backend/"), envset(MIX_ENV="test"):
+def compile(logfile=sys.stdout, MIX_ENV="test"):
+    with chdir("backend/"), envset(MIX_ENV=MIX_ENV):
         sh.mix("deps.get", _out=logfile, _err=logfile)
         sh.make("-f", "Makefile.hacks", "compile", _out=logfile, _err=logfile)
 
@@ -103,7 +103,7 @@ class running:
         self.args=args
         self.kwargs=kwargs
     def __enter__(self):
-        self.process=sh.Command(self.command)(*self.args, **self.kwargs, _bg=True)
+        self.process=sh.Command(self.command)(*self.args, **self.kwargs, _bg=True, _ok_code=range(16))
     def __exit__(self, *args):
         try:
             tmp = sh._SelfWrapper__self_module.SIGNALS_THAT_SHOULD_THROW_EXCEPTION # hack do not throw, please

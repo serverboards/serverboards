@@ -4,11 +4,12 @@ import os, sh, sys, time, uuid
 from tests_common import *
 def main():
     sh.mkdir("-p","log")
+    sh.fuser("-k","-n","tcp","4040", _ok_code=[0,1])
 
     printc("COMPILING", color="blue")
     start = time.time()
     try:
-        compile(logfile=open("log/compile.txt","wb"))
+        compile(logfile=open("log/compile.txt","wb"), MIX_ENV="prod")
     except:
         printc("ERROR COMPILING", color="red")
         with open("log/compile.txt") as fd:
@@ -24,8 +25,6 @@ def main():
     with tmpdb(dbname), \
          envset(MIX_ENV="prod", SERVERBOARDS_DATABASE_URL=dburl, SERVERBOARDS_TCP_PORT="4040", SERVERBOARDS_INI="test/plugins.ini"), \
          running("mix", "run", "--no-halt", _out="log/serverboards.txt", _err_to_out=True, _cwd="backend"):
-        printc("WAIT FOR RUNNING BACKEND", color="blue")
-        wait_for_port(8080, timeout=20)
         printc("CREATE USER", color="blue")
         create_user(dburl, token)
         fail = False
@@ -48,6 +47,10 @@ def main():
                 print(fd.read())
             printc("FAIL UNIT TESTS", color="red")
             fail = True
+
+        printc("WAIT FOR RUNNING BACKEND", color="blue")
+        wait_for_port(8080, timeout=20)
+
         printc("UI TESTS", color="blue")
         try:
             with chdir("frontend"), running("Xvfb",":5"), envset(DISPLAY=":5"):

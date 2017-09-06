@@ -5,11 +5,12 @@ from tests_common import *
 
 def main():
     sh.mkdir("-p","log")
+    sh.fuser("-k","-n","tcp","4040", _ok_code=[0,1])
 
     printc("COMPILING", color="blue")
     start = time.time()
     try:
-        compile(logfile=open("log/compile.txt","wb"))
+        compile(logfile=open("log/compile.txt","wb"), MIX_ENV="prod")
     except:
         printc("ERROR COMPILING", color="red")
         with open("log/compile.txt") as fd:
