@@ -78,23 +78,16 @@ describe("Dashboard", () => {
   it("Another project, change of widgets", function(){
     $('#side_menu_toggle').click()
 
-    browser.saveScreenshot("./shots/016-A.png")
-
     $('#add_project').waitForExist()
     $('#add_project').click()
-    browser.saveScreenshot("./shots/016-B.png")
     $('input[name=name]').waitForExist()
     $('input[name=name]').setValue("TEST-02")
-    browser.saveScreenshot("./shots/016-C.png")
     $('textarea[name=description]').setValue("This is the TEST nr 02")
     $('button[type=submit]').click()
-    browser.saveScreenshot("./shots/016-D.png")
     $$('.message .close.icon').map( f => f.click() ) // Close messages
 
-    browser.saveScreenshot("./shots/016-E.png")
 
     $('#project_selector').click()
-    browser.saveScreenshot("./shots/016-F.png")
     $('=TEST-01').waitForExist()
 
     browser.saveScreenshot("./shots/016-dashboard-list.png")
