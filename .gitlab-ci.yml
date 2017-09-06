@@ -41,6 +41,7 @@ frontend-test:
   artifacts:
     paths:
       - frontend/shots
+      - log
     expire_in: 1 week
     when: always
 
