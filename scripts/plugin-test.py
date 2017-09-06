@@ -33,7 +33,7 @@ def main():
         with chdir("cli"):
             try:
                 sh.make()
-                sh.Command("./s10s-plugin-test.py")("--auth-token", token, _out=sys.stdout, _err_to_out=True)
+                sh.Command("./s10s-plugin-test.py")("--auth-token", token, _out=sys.stdout.buffer, _err_to_out=True)
             except sh.ErrorReturnCode_1:
                 fail=True
             except:
