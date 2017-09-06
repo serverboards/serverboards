@@ -23,7 +23,7 @@ def main():
     dburl = "postgresql://serverboards:serverboards@localhost/%s"%dbname
 
     with tmpdb(dbname), \
-         envset(MIX_ENV="test", SERVERBOARDS_DATABASE_URL=dburl, SERVERBOARDS_TCP_PORT="4040", SERVERBOARDS_INI="test/plugins.ini"), \
+         envset(MIX_ENV="prod", SERVERBOARDS_DATABASE_URL=dburl, SERVERBOARDS_TCP_PORT="4040", SERVERBOARDS_INI="test/plugins.ini"), \
          running("mix", "run", "--no-halt", _out="log/serverboards.txt", _err_to_out=True, _cwd="backend"):
         printc("WAIT FOR PORT", color="blue")
         wait_for_port(4040, timeout=20)
