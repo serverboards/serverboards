@@ -2374,10 +2374,10 @@ COPY schema_migrations (version, inserted_at) FROM stdin;
 20170623160905	2017-07-27 15:28:44.12688
 \.
 
-INSERT INTO auth_group(id, name)
+INSERT INTO auth_group(name)
     VALUES
-    (1, 'admin'),
-    (2, 'user');
+    ('admin'),
+    ('user');
 
 --
 -- PostgreSQL database dump complete
