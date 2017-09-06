@@ -32,12 +32,17 @@ def main():
         printc("TESTS", color="blue")
         with chdir("cli"):
             try:
-                sh.Command("./s10s")("plugin-test", "--auth-token", token, _out=sys.stdout, _err_to_out=True)
+                sh.make()
+                sh.Command("./s10s-plugin-test.py")("--auth-token", token, _out=sys.stdout, _err_to_out=True)
+            except sh.ErrorReturnCode_1:
+                fail=True
             except:
                 import traceback
                 traceback.print_exc()
                 fail=True
     if fail:
+        print()
+        printc("FAILED", color="red")
         sys.exit(1)
     sys.exit(0)
 
