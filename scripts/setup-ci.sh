@@ -19,7 +19,7 @@ sudo apt install -y debhelper esl-erlang elixir nodejs libpam-dev \
   postgresql postgresql-client inotify-tools git nginx \
   python3-venv python3-sh pwgen uuid-runtime parallel \
   openjdk-9-jre-headless xvfb google-chrome-stable firefox \
-  gitlab-ci-multi-runner psmisc
+  gitlab-ci-multi-runner psmisc npm
 
 systemctl enable postgresql
 
@@ -34,6 +34,8 @@ ALTER USER "serverboards" CREATEDB;
 ALTER USER serverboards WITH SUPERUSER;
 
 EOF
+
+npm install -g yarn
 
 echo
 echo Get the Runner Id and all data from the gitlab web ui
