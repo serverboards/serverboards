@@ -21,13 +21,13 @@ def main():
     fail = False
     dbname = random_dbname()
     dburl = "postgresql://serverboards:serverboards@localhost/%s"%dbname
+    fail = False
 
     with tmpdb(dbname), \
          envset(MIX_ENV="prod", SERVERBOARDS_DATABASE_URL=dburl, SERVERBOARDS_TCP_PORT="4040", SERVERBOARDS_INI="test/plugins.ini"), \
          running("mix", "run", "--no-halt", _out="log/serverboards.txt", _err_to_out=True, _cwd="backend"):
         printc("CREATE USER", color="blue")
         create_user(dburl, token)
-        fail = False
 
         with chdir("frontend"):
             sh.rm("-rf", "shots")
@@ -61,10 +61,12 @@ def main():
                 print(fd.read())
             printc("FAIL UI TESTS", color="red")
             fail=True
-        if fail:
-            printc("FAIL", color="red")
-        else:
-            printc("SUCCESS", color="GREEN")
+    if fail:
+        printc("FAIL", color="red")
+        sys.exit(1)
+    else:
+        printc("SUCCESS", color="GREEN")
+    sys.exit(0)
 
 
 
