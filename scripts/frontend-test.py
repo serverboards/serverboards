@@ -6,7 +6,7 @@ def main():
     sh.mkdir("-p","log")
     sh.fuser("-k","-n","tcp","4040", _ok_code=[0,1])
 
-    printc("COMPILING", color="blue")
+    printc("COMPILE BACKEND", color="blue")
     start = time.time()
     try:
         compile(logfile=open("log/compile.txt","wb"), MIX_ENV="prod")
@@ -16,6 +16,14 @@ def main():
             print( fd.read() )
             sys.exit(1)
     end = time.time()
+
+    with chdir("frontend"):
+        sh.rm("-rf", "shots")
+        sh.mkdir("-p", "shots")
+
+    printc("COMPILE FRONTEND", color="blue")
+    with chdir("frontend"):
+        sh.make("compile", _out="../log/compile.txt")
 
     token = uuid.uuid4()
     fail = False
@@ -28,14 +36,6 @@ def main():
          running("mix", "run", "--no-halt", _out="log/serverboards.txt", _err_to_out=True, _cwd="backend"):
         printc("CREATE USER", color="blue")
         create_user(dburl, token)
-
-        with chdir("frontend"):
-            sh.rm("-rf", "shots")
-            sh.mkdir("-p", "shots")
-
-        printc("MAKE FRONTEND", color="blue")
-        with chdir("frontend"):
-            sh.make("compile", _out="../log/compile.txt")
 
         printc("UNIT TESTS", color="blue")
         try:

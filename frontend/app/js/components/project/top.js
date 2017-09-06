@@ -139,7 +139,7 @@ const Top = React.createClass({
     return (
       <div className="ui serverboards top menu secondary">
         {!show_sidebar ? (
-          <a className="item" onClick={() => onShowSidebar( !show_sidebar )}>
+          <a className="item" id="side_menu_toggle" onClick={() => onShowSidebar( !show_sidebar )}>
           <i className={`ui big icon content`}/>
           </a>
         ) : (

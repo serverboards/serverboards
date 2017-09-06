@@ -24,7 +24,7 @@ function ProjectHeader(props){
         <h3 className="ui header expand" style={{margin: 0, fontSize: 30}}>
           <img src={serverboards_logo} style={{width: "100%", marginTop: -2}}/>
         </h3>
-        <a className="item" onClick={props.onHideSidebar} style={{cursor:"pointer", color: "white", padding: 10}}>
+        <a className="item" id="side_menu_toggle" onClick={props.onHideSidebar} style={{cursor:"pointer", color: "white", padding: 10}}>
           <i className="ui icon content" style={{fontSize: 22}}/>
         </a>
       </div>
@@ -131,7 +131,7 @@ const SidebarSections = React.createClass({
           {i18n("View all projects")}
           <i className={`icon folder`}/>
         </a>
-        <a className="item" onClick={() => set_modal("project.create")} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
+        <a className="item" id="add_project" onClick={() => set_modal("project.add")} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
           {i18n("Create new project")}
           <i className={`icon yellow add`}/>
         </a>
