@@ -49,6 +49,11 @@ plugins-test:
   script:
     - cd $CI_PROJECT_DIR
     - scripts/plugin-test.py
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
+    when: always
   cache:
     paths:
       - backend/_build

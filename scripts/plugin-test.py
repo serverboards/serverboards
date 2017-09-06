@@ -34,6 +34,8 @@ def main():
             try:
                 sh.Command("./s10s")("plugin-test", "--auth-token", token, _out=sys.stdout, _err_to_out=True)
             except:
+                import traceback
+                traceback.print_exc()
                 fail=True
     if fail:
         sys.exit(1)
