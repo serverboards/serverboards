@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys, os, time
+import sys, os, time, sh
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, hashlib
 from serverboards import service, plugin, file, rpc, print
@@ -49,7 +49,7 @@ def t02_ssh_add_fingerprints_test():
     assert ssh_public_key != None
 
     # add it to authorized_keys
-
+    sh.mkdir("-p", "/home/%s/.ssh/"%os.environ["USER"])
     authorized_keys_path = "/home/%s/.ssh/authorized_keys"%os.environ["USER"]
     exists=False
     if os.path.isfile(authorized_keys_path):
