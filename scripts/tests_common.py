@@ -45,7 +45,7 @@ def compile(logfile=sys.stdout, MIX_ENV="test"):
         sh.mix("deps.get", _out=logfile, _err=logfile)
         sh.make("-f", "Makefile.hacks", "compile", _out=logfile, _err=logfile)
 
-    with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
+    with chdir("backend/apps/serverboards/"), envset(MIX_ENV=MIX_ENV):
         sh.mix("compile", _out=logfile, _err=logfile)
 
 class chdir:
