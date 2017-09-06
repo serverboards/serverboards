@@ -20,7 +20,7 @@ sudo apt install -y debhelper esl-erlang elixir nodejs libpam-dev \
   postgresql postgresql-client inotify-tools git nginx \
   python3-venv python3-sh pwgen uuid-runtime parallel \
   openjdk-9-jre-headless xvfb google-chrome-stable firefox \
-  gitlab-ci-multi-runner psmisc
+  gitlab-ci-multi-runner psmisc openssh-server
 
 systemctl enable postgresql
 
