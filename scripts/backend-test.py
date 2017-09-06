@@ -8,57 +8,11 @@ This allows them to run in parallel, and save a lot of time.
 """
 
 
-import sh, os, random, sys, time
+import sh, os, sys, time
 from multiprocessing import Pool
+from tests_common import *
 
 TEST_DIR='backend/apps/serverboards/test/'
-DESTROY_DB_USERS="""
-SELECT pg_terminate_backend(pid)
-FROM pg_stat_activity
-WHERE datname = '{DBNAME}';
-
-drop database {DBNAME};
-"""
-
-def printc(*s, color=None, hl=None, bg=None, **kwargs):
-    """
-    Prints some text with some color, using Terminal escape sequences
-
-    >>> printc("Hello world", color="blue")
-    \033[1;34mHello world\033[1;m
-    >>> printc("Hello world", color="blue", hl=True)
-    \033[1;44mHello world\033[1;m
-
-    """
-    colors = {
-        'grey':30,
-        'black':31,
-        'red':31,
-        'green':32,
-        'yellow':33,
-        'blue':34,
-        'magenta':35,
-        'purple':35,
-        'cyan':36,
-        }
-    code=colors.get(color)
-    text=' '.join(str(x) for x in s)
-    if code:
-        hl = 1 if hl else 0
-        if bg:
-            code+=10
-        print("\033[{hl};{color}m{text}\033[1;m".format(hl=hl, text=text, color=code), **kwargs)
-    else:
-        print(text, **kwargs)
-    sys.stdout.flush()
-
-def compile(logfile=sys.stdout):
-    with chdir("backend/"), envset(MIX_ENV="test"):
-        sh.mix("deps.get", _out=logfile, _err=logfile)
-        sh.make("-f", "Makefile.hacks", "compile", _out=logfile, _err=logfile)
-
-    with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
-        sh.mix("compile", _out=logfile, _err=logfile)
 
 def test(args):
     test, origdb = args
@@ -67,7 +21,7 @@ def test(args):
     with open("log/%s.txt"%test,"wb") as logfile:
         testname = os.path.join("test/",test)
 
-        dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
+        dbname=random_dbname()
         printc("test \t%32s \t\tDB %s"%(test, dbname), color="blue")
         envs = dict(
             MIX_ENV="test",
@@ -97,10 +51,6 @@ def test(args):
 
 def main():
     sh.mkdir("-p","log")
-    try:
-        os.unlink("logfile.txt")
-    except:
-        pass
 
     printc("COMPILING", color="blue")
     start = time.time()
@@ -118,7 +68,7 @@ def main():
     allok = []
     accumulated_time=(end-start) # count also compilation time
     with Pool() as p:
-        dbname='sbds_'+(''.join(random.choice('abcdefghijklmnopqrst123467890') for _ in range(10)))
+        dbname=random_dbname()
         printc("TEMPORAL DB TEMPLATE", color="blue")
         with tmpdb(dbname):
             printc("%d TESTS"%len(tests), color="blue")
@@ -142,56 +92,6 @@ def main():
     printc("ALL PASS\tTOTAL TIME %.2f s / %.2f s (%.2f%%)"%(end-start, accumulated_time, (end-start)*100/accumulated_time ), color="green")
     print()
     sys.exit(0)
-
-class chdir:
-    """
-    Step into a directory temporarily.
-    """
-    def __init__(self, path):
-        self.old_dir = os.getcwd()
-        self.new_dir = path
-
-    def __enter__(self):
-        os.chdir(self.new_dir)
-
-    def __exit__(self, *args):
-        os.chdir(self.old_dir)
-
-class envset:
-    def __init__(self, **envs):
-        self.envs=envs
-    def __enter__(self):
-        self.oldenv={}
-        for k,v in self.envs.items():
-            self.oldenv[k]=os.environ.get(k)
-            os.environ[k]=v
-    def __exit__(self, *args):
-        for k,v in self.oldenv.items():
-            if not v:
-                del os.environ[k]
-            else:
-                os.environ[k]=v
-class tmpdb:
-    def __init__(self, dbname):
-        self.dbname=dbname
-    def __enter__(self):
-        sh.createdb(self.dbname, _out="log/create-tmpdb.txt")
-        sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql", _out="log/create-tmpdb.txt")
-        printc("UPDATE TEMPLATE DB", color="blue")
-        with envset(MIX_ENV="test"), chdir("backend"):
-            sh.mix("run", "apps/serverboards/priv/repo/test_seeds.exs", _out="../log/create-tmpdb.txt")
-    def __exit__(self, *args):
-        # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
-        sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
-class copytmpdb:
-    def __init__(self, orig, dbname):
-        self.orig=orig
-        self.dbname=dbname
-    def __enter__(self):
-        sh.createdb(self.dbname,"-T",self.orig, _out="log/create-copytmpdb.txt")
-    def __exit__(self, *args):
-        # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
-        sh.psql("template1", _in=DESTROY_DB_USERS.format(DBNAME=self.dbname))
 
 if __name__=='__main__':
     main()

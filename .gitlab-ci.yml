@@ -48,7 +48,7 @@ plugins-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - scripts/plugin-test.sh
+    - scripts/plugin-test.py
   cache:
     paths:
       - backend/_build
