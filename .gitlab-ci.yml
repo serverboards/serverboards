@@ -31,7 +31,7 @@ frontend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - scripts/frontend-test.sh
+    - scripts/frontend-test.py
   cache:
     paths:
       - backend/_build
