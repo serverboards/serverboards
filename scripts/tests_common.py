@@ -135,29 +135,32 @@ def wait_for_port(port, timeout=300):
 
 def create_user(database_url, token, logfile="log/createuser.txt"):
     sqls = ["""
-INSERT INTO auth_user (id, email, name, is_active, inserted_at, updated_at)
+INSERT INTO auth_user (email, name, is_active, inserted_at, updated_at)
   VALUES
-  (1, '{username}', 'Test User', true, NOW(), NOW());
+  ('{username}', 'Test User', true, NOW(), NOW());
 ""","""
 SELECT * FROM auth_user;
 ""","""
 INSERT INTO auth_user_password (user_id, password, inserted_at, updated_at)
   VALUES
-  (1, '$bcrypt$$2b$12$mFXChDI63yh1WPR./gJjk.vq7U3Q/r1xjtgmLJhDhPoaZd650pAny', NOW(), NOW());
+  ((SELECT id FROM auth_user WHERE email='{username}'),
+    '$bcrypt$$2b$12$mFXChDI63yh1WPR./gJjk.vq7U3Q/r1xjtgmLJhDhPoaZd650pAny',
+    NOW(),
+    NOW());
 SELECT * FROM auth_user_password
 ""","""
 INSERT INTO auth_user_token
   (user_id, token, perms, time_limit, inserted_at, updated_at)
   VALUES
-  (1, '{token}', NULL, NOW() + '30 minutes'::interval, NOW(), NOW());
+  ((SELECT id FROM auth_user WHERE email='{username}'), '{token}', NULL, NOW() + '30 minutes'::interval, NOW(), NOW());
 ""","""
 SELECT * FROM auth_user_token;
 ""","""
 INSERT INTO auth_user_group
   (user_id, group_id)
   VALUES
-  (1, 1),
-  (1, 2);
+  ((SELECT id FROM auth_user WHERE email='{username}'), (SELECT id FROM auth_group WHERE name='admin')),
+  ((SELECT id FROM auth_user WHERE email='{username}'), (SELECT id FROM auth_group WHERE name='user'));
 
 SELECT * FROM auth_user_group;
 """]
