@@ -3,7 +3,8 @@
 import os, sh, sys, time, uuid
 from tests_common import *
 
-show_ui = "--visible" in sys.argv[1:]
+show_ui = False
+wait_at_error = False
 
 def main():
     sh.mkdir("-p","log")
@@ -56,6 +57,12 @@ def main():
             with open("log/wdio.txt","r") as fd:
                 print(fd.read())
             printc("FAIL UI TESTS", color="red")
+            if wait_at_error:
+                printc("WAIT FOR <Crtl + C>", color="yellow")
+                try:
+                    time.sleep(1000)
+                except:
+                    printc("STOPPING", color="yellow")
             fail=True
     if fail:
         printc("FAIL", color="red")
@@ -66,4 +73,10 @@ def main():
 
 
 if __name__=='__main__':
+    show_ui = "--visible" in sys.argv[1:]
+    wait_at_error = "--wait-at-error" in sys.argv[1:]
+    if '--help' in sys.argv[1:]:
+        print("%s [--visible] [--wait-at-error]"%(sys.argv[0]))
+        sys.exit(1)
+
     main()
