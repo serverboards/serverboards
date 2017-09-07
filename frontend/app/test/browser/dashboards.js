@@ -32,6 +32,7 @@ describe("Dashboard", () => {
 
     browser.saveScreenshot("./shots/011-add-project-ok.png")
 
+    $('#project_selector').waitForExist()
     $('#project_selector').click()
     $('=TEST-01').waitForExist()
 
@@ -87,6 +88,7 @@ describe("Dashboard", () => {
     $$('.message .close.icon').map( f => f.click() ) // Close messages
 
 
+    $('#project_selector').waitForExist()
     $('#project_selector').click()
     $('=TEST-01').waitForExist()
 
@@ -95,6 +97,7 @@ describe("Dashboard", () => {
     $('=TEST-01').click()
     $('.board .card h1').waitForExist()
 
+    $('#project_selector').waitForExist()
     $('#project_selector').click()
     $('=TEST-02').waitForExist()
     $('=TEST-02').click()
