@@ -85,7 +85,7 @@ class tmpdb:
         printc("CREATE DB %s"%self.dbname, color="blue")
         sh.createdb(self.dbname, _out="log/create-tmpdb.txt")
         sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql", _out="log/create-tmpdb.txt")
-        with envset(MIX_ENV="test"), chdir("backend"):
+        with envset(MIX_ENV="test", SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/%s"%self.dbname), chdir("backend"):
             sh.mix("run", "apps/serverboards/priv/repo/test_seeds.exs", _out="../log/create-tmpdb.txt")
     def __exit__(self, *args):
         # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
