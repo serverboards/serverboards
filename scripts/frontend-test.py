@@ -2,6 +2,9 @@
 
 import os, sh, sys, time, uuid
 from tests_common import *
+
+show_ui = "--watch" in sys.argv[1:]
+
 def main():
     sh.mkdir("-p","log")
     sh.fuser("-k","-n","tcp","4040", _ok_code=[0,1])
@@ -53,8 +56,12 @@ def main():
 
         printc("UI TESTS", color="blue")
         try:
-            with chdir("frontend"), running("Xvfb",":5"), envset(DISPLAY=":5"):
-                sh.Command("node_modules/.bin/wdio")("wdio.conf.js", _out="../log/wdio.txt")
+            if show_ui:
+                with chdir("frontend"):
+                    sh.Command("node_modules/.bin/wdio")("wdio.conf.js", _out="../log/wdio.txt")
+            else:
+                with chdir("frontend"), running("Xvfb",":5"), envset(DISPLAY=":5"):
+                    sh.Command("node_modules/.bin/wdio")("wdio.conf.js", _out="../log/wdio.txt")
             printc("PASS UI TESTS", color="green")
         except:
             with open("log/wdio.txt","r") as fd:
@@ -65,7 +72,7 @@ def main():
         printc("FAIL", color="red")
         sys.exit(1)
     else:
-        printc("SUCCESS", color="GREEN")
+        printc("SUCCESS", color="green")
     sys.exit(0)
 
 
