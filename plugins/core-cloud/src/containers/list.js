@@ -7,7 +7,8 @@ class List extends React.Component{
     super(props)
     this.state={
       loading: true,
-      items: undefined
+      items: undefined,
+      current: undefined,
     }
   }
   componentDidMount(){
@@ -30,6 +31,8 @@ class List extends React.Component{
       <View
         items={this.state.items}
         reloadAll={this.componentDidMount.bind(this)}
+        current={this.state.current}
+        setCurrent={(current) => this.setState({current})}
         />
     )
   }

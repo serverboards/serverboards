@@ -31,7 +31,7 @@ class CloudCard extends React.Component{
     const props = this.props
     const {item} = props
     return (
-      <div className="ui narrow card">
+      <div className={`ui narrow card ${props.className || ""}`} onClick={props.onClick}>
         <div className="header">
           {template.name} | <a onClick={() => store.goto(`/services/${parent.uuid}/`)}>{parent.name}</a>
           <div className="right">
