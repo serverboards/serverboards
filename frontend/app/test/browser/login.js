@@ -28,10 +28,13 @@ describe("Login", () => {
     })
 
     it("Once logged in, can go to user profile", function(){
+      browser.saveScreenshot("./shots/003-A.png")
       $("#top-menu #profile").waitForExist()
 
+      browser.saveScreenshot("./shots/003-B.png")
       $("#profile").click()
       $("#top-menu #profile_menu #user").waitForVisible()
+      browser.saveScreenshot("./shots/003-C.png")
       $('#top-menu #profile_menu #user').click()
 
       browser.saveScreenshot("./shots/003-profile.png")
