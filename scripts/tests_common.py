@@ -42,6 +42,7 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
 
 def compile(logfile=sys.stdout, MIX_ENV="test"):
     with chdir("backend/"), envset(MIX_ENV=MIX_ENV):
+        sh.mix("local.hex","--force")
         sh.mix("deps.get", _out=logfile, _err=logfile)
         sh.make("-f", "Makefile.hacks", "compile", _out=logfile, _err=logfile)
 
