@@ -118,8 +118,13 @@ def t04_ssh_backup_test():
   file.close(rfd)
   #print("Closed all")
 
-  time.sleep(1) # wait to settle
-
+  for i in range(20):
+      time.sleep(1) # wait to settle
+      try:
+          os.stat(file_dest)
+          break
+      except:
+          pass
   assert os.stat(file_dest)
 
   import subprocess
