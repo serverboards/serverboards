@@ -118,8 +118,13 @@ def t04_ssh_backup_test():
   file.close(rfd)
   #print("Closed all")
 
-  time.sleep(1) # wait to settle
-
+  for i in range(20):
+      time.sleep(1) # wait to settle
+      try:
+          os.stat(file_dest)
+          break
+      except:
+          pass
   assert os.stat(file_dest)
 
   import subprocess
@@ -143,6 +148,8 @@ def t99_ssh_cleanup_service_test():
 @serverboards.rpc_method
 def t99_ssh_cleanup_fingerprint_test():
     # Disable fingerprint
+    # do not reuse old mgmt as may have died if too long to arrive here
+    mgmt = serverboards.Plugin("serverboards.core.ssh/mgmt")
     remote_fingerprint = mgmt.remote_fingerprint(url="localhost")
     assert mgmt.toggle_remote_fingerprint(url="localhost", status=remote_fingerprint) == "Fingerprint removed"
 

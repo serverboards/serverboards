@@ -42,10 +42,12 @@ def printc(*s, color=None, hl=None, bg=None, **kwargs):
 
 def compile(logfile=sys.stdout, MIX_ENV="test"):
     with chdir("backend/"), envset(MIX_ENV=MIX_ENV):
+        sh.mix("local.hex","--force")
+        sh.mix("local.rebar","--force")
         sh.mix("deps.get", _out=logfile, _err=logfile)
         sh.make("-f", "Makefile.hacks", "compile", _out=logfile, _err=logfile)
 
-    with chdir("backend/apps/serverboards/"), envset(MIX_ENV="test"):
+    with chdir("backend/apps/serverboards/"), envset(MIX_ENV=MIX_ENV):
         sh.mix("compile", _out=logfile, _err=logfile)
 
 class chdir:
@@ -83,7 +85,7 @@ class tmpdb:
         printc("CREATE DB %s"%self.dbname, color="blue")
         sh.createdb(self.dbname, _out="log/create-tmpdb.txt")
         sh.psql(self.dbname,"-f", "backend/apps/serverboards/priv/repo/initial.sql", _out="log/create-tmpdb.txt")
-        with envset(MIX_ENV="test"), chdir("backend"):
+        with envset(MIX_ENV="test", SERVERBOARDS_DATABASE_URL="postgresql://serverboards:serverboards@localhost/%s"%self.dbname), chdir("backend"):
             sh.mix("run", "apps/serverboards/priv/repo/test_seeds.exs", _out="../log/create-tmpdb.txt")
     def __exit__(self, *args):
         # print("Wipe out db %s %s"%(self.dbname, DESTROY_DB_USERS.format(DBNAME=self.dbname)))
@@ -133,29 +135,32 @@ def wait_for_port(port, timeout=300):
 
 def create_user(database_url, token, logfile="log/createuser.txt"):
     sqls = ["""
-INSERT INTO auth_user (id, email, name, is_active, inserted_at, updated_at)
+INSERT INTO auth_user (email, name, is_active, inserted_at, updated_at)
   VALUES
-  (1, '{username}', 'Test User', true, NOW(), NOW());
+  ('{username}', 'Test User', true, NOW(), NOW());
 ""","""
 SELECT * FROM auth_user;
 ""","""
 INSERT INTO auth_user_password (user_id, password, inserted_at, updated_at)
   VALUES
-  (1, '$bcrypt$$2b$12$mFXChDI63yh1WPR./gJjk.vq7U3Q/r1xjtgmLJhDhPoaZd650pAny', NOW(), NOW());
+  ((SELECT id FROM auth_user WHERE email='{username}'),
+    '$bcrypt$$2b$12$mFXChDI63yh1WPR./gJjk.vq7U3Q/r1xjtgmLJhDhPoaZd650pAny',
+    NOW(),
+    NOW());
 SELECT * FROM auth_user_password
 ""","""
 INSERT INTO auth_user_token
   (user_id, token, perms, time_limit, inserted_at, updated_at)
   VALUES
-  (1, '{token}', NULL, NOW() + '30 minutes'::interval, NOW(), NOW());
+  ((SELECT id FROM auth_user WHERE email='{username}'), '{token}', NULL, NOW() + '30 minutes'::interval, NOW(), NOW());
 ""","""
 SELECT * FROM auth_user_token;
 ""","""
 INSERT INTO auth_user_group
   (user_id, group_id)
   VALUES
-  (1, 1),
-  (1, 2);
+  ((SELECT id FROM auth_user WHERE email='{username}'), (SELECT id FROM auth_group WHERE name='admin')),
+  ((SELECT id FROM auth_user WHERE email='{username}'), (SELECT id FROM auth_group WHERE name='user'));
 
 SELECT * FROM auth_user_group;
 """]
