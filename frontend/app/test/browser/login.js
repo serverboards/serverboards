@@ -71,12 +71,13 @@ describe("Login", () => {
 
 
     it("Logs out", function(){
+      browser.saveScreenshot("./shots/009-A.png")
       $('#profile img').click()
       $('#profile_menu #logout').waitForExist()
+      browser.saveScreenshot("./shots/009-B.png")
       $('#profile_menu #logout').click()
 
       $("input[name=email]").waitForExist()
-
       browser.saveScreenshot("./shots/009-logged-out.png")
     })
 })
