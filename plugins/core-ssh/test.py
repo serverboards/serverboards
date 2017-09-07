@@ -148,6 +148,8 @@ def t99_ssh_cleanup_service_test():
 @serverboards.rpc_method
 def t99_ssh_cleanup_fingerprint_test():
     # Disable fingerprint
+    # do not reuse old mgmt as may have died if too long to arrive here
+    mgmt = serverboards.Plugin("serverboards.core.ssh/mgmt")
     remote_fingerprint = mgmt.remote_fingerprint(url="localhost")
     assert mgmt.toggle_remote_fingerprint(url="localhost", status=remote_fingerprint) == "Fingerprint removed"
 
