@@ -3,7 +3,7 @@
 import os, sh, sys, time, uuid
 from tests_common import *
 
-show_ui = "--watch" in sys.argv[1:]
+show_ui = "--visible" in sys.argv[1:]
 
 def main():
     sh.mkdir("-p","log")
