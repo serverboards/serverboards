@@ -22,7 +22,7 @@ function ListView(props){
           <div className="ui attached top form">
             <div className="ui input seamless white">
               <i className="icon search"/>
-              <input type="text" onChange={(ev) => this.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+              <input type="text" onChange={(ev) => props.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
             </div>
           </div>
           <div className="ui scroll extend with padding">
