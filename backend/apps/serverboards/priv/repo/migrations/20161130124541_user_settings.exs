@@ -7,7 +7,7 @@ defmodule Serverboards.Repo.Migrations.UserSettings do
       add :user_id, :integer
       add :data, :map
 
-      timestamps
+      timestamps()
     end
     create index(:settings_user_settings, [:section])
     create index(:settings_user_settings, [:user_id])

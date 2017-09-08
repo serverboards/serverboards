@@ -23,10 +23,18 @@ if (__DEV__){
 }
 //console.log(redux_extra)
 
+// From the redux manual, resolves promised actions
+const promise_middleware = store => next => action => {
+  if (typeof action.then !== 'function') {
+    return next(action)
+  }
+  return Promise.resolve(action).then(store.dispatch)
+}
+
 let store = createStore(
   redux_reducers, {},
   compose(
-    applyMiddleware(thunk, routerMiddleware(hashHistory)),
+    applyMiddleware(promise_middleware, thunk, routerMiddleware(hashHistory)),
     redux_extra
   )
 )
@@ -103,13 +111,13 @@ store.on=function(what, f){
 rpc.set_redux_store(store)
 
 /// Initial store status
-import {serverboard_update_all} from '../actions/serverboard'
+import {project_update_all} from '../actions/project'
 store.on('auth.logged_in', function(logged_in){
   if (logged_in){
     //console.log("Logged in, gathering initial status.")
 
     /// Initial data gather from server
-    store.dispatch( serverboard_update_all() )
+    store.dispatch( project_update_all() )
   }
 })
 

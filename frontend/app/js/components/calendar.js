@@ -1,9 +1,23 @@
 import React from 'react'
 import moment from 'moment'
+import {i18n_c} from 'app/utils/i18n'
 
 const WEEKSTART=1
 const WEEKEND=0
-const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"]
+const MONTHS=[
+  i18n_c("calendar", "January"),
+  i18n_c("calendar", "February"),
+  i18n_c("calendar", "March"),
+  i18n_c("calendar", "April"),
+  i18n_c("calendar", "May"),
+  i18n_c("calendar", "June"),
+  i18n_c("calendar", "July"),
+  i18n_c("calendar", "August"),
+  i18n_c("calendar", "September"),
+  i18n_c("calendar", "October"),
+  i18n_c("calendar", "November"),
+  i18n_c("calendar", "December")
+]
 
 const Calendar = React.createClass({
   getInitialState(){
@@ -96,13 +110,13 @@ const Calendar = React.createClass({
           </div>
         ) : null}
         <div className="ui week header text bold">
-          <span>MON</span>
-          <span>TUE</span>
-          <span>WED</span>
-          <span>THU</span>
-          <span>FRI</span>
-          <span>SAT</span>
-          <span>SUN</span>
+          <span>{i18n_c("calendar", "MON")}</span>
+          <span>{i18n_c("calendar", "TUE")}</span>
+          <span>{i18n_c("calendar", "WED")}</span>
+          <span>{i18n_c("calendar", "THU")}</span>
+          <span>{i18n_c("calendar", "FRI")}</span>
+          <span>{i18n_c("calendar", "SAT")}</span>
+          <span>{i18n_c("calendar", "SUN")}</span>
         </div>
         {weeks.map( (w, nw) => (
           <div key={nw} className="ui week">

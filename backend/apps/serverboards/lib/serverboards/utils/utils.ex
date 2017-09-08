@@ -160,4 +160,40 @@ defmodule Serverboards.Utils do
   end
 
 
+  @doc ~S"""
+  Calculates the diff between two maps, returning only changed elements.
+
+  Arrays are all the same, or all diferent. Maps only return changed keys;
+  if there is a changed key in a submap, returns only the submap.
+
+  If there is an item that disapeared, will have value nil.
+
+  The idea is to have a merge(A, res) = B
+  """
+  def map_diff(a, a) do
+    %{}
+  end
+  def map_diff(a, b) when is_map(a) and is_map(b) do
+    ret = Enum.reduce(a, %{}, fn {ka, va}, acc ->
+      vb = Map.get(b, ka, nil)
+      acc = case map_diff(va, vb) do
+        map when map == %{} ->
+          acc
+        other ->
+          acc = Map.put(acc, ka, other)
+          acc
+      end
+      acc
+    end)
+    ret
+  end
+  def map_diff(a, nil) do
+    nil
+  end
+  # any other means just get b
+  def map_diff(_, b) do
+    b
+  end
+
+
 end

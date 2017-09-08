@@ -1,6 +1,7 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import RichDescription from './richdescription'
+import i18n from 'app/utils/i18n'
 
 const SelectService=React.createClass({
   contextTypes:{
@@ -15,8 +16,8 @@ const SelectService=React.createClass({
     let store_state = this.context.store.getState()
     if (self.props.traits)
       filter.traits=self.props.traits
-    if (store_state.serverboard.current)
-      filter.serverboard=store_state.serverboard.current
+    if (store_state.project.current)
+      filter.project=store_state.project.current
 
     rpc.call("service.list", filter).then( (services) => {
       const results=services.map( (s) => ({
@@ -39,7 +40,7 @@ const SelectService=React.createClass({
     const props = this.props
     return (
       <div className="field">
-        <label>{props.label}</label>
+        <label>{i18n(props.label)}</label>
         <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
         <div ref="select" className={`ui fluid ${props.search ? "search" : ""} selection dropdown`}>
           <input type="hidden" name={props.name} defaultValue={props.value} onChange={props.onChange}/>

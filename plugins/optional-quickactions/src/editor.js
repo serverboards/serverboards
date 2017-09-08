@@ -4,7 +4,7 @@ import ActionList from './model/list'
 
 function View(props){
   return (
-    <ActionList serverboard={props.serverboard.shortname} services={props.serverboard.services}/>
+    <ActionList serverboard={props.project.shortname} services={props.project.services}/>
   )
 }
 
@@ -12,7 +12,6 @@ function main(el, config){
   Serverboards.ReactDOM.render(<View {...config}/>, el)
   plugin_id = config.plugin
 
-  console.log(config)
   return function(){
     Serverboards.ReactDOM.unmountComponentAtNode(el)
   }

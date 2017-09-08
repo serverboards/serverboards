@@ -5,11 +5,10 @@ import { connect } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 import store from 'app/utils/store'
 
-import DashBoard from 'app/components/dashboard'
+import DashBoard from 'app/containers/dashboard'
 import Profile from 'app/containers/profile'
 import Settings from 'app/components/settings'
-import Serverboard from 'app/containers/serverboard'
-import ServerboardAdd from 'app/containers/serverboard/add'
+import Project from 'app/containers/project'
 import ProcessesHistory from 'app/containers/processes'
 import ProcessView from 'app/containers/processes/process'
 import PluginScreen from 'app/components/plugin/screen'
@@ -20,6 +19,7 @@ import Issues from 'app/containers/issues'
 import IssuesAdd from 'app/containers/issues/add'
 import IssuesView from 'app/containers/issues/details'
 import ServiceDetails from 'app/containers/service/details'
+import RuleDetails from 'app/containers/rules/edit'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -30,11 +30,11 @@ var ServerboardsRouter = React.createClass({
         <Router history={history}>
           <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
-          <Route path="/serverboard/">
-            <Route path="add" component={ServerboardAdd}/>
-            <Route path=":serverboard/" component={Serverboard}/>
-            <Route path=":serverboard/:section" component={Serverboard}/>
-            <Route path=":serverboard/:section/:subsection" component={Serverboard}/>
+          <Route path="/project/">
+            <Route path=":project/" component={Project}/>
+            <Route path=":project/:section" component={Project}/>
+            <Route path=":project/:section/:subsection" component={Project}/>
+            <Route path=":project/:section/:subsection/:service" component={Project}/>
           </Route>
           <Route path="/settings/" component={Settings}>
             <Route path=":section" component={Settings}/>
@@ -58,6 +58,9 @@ var ServerboardsRouter = React.createClass({
 
           <Route path="/services/">
             <Route path=":id" component={ServiceDetails}/>
+          </Route>
+          <Route path="/rules/">
+            <Route path=":id" component={RuleDetails}/>
           </Route>
 
           <Route path="/s/">

@@ -2,6 +2,7 @@ import React from 'react'
 import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import {trigger_action} from './action'
+import {i18n} from 'app/utils/i18n'
 
 const ActionMenu=React.createClass({
   contextTypes: {
@@ -22,10 +23,10 @@ const ActionMenu=React.createClass({
   },
   loadAvailableActions(){
     if (!this.state.actions){
-      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+      rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
         this.setState({ actions })
       }).catch(() => {
-        Flash.error("Could not load actions for this service")
+        Flash.error(i18n("Could not load actions for this service"))
         this.setState({
           actions: undefined,
         })
@@ -42,21 +43,21 @@ const ActionMenu=React.createClass({
     const props=this.props
     const state=this.state
     return (
-      <div className="ui dropdown" ref="dropdown" style={{minWidth: "4em"}} onClick={ (ev) => ev.stopPropagation() }>
+      <div className="ui dropdown" ref="dropdown" style={{minWidth: "5em"}} onClick={ (ev) => ev.stopPropagation() }>
         {props.children}
         <i className="ui dropdown icon"/>
         <div className="ui vertical menu">
           {!props.service.is_virtual ? (
-            <HoldButton className="item" onHoldClick={this.props.onDetach}>Hold to Detach</HoldButton>
+            <HoldButton className="item" onHoldClick={this.props.onDetach}>{i18n("Hold to Detach")}</HoldButton>
           ) : []}
           {props.service.fields ? (
-            <div className="item" onClick={this.handleOpenSettings}><i className="ui icon settings"/> Settings</div>
+            <div className="item" onClick={this.handleOpenSettings}><i className="ui icon settings"/> {i18n("Settings")}</div>
           ) : []}
           {state.actions ? state.actions.map( (ac) => (
             <div key={ac.id} className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
           )) : (
             <div className="item disabled">
-              Loading
+              {i18n("Loading")}
             </div>
           ) }
         </div>

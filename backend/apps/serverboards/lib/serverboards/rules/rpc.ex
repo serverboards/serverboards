@@ -13,7 +13,7 @@ defmodule Serverboards.Rules.RPC do
         rule = %Serverboards.Rules.Rule{
           uuid: rule["uuid"],
           is_active: Map.get(rule, "is_active", false),
-          serverboard: rule["serverboard"],
+          project: rule["project"],
           service: rule["service"],
           name: rule["name"],
           description: rule["description"],
@@ -34,28 +34,45 @@ defmodule Serverboards.Rules.RPC do
         Serverboards.Rules.upsert rule, me
         :ok
     end, required_perm: "rules.update", context: true
+    add_method mc, "rules.delete", fn [rule_uuid], context ->
+      me = MOM.RPC.Context.get context, :user
+      Serverboards.Rules.delete_rule rule_uuid, me
+      :ok
+    end, required_perm: "rules.delete", context: true
 
     add_method mc, "rules.list", fn
       [filter] ->
-        key_list = ~w(serverboard uuid service is_active)
+        key_list = ~w(project uuid service is_active trigger)
         filter_a = Map.to_list(filter)
           |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
         Serverboards.Rules.list filter_a
       [] -> Serverboards.Rules.list
       filter ->
-        key_list = ~w(serverboard uuid service is_active)
+        key_list = ~w(project uuid service is_active trigger)
         filter_a = Map.to_list(filter)
           |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
         Serverboards.Rules.list filter_a
     end, required_perm: "rules.view"
 
-    add_method mc, "rules.templates", fn %{} = filter ->
-      key_list = ~w(id trait traits type)
-      filter_a = Map.to_list(filter)
-        |> Serverboards.Utils.keys_to_atoms_from_list(key_list)
-
-      {:ok, Serverboards.Rules.rule_templates( filter_a ) }
+    add_method mc, "rules.get", fn [uuid] ->
+      Serverboards.Rules.get uuid
     end, required_perm: "rules.view"
+
+    add_method mc, "rules.trigger", fn
+      [uuid, state], context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, %{}, me.email
+      [uuid, state, other], context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, other, me.email
+      %{ "id" => uuid, "state" => state} = params, context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, Map.drop(params, ["id", "state"]), me.email
+      %{ "uuid" => uuid, "state" => state} = params, context ->
+        me = MOM.RPC.Context.get context, :user
+        Serverboards.Rules.trigger uuid, state, Map.drop(params, ["uuid", "state"]), me.email
+    end, required_perm: "rules.trigger", context: true
+
 
     add_method mc, "rules.catalog", fn
       [filter] -> Serverboards.Rules.Trigger.find filter

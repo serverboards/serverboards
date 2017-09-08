@@ -5,14 +5,17 @@ import Users from 'app/containers/settings/users'
 import Groups from 'app/containers/settings/groups'
 import Plugins from 'app/components/settings/plugins'
 import System from 'app/containers/settings/system'
+import Logs from 'app/containers/logs'
 import Restricted from 'app/restricted'
+import i18n from 'app/utils/i18n'
 
 const sections={
   overview: Overview,
   users: Users,
   groups: Groups,
   plugins: Plugins,
-  system: System
+  system: System,
+  logs: Logs
 }
 
 var SidebarSections = function(props){
@@ -35,19 +38,22 @@ var SidebarSections = function(props){
 
   return (
     <div className="ui vertical menu sections">
-      <h3 className="ui item header">Settings</h3>
-      <MenuItem section="overview">Overview</MenuItem>
+      <h3 className="ui item header">{i18n("Settings")}</h3>
+      <MenuItem section="overview">{i18n("Overview")}</MenuItem>
       <Restricted perm="auth.list">
-        <MenuItem section="users">Users</MenuItem>
+        <MenuItem section="users">{i18n("Users")}</MenuItem>
       </Restricted>
       <Restricted perm="auth.list AND auth.manage_groups">
-        <MenuItem section="groups">Groups and permissions</MenuItem>
+        <MenuItem section="groups">{i18n("Groups and permissions")}</MenuItem>
       </Restricted>
-      <Restricted perm="plugin.list">
-        <MenuItem section="plugins">Plugins</MenuItem>
+      <Restricted perm="plugin.catalog">
+        <MenuItem section="plugins">{i18n("Plugins")}</MenuItem>
+      </Restricted>
+      <Restricted perm="logs.view">
+        <MenuItem section="logs">{i18n("Logs")}</MenuItem>
       </Restricted>
       <Restricted perm="settings.view">
-        <MenuItem section="system">System</MenuItem>
+        <MenuItem section="system">{i18n("System")}</MenuItem>
       </Restricted>
     </div>
   )
@@ -56,11 +62,12 @@ var SidebarSections = function(props){
 function Settings(props){
   let section = props.params.section || 'overview'
   let Section = sections[section]
+  console.log("Section %o", section)
 
   return (
-    <div className="ui central with menu">
+    <div className="ui horizontal split area expand">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
-      <div className="ui central white background">
+      <div className="ui expand vertical expand split area with scroll">
         <Section service={props.service} location={props.location}/>
       </div>
     </div>

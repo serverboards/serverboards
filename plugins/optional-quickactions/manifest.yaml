@@ -5,6 +5,7 @@ description: |
   Allows to create new actions that are just actions prefilled with some data.
 
   This is useful for fast access to common actions
+version: 17.04
 
 components:
   - id: editor
@@ -35,4 +36,4 @@ components:
     command: ./serverboards-quickactions.py
     type: onetime
     timeout: 3s
-    perms: plugin.data[serverboards.optional.quickactions] service.info action.trigger
+    perms: plugin.data[serverboards.optional.quickactions] service.get action.trigger

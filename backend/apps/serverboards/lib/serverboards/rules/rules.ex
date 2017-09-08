@@ -30,12 +30,15 @@ defmodule Serverboards.Rules do
     {:ok, es} = EventSourcing.start_link( [name: Serverboards.Rules.EventSourcing] ++ options )
     EventSourcing.Model.subscribe es, :rules, Serverboards.Repo
 
-    EventSourcing.subscribe es, :upsert, fn %{ data: data }, _me ->
-      rule = upsert_real(data)
+    EventSourcing.subscribe es, :upsert, fn %{ data: data }, me ->
+      rule = upsert_real(data, me)
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      if (data.serverboard != nil) do
-        Serverboards.Event.emit("rules.update[#{data.serverboard}]", %{ rule: rule }, ["rules.view"])
+      if (data.project != nil) do
+        Serverboards.Event.emit("rules.update[#{data.project}]", %{ rule: rule }, ["rules.view"])
       end
+    end
+    EventSourcing.subscribe es, :delete, fn %{ uuid: uuid }, me ->
+      delete_rule_real(uuid, me)
     end
     EventSourcing.subscribe es, :set_state, fn data, _me ->
       import Ecto.Query, only: [from: 2]
@@ -44,11 +47,10 @@ defmodule Serverboards.Rules do
       rule = decorate(rule)
 
       Serverboards.Event.emit("rules.update", %{ rule: rule }, ["rules.view"])
-      if (rule.serverboard != nil) do
-        Serverboards.Event.emit("rules.update[#{rule.serverboard}]", %{ rule: rule }, ["rules.view"])
+      if (rule.project != nil) do
+        Serverboards.Event.emit("rules.update[#{rule.project}]", %{ rule: rule }, ["rules.view"])
       end
     end
-
     {:ok, es}
   end
 
@@ -65,13 +67,61 @@ defmodule Serverboards.Rules do
     ) |> Map.new
   end
 
+  def trigger(uuid, state, params, _me) do
+    case get(uuid) do
+      nil -> {:error, :unknown_rule}
+      rule ->
+        trigger = case Serverboards.Rules.Trigger.find(id: rule.trigger.trigger) do
+          [] ->
+            Logger.debug("Unknown trigger #{inspect rule.trigger.trigger}")
+            %{}
+          [trigger] -> trigger
+        end
+
+        if not state in trigger[:states] do
+          {:error, :unknown_state}
+        else
+          case rule.actions[state] do
+            nil ->
+              Logger.info("Force trigger empty action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: [], rule: rule)
+            action ->
+              if rule.last_state != state do
+                service = if rule.service do
+                  case Serverboards.Service.service_get(rule.service, %{}) do
+                    {:ok, service} -> service
+                    _ -> nil
+                  end
+                else
+                  nil
+                end
+
+                full_params = Map.merge( action.params, Map.merge(params, %{ uuid: uuid, state: state, rule: rule, service: service} ))
+                Logger.info("Force trigger action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}", rule: rule, params: full_params, action: action)
+                Serverboards.Action.trigger(action.action, full_params, %{ email: "rule/#{rule.uuid}", perms: []})
+                EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :set_state, %{ rule: rule.uuid, state: state }, "rule/#{rule.uuid}")
+              else
+                Logger.info("NOT force triggering action #{inspect state} from rule #{rule.trigger.trigger} // #{rule.uuid}. State did not change.", rule: rule, params: params, action: action)
+              end
+              :ok
+          end
+        end
+    end
+  end
+
+  def get(uuid) do
+      case list(uuid: uuid, deleted: :both) do
+        [rule] -> rule
+        [] -> nil
+      end
+  end
+
   def list(), do: list([])
   def list(map) when is_map(map) do
     list(Map.to_list(map))
   end
   def list(filter) do
     import Ecto.Query
-    alias Serverboards.Serverboard.Model.Serverboard
+    alias Serverboards.Project.Model.Project
     alias Serverboards.Service.Model.Service
 
     #Logger.debug("All rules: #{inspect Repo.all(from rule in Model.Rule)}")
@@ -79,26 +129,40 @@ defmodule Serverboards.Rules do
     q = from rule in Model.Rule,
       left_join: service in Service,
               on: service.id == rule.service_id,
-      left_join: serverboard in Serverboard,
-              on: serverboard.id == rule.serverboard_id
+      left_join: project in Project,
+              on: project.id == rule.project_id
+
+    # By default show not deleted, may show only deleted, or both.
+    q = case Keyword.get(filter, :deleted, false) do
+      true ->
+        where(q, [rule], rule.deleted)
+      false ->
+        where(q, [rule], not rule.deleted)
+      :both ->
+        q
+    end
 
     q = Enum.reduce(filter, q, fn
-      {:serverboard, v}, q ->
-        q |> where([_rule, _service, serverboard], serverboard.shortname == ^v )
+      {:project, v}, q ->
+        q |> where([_rule, _service, project], project.shortname == ^v )
       {:uuid, v}, q ->
-        q |> where([rule, _service, _serverboard], rule.uuid == ^v )
+        q |> where([rule, _service, _project], rule.uuid == ^v )
       {:service, v}, q ->
-        q |> where([_rule, service, _serverboard], service.uuid == ^v )
+        q |> where([_rule, service, _project], service.uuid == ^v )
       {:is_active, v}, q ->
-        q |> where([rule, _service, _serverboard], rule.is_active == ^v )
+        q |> where([rule, _service, _project], rule.is_active == ^v )
+      {:trigger, v}, q ->
+        q |> where([rule, _service, _project], rule.trigger == ^v )
+      {:deleted, _v}, q ->
+        q # already done
       end)
-    q = q |> select( [rule, service, serverboard], %{
+    q = q |> select( [rule, service, project], %{
       id: rule.id,
       is_active: rule.is_active,
       uuid: rule.uuid,
       name: rule.name,
       description: rule.description,
-      serverboard: serverboard.shortname,
+      project: project.shortname,
       service: service.uuid,
       from_template: rule.from_template,
       last_state: rule.last_state,
@@ -123,29 +187,6 @@ defmodule Serverboards.Rules do
         end)
   end
 
-  def rule_templates(filter \\ []) do
-    Serverboards.Plugin.Registry.filter_component([type: "rule template"] ++ filter)
-    |> Enum.map(fn %{ name: name, traits: traits, id: id, description: description, plugin: plugin, extra: extra} ->
-      %{
-        id: id,
-        name: name,
-        traits: traits,
-        description: description,
-        plugin: plugin,
-        trigger: %{
-          trigger: extra["trigger"]["trigger"],
-          params: extra["trigger"]["params"]
-        },
-        actions: Map.new(Enum.map(Map.to_list(extra["actions"]), fn {k,v}->
-          {k, %{
-            params: v["params"],
-            action: v["action"]
-          } }
-        end))
-      }
-    end)
-  end
-
   def ps do
     GenServer.call(Serverboards.Rules, {:ps})
   end
@@ -163,7 +204,7 @@ defmodule Serverboards.Rules do
         decorate(rule)
     end
   end
-  def decorate(model) do
+  def decorate(model) when is_map(model) do
     import Ecto.Query
 
     service = case model.service_id do
@@ -171,10 +212,10 @@ defmodule Serverboards.Rules do
       id ->
         Repo.one( from c in Serverboards.Service.Model.Service, where: c.id == ^id, select: c.uuid )
     end
-    serverboard = case model.serverboard_id do
+    project = case model.project_id do
       nil -> nil
       id ->
-        Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.id == ^id, select: c.shortname )
+        Repo.one( from c in Serverboards.Project.Model.Project, where: c.id == ^id, select: c.shortname )
     end
     actions = Repo.all(from ac in Model.ActionAtState, where: ac.rule_id == ^model.id) |> Enum.map(fn ac ->
       { ac.state, %{
@@ -186,7 +227,7 @@ defmodule Serverboards.Rules do
     %Serverboards.Rules.Rule{
       uuid: model.uuid,
       is_active: model.is_active,
-      serverboard: serverboard,
+      project: project,
       service: service,
       name: model.name,
       description: model.description,
@@ -204,32 +245,33 @@ defmodule Serverboards.Rules do
     EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :upsert, %{ data: data }, me.email)
   end
 
-  defp upsert_real(%Serverboards.Rules.Rule{ uuid: uuid } = data) do
+  defp upsert_real(%Serverboards.Rules.Rule{ uuid: uuid } = data, me) do
     import Ecto.Query
 
     uuid = if uuid=="" or uuid==nil do UUID.uuid4 else uuid end
     #Logger.debug("UUID is #{inspect uuid}")
     actions = data.actions
+    service_uuid = data.service
 
-    service_id = case data.service do
+    service_id = case service_uuid do
       nil -> nil
       "" -> nil
       uuid ->
         Repo.one( from c in Serverboards.Service.Model.Service, where: c.uuid == ^uuid, select: c.id )
     end
-    serverboard_id = case data.serverboard do
+    project_id = case data.project do
       nil -> nil
       shortname ->
-        Repo.one( from c in Serverboards.Serverboard.Model.Serverboard, where: c.shortname == ^shortname, select: c.id )
+        Repo.one( from c in Serverboards.Project.Model.Project, where: c.shortname == ^shortname, select: c.id )
     end
 
-    Logger.debug("Service id: #{inspect service_id}, serverboards id #{inspect serverboard_id}")
+    Logger.debug("Service id: #{inspect service_id}, projects id #{inspect project_id}")
 
     data = %{
       uuid: uuid,
       is_active: data.is_active,
       service_id: service_id,
-      serverboard_id: serverboard_id,
+      project_id: project_id,
       name: data.name,
       description: data.description,
       trigger: data.trigger.trigger,
@@ -244,6 +286,11 @@ defmodule Serverboards.Rules do
         update_rule( rule, data, actions )
     end
 
+    if data.is_active do
+      Logger.info("Updated rule #{inspect data.name}, now active", is_active: data.is_active, rule_id: uuid, service_id: service_uuid, user: me, project_id: project_id)
+    else
+      Logger.info("Updated rule #{inspect data.name}, now NOT active", is_active: data.is_active, rule_id: uuid, service_id: service_uuid, user: me, project_id: project_id)
+    end
     rule = decorate(rulem)
 
     #Logger.debug("Decorated rule: #{inspect rule.trigger} / #{inspect rule.is_active}")
@@ -347,6 +394,33 @@ defmodule Serverboards.Rules do
           restart_rule(rule)
         end
       end )
+    :ok
+  end
+
+  def delete_rule(uuid, me) do
+    Logger.debug("Try delete #{inspect uuid}")
+    EventSourcing.dispatch(Serverboards.Rules.EventSourcing, :delete, %{ uuid: uuid }, me.email)
+  end
+
+  def delete_rule_real(uuid, me) do
+    import Ecto.Query
+    ruled = decorate(uuid)
+    ruled = %{ ruled | is_active: false}
+
+    upsert_real(ruled, me)
+
+    rule = Repo.one( from u in Model.Rule, where: u.uuid == ^uuid )
+    {:ok, rule} = Repo.update(
+      Model.Rule.changeset(rule, %{ deleted: true})
+    )
+
+    Logger.info("Deleted rule #{inspect rule.name}", rule_id: uuid, service_id: ruled.service, user: me, project_id: ruled.project)
+
+    Serverboards.Event.emit("rules.deleted", %{ uuid: uuid }, ["rules.view"])
+    if (ruled.project != nil) do
+      Serverboards.Event.emit("rules.deleted[#{ruled.project}]", %{ uuid: uuid }, ["rules.view"])
+    end
+
     :ok
   end
 

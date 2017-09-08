@@ -1,8 +1,18 @@
 import React from 'react'
 import rpc from 'app/rpc'
 import Modal from '../modal'
+import Flash from 'app/flash'
+import Loading from '../loading'
+import {i18n, i18n_nop} from 'app/utils/i18n'
+import {merge} from 'app/utils'
+import Paginator from '../paginator'
 
 require('sass/table.sass')
+
+i18n_nop("error")
+i18n_nop("warn")
+i18n_nop("debug")
+i18n_nop("info")
 
 function levelToClass(level){
   if (level=="error")
@@ -35,7 +45,7 @@ function LogLine(props){
   return (
     <tr className={levelToClass(line.level)} onClick={(ev) => { ev.preventDefault(); props.showDetails(line)}} style={{cursor:"pointer"}}>
       <td>{line.id}</td>
-      <td>{line.level}</td>
+      <td>{i18n(line.level)}</td>
       <td>{date}<br/>{time}</td>
       <td>{line.message.split('\n')[0]}</td>
       <td><i className="ui icon angle right"/></td>
@@ -54,6 +64,19 @@ function pretty_print(el){
   return el
 }
 
+function DataView({name, data}){
+  if (name=="stdout" || name=="stderr" || name == "command"){
+    return (
+      <pre className="ui code" style={{paddingLeft:10}}>{data}</pre>
+    )
+  }
+  else{
+    return (
+      <div style={{paddingLeft:10}}>{pretty_print(data)}</div>
+    )
+  }
+}
+
 function Details(props){
   const line = props.line
 
@@ -64,33 +87,33 @@ function Details(props){
   return (
     <Modal>
       <div className="ui top secondary header menu">
-        <h3 className="ui header">Log line details</h3>
+        <h3 className="ui header">{i18n("Log line details")}</h3>
         <div className="right menu">
           <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
         </div>
       </div>
-      <h3 className="ui header uppercase">Date</h3>
+      <h3 className="ui header uppercase">{i18n("Date")}</h3>
       <div className="meta">{line.timestamp.replace('T',' ')}</div>
 
 
-      <h3 className="ui header uppercase">Full Message</h3>
+      <h3 className="ui header uppercase">{i18n("Full Message")}</h3>
       <div>
         <pre className="ui code">
           {reformatMessage(line.message)}
         </pre>
       </div>
 
-      <h3 className="ui header uppercase">Metadata</h3>
+      <h3 className="ui header uppercase">{i18n("Metadata")}</h3>
       <div>
         {Object.keys(line.meta).map( (k) => (
           <div key={k}>
             <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>{k}</h4>
-            <div style={{paddingLeft:10}}>{pretty_print(line.meta[k])}</div>
+            <DataView name={k} data={line.meta[k]}/>
           </div>
         ))}
 
       </div>
-      <h3 className="ui header uppercase">Related</h3>
+      <h3 className="ui header uppercase">{i18n("Related")}</h3>
       <div>
         <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
         <a href={related} target="_blank">{related}</a>
@@ -104,34 +127,36 @@ const Logs = React.createClass({
     return {
       count: undefined,
       lines: [],
-      start: undefined,
-      page: 1,
+      page: 0,
+      q: "",
     }
   },
   componentDidMount(){
     this.refreshHistory()
   },
   refreshHistory(state={}){
-    let filter={}
-    if (state.start)
-      filter.start=state.start
+    let filter=merge({}, this.props.filter)
+    if (state.page)
+      filter.offset=state.page * 50
 
-    rpc.call('logs.history', filter).then((history) => {
-      this.setState({lines: history.lines, count: history.count, start: state.start, page: state.page || 1 })
+    const q=state.q || this.state.q
+    if (q)
+      filter.q=q
+
+    this.lastfilter=filter
+    this.setState({loading: true})
+    rpc.call('logs.list', filter).then((history) => {
+      if (this.lastfilter != filter){
+        return
+      }
+      this.setState({loading: false})
+      this.setState({lines: history.lines, count: history.count, page: state.page || 0 })
+    }).catch( (e) => {
+      console.log("Error loading log history: %o", e)
+      Flash.error(i18n("Can't load log history."))
+      this.setState({loading: false})
+      this.setState({lines: [], count: 0, page: state.page || 0 })
     })
-  },
-  nextPage(ev){
-    ev.preventDefault()
-    if (this.state.lines.length==0)
-      return
-
-    let start=this.state.lines[this.state.lines.length-1].id
-    console.log("Start list at %o", start)
-    this.refreshHistory({start, page: this.state.page+1, lines: []})
-  },
-  refresh(ev){
-    ev.preventDefault()
-    this.refreshHistory({start: undefined, page: 1, lines: []})
   },
   showDetails(line){
     this.setModal("details", {line: line})
@@ -148,10 +173,28 @@ const Logs = React.createClass({
   contextTypes: {
     router: React.PropTypes.object
   },
+  handleQChange(ev){
+    if (this.q_timeout)
+      clearTimeout(this.q_timeout)
+    const value = ev.target.value
+    this.q_timeout = setTimeout(() => {
+      this.setState({q: value})
+      this.refreshHistory({q: value})
+      this.q_timeout = undefined
+    }, 200)
+  },
+  handlePageChange(page){
+    this.setState({page})
+    this.refreshHistory({page})
+  },
   render(){
+    if (this.state.count == undefined ){
+      return (
+        <Loading>{i18n("Logs")}</Loading>
+      )
+    }
     let popup=[]
     const modal = this.props.location.state || {}
-    console.log(modal)
     switch(modal.modal){
       case 'details':
         popup=(
@@ -163,32 +206,52 @@ const Logs = React.createClass({
     }
 
     return (
-      <div className="ui central area white background">
-        <div className="ui container">
-          <h1 className="ui header">Logs</h1>
-          <div className="meta">{this.state.count} total log lines. Page {this.state.page}.</div>
-
-          <div>
-            <a href="#" onClick={this.nextPage}>Next</a> |
-            <a href="#" onClick={this.refresh}>Refresh</a>
+      <div className="ui split vertical area">
+        <div className="ui top seconday menu">
+          <div className="ui item with info">
+            <h3>{i18n("Logs")}</h3>
+            <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
           </div>
 
-          <table className="ui selectable table">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Level</th>
-                <th style={{width: "7em"}}>Date</th>
-                <th>Message</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.lines.map((l) => (
-                <LogLine key={l.id} line={l} showDetails={this.showDetails}/>
-              ))}
-            </tbody>
-          </table>
+          <div className="item">
+            <div className="ui search">
+              <div className="ui icon input" style={{width:"100%"}}>
+                <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
+                {this.state.loading ? (
+                  <i className="loading spinner icon"></i>
+                ) : (
+                  <i className="search icon"></i>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="item stretch"/>
+          <div className="item" style={{marginTop:12}}>
+            <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange} max={5}/>
+          </div>
+        </div>
+
+
+        <div className="expand with scroll and padding">
+          <div className="ui container">
+
+            <table className="ui selectable table">
+              <thead>
+                <tr>
+                  <th>{i18n("Id")}</th>
+                  <th>{i18n("Level")}</th>
+                  <th style={{width: "7em"}}>{i18n("Date")}</th>
+                  <th>{i18n("Message")}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.lines.map((l) => (
+                  <LogLine key={l.id} line={l} showDetails={this.showDetails}/>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         {popup}
       </div>

@@ -28,7 +28,7 @@ defmodule Serverboards.TemplateTest do
 
     # Not found
     {:ok, txt} = render "This is a not found test: {{testx}}", %{ "test" => 1 }
-    assert txt == "This is a not found test: [UNKNOWN testx]"
+    assert txt == "This is a not found test: {{testx}}"
 
     # nil
     {:ok, txt} = render "This is a nil test: {{testx}}", nil
@@ -44,6 +44,6 @@ defmodule Serverboards.TemplateTest do
     assert txt == "This is a nested with no leaf [a: \"test\", b: \"notest\"]"
 
     {:ok, txt} = render "This is a nested with no leaf var {{test.xxx}}", test: [a: "test", b: "notest"]
-    assert txt == "This is a nested with no leaf var [UNKNOWN xxx]"
+    assert txt == "This is a nested with no leaf var {{test.xxx}}"
   end
 end

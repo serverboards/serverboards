@@ -8,7 +8,7 @@ export function get_modal(name){
       return require('app/containers/settings/group/edit_perms').default
     case "auth.group.edit_users":
       return require('app/containers/settings/group/edit_users').default
-    case "auth.group.add":
+    case "auth.group.create":
       return require('app/containers/settings/group/add').default
     case "auth.user.add":
       return require('app/containers/settings/user/add').default
@@ -18,14 +18,27 @@ export function get_modal(name){
       return require('app/components/notifications/send').default
     case "service.action":
       return require('app/components/service/actionmodal').default
-    case "serverboard.widget.add":
-      return require('app/containers/serverboard/board/add_widget').default
-    case "serverboard.widget.edit":
-      return require('app/containers/serverboard/board/edit_widget').default
+    case "dashboard.widget.create":
+      return require('app/containers/project/board/add_widget').default
+    case "dashboard.widget.edit":
+      return require('app/containers/project/board/edit_widget').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default
-    case "service.add":
-      return require('app/containers/serverboard/addservice').default
+    case "service.create":
+      return require('app/containers/project/addservice').default
+    case "rule.create":
+      return require('app/containers/rules/edit').default
+    case "rule.edit":
+      return require('app/containers/rules/edit').default
+    case "dashboard.create":
+      return require('app/components/project/board/add_dashboard').default
+    case "project.add":
+      return require('app/containers/project/add').default
+    case "plugin.details":
+      return require('app/components/settings/plugins/details').default
+    case "plugin.settings":
+      return require('app/components/settings/plugins/settings').default
+
   }
 }
 

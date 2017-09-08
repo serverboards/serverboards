@@ -7,7 +7,7 @@ defmodule Serverboards.Repo.Migrations.Issues do
       add :title, :string, size: 256
       add :status, :string, size: 16
 
-      timestamps
+      timestamps()
     end
     create table :issues_label do
       add :name, :string, size: 16
@@ -24,13 +24,13 @@ defmodule Serverboards.Repo.Migrations.Issues do
       add :type, :string, size: 16
       add :data, :map
 
-      timestamps
+      timestamps()
     end
     create table :issues_issue_assignee do
       add :issue_id, :id
       add :user_id, :id
 
-      timestamps
+      timestamps()
     end
   end
 end

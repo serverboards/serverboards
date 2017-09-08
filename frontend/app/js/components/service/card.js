@@ -9,6 +9,7 @@ import ActionMenu from 'app/containers/service/actionmenu'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {trigger_action} from './action'
 import {goto} from 'app/utils/store'
+import {i18n} from 'app/utils/i18n'
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -18,7 +19,7 @@ const ServiceField=React.createClass({
     return {service: undefined}
   },
   componentDidMount(){
-    rpc.call("service.info", [this.props.value]).then( (service) => {
+    rpc.call("service.get", [this.props.value]).then( (service) => {
       this.setState({service: service.name})
     })
   },
@@ -52,12 +53,12 @@ function RealBottomMenu(props){
   return (
     <div className="ui inverted yellow menu bottom attached">
       {props.service.virtual ? (
-        <a className="item" onClick={open_virtual}>Related services <i className="ui icon caret right"/></a>
+        <a className="item" onClick={open_virtual}>{i18n("Related services")} <i className="ui icon caret right"/></a>
       ) : []}
       <div className="right menu">
         <div className="item">
           <ActionMenu service={props.service} actions={props.actions} onDetach={props.onDetach}>
-            Menu
+            {i18n("Options")}
           </ActionMenu>
         </div>
       </div>
@@ -71,12 +72,12 @@ const VirtualBottomMenu=React.createClass({
   },
   loadAvailableActions(){
     if (this.state.actions == undefined){
-      rpc.call("action.filter", {traits: this.props.service.traits}).then((actions) => {
+      rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
         this.setState({
           actions: actions,
         })
       }).catch(() => {
-        Flash.error("Could not load actions for this service")
+        Flash.error(i18n("Could not load actions for this service"))
         this.setState({
           actions: undefined,
         })
@@ -99,7 +100,7 @@ const VirtualBottomMenu=React.createClass({
       return (
         <div className="item disabled">
           <i className="ui spinner loading icon"/>
-          Loading
+          {i18n("Loading")}
         </div>
       )
     }
@@ -130,11 +131,11 @@ const Card=React.createClass({
   componentDidMount(){
     if (!this.props.service.is_virtual){
       const s = this.props.service
-      const serverboard = this.props.serverboard.shortname
+      const project = this.props.project.shortname
       Command.add_command_search(`service-${s.uuid}`, (Q, context) => [
         {
           id: `service-details-${s.uuid}`, title: `${s.name} settings`,
-          description: `${s.name} Service Details at ${serverboard}`, run: () => goto(`/serverboard/${serverboard}/services/${s.uuid}`),
+          description: i18n("{name} Service details at {project}", {name: s.name, project}), run: () => goto(`/project/${project}/services/${s.uuid}`),
           order: 80
         }
       ],2 )
@@ -144,7 +145,7 @@ const Card=React.createClass({
     Command.remove_command_search(`service-${this.props.service.uuid}`)
   },
   handleDetach(){
-    this.props.onDetach( this.props.serverboard.shortname, this.props.service.uuid )
+    this.props.onDetach( this.props.project.shortname, this.props.service.uuid )
   },
   show_config(k){
     var fields = (this.props.service_description || {}).fields || []
@@ -156,7 +157,7 @@ const Card=React.createClass({
     return undefined;
   },
   handleOpenDetails(){
-    goto(`/serverboard/${this.props.serverboard.shortname}/services/${this.props.service.uuid}`)
+    goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
   },
   get_field(k){
     var fields = (this.props.service_description || {}).fields
@@ -177,12 +178,17 @@ const Card=React.createClass({
   },
   render(){
     let props=this.props.service
+    let tags = props.tags || []
+    if (!props.config || $.isEmptyObject(props.config))
+      tags = tags.concat("NOT-CONFIGURED")
     return (
       <div className="service card">
-        <div className="extra content">
-          {(props.tags || []).map( (l) => (
-            <span key={l} style={{color:"#ccc", paddingLeft:10}}><span className={`ui circular empty ${colorize(l)} label`}/> {l}</span>
-          ))}&nbsp;
+        <div className="extra content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
+          <div className="labels">
+            {tags.map( (l) => (
+              <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
+            ))}&nbsp;
+          </div>
         </div>
 
         <div className="content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
@@ -190,16 +196,22 @@ const Card=React.createClass({
             {props.icon ? (
               <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
             ) : (
-              <ImageIcon src={icon}  name={props.name}/>
+              <ImageIcon src={icon} name={props.name}/>
             )}
           </div>
           <div className="header">{props.name}</div>
-          <div className="description" style={{display:"inline-block"}}><MarkdownPreview value={props.description || ""}/></div>
-          <div style={{clear:"both"}}>
+          <div className="description">
+            {props.description ? (
+              <MarkdownPreview value={i18n(props.description)}/>
+            ) : (
+              <span className="ui text meta italic">{i18n("No description yet")}</span>
+            )}
+          </div>
+        </div>
+        <div className="extra content config" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
           ) : [])}
-          </div>
         </div>
         <div className="extra content" ref="menu">
           {props.is_virtual ? (

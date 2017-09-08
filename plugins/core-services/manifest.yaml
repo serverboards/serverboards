@@ -1,7 +1,7 @@
 id: serverboards.core.services
 name: core services
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 17.04
 description: >
   Definition of core services and fields to store in them.
 
@@ -11,21 +11,24 @@ description: >
 # name and tags fields are always assumed
 
 components:
-  - name: Web Server
+  - name: Web Site
     type: service
-    traits: url web
+    traits: url www server
     id: web_server
     icon: world
+    description: A web URL to be monitored.
     fields:
       - label: URL
         name: url
         type: text
-        validation: empty
+        validation: regExp[(http://|https://)]
+        description: Server URL must start with `http://` or `https://`
+        placeholder: http://example.com
         card: true
 
   - name: Email Account
     type: service
-    traits: email
+    traits: email cloud
     id: email
     icon: mail
     fields:
@@ -38,13 +41,15 @@ components:
         name: smtp_username
         type: text
         card: true
+        class: half column
       - label: SMTP Password
         name: smtp_pw
         type: password
+        class: half column
 
   - name: Server
     type: service
-    traits: ip
+    traits: ip server
     id: server
     icon: server
     fields:
@@ -61,19 +66,19 @@ components:
       Various tests and checks on the web site performance as seen by Google.
     type: external url
     url: "https://developers.google.com/speed/pagespeed/insights/?url={config.url}"
-    traits: web
+    traits: www
     iframe: true
   - id: ssllabs
     type: external url
     name: SSL Labs
     description: Check the SSL quality of a given web page.
     url: "https://www.ssllabs.com/ssltest/analyze.html?d={config.url}&hideResults=on&latest"
-    traits: web
+    traits: www
     iframe: false
   - id: open
     type: external url
     name: Open
     description: Opens the URL page in a tab
     url: "{config.url}"
-    traits: web
+    traits: www
     iframe: false

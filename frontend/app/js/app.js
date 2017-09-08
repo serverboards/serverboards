@@ -1,4 +1,6 @@
 // main.js
+import "babel-polyfill";
+
 var React = require('react');
 var ReactDOM = require('react-dom');
 import { Provider } from 'react-redux'
@@ -13,6 +15,10 @@ import graphs from 'app/graphs'
 import perms from 'app/utils/perms'
 import event from 'app/utils/event'
 import cache from 'app/utils/cache'
+import i18n from 'app/utils/i18n'
+import {set_lang} from 'app/actions/i18n'
+import lodash from 'lodash'
+
 require('moment-range');
 
 require("sass/serverboards.sass")
@@ -34,6 +40,7 @@ Flash.log=function(message, options={}){
 
 window.Serverboards = {
   rpc,
+  i18n,
   store,
   Flash,
   React,
@@ -51,10 +58,11 @@ window.Serverboards = {
   graphs,
   perms,
   cache,
-  event
+  event,
+  lodash
 }
 
-ReactDOM.render(
+let root = ReactDOM.render(
   (
     <Provider store={store}>
       <Main/>
@@ -62,3 +70,11 @@ ReactDOM.render(
   ),
   document.getElementById('react')
 );
+
+{
+  // Get the main language component of the first language or "en"
+  const lang = (navigator.languages || ["en"])[0].split("-")[0]
+  store.dispatch( set_lang(lang) )
+}
+
+export { root }

@@ -3,7 +3,7 @@ import connect from 'app/containers/connect'
 
 var Model=connect({
   state: (state) => ({
-    serverboards: state.serverboard.serverboards,
+    projects: state.project.projects,
   })
 })(View)
 

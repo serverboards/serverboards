@@ -8,7 +8,8 @@ let FlashMessageList = connect(
   (state) => {
     //console.log("map to state %o", state.flash.messages)
     return {
-      messages: state.flash.messages || []
+      messages: state.flash.messages || [],
+      lang_counter: state.auth.lang_counter
     }
   },
   (dispatch) => ({

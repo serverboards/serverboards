@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'app/components/modal'
+import i18n from 'app/utils/i18n'
 
 const Add = React.createClass({
   handleAdd(){
@@ -11,26 +12,26 @@ const Add = React.createClass({
     const props = this.props
 
     return (
-      <Modal>
+      <div className="ui expand">
         <div className="ui top secondary menu header">
-          <h3 className="ui header">Add Issue</h3>
+          <h3 className="ui header">{i18n("Add Issue")}</h3>
         </div>
-        <div className="ui container">
+        <div className="ui text container">
           <div className="ui form">
             <div className="ui field">
-              <label>Title</label>
-              <input type="text" ref="title" placeholder="Short issue description"/>
+              <label>{i18n("Title")}</label>
+              <input type="text" ref="title" placeholder={i18n("Short issue description")}/>
             </div>
             <div className="ui field">
-              <label>Description</label>
-              <textarea ref="description" placeholder="Short issue description"></textarea>
+              <label>{i18n("Description")}</label>
+              <textarea ref="description" placeholder={i18n("Short issue description")}></textarea>
             </div>
             <button className="ui button yellow" onClick={this.handleAdd}>
-            Add Issue
+            {i18n("Add Issue")}
             </button>
           </div>
         </div>
-      </Modal>
+      </div>
     )
   }
 })

@@ -14,7 +14,7 @@ defmodule Serverboards.IO.Cmd.Supervisor do
 
   def init([]) do
     children = [
-      worker( Serverboards.IO.Cmd, [], restart: :transient)
+      worker( Serverboards.IO.Cmd, [], restart: :transient )
     ]
 
     supervise(children, strategy: :simple_one_for_one)

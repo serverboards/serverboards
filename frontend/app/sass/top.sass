@@ -1,58 +1,105 @@
 @import serverboards
 @import colors
 $top-height: 70px
+$top-height-secondary: 70px
+$blacktext: #333
 
-.ui.top.fixed.menu
-  @extend .serverboards.background.horizontal
+.ui.top.menu
+  .item.stretch
+    flex-grow: 2
+
+.ui.serverboards.top.menu
+  z-index: 11
+  color: $blacktext
   height: $top-height
+  min-height: $top-height
+  align-items: center
+  display: flex
+  flex-direction: row
+  align-items: center
+  width: 100%
+  margin: 0
+  z-index: 10
+  border-radius: 0px
+  border: 0
+  border-bottom: 1px solid #ccc
+  box-shadow: none
+  max-width: 100vw
 
   .micro.label
     font-size: 6px
+    top: 5px
   .menu
     align-items: center
+    z-index: 9
 
-  > .item, > .menu > .item
-    color: white
+  .item.separator
+    border-right: 0px
+    background: #ccc
+    min-width: 1px
+    max-width: 1px
+    height: 45px
+    padding: 0 !important
+    margin: 6px !important
+
+  .item.with.info
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    text-transform: none
+
+  > .item, > div:not(.popup) > .item
+    color: $blacktext
     max-height: 45px
-    &:before
-      width: 0
-      height: 0
+    text-transform: uppercase
+    margin: 0 4px
+    display: flex
+    justify-content: center
+    align-items: center
+    &.active
+      background: none
+    &.active:before
+      border-bottom: 4px solid $teal
+      top: 50px
+      width: 100%
+    &.active.icon:before
+      top: 53px
+    > .big.icon
+      font-size: 22px
+    &.selector
+      font-size: 18px
+      padding: 15px 3px
+      .icon
+        margin-left: 10px
+        font-size: 10px
 
   .item:before
     width: 0
     height: 0
 
   > .item.logo
-    margin-top: 12px
     img
-      height: 40px
-  .icon
-    //margin-top: 15px
-    font-size: 22px
+      height: 45px
   .dropdown .icon
     font-size: 14px
 
   .item.search
-    flex-grow: 1
     padding: 0
     align-items: center
-    width: 550px
     max-width: 550px
-    max-height: 50px
+    width: auto
+    flex-grow: 1
     .menu
       height: 50px
       max-height: 50px
-      .ui.search
-        height: 50px
     .ui.input
-      margin-top: 5px
       .prompt
         background: #555
       .icon
         pointer-events: auto
-        &:hover
-          cursor: pointer
+        color: white
       input
+        height: 35px
         color: white
       input::selection
         color: $teal
@@ -94,20 +141,83 @@ $top-height: 70px
       color: white !important
     .icon
       font-size: 14px
+  .item img.ui.icon
+    width: 24px
+    margin-top: -4px
+  .item.bold
+    font-weight: bold
+  .item.teal
+    color: $teal
+  .item.teal:hover
+    color: $teal !important
 
+.ui.top.menu.secondary
+  height: $top-height-secondary
+  min-height: $top-height-secondary
+  z-index: 10
+  > div.menu
+    flex-grow: 1
+    &.right
+      justify-content: flex-end
+    > .tabular.menu
+      flex-grow: 0
+      width: auto
+      min-height: none !important
+      height: none !important
+      border-bottom: 0
+      margin-top: $top-height-secondary - 38px
+      .item
+        text-transform: none
+      .active
+        background: #eee
+  .item.separator
+    height: 39px
+    &:hover
+      background-color: #ccc
+
+.ui.top.menu .ui.vertical
+  .item
+    width: 100%
+
+.ui.secondary.menu .ui.popup
+  padding: 0
+  .item
+    margin: 0
+    padding: 15px 20px
+
+// popup with scroll does not allow anything outside (will be captured by the
+// scroll, no matter which), so only on linear menus.
+.ui.popup.with.scroll
+  max-height: calc( 100vh - 200px )
+  overflow: auto
+  height: auto
+  width: auto
+
+.ui.top.menu
   #processes_menu
+    min-height: 50px
+    width: 350px
     .menu
-      width: 300px
-      position: fixed
-      left: calc( 100vw - 320px)
-      top: $top-height - 15px
-      div
+      > div
         min-height: 200px
       &:after
         right: 92px !important
         left: auto !important
+      .item.divider
+        display: flex
+        flex-direction: column
+        align-items: stretch
+        > div
+          display: flex
+          flex-direction: row
+          margin-bottom: 1em
+          b
+            flex-grow: 1
+          &.ui.progress
+            margin: 3px 0
 
   #notifications_menu
+    min-height: 50px
     width: 600px
     padding: 0
     .item

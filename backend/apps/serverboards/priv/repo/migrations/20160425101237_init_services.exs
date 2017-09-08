@@ -12,7 +12,7 @@ defmodule Serverboards.Repo.Migrations.InitService do
       add :creator_id, :id
       add :priority, :integer
       add :config, :map
-      timestamps
+      timestamps()
     end
 
     create table :service_service_tag do
@@ -33,7 +33,7 @@ defmodule Serverboards.Repo.Migrations.InitService do
       add :description, :string
       add :creator_id, :id
       add :priority, :integer
-      timestamps
+      timestamps()
     end
 
     create table :serverboard_serverboard_tag do
@@ -44,7 +44,7 @@ defmodule Serverboards.Repo.Migrations.InitService do
     create table :serverboard_serverboard_service do
       add :serverboard_id, :id
       add :service_id, :id
-      timestamps
+      timestamps()
     end
 
     create unique_index(:serverboard_serverboard, [:shortname])

@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'app/components/modal'
+import i18n from 'app/utils/i18n'
 
 let AddUser = React.createClass({
   handleAddUser : function(ev){
@@ -32,15 +33,15 @@ let AddUser = React.createClass({
         <div className="content">
           <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
             <div className="field">
-              <label>Email</label>
-              <input type="email" name="email" placeholder="This will be used as the user identifier"/>
+              <label>{i18n("Email")}</label>
+              <input type="email" name="email" placeholder={i18n("This will be used as the user identifier")}/>
             </div>
             <div className="field">
-              <label>First Name</label>
+              <label>{i18n("Name")}</label>
               <input type="text" name="name"/>
             </div>
             <div className="field">
-              <div className="ui accept yellow button" onClick={this.handleAddUser}>Add user</div>
+              <div className="ui accept yellow button" onClick={this.handleAddUser}>{i18n("Add user")}</div>
             </div>
           </form>
         </div>

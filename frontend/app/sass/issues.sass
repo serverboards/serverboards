@@ -6,7 +6,8 @@
     border: 2px solid #eee
     width: 48px
     height: 48px
-    display: flex
+    display: inline-flex
+    margin: 0
     align-items: center
     justify-content: center
     img
@@ -14,11 +15,16 @@
       height: 44px
       border: 2px solid white
 
-  > .ui.container
+  > .ui.container.row
     display: flex
     flex-direction: row
+  .ui.centered.text
+    flex-grow: 1
+    align-self: top
+    margin-top: 30px
+    text-align: center
   .issues
-    flex-grow: 6
+    flex-grow: 1
     .day
       .item
         position: relative
@@ -45,11 +51,14 @@
           color: black
           padding: 10px 15px
           flex-grow: 1
+          &.selected
+            box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
   .filters
-    flex-grow: 1
+    flex-grow: 0
     margin-left: 100px
     > div
-      margin-left: 100px
+      min-width: 250px
+      max-width: 250px
       display: flex
       flex-direction: column
       > *
@@ -75,9 +84,13 @@
           height: 10px
 
   .ui.issue.details
-    padding: 0 20px
+    display: flex
+    flex-direction: column
+    > .ui.top.attached.menu
+      border-radius: 5px 0 0 0
+      border: 0
     .ui.header
-      margin: 10px 20px
+      margin: 0
       .ui.header
         font-size: 20px
       > div
@@ -94,7 +107,6 @@
         flex-grow: 5
         position: relative
         > *
-          margin-left: 100px
           width: 100%
           &.connected:before
             border: 1px solid #ddd
@@ -107,9 +119,21 @@
       .filters
         flex-grow: 1
 
+      .ui.rail
+        height: auto
+        position: inherit
+        top: inherit
+        width: auto
+      .with.side.rail
+        padding: 5px 10px
+        margin-left: 60px
+        width: calc( 100% - 60px )
+        .side.rail
+          margin-left: -60px
       .ui.card
+        &.invisible
+          box-shadow: none
         position: relative
-        padding: 5px 10px 5px 60px
         min-height: 64px
         display: flex
         flex-direction: column
@@ -154,3 +178,20 @@
             margin-top: 0px
           .ui.tag:first-child
             margin-top: 13px
+
+  .with.right.side.menu
+    position: relative
+    display: flex
+    flex-direction: row
+    max-width: 100%
+    overflow: hidden
+    border: 0
+    > *
+      flex-grow: 1
+      max-width: calc( 100% - 50px )
+    > .side.menu
+      flex-grow: 0
+      display: flex
+      flex-direction: column
+      border: 0
+      border-radius: 0

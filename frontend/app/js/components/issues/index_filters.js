@@ -1,7 +1,8 @@
 import React from 'react'
+import i18n from 'app/utils/i18n'
 
-function sorted_serverboards(serverboards){
-  return serverboards.sort( (a,b)  => a.name.localeCompare(b.name) )
+function sorted_projects(projects){
+  return projects.sort( (a,b)  => a.name.localeCompare(b.name) )
 }
 
 const IssueTag = React.createClass({
@@ -40,15 +41,16 @@ const Filters = React.createClass({
   },
   handleServerboardChange(ev){
     const value=ev.target.value
-    this.props.setFilter("serverboard:"+value)
+    this.props.setFilter("project:"+value)
   },
   render(){
     const props = this.props
+    const current_project = (props.filter.filter( f => f.startsWith("project:") ).map( f => f.slice(8) )  || [""])[0]
     return (
       <div className="" ref="el">
         <div className="ui search">
           <div className="ui icon input">
-            <input className="prompt" type="text" placeholder="Search..." value={props.filter}/>
+            <input className="prompt" type="text" placeholder={i18n("Search...")} value={props.filter.join(" ")}/>
             <i className="search icon"></i>
           </div>
           <div className="results"></div>
@@ -63,32 +65,34 @@ const Filters = React.createClass({
               <option value="order:+modified">Show more time not modified first</option>
             </select>
           </div>
-          */}
           <div className="field">
-            <select className="ui dropdown" onChange={this.handleFilterChange} placeholder="Preset filters">
-              <option value="">Preset filters</option>
-              <option value="status:open">Show open</option>
-              <option value="status:closed">Show closed</option>
+            <select className="ui dropdown" onChange={this.handleFilterChange} placeholder={i18n("Preset filters")}>
+              <option value="">{i18n("Preset filters")}</option>
+              <option value="status:open">{i18n("Show open")}</option>
+              <option value="status:closed">{i18n("Show closed")}</option>
             </select>
           </div>
-          <div className="ui labels">
-            <h4 className="ui grey header">Filter by labels</h4>
-            <div className="ui divider"/>
-            {props.labels.map( (t) => (
-              <IssueTag key={t.name} value={t.name} color={t.color}
-                onEnable={() => props.setFilter(`+tag:${t.name}`)}
-                onDisable={() => props.setFilter(`-tag:${t.name}`)}
-              />
-            ))}
-            <div className="ui divider"/>
-          </div>
-          {props.serverboard ? null : (
-            <div className="field">
-              <h4 className="ui grey header">At serverboard</h4>
+          */}
+          {(props.labels.length > 0) ? (
+            <div className="ui labels">
+              <h4 className="ui grey header">{i18n("Filter by labels")}</h4>
               <div className="ui divider"/>
-              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder="All serverboards">
-                <option value="none">All serverboards</option>
-                {sorted_serverboards(props.serverboards).map((s) => (
+              {props.labels.map( (t) => (
+                <IssueTag key={t.name} value={t.name} color={t.color}
+                  onEnable={() => props.setFilter(`+tag:${t.name}`)}
+                  onDisable={() => props.setFilter(`-tag:${t.name}`)}
+                />
+              ))}
+              <div className="ui divider"/>
+            </div>
+          ) : null }
+          {props.project ? null : (
+            <div className="field">
+              <h4 className="ui grey header">{i18n("At project")}</h4>
+              <div className="ui divider"/>
+              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder={i18n("All projects")} defaultValue={current_project}>
+                <option value="none">{i18n("All projects")}</option>
+                {sorted_projects(props.projects).map((s) => (
                   <option key={s.shortname} value={s.shortname}>{s.name}</option>
                 ))}
               </select>

@@ -10,7 +10,7 @@ components:
   - name: daemon
     type: cmd
     id: fake
-    perms: plugin.data[serverboards.test.auth]
+    perms: plugin.data[serverboards.test.auth] event.emit service.get
     command: auth.py
     traits: auth
 
@@ -159,6 +159,12 @@ components:
       method: trigger_at_start
       params: []
 
+  - name: Shallow Trigger
+    type: trigger
+    states: ok nok
+    id: shallow.trigger
+    command: fake_singleton
+
   - name: Touch a file
     type: action
     id: touchfile
@@ -203,12 +209,6 @@ components:
     strategy: one_for_one
     timeout: 1s
     command: auth.py
-  - name: fake auth init
-    type: cmd
-    id: fake_init
-    strategy: init
-    timeout: 200ms
-    command: auth.py
   - name: nonstop trigger one for one
     type: cmd
     id: nonstop.trigger.command
@@ -224,3 +224,64 @@ components:
     id: traits.screen
     type: screen
     traits: email
+
+  - name: init command
+    id: init.cmd2
+    type: cmd
+    command: init2.py
+    strategy: singleton
+    timeout: 1s
+
+  - name: init command
+    id: init.cmd
+    type: cmd
+    command: init.py
+    strategy: singleton
+    timeout: 1d
+
+  - name: init init
+    id: init.init
+    type: init
+    command: serverboards.test.auth/init.cmd
+    call: init
+
+  - name: init fail
+    id: init.fail
+    type: init
+    command: serverboards.test.auth/init.cmd
+    call: fail
+
+  - id: rule.template
+    type: rule template
+    name: Rule template example
+    fields:
+      - id: period
+        type: string
+        label: Period for checks
+      - id: randomp
+        label: Random probability (0-1)
+      - id: filename
+        label: Which file to create/delete
+    rule:
+      when:
+        trigger: serverboards.test.auth/periodic.timer
+        params:
+          period: "{{period}}"
+      actions:
+        - id: A
+          type: action
+          action: serverboards.test.auth/random
+          params: {}
+        - type: condition
+          condition: "A.result < {{randomp}}"
+          then:
+            - type: action
+              action: serverboards.test.auth/writetofile
+              params:
+                filename: "{{filename}}"
+                content: "{{A.result}}"
+          else:
+            - type: action
+              action: serverboards.test.auth/rmfile
+              params:
+                filename: "{{filename}}"

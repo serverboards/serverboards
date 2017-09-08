@@ -33,7 +33,7 @@ defmodule Test.Client do
       case Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] } do
         {:ok, user} ->
           token = Serverboards.Auth.User.Token.create(user)
-          user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+          _user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
           :ok
         {:error, _} ->
           Logger.warn("Test client cant log as user #{inspect maybe_user}")
@@ -86,7 +86,7 @@ defmodule Test.Client do
   Client calls to server, as if JSON written
   """
   def call(client, method, params) do
-    GenServer.call(RPC.Client.get(client, :pid), {:call_from_json, method, params})
+    GenServer.call(RPC.Client.get(client, :pid), {:call_from_json, method, params}, 60_000)
   end
 
   @doc ~S"""
@@ -165,7 +165,7 @@ defmodule Test.Client do
   end
 
   def handle_call({:expect, what, timeout}, from, status) do
-    Logger.debug("Look for #{inspect what} at #{inspect status.messages}")
+    Logger.debug("Test.Client at expect: Look for #{inspect what} at #{inspect status.messages}")
     {isin, messages} = expect_rec(what, status.messages)
     if isin do
       #Logger.debug("Already here")

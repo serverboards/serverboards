@@ -50,15 +50,38 @@ defmodule Serverboards.Plugin.RPC do
 
     RPC.MethodCaller.add_method method_caller, "plugin.start", fn [plugin_component_id], context ->
       if has_perm_for_plugin(context, plugin_component_id) do
-        Plugin.Runner.start plugin_component_id
+        user = RPC.Context.get(context, :user)
+        Plugin.Runner.start plugin_component_id, user.email
       else
         {:error, :unknown_method}
       end
     end, context: true
 
-    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [plugin_component_id], context ->
+    RPC.MethodCaller.add_method method_caller, "plugin.stop", fn [uuid], context ->
       if has_perm_for_plugin(context, :any) do
-        Plugin.Runner.stop plugin_component_id
+        Plugin.Runner.stop uuid
+      else
+        {:error, :unknown_method}
+      end
+    end, context: true
+
+    RPC.MethodCaller.add_method method_caller, "plugin.kill", fn [uuid_or_id], context ->
+      if has_perm_for_plugin(context, :any) do
+        user = RPC.Context.get(context, :user)
+        uuid = case UUID.info(uuid_or_id) do
+          {:ok, _info} -> uuid_or_id
+          _ ->
+            case Plugin.Runner.get_by_component_id(uuid_or_id) do
+              {:ok, uuid} -> uuid
+              _ -> nil
+            end
+        end
+        if uuid do
+          Logger.warn("Plugin #{inspect uuid_or_id} killed by #{inspect user.email}", plugin_uuid: uuid, user: user.email)
+          Plugin.Runner.kill uuid
+        else
+          {:error, :not_running}
+        end
       else
         {:error, :unknown_method}
       end
@@ -91,7 +114,11 @@ defmodule Serverboards.Plugin.RPC do
         end
     end, [required_perm: "plugin", context: true]
 
-    RPC.MethodCaller.add_method method_caller, "plugin.list", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.ps", fn
+      [] -> Plugin.Runner.ps()
+    end, [required_perm: "plugin"]
+
+    RPC.MethodCaller.add_method method_caller, "plugin.catalog", fn
       [] ->
         Serverboards.Plugin.Registry.list
       %{} ->
@@ -102,7 +129,7 @@ defmodule Serverboards.Plugin.RPC do
         Serverboards.Plugin.Installer.install(url)
     end, [required_perm: "plugin.install"]
 
-    RPC.MethodCaller.add_method(method_caller, "plugin.data_set", fn
+    RPC.MethodCaller.add_method(method_caller, "plugin.data.update", fn
       [ key, value ], context ->
         case check_perm_for_plugin_data( context ) do
           {plugin, user} ->
@@ -120,7 +147,7 @@ defmodule Serverboards.Plugin.RPC do
       end,
       context: true)
 
-    RPC.MethodCaller.add_method(method_caller, "plugin.data_get", fn
+    RPC.MethodCaller.add_method(method_caller, "plugin.data.get", fn
       [ key ], context ->
         case check_perm_for_plugin_data( context ) do
           {plugin, _user} ->
@@ -138,7 +165,7 @@ defmodule Serverboards.Plugin.RPC do
       end,
       context: true)
 
-    RPC.MethodCaller.add_method method_caller, "plugin.data_keys", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.data.list", fn
       [ plugin, keyprefix ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
           {plugin, _user} ->
@@ -154,7 +181,7 @@ defmodule Serverboards.Plugin.RPC do
             {:error, :not_allowed}
         end
     end, context: true
-    RPC.MethodCaller.add_method method_caller, "plugin.data_items", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.data.items", fn
       [ plugin, keyprefix ], context ->
         case check_perm_for_plugin_data( context, plugin ) do
           {plugin, _user} ->
@@ -171,7 +198,7 @@ defmodule Serverboards.Plugin.RPC do
         end
     end, context: true
 
-    RPC.MethodCaller.add_method method_caller, "plugin.data_remove",
+    RPC.MethodCaller.add_method method_caller, "plugin.data.delete",
         fn [ plugin, key ], context ->
       user = RPC.Context.get context, :user
       perms = user.perms
@@ -188,7 +215,7 @@ defmodule Serverboards.Plugin.RPC do
     end, context: true
 
 
-    RPC.MethodCaller.add_method method_caller, "plugin.list_components", fn
+    RPC.MethodCaller.add_method method_caller, "plugin.component.catalog", fn
       [] ->
         []
           |> Serverboards.Plugin.Registry.filter_component

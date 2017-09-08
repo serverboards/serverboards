@@ -7,7 +7,7 @@ defmodule Serverboards.Repo.Migrations.Notifications do
       add :is_active, :boolean
       add :channel, :string
       add :config, :map
-      timestamps
+      timestamps()
     end
 
     create index(:notifications_channelconfig, [:user_id])

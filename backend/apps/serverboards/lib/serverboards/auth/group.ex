@@ -14,7 +14,7 @@ defmodule Serverboards.Auth.Group do
       Repo.insert(%Model.Group{
           name: name
         })
-      Serverboards.Event.emit("group.added", %{ group: name}, ["auth.modify_groups"])
+      Serverboards.Event.emit("group.created", %{ group: name}, ["auth.modify_groups"])
     end
 
     EventSourcing.subscribe es, :remove_group, fn %{name: name}, _me ->
@@ -25,7 +25,7 @@ defmodule Serverboards.Auth.Group do
           Repo.delete_all( from pg in Model.GroupPerms, where: pg.group_id == ^group.id)
           Repo.delete_all( from ug in Model.UserGroup, where: ug.group_id == ^group.id)
           Repo.delete( group )
-          Serverboards.Event.emit("group.removed", %{ group: name}, ["auth.modify_groups"])
+          Serverboards.Event.emit("group.deleted", %{ group: name}, ["auth.modify_groups"])
       end
     end
 
@@ -50,7 +50,7 @@ defmodule Serverboards.Auth.Group do
        select: gu.id
       )
       Repo.delete_all( from gu in Model.UserGroup, where: gu.id in ^to_delete )
-      Serverboards.Event.emit("group.user_removed", %{ group: group, email: user}, ["auth.manage_groups"])
+      Serverboards.Event.emit("group.user.deleted", %{ group: group, email: user}, ["auth.manage_groups"])
       :ok
     end
 
@@ -86,7 +86,7 @@ defmodule Serverboards.Auth.Group do
       select: gp.id
       )
       Repo.delete_all( from gp in Model.GroupPerms, where: gp.id in ^to_delete )
-      Serverboards.Event.emit("group.perm_removed", %{ group: group, perm: code}, ["auth.manage_groups"])
+      Serverboards.Event.emit("group.perm.deleted", %{ group: group, perm: code}, ["auth.manage_groups"])
       :ok
     end
 

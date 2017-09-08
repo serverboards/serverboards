@@ -1,0 +1,80 @@
+@import colors
+
+.ui.round.pane
+  height: 100%
+  width: 100%
+  border-radius: 4px
+  border: 1px solid #eee
+  display: flex
+  flex-direction: column
+  .extend
+    flex-grow: 1
+    display: flex
+    flex-direction: column
+
+  .ui.attached.top.form
+    border-bottom: 1px solid #eee
+    padding: 1em
+    font-size: 1.2em
+    .ui.input
+      width: calc( 100% - 2em)
+      display: flex
+      flex-direction: row
+      align-items: baseline
+    .seamless.white.input input
+      background: white
+      color: black
+      border: 0
+      padding: 0 1em 0 1em
+  .ui.text.container
+    max-width: 100%
+    width: 450px
+    margin: 15px auto
+
+  .ui.fill.area
+    width: 100%
+    flex-grow: 1
+  .ui.centered.fill.area
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+  textarea.ui.fill.area
+    border: 0
+    background: none
+    padding: 1em
+
+  .wide.card
+    width: 100%
+    &.active
+      box-shadow: 0 1px 3px 0 $blue, 0 0 1px 1px $blue
+  a.card
+    color: #333
+
+  .one.narrow.column.form
+    display: flex
+    flex-direction: column
+    .button
+      width: 20em
+      margin: auto
+      margin-top: 20px
+
+  .centered.header
+    display: flex
+    align-items: center
+    margin: 10px auto
+
+  .ui.buttons
+    box-shadow: 0 1px 3px #aaa, 0 0 1px #666
+    border-radius: 4px
+  .right.aligned
+    min-height: 35px
+    display: flex
+    flex-direction: row
+    justify-content: flex-end
+    margin: 20px
+  .ui.text.container
+    .centered
+      justify-content: center
+    .justified
+      text-align: justify

@@ -6,6 +6,11 @@ var sbds_event = Serverboards.event
 var plugin_id = "serverboards.core.ssh"
 
 function main(element, config){
+  console.log("New terminal! %o", element, config)
+
+  if (!element) // Fix shadow terminals
+    return
+
   var term={}
   term.$el= $(element)
   term.$el.find('#name').text(config.service.name)
@@ -21,6 +26,10 @@ function main(element, config){
   term.tabs=[]
 
   window.term=term
+
+  function decode_b64(str){
+    return decodeURIComponent(escape(atob(str)))
+  }
 
   function add_tab(name, host){
     term.tabs.push({
@@ -103,11 +112,10 @@ function main(element, config){
       return
     }
     rpc.call(term.ssh+".recv",{uuid: term.host, start: term.end, encoding:'b64'}).then(function(data){
-      //console.log("Got data %o", atob(data.data))
+      var sdata = data.data && decode_b64(data.data)
       term.end=data.end
-      data=data.data
-      if (data){
-        term.term.write(atob(data))
+      if (sdata){
+        term.term.write(sdata)
       }
     }).catch(function(e){
       Flash.error("Closed connection // Error reading data\n\n"+e)
@@ -154,7 +162,7 @@ function main(element, config){
     sbds_event.on(evname, function(data){
       if (data.eof)
         return
-      var newdata=atob(data.data64)
+      var newdata=decode_b64(data.data64)
       //console.log("Got async data: %o", newdata)
       term.term.write(newdata)
       if (data.end != (term.end + newdata.length)){
@@ -211,9 +219,9 @@ function main(element, config){
   $(window).on('resize', viewport_resize)
 
   return function(){
+    console.log("Close terminal.")
     unsetup_host()
     $(window).off('resize', viewport_resize)
-    term.$el.html('')
   }
 }
 

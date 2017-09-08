@@ -19,9 +19,10 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.Issues, [ [name: Serverboards.Issues] ]),
       supervisor(Serverboards.IO.HTTP.Supervisor, [[name: Serverboards.IO.HTTP.Supervisor]]),
       supervisor(Serverboards.Plugin.Supervisor, [[name: Serverboards.Plugin.Supervisor]]),
+      supervisor(Serverboards.File.Supervisor, [[name: Serverboards.File.Supervisor]]),
 
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
-      worker(Serverboards.Serverboard, [ [name: Serverboards.Serverboard] ]),
+      worker(Serverboards.Project, [ [name: Serverboards.Project] ]),
       worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
       worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),
@@ -31,7 +32,8 @@ defmodule Serverboards.Supervisor do
       worker(Task, [Serverboards.IO.TCP, :start_accept, []], restart: :transient),
 
       # this should be the last, as it may use others
-      worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
+      # worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
+      supervisor(Serverboards.RulesV2.Supervisor, [ [name: Serverboards.RulesV2.Supervisor] ]),
     ]
 
     opts = [strategy: :one_for_one]

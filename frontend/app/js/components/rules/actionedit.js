@@ -1,5 +1,6 @@
 import React from 'react'
 import GenericForm from '../genericform'
+import {i18n} from 'app/utils/i18n'
 
 const ActionEdit=React.createClass({
   propTypes:{
@@ -50,13 +51,13 @@ const ActionEdit=React.createClass({
     return (
       <div>
         <div className="field">
-          <label>Action:</label>
+          <label>{i18n("Action")}:</label>
           <div ref="action" className="ui fluid search normal selection dropdown">
             <input type="hidden" defaultValue={this.state.action} name="action"/>
             <i className="dropdown icon"></i>
-            <div className="default text">Select action.</div>
+            <div className="default text">{i18n("Select action")}</div>
             <div className="menu">
-              <div className="item" data-value="">Do nothing</div>
+              <div className="item" data-value="">{i18n("Do nothing")}</div>
               {(this.props.catalog || []).map( (ac) => (
                 <div key={ac.id} className="item" data-value={ac.id}>{ac.name}</div>
               ))}

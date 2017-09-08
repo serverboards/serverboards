@@ -12,26 +12,28 @@ defmodule Serverboards.Setup do
     [
     "http.port_to_websocket",
     "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
+    "auth.create_user", "auth.token.create",
     "auth.info_any_user", "auth.list",
     "auth.modify_groups", "auth.manage_groups",
-    "plugin", "plugin.data", "plugin.install", "plugin.list",
-    "serverboard.add", "serverboard.update",
-    "serverboard.delete", "serverboard.info",
-    "serverboard.widget.add", "serverboard.widget.update",
-    "service.add", "service.update",
-    "service.delete", "service.info",
+    "plugin", "plugin.data", "plugin.install", "plugin.catalog",
+    "project.create", "project.update",
+    "project.delete", "project.get",
+    "dashboard.widget.create", "dashboard.widget.update",
+    "dashboard.create", "dashboard.update", "dashboard.remove",
+    "service.create", "service.update",
+    "service.delete", "service.get",
     "service.attach",
     "settings.user.view", "settings.user.view_all",
     "settings.user.update", "settings.user.update_all",
     "settings.view", "settings.update",
     "debug",
-    "notifications.notify", "notifications.notify_all",
+    "notifications.create", "notifications.create_all",
     "notifications.list",
-    "action.trigger", "action.watch",
-    "rules.update", "rules.view",
+    "action.trigger", "action.watch", "action.update",
+    "rules.update", "rules.view", "rules.trigger", "rules.delete", "rules.create",
     "logs.view",
-    "issues.view", "issues.add", "issues.update"
+    "issues.view", "issues.create", "issues.update",
+    "file.pipe"
     ]
   end
 
@@ -44,7 +46,7 @@ defmodule Serverboards.Setup do
     else
       database = Serverboards.Config.get( :database )
 
-      {:ok, pid} = Serverboards.Repo.start_link(database)
+      {:ok, _pid} = Serverboards.Repo.start_link(database)
     end
   end
 
@@ -55,7 +57,7 @@ defmodule Serverboards.Setup do
   Setups the database for initial state, with given username and password
   """
   def initial(options \\ []) do
-    start
+    start()
     import_user(%{
       email: Keyword.get(options, :email, "admin@serverboards.io"),
       name: "Admin",
@@ -83,7 +85,7 @@ defmodule Serverboards.Setup do
     }
 
     import_group(status, %{ name: "user", perms: []} )
-    import_group(status, %{ name: "admin", perms: all_perms} )
+    import_group(status, %{ name: "admin", perms: all_perms()} )
     Logger.debug("Done")
   end
 

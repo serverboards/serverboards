@@ -3,7 +3,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 
-import smtplib, email
+import smtplib, email, markdown
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -27,45 +27,60 @@ def render_template(filename, context):
     with open(filename) as fd:
         return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
 
+base_url_cache=None
 def base_url():
-    url="http://localhost:8080"
-    try:
-        url=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
-    except:
-        pass
-    return url
+    global base_url_cache
+    if not base_url_cache:
+        base_url_cache="http://localhost:8080"
+        try:
+            base_url_cache=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
+            if base_url_cache.endswith("/"):
+                base_url_cache=base_url_cache[0:-1]
+        except:
+            pass
+    return base_url_cache
 
 @serverboards.rpc_method
-def send_email(user=None, config=None, message=None, extra={}, test=False):
+def send_email(user=None, config=None, message=None, test=False):
     if not settings:
         return False
     _to = config and config.get("email") or user["email"]
     msg = MIMEMultipart('alternative')
+    extra=message["extra"]
+    #serverboards.debug("email extra data: %s"%(repr(extra)))
 
-    body = message["body"]
+    body_md = message["body"]
 
     context = {
         "email": _to,
         "user": user,
         "subject": message["subject"],
-        "body": message["body"].replace("<", "&lt;").replace(">","&gt;").replace("\n\n","</p><p>"),
+        "body": markdown.markdown(body_md, safe_mode='escape'),
         "settings": settings,
-        "APP_URL": "http://localhost:8080" if test else base_url(),
-        "type": extra.get("type", "MESSAGE")
+        "APP_URL": base_url(),
+        "type": extra.get("type", "MESSAGE"),
+        "url": extra.get("url", base_url())
         }
     body_html = render_template(os.path.join(os.path.dirname(__file__), "email-template.html"), context)
 
     msg.attach(MIMEText(body_html,"html",'UTF-8'))
-    msg.attach(MIMEText(body,"plain",'UTF-8'))
+    msg.attach(MIMEText(body_md,"plain",'UTF-8'))
 
     msg["From"]="Serverboards <%s>"%settings["from"]
     msg["To"]=_to
     msg["Subject"]=message["subject"]
     msg["Date"]=email.utils.formatdate()
 
+    if "message_id" in extra:
+        msg["Message-Id"] = extra["message_id"]
+    if "thread_id" in extra:
+        msg["In-Reply-To"] = extra["thread_id"]
+
     if test:
         with open("/tmp/lastmail.html","w") as fd:
-            fd.write(body_html)
+            fd.write(markdown.markdown(body_html, safe_mode='escape'))
+        with open("/tmp/lastmail.md","w") as fd:
+            fd.write(body_md)
 
     smtp = smtplib.SMTP(settings["servername"], int(settings["port"] or "0"))
     if settings.get("username") :
@@ -80,6 +95,7 @@ def send_email(user=None, config=None, message=None, extra={}, test=False):
 
 
 if len(sys.argv)==2 and sys.argv[1]=="test":
+    base_url_cache="http://localhost/"
     settings={
         "servername" : "mail.serverboards.io",
         "port" : "",
@@ -93,7 +109,7 @@ if len(sys.argv)==2 and sys.argv[1]=="test":
         message={
             "subject":"This is a test message",
             "body":"Body of the test message\n\nAnother line",
-            "extra":[]
+            "extra":{}
         }, test=True))
 else:
     try:

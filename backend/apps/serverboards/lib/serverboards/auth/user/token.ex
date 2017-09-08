@@ -1,5 +1,6 @@
 require Logger
 require Timex
+require Serverboards.Auth.User.Model
 
 defmodule Serverboards.Auth.User.Token do
 	import Ecto.Query

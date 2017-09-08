@@ -4,8 +4,9 @@ import flash from './flash'
 import { routerReducer } from 'react-router-redux'
 
 var reducers = [
-  'auth', 'action', 'flash', 'console', 'top', 'serverboard', 'services',
-  'settings', 'notifications', 'rules', 'rpc', 'avatar'
+  'auth', 'action', 'flash', 'console', 'top', 'project', 'services',
+  'settings', 'notifications', 'rules', 'rpc', 'avatar', 'issues',
+  'rules_v2'
 ]
 
 reducers = reducers.reduce(function(acc, r){ acc[r]=require('./'+r).default; return acc; }, {})

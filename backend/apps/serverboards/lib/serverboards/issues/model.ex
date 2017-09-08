@@ -16,7 +16,7 @@ defmodule Serverboards.Issues.Model do
       has_many :assignees, through: [:issue_assignees, :assignee]
       has_many :aliases, Serverboards.Issues.Model.Alias
 
-      timestamps
+      timestamps()
     end
 
     @required_fields ~w(title status)a
@@ -88,7 +88,7 @@ defmodule Serverboards.Issues.Model do
       has_one :issue, Serverboards.Issues.Model.Issue
       has_one :creator, Serverboards.Auth.Model.User, references: :creator_id, foreign_key: :id
 
-      timestamps
+      timestamps()
     end
   end
   defmodule Assignees do
@@ -101,7 +101,7 @@ defmodule Serverboards.Issues.Model do
       has_one :issue, Serverboards.Issues.Model.Issue
       has_one :user, Serverboards.Auth.Model.User
 
-      timestamps
+      timestamps()
     end
   end
 

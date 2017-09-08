@@ -6,7 +6,9 @@ import serverboards
 
 
 def authenticate(username, password):
-    sp = subprocess.Popen(["sudo", os.path.join(os.path.dirname(__file__),"./serverboards-auth-helper")], stdin=subprocess.PIPE)
+    helper = os.path.abspath(os.path.join(os.path.dirname(__file__),"./serverboards-auth-helper"))
+    serverboards.debug("Using PAM helper %s"%(helper))
+    sp = subprocess.Popen(["sudo", "-n", helper], stdin=subprocess.PIPE)
     sp.stdin.write(bytes("%s\n%s\n"%(username,password), 'utf8'))
     sp.stdin.flush()
     sp.stdin.close()

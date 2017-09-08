@@ -31,7 +31,7 @@ defmodule Serverboards.Plugin.Runner do
 
   Example:
 
-    iex> {:ok, cmd} = start("serverboards.test.auth/fake")
+    iex> {:ok, cmd} = start("serverboards.test.auth/fake", "test")
     iex> call cmd, "ping"
     {:ok, "pong"}
     iex> stop(cmd)
@@ -39,20 +39,20 @@ defmodule Serverboards.Plugin.Runner do
 
   Or if does not exist:
 
-    iex> start("nonexistantplugin")
+    iex> start("nonexistantplugin", "test")
     {:error, :not_found}
 
   It can also be called with a component struct:
 
     iex> component = hd (Serverboards.Plugin.Registry.filter_component trait: "auth")
-    iex> {:ok, cmd} = start(component)
+    iex> {:ok, cmd} = start(component, "test")
     iex> call cmd, "ping"
     {:ok, "pong"}
     iex> stop(cmd)
     true
 
   """
-  def start(%Serverboards.Plugin.Component{} = component) do
+  def start(%Serverboards.Plugin.Component{} = component, user) do
 
     # it may come from partial or full component, just get the id
     plugin_id = case component.plugin do
@@ -60,7 +60,7 @@ defmodule Serverboards.Plugin.Runner do
       %{ id: id } -> id
     end
 
-    case GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component.id}) do
+    case get_by_component_id(component.id) do
       {:ok, uuid} ->
         #Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
         ping(uuid)
@@ -70,10 +70,17 @@ defmodule Serverboards.Plugin.Runner do
         {:ok, pid } ->
           require UUID
           uuid = UUID.uuid4
-          Logger.debug("Adding runner #{uuid} #{inspect component.id}")
-          MOM.RPC.Client.set(Serverboards.IO.Cmd.client(pid), :plugin, %{ plugin_id: plugin_id, component_id: component.id })
-          :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component})
-          {:ok, uuid}
+          # Logger.debug("Adding runner #{uuid} #{inspect component.id}")
+          try do
+            client = Serverboards.IO.Cmd.client(pid)
+            MOM.RPC.Client.set(client, :plugin, %{ plugin_id: plugin_id, component_id: component.id })
+            :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component, user})
+            {:ok, uuid}
+          catch
+            :exit, _ ->
+              Logger.error("Command exitted unexpectedly: #{component.id}", command: component)
+              {:error, :cant_run}
+          end
         {:error, {:timeout, _where}} ->
           Logger.error("Timeout starting plugin component #{inspect component.id}")
           {:error, :timeout}
@@ -83,14 +90,14 @@ defmodule Serverboards.Plugin.Runner do
       end
     end
   end
-  def start(plugin_component_id)
+  def start(plugin_component_id, user)
   when is_binary(plugin_component_id) do
       case Serverboards.Plugin.Registry.find(plugin_component_id) do
         nil ->
           Logger.error("Plugin component #{plugin_component_id} not found")
           {:error, :not_found}
         c ->
-          start(c)
+          start(c, user)
       end
   end
 
@@ -107,6 +114,29 @@ defmodule Serverboards.Plugin.Runner do
         Serverboards.IO.Cmd.stop cmd
         true
     end
+  end
+
+  @doc ~S"""
+  Forces stop of the command, even for init and singleton commands
+
+  This is required in some situations, as reloading of plugin code.
+  """
+  def kill(uuid) do
+    case get(uuid) do
+      %{ pid: pid } = data when is_pid(pid) ->
+        Logger.info("Kill process #{uuid} / #{ inspect data.component.id }")
+        GenServer.call(Serverboards.Plugin.Runner,  {:exit, uuid})
+        if Process.alive?(pid) do # should be running, but have found the bug in the wild.
+          Serverboards.IO.Cmd.stop pid
+        end
+        :ok
+      other ->
+        {:error, other}
+    end
+  end
+
+  def get_by_component_id(component_id) do
+    GenServer.call(Serverboards.Plugin.Runner, {:get_by_component_id, component_id})
   end
 
   @doc ~S"""
@@ -166,7 +196,7 @@ defmodule Serverboards.Plugin.Runner do
 
   Examples:
 
-    iex> {:ok, cmd} = start "serverboards.test.auth/fake"
+    iex> {:ok, cmd} = start "serverboards.test.auth/fake", "test"
     iex> call cmd, "ping"
     {:ok, "pong"}
     iex> call cmd, "unknown"
@@ -179,7 +209,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> call "nonvalid", "ping"
     {:error, :unknown_method}
 
-    iex> {:ok, cmd} = start "serverboards.test.auth/fake"
+    iex> {:ok, cmd} = start "serverboards.test.auth/fake", "test"
     iex> stop cmd
     iex> call cmd, "ping"
     {:error, :unknown_method}
@@ -194,7 +224,7 @@ defmodule Serverboards.Plugin.Runner do
   calls or more complex with a list of possible parameters, and then filter.
   Necessary for triggers with service config as values, for example.
 
-    iex> {:ok, cmd} = start "serverboards.test.auth/fake"
+    iex> {:ok, cmd} = start "serverboards.test.auth/fake", "test"
     iex> call cmd, %{ "method" => "pingm", "params" => [ %{ "name" => "message" } ] }, %{ "message" => "Pong", "ingored" => "ignore me"}
     {:ok, "Pong"}
 
@@ -208,9 +238,10 @@ defmodule Serverboards.Plugin.Runner do
         {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
         GenServer.cast(Serverboards.Plugin.Runner, {:ping, id})
-        #Logger.debug("Plugin runner call #{inspect method}(#{inspect params})")
+        #Logger.debug("Plugin runner call #{inspect method}(#{inspect(params)})")
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
+            Logger.error("Unexpected exit process while calling #{id}.#{method}")
             GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
             {:error, :exit}
           other -> other
@@ -249,8 +280,8 @@ defmodule Serverboards.Plugin.Runner do
   @doc ~S"""
   Simple call to do the full cycle of start a plugin, call a method and stop it.
   """
-  def start_call_stop(command_id, method, params \\ []) do
-    case start(command_id) do
+  def start_call_stop(command_id, method, params, user) do
+    case start(command_id, user) do
       {:error, e} -> {:error, e}
       {:ok, uuid} ->
         res = call(uuid, method, params)
@@ -273,6 +304,10 @@ defmodule Serverboards.Plugin.Runner do
 
   def status(uuid) do
     GenServer.call(Serverboards.Plugin.Runner, {:status, uuid})
+  end
+
+  def ps() do
+    GenServer.call(Serverboards.Plugin.Runner, {:ps})
   end
 
   ## server impl
@@ -306,7 +341,7 @@ defmodule Serverboards.Plugin.Runner do
     end
     {:reply, ret, state}
   end
-  def handle_call({:start, uuid, pid, component}, _from, state) do
+  def handle_call({:start, uuid, pid, component, user}, _from, state) do
     #Logger.debug("Component start #{component.id}")
     # get strategy and timeout
     {timeout, strategy} = case Map.get(component.extra, "strategy", "one_for_one") do
@@ -335,7 +370,8 @@ defmodule Serverboards.Plugin.Runner do
       pid: pid,
       component: component,
       timeout: timeout,
-      strategy: strategy
+      strategy: strategy,
+      user: user
     }
     state = %{ state |
       running: Map.put(state.running, uuid, entry )
@@ -376,12 +412,20 @@ defmodule Serverboards.Plugin.Runner do
   def handle_call({:get, id}, _from, state) do
     {:reply, Map.get(state.running, id, :not_found), state}
   end
-  def handle_call({:status, uuid}, _from, state) do
-    status = if Map.has_key?(state.running, uuid) do :running else :not_running end
+  def handle_call({:status, id}, _from, state) do
+    uuid = case Map.get(state.by_component_id, id, false) do
+      false -> id
+      uuid -> uuid
+    end
+    #Logger.debug("Running #{inspect id} #{inspect uuid}? // #{inspect state.by_component_id}")
+    status = if Map.has_key?(state.running, uuid) do
+      :running
+    else
+      :not_running
+    end
     {:reply, status, state}
   end
   def handle_call({:exit, uuid}, _from, state) do
-    Logger.error("Unexpected exit process #{uuid}")
     state=case state.running[uuid] do
       nil ->
         state
@@ -401,6 +445,20 @@ defmodule Serverboards.Plugin.Runner do
 
     {:reply, :ok, state}
   end
+  def handle_call({:ps}, _from, state) do
+    ps = for {uuid, p} when is_map(p) <- state.running do
+      %{
+        uuid: uuid,
+        component: p.component.id,
+        name: p.component.name,
+        timeout: p.timeout,
+        strategy: p.strategy,
+        user: p.user,
+      }
+    end
+
+    {:reply, {:ok, ps}, state}
+  end
 
   def handle_cast({:ping, uuid}, state) do
     #Logger.debug("ping #{inspect uuid }")
@@ -412,16 +470,21 @@ defmodule Serverboards.Plugin.Runner do
         timeout = state.running[uuid].timeout
         {:ok, newref} = :timer.send_after( timeout, self(), {:timeout, uuid} )
         #Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
-        {:noreply, %{ state | timeouts: Map.put(state.timeouts, uuid, newref) }}
+        timeouts = Map.put(state.timeouts, uuid, newref)
+        {:noreply, %{ state |
+          timeouts: timeouts
+          }}
     end
   end
 
   def handle_info({:timeout, uuid}, state) do
     {entry, running} = Map.pop(state.running, uuid, nil)
     if entry do
-      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id}",
+      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id} #{inspect entry.pid}",
         uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.component.id)
-      Process.exit(entry.pid, :timeout)
+      if Process.alive?(entry.pid) do
+        Serverboards.IO.Cmd.stop(entry.pid)
+      end
       by_component_id = Map.drop(state.by_component_id, [entry.component.id])
 
       timeouts = Map.drop(state.timeouts, [uuid])

@@ -10,7 +10,7 @@ defmodule Serverboards.Repo.Migrations.Action do
       add :result, :map
       add :user_id, :id
       add :elapsed, :integer # in ms.
-      timestamps
+      timestamps()
     end
 
     create index(:action_history, [:uuid])

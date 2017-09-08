@@ -47,36 +47,36 @@ export function search(Q, context, set_search_results){
   return pall
 }
 
-add_command_search('serverboards', function(Q, context){
+add_command_search('projects', function(Q, context){
   const state = context.state
   let results = [
-    {id: 'home', title: "Home serverboard", description: "Initial home screen", path: "/"},
+    {id: 'home', title: "Home project", description: "Initial home screen", path: "/"},
   ]
   if (context.path.startsWith("/")){
     results.push(
-      {id: 'sbds-add', title: "Add serverboard", description: "Add a new serverboard", path: "/serverboard/add"}
+      {id: 'sbds-add', title: "Add project", description: "Add a new project", path: "/project/add"}
     )
   }
-  if (context.path.startsWith("/serverboard/")){
-    const shortname=state.serverboard.current
-    const serverboard=state.serverboard.serverboards.find( (s) => (s.shortname == shortname) )
-    if (serverboard){
-      const name=serverboard.name
+  if (context.path.startsWith("/project/")){
+    const shortname=state.project.current
+    const project=state.project.projects.find( (s) => (s.shortname == shortname) )
+    if (project){
+      const name=project.name
       results = results.concat( [
-        {id: 'overview', title: "Overview", description: `Go to overview`, run: () => context.goto(`/serverboard/${shortname}/overview`), score: 1},
-        {id: 'services', title: "Services", description: `Go to services`, run: () => context.goto(`/serverboard/${shortname}/services`), score: 1},
-        {id: 'permissions', title: "Permissions", description: `Go to permissions`, run: () => context.goto(`/serverboard/${shortname}/permissions`), score: 1},
-        {id: 'rules', title: "Rules", description: `Go to rules`, run: () => context.goto(`/serverboard/${shortname}/rules`), score: 1},
-        {id: 'logs', title: "Logs", description: `Go to logs`, run: () => context.goto(`/serverboard/${shortname}/logs`), score: 1},
-        {id: 'settings', title: "Settings", description: `Go to settings`, run: () => context.goto(`/serverboard/${shortname}/settings`), score: 1},
+        {id: 'overview', title: "Overview", description: `Go to overview`, run: () => context.goto(`/project/${shortname}/overview`), score: 1},
+        {id: 'services', title: "Services", description: `Go to services`, run: () => context.goto(`/project/${shortname}/services`), score: 1},
+        {id: 'permissions', title: "Permissions", description: `Go to permissions`, run: () => context.goto(`/project/${shortname}/permissions`), score: 1},
+        {id: 'rules', title: "Rules", description: `Go to rules`, run: () => context.goto(`/project/${shortname}/rules`), score: 1},
+        {id: 'logs', title: "Logs", description: `Go to logs`, run: () => context.goto(`/project/${shortname}/logs`), score: 1},
+        {id: 'settings', title: "Settings", description: `Go to settings`, run: () => context.goto(`/project/${shortname}/settings`), score: 1},
       ] )
     }
   }
-  results = results.concat( state.serverboard.serverboards.map( (sbds) => ( {
+  results = results.concat( state.project.projects.map( (sbds) => ( {
       id: `SBDS-${sbds.shortname}`,
       title: sbds.shortname,
-      description: `Go to serverboard ${sbds.name}`,
-      path: `/serverboard/${sbds.shortname}/`
+      description: `Go to project ${sbds.name}`,
+      path: `/project/${sbds.shortname}/`
     } ) ) )
   return results
 })
@@ -116,7 +116,7 @@ add_command_search('all-services', function(Q, context){
       return services.map( (s) => ({
         id: s.uuid,
         title: `${s.name}`,
-        description: s.description || `Service at ${s.serverboards.join(', ') || "no"} serverboard`,
+        description: s.description || `Service at ${s.projects.join(', ') || "no"} project`,
         path: `/services/${s.uuid}`
       }))
     });

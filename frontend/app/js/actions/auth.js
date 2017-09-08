@@ -1,6 +1,8 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import event from 'app/utils/event'
+import {i18n, i18n_nop} from 'app/utils/i18n'
+import { set_lang } from './i18n'
 
 export function logout(){
   return {
@@ -31,9 +33,16 @@ export function logged_in_as(user){
       event.subscribe(["user.updated"])
       dispatch({type:"AUTH_LOGIN", user: user})
       rpc.call("settings.user.get", ["profile_avatar"]).then( (d) => {
-        if (d.avatar)
+        if (d && d.avatar)
           dispatch( user_update_avatar(d.avatar) )
       })
+      rpc.call("settings.user.get", ["language"]).then( (props) => {
+        let lang = props && props.lang
+        if (lang){
+          set_lang(lang)(dispatch)
+        }
+      })
+
     }
     else{
       Flash.error("Invalid email/password")
@@ -60,7 +69,7 @@ export function user_list(){
 
 export function user_add(user){
   return function(dispatch){
-    rpc.call("user.add", user).then(() => {
+    rpc.call("user.create", user).then(() => {
       Flash.info("User added")
     })
   }
@@ -81,12 +90,11 @@ export function group_list(){
       Promise.all( list.map((g) => {
         return Promise.all([
           Promise.resolve(g),
-          rpc.call("group.list_users", [g]),
-          rpc.call("group.list_perms", [g])
+          rpc.call("group.get", [g])
         ])
       }) ).then(function(gs){
         gs.map( (g) => {
-          groups.push( {name: g[0], users: g[1], perms: g[2]} )
+          groups.push( {name: g[0], users: g[1].users, perms: g[1].perms} )
         })
         dispatch({type:'AUTH_GROUP_LIST', groups: groups})
       } )
@@ -98,9 +106,9 @@ export function group_update_perms(group, to_add, to_remove){
   return function(dispatch){
     Promise.all([
       Promise.all(
-        to_add.map( (p) => rpc.call("group.add_perm", [group, p])  )
+        to_add.map( (p) => rpc.call("group.perm.add", [group, p])  )
       ), Promise.all(
-        to_remove.map( (p) => rpc.call("group.remove_perm", [group, p]) )
+        to_remove.map( (p) => rpc.call("group.perm.delete", [group, p]) )
       )
     ]).then(() => {
       Flash.info("Updated group permissions.")
@@ -112,9 +120,9 @@ export function group_update_users(group, to_add, to_remove){
   return function(dispatch){
     Promise.all([
       Promise.all(
-        to_add.map( (u) => rpc.call("group.add_user", [group, u])  )
+        to_add.map( (u) => rpc.call("group.user.add", [group, u])  )
       ), Promise.all(
-        to_remove.map( (u) => rpc.call("group.remove_user", [group, u]) )
+        to_remove.map( (u) => rpc.call("group.user.delete", [group, u]) )
       )
     ]).then(() => {
       Flash.info("Updated group users.")
@@ -124,26 +132,26 @@ export function group_update_users(group, to_add, to_remove){
 
 export function group_remove_user(group, user){
   return function(dispatch){
-    rpc.call("group.remove_user", [group, user])
+    rpc.call("group.user.delete", [group, user])
   }
 }
 
 export function group_add_user(group, user){
   return function(dispatch){
-    rpc.call("group.add_user", [group, user])
+    rpc.call("group.user.add", [group, user])
   }
 }
 
 export function group_add(group){
   return function(dispatch){
-    rpc.call("group.add", [group]).then(() => {
+    rpc.call("group.create", [group]).then(() => {
       Flash.info("Group added")
     })
   }
 }
 export function group_remove(group){
   return function(dispatch){
-    rpc.call("group.remove", [group]).then(() => {
+    rpc.call("group.delete", [group]).then(() => {
       Flash.info("Group removed")
     })
   }
@@ -153,6 +161,20 @@ export function perm_list(){
   return function(dispatch){
     rpc.call("perm.list", []).then((l) =>{
       dispatch({type: "AUTH_PERMS_LIST", perms: l})
+    })
+  }
+}
+
+const LANG_LIST={
+  "es" : i18n_nop("spanish"),
+  "en" : i18n_nop("english"),
+}
+
+export function user_settings_set_language(lang){
+  return function(dispatch){
+    rpc.call("settings.user.set", ["language", {lang}]).then( () => {
+      Flash.info(i18n("Set language to {lang}", {lang: i18n( LANG_LIST[lang] )}))
+      set_lang(lang)(dispatch)
     })
   }
 }

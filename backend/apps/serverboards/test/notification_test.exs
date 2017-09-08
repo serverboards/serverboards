@@ -103,14 +103,14 @@ defmodule Serverboards.NotificationTest do
 
     {:ok, [ch | _]} = Client.call client, "notifications.catalog", []
 
-    {:ok, :ok} = Client.call client, "notifications.config_update",
+    {:ok, :ok} = Client.call client, "notifications.config.update",
       %{ email: "dmoreno@serverboards.io", channel: ch["channel"],
         config: %{ email: "test@serverboards.io"}, is_active: true}
 
-    {:ok, :ok} = Client.call client, "notifications.notify",
+    {:ok, :ok} = Client.call client, "notifications.create",
       %{ email: "dmoreno@serverboards.io", subject: "Subject", body: "Body", extra: [] }
 
-    {:ok, config} = Client.call client, "notifications.config", ["dmoreno@serverboards.io"]
+    {:ok, config} = Client.call client, "notifications.config.get", ["dmoreno@serverboards.io"]
     config = config["serverboards.test.auth/channel.json.tmp.file"]
 
     Logger.info(inspect config)
@@ -120,7 +120,7 @@ defmodule Serverboards.NotificationTest do
     assert config["is_active"]
 
 
-    {:ok, ^config} = Client.call client, "notifications.config", ["dmoreno@serverboards.io", "serverboards.test.auth/channel.json.tmp.file"]
+    {:ok, ^config} = Client.call client, "notifications.config.get", ["dmoreno@serverboards.io", "serverboards.test.auth/channel.json.tmp.file"]
   end
 
   test "In app communications" do
@@ -142,13 +142,13 @@ defmodule Serverboards.NotificationTest do
     assert "new" in mymsg["tags"]
     assert "unread" in mymsg["tags"]
 
-    {:ok, fullmsg} = Client.call client, "notifications.details", [mymsg["id"]]
+    {:ok, fullmsg} = Client.call client, "notifications.get", [mymsg["id"]]
     assert fullmsg["id"] == mymsg["id"]
 
 
     {:ok, :ok} = Client.call client, "notifications.update", %{ id: mymsg["id"], tags: ["other"]}
     Client.expect(client, method: "notifications.update")
-    {:ok, fullmsg} = Client.call client, "notifications.details", [mymsg["id"]]
+    {:ok, fullmsg} = Client.call client, "notifications.get", [mymsg["id"]]
     Logger.info(inspect fullmsg)
     assert fullmsg["id"] == mymsg["id"]
     assert fullmsg["tags"] == ["other"]
@@ -165,7 +165,7 @@ defmodule Serverboards.NotificationTest do
     assert user.is_active == false
 
 
-    {:ok, :ok} = Client.call client, "notifications.notify",
+    {:ok, :ok} = Client.call client, "notifications.create",
       %{ email: "@admin", subject: "Notify all but me", body: "Body", extra: [] }
     {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
     bodies = ( for c <- coms, do: c["subject"] )
@@ -173,7 +173,7 @@ defmodule Serverboards.NotificationTest do
     assert not "Notify all but me" in bodies
 
     # Send straigth to a disabled user should fail
-    {:ok, :ok} = Client.call client, "notifications.notify",
+    {:ok, :ok} = Client.call client, "notifications.create",
       %{ email: "dmoreno@serverboards.io", subject: "Notify all but me2", body: "Body", extra: [] }
     {:ok, coms} = Client.call client, "notifications.list", %{tags: ["unread"]}
     bodies = ( for c <- coms, do: c["subject"] )

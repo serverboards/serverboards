@@ -107,7 +107,7 @@ defmodule Serverboards.Logger.Console do
 
 
   def init(_opts) do
-    {:ok, %{ colors: colors, ignore_applications: ignore_applications, ignore_levels: ignore_levels, last_t: 0 }}
+    {:ok, %{ colors: colors(), ignore_applications: ignore_applications(), ignore_levels: ignore_levels(), last_t: 0 }}
   end
 
   def handle_event(:flush, state) do

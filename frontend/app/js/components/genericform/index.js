@@ -1,6 +1,7 @@
 import React from 'react'
 
 import GenericField from './genericfield'
+import {object_is_equal} from 'app/utils'
 
 const GenericForm=React.createClass({
   propTypes:{
@@ -33,7 +34,7 @@ const GenericForm=React.createClass({
     this.props.updateForm && this.props.updateForm(nstate)
   },
   componentWillReceiveProps(newprops){
-    if (newprops.fields != this.props.fields || newprops.data != this.props.data){
+    if (!object_is_equal(newprops.fields, this.props.fields) || !object_is_equal(newprops.data, this.props.data)){
       this.setState( this.getInitialState(newprops) )
     }
   },
@@ -55,8 +56,8 @@ const GenericForm=React.createClass({
         ref="form"
         className={`ui form ${props.className || ""}`}
         onSubmit={(ev) => { ev.preventDefault(); props.onSubmit && props.onSubmit(ev) }}>
-        {(props.fields || []).map((f) => (
-            <GenericField key={f.name} setValue={this.setValue} value={this.state[f.name]} fields={props.fields} form_data={this.state} {...f}/>
+        {(props.fields || []).map((f, i) => (
+            <GenericField key={f.name || i} setValue={this.setValue} value={this.state[f.name]} fields={props.fields} form_data={this.state} {...f}/>
         ))}
         {props.children}
       </form>

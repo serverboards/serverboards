@@ -1,5 +1,5 @@
 import React from 'react'
-import {unwrap, object_is_equal} from 'app/utils'
+import {unwrap, object_is_equal, map_get} from 'app/utils'
 import event from 'app/utils/event'
 import { connect } from 'react-redux'
 import Loading from 'app/components/loading'
@@ -46,7 +46,7 @@ import Loading from 'app/components/loading'
  *            Props elements to watch, if any changes, update the component data
  *            store and resubscribe.
  *   loading(state, props)
- *            Returns a string to show in a loagind component or false if all
+ *            Returns a string to show in a loading component or false if all
  *            data ready. Doing it here prevents downstream component to get
  *            undefined states
  *
@@ -86,7 +86,8 @@ export function serverboards_connect(options){
         let update=false
         const state = this.context.store.getState()
         unwrap(options.watch, state, newprops).map( (p) => {
-          if (!object_is_equal(this.props[p], newprops[p]))
+          let pl = p.split('.')
+          if (!object_is_equal( map_get(this.props, pl), map_get(newprops, pl)))
             update=true
         })
         if (update){

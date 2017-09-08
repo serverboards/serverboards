@@ -11,19 +11,26 @@ import PluginScreen from 'app/components/plugin/screen'
 
 import Empty from 'app/components/empty'
 import Settings from 'app/containers/service/settings'
+import Logs from 'app/containers/service/logs'
 import DetailsTab from './detailstab'
+import Rules from './rules'
 import ExternalUrl from './externalurl'
+import {i18n} from 'app/utils/i18n'
+import TabBar from 'app/components/tabbar'
 
 const tab_options={
   details: DetailsTab,
-  settings: Settings
+  settings: Settings,
+  rules: Rules,
+  logs: Logs
 }
+
 function get_plugin_component({tab, type}, props){
   if (type!="screen")
     return null
   let sp=tab.split('/')
   return (props) => (
-    <PluginScreen data={{service: props.service, serverboard: props.serverboard}} plugin={sp[0]} component={sp[1]}/>
+    <PluginScreen data={{service: props.service, project: props.project}} plugin={sp[0]} component={sp[1]}/>
   )
 }
 function get_external_url_component({tab, type}, props){
@@ -106,14 +113,16 @@ const Details = React.createClass({
     const state = this.state
     if (props.loading){
       return (
-        <Loading>Service details</Loading>
+        <Loading>{i18n("Service details")}</Loading>
       )
     }
     let current_tab = state.tab
 
     let sections=[
-      { name: "Details", id: "details" },
-      { name: "Settings", id: "settings" },
+      { name: i18n("Details"), id: "details" },
+      { name: i18n("Settings"), id: "settings" },
+      { name: i18n("Rules"), id: "rules" },
+      { name: i18n("Logs"), id: "logs" },
     ];
 
     props.screens.map( (s) => {
@@ -144,40 +153,35 @@ const Details = React.createClass({
     )
 
     let handleClose = undefined
-    if (props.serverboard)
-      handleClose = () => goto(`/serverboard/${props.serverboard.shortname}/services`)
+    if (props.project)
+      handleClose = () => goto(`/project/${props.project.shortname}/services`)
 
     return (
-      <Modal className="wide" onClose={handleClose}>
+      <div className="extend">
         <div className="ui top secondary pointing menu" style={{paddingBottom: 0}}>
           {props.service.icon ? (
             <IconIcon src={icon} icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
           ) : (
-            <ImageIcon src={icon}  name={props.service.name}/>
+            <ImageIcon src={icon} name={props.service.name}/>
           )}
 
           <div style={{display: "inline-block"}}>
-            <h3 className="ui header" style={{paddingRight: 50, marginBottom: 0}}>{props.service.name}</h3>
-            <span className="ui meta">{props.service_template.name}</span>
+            <h3 className="ui header" style={{paddingRight: 50, marginBottom: 0}}>{i18n(props.service.name)}</h3>
+            <span className="ui meta">{i18n(props.service_template.name)}</span>
           </div>
-          {sections.map( (s) => (
-            <a
-              key={s.id}
-              className={`item ${(s.id == current_tab) ? "active" : ""}`}
-              onClick={() => this.handleTabChange(s.id, s.type)}
-              title={s.description}
-              >
-                {s.name}
-                {s.icon ? (
-                  <i className={`ui icon ${s.icon}`}/>
-                ) : null}
-            </a>
-          ))}
+          <TabBar tabs={sections.map( s => ({
+            key: s.id,
+            label: s.name,
+            icon: s.icon,
+            onClick: () => this.handleTabChange(s.id, s.type),
+            active: (s.id == current_tab),
+            description: s.title
+          }) ) } />
         </div>
         <div className="ui full height">
           <CurrentTab {...props} service={props.service} onClose={handleClose} />
         </div>
-      </Modal>
+      </div>
     )
   }
 })

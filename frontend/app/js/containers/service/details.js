@@ -9,11 +9,12 @@ import {
   service_clear_external_url_components,
   service_load_external_url_components,
   } from 'app/actions/service'
+import i18n from 'app/utils/i18n'
 
 function get_screens( service ){
   if (!service)
     return []
-  return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})
+  return rpc.call("plugin.component.catalog", {type: "screen", traits: service.traits})
 }
 
 // I need to layer it as the external url require the service traits
@@ -34,7 +35,7 @@ var DetailsWithExternalUrls = connect({
   ],
   loading(state){
     if (this.state(state).external_urls == undefined)
-      return "External screens"
+      return i18n("External screens")
     return false
   }
 })(View)
@@ -43,10 +44,11 @@ var Container = connect({
   state(state, props){
     const locstate = state.routing.locationBeforeTransitions.state || {}
     let service, screens, service_template
-    if (state.services.current){
-      service=state.services.current.service
-      screens=state.services.current.screens
-      service_template = state.services.current.template
+    let current = state.services.current
+    if (current){
+      service=props.service || current.service
+      screens=current.screens
+      service_template = current.template
     }
     return {
       service,
@@ -55,11 +57,11 @@ var Container = connect({
     }
   },
   subscriptions(state, props){
-    const serviceid = props.subsection || props.routeParams.id
+    const serviceid = (props.service && props.service.uuid) || props.subsection || (props.routeParams && props.routeParams.id)
     return [`service.updated[${serviceid}]`]
   },
   store_enter(state, props){
-    const serviceid = props.subsection || props.routeParams.id
+    const serviceid = (props.service && props.service.uuid) || props.subsection || (props.routeParams && props.routeParams.id)
     let updates = [
       () => service_load_current(serviceid),
     ]
@@ -74,7 +76,7 @@ var Container = connect({
     state = this.state(state, props) // Get next component props, no need to generate again
     if (state.service && state.screens && state.service_template)
       return false;
-    return "Service details"
+    return i18n("Service details")
   }
 })(DetailsWithExternalUrls)
 

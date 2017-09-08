@@ -9,7 +9,7 @@ defmodule Serverboards.Repo.Migrations.Widgets do
 			add :config, :map
 			add :ui, :map
 
-      timestamps
+      timestamps()
     end
 
     create index(:serverboard_widget, [:serverboard_id])

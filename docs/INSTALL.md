@@ -1,59 +1,103 @@
-# Installation
+---
+title: "APT repository"
+layout: page
+---
 
-## Database creation
+## Install Serverboards
 
-Serverboards get the initial database setup from `database.url` config
-variable.
+Run this in a terminal as root (`sudo bash`):
 
-It can be set as an environmental variable (`SERVERBOARDS_DATABASE_URL`) or at
-`/etc/serverboards.ini`.
-
-First the database has to exist and provide access to the user:
-
-```bash
-$ su postgres
-$ psql
-CREATE DATABASE serverboards WITH ENCODING 'utf8';
-CREATE USER serverboards WITH PASSWORD 'serverboards';
-GRANT ALL ON DATABASE serverboards TO serverboards;
-\q
+```shell
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C1FCABC2
+echo "deb https://serverboards.io/ubuntu/ stable main" >> /etc/apt/sources.list.d/serverboards.list
+apt update
+apt install serverboards
 ```
 
-## Run
+Explained by line:
+1. Add signing keys:
+2. Add repository
+3. Update repository list
+4. Install serverboards
 
-And run it:
 
-```bash
-$ /opt/serverboards/bin/serverboards foreground
+## Fine tune Serverboards
+
+Edit the file `/etc/serverboards.ini` to fine tune if you need your
+configuration.
+
+Default configuration should be OK in most cases.
+
+## Enable and start Serverboards
+
+Run this in a terminal as root:
+
+```shell
+systemctl enable serverboards
+systemctl start serverboards
 ```
 
-If `database.url` does not exist, it uses `ecto://serverboards:serverboards@localhost/serverboards`
-as default value.
+Now you can access at [http://localhost:8080](http://localhost:8080).
 
-On first run generates the required directories and database tables. It uses
-`SERVERBOARDS_PATH` as path to use for current installation. This directory must
-be in a non ephemeral storage.
+First access can be done using the main user of the installed server and
+password. Its recommended to set up a new admin user and disable the PAM plugin.
 
-Default configuration allows users on the PAM service `serverboards` which will allow any user on
-the current system to log in by default. Users on `admin` group will be granted admin priviledges.
+## Configure NGINX
 
-## Configuration
+You dont need to use NGINX if you dont want to, but some HTTPS termination
+proxy is needed to access from the internet. We suggest to use NGINX.
 
-Check `/etc/serverboards.ini` and `${SERVERBOARDS_PATH}/serverboards.ini` for information on
-all configuration options.
+Update as needed the `/etc/nginx/sites-available/serverboards.conf` file.
 
-Any value in that file can be used in an environmental variable `SERVERBOARDS_section_key`, for
-example to enable the TCP listening for the CLI, use:
+It's very important to set the proper server name on every appearance,
+specially at the CSP headers, as the WebSockets connection may fail otherwise.
 
-```bash
-$ export SERVERBOARDS_TCP_PORT=4040
+Create the link to enable serverboards access.
+
+```shell
+ln -s /etc/nginx/sites-available/serverboards.conf /etc/nginx/sites-enabled/
+service nginx restart
 ```
 
-## Debian packages
+### Letsencrypt certificate
 
-Serverboards is provided via debian packages (https://serverboards.io/download/deb/).
-When using this package, please ensure you execute serverboards as `serverboards`
-user, for example with `sudo -u serverboards /opt/serverboards/bin/serverboards
-foreground`. Systemd service file is provided.
+You may need a certificate. We recomend to start with a basic [Lets
+Encrypt](https://letsencrypt.org/) certificate, with the following
+command:
 
-Check the README.Debian file for more instrucions.
+```shell
+letsencrypt certonly \
+  -a webroot \
+  --webroot-path=/opt/serverboards/share/serverboards/frontend/ \
+  -d mydomain.com
+```
+
+You may need to reload the nginx server again to get the new
+certificate.
+
+```shell
+service nginx reload
+```
+
+### Self signed certificate
+
+This is only recomended for testing pourposes. A simple self signed certificate
+can be created in the proper place like this:
+
+```shell
+mkdir /etc/letsencrypt/live/beta.serverboards.io/ -p
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/letsencrypt/live/beta.serverboards.io/privkey.pem \
+  -out /etc/letsencrypt/live/beta.serverboards.io/fullchain.pem
+```
+
+It will ask some questions. After it you can restart the nginx server.
+
+The paths are set as the letsencrypt paths, to ease use, but may change as
+desired.
+
+## Keep it updated
+
+```shell
+apt install serverboards
+```

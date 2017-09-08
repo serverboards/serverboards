@@ -13,7 +13,7 @@ var Users = connect({
     onUpdateUser:(email, attributes) => dispatch( user_update(email, attributes) ),
     setModal: (modal, data) => dispatch( set_modal(modal, data) )
   }),
-  subscriptions: ["user.updated", "user.added"],
+  subscriptions: ["user.updated", "user.created"],
   store_enter: [user_list]
 })(UsersView)
 

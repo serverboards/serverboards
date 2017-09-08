@@ -3,7 +3,7 @@ defmodule Serverboards.Mixfile do
 
   def project do
     [app: :serverboards,
-     version: "0.6.282-g1168f",
+     version: "17.7.0-alpha.90",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
      deps_path: "../../deps",
@@ -60,13 +60,13 @@ defmodule Serverboards.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:mom, "~> 0.4"},
+      {:mom, "~> 0.5"},
       {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
-      {:ecto, "~> 2.1"},
+      {:ecto, "~> 2.2"},
       {:postgrex, "~> 0.13"},
       {:comeonin, "~> 3.0"},
-      {:timex, "~> 3.0"},
+      {:timex, "~> 3.1"},
       {:poison,  "~> 3.1"},
       {:yaml_elixir, "~> 1.3" },
       {:yamerl, "~> 0.3" },

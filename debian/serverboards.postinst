@@ -12,11 +12,10 @@ case "$1" in
     addgroup -q --system serverboards
     addgroup -q serverboards serverboards
 
-    # Create necesary directories and set permissions
+    # Create necessary directories and set permissions
     INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
-      $INSTALL/local/ $INSTALL/log \
+      $INSTALL/local/ $INSTALL/log $INSTALL/local/data/ \
       $INSTALL/running_config $INSTALL/.ssh"
-    [ -d $INSTALL/local ] || mkdir -p $INSTALL/local
 
     for p in $INTERNAL_PATHS; do
       mkdir -p $p
@@ -32,6 +31,18 @@ case "$1" in
     chown -h serverboards:serverboards $INSTALL/local/data/serverboards.core.ssh
     chmod 0700 $INSTALL/.ssh
     [ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
+
+    if [ "$( grep PASSWD /etc/serverboards.ini)" ]; then
+      echo "Configuring database with random password"
+      PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32 )
+      sudo -u postgres psql > /dev/null << EOF
+CREATE DATABASE serverboards;
+CREATE USER serverboards WITH PASSWORD '$PASSWD';
+GRANT ALL ON DATABASE serverboards TO serverboards;
+EOF
+    sudo -u postgres psql serverboards < $INSTALL/share/serverboards/backend/initial.sql > /dev/null
+    sed -i s/PASSWD/$PASSWD/ /etc/serverboards.ini
+    fi
 
     if [ "$( systemctl is-active serverboards )" = "active" ]; then
       systemctl restart serverboards

@@ -2,6 +2,7 @@ import React from 'react'
 import {merge, is_empty} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import {match_traits} from './utils'
+import {i18n} from 'app/utils/i18n'
 
 function by_name(a,b){
   return a.name.localeCompare( b.name )
@@ -12,12 +13,12 @@ function MenuItem(props){
   const candidates=props.candidates
   const has_candidates=!is_empty(candidates)
 
-  if (props.is_open && has_candidates){
+  if (props.is_open){
     return (
       <div>
-        <a className="item" onClick={props.onOpen}>
+        <a className={`item ${props.active ? "active" : ""}`} onClick={props.onOpen}>
           {props.children}
-          <i className="icon caret down floating"/>
+          <i className="icon caret up floating"/>
         </a>
         <div className="menu">
           {candidates.map( (s) => (
@@ -27,7 +28,7 @@ function MenuItem(props){
               screen={props.screen}
               data={merge(props.data, {service: s})}
               onSectionChange={props.onSectionChange}
-              is_open={ s.uuid == props.subopen }
+              active={ props.active && s.uuid == props.current_service }
               >
               {s.name}
             </MenuItem>
@@ -43,10 +44,10 @@ function MenuItem(props){
     )
 
     return (
-      <a className={`item ${props.is_open ? "active" : ""}`} onClick={handleClick}>
+      <a className={`item ${props.active ? "active" : ""}`} onClick={handleClick}>
         {props.children}
         {has_candidates ? (
-          <i className="icon caret right floating right"/>
+          <i className="icon caret down floating"/>
         ) :
         (
           null
@@ -88,7 +89,6 @@ const ScreensMenu=React.createClass({
     const props=this.props
     const state=this.state
     let screens=[]
-    let open_item = state.open_screen
     let serverboard = props.serverboard
     return (
       <div>
@@ -100,9 +100,10 @@ const ScreensMenu=React.createClass({
             candidates={props.services.filter((c) => match_traits(c.traits, s.traits))}
             onSectionChange={this.handleSectionChange}
             onOpen={ () => this.toggleScreen(s.id) }
-            is_open={ s.id == state.open_screen }
-            subopen={  (s.id == state.open_screen) && state.service_id }>
-              {s.name}
+            active={ s.id == props.section }
+            is_open={  (s.id == state.open_screen) }
+            current_service={ state.service_id }>
+              {i18n(s.name)}
           </MenuItem>
         )) }
       </div>

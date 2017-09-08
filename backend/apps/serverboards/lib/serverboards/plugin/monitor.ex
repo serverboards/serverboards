@@ -9,9 +9,10 @@ defmodule Serverboards.Plugin.Monitor do
   @timeout 5000 # batch changes to until no changes in 1s
 
   def start_link(options \\ []) do
-    paths = Application.fetch_env! :serverboards, :plugin_paths
-    paths = paths ++ [Path.join(Serverboards.Config.serverboards_path, "plugins")]
-    GenServer.start_link __MODULE__, paths, options
+    if Serverboards.Config.get(:plugins, :watch, true) do
+      paths = Serverboards.Plugin.Registry.plugin_paths()
+      GenServer.start_link __MODULE__, paths, options
+    end
   end
 
 
@@ -37,7 +38,7 @@ defmodule Serverboards.Plugin.Monitor do
     args = args ++ dirnames ++ all_subdirs
     cmdopts = [:stream, :line, :use_stdio, args: args]
     port = Port.open({:spawn_executable, cmd}, cmdopts)
-    Port.connect(port, self)
+    Port.connect(port, self())
 
     Logger.info("Plugin monitor ready! #{inspect port} #{inspect(dirnames++all_subdirs)}")
 

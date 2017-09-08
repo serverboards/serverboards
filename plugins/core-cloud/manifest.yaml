@@ -1,7 +1,7 @@
 id: serverboards.core.cloud
 name: Core cloud services
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.1.0
+version: 17.04
 description: >
   Definition an basic ussage of cloud services.
 
@@ -9,7 +9,7 @@ components:
   - id: daemon
     name: Cloud services daemon
     type: cmd
-    perms: settings.view[serverboards.core.cloud] event.emit
+    perms: settings.view[serverboards.core.cloud] event.emit service.get plugin
     strategy: singleton
     timeout: 24h
     command: ./serverboards-cloud.py
@@ -18,7 +18,7 @@ components:
     type: service
     name: Cloud node
     description: A node in a cloud service, as an AWS instance or libvirt virtual machine.
-    traits: core.cloud.node
+    traits: core.cloud.node cloud
     fields:
       - name: connection
         description: Connection UUID
@@ -27,55 +27,14 @@ components:
         description: Node UUID
         type: text
 
-  - id: libvirt
-    type: service
-    name: Libvirt
-    description: Management of [libvirt](https://libvirt.org) based clouds.
-    traits: core.cloud.compute
-    icon: libvirtLogo.png
-    virtual:
-      command: serverboards.core.cloud/daemon
-      call: virtual_nodes
-      subscribe: virtual_nodes_subscribe
-      unsubscribe: virtual_nodes_unsubscribe
-    fields:
-      - name: server
-        type: text
-        label: Remote Server Address
-        placeholder: ie. 192.168.1.200, api.example.com...
-        card: true
-      - name: type
-        type: hidden
-        value: libvirt
-  - id: digital.ocean
-    name: Digital Ocean
-    type: service
-    name: Digital Ocean
-    description: Management of [Digital Ocean](https://digitalocean.com) clouds.
-    traits: core.cloud.compute
-    icon: digitalocean.svg
-    virtual:
-      command: serverboards.core.cloud/daemon
-      call: virtual_nodes
-    fields:
-      - name: token
-        type: text
-        label: Access Token
-        description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
-        placeholder: ""
-      - name: type
-        type: hidden
-        value: digitalocean
-
-  - id: list
-    name: List nodes
+  - id: node_list
+    name: Cloud nodes
     type: screen
-    traits: core.cloud.compute
 
   - id: start
     name: Start node
     type: action
-    traits: core.cloud.node stopped
+    traits: core.cloud.node stopped cloud server
     command: serverboards.core.cloud/daemon
     icon: play
     call:
@@ -85,8 +44,10 @@ components:
         - name: node
   - id: shutdown
     name: Shutdown node
+    description: |
+      Shuts down the selected node
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running cloud server
     command: serverboards.core.cloud/daemon
     icon: stop
     call:
@@ -97,7 +58,9 @@ components:
   - id: force_stop
     name: Force stop node
     type: action
-    traits: core.cloud.node running
+    description: |
+      Forces shut down the selected node
+    traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: stop circle outline
     call:
@@ -107,8 +70,10 @@ components:
         - name: node
   - id: reboot
     name: Reboot node
+    description: |
+      Do a soft reset of the node; a Crtl-Alt-Supr.
     type: action
-    traits: core.cloud.node running
+    traits: core.cloud.node running server
     command: serverboards.core.cloud/daemon
     icon: undo
     call:
@@ -116,3 +81,154 @@ components:
       params:
         - name: connection
         - name: node
+
+
+  ## libvirt
+  - id: libvirt
+    type: service
+    name: Libvirt
+    description: Management of [libvirt](https://libvirt.org) based clouds.
+    traits: core.cloud.compute server cloud
+    icon: libvirtLogo.png
+    fields:
+      - name: server
+        type: service
+        label: Remote Server
+        traits: ssh server
+        card: true
+      - name: type
+        type: hidden
+        value: libvirt
+  - id: digital.ocean
+    name: Digital Ocean
+    type: service
+    description: Management of [Digital Ocean](https://digitalocean.com) clouds.
+    traits: core.cloud.compute cloud
+    icon: digitalocean.svg
+    fields:
+      - name: token
+        type: text
+        label: Access Token
+        description: Create new tokens at the [API page](https://cloud.digitalocean.com/settings/api/tokens) at [Digital Ocean](https://digitalocean.com).
+        placeholder: ""
+      - name: type
+        type: hidden
+        value: digitalocean
+  - id: aws.ec2
+    name: AWS EC2
+    type: service
+    description: Management of [Amazon AWS EC2](https://aws.amazon.com) nodes.
+    traits: core.cloud.compute cloud
+    icon: aws.svg
+    fields:
+      - type: description
+        description:
+          To access AWS EC2 it is required to obtain access key and secret.
+
+          To get them you have to create an IAM account, provide the appropiate
+          access, and get the key and secret from
+          https://console.aws.amazon.com/iam/home .
+
+          1. Select the `Users` tab
+
+          2. Select the appropiate user
+
+          3. `Security credentials` tab.
+
+          4. Can create new `Access keys` which will provide you the required data.
+
+
+          Obtain more information at https://forum.serverboards.io.
+      - name: access_key
+        type: text
+        label: Access Key
+      - name: access_secret
+        type: password
+        label: Access Secret
+      - name: region
+        type: select
+        label: Region
+        description: Each region on AWS must have its own associated service
+        options:
+          - ap-northeast-2
+          - ap-northeast-1
+          - ap-south-1
+          - ap-southeast-1
+          - ap-southeast-2
+          - eu-central-1
+          - eu-west-1
+          - sa-east-1
+          - us-east-1
+          - us-west-1
+          - us-west-2
+      - name: type
+        type: hidden
+        value: aws.ec2
+  - id: libcloud-daemon
+    name: Libvirt Daemon
+    type: cmd
+    command: serverboards_libcloud.py
+    perms: service.get
+  - id: libvirt-vmc
+    type: vmc
+    for: serverboards.core.cloud/libvirt
+    name: Libvirt Management
+    command: serverboards.core.cloud/libcloud-daemon
+  - id: libvirt-aws
+    type: vmc
+    for: serverboards.core.cloud/aws.ec2
+    name: AWS Management
+    command: serverboards.core.cloud/libcloud-daemon
+
+  # LXC
+  - id: lxc
+    name: LXC
+    type: service
+    description: Management of LXC Containers
+    traits: core.cloud.compute cloud
+    icon: cloud
+    fields:
+      - name: server
+        type: service
+        traits: ssh
+        label: Server with the LXC nodes
+      - name: sudo
+        type: checkbox
+        default: false
+        label: Requires `sudo`.
+        description: |
+          If SSH connection is not as `root` it may require sudo. To make it
+          work you must give permission to the user to execute `lxc-start`,
+          `lxc-stop` and `lxc-ls` with sudo and no password.
+
+          Check https://forum.serverboards.io for more information.
+  - id: lxc-daemon
+    name: LXC Daemon
+    type: cmd
+    command: serverboards_lxc.py
+    perms: service.get plugin
+  - id: lxc-vmc
+    type: vmc
+    for: serverboards.core.cloud/lxc
+    name: LXC Management
+    command: serverboards.core.cloud/lxc-daemon
+
+  ## Test
+  - id: test-daemon
+    name: Test Daemon
+    type: cmd
+    command: ./cloud_test.py
+    strategy: one_for_one
+    perms:
+      event.emit
+      service.get
+      service.update
+      service.create
+      service.attach
+      plugin
+      project.create
+
+  - id: test
+    name: Test Cloud Services
+    type: test disabled
+    command: serverboards.core.cloud/test-daemon

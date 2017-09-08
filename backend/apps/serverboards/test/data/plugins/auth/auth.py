@@ -64,37 +64,41 @@ def notification_json(**kwargs):
 
 @serverboards.rpc_method
 def data_set(k, v):
-    serverboards.rpc.call("plugin.data_set", PLUGIN_ID, k, v)
+    serverboards.rpc.call("plugin.data.update", PLUGIN_ID, k, v)
     return True
 
 @serverboards.rpc_method
 def data_get(k):
-    return serverboards.rpc.call("plugin.data_get", PLUGIN_ID, k)
+    return serverboards.rpc.call("plugin.data.get", PLUGIN_ID, k)
 
 @serverboards.rpc_method
 def data_sets(k, v):
-    serverboards.rpc.call("plugin.data_set", k, v)
+    serverboards.rpc.call("plugin.data.update", k, v)
     return True
 
 @serverboards.rpc_method
 def data_gets(k):
-    return serverboards.rpc.call("plugin.data_get", k)
+    return serverboards.rpc.call("plugin.data.get", k)
 
 @serverboards.rpc_method
 def data_sete(k, v):
-    serverboards.rpc.call("plugin.data_set", "bad_plugin_id", k, v)
+    serverboards.rpc.call("plugin.data.update", "bad_plugin_id", k, v)
     return True
 
 @serverboards.rpc_method
 def data_gete(k):
-    return serverboards.rpc.call("plugin.data_get", "bad_plugin_id", k)
+    return serverboards.rpc.call("plugin.data.get", "bad_plugin_id", k)
 
 
 @serverboards.rpc_method
 def periodic_timer(id, period=10):
     period=float(period)
+    count = 0
     def tick():
-        serverboards.rpc.event("trigger", state="tick", id=id)
+        nonlocal count
+        count+=1
+        state = { "state" : "tick", "count": count }
+        serverboards.rpc.event("trigger", **state, id=id)
     timer_id = serverboards.rpc.add_timer(period, tick)
     return timer_id
 
@@ -136,6 +140,13 @@ def test_rate_limiting(count):
     for i in range(count):
         serverboards.rpc.event("count_for_rate_limiting", i)
     return "ok"
+
+@serverboards.rpc_method
+def server_updated(service):
+    serverboards.info("From plugin: Updating '%s' service"%service["name"], extra=dict(service=service))
+    serverboards.rpc.event("event.emit", "test.service.updated", {"ok" : True} )
+
+serverboards.rpc.subscribe("service.updated[serverboards.test.auth/server]", server_updated)
 
 #print(serverboards.__dir(), file=sys.stderr)
 serverboards.loop() # debug=sys.stderr)

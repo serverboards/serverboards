@@ -74,7 +74,7 @@ defmodule Serverboards.Plugin.Parser do
 
       components: components,
 
-      extra: Map.drop(dict, ~w(id name description author version components))
+      extra: Map.drop(dict, ~w(id name description author version url components))
     }
   end
 
@@ -112,6 +112,9 @@ defmodule Serverboards.Plugin.Parser do
         line=where[:line]
         column=where[:column]
         Logger.error("Error loading yaml. Bad formed #{filename}:#{line}:#{column}")
+        {:error, :bad_formed}
+      e in FunctionClauseError ->
+        Logger.error("Error loading yaml. Bad formed #{filename}")
         {:error, :bad_formed}
     end
   end
