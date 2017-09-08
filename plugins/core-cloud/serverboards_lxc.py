@@ -37,9 +37,16 @@ def details(service, vmc):
   sudo = maybe_sudo(service)
   lxc_raw = ssh.run(service=service["config"]["server"], command="%slxc-info --name %s"%(sudo, vmc))["stdout"]
   props = {}
+  prevk = None
   for l in lxc_raw.split('\n'):
-    k,v = [x.strip() for x in l.split(':')]
-    props[k.lower().replace(' ', '_')]=v
+      if ':' in l:
+        k,v = [x.strip() for x in l.split(':')]
+        key = k.lower().replace(' ', '_')
+        if l.startswith(' '):
+            key=prevk+"."+key
+        else:
+            prevk=key
+        props[key]=v
   return {
     "id": vmc,
     "name": vmc,

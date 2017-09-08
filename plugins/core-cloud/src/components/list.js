@@ -1,6 +1,6 @@
 const {React, i18n} = Serverboards
 import CloudCard from '../containers/card'
-import Details from './details'
+import Details from '../containers/details'
 
 function ListView(props){
   const {items, current} = props
@@ -8,7 +8,7 @@ function ListView(props){
   let section
   if (current){
     section=(
-      <Details vmc={current}/>
+      <Details key={current.id} vmc={current}/>
     )
   }
   else{

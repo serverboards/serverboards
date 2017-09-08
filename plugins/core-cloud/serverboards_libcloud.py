@@ -69,7 +69,28 @@ def get_connection(service):
   connections[service["uuid"]] = conn
   return conn
 
+def ensure_jsonable(data):
+    if isinstance(data, (str, int, float)):
+        return data
+    if isinstance(data, list):
+        return [ensure_jsonable(x) for x in data]
+    if isinstance(data, dict):
+        return {k:ensure_jsonable(v) for k,v  in data.items()}
+    try:
+        return str(data)
+    except:
+        return repr(data)
+
 def details(conn, node, extra_info=False, ):
+  extra = {}
+  if extra_info:
+      extra=node.extra
+      extra["size"]=node.size
+      extra["image"]=node.image
+      extra = ensure_jsonable(extra)
+
+  print("Extra data", extra)
+
   return {
     "name" : node.name,
     "description" : conn.describe(node),
@@ -80,6 +101,7 @@ def details(conn, node, extra_info=False, ):
         'private_ips':node.private_ips,
         'public_ips':node.public_ips,
         'created_at':str(node.created_at),
+        **extra
     }
   }
 
