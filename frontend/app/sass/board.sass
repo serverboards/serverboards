@@ -1,8 +1,12 @@
 @import "graphs/colors.sass"
 
 .ui.board
-  background: $background
   padding: 0 15px 15px
+  background: #eee
+  height: 100%
+  .react-grid-item.react-grid-placeholder
+    background: #ccc
+    border-radius: 3px
   > .ui.top.menu
     background: none
     border: 0
@@ -45,7 +49,8 @@
         border: 0
         box-shadow: none
         //background: #eee
-        min-height: 20px
+        min-height: 35px
+        max-height: 35px
         cursor: move
         > .item
           color: #02a7a1
@@ -59,7 +64,7 @@
         > .ui.header
           text-transform: uppercase
           vertical-align: middle
-          padding: 3px 0px 3px 15px
+          padding: 10px 0px 9px 15px
           font-weight: normal
           margin: 0
           min-width: calc( 100% - 60px )
@@ -86,6 +91,15 @@
         visibility: visible
       .react-resizable-handle
         visibility: visible
+
+  .plugin.error
+    display: flex
+    flex-direction: column
+    align-self: center
+    justify-content: center
+    text-align: center
+    padding: 1em
+
 
 .ui.main.area .ui.central.with.menu .ui.board .ui.cards > .ui.card .active.dimmer
       position: relative

@@ -28,7 +28,7 @@ defmodule Serverboards.IO.TCP do
 	def loop_acceptor(listen_socket) do
 		case :gen_tcp.accept(listen_socket) do
 			{:ok, client_socket} ->
-				{:ok, pid} = Task.Supervisor.start_child(Serverboards.IO.TaskSupervisor,
+				{:ok, _pid} = Task.Supervisor.start_child(Serverboards.IO.TaskSupervisor,
 					fn ->
 						{:ok, client} = RPC.Client.start_link [
 							writef: &:gen_tcp.send(client_socket, &1),
@@ -57,6 +57,7 @@ defmodule Serverboards.IO.TCP do
 				RPC.Client.parse_line(client, line)
 				serve(client, socket)
 			{:error, :closed} ->
+				RPC.Client.stop(client)
 				nil
 		end
 	end

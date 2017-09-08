@@ -6,6 +6,7 @@ import Modal from './modal'
 import HoldButton from './holdbutton'
 import GenericForm from './genericform'
 import Calendar from './calendar'
+import Error from './error'
 
 const components = {
   Modal,
@@ -15,6 +16,7 @@ const components = {
   HoldButton,
   GenericForm,
   Calendar,
+  Error
 }
 
 export default components

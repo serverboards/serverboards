@@ -1,3 +1,4 @@
+require Logger
 alias Serverboards.Logger.Model
 alias Serverboards.Repo
 
@@ -21,31 +22,66 @@ defmodule Serverboards.Logger do
   """
   def history(options \\ %{}) do
     import Ecto.Query
+    try do
+      Serverboards.Logger.Server.flush(Serverboards.Logger.Server)
+    catch
+      :exit, _ -> nil
+    end
+
+    # Prepare the main query
+    q = from l in Model.Line
+    q = case options[:service] do
+      nil -> q
+      id -> where(q, [l],
+        fragment("?->>'service' = ?", l.meta, ^id)
+        or
+        fragment("?->>'service_id' = ?", l.meta, ^id)
+        )
+    end
+    q = case options[:q] do
+      nil -> q
+      query -> where(q, [l],
+        fragment("to_tsvector('english', ? || ?::text) @@ to_tsquery('english',?)", l.message, l.meta, ^to_tsquery(query))
+        )
+    end
 
     # count total lines
-    q = from l in Model.Line,
-      select: count(l.id)
-    count = Repo.one( q )
+    qcount = select(q, [l], count(l.id))
+    count = Repo.one( qcount )
 
+    # get the lines, current window
+    qlines = q
+      |> select([l], %{ message: l.message, timestamp: l.timestamp, level: l.level, meta: l.meta, id: l.id})
+      |> limit(^Map.get(options, :count, 50))
+      |> order_by([l], [desc: l.id]);
+    qlines = case options[:start] do
+      nil -> qlines
+      id -> where(qlines, [l], l.id < ^id )
+    end
+    qlines = case options[:until] do
+      nil -> qlines
+      id -> where(qlines, [l], l.id > ^id )
+    end
+    qlines = case options[:offset] do
+      nil -> qlines
+      offs -> qlines |> offset(^offs)
+    end
+    lines = Repo.all(qlines)
 
-    # Get the lines from start to start+count
-    q =    from l in Model.Line,
-       order_by: [desc: l.id],
-          limit: ^Map.get(options, :count, 50),
-         select: %{ message: l.message, timestamp: l.timestamp, level: l.level, meta: l.meta, id: l.id}
-     q = case options[:start] do
-       nil -> q
-       id -> where(q, [l], l.id < ^id )
-     end
-    lines = Repo.all(q)
 
     {:ok, %{ lines: lines, count: count }}
   end
 
+  defp to_tsquery(txt) do
+    txt
+      |> String.split(" ", trim: true)
+      |> Enum.join(" & ")
+  end
+
   defp should_log?(metadata, level) do
     cond do
-      level == :debug -> false
       metadata[:application] == :ecto -> false
+      level == :debug -> Application.get_env(:serverboards, :debug) # only store when in debug mode.
       true -> true
     end
   end
@@ -62,7 +98,7 @@ defmodule Serverboards.Logger do
     ]
     {:ok, supervisor} = Supervisor.start_link(children, strategy: :one_for_one)
 
-    {:ok, %{ ignore_applications: ignore_applications, queue: [], supervisor: supervisor }}
+    {:ok, %{ ignore_applications: ignore_applications(), queue: [], supervisor: supervisor }}
   end
 
   def handle_event(:flush, state) do
@@ -98,7 +134,7 @@ defmodule Serverboards.Logger.Server do
     GenServer.start_link __MODULE__, [], options
   end
   def log(lg, msg) do
-    GenServer.call(lg, {:log, msg})
+    GenServer.cast(lg, {:log, msg})
     :ok
   end
   def flush(lg) do
@@ -122,11 +158,11 @@ defmodule Serverboards.Logger.Server do
     {:ok, %{ count: 0, queue: [], timer: nil}}
   end
 
-  def handle_call({:log, msg}, from, state) do
+  def handle_cast({:log, msg}, state) do
     state = %{ state | count: state.count+1, queue: [msg | state.queue] }
     state = try do
       if state.count >= @max_queue_size do
-        {_reply, _, state} = handle_call(:flush, from, state)
+        {_reply, _, state} = handle_call(:flush, nil, state)
         state
       else
         state
@@ -144,7 +180,7 @@ defmodule Serverboards.Logger.Server do
     {:ok, timer} = :timer.apply_after(1000, __MODULE__, :flush, [__MODULE__])
     state = %{ state | timer: timer }
 
-    {:reply, :ok, state}
+    {:noreply, state}
   end
 
   def handle_call(:flush, _from, state) do
@@ -152,7 +188,7 @@ defmodule Serverboards.Logger.Server do
       :timer.cancel(state.timer)
     end
 
-    entries = for {message, timestamp, metadata, level} <- state.queue do
+    entries = for {message, timestamp, metadata, level} <- Enum.reverse(state.queue) do
       {ymd, {h,m,s, _}} = timestamp
       timestamp = {ymd, {h,m,s}}
       %{

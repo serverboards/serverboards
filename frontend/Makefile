@@ -1,10 +1,10 @@
 all: setup compile
 
-compile: setup dist/
+compile: setup dist/index.html
 
-dist/: node_modules app/* app/*/* *.js
+dist/index.html: node_modules $(shell find app/js -name "*.js") $(shell find app/sass -name "*.sass")
 	rm dist -rf
-	NODE_ENV=production node_modules/.bin/webpack -p --progress
+	NODE_ENV=production node_modules/.bin/webpack -p
 
 compile-dev: setup
 	rm dist -rf
@@ -25,8 +25,15 @@ help:
 watch:
 	npm run-script watch
 
-setup: yarn.lock
+setup: node_modules node_modules/gifsicle/vendor/gifscle
+
+node_modules/gifsicle/vendor/gifscle:
+	cd node_modules/pngquant-bin ; node lib/install.js
+	cd node_modules/gifsicle ; node lib/install.js
+
+node_modules: yarn.lock package.json
 	yarn --no-progress
+	touch node_modules
 
 .PHONY: test
 test: all
@@ -34,3 +41,11 @@ test: all
 clean:
 	rm -rf dist
 	rm -rf node_modules
+
+i18n-update:
+	@echo -n "Updating po files..."
+	../cli/serverboards-i18n-update.sh lang/es.po app ../plugins/
+	@echo " Done"
+
+i18n-compile:
+	../cli/serverboards-i18n-compile.py lang/es.po lang/es.json

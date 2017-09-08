@@ -15,23 +15,67 @@ cache:
 backend-test:
   stage: test
   script:
-    - cd backend
-    - pwd
-    - mix local.rebar --force
-    - mix local.hex --force
-    - mix deps.clean --all
-    - mix deps.get
-    - MIX_ENV=test mix deps.compile
-    - mix test
+    - cd $CI_PROJECT_DIR
+    - scripts/backend-test.py
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
+    when: always
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
 
 frontend-test:
   stage: test
   script:
     - cd $CI_PROJECT_DIR
-    - cd frontend
-    - pwd
-    - yarn
-    - npm test
+    - scripts/frontend-test.py
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
+      - frontend/node_modules
+      - frontend/dist
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
+    when: always
+
+integration-test:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - scripts/integration-test.py
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
+      - frontend/node_modules
+      - frontend/dist
+  artifacts:
+    paths:
+      - frontend/shots
+      - log
+    expire_in: 1 week
+    when: always
+
+plugins-test:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - scripts/plugin-test.py
+  artifacts:
+    paths:
+      - log
+    expire_in: 1 week
+    when: always
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
 
 release:
   stage: release
@@ -46,18 +90,19 @@ release:
     expire_in: 1 week
   only:
     - master
-    - T404-gen-deb
+    - CORE-4-unstable-deb-channel
 
 publish:
   stage: publish
   script:
-    - scripts/publish-deb.sh
+    - sudo -H /usr/local/bin/publish-unstable
   dependencies:
     - release
-  when: manual
+  variables:
+    DEBSIGN_KEYID: C1FCABC2
   tags:
     - ubuntu1604
     - rsync-www
   only:
     - master
-    - T404-gen-deb
+    - CORE-4-unstable-deb-channel

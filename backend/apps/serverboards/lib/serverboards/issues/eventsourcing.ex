@@ -8,28 +8,43 @@ defmodule Serverboards.Issues.EventSourcing do
 
     EventSourcing.subscribe es, :issue_add, fn attributes, me ->
       id = Serverboards.Issues.Issue.add_real attributes, me
-      Serverboards.Notifications.notify "@user", "New Issue #{id}: #{attributes.title}", attributes.description, attributes, %{ email: me }
+
+      url= Serverboards.Config.get(:"serverboards.core.settings/base","base_url", "http://localhost:8000/")
+      url = "#{url}#/issues/#{id}"
+      data = Map.merge(attributes, %{ "url" => url, "message_id" => "serverboards-issue-#{id}", "type" => "ISSUE_OPEN" })
+
+      Serverboards.Notifications.notify "@user", "New Issue ##{id}: #{attributes.title}", attributes.description, data, %{ email: me }
       id
     end, name: :issue_id
     EventSourcing.subscribe es, :issue_update, fn %{ id: id, data: data}, me ->
+      # get only first, although this alias may have several ids. If none, id should be the alias
+      # get id first, as we may be closing
+      id = case Serverboards.Issues.Issue.alias_to_ids(id) do
+        [ id | _ ] -> id
+        _ -> id
+      end
+
       Serverboards.Issues.Issue.update_real(id, data, me)
 
       text = case data.data do
         d when is_map(d) -> inspect(d)
         t -> t
       end
-      # get only first, although this alias may have several ids. If none, id should be the alias
-      id = case Serverboards.Issues.Issue.alias_to_ids(id) do
-        [ id | _ ] -> id
-        _ -> id
-      end
       url= Serverboards.Config.get(:"serverboards.core.settings/base","base_url", "http://localhost:8000/")
       url = "#{url}#/issues/#{id}"
 
-      data = Map.put(data, "url", url)
+      type = case data[:type] do
+        "change_status" ->
+          case data[:data] do
+            "closed" -> "ISSUE_CLOSED"
+            _ -> "MESSAGE"
+          end
+        "comment" -> "MESSAGE"
+        o -> o
+      end
+      data = Map.merge(data, %{ "url" => url, "thread_id" => "serverboards-issue-#{id}", :type => type })
 
-      body = "#{text}\n\n#{url}"
-      Serverboards.Notifications.notify "@user", "Issue #{id} updated: #{data.type}", body, data, %{ email: me }
+      Serverboards.Notifications.notify "@user", "Issue ##{id} updated: #{data.type}", text, data, %{ email: me, thread_id: "serverboards-issue-#{id}" }
     end
 
     {:ok, es}

@@ -4,6 +4,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
 from common import *
+from serverboards import print
 
 @serverboards.rpc_method
 def ssh_public_key(**kwargs):
@@ -20,7 +21,7 @@ def ssh_urlparse(url):
     return (u.hostname, str(port))
 
 
-def get_fingerprint(url):
+def get_fingerprint(url, *args, **kwargs):
     if not url:
         return None
     (hostname, port) = ssh_urlparse(url)
@@ -28,20 +29,22 @@ def get_fingerprint(url):
         output = str(subprocess.check_output(["ssh-keyscan", "-p", port, hostname]), 'utf8')
         output=output.strip().split('\n')
         output.sort()
-        serverboards.debug(repr(output))
+        # serverboards.debug(repr(output))
         return '\n'.join(output)
     except:
         import traceback; traceback.print_exc()
         return None
 
 @serverboards.rpc_method
-def remote_fingerprint(url="192.168.1.200", **kwargs):
-    fingerprint=get_fingerprint(url)
+def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
+    serverboards.info(repr(kwargs))
+    fingerprint=get_fingerprint(url, options)
     if not fingerprint:
         return {
-            "fingerprint":"Cant connect to server at <%s>. Set a valid SSH address."%url,
-            "className":"grey disabled",
-            "toggle":"Select a valid SSH address"
+            "fingerprint": "Cant connect to server at <%s>. Set a valid SSH address."%url,
+            "className": "grey disabled",
+            "toggle": "Select a valid SSH address",
+            "enabled": False
         }
     fingerprintb = bytes(fingerprint, 'utf8')
 
@@ -65,7 +68,8 @@ def remote_fingerprint(url="192.168.1.200", **kwargs):
         "fingerprint_orig" : fingerprint,
         "fingerprint": fingerprint_text,
         "toggle" : "Disable host" if enabled else "Enable host",
-        "className" : "red" if enabled else "yellow"
+        "className" : "red" if enabled else "yellow",
+        "enabled": enabled
     }
 
 @serverboards.rpc_method
@@ -74,9 +78,9 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
 
     enabled=False
 
-    serverboards.debug(repr(status["fingerprint_orig"]))
-    serverboards.debug(repr(fingerprint))
-    serverboards.debug(repr(status["fingerprint_orig"]==fingerprint))
+    #serverboards.debug(repr(status["fingerprint_orig"]))
+    #serverboards.debug(repr(fingerprint))
+    #serverboards.debug(repr(status["fingerprint_orig"]==fingerprint))
 
     if status["fingerprint_orig"]==fingerprint:
         if os.path.exists(KNOWN_HOSTS_FILE):
@@ -88,7 +92,7 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
             with open(KNOWN_HOSTS_FILE, "r") as rd:
                 with open(KNOWN_HOSTS_FILE+".bak", "w") as wd:
                     for l in rd.readlines():
-                        serverboards.debug(repr((l[:10], hostname, l.startswith(hostname))))
+                        #serverboards.debug(repr((l[:10], hostname, l.startswith(hostname))))
 
                         if not l.startswith(hostname):
                             wd.write(l)
@@ -108,5 +112,11 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
             return "Fingerprint added"
     raise Exception("Fingerprint has changed")
 
+def test():
+    print(get_fingerprint("ssh://testurl","User dmoreno\nProxyCommand ssh 192.168.1.200 -W 10.0.3.92:22 -q"))
+
 if __name__=='__main__':
+    if len(sys.argv)>1 and sys.argv[1]=="test":
+        test()
+
     serverboards.loop()

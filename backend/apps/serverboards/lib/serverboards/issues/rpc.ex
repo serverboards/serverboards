@@ -12,18 +12,18 @@ defmodule Serverboards.Issues.RPC do
     RPC.MethodCaller.add_method mc, "issues.list", fn
       [] -> Serverboards.Issues.list
       filter when is_map(filter) ->
-        filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"alias")
+        filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"alias project return since start count")
         Serverboards.Issues.list filter
     end, [required_perm: "issues.view"]
     RPC.MethodCaller.add_method mc, "issues.get", fn [issue_id] ->
       Serverboards.Issues.Issue.get issue_id
     end, [required_perm: "issues.view"]
 
-    RPC.MethodCaller.add_method mc, "issues.add", fn attributes, context ->
+    RPC.MethodCaller.add_method mc, "issues.create", fn attributes, context ->
       # Not full evenetsourcing as it returns the added issue id.
       attributes = Serverboards.Utils.keys_to_atoms_from_list(attributes, ~w"title description aliases")
       Serverboards.Issues.Issue.add attributes, Context.get(context, :user)
-    end, [required_perm: "issues.add", context: true]
+    end, [required_perm: "issues.create", context: true]
     RPC.MethodCaller.add_method mc, "issues.update", fn
       [id, updates], context when is_list(updates) ->
         for data <- updates do

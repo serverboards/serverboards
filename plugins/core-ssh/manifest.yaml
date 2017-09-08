@@ -1,7 +1,7 @@
 id: serverboards.core.ssh
 name: Core SSH support
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 17.04
 description: >
   Performs core operations needed for SSH connectivity to hosts.
 
@@ -10,7 +10,7 @@ description: >
 components:
   - name: SSH access
     type: service
-    traits: ssh url
+    traits: ssh url server
     id: ssh
     description: Access via SSH to any server
     icon: terminal
@@ -90,29 +90,34 @@ components:
     type: action
     command: daemon
     description: Executes a remote command. It is recommended that the key exchange is configured prior, so no ssh passwords are stored on the database.
-    traits: ssh
+    traits: ssh server
     icon: terminal
     call:
       method: ssh_exec
       params:
-        - name: url
-          type: url
-          label: Connection url
-          placeholder: eg. ssh://username:password@hostname:port/
-        - name: options
-          type: textarea
-          label: SSH Connection options
-          placeholder: eg. ProxyCommand ssh proxyserver -qW destserver:22
+        - name: service
+          type: service
+          traits: ssh
+          label: SSH server
         - name: command
           type: text
           label: Command to execute
           description: Non blocking command to execute
+
   - name: SSH daemon
     id: daemon
     type: cmd
     timeout: 24h
     strategy: singleton
-    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings]
+    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings] service.get file.pipe
+    command: serverboards-ssh.py
+
+  - name: SSH
+    id: sshcmd
+    type: cmd
+    timeout: 10m
+    strategy: one_for_one
+    perms: event.emit settings.view[serverboards.core.ssh/ssh.settings] service.get file.pipe
     command: serverboards-ssh.py
 
   - name: SSH Management
@@ -142,3 +147,58 @@ components:
           ControlPersist 600
         type: textarea
         name: options
+
+  - id: trigger
+    name: SSH Remote command
+    description: If a remote command fails, it executes an action.
+    type: trigger
+    traits: ssh server
+    states: nok ok
+    command: daemon
+    start:
+      method: watch_start
+      params:
+        - name: service
+          label: SSH Service
+          type: service
+          traits: ssh
+        - name: period
+          label: Check period
+          description: |
+            Check every given time for the expression.
+            Time can use time modifiers as 1m, 30s, 1h...
+          placeholder: 5m
+          default: 5m
+          card: true
+          type: text
+        - name: script
+          card: true
+          label: Shell Script
+          placeholder: test -e /tmp/test
+          description: |
+            Shell script to execute on the remote server.
+
+            If this script returns an error code, it goes to the nok status.
+          type: textarea
+    stop: watch_stop
+
+
+  - name: SSH Test Command
+    id: test-daemon
+    type: cmd
+    timeout: 1m
+    strategy: one_for_one
+    perms:
+      event.emit
+      settings.view[serverboards.core.ssh/ssh.settings]
+      service.get
+      service.update
+      service.create
+      plugin
+      file.pipe
+    command: test.py
+
+  - id: test
+    name: SSH Tests
+    type: test
+    command: test-daemon

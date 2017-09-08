@@ -6,7 +6,7 @@ defmodule Serverboards.Auth.User.Model do
   		field :password, :string
   		belongs_to :user, User
 
-  		timestamps
+  		timestamps()
   	end
 
     @required_fields [:password, :user_id]
@@ -36,7 +36,7 @@ defmodule Serverboards.Auth.User.Model do
 
       belongs_to :user, User
 
-      timestamps
+      timestamps()
   	end
 
   	@required_fields ~w(user_id token)a

@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react'
 import {MarkdownPreview} from 'react-marked-markdown';
 import ConnectionBanner from 'app/containers/connectionbanner'
+import {i18n, i18n_nop} from 'app/utils/i18n'
 
 require("sass/messages.sass")
 
@@ -13,11 +14,11 @@ const level_to_class = {
 }
 
 const level_to_title = {
-    error: "Error",
-    info: "Information",
-    success: "Success",
-    debug: "Debug",
-    warning: "Warning"
+    error: i18n_nop("Error"),
+    info: i18n_nop("Information"),
+    success: i18n_nop("Success"),
+    debug: i18n_nop("Debug"),
+    warning: i18n_nop("Warning")
 }
 
 function FlashMessage(props){
@@ -33,7 +34,7 @@ function FlashMessage(props){
     <div className={"ui message "+color}>
       <i className={`ui label rectangular ${color}`}/>
       <div className="content">
-        <h3 className="ui header">{props.title || level_to_title[level]}</h3>
+        <h3 className="ui header">{props.title || i18n(level_to_title[level])}</h3>
         <MarkdownPreview value={message}/>
       </div>
       <i className="close icon" onClick={() => props.onClose(props.message)}></i>

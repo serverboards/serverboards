@@ -1,4 +1,5 @@
 import Flash from 'app/flash'
+import i18n from 'app/utils/i18n'
 
 /**
  * @short Starts a new RPC connection, with the given options
@@ -29,8 +30,6 @@ var RPC = function(options={}){
   }
   if (localStorage.ws_url) // Hack to connect to another server at dev.
     rpc.url=localStorage.ws_url
-  if (localStorage.reconnect_token)
-    sessionStorage.reconnect_token=localStorage.reconnect_token
 
   rpc.set_status = function(newstatus, extra=undefined){
     if (!rpc.store)
@@ -65,11 +64,11 @@ var RPC = function(options={}){
       //Flash.success("Connected to remote RPC server.")
     //}
     //console.debug("Connection success.")
-    if (sessionStorage.reconnect_token){
-      rpc.call('auth.auth',{type:'token',token:sessionStorage.reconnect_token}).then(function(user){
+    if (localStorage.reconnect_token){
+      rpc.call('auth.auth',{type:'token',token:localStorage.reconnect_token}).then(function(user){
         if (user==false){
-          Flash.error("Could not reauthenticate automatically. Reload.")
-          delete sessionStorage.reconnect_token
+          Flash.error(i18n("User session expired. Please log in again."))
+          delete localStorage.reconnect_token
           rpc.reconnection_message_queue=[]
           return
         }
@@ -107,6 +106,7 @@ var RPC = function(options={}){
 
   rpc.onerror = function(){
     console.error("Error WS connection. %o", rpc.status)
+    console.warn("You can change the backend server address at the JS console with `localStorage.servername='http://localhost:8080'`")
 
   }
   rpc.reconnect = function(){
@@ -140,15 +140,10 @@ var RPC = function(options={}){
     rpc.store=store
     store.on('auth.user', function(user){
       if (user){
-        if (!sessionStorage.reconnect_token){
-          rpc.call("auth.create_token").then(function(token){
+        if (!localStorage.reconnect_token){
+          rpc.call("auth.token.create").then(function(token){
             //console.debug("My reconnect token is "+token)
-            sessionStorage.reconnect_token=token
-            if (rpc.keep_logged_in)
-              localStorage.reconnect_token=token
-            else{
-              delete localStorage.reconnect_token
-            }
+            localStorage.reconnect_token=token
           })
         }
         else{
@@ -158,7 +153,6 @@ var RPC = function(options={}){
       else{
         //console.log("User disconnected, removing tokens")
 
-        delete sessionStorage.reconnect_token
         delete localStorage.reconnect_token
         rpc.reconnect()
       }
@@ -245,11 +239,11 @@ var RPC = function(options={}){
   }
 
   rpc.refresh_token = function(){
-    if (!sessionStorage.reconnect_token){
+    if (!localStorage.reconnect_token){
       rpc.clear_refresh_token()
     }
 
-    rpc.call("auth.refresh_token",[sessionStorage.reconnect_token]).catch( (e) => {
+    rpc.call("auth.token.update",[localStorage.reconnect_token]).catch( (e) => {
       console.error("Error refreshing the connection token")
       rpc.clear_refresh_token()
     })

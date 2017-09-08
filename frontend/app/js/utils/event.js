@@ -44,6 +44,7 @@ export function unsubscribe(types){
 export function on(event, fn){
   subscribe([event])
   subscription_fns[event]=(subscription_fns[event] || []).concat([fn])
+  return fn
 }
 export function off(event, fn){
   unsubscribe([event])

@@ -1,6 +1,7 @@
 import React from 'react'
 import Flash from 'app/flash'
 import rpc from 'app/rpc'
+import {i18n} from 'app/utils/i18n'
 
 const ResetPassword=React.createClass({
   sendEmail(){
@@ -9,10 +10,10 @@ const ResetPassword=React.createClass({
 
     Flash.info(`Sending email to ${email}`)
     rpc.call('auth.reset_password',[email]).then(function(){
-      Flash.info(`Email sent. Check your email at ${email}`)
+      Flash.info(i18n("Email sent. Check your email at {email}", {email}))
       self.props.setPassword(email)
     }).catch(function(e){
-      Flash.error(`Could not request password reset: ${e}`)
+      Flash.error(i18n("Could not request password reset: {e}", {e}))
     })
   },
   setPassword(ev){
@@ -35,12 +36,12 @@ const ResetPassword=React.createClass({
         <form ref="el" className="ui form" method="POST">
           <div className="ui small modal active" id="login">
             <div className="header">
-              Request email with reset password link
+              {i18n("Request email with reset password link")}
             </div>
 
             <div className="content">
               <div className="field">
-                <label>Email</label>
+                <label>{i18n("Email")}</label>
                 <input type="email" name="email" placeholder="user@company.com"
                   defaultValue={props.email}
                   />
@@ -48,12 +49,12 @@ const ResetPassword=React.createClass({
             </div>
 
             <div className="actions">
-              <a href="#" onClick={this.setPassword}>I already have a password change token</a>
+              <a href="#" onClick={this.setPassword}>{i18n("I already have a password change token")}</a>
               <button type="button" className="ui right button" onClick={props.closeReset}>
-                Cancel
+                {i18n("Cancel")}
               </button>
               <button type="button" className="ui positive right labeled icon button" onClick={this.sendEmail}>
-                Request email
+                {i18n("Request email")}
                 <i className="caret right icon"></i>
               </button>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react'
 import {goto} from 'app/utils/store'
 import rpc from 'app/rpc'
+import i18n from 'app/utils/i18n'
 
 const RelatedElement=React.createClass({
   getInitialState(){
@@ -12,30 +13,44 @@ const RelatedElement=React.createClass({
   componentDidMount(){
     const al=this.props.alias
     if (al.startsWith("rule/")){
-      rpc.call("rules.list", {uuid: al.slice(5)}).then( rl => {
-        const rule=rl[0]
+      rpc.call("rules.get", [al.slice(5)]).then( rule => {
+        let rule_url = `/rules/${rule.uuid}`
+        //if (rule.project)
+          //rule_url = `/project/${rule.project || "_"}/rules/${rule.uuid}`
         this.setState({
-          url: `/serverboard/${rule.serverboard || "_"}/rules/${rule.uuid}`,
+          url: rule_url,
           name: rule.name || (rule.trigger || {}).name || "This rule has no name",
           type: "Rule"
         })
       })
     }
     if (al.startsWith("service/")){
-      rpc.call("service.info", [al.slice(8)]).then( s => {
+      rpc.call("service.get", [al.slice(8)]).then( s => {
         this.setState({
-          url: `/serverboard/${s.serverboards.length>0 ? s.serverboards[0] : "_"}/services/${s.uuid}`,
+          url: `/project/${s.projects.length>0 ? s.projects[0] : "_"}/services/${s.uuid}`,
           name: s.name || "This service has no name",
           type: "Service"
         })
       })
     }
-    if (al.startsWith("serverboard/")){
-      const serverboard=al.slice(12)
+    if (al.startsWith("project/")){
+      const project=al.slice(8)
+      if (!project)
+        return
       this.setState({
-        url: `/serverboard/${serverboard}/`,
-        name: serverboard || "Serverboard",
-        type: "Serverboard"
+        url: `/project/${project}/`,
+        name: project || "Project",
+        type: "Project"
+      })
+    }
+    if (al.startsWith("serverboard/")){
+      const project=al.slice(12)
+      if (!project)
+        return
+      this.setState({
+        url: `/project/${project}/`,
+        name: project,
+        type: "Project"
       })
     }
   },
@@ -75,9 +90,9 @@ const Filters=React.createClass({
       <div>
         <div style={{position: "relative"}}>
           <a style={{position: "absolute", top:9, right:0, cursor: "pointer"}} onClick={this.handleOpenEditFilters}><i className="ui add yellow icon"/></a>
-          <h4 className="ui header">Labels</h4>
+          <h4 className="ui header">{i18n("Labels")}</h4>
           <div className="ui form" style={{margin: 20}} ref="add_labels">
-            <input type="text" ref="add_labels_input" placeholder="Press ENTER when finished"/>
+            <input type="text" ref="add_labels_input" placeholder={i18n("Press ENTER when finished")}/>
           </div>
           {(issue.labels || []).map( (l) => (
             <div key={l.name} style={{paddingBottom: 10}}>
@@ -87,7 +102,7 @@ const Filters=React.createClass({
         </div>
         {issue.aliases.length>0 ? (
           <div>
-            <h4 className="ui header">Related</h4>
+            <h4 className="ui header">{i18n("Related")}</h4>
               {issue.aliases.map( (a) => (
                 <RelatedElement key={a} alias={a}/>
               ))}

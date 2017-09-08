@@ -1,15 +1,15 @@
 import React from 'react'
 import ImageIcon from 'app/components/imageicon'
 import {MarkdownPreview} from 'react-marked-markdown';
-import {colorize} from 'app/utils'
+import {colorize, capitalize} from 'app/utils'
+import {i18n, i18n_nop} from 'app/utils/i18n'
 
 const icon = require("../../../../imgs/plugins.svg")
 
-// http://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
-function capitalize(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
+// Required for translation
+i18n_nop("Disabled")
+i18n_nop("Enabled")
+i18n_nop("Broken")
 
 function PluginCard(props){
   const p=props.plugin
@@ -25,23 +25,30 @@ function PluginCard(props){
 
   return (
     <div key={p.id} className="card">
-      <div>
-        {p.status.map( (s) => (
-          <span key={s} style={{paddingRight: 15}}><i className={`ui icon circle ${ colorize(s) }`}/> {capitalize(s)}</span>
-        )) }
+      <div className="extra content">
+        <div className="labels">
+          {p.status.map( (s) => (
+            <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
+          )) }
+        </div>
       </div>
       <div className="content">
-        <ImageIcon src={icon} className="right floated" name={p.name}/>
-        <h2 className="ui header">{p.name}</h2>
-        <div className="ui meta bold">by {author}</div>
-        <div className="ui meta italic">version {p.version}</div>
+        <ImageIcon src={icon} className="right floated" name={i18n(p.name)}/>
+        <h2 className="ui header">{i18n(p.name)}</h2>
+        <div className="ui meta bold">{i18n("by")} {author}</div>
+        <div className="ui meta italic">{i18n("version")} {p.version}</div>
 
-        <div className="ui description"><MarkdownPreview value={p.description}/></div>
+        <div className="ui description"><MarkdownPreview value={i18n(p.description)}/></div>
       </div>
       <div className="extra content" style={{padding:0}}>
         <div className="ui inverted yellow menu bottom attached">
+          {props.onOpenSettings ? (
+            <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenSettings()}}>
+              {i18n("Settings")}
+            </a>
+          ) : null }
           <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenDetails()}}>
-            View details <i className="ui angle right icon"/>
+            {i18n("View details")} <i className="ui angle right icon"/>
           </a>
         </div>
       </div>

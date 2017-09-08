@@ -4,7 +4,7 @@ description: |
   Shows at serverboards setting oerview whether serverboards needs an update,
   and allows to trigger the update of the system.
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.1.0
+version: 17.04
 
 components:
   - id: settings.overview
@@ -35,5 +35,36 @@ components:
     command: ./serverboards-updater.py
     requires: perms[update]
     strategy: singleton
-    timeout: 5s
-    perms: event.emit
+    timeout: 5m
+    perms: event.emit action.update settings.view[serverboards.optional.updater]
+
+  - id: check_plugin_updates
+    traits: plugins hidden
+    type: action
+    name: Check if any plugin require updating
+    command: updater
+    call:
+      method: check_plugin_updates
+      params:
+        - name: action_id
+
+  - id: update_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin update
+    command: updater
+    call:
+      method: update_plugin
+      params:
+        - name: action_id
+        - name: plugin_id
+
+  - id: testcmd
+    type: cmd
+    command: updater-test.py
+    perms:
+      plugin
+  - id: test
+    type: test
+    command: testcmd
+    name: Updater Tests

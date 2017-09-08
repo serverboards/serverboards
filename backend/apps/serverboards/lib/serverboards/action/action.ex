@@ -67,26 +67,26 @@ defmodule Serverboards.Action do
   end
 
   @doc ~S"""
-  Searchs for actions that fulfill this filter.
+  Searchs for actions that fulfill this catalog.
 
   ## Example
 
     iex> user = Test.User.system
-    iex> Enum.count filter([trait: "test"], user)
+    iex> Enum.count catalog([trait: "test"], user)
     1
-    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
+    iex> [%{id: action_id} | _rest ] = catalog([trait: "test"], user)
     iex> action_id
     "serverboards.test.auth/action"
 
   """
-  def filter(q, _user) do
+  def catalog(q, _user) do
     Plugin.Registry.filter_component([type: "action"] ++ q)
   end
 
   @doc ~S"""
   Returns the action history with some filtering
   """
-  def history(filter, _user) do
+  def list(filter, _user) do
     import Ecto.Query
     count = Map.get(filter,:count, 100)
     start = Map.get(filter,:start)
@@ -167,18 +167,21 @@ defmodule Serverboards.Action do
   Excutes an action
 
     iex> user = Test.User.system
-    iex> [%{id: action_id} | _rest ] = filter([trait: "test"], user)
+    iex> [%{id: action_id} | _rest ] = catalog([trait: "test"], user)
     iex> {:ok, uuid} = trigger(action_id, %{ url: "https://serverboards.io" }, user)
     iex> String.length uuid
     36
 
   """
+  def trigger(action_id, params, user) when is_map(user) do
+    trigger(action_id, params, user.email)
+  end
   def trigger(action_id, params, me) do
     action = Plugin.Registry.find(action_id)
     if action do
       uuid = UUID.uuid4
       EventSourcing.dispatch :action, :trigger,
-        %{ uuid: uuid, action: action_id, params: params }, me.email
+        %{ uuid: uuid, action: action_id, params: params }, me
       {:ok, uuid}
     else
       {:error, :unknown_action}
@@ -200,9 +203,9 @@ defmodule Serverboards.Action do
 
   Called by the server
   """
-  def trigger_real(command_id, method, params) do
-    {:ok, plugin} = Plugin.Runner.start( command_id )
-    #Logger.debug("Call method #{method}")
+  def trigger_real(command_id, method, params, user) do
+    {:ok, plugin} = Plugin.Runner.start( command_id, user )
+    #Logger.debug("Call method #{inspect method} (#{inspect params})")
     ret = try do
       ret = Plugin.Runner.call(plugin, method, params)
       Plugin.Runner.stop(plugin)
@@ -235,10 +238,18 @@ defmodule Serverboards.Action do
     GenServer.call(Serverboards.Action, {:ps})
   end
 
+  @doc ~S"""
+  Updates the label and or progress of a running action
+  """
+  def update(uuid, params, _user) do
+    #Logger.info("Updating action status: #{inspect uuid}: #{inspect params}", uuid: uuid, params: params, user: user)
+    GenServer.cast(Serverboards.Action, {:update, uuid, params})
+  end
+
   ## Server impl
   def init(%{}) do
     Process.flag(:trap_exit, true)
-    server = self
+    server = self()
 
     {:ok, es} = EventSourcing.start_link name: :action
     EventSourcing.Model.subscribe es, :action, Serverboards.Repo
@@ -265,22 +276,26 @@ defmodule Serverboards.Action do
       method = action_component.extra["call"]
 
       action = %{
-       uuid: uuid, name: action_component.name,
+       uuid: uuid,
+       name: action_component.name,
        id: action_component.id,
-       user: user, params: params,
-       timer_start: DateTime.utc_now
+       user: user,
+       params: params,
+       timer_start: DateTime.utc_now,
+       progress: nil,
+       label: nil
        }
 
       action_update_started(action)
       Event.emit("action.started", action, ["action.watch"] )
 
-      server = self
+      server = self()
       {:ok, task} = Task.start_link fn ->
         #Process.put(:name, Serverboards.Action.Running)
         # time and run
-        #Logger.debug("Trigger start #{inspect uuid}: #{inspect command_id}")
-
-        {ok, ret} = trigger_real(command_id, method, params)
+        #Logger.debug("Action start #{inspect uuid}: #{inspect command_id}")
+        params = Map.put(params, "action_id", uuid)
+        {ok, ret} = trigger_real(command_id, method, params, user)
         GenServer.call(server, {:trigger_stop, {uuid, ok, ret}})
       end
       Process.monitor(task)
@@ -303,7 +318,7 @@ defmodule Serverboards.Action do
     end
     ret = case ret do
       %{} -> ret
-      _s -> %{ data: ret }
+      _s -> %{ result: ret }
     end
     action = Map.merge(action, %{
       elapsed: elapsed,
@@ -354,7 +369,7 @@ defmodule Serverboards.Action do
 
   def handle_call({:ps}, _from, status) do
     ret = status.running
-      |> Enum.map( fn {uuid, %{ id: action_id, params: params } } ->
+      |> Enum.map( fn {uuid, %{ id: action_id, params: params, progress: progress, label: label } } ->
         component = Plugin.Registry.find(action_id)
         #Logger.debug("ps: #{inspect component}/#{inspect action_id}")
         %{
@@ -365,25 +380,38 @@ defmodule Serverboards.Action do
             Map.put(param, :value, params[param["name"]])
           end),
           returns: component.extra["call"]["returns"],
-          uuid: uuid
+          uuid: uuid,
+          progress: progress,
+          label: label
         }
       end )
     {:reply, ret, status}
   end
-
+  def handle_cast({:update, uuid, params}, status) do
+    action = status.running[uuid]
+    if action do
+      action = Map.merge(action, Map.take(params, ~w"progress label"a))
+      Event.emit("action.updated", action, ["action.watch"] )
+      {:noreply, %{ status |
+        running: Map.put(status.running, uuid, action)
+        }}
+    else
+      {:noreply, status}
+    end
+  end
   def handle_info({:DOWN, _, :process, _, :normal}, status) do
     #Logger.debug("Got process down // This is the command port")
     # All ok
     {:noreply, status}
   end
   def handle_info({:EXIT, _, :normal}, status) do
-    #Logger.debug("Got process exit normal")
+    #Logger.debug("Got process exit #{inspect reason}")
     # All ok
     {:noreply, status}
   end
 
   def handle_info(info, status) do
-    Logger.warn("Got unexpected info: #{inspect info}")
+    Logger.warn("Got unexpected info: #{inspect info, pretty: true}")
     {:noreply, status}
   end
 

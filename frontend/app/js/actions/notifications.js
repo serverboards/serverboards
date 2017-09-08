@@ -23,7 +23,7 @@ export function notifications_config(){
       type:"UPDATE_NOTIFICATIONS_CONFIG",
       config: undefined
     })
-    rpc.call("notifications.config",[email]).then(function(config){
+    rpc.call("notifications.config.get",[email]).then(function(config){
       dispatch({
         type:"UPDATE_NOTIFICATIONS_CONFIG",
         config: config
@@ -43,7 +43,7 @@ export function notifications_update(data){
       let v = data.notifications[k]
       //console.log(v)
       promises.push(
-        rpc.call("notifications.config_update", {
+        rpc.call("notifications.config.update", {
           email: email,
           channel: k,
           config: v.config,

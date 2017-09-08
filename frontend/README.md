@@ -22,3 +22,11 @@ It overrides the `localStorage.servername`:
 ```
 >>> localStorage.ws_url="http://localhost:8080/ws"
 ```
+
+## Tests
+
+There are two kind o tests. Node based and broser based.
+
+Both use Mocha as test framework.
+
+For the Browser based [WebDriver IO](http://webdriver.io/) is used.

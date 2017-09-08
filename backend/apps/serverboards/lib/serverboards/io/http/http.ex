@@ -14,7 +14,9 @@ defmodule Serverboards.IO.HTTP do
 
   def start_link(port, _options) do
     frontend_path = Serverboards.Config.get(:http, :root, "../frontend/dist")
-    Logger.debug("Index should be at #{frontend_path}/index.html")
+    if not File.exists?("#{frontend_path}/index.html") do
+      Logger.error("Index not at #{frontend_path}/index.html. Check your config.")
+    end
     dispatch = :cowboy_router.compile([
       {:_, # all host names
         [
@@ -29,7 +31,7 @@ defmodule Serverboards.IO.HTTP do
     {:ok, res} = :cowboy.start_http(
       :http,
       100,
-      [{:port, port}],
+      [port: port, ip: {127,0,0,1}],
       [
         {:env, [{:dispatch, dispatch}]},
         # Some fallbacks

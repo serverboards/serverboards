@@ -33,15 +33,15 @@ plugin.install -- Can install new plugins into the system
 
 http.port_to_websocket -- Allows to manage port to websocket mappings
 
-## Serverboards
+## Project
 
-serverboard.add -- Add/remove serverboards
-serverboard.update -- Modify serverboard
-serverboard.delete -- Deletes serverboard
-serverboard.info -- Gets all info from serverboard
+project.add -- Add/remove serverboards
+project.update -- Modify serverboard
+project.delete -- Deletes serverboard
+project.get -- Gets all info from serverboard
 
-serverboard.widget.add -- Can add widgets
-serverboard.widget.update -- Can update widgets
+project.widget.add -- Can add widgets
+project.widget.update -- Can update widgets
 
 ## Services
 

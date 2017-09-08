@@ -65,6 +65,8 @@ function services(state=default_state, action){
       return merge(state, {current: merge( state.current, {screens: action.payload} )})
     case "SERVICE_SET_EXTERNAL_URL_COMPONENTS":
       return merge(state, {current: merge( state.current, {external_urls: action.payload} )})
+    case "CACHE_CLEAN_ALL":
+      return {...state, services: undefined, catalog: undefined}
   }
 
   return state

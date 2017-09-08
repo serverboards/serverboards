@@ -55,7 +55,7 @@ defmodule EventTest do
     assert Client.expect(client, method: "test.event")
 
     # change perms
-    {:ok, :ok} = Client.call(client, "group.remove_perm", ["admin","plugin"])
+    {:ok, :ok} = Client.call(client, "group.perm.delete", ["admin","plugin"])
     Client.expect(client, method: "user.updated")
     :timer.sleep(200)
     {:ok, user} = (Client.call client, "auth.user", [])
@@ -67,7 +67,7 @@ defmodule EventTest do
     assert not Client.expect(client, method: "test2.event")
 
     # add back
-    {:ok, :ok} = Client.call(client, "group.add_perm", ["admin","plugin"])
+    {:ok, :ok} = Client.call(client, "group.perm.add", ["admin","plugin"])
 
     Client.stop client
   end

@@ -17,6 +17,10 @@ var Flash = {
   info : function(message, options={}){
     options.level='info'
     this.log(message, options)
+  },  
+  warning : function(message, options={}){
+    options.level='info'
+    this.log(message, options)
   }
 }
 

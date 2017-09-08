@@ -1,6 +1,7 @@
 import React from 'react'
 import Modal from 'app/components/modal'
 import store from 'app/utils/store'
+import i18n from 'app/utils/i18n'
 
 let EditUser = React.createClass({
   handleEditUser : function(ev){
@@ -52,17 +53,17 @@ let EditUser = React.createClass({
         <div className="content">
           <form ref="form" className="ui form" onSubmit={this.handleEditUser}>
             <div className="field">
-              <label>Email</label>
-              <input disabled="true" type="email" name="email" defaultValue={props.user.email} placeholder="This will be used as the user identifier"/>
+              <label>{i18n("Email")}</label>
+              <input disabled="true" type="email" name="email" defaultValue={props.user.email} placeholder={i18n("This will be used as the user identifier")}/>
             </div>
             <div className="field">
-              <label>First Name</label>
+              <label>{i18n("First Name")}</label>
               <input type="text" name="name" defaultValue={props.user.name}/>
             </div>
           </form>
         </div>
         <div className="actions">
-          <div className="ui accept yellow button" onClick={this.handleEditUser}>Update user</div>
+          <div className="ui accept yellow button" onClick={this.handleEditUser}>{i18n("Update user")}</div>
         </div>
       </Modal>
     )

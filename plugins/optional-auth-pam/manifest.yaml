@@ -15,6 +15,8 @@ description: |
   If any group starts with `serverboards-`, it will be added as well, without
   the initial `serverboards-`. For example `serverboards-admin` will be added as
   `admin`.
+version: 17.04
+author: David Moreno <dmoreno@serverboards.io>
 
 components:
   - id: cmd

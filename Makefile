@@ -86,7 +86,7 @@ prepare-release: compile-frontend compile-backend
 	rm rel/serverboards/share/serverboards/plugins/.git -rf
 
 	#cp -a serverboards.sh rel/serverboards/
-	cp cli/serverboards.py rel/serverboards/bin/serverboards-cli -a
+	cd cli; make install
 
 INSTALL=$(DESTDIR)$(prefix)
 install: prepare-release
@@ -99,9 +99,12 @@ install: prepare-release
 	mkdir -p $(INSTALL)/../etc/sudoers.d/
 	cp etc/serverboards.sudoers $(INSTALL)/../etc/sudoers.d/serverboards
 	chmod 0440 $(INSTALL)/../etc/sudoers.d/serverboards
-
+	mkdir -p $(INSTALL)/../etc/nginx/sites-available/
+	cp etc/nginx.conf $(INSTALL)/../etc/nginx/sites-available/serverboards.conf
+	mkdir -p $(INSTALL)/../usr/bin/
+	ln -fs /opt/serverboards/bin/s10s $(INSTALL)/../usr/bin/s10s
 
 deb:
 	scripts/version-update.sh
 	fakeroot dpkg-buildpackage
-	mv ../serverboards_*.deb serverboards.deb
+	cp ../serverboards_$(shell head -1 debian/changelog  | sed "s/.*(\\(.*\\)).*/\\1/g")_amd64.deb serverboards.deb

@@ -64,7 +64,7 @@ defmodule Serverboards.Auth do
 			"token" ->
 				token_auth(params)
 			other ->
-				auth = auth_components
+				auth = auth_components()
 					|> Enum.find( &(&1.id == other))
 
 				if auth do
@@ -113,14 +113,14 @@ defmodule Serverboards.Auth do
 	defp ensure_exists_in_db(user, creator) do
 		Logger.debug("Ensure in db #{inspect user}")
 		# check if exists, or create
-		nuser = case Serverboards.Repo.get_by(Serverboards.Auth.Model.User, email: user.email) do
-			nil ->
+		nuser = case Serverboards.Auth.User.user_info(user.email) do
+			{:error, :unknown_user} ->
 				Logger.info("Automatically creating the user #{inspect user.email}", user: user)
 				Serverboards.Auth.User.user_add(user, %{ email: creator, perms: ["auth.create_user"]})
 				%{ user | groups: [] }
-			nuser ->
+			{:ok, user} ->
 				# If exists, check it is active, nuser here only for test
-				if nuser.is_active do
+				if user.is_active do
 					user
 				else
 					nil
@@ -161,7 +161,7 @@ defmodule Serverboards.Auth do
 
 	defp try_login_default_plugins(params) do
 		#Logger.debug("Try login with params #{inspect params}")
-		auth_components
+		auth_components()
 			|> Enum.filter(&(&1.login.params == "default"))
 			|> try_login_by_plugins(params)
 	end
@@ -178,7 +178,7 @@ defmodule Serverboards.Auth do
 
 	defp try_login_by_auth(%{ command: command, login: %{ call: call }, id: id } = auth, params) when is_binary(command) and is_binary(call) do
 		#Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
-		 case Serverboards.Plugin.Runner.start_call_stop(command, call, params) do
+		 case Serverboards.Plugin.Runner.start_call_stop(command, call, params, "system/auth") do
 		  {:ok, email} when is_binary(email) ->
 				case Serverboards.Auth.User.user_info(email) do
 					{:ok, user}  ->
@@ -192,7 +192,7 @@ defmodule Serverboards.Auth do
 					email: user["email"],
 					name: user["name"],
 					perms: user["perms"],
-					groups: user["groups"],
+					groups: ["user"] ++ user["groups"],
 					is_active: true
 				}
 			o ->
@@ -234,7 +234,9 @@ defmodule Serverboards.Auth do
 					{:ok, me} ->
 						Logger.info("Password reset link requested for #{email}")
 						token = Serverboards.Auth.User.Token.create(me, ["auth.reset_password"])
-						link="http://localhost:3000/#?pr=#{token}"
+						base_url=Serverboards.Settings.get("serverboards.core.settings/base",%{})
+							|> Map.get("base_url", "http://localhost:8080")
+						link="#{base_url}/#?pr=#{token}"
 						Serverboards.Notifications.notify(
 							email,
 							"Password reset link",
@@ -258,7 +260,7 @@ defmodule Serverboards.Auth do
 				end
 		end)
 
-		RPC.Client.event( client, "auth.required", list_auth )
+		RPC.Client.event( client, "auth.required", list_auth() )
 		:ok
 	end
 
@@ -274,7 +276,7 @@ defmodule Serverboards.Auth do
 	def list_auth do
 		auths = (
 			["basic", "token"] ++
-			(for c <- auth_components do
+			(for c <- auth_components() do
 				c.id
 			end))
 		Logger.debug("Found auth types: #{inspect auths}")
@@ -282,7 +284,7 @@ defmodule Serverboards.Auth do
 		auths
 	end
 
-	def auth_components do
+	def auth_components() do
 		Serverboards.Plugin.Registry.filter_component(type: "auth")
 		 |> Enum.map(fn c ->
 			 try do

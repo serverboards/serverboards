@@ -1,5 +1,6 @@
 import React from 'react'
 import HoldButton from './holdbutton'
+import i18n from 'app/utils/i18n'
 
 let MaxTable=React.createClass({
   getInitialState(){
@@ -37,7 +38,7 @@ let MaxTable=React.createClass({
                 </td>
                 {this.props.onDelete ? (
                   <td className="right aligned">
-                    <HoldButton className="ui trash icon" data-content="Hold to remove from group"
+                    <HoldButton className="ui trash icon" data-content={i18n("Hold to remove from group")}
                      onHoldClick={() => this.props.onDelete(u)}/>
                     </td>
                   ) : []}
@@ -48,11 +49,11 @@ let MaxTable=React.createClass({
         {(props.data.length > 3) ? (
           (props.data.length > max) ? (
             <a href="#!" onClick={(ev) => {ev.preventDefault();  this.handleShowAll()}}>
-            And {props.data.length - max} more...
+            {i18n("And {n} more...", {n : props.data.length - max})}
             </a>
           ) : (
             <a href="#!" className="ui top attached" onClick={(ev) => {ev.preventDefault(); this.handleShowLess()}}>
-            Show less
+            {i18n("Show less")}
             </a>
           ))
           : ""}

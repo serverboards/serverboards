@@ -11,13 +11,15 @@ import Piwik from 'app/containers/piwik.js'
 function Main(props){
   //console.log("Main component props %o", props.location)
   let modal = []
-  if (props.location.state && props.location.state.modal){
+  if (props.location && props.location.state && props.location.state.modal){
     const mod = props.location.state
     const Modal = get_modal(mod.modal)
     if (Modal){
       console.log("Render Modal %o -> %o", mod.modal, Modal)
+      const dispatch = require('app/utils/store').default.dispatch
+      const goBack = require('react-router-redux').goBack
       modal=(
-        <Modal {...mod.data}/>
+        <Modal {...mod.data} onClose={ () => dispatch( goBack() ) }/>
       )
     }
     else{

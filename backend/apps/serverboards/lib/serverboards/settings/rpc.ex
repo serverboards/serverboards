@@ -16,7 +16,7 @@ defmodule Serverboards.Settings.RPC do
     # Adds that it needs permissions.
     Serverboards.Utils.Decorators.permission_method_caller mc
 
-    RPC.MethodCaller.add_method mc, "settings.all", fn [], context ->
+    RPC.MethodCaller.add_method mc, "settings.list", fn [], context ->
       all_settings Context.get(context, :user)
     end, [required_perm: "settings.view", context: true]
 

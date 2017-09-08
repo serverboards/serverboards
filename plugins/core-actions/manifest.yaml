@@ -1,13 +1,14 @@
 id: serverboards.core.actions
 name: Core actions
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.0.1
+version: 17.04
 description: >
   Various core actions.
 url: https://serverboards.io
 
 components:
   - name: Ping server
+    description: Performs an ICMP ping to the server.
     id: ping
     type: action
     command: serverboards.core.actions/cmd
@@ -18,9 +19,11 @@ components:
           label: Remote IP address or DNS name
           type: text
       returns: ms
-    traits: ip url # this means any of `ip` or `url`
+    traits: ip url server # this means any of `ip` or `url`
 
   - name: Webhook call
+    description: |
+      Calls a remote HTTP or HTTPS endpoint via a GET request.
     id: webhook.call
     type: action
     command: serverboards.core.actions/cmd
@@ -36,9 +39,10 @@ components:
         code: int
         ms: ms
         text: text
-    traits: url
+    traits: url cloud server
 
   - name: Service tag change
+    description: Changes the service status tags
     id: set-tags
     type: action
     command: serverboards.core.actions/cmd
@@ -57,10 +61,12 @@ components:
           card: true
 
   - name: Send notification
+    description: |
+      Sends a notification to the selected user or group using their default
+      notification channel.
     id: send-notification
     type: action
     command: cmd
-    traits: url
     icon: mail
     call:
       method: send_notification
@@ -80,6 +86,8 @@ components:
         - name: service
 
   - name: Issue Open
+    description: |
+      Opens a new issue with the given parameters.
     type: action
     id: open-issue
     command: cmd
@@ -88,11 +96,8 @@ components:
       method: open_issue
       extra: true
       params:
-        - label: Description
-          type: description
+        - type: description
           description: |
-            Opens a new issue with the given parameters.
-
             Depending on where the action is invoked it may use one or several
             placeholders with context sensitive data, as rule name, id, description,
             related service and so on.
@@ -113,9 +118,11 @@ components:
             using the rule.id, or any other identifier for the problem.
 
             Aliases are separated by spaces.
-          placeholder: "eg. rule/\{\{rule.uuid\}\}"
+          placeholder: "eg. rule/{{rule.uuid}}"
 
   - name: Issue Close
+    description: |
+      Closes the given issue by alias or id.
     type: action
     id: close-issue
     command: cmd
@@ -127,19 +134,21 @@ components:
         - name: issue
           type: text
           label: Issue id or alias
-          placeholder: "eg. rule/\{\{rule.uuid\}\}"
+          placeholder: "eg. rule/{{rule.uuid}}"
         - name: comment
           type: textarea
           label: Issue comment
 
   - name: Notify all users
+    description: |
+      Notifies all users in the @user group.
     type: action template
     id: action.notify_user_template
     actions:
       any:
         action: serverboards.core.actions/send-notification
         params:
-          email: @user
+          email: "@user"
           subject: "{{rule.name}}: {{state}}"
           body: "{{rule.description}}"
 
@@ -152,19 +161,25 @@ components:
         params:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
       down:
         action: serverboards.core.actions/open-issue
         params:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
+      nok:
+        action: serverboards.core.actions/open-issue
+        params:
+          title: "{{rule.name}}: {{state}}"
+          description: "{{rule.description}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
       not-exists:
         action: serverboards.core.actions/open-issue
         params:
           title: "{{rule.name}}: {{state}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
 
       removed:
         action: serverboards.core.actions/close-issue
@@ -172,6 +187,11 @@ components:
           comment: "Status back to {{state}}"
           issue: "rule/{{rule.uuid}}"
       up:
+        action: serverboards.core.actions/close-issue
+        params:
+          comment: "Status back to {{state}}"
+          issue: "rule/{{rule.uuid}}"
+      ok:
         action: serverboards.core.actions/close-issue
         params:
           comment: "Status back to {{state}}"
@@ -204,7 +224,7 @@ components:
         params:
           title: "{{rule.name}} // {{rule.status}}"
           description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} serverboard/{{rule.serverboard}}"
+          aliases: "rule/{{rule.uuid}} service/{{service.uuid}} project/{{rule.project}}"
       up:
         action: serverboards.core.actions/close-issue
         params:
@@ -217,6 +237,6 @@ components:
     timeout: 20s
     command: serverboards-core.py
     perms: |
-      service.info service.update notifications.notify notifications.notify_all
-      issues.add issues.update
+      service.info service.update notifications.create notifications.create_all
+      issues.create issues.update
       settings.view[serverboards.core.settings/base]

@@ -6,6 +6,9 @@ import { to_map, to_list, merge } from 'app/utils'
 import SelectService from './selectservice'
 import TriggerSelect from './triggerselect'
 import RuleActions from './ruleactions'
+import {i18n} from 'app/utils/i18n'
+import {match_traits} from 'app/utils'
+import HoldButton from '../holdbutton'
 
 const icon = require("../../../imgs/rules.svg")
 
@@ -14,14 +17,14 @@ const Details=React.createClass({
   propTypes:{
     location: React.PropTypes.object,
     rule: React.PropTypes.object.isRequired,
-    serverboard: React.PropTypes.string,
+    project: React.PropTypes.string,
     triggers: React.PropTypes.array.isRequired,
     services: React.PropTypes.array.isRequired,
     action_catalog: React.PropTypes.array.isRequired,
     onSave: React.PropTypes.func.isRequired
   },
   getInitialState(){
-    const service_uuid=this.props.rule.service
+    const service_uuid=this.props.service || this.props.rule.service
     const props=this.props
     let service={}
     if (service_uuid){
@@ -112,14 +115,13 @@ const Details=React.createClass({
         params: ac.params
       }
     })
-
     let rule={
       uuid: props.rule.uuid,
       is_active: state.is_active,
       name: state.name,
       description: state.description,
-      service: state.service && state.service.uuid,
-      serverboard: props.serverboard,
+      service: props.service || (state.service && state.service.uuid),
+      project: props.project || props.rule.project,
       trigger: {
         trigger: state.trigger,
         params: state.trigger_config
@@ -130,74 +132,87 @@ const Details=React.createClass({
   },
   render(){
     const props=this.props
-    const triggers = props.triggers || []
+    let triggers = props.triggers || []
     const services=props.services
     const state=this.state
     const actions = state.actions
     let defconfig=merge( this.state.service && this.state.service.config || {}, {service: this.state.service && this.state.service.uuid } )
     const trigger_params=state.trigger_fields.filter( (tf) => !(tf.name in defconfig) )
+    const service = this.state.service
+    if (service){
+      triggers = triggers.filter( (t) => match_traits({all: t.traits, has:service.traits}) )
+    }
     //console.log("defconfig", this.state.service, defconfig, trigger_fields)
     return (
-      <Modal>
+      <Modal className="wide">
         <div ref="el">
           <div className="ui top secondary menu">
-            <a className="item">
-              <i className="ui icon trash"/> Delete
-            </a>
+            <HoldButton className="item" onHoldClick={this.props.onDelete}>
+              <i className="ui icon trash"/> {i18n("Delete")}
+            </HoldButton>
             <div className="right menu">
               <div className="item">
                 <div className="ui checkbox toggle">
-                  <label>{state.is_active ? "Enabled " : "Disabled"}</label>
+                  <label>{state.is_active ? i18n("Enabled") : i18n("Disabled")}</label>
                   <input type="checkbox" defaultChecked={state.is_active} name="is_active"/>
                 </div>
               </div>
             </div>
           </div>
-
-          <div className="ui medium header side header centered">
-            <ImageIcon src={icon} name={state.name}/>
-            <br/>
-            <h3 className="ui header">{state.name}</h3>
-          </div>
-
-          <div className="ui form">
-            <div>
-              <div className="field">
-                <label>Name:</label>
-                <input type="text" defaultValue={state.name} name="name" onChange={this.handleNameChange}/>
-              </div>
-              <div className="field">
-                <label>Description:</label>
-                <textarea type="text" defaultValue={state.description} name="description" onChange={this.handleDescriptionChange}/>
-              </div>
-              <div className="field">
-                <label>Service:</label>
-                <SelectService defaultValue={state.service && state.service.uuid} services={services} onChange={this.handleServiceChange}/>
-              </div>
+          <div className="ui text container">
+            <div className="ui medium header side header centered">
+              <ImageIcon src={icon} name={state.name}/>
+              <br/>
+              <h3 className="ui header">{i18n(state.name)}</h3>
             </div>
 
-            <div>
-              <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
-              <div className="field">
-                <label>Trigger:</label>
-                <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
+            <div className="ui form">
+              <div>
+                <div className="field">
+                  <label>{i18n("Name")}:</label>
+                  <input type="text" defaultValue={i18n(state.name)} name="name" onChange={this.handleNameChange}/>
+                </div>
+                <div className="field">
+                  <label>{i18n("Description")}:</label>
+                  <textarea type="text" defaultValue={i18n(state.description)} name="description" onChange={this.handleDescriptionChange}/>
+                </div>
+                {props.service ? null : (
+                  <div className="field">
+                    <label>{i18n("Service")}:</label>
+                    <SelectService defaultValue={state.service && state.service.uuid} services={services} onChange={this.handleServiceChange}/>
+                  </div>
+                )}
               </div>
-              <GenericForm fields={trigger_params} data={state.trigger_config} updateForm={this.handleTriggerConfigChange}/>
+
+              <div>
+                <h2 className="ui uppercase header" style={{paddingTop:20}}>Trigger</h2>
+                <div className="field">
+                  <label>{i18n("Trigger")}:</label>
+                  <TriggerSelect defaultValue={state.trigger} onChange={this.handleTriggerChange} triggers={triggers}/>
+                </div>
+                <GenericForm
+                  fields={trigger_params}
+                  data={merge(state.trigger_config, {service: this.state.service})}
+                  updateForm={this.handleTriggerConfigChange}/>
+              </div>
+
+              {actions.length != 0 ? (
+                <RuleActions
+                  actions={actions}
+                  action_catalog={props.action_catalog}
+                  handleActionConfig={this.handleActionConfig}
+                  defconfig={defconfig}
+                  />
+              ) : null }
             </div>
 
-            {actions.length != 0 ? (
-              <RuleActions
-                actions={actions}
-                action_catalog={props.action_catalog}
-                handleActionConfig={this.handleActionConfig}
-                defconfig={defconfig}
-                />
-            ) : null }
+            <button
+              className="ui yellow button"
+              onClick={this.handleSave}
+              style={{marginBottom: 50, marginTop: 20}}>
+                {i18n("Save changes")}
+            </button>
           </div>
-
-        </div>
-        <div className="actions">
-          <button className="ui yellow button" onClick={this.handleSave}>Save changes</button>
         </div>
       </Modal>
     )

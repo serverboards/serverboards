@@ -6,7 +6,10 @@ import {login} from 'app/actions/auth'
 import { connect } from 'react-redux'
 
 var Login = connect(
-  (state) => ({}),
+  (state) => ({
+    lang_counter: state.auth.lang_counter,
+    logging: state.auth.logging
+  }),
   (dispatch) => ({
     _onSubmit: (params) => dispatch(login(params))
   })

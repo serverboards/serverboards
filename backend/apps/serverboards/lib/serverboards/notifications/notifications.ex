@@ -222,7 +222,7 @@ defmodule Serverboards.Notifications do
         extra: extra
       }}
     {ok, ret} =
-      with {:ok, plugin} <- Plugin.Runner.start( command_id ),
+      with {:ok, plugin} <- Plugin.Runner.start( command_id , "system/notifications"),
         do: Plugin.Runner.call(plugin, channel.call, params)
     if ok == :error do
       Logger.error("Error sending message to #{command_id} / #{inspect user.email}", params: params, ret: ret, user: user, channel: channel, config: config)

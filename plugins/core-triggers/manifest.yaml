@@ -1,14 +1,16 @@
 id: serverboards.core.triggers
 name: Core Triggers
 author: David Moreno <dmoreno@serverboards.io>
-version: 0.1.0
+version: 17.04
 description: >
   Various core triggers.
 
 components:
   - name: Server is running / Ping
+    description: Performs an ICMP ping to check if the server is alive.
     id: ping
     type: trigger
+    traits: cloud server
     states: down up
     command: daemon
     stop: stop_trigger
@@ -24,16 +26,22 @@ components:
           description: Time between checks in seconds
           default: 60
           card: true
+          class: half column
         - name: grace
           label: Grace period
           description: Seconds that connectivity can be lost without triggering
           default: 60
+          class: half column
     traits: ip
 
   - name: HTTP Response time limit
+    description: |
+      Checks periodically if the connection time to the given server
+      enters into an allowed range.
     id: http
     type: trigger
     command: daemon
+    traits: www cloud
     states: down up
     stop: stop_trigger
     start:
@@ -47,22 +55,26 @@ components:
           label: Maximum response time (s)
           description: Trigger if response time is greater than the given value in seconds for longer that grace period.
           default: 5
+          class: half column
         - name: frequency
           label: Check frequency (s)
           description: Time between checks in seconds
           default: 60
           card: true
+          class: half column
         - name: grace
           label: Grace period (s)
           description: Seconds that connectivity can be lost without triggering
           default: 60
-    traits: url
+          class: half column
 
   - name: Socket is receiving connections
+    description: Checks periodically the given server and port connectivity.
     id: socket.is_up
     type: trigger
     states: down up
     command: daemon
+    traits: server url
     stop: stop_trigger
     start:
       method: socket_is_up
@@ -79,16 +91,21 @@ components:
           placeholder: 60s
           default: 60
           card: true
+          class: half column
         - name: grace
           label: Grace period
           description: Seconds that connectivity can be lost without triggering
           placeholder: 60s
           default: 60
+          class: half column
     stop:
       method: stop_trigger
     traits: url
 
   - name: Periodic trigger
+    description: |
+      Periodically triggers. Used for recurring actions without a very
+      strict schedule.
     id: periodic
     type: trigger
     states: tick
@@ -100,6 +117,7 @@ components:
           label: Trigger every
           description: "Write human time description: 1d, 12h, 30m, 10s"
           card: true
+          class: half column
 
   - name: Service tags changed
     description: Triggers when a specific tag appears or disappears from service tags, as UP or DOWN
@@ -107,6 +125,7 @@ components:
     type: trigger
     states: added removed
     command: daemon
+    traits: service
     start:
       method: tag_change
       params:
@@ -119,15 +138,45 @@ components:
           label: Label
           placeholder: eg. UP, DOWN, UNKNOWN
           card: true
+          class: half column
     stop: tag_change_stop
 
   - name: Server socket is up
     description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
     id: rule.socket.is_up
     type: rule template
-    traits: url
+    traits: url server
+    fields:
+      - name: service
+        label: Service to monitor
+        type: service
+        traits: url
+    rule:
+      when:
+        trigger: socket.is_up
+        params:
+          frequency: 5m
+          grace: 10m
+          url: "{{service.url}}"
+      actions:
+        - action: serverboards.core.actions/set-tags
+          type: action
+          params:
+            tags: UP -DOWN
+            service: "{{service.uuid}}"
+        - action: serverboards.core.actions/set-tags
+          type: action
+          params:
+            tags: -UP DOWN
+            service: "{{service.uuid}}"
+
+  - name: HTTP server is up
+    description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
+    id: rule.http.is_up
+    type: rule template
+    traits: www server
     trigger:
-      trigger: socket.is_up
+      trigger: http
       params:
         frequency: 5m
         grace: 10m
@@ -145,7 +194,6 @@ components:
     description: Monitors server tags to know when a server is DOWN or UP and notifies all users
     id: rule.server.open-issue
     type: rule template
-    traits: url
     trigger:
       trigger: tag_change
       params:

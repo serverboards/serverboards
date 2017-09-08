@@ -10,7 +10,7 @@ export function action_ps(){
 
 export function action_catalog(){
   return function(dispatch){
-    rpc.call('action.filter',{}).then(function(catalog){
+    rpc.call('action.catalog',{}).then(function(catalog){
       dispatch({type: "ACTION_CATALOG", catalog})
     })
   }

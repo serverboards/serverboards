@@ -3,6 +3,7 @@ import GenericForm from '../genericform'
 import Loading from '../loading'
 import { to_map } from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown';
+import {i18n} from 'app/utils/i18n'
 
 let Channel=React.createClass({
   getInitialState(){
@@ -36,15 +37,15 @@ let Channel=React.createClass({
     const props=this.props
     return (
       <div style={{paddingTop: 15}}>
-        <h3 className="ui header">{props.channel.name}
+        <h3 className="ui header">{i18n(props.channel.name)}
         <div ref="enable" className="ui toggle checkbox" style={{float:"right"}}>
           <input type="checkbox" name="active" defaultChecked={this.state.is_active}/>
-          <label>{this.state.is_active ? "Active" : "Disabled"}</label>
+          <label>{this.state.is_active ? i18n("Active") : i18n("Disabled")}</label>
         </div>
         </h3>
         <div className="ui meta">
           { props.channel.description ? (
-            <MarkdownPreview value={props.channel.description}/>
+            <MarkdownPreview value={i18n(props.channel.description)}/>
           ) : null }
         </div>
         <GenericForm
@@ -83,11 +84,11 @@ const Notifications=React.createClass({
     const state=this.state
     if (!props.channels)
       return (
-        <Loading>Notification channels</Loading>
+        <Loading>{i18n("Notification channels")}</Loading>
       )
     return (
       <div>
-        <h2 className="ui header" style={{marginTop: 30}}>Communication Channels</h2>
+        <h2 className="ui header" style={{marginTop: 30}}>{i18n("Communication Channels")}</h2>
         {props.channels.map( (c) => (
           <Channel
             key={c.channel} channel={c} config={state[c.channel]}

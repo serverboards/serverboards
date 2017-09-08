@@ -1,7 +1,102 @@
-.ui.cards .rule.card
-  h2
-    margin: 0
-  > .header.content
-    min-height: 6em
-    max-height: 6em
-    overflow: hidden
+@import colors
+$black: #666
+
+#rule
+  .ui.rule.graph
+    position: relative
+    padding: 1em
+    .icon.circle
+      border: 2px solid $black
+      background: white
+      border-radius: 50%
+      z-index: 1
+      width: 1.4em
+      height: 1.4em
+      position: relative
+      display: flex
+      align-items: center
+      justify-content: center
+    .card
+      margin: -10px 2em 2em 0em
+      width: calc( 100% - 3em )
+      padding: 1em
+      cursor: pointer
+      a
+        color: #333
+        display: block
+        &:hover
+          color: $blue
+      &.active
+        box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
+      .active a, a.active
+        color: $blue
+      .ui.right.floating
+        position: absolute
+        top: 3px
+        right: 3px
+      .ui.attached.progress
+        position: absolute
+        top: 20px
+        right: 3px
+    .legend + .card
+      margin-top: 10px
+    .connected
+      margin-top: 20px
+      margin-left: 17px
+      z-index: 1
+      position: relative
+      padding-left: 5px
+      padding-top: 15px
+    // Hover on lines. not really as it should
+    // .connected:hover::before, .icon:hover, .legend.circle:hover
+    //   border-color: $blue
+    //   color: $blue
+    .connected::before
+      z-index: 0
+      border-right: 5px solid $black
+      border-top: 5px solid $black
+      content: ""
+      position: absolute
+      top: 0px
+      height: 100%
+      left: 0
+      width: 22px
+    > .connected
+      margin: 0
+      &::before
+        width: 5px
+        left: 17px
+    .top.legend
+      margin-top: -15px
+      margin-left: -5px
+    .legend
+      cursor: pointer
+      display: flex
+      align-items: center
+      &.corner
+        pad
+    a.legend
+      color: $black !important
+    .legend.circle.active
+      color: $blue !important
+      border-color: $blue
+    .legend.circle
+      width: 30px
+      height: 30px
+      position: relative
+      background: white
+      border: 2px dotted $black
+      border-radius: 30px
+      .icon
+        margin-left: 2px
+        margin-top: 2px
+    .ui.connected > .legend:first-child
+      top: -25px
+      position: relative
+    .ui.connected > .legend:first-child + .action
+      padding-top: 20px
+  .ui.rule.graph > .connected > .condition
+    padding-top: 0
+
+.ui.rule.cards.with.padding.and.scroll
+  margin: 0

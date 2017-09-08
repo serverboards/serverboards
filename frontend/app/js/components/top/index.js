@@ -4,10 +4,13 @@ import ProcessesMenu from 'app/containers/top/processesmenu'
 import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import {goto} from 'app/utils/store'
-import CommandSearh from './commands'
+import CommandSearch from './commands'
 import Restricted from 'app/restricted'
+import i18n from 'app/utils/i18n'
+import { get_last_project } from 'app/utils/project'
 
 require("sass/top.sass")
+const icon_plugin = require("../../../imgs/007-icon-plugins.svg")
 
 function notifications_color(notifications){
   if (!notifications || notifications.length==0)
@@ -18,89 +21,176 @@ function notifications_color(notifications){
 const Top = React.createClass({
   getInitialState(){
     return {
-      open_time: undefined
+      open_time: undefined,
+      show_popup: undefined,
     }
   },
   componentDidMount(){
+    let self = this
     $(this.refs.notifications_item).popup({
-      popup: $(this.refs.el).find('#notifications_menu'),
+      popup: this.refs.notifications_menu,
       on: 'hover',
       hoverable: true,
       position: 'bottom center',
+      lastResort: true,
       delay: {
         show: 100,
         hide: 300
       },
-      onVisible: () => this.setState({open_time: new Date()})
+      onVisible(){
+        self.setState({
+          open_time: new Date(),
+          show_popup: 'notifications'
+        })
+      },
+      onHide(){
+        if (self.state.show_popup == 'notifications')
+          self.setState({show_popup: undefined})
+      }
     })
+    $(this.refs.actions).popup({
+      popup: this.refs.processes_menu,
+      on: 'hover',
+      hoverable: true,
+      position: 'bottom center',
+      lastResort: true,
+      onVisible(){
+        self.setState({show_popup: 'actions'})
+      },
+      onHide(){
+        if (self.state.show_popup == 'actions')
+          self.setState({show_popup: undefined})
+      }
+    })
+    $(this.refs.profile).popup({
+      popup: this.refs.profile_menu,
+      on: 'hover',
+      hoverable: true,
+      position: 'bottom right',
+      lastResort: 'bottom right'
+    })
+    $(this.refs.el).find("[data-content]").popup()
+  },
+  handleGotoProjects(){
+    get_last_project()
+      .then( project => project ? goto(`/project/${project}/`) : goto(`/`) )
   },
   render(){
     const props=this.props
-    let menu=undefined
-    switch (props.menu){
-      case 'user':
-        menu=(
-          <UserMenu/>
-        )
-        break;
-      case 'processes':
-        menu=(
-          <ProcessesMenu/>
-        )
-        break;
-    }
-    if (menu)
-      menu=(
-        <div onClick={props.closeMenu} style={{position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "none"}}>
-          {menu}
-        </div>
-      )
-    let logo=require("../../../imgs/white-horizontal-logo.svg")
-
+    const section=props.section
+    let logo=require("../../../imgs/favicon.png")
     return (
-      <nav className="ui top fixed menu" ref="el">
+      <nav className="ui serverboards top menu" id="top-menu" ref="el">
         <div className="item logo">
           <a href="#/">
             <img src={logo}/>
           </a>
         </div>
+        <CommandSearch/>
 
-        <div className="right menu">
-          <div className="item search">
-            <CommandSearh/>
-          </div>
-          <Restricted perm="issues.view">
-            <a className="item" onClick={() => goto("/issues/")}>
-              <i className="warning sign icon"/>
+        <span className="item stretch"/>
+
+        <a
+            className={`item ${ section == "project" ? "active" : ""}`}
+            onClick={this.handleGotoProjects}
+            ref="projects"
+            data-content={i18n("Project")}
+            data-position="bottom center"
+            id="projects"
+            >
+          {i18n("Projects")}
+        </a>
+
+        <Restricted perm="issues.view">
+          <a
+              className={`item ${ section == "issues" ? "active" : ""}`}
+              onClick={() => goto("/issues/")}
+              ref="issues"
+              id="issues"
+              data-content={i18n("Issues")}
+              data-position="bottom center"
+              >
+            {i18n("Issues")}
+            {props.new_issues ? (
               <span
                 className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                style={{top: 8, left: 43}}
                 />
-            </a>
-          </Restricted>
-          <Restricted perm="notifications.list">
-            <a className="item" ref="notifications_item">
-              <i className="announcement icon"></i>
-              {((props.notifications||[]).length > 0) ? (
-                <span
-                  className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                  style={{top: 8, left: 43}}
-                  />
-                ) : null}
-            </a>
-          </Restricted>
-          <NotificationsMenu open_time={this.state.open_time}/>
-          <Restricted perm="action.watch">
-            <a className="item" onClick={() => props.toggleMenu('processes')}>
-              <i className={`spinner ${props.actions.length==0 ? "" : "loading"} icon`}/>
-            </a>
-          </Restricted>
-          <a className="item" onClick={() => props.toggleMenu('user')}>
-            <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32, marginTop: -6}}
-              data-tooltip={props.user.email}/>
+            ) : null}
           </a>
+        </Restricted>
+        <Restricted perm="notifications.list">
+          <a
+            className={`item ${section == 'notifications' ? "active" : ""}`}
+            onClick={() => goto("/notifications/list")}
+            ref="notifications_item"
+            id="notifications"
+            >
+            {i18n("Notifications")}
+            {((props.notifications||[]).length > 0) ? (
+              <span
+                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
+                />
+              ) : null}
+          </a>
+        </Restricted>
+        <Restricted perm="notifications.list">
+          <div className="ui popup" ref="notifications_menu" id="notifications_menu" style={{padding:0}}>
+            {this.state.show_popup == 'notifications' ? (
+              <NotificationsMenu open_time={this.state.open_time}/>
+            ) : null }
+          </div>
+        </Restricted>
+        <Restricted perm="action.watch">
+          <div className="ui popup" ref="processes_menu" id="processes_menu" style={{padding:0}}>
+            {this.state.show_popup == 'actions' ? (
+              <ProcessesMenu/>
+            ) : null}
+          </div>
+        </Restricted>
+        <Restricted perm="action.watch">
+          <a
+            className={`item ${section == 'process' ? "active" : ""}`}
+            onClick={() => goto('/process/history')}
+            ref="actions"
+            id="actions"
+            >
+            {i18n("Processes")}
+            {props.actions.length>0 ? (
+              <span
+                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
+                />
+            ) : null}
+          </a>
+        </Restricted>
+
+        <Restricted perm="settings.view">
+          <span className="ui item separator"/>
+        </Restricted>
+        <Restricted perm="settings.view">
+          <a
+              ref="settings"
+              id="settings"
+              onClick={() => goto("/settings/")}
+              className={`item icon ${( section == 'settings' ) ? "active" : ""}`}
+              data-content={i18n("Settings")}
+              data-position="bottom center"
+              >
+            <i className="big setting icon"/>
+          </a>
+        </Restricted>
+        <span className="ui item separator"/>
+        <a
+          className={`item icon ${( section == 'user' ) ? "active" : ""}`}
+          onClick={() => props.toggleMenu('user')}
+          ref="profile"
+          id="profile"
+          >
+          <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
+            data-tooltip={props.user.email}/>
+        </a>
+        <div className="ui popup" id="profile_menu" ref="profile_menu" style={{padding:0}}>
+          <UserMenu/>
         </div>
-        {menu}
       </nav>
     )
   }

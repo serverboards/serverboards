@@ -1,5 +1,6 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import i18n from 'app/utils/i18n'
 
 export function services_update_catalog(){
   return function(dispatch){
@@ -26,37 +27,37 @@ export function services_update_all(){
 export function service_update(uuid, data){
   return function(dispatch){
     rpc.call("service.update", [uuid, data]).then(() => {
-      Flash.info("Service updated")
+      Flash.success(i18n("*{name}* updated", {name: data.name}))
     })
   }
 }
 
-export function service_attach(serverboard_shortname, service_uuid){
+export function service_attach(project_shortname, service_uuid){
   return function(dispatch){
-    rpc.call("service.attach",[serverboard_shortname, service_uuid]).then(function(){
-      Flash.info("Added service to serverboard")
+    rpc.call("service.attach",[project_shortname, service_uuid]).then(function(){
+      Flash.success(i18n("Service attached to project"))
     })
   }
 }
 
-export function service_detach(serverboard_shortname, service_uuid){
+export function service_detach(project_shortname, service_uuid){
   return function(dispatch){
-    rpc.call("service.detach",[serverboard_shortname, service_uuid]).then(function(){
-      Flash.info("Detached service from serverboard")
+    rpc.call("service.detach",[project_shortname, service_uuid]).then(function(){
+      Flash.success(i18n("Service detached from project"))
     })
   }
 }
 
 export function service_add(sbds, service){
   return function(dispatch){
-    rpc.call("service.add", service).then(function(service_uuid){
+    rpc.call("service.create", service).then(function(service_uuid){
       if (sbds){
         rpc.call("service.attach",[sbds, service_uuid]).then(function(){
-          Flash.info("Added service and attached to serverboard")
+          Flash.success(i18n("Added service and attached to project"))
         })
       }
       else{
-        Flash.warning("Added DETACHED service")
+        Flash.warning(i18n("Added DETACHED service"))
       }
     })
   }
@@ -64,7 +65,7 @@ export function service_add(sbds, service){
 
 export function update_external_url_components(traits=[]){
   return function(dispatch){
-    rpc.call("plugin.list_components",{type:"external url", traits})
+    rpc.call("plugin.component.catalog",{type:"external url", traits})
        .then( (components) => dispatch({type:"UPDATE_EXTERNAL_URL_COMPONENTS", components}))
   }
 }
@@ -77,7 +78,7 @@ export function clear_external_url_components(){
 
 export function service_load_external_url_components(traits=[]){
   return function(dispatch){
-    rpc.call("plugin.list_components",{type:"external url", traits})
+    rpc.call("plugin.component.catalog",{type:"external url", traits})
        .then( (components) => dispatch({type:"SERVICE_SET_EXTERNAL_URL_COMPONENTS", payload: components}))
   }
 }
@@ -99,10 +100,10 @@ export function service_load_current(uuid){
 
   return function(dispatch){
     dispatch({type: "SERVICE_SET_CURRENT", payload: null})
-    rpc.call("service.info", [uuid])
+    rpc.call("service.get", [uuid])
       .then( (service) => {
         dispatch({ type: "SERVICE_SET_CURRENT", payload: service })
-        return rpc.call("plugin.list_components", {type: "screen", traits: service.traits})
+        return rpc.call("plugin.component.catalog", {type: "screen", traits: service.traits})
       } )
       .then( (screens) => {
         dispatch({ type: "SERVICE_SET_CURRENT_SCREENS", payload: screens })

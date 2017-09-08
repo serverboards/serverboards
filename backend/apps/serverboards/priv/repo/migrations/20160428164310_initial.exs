@@ -8,7 +8,7 @@ defmodule Eventsourcing.Repo.Migrations.Initial do
       add :author, :string
       add :data, :map
 
-      add :inserted_at, :datetime
+      add :inserted_at, :utc_datetime
     end
 
     create index(:eventsourcing_event_stream, [:store])

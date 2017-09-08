@@ -1,3 +1,391 @@
+serverboards (17.7.0~alpha.90) unstable; urgency=medium
+
+  * Forces to exist to databases file, so tests fail on this error
+  * Updated version
+  * Plugins testes in prod mode
+  * Fixes to plugin and backend tests
+  * Improved packages to install at CI and backend test
+  * Added setup CI to easy setup CI runners. Fixes to tests.
+  * Renamed backend-test[s].sh
+  * Updated how to do backend tests
+  * Added initial tests for plugins gitlab CI support
+  * Updated timestamps -> timestamps()
+  * SSH tests improvements
+  * Plugin tests improved
+  * Initial SSH component tests
+  * Added s10s plugin-test
+  * Added Plugin and RPCWrapper to Python bindings
+  * Allow plugins to create services
+  * Improve error detection on fail start command
+  * Improved authentication workflow
+  * Added plugin.test RPC call to test plugins
+  * Fixed all compilation warnings on backend
+  * Store SSH output to the logs
+  * Fix show proper fields at rules service selector
+  * Fix show proper fields at rules service selector
+  * Added services tooltip ad add
+  * Added services tooltip ad add
+  * Fixes to SSH plugin, to be usabel again
+  * Try to use semver with - instead of + at elixir
+  * Core SSH use service_uuid as conn mode
+  * Udpated .gitignore for .map and .kdev4
+  * Ignore .mo file at i18n
+  * Improved debug of repeated id conditions
+  * Removed logging of some auth info
+  * Updated to ignore some temporary files on development
+  * Fix tests
+  * Improved loggind data, for debugging pourposes
+  * Fix event emmiting service.udpate on creation
+  * Only PS on currently running
+  * Fix init case where could not start
+  * Added plugin.kill RPC call
+  * Added plugin.ps and some more tracing info
+  * SCP return True if everything ok, exception if not
+  * Fixed communication between process and core and cli
+  * Improved internals. Added more builtins.
+  * Fix remove all envvars, leave PWD
+  * Send more events on service modification. Removed on_update.
+  * Fixed autompletion
+  * Can set the init daemon as relative to the current plugin
+  * Removed all unnecesary envvars from the running code.
+  * Fix manifest for actions and triggers for HTTP services
+  * Notifications body at db is text
+  * Fixed http timeout test and added preset for http
+  * Loading intro screen
+  * Added on_updated to services to call a callback
+  * Added cache to plugin checker
+  * Do not give the option of keep logged in
+  * Can delete rules
+  * Added rules tab to service details
+  * Fixes to author name at deb package and CI vars
+  * Improvements to version update get version and publish
+  * Reworked version gathering and update
+  * Publish automatically to the unstable channel
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+
+ -- David Moreno <dmoreno@coralbits.com>  Fri, 02 Jun 2017 17:08:21 +0200
+
+serverboards (17.07.0~alpha.88) unstable; urgency=medium
+
+  * Plugins testes in prod mode
+  * Fixes to plugin and backend tests
+  * Improved packages to install at CI and backend test
+  * Added setup CI to easy setup CI runners. Fixes to tests.
+  * Renamed backend-test[s].sh
+  * Updated how to do backend tests
+  * Added initial tests for plugins gitlab CI support
+  * Updated timestamps -> timestamps()
+  * SSH tests improvements
+  * Plugin tests improved
+  * Initial SSH component tests
+  * Added s10s plugin-test
+  * Added Plugin and RPCWrapper to Python bindings
+  * Allow plugins to create services
+  * Improve error detection on fail start command
+  * Improved authentication workflow
+  * Added plugin.test RPC call to test plugins
+  * Fixed all compilation warnings on backend
+  * Store SSH output to the logs
+  * Fix show proper fields at rules service selector
+  * Fix show proper fields at rules service selector
+  * Added services tooltip ad add
+  * Added services tooltip ad add
+  * Fixes to SSH plugin, to be usabel again
+  * Try to use semver with - instead of + at elixir
+  * Core SSH use service_uuid as conn mode
+  * Udpated .gitignore for .map and .kdev4
+  * Ignore .mo file at i18n
+  * Improved debug of repeated id conditions
+  * Removed logging of some auth info
+  * Updated to ignore some temporary files on development
+  * Fix tests
+  * Improved loggind data, for debugging pourposes
+  * Fix event emmiting service.udpate on creation
+  * Only PS on currently running
+  * Fix init case where could not start
+  * Added plugin.kill RPC call
+  * Added plugin.ps and some more tracing info
+  * SCP return True if everything ok, exception if not
+  * Fixed communication between process and core and cli
+  * Improved internals. Added more builtins.
+  * Fix remove all envvars, leave PWD
+  * Send more events on service modification. Removed on_update.
+  * Fixed autompletion
+  * Can set the init daemon as relative to the current plugin
+  * Removed all unnecesary envvars from the running code.
+  * Fix manifest for actions and triggers for HTTP services
+  * Notifications body at db is text
+  * Fixed http timeout test and added preset for http
+  * Loading intro screen
+  * Added on_updated to services to call a callback
+  * Added cache to plugin checker
+  * Do not give the option of keep logged in
+  * Can delete rules
+  * Added rules tab to service details
+  * Fixes to author name at deb package and CI vars
+  * Improvements to version update get version and publish
+  * Reworked version gathering and update
+  * Publish automatically to the unstable channel
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+
+ -- David Moreno <dmoreno@coralbits.com>  Fri, 02 Jun 2017 16:48:41 +0200
+
+serverboards (17.07.0~alpha.16) unstable; urgency=medium
+
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 08 May 2017 10:37:13 +0200
+
+serverboards (17.04.1-g90249) unstable; urgency=medium
+
+  * Updated version to 17.04 final.
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 24 Apr 2017 17:31:13 +0200
+
+serverboards (17.04~rc1-36-g7d7c4) unstable; urgency=medium
+
+  * s10s update executable bit set
+  * Added s10s update command
+  * Force update of plugins.
+  * Fix really open latest project, or first
+  * Emails have proper URL and show properly on gmail/android
+  * Improvements to sent emails
+  * Fix select call with related service param
+  * Improved updater script
+  * Fix edit user settings, missing i18n
+  * Fixes to plotly extra tools style
+  * Fix grey dashboard menu entry
+  * Grey background for board even on scroll
+  * Force http|https at website url
+  * Update updatable status at plugin details after update
+  * Improved plugin updating, use actions, better reporting
+  * Updated when to show update plugin
+  * Improved show plugin active status and tags
+  * Added initial backup and restore solution
+  * Fix #147, unicode chars at ssh terminal
+  * Fix show logging in loading when trying to log in
+  * Triggers are async to prevent deadlock
+  * Fix out of order reply on python bindings
+  * Added python3-venv dependency
+  * Updated use MOM 0.5.0
+  * Fix no more cast at mom
+  * Added intro video to README
+  * Updated README.md
+  * Use semver also for frontend
+  * Fix compilation for backend, requires semver
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 24 Apr 2017 17:16:28 +0200
+
+serverboards (17.04~rc1-2-g42010) unstable; urgency=medium
+
+  * Version at mix and node should not use ~
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 05 Apr 2017 13:10:24 +0200
+
+serverboards (17.04~rc1-1-g8b565) unstable; urgency=medium
+
+
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 05 Apr 2017 13:01:53 +0200
+
+serverboards (17.04~rc1) unstable; urgency=medium
+
+  * Added gzip compression by default on initial nginx.conf
+  * Added s10s executable link to /usr/bin
+  * Renamed serverboards CLI to s10s. Use subcommands.
+  * Updated installation instructions. Removed old .sh files.
+  * Hide psql stdout at postinst.
+  * HTTP only listen localhost. Updated nginx config. Install nginx.
+  * Fixes to debian postinstall password generation
+  * Copy only generated serverboards_VERSION_amd64.deb as release
+  * Revert commit: Fix use proper elixir-mom, not in umbrella
+  * Fixes to initial .deb file database creation
+  * Improved publish deb script to allow publish to apt repo
+  * Fix install of new style cli tools
+  * Plugin can set i18n to load
+  * Added support for loading more translations.
+  * Small fixes to avoid node_modules and hidden files
+  * Moved i18n update/compile logic to cli.
+  * Event on returns an id (fn) that can be used for off
+  * Removed old issues container logic
+  * Refactored issues, now properly using Redux
+  * Fix object_is_equal on b has more keys than a
+  * Typo corrections at function description
+  * Improved empty images, max size column size
+  * Allow filter issues with empty filter
+  * Fix #116 and #137. Rule templates not working.
+  * Improved image to show when no issues at current filter
+  * Added NOT-CONFIGURED virtual tag to services
+  * Menu is now options at service cards
+  * Show "no description yet" and improved style service cards
+  * Fix #59. Use proposed style for get plugins button
+  * Default section is Dashboard at project sidebar
+  * Fix #119. Flash at service update is now a success
+  * Added CORS and CSP headers to nginx config
+  * Do not mark subsection if section not marked.
+  * Fix #23. Shadow terminals appear sometimes
+  * Fix sidebar current active section marks
+  * Fix #131. Select call now works.
+  * Fix action trigger with no params. Fix #130.
+  * Added keys to generic fields select
+  * Removed some debug logs on queuing messages ok
+  * Improved log functions, allow use of extra random data
+  * Fixed rules accpet changes button
+  * Added preset for issues on ok/nok
+  * Reorder top menu
+  * Added empty main dashboard screen
+  * Initial empty screens for issues, dashboard, services and rules
+  * Improved error reporting from graphs
+  * Change plugin list access to a button
+  * Fix #58. Show plugin icons at top header
+  * Fix #118. Rename Web Server to Web site.
+  * Fix #122. Improved frontend packaging with lang
+  * Updated plugin versions to 17.04
+  * Fix #117. Long message boxes.
+  * Fix #104. Use grey for widget move background
+  * Fix #112. Improved no messages dropdown.
+  * Pass extra.setError to widgets to set widget errors
+  * Fix #105. Improved widget error visualization
+  * Fix #113. Improved action details.
+  * Fix #114. Improved cards with rectangular status labels
+  * Fix #109. Improved message on no virtual services available
+  * Fix #108. Improved service details margins and text
+  * Fix #98. No grey bottom on pointing menus.
+  * Fix rules modal, and added some margin top to some other modals
+  * Fix #107, service modal icon style fix
+  * Added notifiaction details header title
+  * Fix 95. Taller modal menu bar.
+  * Fix #96. Improved mesage details header
+  * Fix #99. Improvements on issues list style
+  * Fix #106. Fix modal consistency at issues add.
+  * Added missing i18n dependency at issues add
+  * Fix show top project select.
+  * Fix not properly updating some genericform fields
+  * Improved issue details date at header
+  * Properly pass the service when force trigger an rule
+  * Fixed use new API
+  * Sort triggers at trigger select
+  * Allow trigger rules using uuid instead of id
+  * Allow to filter rules by trigger type
+  * Added support for shallow triggers
+  * Fixes to quickactions use API 1
+  * Progress bar style fixes
+  * Added Plugin class to python bindings
+  * Fixed progress report was using atom, should have used string
+  * Added permissions to action.update and test
+  * Actions can notify of progress shown on UI
+  * Fixed translations of top tooltips
+  * Fix enter in user profile
+  * Go directly to latest dashboard or first if none
+  * Added add to project selector
+  * Project selector at top bar, and section highlight
+  * Fixed tests for new API
+  * Fix dashboard, was using invalid state name
+  * Fix i18n es typos
+  * Fix typos
+  * API fixes: token.add -> token.create
+  * Removed rules.templates, as can use plugins.components.catalog
+  * Removed service.screens RPC call, use plugin components
+  * API fix notifications.notify -> notifications.create
+  * API changed many .add to .create
+  * Fix API auth.group perms, users add, remove, get
+  * API Project widgets are now dashboard widgets
+  * API update settings.all -> settings.list
+  * API update for plugins (listing, components and data)
+  * API updated, logs.history -> logs.list
+  * API changes: notifications.config.get/update auth.token.add/update
+  * action.filter -> action.catalog, added action.get
+  * action.filter -> action.catalog
+  * Some missing renames of Serverboards -> Project, info -> get
+  * Removed rpc doc (now at web), updated perms
+  * service.info -> service.get
+  * project.info -> project.get
+  * Fixed webpack test babel configuration
+  * Improved i18n set lang at flash messages
+  * i18n flash messages
+  * Added language change at user profile.
+  * i18n login and logs
+  * Updated i18n for processes and profiles
+  * Sort keys at generated i18n json
+  * Translations top menu and notifications
+  * Added i18n context, translated calendar components
+  * Rules translations
+  * Translated services
+  * More translations, for settings
+  * Improved translations on plugins
+  * Improved manifest.yaml extraction and generic form support
+  * Extract text to translate from manifest.yaml, and some use
+  * Translated project module
+  * Improved issue translations
+  * Do not show hour when precission is days
+  * Style: Label change to better state related service projects
+  * Removed test that may fail depending on order
+  * Small fixes on Serverboard->Project refactor
+  * Style. Taller widget header
+  * Self remove init reload at plugins_update
+  * Properly restart and stop inti services
+  * Fix properly finish command at timeout.
+  * Added cache.service(service_id)
+  * Cleanup innecesary logging
+  * Sort widgets at widget adding
+  * Show any error the same way, stating the error
+  * Send client events when a setting is changed
+  * Catch init exit, and do normal reload process
+  * Modifying plugins reloads all init services
+  * Added init service type
+  * Fix use space to change rule preset toggle at service settings
+  * Updated semantic ui to 2.2.7
+  * Show widget loading inside widget area, not all screen
+  * Show quick actions only on the proper serverboard
+  * Tab change and then close closes the modal, not go to previous tab
+  * Removed all uses of old event.subscribe_connect
+  * Fix show permissions screen.
+  * Fixes on initial permission check and creation
+  * Improvements to make, remove parallel as it fails
+  * Set rw permission on full local directory at deb
+  * Make backend, frontend and plugins parallel.
+  * Fixes to journald hacks, to properly release
+  * Try to use some hacks to solve ejournald not compiling .so
+  * Removed ejournald from serverboards repo, use systemd's
+  * Fix restart on serverboards systemd service definition
+  * Fixed intermitent rules test fail
+  * Updated version for publishing
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 05 Apr 2017 12:39:38 +0200
+
 serverboards (0.6.282-g1168f) unstable; urgency=medium
 
   * Fix error when sending message to disabled users

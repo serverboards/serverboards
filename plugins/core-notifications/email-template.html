@@ -10,8 +10,8 @@
 <!-- BEGIN HEADER -->
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td align="center" valign="middle" height="84" style="background: #f6c43d; background: -moz-linear-gradient(left,  #f6c43d 0%, #009ca6 100%); background: -webkit-gradient(linear, left top, right top, color-stop(0%,#f6c43d), color-stop(100%,#009ca6)); background: -webkit-linear-gradient(left,  #f6c43d 0%,#009ca6 100%); background: -o-linear-gradient(left,  #f6c43d 0%,#009ca6 100%); background: -ms-linear-gradient(left,  #f6c43d 0%,#009ca6 100%); background: linear-gradient(to right,  #f6c43d 0%,#009ca6 100%); filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6c43d', endColorstr='#009ca6',GradientType=1 );">
-    	<a href="{{APP_URL}}"><img src="{{APP_URL}}/static/serverboards.core.notifications/email-header.png" /></a>
+    <td align="center" valign="middle" height="84" style="min-width: 600px; width: 100%; background: #f6c43d; background: -moz-linear-gradient(left,  #f6c43d 0%, #009ca6 100%); background: -webkit-gradient(linear, left top, right top, color-stop(0%,#f6c43d), color-stop(100%,#009ca6)); background: -webkit-linear-gradient(left,  #f6c43d 0%,#009ca6 100%); background: -o-linear-gradient(left,  #f6c43d 0%,#009ca6 100%); background: -ms-linear-gradient(left,  #f6c43d 0%,#009ca6 100%); background: linear-gradient(to right,  #f6c43d 0%,#009ca6 100%); filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6c43d', endColorstr='#009ca6',GradientType=1 );">
+  		<a href="{{APP_URL}}"><img src="{{APP_URL}}/static/serverboards.core.notifications/email-header.png" /></a>
     </td>
   </tr>
 </table>
@@ -34,10 +34,10 @@
         </table>
         <table width="580" border="0" cellspacing="0" cellpadding="0">
         	<tr>
-              <td align="center"><a href="{{APP_URL}}" style="display:block; background-color:#f6c43d; color:#4C4C4C; text-decoration:none; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight:bold;height:45px; line-height:45px;">OPEN SERVERBOARDS</a></td>
+              <td align="center"><a href="{{url}}" style="display:block; background-color:#f6c43d; color:#4C4C4C; text-decoration:none; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight:bold;height:45px; line-height:45px;">OPEN IN SERVERBOARDS</a></td>
             </tr>
         </table>
-        <p style="margin:0px; padding:0px; font-family: Arial, Helvetica, sans-serif; font-size:10px; color:#666; margin-top:50px; margin-bottom:20px;">You are receiving communication emails. <a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">Unsubscribe</a>. This email was sent to {{user.username}} &lt;{{user.email}}&gt;. <a href="" style="text-decoration:none; color:#154fbe">Terms of use</a> | <a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">Privacy Policy</a>. (c) 2016, Serverboards. </p>
+        <p style="margin:0px; padding:0px; font-family: Arial, Helvetica, sans-serif; font-size:10px; color:#666; margin-top:50px; margin-bottom:20px;">You are receiving communication emails. <a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">Unsubscribe</a>. This email was sent to {{user.name}} &lt;{{user.email}}&gt;. <a href="" style="text-decoration:none; color:#154fbe">Terms of use</a> | <a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">Privacy Policy</a>. (c) 2016, Serverboards. </p>
     </td>
   </tr>
 </table>

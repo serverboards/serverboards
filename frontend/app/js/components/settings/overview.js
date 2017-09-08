@@ -2,6 +2,7 @@ import React from 'react'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
 import {merge} from 'app/utils'
+import i18n from 'app/utils/i18n'
 
 const Default=React.createClass({
   getInitialState(){
@@ -13,7 +14,7 @@ const Default=React.createClass({
   },
   componentDidMount(){
     console.log("Get components.")
-    rpc.call("plugin.list_components", {type:"settings overview"}).then( (l) => {
+    rpc.call("plugin.component.catalog", {type:"settings overview"}).then( (l) => {
       console.log("Get components. %o", l)
       // Get only the fields, with the order
       let fields = l.map(
@@ -38,7 +39,7 @@ const Default=React.createClass({
     return (
       <div>
         <div className="ui top header secondary menu">
-          <h2 className="ui header">General information</h2>
+          <h3 className="ui header">{i18n("General information")}</h3>
           <div className="right menu">
             <GenericForm fields={state.buttons}/>
           </div>
@@ -47,11 +48,11 @@ const Default=React.createClass({
           <GenericForm fields={state.pre}/>
           <div className="ui form">
             <div className="field">
-              <label>Current version: </label>
+              <label>{i18n("Current version:")} </label>
               <div className="ui meta">{SERVERBOARDS_VERSION}</div>
             </div>
             <div className="field">
-              <label>Connected to server: </label>
+              <label>{i18n("Connected to server:")} </label>
               <div className="ui meta">{localStorage.servername || window.location.origin}</div>
             </div>
           </div>

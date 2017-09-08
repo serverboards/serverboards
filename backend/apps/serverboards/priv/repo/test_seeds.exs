@@ -9,32 +9,32 @@ require Logger
 
 all_perms = [
     "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
+    "auth.create_user", "auth.token.create",
     "auth.info_any_user",
     "auth.modify_groups", "auth.manage_groups",
     "plugin",
-    "serverboard.add", "serverboard.update",
-    "serverboard.delete", "serverboard.info",
-    "serverboard.widget.add", "serverboard.widget.update",
-    "service.add", "service.update",
-    "service.delete", "service.info",
+    "project.create", "project.update",
+    "project.delete", "project.get",
+    "dashboard.widget.create", "dashboard.widget.update",
+    "service.create", "service.update",
+    "service.delete", "service.get",
     "service.attach",
     "debug",
     "action.trigger", "action.watch",
     "settings.view", "settings.update",
     "settings.user.view", "settings.user.update",
     "settings.user.view_all", "settings.user.update_all",
-    "notifications.notify", "notifications.notify_all",
+    "notifications.create", "notifications.create_all",
     "notifications.list",
     "rules.update", "rules.view"
   ]
 
 user_perms = [
-  "auth.modify_self", "auth.create_token",
+  "auth.modify_self", "auth.token.create",
   "action.trigger", "action.watch",
-  "serverboard.info",  "service.info",
+  "project.get",  "service.get",
   "settings.user.view", "settings.user.update",
-  "notifications.notify"
+  "notifications.create"
 ]
 
 data = [
@@ -82,12 +82,12 @@ defmodule Seeds do
       id: -1,
       perms: [
         "auth.modify_self", "auth.modify_any",
-        "auth.create_user", "auth.create_token",
+        "auth.create_user", "auth.token.create",
         "auth.info_any_user",
         "auth.modify_groups", "auth.manage_groups",
         "plugin",
         "serverboard.add", "serverboard.update", "serverboard.delete", "serverboard.info",
-        "service.add", "service.attach",
+        "service.create", "service.attach",
         "service.update", "service.delete",
         "debug"
       ] }

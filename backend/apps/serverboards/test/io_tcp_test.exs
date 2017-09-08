@@ -9,18 +9,23 @@ defmodule Serverboards.IoTcpTest do
   setup do
     Application.stop(:io_tcp)
     Application.start(:io_tcp)
-    {:ok, []}
+
+    {:ok, listener} = Task.start( fn ->
+      Serverboards.IO.TCP.start_accept(4040)
+    end)
+
+    on_exit( fn ->
+      Process.exit(listener, :normal)
+    end)
 
     # Explicitly get a connection before each test
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
     # Setting the shared mode must be done only after checkout
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
-  end
 
-  setup do
     opts = [:binary, packet: :line, active: false]
     {:ok, socket} = :gen_tcp.connect('localhost', 4040, opts)
-    {:ok, socket: socket}
+    {:ok, listener: listener, socket: socket}
   end
 
   test "check basic comm", %{socket: socket} do

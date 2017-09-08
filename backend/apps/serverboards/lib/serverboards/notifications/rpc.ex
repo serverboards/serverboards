@@ -15,7 +15,7 @@ defmodule Serverboards.Notifications.RPC do
       {:ok, Notifications.catalog}
     end
 
-    add_method mc, "notifications.config", fn
+    add_method mc, "notifications.config.get", fn
       [email], context ->
         me = RPC.Context.get(context, :user)
         if (me.email == email) or ("settings.user.view_all" in me.perms) do
@@ -32,7 +32,7 @@ defmodule Serverboards.Notifications.RPC do
         end
     end, context: true, required_perm: "settings.user.view"
 
-    add_method mc, "notifications.config_update",
+    add_method mc, "notifications.config.update",
                   fn %{ "email" => email, "channel" => channel,
                         "is_active" => is_active, "config" => config}, context ->
       me = RPC.Context.get(context, :user)
@@ -43,15 +43,15 @@ defmodule Serverboards.Notifications.RPC do
       end
     end, context: true, required_perm: "settings.user.update"
 
-    add_method mc, "notifications.notify",
+    add_method mc, "notifications.create",
         fn %{ "email" => email, "subject" => subject, "body" => body } = params, context ->
       me = RPC.Context.get(context, :user)
-      if (me.email == email) or ("notifications.notify_all" in me.perms) do
+      if (me.email == email) or ("notifications.create_all" in me.perms) do
         Notifications.notify email, subject, body, Map.get(params, "extra", []), me
       else
         {:error, :not_allowed}
       end
-    end, context: true, required_perm: "notifications.notify"
+    end, context: true, required_perm: "notifications.create"
 
     add_method mc, "notifications.list", fn filter, context ->
       me = RPC.Context.get(context, :user)
@@ -59,7 +59,7 @@ defmodule Serverboards.Notifications.RPC do
       Notifications.InApp.list(filter, me)
     end, context: true, required_perm: "notifications.list"
 
-    add_method mc, "notifications.details", fn [id], context ->
+    add_method mc, "notifications.get", fn [id], context ->
       me = RPC.Context.get(context, :user)
       Notifications.InApp.details(id, me)
     end, context: true, required_perm: "notifications.list"

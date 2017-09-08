@@ -1,3 +1,5 @@
+@import colors
+
 .cards .card
   h2.ui.header
     margin: 0
@@ -14,11 +16,72 @@
     float: right
     margin: 0 0 0 .5em
 
-  .ui.iconicon
+  .ui.iconicon.with.background
     i.icon
       top: 39px
     img.icon
       top: 33px
 
-  .ui.tag.label
-    font-size: 0.60em
+  .extra.content:first-child
+      padding: 0
+      .labels
+        display: flex
+        flex-direction: row
+        .label
+          padding: 3px
+
+  .extra.content:first-child + .content
+    border-top: 0
+
+.ui.cards.v2
+  display: flex
+  flex-direction: row
+  margin: 0
+  .card
+    width: 200px
+    margin: 1em
+    .ui.attached.top
+      display: flex
+      flex-direction: row
+      width: 100%
+      padding: 3px 3px
+      justify-content: center
+      min-height: 30px
+      .right
+        flex-grow: 1
+        text-align: right
+        .ui.text.label
+          justify-content: flex-end
+          padding: 0 0 0 5px
+      .icon
+        top: 3px
+        font-size: 25px
+    h3.header
+      margin: 5px
+      font-size: 16px
+    .description
+      margin: 0 5px 5px 5px
+
+.ui.cards .narrow.card
+  width: 200px
+  overflow: hidden
+  &.selected
+    box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
+  .header, .extra.content
+    display: flex
+    flex-direction: row
+    align-items: baseline
+    .ui.text.label
+      margin: 0
+      padding: 0
+    .right
+      display: flex
+      flex-direction: row
+      flex-grow: 1
+      justify-content: flex-end
+      .ellipsis.icon
+        font-size: 23px
+  > .content, > .extra.content
+    border-top: 0px !important
+  > .content
+    overflow: hidden
