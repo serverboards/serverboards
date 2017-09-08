@@ -40,6 +40,23 @@ frontend-test:
       - frontend/dist
   artifacts:
     paths:
+      - log
+    expire_in: 1 week
+    when: always
+
+integration-test:
+  stage: test
+  script:
+    - cd $CI_PROJECT_DIR
+    - scripts/integration-test.py
+  cache:
+    paths:
+      - backend/_build
+      - backend/deps
+      - frontend/node_modules
+      - frontend/dist
+  artifacts:
+    paths:
       - frontend/shots
       - log
     expire_in: 1 week

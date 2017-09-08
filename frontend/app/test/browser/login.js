@@ -28,10 +28,13 @@ describe("Login", () => {
     })
 
     it("Once logged in, can go to user profile", function(){
+      browser.saveScreenshot("./shots/003-A.png")
       $("#top-menu #profile").waitForExist()
 
+      browser.saveScreenshot("./shots/003-B.png")
       $("#profile").click()
       $("#top-menu #profile_menu #user").waitForVisible()
+      browser.saveScreenshot("./shots/003-C.png")
       $('#top-menu #profile_menu #user').click()
 
       browser.saveScreenshot("./shots/003-profile.png")
@@ -68,12 +71,13 @@ describe("Login", () => {
 
 
     it("Logs out", function(){
+      browser.saveScreenshot("./shots/009-A.png")
       $('#profile img').click()
       $('#profile_menu #logout').waitForExist()
+      browser.saveScreenshot("./shots/009-B.png")
       $('#profile_menu #logout').click()
 
       $("input[name=email]").waitForExist()
-
       browser.saveScreenshot("./shots/009-logged-out.png")
     })
 })
