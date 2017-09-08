@@ -47,7 +47,7 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command=["test"], options=None, service=None):
+def ssh_exec(url=None, command=["test"], options=None, service=None, debug=False):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
@@ -70,10 +70,12 @@ def ssh_exec(url=None, command=["test"], options=None, service=None):
         precmd = []
     else:
         url, args, precmd = __get_service_url_and_opts(service)
-    args = [*args, '--', precmd, *command]
+    args = [*args, '--', *precmd, *command]
     # serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
+    if debug:
+        print("Exec SSH: ssh '%s'"%("' '".join(args)))
     sp=pexpect.spawn("/usr/bin/ssh", args)
     running=True
     while running:
@@ -84,7 +86,7 @@ def ssh_exec(url=None, command=["test"], options=None, service=None):
         elif ret==0:
             if not url.password:
                 serverboards.error("Could not connect url %s, need password"%(repr(url)))
-                raise Exception("Need password")
+                raise Exception("need_password")
             sp.sendline(url.password)
     sp.wait()
 
@@ -268,9 +270,9 @@ def __get_service_url_and_opts(service_uuid):
     options += conn_opts
 
     if envs:
-        precmd=';'.join(envs)+' ; '
+        precmd=[';'.join(envs)+' ; ']
     else:
-        precmd=''
+        precmd=[]
 
     return (url, options, precmd)
 
@@ -452,12 +454,12 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         raise Exception(e.stderr)
 
 @serverboards.rpc_method
-def run(url=None, command=None, service=None):
+def run(url=None, command=None, service=None, debug=True):
     if url:
-        return ssh_exec(url=url, command=command)
+        return ssh_exec(url=url, command=command, debug=True)
     assert service and command
     serverboards.info("Run %s:'%s'"%(service, command))
-    return ssh_exec(service=service, command=command)
+    return ssh_exec(service=service, command=command, debug=True)
 
 @serverboards.rpc_method
 def popen(service_uuid, command, stdin=None, stdout=None):
