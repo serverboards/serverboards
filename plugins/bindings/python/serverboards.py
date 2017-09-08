@@ -16,6 +16,20 @@ class RPC:
     Manages all the RPC status and calls.
     """
     def __init__(self, stdin, stdout):
+        """
+        Initilize the JSON-RPC communication object
+        
+        This class allows to register methods, event handlers, timers and file
+        descriptor handlers to ease the communication using JSON-RPC.
+
+        # Parameters
+
+        param | type       | description
+        ------|------------|------------
+        stdin | file       | Which input file to use to read JSON-RPC calls. Normally stdin.
+        stdout | file      | File to use to write JSON-RPC calls to the remote endpoint. Normally stdout.
+
+        """
         self.rpc_registry={}
         self.stdin=stdin
         self.stdout=stdout
@@ -37,7 +51,14 @@ class RPC:
         self.last_rpc_id=0
 
         class WriteToLog:
+          """
+          Helper class to write exceptions to the remote log.error method.
+          """
           def __init__(self, rpc):
+            """
+            Initializes the object that will use the given rpc object to write 
+            logging data.
+            """
             self.rpc=rpc
             self.buffer=[]
           def write(self, txt, *args, **kwargs):
@@ -64,6 +85,16 @@ class RPC:
         self.write_to_log=WriteToLog(self)
 
     def set_debug(self, debug):
+        """
+        Sets the debug mode for this rpc object.
+
+        # Parameters
+
+        param | type       | description
+        ------|------------|------------
+        debug | bool       | Whether to activate debug data to stderr
+        debug | file       | To which file to write
+        """
         show_begin = not self.stderr
         if debug is True:
             self.stderr=sys.stderr
@@ -74,6 +105,10 @@ class RPC:
 
 
     def __decorate_log(self, extra, level=2):
+        """
+        Helper that decorates the given log messages with data of which function, line 
+        and file calls the log.
+        """
         import inspect
         callerf=inspect.stack()[level]
 
@@ -104,6 +139,15 @@ class RPC:
         return self.event("log.warning", str(msg), self.__decorate_log(extra, level=2+level))
 
     def debug_stdout(self, x):
+        """
+        Helper that writes to stderr some message. 
+        
+        It adds the required \\r at the line start, as elixir/erlang removes them on 
+        externals processes / ports. Also adds the current PID to ease debugging,
+        as diferent calls to the same command will have diferent pids.
+
+        This is used when `self.debug` is in use.
+        """
         if not self.stderr:
             return
         if type(x) != str:
@@ -115,9 +159,21 @@ class RPC:
             pass
 
     def add_method(self, name, f):
+        """
+        Adds a method to the local method registry.
+
+        All local methods that can be caled b the remote endpoint have to be registered here.
+
+        Normally the `@rpc_method` decorator is used for ease of use.
+        """
         self.rpc_registry[name]=f
 
     def call_local(self, rpc):
+        """
+        Performs a local call into a registered method.
+
+        This is use internally for all incomming rpc calls.
+        """
         method=rpc['method']
         params=rpc['params']
         call_id=rpc.get('id')
@@ -176,6 +232,11 @@ class RPC:
           self.pending_events_queue=self.pending_events_queue[1:]
 
     def loop(self):
+        """
+        Ener into the read remote loop.
+
+        This loop also perform the timers watch and extra fds select. 
+        """
         prev_status=self.loop_status
         self.loop_status='IN'
 
@@ -216,6 +277,9 @@ class RPC:
         self.loop_status=prev_status
 
     def read_parse_line(self):
+        """
+        Reads a line from the rpc input line, and parses it.
+        """
         l=self.stdin.readline()
         if not l:
             self.loop_stop()
@@ -225,16 +289,53 @@ class RPC:
         self.__process_request(rpc)
 
     def add_event(self, fd, cont):
+        """
+        Watches for changes in a external file descriptor and calls the continuation function.
+
+        This allows this class to also listen for external processes and file description changes.
+
+        # Parameters
+
+        param | type       | description
+        ------|------------|------------
+        fd    | int        | File descriptor
+        cont  | function() | Continuation function to call when new data ready to read at fd
+        """
         if not fd in self.events:
             self.events[fd]=cont
 
     def remove_event(self, fd):
+        """
+        Removes an event from the event watching list
+        """
         if fd in self.events:
             del self.events[fd]
             return True
         return False
 
     def add_timer(self, interval, cont):
+        """
+        Adds a timer to the rpc object
+
+        After the given interval the continuation object will be called. 
+        The timer is not rearmed; it must be added again by the caller if 
+        desired.
+
+        Tis timers are not in realtime, and may be called well after the 
+        timer expires, if the process is performing other actions, but will be
+        called as soon as possible.
+
+        # Parameters
+
+        param | type       | description
+        ------|------------|------------
+        interval | float   | Time in seconds to wait until calling this timer
+        cont  | function() | Function to call when the timer expires.
+
+        # Returns
+        timer_id : int
+          Timer id to be used for later removal of timer
+        """
         tid=self.timer_id
         self.timer_id+=1
         next_stop=time.time()+interval
@@ -242,9 +343,19 @@ class RPC:
         return tid
 
     def remove_timer(self, tid):
+        """
+        Removes a timer.
+        """
         del self.timers[tid]
 
     def loop_stop(self, debug=True):
+        """
+        Forces loop stop on next iteration. 
+
+        This can be used to force program stop, although normally
+        serverboards will emit a SIGSTOP signal to stop processes when
+        required.
+        """
         if debug:
           self.debug("--- EOF ---")
         self.loop_status='EXIT'
@@ -256,6 +367,12 @@ class RPC:
         traceback.print_exc(file=self.write_to_log)
 
     def __process_request(self, rpc):
+        """
+        Performs the request processing to the external RPC endpoint.
+
+        This internal function is used to do the real writing to the
+        othe rend, as in some conditions it ma be delayed.
+        """
         self.last_rpc_id=rpc.get("id")
         res=self.call_local(rpc)
         if res: # subscription do not give back response
@@ -270,6 +387,11 @@ class RPC:
                 self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
+        """
+        Prints a line onto the external endpoint.
+
+        This function allows for easy debugging and some error conditions.
+        """
         self.debug_stdout("> %s"%ellipsis_str(line, 50))
         try:
           self.stdout.write(line + '\n')
@@ -282,6 +404,11 @@ class RPC:
 
 
     def log(self, message=None, type="LOG"):
+        """
+        Writes a log message on the other end.
+
+        Used by error, debug and info.
+        """
         assert message
         self.event("log", type=type, message=message)
 
@@ -406,6 +533,7 @@ class RPC:
           self.call("event.unsubscribe",event)
           del self.subscriptions_ids[subscription_id]
 
+# RPC singleton
 rpc=RPC(sys.stdin, sys.stdout)
 sys.stdout=sys.stderr # allow debugging by print
 
@@ -415,7 +543,7 @@ def rpc_method(f):
 
     Use as simple decorator:
 
-    ```
+    ```python
     @decorator
     def func(param1, param2):
         ....
@@ -423,10 +551,11 @@ def rpc_method(f):
 
     or with a specific name
 
-    ```
+    ```python
     @decorator("rpc-name")
     def func(param1=None):
         ...
+    ```
     """
     if type(f)==str:
         method_name=f
@@ -442,9 +571,27 @@ def rpc_method(f):
 
 @rpc_method("dir")
 def __dir():
+    """
+    Returns the list of all registered methods.
+    
+    Normally used by the other endpoint.
+    """
     return list( rpc.rpc_registry.keys() )
 
 def loop(debug=None):
+    """
+    Wrapper to easily start rpc loop 
+
+    It allows setting the debug flag/file here.
+
+    # Parameters
+    
+    param | type       | description
+    ------|------------|------------
+    debug | bool\|file | Whether to debug to stderr, or to another file object
+
+    
+    """
     if debug:
         rpc.set_debug(debug)
     rpc.loop()
@@ -518,11 +665,19 @@ def cache_ttl(ttl=10, maxsize=50, hashf=__simple_hash__):
     return wrapper
 
 class Config:
+    """
+    Easy access some configuration data for this plugin
+    """
     def __init__(self):
         self.path=os.path.expanduser( os.environ.get('SERVERBOARDS_PATH','~/.local/serverboards/') )
         Config.__ensure_path_exists(self.path)
 
     def file(self, filename):
+        """
+        Gets the absolute path of a local file for this plugin.
+
+        This uses the serverboards configured local storage for the current plugin 
+        """
         p=os.path.join(self.path, filename)
         if not p.startswith(self.path):
             raise Exception("Trying to escape from config directory.")
@@ -536,7 +691,7 @@ class Config:
         except OSError as e:
             if 'File exists' not in str(e):
                 raise
-
+# config singleton
 config=Config()
 
 class Plugin:
