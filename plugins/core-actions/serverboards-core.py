@@ -70,8 +70,9 @@ def http_get(url=None):
 
 @serverboards.rpc_method
 def set_tags(service=None, tags=None):
-    #serverboards.rpc.debug("service %s"%repr(service))
-    service_tags = service["tags"] or []
+    # serverboards.rpc.debug("service %s"%repr(service))
+    service = serverboards.service.get(service)
+    service_tags = service["tags"]
     orig_tags=service_tags[:]
     if tags is None:
         tags=''

@@ -1,17 +1,28 @@
 const {React, i18n} = Serverboards
 import CloudCard from '../containers/card'
+import Details from '../containers/details'
 
 function ListView(props){
-  const {items} = props
+  const {items, current} = props
+
+  let section
+  if (current){
+    section=(
+      <Details key={current.id} vmc={current}/>
+    )
+  }
+  else{
+    section=null
+  }
 
   return (
     <div className="ui expand two column grid grey background" style={{flexGrow:1, margin: 0}}>
-      <div className="ui column">
-        <div className="ui round pane white background">
+      <div className="ui column extend">
+        <div className="ui round pane white background extend">
           <div className="ui attached top form">
             <div className="ui input seamless white">
               <i className="icon search"/>
-              <input type="text" onChange={(ev) => this.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+              <input type="text" onChange={(ev) => props.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
             </div>
           </div>
           <div className="ui scroll extend with padding">
@@ -22,7 +33,9 @@ function ListView(props){
               {items.map( i => (
                 <CloudCard
                   {...props}
+                  className={current && current.parent==i.parent && current.id==i.id && "selected"}
                   item={i}
+                  onClick={() => props.setCurrent(i)}
                   />
               ))}
               </div>
@@ -32,6 +45,7 @@ function ListView(props){
       </div>
       <div className="ui column">
         <div className="ui round pane white background">
+          {section}
         </div>
       </div>
     </div>

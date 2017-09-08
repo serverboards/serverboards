@@ -1,6 +1,8 @@
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 
+const invisible_rpc_errors_re = /(cant_stop)/
+
 /**
  * @short Starts a new RPC connection, with the given options
  *
@@ -176,7 +178,8 @@ var RPC = function(options={}){
       if (jmsg['result'] !== undefined )
          pc[0]( jmsg['result'] )
       else if (jmsg['error']){
-        console.error("Got error %o from %o", jmsg['error'], pc[2])
+        if (!invisible_rpc_errors_re.test(jmsg['error']))
+          console.error("Got error %o from %o", jmsg['error'], pc[2])
         pc[1]( jmsg['error'] )
       }
       else

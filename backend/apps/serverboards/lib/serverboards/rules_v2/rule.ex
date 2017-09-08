@@ -213,7 +213,8 @@ defmodule Serverboards.RulesV2.Rule do
       "action" => action,
       "params" => params
       } = actiondef, state) do
-    # Logger.info("Execute action: #{inspect action}(#{inspect params}) // #{inspect state}")
+    {:ok, params} = Serverboards.Utils.Template.render_map(params, state)
+
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
     result = if Enum.count(result)==1 and Map.has_key?(result, :result) do

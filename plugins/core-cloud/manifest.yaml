@@ -213,6 +213,40 @@ components:
     name: LXC Management
     command: serverboards.core.cloud/lxc-daemon
 
+  # LXD
+  - id: lxd
+    name: LXD
+    type: service
+    description: Management of LXD Containers
+    traits: core.cloud.compute cloud
+    icon: cloud
+    fields:
+      - name: server
+        type: service
+        traits: ssh
+        label: Server with the LXC nodes
+      - name: sudo
+        type: checkbox
+        default: false
+        label: Requires `sudo`.
+        description: |
+          If SSH connection is not as `root` it may require sudo. To make it
+          work you must give permission to the user to execute `lxc` with sudo
+          and no password.
+
+          Check https://forum.serverboards.io for more information.
+  - id: lxd-daemon
+    name: LXD Daemon
+    type: cmd
+    command: serverboards_lxd.py
+    perms: service.get plugin
+  - id: lxd-vmc
+    type: vmc
+    for: serverboards.core.cloud/lxd
+    name: LXD Management
+    command: serverboards.core.cloud/lxd-daemon
+
+
   ## Test
   - id: test-daemon
     name: Test Daemon

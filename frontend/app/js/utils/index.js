@@ -111,6 +111,8 @@ const fixed_colors={
 }
 
 export function colorize(str){
+  if (!str)
+    return "red"
   str=str.toLowerCase()
   if (fixed_colors[str])
     return fixed_colors[str]

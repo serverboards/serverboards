@@ -18,7 +18,7 @@ class RPC:
     def __init__(self, stdin, stdout):
         """
         Initilize the JSON-RPC communication object
-        
+
         This class allows to register methods, event handlers, timers and file
         descriptor handlers to ease the communication using JSON-RPC.
 
@@ -56,7 +56,7 @@ class RPC:
           """
           def __init__(self, rpc):
             """
-            Initializes the object that will use the given rpc object to write 
+            Initializes the object that will use the given rpc object to write
             logging data.
             """
             self.rpc=rpc
@@ -106,7 +106,7 @@ class RPC:
 
     def __decorate_log(self, extra, level=2):
         """
-        Helper that decorates the given log messages with data of which function, line 
+        Helper that decorates the given log messages with data of which function, line
         and file calls the log.
         """
         import inspect
@@ -140,9 +140,9 @@ class RPC:
 
     def debug_stdout(self, x):
         """
-        Helper that writes to stderr some message. 
-        
-        It adds the required \\r at the line start, as elixir/erlang removes them on 
+        Helper that writes to stderr some message.
+
+        It adds the required \\r at the line start, as elixir/erlang removes them on
         externals processes / ports. Also adds the current PID to ease debugging,
         as diferent calls to the same command will have diferent pids.
 
@@ -235,7 +235,7 @@ class RPC:
         """
         Ener into the read remote loop.
 
-        This loop also perform the timers watch and extra fds select. 
+        This loop also perform the timers watch and extra fds select.
         """
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -317,11 +317,11 @@ class RPC:
         """
         Adds a timer to the rpc object
 
-        After the given interval the continuation object will be called. 
-        The timer is not rearmed; it must be added again by the caller if 
+        After the given interval the continuation object will be called.
+        The timer is not rearmed; it must be added again by the caller if
         desired.
 
-        Tis timers are not in realtime, and may be called well after the 
+        Tis timers are not in realtime, and may be called well after the
         timer expires, if the process is performing other actions, but will be
         called as soon as possible.
 
@@ -350,7 +350,7 @@ class RPC:
 
     def loop_stop(self, debug=True):
         """
-        Forces loop stop on next iteration. 
+        Forces loop stop on next iteration.
 
         This can be used to force program stop, although normally
         serverboards will emit a SIGSTOP signal to stop processes when
@@ -573,24 +573,24 @@ def rpc_method(f):
 def __dir():
     """
     Returns the list of all registered methods.
-    
+
     Normally used by the other endpoint.
     """
     return list( rpc.rpc_registry.keys() )
 
 def loop(debug=None):
     """
-    Wrapper to easily start rpc loop 
+    Wrapper to easily start rpc loop
 
     It allows setting the debug flag/file here.
 
     # Parameters
-    
+
     param | type       | description
     ------|------------|------------
     debug | bool\|file | Whether to debug to stderr, or to another file object
 
-    
+
     """
     if debug:
         rpc.set_debug(debug)
@@ -676,7 +676,7 @@ class Config:
         """
         Gets the absolute path of a local file for this plugin.
 
-        This uses the serverboards configured local storage for the current plugin 
+        This uses the serverboards configured local storage for the current plugin
         """
         p=os.path.join(self.path, filename)
         if not p.startswith(self.path):
@@ -710,7 +710,7 @@ class Plugin:
         def __call__(self, *args, **kwargs):
             return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs)
 
-    def __init__(self, plugin_id, kill_and_restart = False):
+    def __init__(self, plugin_id, kill_and_restart = False, restart = True):
         self.plugin_id = plugin_id
         if kill_and_restart:
           try:
@@ -718,17 +718,25 @@ class Plugin:
             time.sleep(1)
           except:
             pass
-        self.uuid=rpc.call("plugin.start", plugin_id)
+        self.restart=restart
+        self.start()
+
 
     def __getattr__(self, method):
         if not self.uuid:
-            self.uuid=rpc.call("plugin.start", plugin_id)
+            self.uuid=rpc.call("plugin.start", self.plugin_id)
         return Plugin.Method(self, method)
+
+    def start(self):
+        self.uuid=rpc.call("plugin.start", self.plugin_id)
+        return self
 
     def stop(self):
         """
         Stops the plugin.
         """
+        if not self.uuid: # not running
+            return self
         rpc.call("plugin.stop", self.uuid)
         self.uuid = None
         return self
@@ -739,7 +747,16 @@ class Plugin:
 
         This is also a workaround calling methods called `call` and `stop`.
         """
-        return rpc.call("plugin.call", self.uuid, method, args or kwargs)
+        try:
+            return rpc.call("plugin.call", self.uuid, method, args or kwargs)
+        except Exception as e:
+            if e == "exit" and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
+                self.start()
+                return rpc.call("plugin.call", self.uuid, method, args or kwargs)
+            else:
+                raise
+
+
 
     def __enter__(self):
       return self

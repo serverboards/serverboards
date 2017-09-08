@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, os, pty
+import sys, os, pty, shlex
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, pexpect, shlex, re, subprocess, random, sh
 import urllib.parse as urlparse
@@ -47,13 +47,15 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command="test", options=None, service=None):
+def ssh_exec(url=None, command=["test"], options=None, service=None, debug=False):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
         serverboards.warning("ssh_exec options deprecated. Better use ssh_exec by ssh service uuid. Currently ignored.")
     if not command:
         raise Exception("Need a command to run")
+    if isinstance(command, str):
+        command=shlex.split(command)
     if url:
         serverboards.warning("ssh_exec by URL deprecated. Better use ssh_exec by ssh service uuid")
         (args, url) = url_to_opts(url)
@@ -68,10 +70,12 @@ def ssh_exec(url=None, command="test", options=None, service=None):
         precmd = []
     else:
         url, args, precmd = __get_service_url_and_opts(service)
-    args = args + ['--', precmd, command]
-    serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
+    args = [*args, '--', *precmd, *command]
+    # serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
+    if debug:
+        print("Exec SSH: ssh '%s'"%("' '".join(args)))
     sp=pexpect.spawn("/usr/bin/ssh", args)
     running=True
     while running:
@@ -82,14 +86,14 @@ def ssh_exec(url=None, command="test", options=None, service=None):
         elif ret==0:
             if not url.password:
                 serverboards.error("Could not connect url %s, need password"%(repr(url)))
-                raise Exception("Need password")
+                raise Exception("need_password")
             sp.sendline(url.password)
     sp.wait()
 
     stdout = data.decode('utf8')
 
-    if service:
-        serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
+    # if service:
+    #     serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
     return {"stdout": stdout, "exit": sp.exitstatus}
 
 sessions={}
@@ -237,6 +241,14 @@ envvar_re=re.compile(r'^[A-Z_]*=.*')
 
 @cache_ttl(ttl=60)
 def __get_service_url_and_opts(service_uuid):
+    """
+    Gets the necesary data to call properly a SSH command for a given service uuid
+
+    It returns a tuple with:
+     * the url to be used (root@localhost)
+     * Options to pass to ssh, as a list of all options
+     * Some pre command to execute if applciabl. This is useful to set an initial environment, or (TODO) sudo
+    """
     assert service_uuid, "Need service UUID"
     service = __get_service(service_uuid)
     if not service or service["type"] != "serverboards.core.ssh/ssh":
@@ -258,9 +270,9 @@ def __get_service_url_and_opts(service_uuid):
     options += conn_opts
 
     if envs:
-        precmd=';'.join(envs)+' ; '
+        precmd=[';'.join(envs)+' ; ']
     else:
-        precmd=''
+        precmd=[]
 
     return (url, options, precmd)
 
@@ -350,15 +362,15 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
                 p = ssh_exec(service=service_uuid, command=script)
                 stdout=p["stdout"]
                 p = (p["exit"] == 0)
-                serverboards.info(
-                    "SSH remote check script: %s: %s"%(script, p),
-                    extra=dict(
-                        rule=id,
-                        service=service_uuid,
-                        script=script,
-                        stdout=stdout,
-                        exit_code=p)
-                    )
+                # serverboards.info(
+                #     "SSH remote check script: %s: %s"%(script, p),
+                #     extra=dict(
+                #         rule=id,
+                #         service=service_uuid,
+                #         script=script,
+                #         stdout=stdout,
+                #         exit_code=p)
+                #     )
             except:
                 serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"]))
                 p = False
@@ -442,12 +454,12 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         raise Exception(e.stderr)
 
 @serverboards.rpc_method
-def run(url=None, command=None, service=None):
+def run(url=None, command=None, service=None, debug=True):
     if url:
-        return ssh_exec(url=url, command=command)
+        return ssh_exec(url=url, command=command, debug=True)
     assert service and command
     serverboards.info("Run %s:'%s'"%(service, command))
-    return ssh_exec(service=service, command=command)
+    return ssh_exec(service=service, command=command, debug=True)
 
 @serverboards.rpc_method
 def popen(service_uuid, command, stdin=None, stdout=None):
