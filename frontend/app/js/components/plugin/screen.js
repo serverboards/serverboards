@@ -78,7 +78,7 @@ const ExternalScreen = React.createClass({
     const component = props.component || props.params.component
 
     return (
-      <div ref="el" className="ui central white background">
+      <div ref="el" className="ui central white background expand">
         <Loading>
           External plugin {plugin}/{component}
         </Loading>
