@@ -1,22 +1,6 @@
 const {i18n, React, utils, Components} = Serverboards
-
-const UNITS = [ "B", "KiB", "MiB", "GiB", "TiB", "ZiB"]
-
-function calculate_size(size){
-  let csize = size
-  let i
-  for (i=0;i<UNITS.length;i++){
-    let nsize = csize/1024;
-    if (nsize<1.0)
-      break
-    csize = nsize
-  }
-
-  return {
-    size: csize,
-    unit: UNITS[i]
-  }
-}
+import Details from './details'
+import {calculate_size} from '../utils'
 
 function Backup({backup, className}){
   const size = calculate_size(backup.size)
@@ -65,7 +49,13 @@ function List(props){
       completed_date: "2017-10-09 19:02",
       size: 70000,
       enabled: true,
-      status: "ok"
+      status: "ok",
+      source: "/var/coronis/",
+      destination: "/var/backups/coronis-{date}.tgz",
+      schedule: {
+        days: [3,5,6],
+        time: "23:00"
+      }
     },
     {
       id: 2,
@@ -90,13 +80,14 @@ function List(props){
           </div>
           <div className="ui expand with scroll">
             <div className="ui cards with padding">
-              {backups.map( b => (<Backup backup={b} className={current == b.id ? "selected" : null}/>))}
+              {backups.map( b => (<Backup key={b.id} backup={b} className={current == b.id ? "selected" : null}/>))}
             </div>
           </div>
         </div>
       </div>
       <div className="ui column">
         <div className="ui white background round pane">
+          <Details backup={backups[0]}/>
         </div>
       </div>
     </div>
