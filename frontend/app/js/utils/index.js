@@ -254,6 +254,17 @@ export const months = [
     i18n_nop("December")
   ]
 
+export const days = [
+  i18n_nop("Sunday"),
+  i18n_nop("Monday"),
+  i18n_nop("Tuesday"),
+  i18n_nop("Wednesday"),
+  i18n_nop("Thursday"),
+  i18n_nop("Friday"),
+  i18n_nop("Saturday"),
+  i18n_nop("Sunday"),
+]
+
 export function unwrap(fn, arg1, arg2){ // If two args, use them, if one, use store.getState() and props, if none, use store.getState and this.props.
   if (!fn) // not existant is as an empty list
     return []
