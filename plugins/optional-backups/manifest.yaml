@@ -1,0 +1,10 @@
+id: serverboards.optional.backups
+name: Backups
+author: David Moreno <dmoreno@serverboards.io>
+url: https://serverboards.io
+description: Manage backups
+
+components:
+  - id: screen
+    type: screen
+    name: Backups
