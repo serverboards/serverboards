@@ -11,7 +11,9 @@ const ExternalScreen = React.createClass({
     router: React.PropTypes.object
   },
   getInitialState(){
-    return {cleanupf(){}}
+    return {
+      cleanupf(){},
+    }
   },
   componentWillUnmount(){
     if (this.state.cleanupf){
@@ -40,17 +42,22 @@ const ExternalScreen = React.createClass({
     }
 
     const load_js = () => {
+      if (this.state.cleanupf){
+        this.state.cleanupf() // Call before setting a new one
+        this.setState({cleanupf(){}})
+      }
       const plugin_js=`${plugin}/${component}.js`
-      plugin_load(plugin_js).then(() =>
-        plugin_do_screen(
+      plugin_load(plugin_js).then(() => {
+        const el = this.refs.el
+        return plugin_do_screen(
           `${plugin}/${component}`,
-          this.refs.el,
+          el,
           {...(props.data || this.props.location.state), ...props, project: props.project},
           context
         )
-      ).then( (cleanupf) =>
+      }).then( (cleanupf) => {
         this.setState({cleanupf})
-      ).catch( (e) => {
+      }).catch( (e) => {
         console.warn("Could not load JS %o: %o", plugin_js, e)
       })
     }
@@ -58,11 +65,12 @@ const ExternalScreen = React.createClass({
       .attr('data-pluginid', plugin)
       .attr('data-screenid', `${plugin}/${component}`)
 
+    const hints = this.props.hints || []
     const plugin_html = `${plugin}/${component}.html`
     const plugin_css = `${plugin}/${component}.css`
     Promise.all([
-      plugin_load(plugin_html,  {base_url: plugin}),
-      plugin_load(plugin_css,  {base_url: plugin})
+      !hints.includes("nohtml") && plugin_load(plugin_html,  {base_url: plugin}),
+      !hints.includes("nocss") && plugin_load(plugin_css,  {base_url: plugin})
     ]).then( (html) => {
       $(this.refs.el).html(html)
       load_js()

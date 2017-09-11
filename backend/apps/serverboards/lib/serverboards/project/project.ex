@@ -283,7 +283,8 @@ defmodule Serverboards.Project do
         icon: Map.get(s.extra, "icon", nil),
         description: s.description,
         traits: s.traits,
-        perms: Map.get(s.extra, "perms", [])
+        perms: Map.get(s.extra, "perms", []),
+        hints: ( Map.get(s.extra, "hints", "") |> String.split )
       }
     end)
   end
