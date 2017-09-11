@@ -1,14 +1,21 @@
-const {rpc, React} = Serverboards
+const {rpc, i18n, React} = Serverboards
 const plugin_id="serverboards.optional.backups"
-import List from './components/list'
+import List from './containers/list'
 
 function main(el, config){
+  console.log(config)
   Serverboards.ReactDOM.render((
-      <List/>
+      <List
+        setSectionMenu={config.setSectionMenu}
+      />
     ), el)
 
   return function(){
-    Serverboards.ReactDOM.unmountComponentAtNode(el)
+    let ok = true
+    while(ok){
+      ok = Serverboards.ReactDOM.unmountComponentAtNode(el)
+      console.log("Umount backups", ok)
+    }
   }
 }
 

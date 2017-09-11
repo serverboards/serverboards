@@ -29,7 +29,7 @@ const ExternalScreen = React.createClass({
     let self=this
     //const service=this.props.location.state.service
     //console.log(service)
-    console.log(props)
+    // console.log(props)
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
     const context = {
@@ -45,7 +45,7 @@ const ExternalScreen = React.createClass({
         plugin_do_screen(
           `${plugin}/${component}`,
           this.refs.el,
-          merge(props.data || this.props.location.state, {project: this.props.project}),
+          {...(props.data || this.props.location.state), ...props, project: props.project},
           context
         )
       ).then( (cleanupf) =>
