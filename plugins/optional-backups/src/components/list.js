@@ -2,11 +2,11 @@ const {i18n, React, utils, Components} = Serverboards
 import Details from './details'
 import {calculate_size} from '../utils'
 
-function Backup({backup, className}){
+function Backup({backup, className, onClick}){
   const size = calculate_size(backup.size)
 
   return (
-    <div className={`ui narrow card ${className || ""}`}>
+    <div className={`ui narrow card ${className || ""}`} onClick={onClick}>
       <div className="header">
         <i className="ui pink disk outline icon"/>
         <div className="ui right text label">
@@ -41,33 +41,7 @@ function Backup({backup, className}){
 }
 
 function List(props){
-  const backups = [
-    {
-      id: 1,
-      name: "Coronis content",
-      description: "QNAP SSH",
-      completed_date: "2017-10-09 19:02",
-      size: 70000,
-      enabled: true,
-      status: "ok",
-      source: "/var/coronis/",
-      destination: "/var/backups/coronis-{date}.tgz",
-      schedule: {
-        days: [3,5,6],
-        time: "23:00"
-      }
-    },
-    {
-      id: 2,
-      name: "Coronis content",
-      description: "QNAP SSH",
-      completed_date: "2017-10-09 19:02",
-      size: 1234*1024*1024,
-      enabled: false,
-      status: "error"
-    },
-  ]
-  let current = 1
+  const current =  props.backups && props.backups.find( b => b.id == props.current )
   return (
     <div className="ui expand two column grid with grey background expand">
       <div className="ui column">
@@ -80,14 +54,29 @@ function List(props){
           </div>
           <div className="ui expand with scroll">
             <div className="ui cards with padding">
-              {backups.map( b => (<Backup key={b.id} backup={b} className={current == b.id ? "selected" : null}/>))}
+              {props.backups && props.backups.map( b => (
+                <Backup
+                  key={b.id}
+                  backup={b}
+                  className={props.current == b.id ? "selected" : null}
+                  onClick={() => props.setCurrent(b.id)}
+                  />)
+              )}
             </div>
           </div>
         </div>
       </div>
       <div className="ui column">
         <div className="ui white background round pane">
-          <Details backup={backups[0]}/>
+          {current ? (
+            <Details backup={current}/>
+          ) : (
+            <Components.Tip
+              className="padding"
+              subtitle={i18n("A project without backups is a disaster waiting to happen.")}
+              description={i18n("Add and plan your backups selecting a source of the data, and where are you going to store it.\n\nThere is no recovery functionality just yet, but you should to recovery tests from time to time.\n\nAny failed backup can be configured to create an issue and notify the users, so actions can be done to fix the backup.")}
+              />
+          )}
         </div>
       </div>
     </div>

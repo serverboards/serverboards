@@ -8,3 +8,57 @@ components:
   - id: screen
     type: screen
     name: Backups
+    hints: nohtml nocss
+
+  - id: backup
+    type: cmd
+    command: serverboards_backups.py
+    timeout: 1d
+    name: Backup Manager Process
+
+  - id: backup.ssh
+    type: cmd
+    command: serverboards_backups_ssh.py
+    timeout: 1d
+    name: SSH Backup Service
+
+  - id: backup.ssh.source
+    type: backup source
+    command: backup.ssh
+    read_source: read_source
+    name: SSH remote file system
+    description: Backup any file or directory accesible from a remote SSH service
+    params:
+      - name: service
+        type: service
+        traits: ssh
+        label: SSH Server
+      - name: path
+        type: string
+        label: Path to backup
+        description: Absolute path to the file or directory to backup
+
+  - id: backup.ssh.destination
+    type: backup destination
+    command: backup.ssh
+    write_destination: write_destination
+    name: SSH remote file system
+    description: |
+      Write backup to a remote SSH accesible server.
+    params:
+      - name: service
+        type: service
+        traits: ssh
+        label: SSH Server
+      - name: path
+        type: string
+        label: Path to backup
+        description: |
+          Absolute path to the destination file.
+
+          "Can use template variables as:"
+              "* {{date_}} -- Date in the format YYYY-MM-DD"
+              "* {{date}} -- Date in the format YYYYMMDD"
+              "* {{time}} -- Time in the format hh:mm"
+              "* {{times}} -- Date in the format hh:mm:ss"
+              "* {{datetime}} -- Date in the format YYYY-MM-DDThh:mm:ss"

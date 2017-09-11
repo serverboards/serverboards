@@ -11,11 +11,7 @@ function main(el, config){
     ), el)
 
   return function(){
-    let ok = true
-    while(ok){
-      ok = Serverboards.ReactDOM.unmountComponentAtNode(el)
-      console.log("Umount backups", ok)
-    }
+    Serverboards.ReactDOM.unmountComponentAtNode(el)
   }
 }
 

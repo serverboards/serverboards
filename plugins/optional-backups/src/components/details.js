@@ -33,15 +33,15 @@ function Details(props){
         <div className="ui extend with scroll and padding">
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Source")}</h3>
-            <div>{backup.source}</div>
+            <div>{backup.source.component}</div>
           </div>
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Destination")}</h3>
-            <div>{backup.destination}</div>
+            <div>{backup.destination.component}</div>
           </div>
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Scheduled days")}</h3>
-            <div>{backup.schedule.days.map( i => (<span>{i18n(utils.days[i])} </span>) )}</div>
+            <div>{backup.schedule.days.map( i => (<span key={i}>{i18n(utils.days[i])} </span>) )}</div>
           </div>
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Time")}</h3>

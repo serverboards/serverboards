@@ -1,10 +1,19 @@
-const {i18n, React} = Serverboards
+const {i18n, React, store} = Serverboards
 
-function BackupMenu({onAddBackup}){
+function BackupMenu(props){
+  const location = store.getState().routing.locationBeforeTransitions.pathname
   return (
     <div className="menu">
       <span className="item stretch"/>
-      <a className="ui button teal" onClick={onAddBackup}>{i18n("Add backup job")}</a>
+      {location.endsWith("/add") ? (
+        <a className="ui button" onClick={ () => store.goto(location.slice(0, location.length-3)) }>
+          {i18n("Back to list")}
+        </a>
+      ) : (
+        <a className="ui button teal" onClick={ () => store.goto(location+"add") }>
+          {i18n("Add backup job")}
+        </a>
+      )}
     </div>
   )
 }
