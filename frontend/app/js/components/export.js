@@ -7,6 +7,7 @@ import HoldButton from './holdbutton'
 import GenericForm from './genericform'
 import Calendar from './calendar'
 import Error from './error'
+import Tip from './tip'
 
 const components = {
   Modal,
@@ -16,7 +17,8 @@ const components = {
   HoldButton,
   GenericForm,
   Calendar,
-  Error
+  Error,
+  Tip,
 }
 
 export default components
