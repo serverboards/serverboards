@@ -6,12 +6,12 @@ function Backup({backup, className, onClick}){
   const size = calculate_size(backup.size)
 
   return (
-    <div className={`ui narrow card ${className || ""}`} onClick={onClick}>
+    <div className={`ui narrow card ${className || ""}`} onClick={onClick} style={onClick && {cursor:"pointer"}}>
       <div className="header">
         <i className="ui pink disk outline icon"/>
         <div className="ui right text label">
           {backup.status}
-          <span className={`ui rectangular label ${utils.colorize(backup.status)}`}/>
+          <span className={`ui rectangular label ${utils.colorize(backup.status || "")}`}/>
         </div>
       </div>
       <div className="content">
