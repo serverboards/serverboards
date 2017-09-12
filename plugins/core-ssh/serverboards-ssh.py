@@ -47,7 +47,7 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command="test", options=None, service=None):
+def ssh_exec(url=None, command="test", options=None, service=None, outfile=None, infile=None):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
@@ -72,25 +72,32 @@ def ssh_exec(url=None, command="test", options=None, service=None):
     serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
-    sp=pexpect.spawn("/usr/bin/ssh", args)
-    running=True
-    while running:
-        ret=sp.expect([re.compile(b'^(.*)\'s password:'), pexpect.EOF])
-        data=sp.before
-        if ret==1:
-            running=False
-        elif ret==0:
-            if not url.password:
-                serverboards.error("Could not connect url %s, need password"%(repr(url)))
-                raise Exception("Need password")
-            sp.sendline(url.password)
-    sp.wait()
+    kwargs = {}
+    if outfile:
+        assert outfile.startswith("/tmp/") and not '..' in outfile # some security
+        kwargs["_out"]=open(outfile,"w")
+    if infile:
+        assert infile.startswith("/tmp/") and not '..' in infile
+        kwargs["_out"]=open(infile,"w")
 
-    stdout = data.decode('utf8')
+    # Real call to SSH
+    stdout=None
+    try:
+        result = sh.ssh(*args, **kwargs)
+    except Exception as e:
+        result = e
+
+    if outfile:
+        kwargs["_out"].close()
+    else:
+        stdout = result.stdout.encode('utf8')
+    if infile:
+        kwargs["_in"].close()
+
 
     if service:
         serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
-    return {"stdout": stdout, "exit": sp.exitstatus}
+    return {"stdout": stdout, "exit": result.exit_code}
 
 sessions={}
 import uuid
@@ -359,8 +366,8 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
                         stdout=stdout,
                         exit_code=p)
                     )
-            except:
-                serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"]))
+            except Exception as e:
+                serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"], exception=e))
                 p = False
             nstate = "ok" if p else "nok"
             if self.state != nstate:
@@ -442,12 +449,12 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         raise Exception(e.stderr)
 
 @serverboards.rpc_method
-def run(url=None, command=None, service=None):
+def run(url=None, command=None, service=None, **kwargs):
     if url:
         return ssh_exec(url=url, command=command)
     assert service and command
     serverboards.info("Run %s:'%s'"%(service, command))
-    return ssh_exec(service=service, command=command)
+    return ssh_exec(service=service, command=command, **kwargs)
 
 @serverboards.rpc_method
 def popen(service_uuid, command, stdin=None, stdout=None):
