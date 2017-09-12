@@ -133,9 +133,9 @@ class AddBackup extends React.Component{
     const props=this.props
     const backup = props.backup || { schedule: { days: [], time: "03:00"} }
     return (
-      <div className="ui extends with padding and scroll">
+      <div className="ui expand">
         <h2 className="ui centered header padding">{i18n("Create a new backup.")}</h2>
-        <div className="ui form">
+        <div className="ui form with padding and scroll">
           <div className="field">
             <label>{i18n("Name of this backup")}</label>
             <input
