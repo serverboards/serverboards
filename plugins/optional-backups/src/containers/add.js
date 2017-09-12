@@ -1,4 +1,4 @@
-const {i18n, rpc, Flash, store, React} = Serverboards
+const {i18n, rpc, Flash, store, utils, React} = Serverboards
 const {Loading} = Serverboards.Components
 
 import View from '../components/add'
@@ -13,6 +13,7 @@ function uuidv4() {
 class AddBackup extends React.Component{
   handleAddBackup(backup){
     const uuid = uuidv4()
+    backup = utils.merge(backup, {id: uuid})
     rpc
       .call("plugin.data.update", ["serverboards.optional.backups", `${this.props.project}-${uuid}`, backup])
       .then(() => {

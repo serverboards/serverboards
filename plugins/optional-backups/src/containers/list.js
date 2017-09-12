@@ -1,4 +1,4 @@
-const {store, i18n, rpc, utils, React} = Serverboards
+const {store, i18n, rpc, utils, Flash, React} = Serverboards
 const {Error, Loading} = Serverboards.Components
 
 import BackupMenu from '../components/menu'
@@ -32,6 +32,12 @@ class List extends React.Component{
       )
       this.setState({backups})
     }
+    handleRunBackup(backup){
+      console.log("Run backup %o", backup)
+      rpc.call("action.trigger", ["serverboards.optional.backups/backup.now", {backup: backup.id}])
+        .then(() => Flash.success(i18n("Starting *{name}* backup", {name: backup.name})))
+        .catch( e => Flash.error(i18n("Error starting backup *{name}*: {e}", {name: backup.name, e})))
+    }
     render(){
       const mode = store.getState().routing.locationBeforeTransitions.pathname.endsWith("/add")  ? "add" : "list"
 
@@ -47,6 +53,7 @@ class List extends React.Component{
               current={this.state.current}
               setCurrent={(current) => this.setState({current})}
               updateBackup={this.updateBackup.bind(this)}
+              onRunBackup={this.handleRunBackup}
               />
           )
         case "add":

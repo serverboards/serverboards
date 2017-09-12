@@ -15,16 +15,32 @@ components:
     command: serverboards_backups.py
     timeout: 1d
     name: Backup Manager Process
+    perms: service.get plugin
 
   - id: backup.ssh
     type: cmd
     command: serverboards_backups_ssh.py
     timeout: 1d
     name: SSH Backup Service
+    perms: plugin
+
+  - id: backup.now
+    type: action
+    name: Backup now
+    command: serverboards.optional.backups/backup.ssh
+    call:
+      method: backup_now
+      params:
+        - name: backup
+          type: select call
+          label: Backup
+          options:
+            command: serverboards.optional.backups/backup
+            call: get_backup_options
 
   - id: backup.ssh.source
     type: backup source
-    command: backup.ssh
+    command: serverboards.optional.backups/backup.ssh
     read_source: read_source
     name: SSH remote file system
     description: Backup any file or directory accesible from a remote SSH service
@@ -40,7 +56,7 @@ components:
 
   - id: backup.ssh.destination
     type: backup destination
-    command: backup.ssh
+    command: serverboards.optional.backups/backup.ssh
     write_destination: write_destination
     name: SSH remote file system
     description: |

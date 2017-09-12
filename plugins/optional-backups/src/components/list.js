@@ -83,7 +83,10 @@ function List(props){
       <div className="ui column">
         <div className="ui white background round pane">
           {current ? (
-            <DetailsTab backup={current} updateBackup={props.updateBackup}/>
+            <DetailsTab
+              backup={current}
+              {...props}
+              />
           ) : (
             <Components.Tip
               className="padding"

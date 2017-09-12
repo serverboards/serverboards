@@ -11,15 +11,17 @@ function Details(props){
       <div className="ui expand">
         {backup.status == "ok" ? (
           <div className="ui attached colored top menu green background">
-            <a onClick={props.doBackup}>
-              <i className="icon play"/>
-            </a>
+            <div className="ui menu">
+              <a onClick={() => props.onRunBackup(props.backup)} className="item">
+                <i className="icon play"/>
+              </a>
+            </div>
             <h3 className="ui header centered stretch white text">{i18n("Backup succesfully done")}</h3>
           </div>
         ) : (
           <div className="ui attached colored top menu red background">
             <div className="ui menu">
-              <a onClick={props.doBackup} className="item">
+              <a onClick={() => props.onRunBackup(props.backup)} className="item">
                 <i className="icon play"/>
               </a>
             </div>
