@@ -2,7 +2,7 @@ const {i18n, rpc, Flash, store, React} = Serverboards
 const {Loading} = Serverboards.Components
 
 import View from '../components/edit'
-
+import {get_source_catalog, get_destination_catalog} from '../utils'
 
 class EditBackup extends React.Component{
   constructor(props){
@@ -14,11 +14,9 @@ class EditBackup extends React.Component{
     }
   }
   componentDidMount(){
-    rpc
-      .call("plugin.component.catalog", {type: "backup source"})
+    get_source_catalog()
       .then( sources => this.setState({sources}))
-    rpc
-      .call("plugin.component.catalog", {type: "backup destination"})
+    get_destination_catalog()
       .then( destinations => this.setState({destinations}))
   }
   handleUpdateBackup(backup){

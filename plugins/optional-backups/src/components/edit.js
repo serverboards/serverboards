@@ -1,5 +1,6 @@
 const {i18n, utils, React} = Serverboards
-const {Tip} = Serverboards.Components
+const {Tip, GenericForm, MarkdownPreview} = Serverboards.Components
+import {get_source_type, get_destination_type} from '../utils'
 
 const TIMES = [
   "01:00", "01:15", "01:30", "01:45",  "02:00", "02:15", "02:30", "02:45",
@@ -46,8 +47,12 @@ class AddBackup extends React.Component{
     super(props)
     this.state = {
       days: [],
-      source: {},
-      destination: {}
+      source: props.backup.source.config,
+      destination: props.backup.destination.config,
+      source_form: undefined,
+      destination_form: undefined,
+      source_description: undefined,
+      destination_description: undefined
     }
   }
   toggleDay(n, on){
@@ -64,6 +69,11 @@ class AddBackup extends React.Component{
     $(this.refs.sources).dropdown()
     $(this.refs.destination).dropdown()
     $(this.refs.time).dropdown()
+
+    if (this.props.backup.source)
+      this.handleSetSource(this.props.backup.source.component, this.props.backup.source.config)
+    if (this.props.backup.destination)
+      this.handleSetDestination(this.props.backup.destination.component, this.props.backup.destination.config)
   }
   prepare_backup(){
     return utils.merge( this.props.backup || {}, {
@@ -95,6 +105,30 @@ class AddBackup extends React.Component{
     console.log("Update backup %o", backup)
     this.props.onUpdateBackup(backup)
   }
+  handleSetSource(id, data){
+    console.log("Set source %s", id, data)
+    get_source_type(id)
+      .then( s => {
+        this.setState({
+            source_form: s.extra.params,
+            source_description: s.description
+          })
+        if (data)
+          this.setState({source: data})
+      }).catch( () => this.setState({source_form: [], source_description: ""}) )
+  }
+  handleSetDestination(id, data){
+    console.log("Set destination %s", id, data)
+    get_destination_type(id)
+      .then( s => {
+        this.setState({
+          destination_form: s.extra.params,
+          destination_description: s.description
+        })
+        if (data)
+          this.setState({destination: data})
+      }).catch( () => this.setState({destination_form: [], destination_description: ""}) )
+  }
   render(){
     const props=this.props
     const backup = props.backup || { schedule: { days: [], time: "03:00"} }
@@ -111,24 +145,53 @@ class AddBackup extends React.Component{
               />
           </div>
 
+          <div style={{paddingTop: 20}}/>
           <div className="field">
             <label>{i18n("Source")}</label>
-            <select ref="sources">
+            <select ref="sources" defaultValue={backup.source.component} onChange={(ev) => this.handleSetSource(ev.target.value)}>
+                <option>{i18n("Select a source type")}</option>
               {props.sources.map( s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           </div>
+          {this.state.source_form && (
+            <div className="ui left padding">
+              <div className="ui meta">
+                <MarkdownPreview value={this.state.source_description}/>
+              </div>
+              <GenericForm
+                fields={this.state.source_form}
+                data={this.state.source}
+                updateForm={(source) => this.setState({source})}
+                />
+            </div>
+          )}
 
+          <div style={{paddingTop: 40}}/>
           <div className="field">
             <label>{i18n("Destination")}</label>
-            <select ref="destination">
+            <select ref="destination" defaultValue={backup.destination.component} onChange={(ev) => this.handleSetDestination(ev.target.value)}>
+              <option>{i18n("Select destination type")}</option>
               {props.destinations.map( s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           </div>
+          {this.state.destination_form && (
+            <div className="ui left padding">
+              <div className="ui meta">
+                <MarkdownPreview value={this.state.destination_description}/>
+              </div>
+              <GenericForm
+                fields={this.state.destination_form}
+                data={this.state.destination}
+                updateForm={(destination) => this.setState({destination})}
+                />
+            </div>
+          )}
 
+          <div style={{paddingTop: 20}}/>
           <div className="field">
             <label>{i18n("Schedule")}</label>
             <div ref="schedule_days" style={{display:"flex", justifyContent:"space-between"}}>
