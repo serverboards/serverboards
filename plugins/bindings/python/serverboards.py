@@ -18,7 +18,7 @@ class RPC:
     def __init__(self, stdin, stdout):
         """
         Initilize the JSON-RPC communication object
-        
+
         This class allows to register methods, event handlers, timers and file
         descriptor handlers to ease the communication using JSON-RPC.
 
@@ -49,6 +49,7 @@ class RPC:
         self.subscription_id=1
         self.pending_events_queue=[]
         self.last_rpc_id=0
+        self.async_cb={} # id to callback when receiving asynchornous responses
 
         class WriteToLog:
           """
@@ -56,7 +57,7 @@ class RPC:
           """
           def __init__(self, rpc):
             """
-            Initializes the object that will use the given rpc object to write 
+            Initializes the object that will use the given rpc object to write
             logging data.
             """
             self.rpc=rpc
@@ -106,7 +107,7 @@ class RPC:
 
     def __decorate_log(self, extra, level=2):
         """
-        Helper that decorates the given log messages with data of which function, line 
+        Helper that decorates the given log messages with data of which function, line
         and file calls the log.
         """
         import inspect
@@ -140,9 +141,9 @@ class RPC:
 
     def debug_stdout(self, x):
         """
-        Helper that writes to stderr some message. 
-        
-        It adds the required \\r at the line start, as elixir/erlang removes them on 
+        Helper that writes to stderr some message.
+
+        It adds the required \\r at the line start, as elixir/erlang removes them on
         externals processes / ports. Also adds the current PID to ease debugging,
         as diferent calls to the same command will have diferent pids.
 
@@ -235,7 +236,7 @@ class RPC:
         """
         Ener into the read remote loop.
 
-        This loop also perform the timers watch and extra fds select. 
+        This loop also perform the timers watch and extra fds select.
         """
         prev_status=self.loop_status
         self.loop_status='IN'
@@ -317,11 +318,11 @@ class RPC:
         """
         Adds a timer to the rpc object
 
-        After the given interval the continuation object will be called. 
-        The timer is not rearmed; it must be added again by the caller if 
+        After the given interval the continuation object will be called.
+        The timer is not rearmed; it must be added again by the caller if
         desired.
 
-        Tis timers are not in realtime, and may be called well after the 
+        Tis timers are not in realtime, and may be called well after the
         timer expires, if the process is performing other actions, but will be
         called as soon as possible.
 
@@ -350,7 +351,7 @@ class RPC:
 
     def loop_stop(self, debug=True):
         """
-        Forces loop stop on next iteration. 
+        Forces loop stop on next iteration.
 
         This can be used to force program stop, although normally
         serverboards will emit a SIGSTOP signal to stop processes when
@@ -373,18 +374,28 @@ class RPC:
         This internal function is used to do the real writing to the
         othe rend, as in some conditions it ma be delayed.
         """
-        self.last_rpc_id=rpc.get("id")
-        res=self.call_local(rpc)
-        if res: # subscription do not give back response
-            if res.get("id") not in self.manual_replies:
+        self.last_rpc_id=id=rpc.get("id")
+        if 'error' in rpc or 'result' in rpc:
+            if id in self.async_cb:
                 try:
-                    self.println(json.dumps(res))
+                    self.async_cb[id]()
                 except Exception as e:
                     self.log_traceback(e)
-                    sys.stderr.write(repr(res)+'\n')
-                    self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                del self.async_cb[id]
             else:
-                self.manual_replies.discard(res.get("id"))
+                self.error("Unexpected result code %d"%(id))
+        else:
+            res=self.call_local(rpc)
+            if res: # subscription do not give back response
+                if res.get("id") not in self.manual_replies:
+                    try:
+                        self.println(json.dumps(res))
+                    except Exception as e:
+                        self.log_traceback(e)
+                        sys.stderr.write(repr(res)+'\n')
+                        self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                else:
+                    self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
         """
@@ -432,7 +443,7 @@ class RPC:
         self.manual_replies.add(self.last_rpc_id)
         self.println(json.dumps({"id": self.last_rpc_id, "result": result}))
 
-    def call(self, method, *params, **kwparams):
+    def call(self, method, *params, _async=False, **kwparams):
         """
         Calls a method on the other side and waits until answer.
 
@@ -442,20 +453,27 @@ class RPC:
         2. If not, queues it to be processed wehn loop is called
 
         This allows to setup the environment.
+
+        Optional arguments:
+         * _async -- Set to a callback to be called when the answer is received.
+                     Makes the call asynchronous.
         """
         assert not params or not kwparams, "Use only *params(%s) or only **kwparams(%s)"%(params, kwparams)
         id=self.send_id
         self.send_id+=1
         rpc = json.dumps(dict(method=method, params=params or kwparams, id=id))
         self.println(rpc)
+        if _async: # Will get answer later calling the _async callback
+            self.async_cb[id]=_async
+            return
         return self.inner_loop(id, method=method)
 
     def inner_loop(self, id, method=None):
         """
-        Performs an inner loop to be done whiel calling into the server.
+        Performs an inner loop to be done while calling into the server.
         It is as the other loop, but until it get the proper reply.
 
-        Requires the id of the reply to wait for, and the name of the mehtod for
+        Requires the id of the reply to wait for, and the name of the method for
         error reporting.
         """
         while True: # mini loop, may request calls while here
@@ -479,6 +497,12 @@ class RPC:
                         if rpc["error"]=="unknown_method":
                             raise Exception("unknown_method %s"%(method))
                         raise Exception(rpc["error"])
+                elif id in self.async_cb:
+                    try:
+                        self.async_cb[id]()
+                    except Exception as e:
+                        self.log_traceback(e)
+                    del self.async_cb[id]
                 else:
                     self.debug_stdout("Keep it for later, im waiting for %s"%id)
                     self.replyq[rpc['id']]=rpc
@@ -573,24 +597,24 @@ def rpc_method(f):
 def __dir():
     """
     Returns the list of all registered methods.
-    
+
     Normally used by the other endpoint.
     """
     return list( rpc.rpc_registry.keys() )
 
 def loop(debug=None):
     """
-    Wrapper to easily start rpc loop 
+    Wrapper to easily start rpc loop
 
     It allows setting the debug flag/file here.
 
     # Parameters
-    
+
     param | type       | description
     ------|------------|------------
     debug | bool\|file | Whether to debug to stderr, or to another file object
 
-    
+
     """
     if debug:
         rpc.set_debug(debug)
@@ -676,7 +700,7 @@ class Config:
         """
         Gets the absolute path of a local file for this plugin.
 
-        This uses the serverboards configured local storage for the current plugin 
+        This uses the serverboards configured local storage for the current plugin
         """
         p=os.path.join(self.path, filename)
         if not p.startswith(self.path):
