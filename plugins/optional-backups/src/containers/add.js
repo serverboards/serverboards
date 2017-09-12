@@ -3,6 +3,20 @@ const {Loading} = Serverboards.Components
 
 import View from '../components/add'
 
+const EMPTY_BACKUP = {
+  source: {
+    component:null,
+    config:{}
+  },
+  destination: {
+    component:null,
+    config:{}
+  },
+  schedule: {
+    days: [],
+    time: "03:30"
+  }
+}
 // from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
 function uuidv4() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -32,7 +46,10 @@ class AddBackup extends React.Component{
   }
   render(){
     return (
-      <View {...this.props} {...this.state} onAddBackup={(b) => this.handleAddBackup(b)}/>
+      <View {...this.props} {...this.state}
+        backup={EMPTY_BACKUP}
+        onAddBackup={(b) => this.handleAddBackup(b)}
+      />
     )
   }
 }
