@@ -34,7 +34,7 @@ function Backup({backup, className, onClick}){
             {size.size.toFixed(2)} <span className="ui big text">{size.unit}</span>
           </div>
         ) : (
-          <div className="ui centered huge yellow text" style={{paddingTop: 10}}>
+          <div className="ui centered huge grey text" style={{paddingTop: 10}}>
             0.00 <span className="ui big text">B</span>
           </div>
         )}

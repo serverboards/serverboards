@@ -11,10 +11,18 @@ function Details(props){
       <div className="ui expand">
         {backup.status == "ok" ? (
           <div className="ui attached colored top menu green background">
+            <a onClick={props.doBackup}>
+              <i className="icon play"/>
+            </a>
             <h3 className="ui header centered stretch white text">{i18n("Backup succesfully done")}</h3>
           </div>
         ) : (
           <div className="ui attached colored top menu red background">
+            <div className="ui menu">
+              <a onClick={props.doBackup} className="item">
+                <i className="icon play"/>
+              </a>
+            </div>
             <h3 className="ui header centered stretch white text">{i18n("Error on backup")}</h3>
           </div>
         )}
@@ -25,9 +33,15 @@ function Details(props){
             <div>{i18n("Completed on: ")}<b>{backup.completed_date}</b></div>
           </div>
           <div className="six wide column">
-            <div className="ui centered huge blue text" style={{paddingTop: 10}}>
-              {size.size.toFixed(2)} <span className="ui big big text">{size.unit}</span>
-            </div>
+            {size.size ? (
+              <div className="ui centered huge blue text" style={{paddingTop: 10}}>
+                {size.size.toFixed(2)} <span className="ui big text">{size.unit}</span>
+              </div>
+            ) : (
+              <div className="ui centered huge grey text" style={{paddingTop: 10}}>
+                0.00 <span className="ui big text">B</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="ui divider"/>
