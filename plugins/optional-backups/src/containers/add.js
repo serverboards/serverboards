@@ -10,30 +10,13 @@ function uuidv4() {
   )
 }
 
-
 class AddBackup extends React.Component{
-  constructor(props){
-    super(props)
-
-    this.state = {
-      sources: undefined,
-      destinations: undefined
-    }
-  }
-  componentDidMount(){
-    rpc
-      .call("plugin.component.catalog", {type: "backup source"})
-      .then( sources => this.setState({sources}))
-    rpc
-      .call("plugin.component.catalog", {type: "backup destination"})
-      .then( destinations => this.setState({destinations}))
-  }
   handleAddBackup(backup){
     const uuid = uuidv4()
     rpc
       .call("plugin.data.update", ["serverboards.optional.backups", `${this.props.project}-${uuid}`, backup])
       .then(() => {
-        if (backup.days==[]){
+        if (backup.schedule.days.length==0){
           Flash.warning(i18n("Added *{name}* backup, but as it has not any day enabled it is effectively disabled", {name: backup.name}))
         }
         else{
@@ -47,10 +30,6 @@ class AddBackup extends React.Component{
       })
   }
   render(){
-    if (!this.state.sources || !this.state.destinations)
-      return(
-        <Loading>{i18n("Available destinations and sources")}</Loading>
-      )
     return (
       <View {...this.props} {...this.state} onAddBackup={(b) => this.handleAddBackup(b)}/>
     )

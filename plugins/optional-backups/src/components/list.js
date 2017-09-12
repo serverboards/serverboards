@@ -1,29 +1,43 @@
 const {i18n, React, utils, Components} = Serverboards
-import Details from './details'
+import DetailsTab from './detailstab'
 import {calculate_size} from '../utils'
 
 function Backup({backup, className, onClick}){
   const size = calculate_size(backup.size)
+
+  const status = backup.status || "pending"
 
   return (
     <div className={`ui narrow card ${className || ""}`} onClick={onClick} style={onClick && {cursor:"pointer"}}>
       <div className="header">
         <i className="ui pink disk outline icon"/>
         <div className="ui right text label">
-          {backup.status}
-          <span className={`ui rectangular label ${utils.colorize(backup.status || "")}`}/>
+          {status}
+          <span className={`ui rectangular label ${utils.colorize(status || "")}`}/>
         </div>
       </div>
       <div className="content">
         <h3 className="ui header" style={{marginBottom: 0}}>{backup.name}</h3>
         <div className="ui meta">{backup.description}</div>
-        <div>
-          <div>{i18n("Completed on:")}</div>
-          <b>{backup.completed_date}</b>
-        </div>
-        <div className="ui centered huge blue text" style={{paddingTop: 10}}>
-          {size.size.toFixed(2)} <span className="ui big text">{size.unit}</span>
-        </div>
+        {backup.completed_date ? (
+          <div>
+            <div>{i18n("Completed on:")}</div>
+            <b>{backup.completed_date}</b>
+          </div>
+        ) : (
+          <div>
+            <div>{i18n("Backup pending")}</div>
+          </div>
+        )}
+        {size.size ? (
+          <div className="ui centered huge blue text" style={{paddingTop: 10}}>
+            {size.size.toFixed(2)} <span className="ui big text">{size.unit}</span>
+          </div>
+        ) : (
+          <div className="ui centered huge yellow text" style={{paddingTop: 10}}>
+            0.00 <span className="ui big text">B</span>
+          </div>
+        )}
       </div>
       <div className="extra content">
         <div className="ui input checkbox toggle">
@@ -69,7 +83,7 @@ function List(props){
       <div className="ui column">
         <div className="ui white background round pane">
           {current ? (
-            <Details backup={current}/>
+            <DetailsTab backup={current}/>
           ) : (
             <Components.Tip
               className="padding"

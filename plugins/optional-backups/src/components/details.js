@@ -4,9 +4,9 @@ import {calculate_size} from '../utils'
 function Details(props){
   const {backup} = props
   const size = calculate_size(backup.size)
+  const section = "details"
 
   return (
-    <div className="ui expand with right side menu">
       <div className="ui expand">
         {backup.status == "ok" ? (
           <div className="ui attached colored top menu green background">
@@ -47,20 +47,8 @@ function Details(props){
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Time")}</h3>
             <div>{backup.schedule.time}</div>
           </div>
-
         </div>
       </div>
-      <div className="ui side menu">
-        <a className="item"><i className="ui edit icon"></i></a>
-        <a className="item"><i className="ui file text outline icon"></i></a>
-        <a className="item">
-          <i className="icons">
-            <i className="ui file text outline icon"></i>
-            <i className="ui corner wait icon"/>
-          </i>
-          </a>
-      </div>
-    </div>
   )
 }
 
