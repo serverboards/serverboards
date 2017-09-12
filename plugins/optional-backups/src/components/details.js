@@ -1,5 +1,6 @@
 const {i18n, React, utils} = Serverboards
 import {calculate_size} from '../utils'
+const {MarkdownPreview} = Serverboards.Components
 
 function Details(props){
   const {backup} = props
@@ -20,7 +21,7 @@ function Details(props){
         <div className="ui grid with padding" style={{margin: 0}}>
           <div className="ten wide column">
             <h2 className="ui header">{backup.name}</h2>
-            <div>{backup.description}</div>
+            <MarkdownPreview value={backup.description}/>
             <div>{i18n("Completed on: ")}<b>{backup.completed_date}</b></div>
           </div>
           <div className="six wide column">

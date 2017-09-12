@@ -143,7 +143,7 @@ class AddBackup extends React.Component{
             <label>{i18n("Time")}</label>
             <select ref="time" defaultValue={backup.schedule.time || "03:00"}>
               {TIMES.map( t => (
-                <option value={t}>{t}</option>
+                <option key={t} value={t}>{t}</option>
               ))}
             </select>
           </div>

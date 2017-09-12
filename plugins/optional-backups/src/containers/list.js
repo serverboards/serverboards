@@ -26,6 +26,12 @@ class List extends React.Component{
                 }  )
             } ) )
     }
+    updateBackup(backup){
+      let backups = this.state.backups.map(
+        b => (b.id == backup.id) ? backup : b
+      )
+      this.setState({backups})
+    }
     render(){
       const mode = store.getState().routing.locationBeforeTransitions.pathname.endsWith("/add")  ? "add" : "list"
 
@@ -40,6 +46,7 @@ class List extends React.Component{
               backups={this.state.backups}
               current={this.state.current}
               setCurrent={(current) => this.setState({current})}
+              updateBackup={this.updateBackup.bind(this)}
               />
           )
         case "add":

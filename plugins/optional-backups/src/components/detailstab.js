@@ -5,7 +5,12 @@ import Edit from '../containers/edit'
 class DetailsTab extends React.Component{
   constructor(props){
     super(props)
-    this.state={tab: "details"}
+    this.state={tab: "details", backup: props.backup}
+  }
+  gotoTab(tab, backup){
+    this.setState({tab})
+    if (backup)
+      this.props.updateBackup(backup)
   }
   render(){
     const props = this.props
@@ -23,7 +28,13 @@ class DetailsTab extends React.Component{
 
     return (
       <div className="ui expand with right side menu">
-        <Section key={props.backup.id} {...props}/>
+
+        <Section
+          key={props.backup.id}
+          gotoTab = {this.gotoTab.bind(this)}
+          {...props}
+          />
+
         <div className="ui side menu">
           <a className={`item ${section == "edit" ? "active" : ""}`}
              data-tooltip={i18n("Edit")}

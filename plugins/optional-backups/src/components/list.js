@@ -18,7 +18,7 @@ function Backup({backup, className, onClick}){
       </div>
       <div className="content">
         <h3 className="ui header" style={{marginBottom: 0}}>{backup.name}</h3>
-        <div className="ui meta">{backup.description}</div>
+        <div className="ui meta">{(backup.description || "").split('\n')[0]}</div>
         {backup.completed_date ? (
           <div>
             <div>{i18n("Completed on:")}</div>
@@ -83,7 +83,7 @@ function List(props){
       <div className="ui column">
         <div className="ui white background round pane">
           {current ? (
-            <DetailsTab backup={current}/>
+            <DetailsTab backup={current} updateBackup={props.updateBackup}/>
           ) : (
             <Components.Tip
               className="padding"

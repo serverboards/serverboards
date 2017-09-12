@@ -22,8 +22,9 @@ class EditBackup extends React.Component{
       .then( destinations => this.setState({destinations}))
   }
   handleUpdateBackup(backup){
+    const props = this.props
     rpc
-      .call("plugin.data.update", ["serverboards.optional.backups", backup.id, b])
+      .call("plugin.data.update", ["serverboards.optional.backups", backup.id, backup])
       .then( () => {
         if (backup.schedule.days.length==0){
           Flash.warning(i18n("Update *{name}* backup, but as it has not any day enabled it is effectively disabled", {name: backup.name}))
@@ -31,8 +32,7 @@ class EditBackup extends React.Component{
         else{
           Flash.success(i18n("Backup *{name}* updated.", {name: backup.name}))
         }
-        const location = store.getState().routing.locationBeforeTransitions.pathname
-        store.goto(location.slice(0, location.length-3))
+        props.gotoTab && props.gotoTab("details", backup)
       })
   }
   render(){
