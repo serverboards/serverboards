@@ -46,23 +46,22 @@ function Details(props){
             text={i18n("Error on backup")}
             />
         )}
-        <div className="ui grid with padding" style={{margin: 0}}>
-          <div className="ten wide column">
-            <h2 className="ui header">{backup.name}</h2>
-            <MarkdownPreview value={backup.description}/>
-            <div>{i18n("Completed on: ")}<b>{backup.completed_date}</b></div>
-          </div>
-          <div className="six wide column">
+        <div className="ui  padding" style={{margin: 0}}>
+          <div className="ui floating right">
             {size.size ? (
-              <div className="ui centered huge blue text" style={{paddingTop: 10}}>
+              <div className="ui centered huge blue text padding top">
                 {size.size.toFixed(2)} <span className="ui big text">{size.unit}</span>
               </div>
             ) : (
-              <div className="ui centered huge grey text" style={{paddingTop: 10}}>
+              <div className="ui centered huge grey text padding top">
                 0.00 <span className="ui big text">B</span>
               </div>
             )}
           </div>
+
+          <h2 className="ui header">{backup.name}</h2>
+          <MarkdownPreview value={backup.description}/>
+          <div className="ui padding top">{i18n("Completed on: ")}<b>{backup.completed_date}</b></div>
         </div>
         <div className="ui divider"/>
         <div className="ui extend with scroll and padding">
