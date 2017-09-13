@@ -14,6 +14,7 @@ components:
     type: cmd
     command: serverboards_backups.py
     timeout: 1d
+    strategy: singleton
     name: Backup Manager Process
     perms: service.get plugin
 
@@ -27,7 +28,7 @@ components:
   - id: backup.now
     type: action
     name: Backup now
-    command: serverboards.optional.backups/backup.ssh
+    command: serverboards.optional.backups/backup
     call:
       method: backup_now
       params:
@@ -42,8 +43,8 @@ components:
     type: backup source
     command: serverboards.optional.backups/backup.ssh
     read_source: read_source
-    name: SSH remote file system
-    description: Backup any file or directory accesible from a remote SSH service
+    name: SSH remote file
+    description: Backup any file from a remote SSH service
     resume: "{{service.url}}:{{path}}"
     params:
       - name: service
@@ -53,7 +54,25 @@ components:
       - name: path
         type: text
         label: Path to backup
-        description: Absolute path to the file or directory to backup
+        description: Absolute path to the file
+
+  - id: backup.ssh.source.tar
+    type: backup source
+    command: serverboards.optional.backups/backup.ssh
+    read_source: read_source_tar
+    name: SSH remote directory
+    description: Backup a full directory accesible from a remote SSH service into a .tgz file.
+    resume: "{{service.url}}:{{path}}"
+    params:
+      - name: service
+        type: service
+        traits: ssh
+        label: SSH Server
+      - name: path
+        type: text
+        label: Path to backup
+        description: Absolute path to the directory to backup
+
 
   - id: backup.ssh.destination
     type: backup destination

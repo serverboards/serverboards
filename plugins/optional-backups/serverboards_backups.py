@@ -45,9 +45,11 @@ class Backup:
 
         self.fifofile = os.path.join(TMPDIR, str(uuid.uuid4()))
         print("Backup %s at %s"%(job["id"], self.fifofile))
-        os.mkfifo(self.fifofile, 0o0700)
+        os.mkfifo(self.fifofile, 0o0600)
         source_job = self.read_source(self.fifofile, source["config"], _async=self.source_done)
+        print("Source working...")
         destination_job = self.write_destination(self.fifofile, destination["config"], _async=self.destination_done)
+        print("Destination working...")
 
     def source_done(self):
         print("source done")
