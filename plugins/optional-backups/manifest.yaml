@@ -13,10 +13,10 @@ components:
   - id: backup
     type: cmd
     command: serverboards_backups.py
-    timeout: 1d
+    timeout: 30s
     strategy: singleton
     name: Backup Manager Process
-    perms: service.get plugin
+    perms: service.get plugin event.emit
 
   - id: backup.ssh
     type: cmd

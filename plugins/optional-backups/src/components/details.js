@@ -2,6 +2,19 @@ const {i18n, React, utils} = Serverboards
 import {calculate_size} from '../utils'
 const {MarkdownPreview} = Serverboards.Components
 
+function TopBar({text, color, onDoBackup}){
+  return (
+    <div className={`ui attached colored top menu ${color} background`}>
+      <div className="ui menu">
+        <a onClick={onDoBackup} className={`item ${onDoBackup ? "" : "disabled"}`}>
+          <i className="icon play"/>
+        </a>
+      </div>
+      <h3 className="ui header centered stretch white text">{text}</h3>
+    </div>
+  )
+}
+
 function Details(props){
   const {backup} = props
   const size = calculate_size(backup.size)
@@ -10,23 +23,28 @@ function Details(props){
   return (
       <div className="ui expand">
         {backup.status == "ok" ? (
-          <div className="ui attached colored top menu green background">
-            <div className="ui menu">
-              <a onClick={() => props.onRunBackup(props.backup)} className="item">
-                <i className="icon play"/>
-              </a>
-            </div>
-            <h3 className="ui header centered stretch white text">{i18n("Backup succesfully done")}</h3>
-          </div>
+          <TopBar
+            color="green"
+            onDoBackup={() => props.onRunBackup(props.backup)}
+            text={i18n("Backup succesfully done")}
+            />
+        ) : backup.status == "running" ? (
+          <TopBar
+            color="blue"
+            text={i18n("Backup in progress...")}
+            />
+        ) : backup.status == "pending" || backup.status == undefined ? (
+          <TopBar
+            color="yellow"
+            onDoBackup={() => props.onRunBackup(props.backup)}
+            text={i18n("Pending")}
+            />
         ) : (
-          <div className="ui attached colored top menu red background">
-            <div className="ui menu">
-              <a onClick={() => props.onRunBackup(props.backup)} className="item">
-                <i className="icon play"/>
-              </a>
-            </div>
-            <h3 className="ui header centered stretch white text">{i18n("Error on backup")}</h3>
-          </div>
+          <TopBar
+            color="red"
+            onDoBackup={() => props.onRunBackup(props.backup)}
+            text={i18n("Error on backup")}
+            />
         )}
         <div className="ui grid with padding" style={{margin: 0}}>
           <div className="ten wide column">

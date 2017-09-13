@@ -33,8 +33,15 @@ function Backup({backup, className, onClick}){
           <div className="ui centered huge blue text" style={{paddingTop: 10}}>
             {size.size.toFixed(2)} <span className="ui big text">{size.unit}</span>
           </div>
-        ) : backup.status=="error" ? (
+        ) : status=="error" ? (
           <Components.Error>{i18n("Backup error")}</Components.Error>
+        ) : status=="running" ? (
+          <div style={{paddingTop:20}}>
+            <div className="ui text teal small header">{i18n("Backup in progress...")}</div>
+            <div className="ui teal active progress">
+              <div className="bar" style={{transitionDuration: "300ms", width: "100%"}}/>
+            </div>
+          </div>
         ) : (
           <div className="ui centered huge grey text" style={{paddingTop: 10}}>
             0.00 <span className="ui big text">B</span>

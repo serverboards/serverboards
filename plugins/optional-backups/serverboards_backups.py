@@ -11,6 +11,8 @@ try:
 except:
     pass
 
+print(rpc.call("dir"))
+
 def get_backup_fn(component, type):
     s = serverboards.plugin.component.catalog(id=component)[0]
     print(s, type)
@@ -39,6 +41,7 @@ def datetime_now():
 class Backup:
     def __init__(self, job):
         self.job=job
+        self.project=job["id"].split('-')[0]
         self.fifofile = None
         source = job["source"]
         destination = job["destination"]
@@ -91,6 +94,7 @@ class Backup:
     def update_job(self, **kwargs):
         self.job.update(kwargs)
         rpc.call("plugin.data.update", self.job["id"], self.job)
+        serverboards.rpc.event("event.emit", "serverboards.core.backup.updated[%s]"%self.project, self.job)
 
     def __del__(self):
         if self.fifofile:

@@ -1,4 +1,4 @@
-const {store, i18n, rpc, utils, Flash, React} = Serverboards
+const {store, i18n, rpc, utils, event, Flash, React} = Serverboards
 const {Error, Loading} = Serverboards.Components
 
 import BackupMenu from '../components/menu'
@@ -11,6 +11,11 @@ class List extends React.Component{
       this.state={
         current: undefined,
         backups: undefined
+      }
+      this.updateBackupFromCore = (backup) => {
+        console.log("Got backup update %o", backup)
+        const backups = this.state.backups.map( b => b.id==backup.id ? backup : b )
+        this.setState({backups})
       }
     }
     componentDidMount(){
@@ -25,6 +30,13 @@ class List extends React.Component{
                   return utils.merge(b, { id })
                 }  )
             } ) )
+      console.log("Subscribe to ", `serverboards.core.backup.updated[${this.props.project}]`)
+      event
+        .on(`serverboards.core.backup.updated[${this.props.project}]`, this.updateBackupFromCore)
+    }
+    componentWillUnmount(){
+      console.log("Desubscribing from changes")
+      event.off(`serverboards.core.backup.updated[${this.props.project}]`, this.updateBackupFromCore)
     }
     updateBackup(backup){
       let backups = this.state.backups.map(
