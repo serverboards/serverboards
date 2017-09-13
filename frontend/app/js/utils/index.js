@@ -1,5 +1,8 @@
 import moment from 'moment'
 import {i18n, i18n_c, i18n_nop} from 'app/utils/i18n'
+import templates from './templates'
+
+export {templates}
 
 /// Convert a list of key,value into an object
 export function to_map(l){
