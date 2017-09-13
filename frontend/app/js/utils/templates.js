@@ -18,13 +18,19 @@ export function render(template, vars){
     return find_var(v.slice(1), vars[v[0]])
   }
   function vars_replacer(total, _, name){
-    console.log("Find and replace: %s in %s", total, JSON.stringify(vars))
     if (total[0]=='\\')
       return total.slice(1)
-    const ret = find_var(name.split('.'), vars)
-    if (ret == undefined)
+    try{
+      const ret = find_var(name.split('.'), vars)
+      if (ret == undefined)
+        return `{{${name}}}`
+      return ret
+    }
+    catch(e){
       return `{{${name}}}`
-    return ret
+    }
   }
   return template.replace(HANDLEBARS_RE, vars_replacer)
 }
+
+export default {render, render_promise}

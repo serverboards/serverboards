@@ -19,6 +19,10 @@ describe("Templates", () => {
   it("Unknown marks leave as is", () => {
     assert.equal( render("Hello {{world}}", {}), "Hello {{world}}")
     assert.equal( render("Hello {{a.world}}", {a:10}), "Hello {{a.world}}")
+    assert.equal(
+      render("Hello {{b.world}}", {}),
+      "Hello {{b.world}}"
+    )
   })
   it("Can scape {{ }} with \\", () => {
     assert.equal( render("Hello \\{{world}}", {world: "world!"}), "Hello {{world}}")
