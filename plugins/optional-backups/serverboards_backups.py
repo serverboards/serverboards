@@ -3,7 +3,7 @@
 import sys, os, sys, uuid
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-from serverboards import print, plugin, Plugin
+from serverboards import print, plugin, Plugin, rpc
 
 TMPDIR="/tmp/.serverboards-backup/"
 try:
@@ -35,6 +35,7 @@ def get_backup_options(*args, **kwargs):
 
 class Backup:
     def __init__(self, job):
+        self.job=job
         self.fifofile = None
         source = job["source"]
         destination = job["destination"]
@@ -46,21 +47,36 @@ class Backup:
         self.fifofile = os.path.join(TMPDIR, str(uuid.uuid4()))
         print("Backup %s at %s"%(job["id"], self.fifofile))
         os.mkfifo(self.fifofile, 0o0600)
-        source_job = self.read_source(self.fifofile, source["config"], _async=self.source_done)
-        print("Source working...")
-        destination_job = self.write_destination(self.fifofile, destination["config"], _async=self.destination_done)
-        print("Destination working...")
+        self.source_job = self.read_source(self.fifofile, source["config"], _async=self.source_done)
+        self.destination_job = self.write_destination(self.fifofile, destination["config"], _async=self.destination_done)
 
-    def source_done(self):
-        print("source done")
+        self.source_size=None
+        self.destination_size=None
+        self.update_job(status="running", size=None)
+
+    def source_done(self, size):
+        self.source_size=size
+        if self.destination_size:
+            self.finished_backup()
         pass
-    def destination_done(self):
-        print("dest done")
-        pass
+    def destination_done(self, size):
+        self.destination_size=size
+        if self.source_size:
+            self.finished_backup()
+    def finished_backup(self):
+        if self.fifofile:
+            print("Unlink fifo (1)")
+            os.unlink(self.fifofile)
+            self.fifofile=None
+        self.update_job(status="success", size=self.destination_size)
+        del self
+    def update_job(self, **kwargs):
+        self.job.update(kwargs)
+        rpc.call("plugin.data.update", self.job["id"], self.job)
 
     def __del__(self):
         if self.fifofile:
-            print("Unlink fifo")
+            print("Unlink fifo (2)")
             os.unlink(self.fifofile)
 
 
