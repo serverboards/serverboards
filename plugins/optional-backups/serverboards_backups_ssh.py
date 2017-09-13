@@ -8,30 +8,30 @@ from serverboards import Plugin, print
 @serverboards.rpc_method
 def read_source(fifofile, config):
     print("Read from %s to %s"%(config, fifofile))
-    ssh = Plugin("serverboards.core.ssh/sshcmd")
-    ssh.run(service=config["service"], command=["cat", config["path"]], outfile=fifofile)
-    size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
-    print("Done, read %s"%size)
-    return size
+    with Plugin("serverboards.core.ssh/sshcmd") as ssh:
+        ssh.run(service=config["service"], command=["cat", config["path"]], outfile=fifofile)
+        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
+        print("Done, read %s"%size)
+        return size
 
 @serverboards.rpc_method
 def read_source_tar(fifofile, config):
     print("Read from %s to %s"%(config, fifofile))
-    ssh = Plugin("serverboards.core.ssh/sshcmd")
-    ssh.run(service=config["service"], command=["tar", "cz", config["path"]], outfile=fifofile)
-    size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
-    print("Done, read %s"%size)
-    return size
+    with Plugin("serverboards.core.ssh/sshcmd") as ssh:
+        ssh.run(service=config["service"], command=["tar", "cz", config["path"]], outfile=fifofile)
+        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
+        print("Done, read %s"%size)
+        return size
 
 
 @serverboards.rpc_method
 def write_destination(fifofile, config):
     print("Write to %s from %s"%(config, fifofile))
-    ssh = Plugin("serverboards.core.ssh/sshcmd")
-    ssh.run(service=config["service"], command=["cat", ">", config["path"]], infile=fifofile)
-    size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
-    print("Done, write %s"%size)
-    return size
+    with Plugin("serverboards.core.ssh/sshcmd") as ssh:
+        ssh.run(service=config["service"], command=["cat", ">", config["path"]], infile=fifofile)
+        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
+        print("Done, write %s"%size)
+        return size
 
 if 'test' in sys.argv:
     test()
