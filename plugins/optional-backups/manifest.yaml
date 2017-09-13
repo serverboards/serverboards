@@ -45,7 +45,7 @@ components:
     read_source: read_source
     name: SSH remote file
     description: Backup any file from a remote SSH service
-    resume: "{{service.url}}:{{path}}"
+    resume: "File at *{{service.config.url}}:{{path}}*"
     params:
       - name: service
         type: service
@@ -62,7 +62,7 @@ components:
     read_source: read_source_tar
     name: SSH remote directory
     description: Backup a full directory accesible from a remote SSH service into a .tgz file.
-    resume: "{{service.url}}:{{path}}"
+    resume: "Directory at *{{service.config.url}}:{{path}}*"
     params:
       - name: service
         type: service
@@ -79,7 +79,7 @@ components:
     command: serverboards.optional.backups/backup.ssh
     write_destination: write_destination
     name: SSH remote file system
-    resume: "{{service.url}}:{{path}}"
+    resume: "{{service.config.url}}:{{path}}"
     description: |
       Write backup to a remote SSH accesible server.
     params:

@@ -1,6 +1,7 @@
-const {i18n, React, utils} = Serverboards
+const {i18n, React, utils, cache} = Serverboards
 import {calculate_size} from '../utils'
 const {MarkdownPreview} = Serverboards.Components
+import {get_source_type, get_destination_type} from '../utils'
 
 function TopBar({text, color, onDoBackup}){
   return (
@@ -13,6 +14,36 @@ function TopBar({text, color, onDoBackup}){
       <h3 className="ui header centered stretch white text">{text}</h3>
     </div>
   )
+}
+
+class FutureTemplateLabel extends React.Component{
+  constructor(props){
+    super(props)
+
+    this.state = {
+      template: "...loading...",
+      data: props.data
+    }
+  }
+  componentDidMount(){
+    this.props.future_template().then( template => this.setState({template}))
+    if (this.props.future_data){
+      this.props.future_data()
+        .then( data => {
+          console.log("Got extra data %o", data)
+          data = utils.merge(this.props.data, data)
+          console.log("Final data %o", data)
+          this.setState({data})
+        })
+
+    }
+  }
+  render(){
+    console.log("Render data: %o", this.state.data)
+    return (
+      <MarkdownPreview value={utils.templates.render(this.state.template, this.state.data)}/>
+    )
+  }
 }
 
 function Details(props){
@@ -67,11 +98,21 @@ function Details(props){
         <div className="ui extend with scroll and padding">
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Source")}</h3>
-            <div>{backup.source.component}</div>
+            <FutureTemplateLabel
+              key={backup.source.component}
+              future_template={() => get_source_type(backup.source.component).then( t => t.extra.resume )}
+              data={backup.source.config}
+              future_data={() => cache.service( (backup.source.config || {}).service ).then( service => ({service}))}
+              />
           </div>
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Destination")}</h3>
-            <div>{backup.destination.component}</div>
+            <FutureTemplateLabel
+              key={backup.destination.component}
+              future_template={() => get_destination_type(backup.destination.component).then( t => t.extra.resume )}
+              data={backup.destination.config}
+              future_data={() => cache.service( (backup.destination.config || {}).service ).then( service => ({service}))}
+              />
           </div>
           <div>
             <h3 className="ui header" style={{margin:"10px 0 0 0"}}>{i18n("Scheduled days")}</h3>
