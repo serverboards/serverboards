@@ -54,6 +54,8 @@ def ssh_exec(url=None, command="test", options=None, service=None, outfile=None,
         serverboards.warning("ssh_exec options deprecated. Better use ssh_exec by ssh service uuid. Currently ignored.")
     if not command:
         raise Exception("Need a command to run")
+    if isinstance(command, str):
+        command=shlex.split(command)
     if url:
         serverboards.warning("ssh_exec by URL deprecated. Better use ssh_exec by ssh service uuid")
         (args, url) = url_to_opts(url)
@@ -68,8 +70,8 @@ def ssh_exec(url=None, command="test", options=None, service=None, outfile=None,
         precmd = []
     else:
         url, args, precmd = __get_service_url_and_opts(service)
-    args = args + ['--', precmd, command]
-    serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
+    args = args + ['--', precmd, *command]
+    serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     kwargs = {}
@@ -78,8 +80,7 @@ def ssh_exec(url=None, command="test", options=None, service=None, outfile=None,
         kwargs["_out"]=open(outfile,"w")
     if infile:
         assert infile.startswith("/tmp/") and not '..' in infile
-        kwargs["_out"]=open(infile,"w")
-
+        kwargs["_in"]=open(infile,"r")
     # Real call to SSH
     stdout=None
     try:
@@ -90,10 +91,9 @@ def ssh_exec(url=None, command="test", options=None, service=None, outfile=None,
     if outfile:
         kwargs["_out"].close()
     else:
-        stdout = result.stdout.encode('utf8')
+        stdout = result.stdout.decode('utf8')
     if infile:
         kwargs["_in"].close()
-
 
     if service:
         serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
