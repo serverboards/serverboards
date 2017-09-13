@@ -380,7 +380,7 @@ class RPC:
         if 'error' in rpc or 'result' in rpc:
             if id in self.async_cb:
                 try:
-                    self.async_cb[id]()
+                    self.async_cb[id](rpc.get("result"))
                 except Exception as e:
                     self.log_traceback(e)
                 del self.async_cb[id]
@@ -457,7 +457,8 @@ class RPC:
 
         Optional arguments:
          * _async -- Set to a callback to be called when the answer is received.
-                     Makes the call asynchronous.
+                     Makes the call asynchronous. callback receives the answer.
+                     It is called with response None in case of error.
         """
         assert not params or not kwparams, "Use only *params(%s) or only **kwparams(%s)"%(params, kwparams)
         id=self.send_id
