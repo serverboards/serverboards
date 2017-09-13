@@ -24,11 +24,11 @@ class List extends React.Component{
         .call("plugin.data.items", ["serverboards.optional.backups", `${this.props.project}-`])
         .then( backups =>
             this.setState({
-                backups: backups.map( idb => {
+                backups: utils.sort_by_name(backups.map( idb => {
                   let id = idb[0]
                   const b = idb[1]
                   return utils.merge(b, { id })
-                }  )
+                }  ) )
             } ) )
       console.log("Subscribe to ", `serverboards.core.backup.updated[${this.props.project}]`)
       event
