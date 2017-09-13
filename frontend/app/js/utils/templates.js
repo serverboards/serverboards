@@ -10,7 +10,7 @@ export function render(template, vars){
   if (!template)
     return ""
   if (vars == undefined)
-    return ""
+    return template
   function find_var(v, vars){
     if (v.length==0)
       return vars

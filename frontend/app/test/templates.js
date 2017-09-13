@@ -27,4 +27,7 @@ describe("Templates", () => {
   it("Can scape {{ }} with \\", () => {
     assert.equal( render("Hello \\{{world}}", {world: "world!"}), "Hello {{world}}")
   })
+  it("No vars, return the same template", () => {
+    assert.equal( render("Hello {{world}}", undefined),  "Hello {{world}}")
+  })
 })
