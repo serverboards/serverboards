@@ -9,7 +9,9 @@ def ellipsis_str(str, maxs=50):
   if len(str)<maxs:
     return str
   else:
-    return "%s...%s"%(str[:30], str[-20:])
+    firsth=int(maxs*3/4)
+    lasth=maxs-firsth
+    return "%s...%s"%(str[:firsth], str[-lasth:])
 
 class RPC:
     """
@@ -403,7 +405,6 @@ class RPC:
 
         This function allows for easy debugging and some error conditions.
         """
-        self.debug_stdout("> %s"%ellipsis_str(line, 50))
         try:
           self.stdout.write(line + '\n')
           self.stdout.flush()
@@ -731,8 +732,8 @@ class Plugin:
         def __init__(self, plugin, method):
             self.plugin=plugin
             self.method=method
-        def __call__(self, *args, **kwargs):
-            return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs)
+        def __call__(self, *args, _async=False, **kwargs):
+            return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs, _async=_async)
 
     def __init__(self, plugin_id, kill_and_restart = False):
         self.plugin_id = plugin_id
@@ -757,13 +758,13 @@ class Plugin:
         self.uuid = None
         return self
 
-    def call(self, method, *args, **kwargs):
+    def call(self, method, *args, _async=False, **kwargs):
         """
         Call a method by name.
 
         This is also a workaround calling methods called `call` and `stop`.
         """
-        return rpc.call("plugin.call", self.uuid, method, args or kwargs)
+        return rpc.call("plugin.call", self.uuid, method, args or kwargs, _async=_async)
 
     def __enter__(self):
       return self
