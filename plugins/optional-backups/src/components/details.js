@@ -30,16 +30,13 @@ class FutureTemplateLabel extends React.Component{
     if (this.props.future_data){
       this.props.future_data()
         .then( data => {
-          console.log("Got extra data %o", data)
           data = utils.merge(this.props.data, data)
-          console.log("Final data %o", data)
           this.setState({data})
         })
 
     }
   }
   render(){
-    console.log("Render data: %o", this.state.data)
     return (
       <MarkdownPreview value={utils.templates.render(this.state.template, this.state.data)}/>
     )
