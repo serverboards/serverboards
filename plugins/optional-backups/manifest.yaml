@@ -39,6 +39,20 @@ components:
             command: serverboards.optional.backups/backup
             call: get_backup_options
 
+  - id: backup.stop
+    type: action
+    name: Backup stop
+    command: serverboards.optional.backups/backup
+    call:
+      method: backup_stop
+      params:
+        - name: backup
+          type: select call
+          label: Backup
+          options:
+            command: serverboards.optional.backups/backup
+            call: get_backup_options
+
   - id: backup.ssh.source
     type: backup source
     command: serverboards.optional.backups/backup.ssh

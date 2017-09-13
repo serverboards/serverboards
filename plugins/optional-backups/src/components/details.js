@@ -3,12 +3,12 @@ import {calculate_size} from '../utils'
 const {MarkdownPreview} = Serverboards.Components
 import {get_source_type, get_destination_type} from '../utils'
 
-function TopBar({text, color, onDoBackup}){
+function TopBar({text, color, onDoBackup, icon}){
   return (
     <div className={`ui attached colored top menu ${color} background`}>
       <div className="ui menu">
         <a onClick={onDoBackup} className={`item ${onDoBackup ? "" : "disabled"}`}>
-          <i className="icon play"/>
+          <i className={`icon ${icon || "play"}`}/>
         </a>
       </div>
       <h3 className="ui header centered stretch white text">{text}</h3>
@@ -60,6 +60,8 @@ function Details(props){
           <TopBar
             color="blue"
             text={i18n("Backup in progress...")}
+            icon="stop"
+            onDoBackup={() => props.onStopBackup(props.backup)}
             />
         ) : backup.status == "pending" || backup.status == undefined ? (
           <TopBar

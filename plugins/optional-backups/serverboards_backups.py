@@ -27,6 +27,14 @@ def backup_now(backup):
     return bk.id
 
 @serverboards.rpc_method
+def backup_stop(backup):
+    backup=serverboards.plugin.data.get(backup)
+    backup.update({"status":"aborted", "size": None})
+    rpc.call("plugin.data.update", backup["id"], backup)
+    project=backup["id"].split('-')[0]
+    serverboards.rpc.event("event.emit", "serverboards.core.backup.updated[%s]"%project, backup)
+
+@serverboards.rpc_method
 def get_backup_options(*args, **kwargs):
     print(args, kwargs)
     backups = plugin.data.items("")

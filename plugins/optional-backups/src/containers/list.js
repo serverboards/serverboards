@@ -50,6 +50,12 @@ class List extends React.Component{
         .then(() => Flash.success(i18n("Starting *{name}* backup", {name: backup.name})))
         .catch( e => Flash.error(i18n("Error starting backup *{name}*: {e}", {name: backup.name, e})))
     }
+    handleStopBackup(backup){
+      console.log("Stop backup %o", backup)
+      rpc.call("action.trigger", ["serverboards.optional.backups/backup.stop", {backup: backup.id}])
+        .then(() => Flash.success(i18n("Stopping *{name}* backup", {name: backup.name})))
+        .catch( e => Flash.error(i18n("Error stopping backup *{name}*: {e}", {name: backup.name, e})))
+    }
     render(){
       const mode = store.getState().routing.locationBeforeTransitions.pathname.endsWith("/add")  ? "add" : "list"
 
@@ -66,6 +72,7 @@ class List extends React.Component{
               setCurrent={(current) => this.setState({current})}
               updateBackup={this.updateBackup.bind(this)}
               onRunBackup={this.handleRunBackup}
+              onStopBackup={this.handleStopBackup}
               />
           )
         case "add":
