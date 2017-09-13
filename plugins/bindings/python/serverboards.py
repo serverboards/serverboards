@@ -377,15 +377,22 @@ class RPC:
         othe rend, as in some conditions it ma be delayed.
         """
         self.last_rpc_id=id=rpc.get("id")
-        if 'error' in rpc or 'result' in rpc:
-            if id in self.async_cb:
-                try:
-                    self.async_cb[id](rpc.get("result"))
-                except Exception as e:
-                    self.log_traceback(e)
-                del self.async_cb[id]
-            else:
-                self.error("Unexpected result code %d"%(id))
+        self.debug_stdout(repr(rpc))
+        self.debug_stdout(repr(self.async_cb))
+        async_cb=self.async_cb.get(id) # Might be an asynchronous result or error
+        if async_cb:
+            error_cb = None # User can set only success condition, or a tuple with both
+            if type(async_cb)==tuple:
+                async_cb, error_cb = async_cb
+
+            try: # try to call the error or result handlers
+                if async_cb and 'result' in rpc:
+                    async_cb(rpc.get("result"))
+                elif error_cb and 'error' in rpc:
+                    error_cb(rpc.get("error"))
+            except Exception as e:
+                self.log_traceback(e)
+            del self.async_cb[id]
         else:
             res=self.call_local(rpc)
             if res: # subscription do not give back response
