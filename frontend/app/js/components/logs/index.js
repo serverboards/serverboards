@@ -208,7 +208,7 @@ const Logs = React.createClass({
 
     return (
       <div className="ui expand split vertical area">
-        <div className="ui serverboards stackable top seconday menu">
+        <div className="ui serverboards stackable top menu">
           <div className="ui item with info">
             <h3>{i18n("Logs")}</h3>
             <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
