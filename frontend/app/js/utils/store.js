@@ -131,7 +131,7 @@ export function set_modal(modal, data={}){
 
 export function goto(url, extradata={}){
   if (!url || url == ".")
-    url=store.getState().routing.locationBeforeTransitions.pathname
+    url=location().pathname
   store.dispatch( push( {
     pathname: url,
     state: extradata
@@ -140,6 +140,11 @@ export function goto(url, extradata={}){
 
 store.set_modal = set_modal
 store.goto = goto
+
+export function location(){
+  return store.getState().routing.locationBeforeTransitions
+}
+store.location = location
 
 function isPromise(p){
   return (p && typeof(p.then) == "function")

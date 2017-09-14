@@ -17,7 +17,7 @@ $blacktext: #333
   display: flex
   flex-direction: row
   align-items: center
-  width: 100%
+  width: calc( 100% - 1px )
   margin: 0
   z-index: 10
   border-radius: 0px
@@ -25,6 +25,10 @@ $blacktext: #333
   border-bottom: 1px solid #ccc
   box-shadow: none
   max-width: 100vw
+
+  &.stackable
+    flex-wrap: wrap
+    height: auto
 
   .micro.label
     font-size: 6px

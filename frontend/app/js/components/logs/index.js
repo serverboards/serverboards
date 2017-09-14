@@ -6,6 +6,7 @@ import Loading from '../loading'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import {merge} from 'app/utils'
 import Paginator from '../paginator'
+import store from 'app/utils/store'
 
 require('sass/table.sass')
 
@@ -163,7 +164,7 @@ const Logs = React.createClass({
   },
   setModal(modal, data={}){
     this.context.router.push( {
-      pathname: this.props.location.pathname,
+      pathname: store.location().pathname,
       state: { modal, data }
     } )
   },
@@ -194,7 +195,7 @@ const Logs = React.createClass({
       )
     }
     let popup=[]
-    const modal = this.props.location.state || {}
+    const modal = store.location().state || {}
     switch(modal.modal){
       case 'details':
         popup=(
@@ -206,8 +207,8 @@ const Logs = React.createClass({
     }
 
     return (
-      <div className="ui split vertical area">
-        <div className="ui top seconday menu">
+      <div className="ui expand split vertical area">
+        <div className="ui serverboards stackable top seconday menu">
           <div className="ui item with info">
             <h3>{i18n("Logs")}</h3>
             <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
@@ -226,7 +227,7 @@ const Logs = React.createClass({
             </div>
           </div>
           <div className="item stretch"/>
-          <div className="item" style={{marginTop:12}}>
+          <div className="item" style={{marginTop:12, marginBottom: 20}}>
             <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange} max={5}/>
           </div>
         </div>
@@ -234,7 +235,6 @@ const Logs = React.createClass({
 
         <div className="expand with scroll and padding">
           <div className="ui container">
-
             <table className="ui selectable table">
               <thead>
                 <tr>
