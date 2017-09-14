@@ -1,6 +1,7 @@
 const {i18n, React, utils} = Serverboards
 import Details from './details'
 import Edit from '../containers/edit'
+import Logs from './logs'
 
 class DetailsTab extends React.Component{
   constructor(props){
@@ -24,6 +25,9 @@ class DetailsTab extends React.Component{
       case "edit":
         Section = Edit
         break;
+      case "logs":
+        Section = Logs
+        break;
     }
 
     return (
@@ -36,19 +40,19 @@ class DetailsTab extends React.Component{
           />
 
         <div className="ui side menu">
-          <a className={`item ${section == "edit" ? "active" : ""}`}
-             data-tooltip={i18n("Edit")}
-             data-position="left center"
-             onClick={() => this.setState({tab:"edit"})}
-             >
-            <i className="ui edit icon"></i>
-          </a>
           <a className={`item ${section == "details" ? "active" : ""}`}
              data-tooltip={i18n("Details")}
              data-position="left center"
              onClick={() => this.setState({tab:"details"})}
              >
             <i className="ui file text outline icon"></i>
+          </a>
+          <a className={`item ${section == "edit" ? "active" : ""}`}
+             data-tooltip={i18n("Edit")}
+             data-position="left center"
+             onClick={() => this.setState({tab:"edit"})}
+             >
+            <i className="ui edit icon"></i>
           </a>
           <a className={`item ${section == "logs" ? "active" : ""}`}
              data-tooltip={i18n("Logs")}
