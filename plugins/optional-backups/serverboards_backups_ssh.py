@@ -3,7 +3,7 @@
 import sys, os, sys, uuid, re, datetime
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-from serverboards import Plugin #, print
+from serverboards import Plugin, print
 
 TEMPLATE_RE=re.compile(r"{{([\w.]*)}}")
 def render_template_with_dates(template):
