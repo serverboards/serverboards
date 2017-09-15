@@ -3,7 +3,7 @@ import {MarkdownPreview} from 'react-marked-markdown'
 
 function Tip(props){
   return (
-    <div className={`ui centered fill area ${props.className}`}>
+    <div className={`ui centered fill area ${props.className || ""}`}>
       {props.top_img && (
         <img src={props.top_img} style={{height: 150}}/>
       )}

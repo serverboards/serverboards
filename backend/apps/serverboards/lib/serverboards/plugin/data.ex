@@ -30,6 +30,11 @@ defmodule Serverboards.Plugin.Data do
       %{ plugin: pluginid, key: key, value: value},
       ["plugin.data[#{pluginid}]"]
       )
+    Serverboards.Event.emit(
+      "plugin.data_changed[#{pluginid}]",
+      %{ plugin: pluginid, key: key, value: value},
+      ["plugin.data"]
+      )
     :ok
   end
 
@@ -44,7 +49,7 @@ defmodule Serverboards.Plugin.Data do
         [prev] ->
           Repo.update(Model.Data.changeset( prev, changes ))
     end
-    Logger.debug("Data set: #{pluginid}/#{key}: #{inspect value} -> #{inspect ret}")
+    # Logger.debug("Data set: #{pluginid}/#{key}: #{inspect value} -> #{inspect ret}")
     ret
   end
   def data_set_real(pluginid, key, value) do

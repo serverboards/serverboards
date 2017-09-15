@@ -176,6 +176,9 @@ defmodule Serverboards.Issues.Issue do
     }
   end
 
+  # bad client, but happens sometimes
+  def get(nil), do: nil
+
   def get(id) when is_number(id) do
     import Ecto.Query
     case Repo.all( from i in Model.Issue, where: i.id == ^id, preload: [:events, :creator, :labels, :aliases] ) do
@@ -194,23 +197,20 @@ defmodule Serverboards.Issues.Issue do
     end
   end
   def get(id) do
-    [issue_id | _ ] = alias_to_ids(id)
-    get(issue_id)
+    case alias_to_ids(id) do
+      [issue_id | _ ] -> get(issue_id)
+      _ -> nil
+    end
   end
   def alias_to_ids(alias_id) when is_integer(alias_id) do
     [alias_id]
   end
   def alias_to_ids(alias_id) do
     import Ecto.Query
-    case Integer.parse(alias_id) do
-      { id, "" } ->
-        [id]
-      _ ->
-        Repo.all(
-          from a in Model.Alias,
-          join: i in Model.Issue, on: i.id == a.issue_id,
-          where: a.alias == ^alias_id and i.status=="open",
-          select: a.issue_id )
-    end
+    Repo.all(
+      from a in Model.Alias,
+      join: i in Model.Issue, on: i.id == a.issue_id,
+      where: a.alias == ^alias_id and i.status=="open",
+      select: a.issue_id )
   end
 end

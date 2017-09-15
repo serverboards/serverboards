@@ -47,7 +47,7 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command=["test"], options=None, service=None, debug=False):
+def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
@@ -70,31 +70,34 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, debug=False
         precmd = []
     else:
         url, args, precmd = __get_service_url_and_opts(service)
-    args = [*args, '--', *precmd, *command]
-    # serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(args), command))
+    args = args + [*args, '--', precmd, *command]
+    #serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
-    if debug:
-        print("Exec SSH: ssh '%s'"%("' '".join(args)))
-    sp=pexpect.spawn("/usr/bin/ssh", args)
-    running=True
-    while running:
-        ret=sp.expect([re.compile(b'^(.*)\'s password:'), pexpect.EOF])
-        data=sp.before
-        if ret==1:
-            running=False
-        elif ret==0:
-            if not url.password:
-                serverboards.error("Could not connect url %s, need password"%(repr(url)))
-                raise Exception("need_password")
-            sp.sendline(url.password)
-    sp.wait()
+    kwargs = {}
+    if outfile:
+        assert outfile.startswith("/tmp/") and not '..' in outfile # some security
+        kwargs["_out"]=open(outfile,"w")
+    if infile:
+        assert infile.startswith("/tmp/") and not '..' in infile
+        kwargs["_in"]=open(infile,"r")
+    # Real call to SSH
+    stdout=None
+    try:
+        result = sh.ssh(*args, **kwargs)
+    except Exception as e:
+        result = e
 
-    stdout = data.decode('utf8')
+    if outfile:
+        kwargs["_out"].close()
+    else:
+        stdout = result.stdout.decode('utf8')
+    if infile:
+        kwargs["_in"].close()
 
-    # if service:
-    #     serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
-    return {"stdout": stdout, "exit": sp.exitstatus}
+    if service:
+        serverboards.info("SSH Command executed %s:%s'"%(service, command), extra=dict(service_id=service, command=command))
+    return {"stdout": stdout, "exit": result.exit_code}
 
 sessions={}
 import uuid
@@ -381,7 +384,7 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
             return True
     check = Check()
     check.check_ok()
-    timer_id = serverboards.rpc.add_timer(period_s, check.check_ok)
+    timer_id = serverboards.rpc.add_timer(period_s, check.check_ok, rearm=True)
     serverboards.info("Start SSH script watch %s"%timer_id)
     return timer_id
 
@@ -454,12 +457,12 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         raise Exception(e.stderr)
 
 @serverboards.rpc_method
-def run(url=None, command=None, service=None, debug=True):
+def run(url=None, command=None, service=None, **kwargs):
     if url:
-        return ssh_exec(url=url, command=command, debug=True)
+        return ssh_exec(url=url, command=command, **kwargs)
     assert service and command
-    serverboards.info("Run %s:'%s'"%(service, command))
-    return ssh_exec(service=service, command=command, debug=True)
+    # serverboards.info("Run %s:'%s'"%(service, command))
+    return ssh_exec(service=service, command=command, **kwargs)
 
 @serverboards.rpc_method
 def popen(service_uuid, command, stdin=None, stdout=None):

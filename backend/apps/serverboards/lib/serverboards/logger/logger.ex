@@ -38,6 +38,15 @@ defmodule Serverboards.Logger do
         fragment("?->>'service_id' = ?", l.meta, ^id)
         )
     end
+    q = case options[:extra] do
+      nil -> q
+      extral ->
+        Enum.reduce(extral, q, fn {k,v}, acc ->
+          where(acc, [l],
+            fragment("?->>? = ?", l.meta, ^k, ^v)
+            )
+          end)
+    end
     q = case options[:q] do
       nil -> q
       query -> where(q, [l],

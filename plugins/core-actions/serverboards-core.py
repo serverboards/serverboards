@@ -110,6 +110,16 @@ def send_notification(email, subject, body, service=None, **extra):
 
     serverboards.rpc.call("notifications.create", email=email, subject=subject, body=body, extra=extra)
 
+@serverboards.rpc_method
+def open_or_comment_issue(**data):
+    if data.get("issue"):
+        issue = serverboards.issues.get(data.get("issue"))
+    else:
+        issue = None
+    if issue and issue["status"] == "open":
+        comment_issue(issue=data.get("issue"), comment=data.get("description"))
+    else:
+        open_issue(**data)
 
 @serverboards.rpc_method
 def open_issue(**data):
@@ -131,6 +141,10 @@ def open_issue(**data):
 
 @serverboards.rpc_method
 def close_issue(issue=None, **data):
+    if data.get("issue"):
+        issue = serverboards.issues.get(data.get("issue"))
+        if issue["status"] == "closed":
+            return # nothing to do
     from templating import render
     import json
     issue=render(issue, data)

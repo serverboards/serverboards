@@ -41,13 +41,12 @@ def install(fromd, tod):
 
     if 'template.postinst' in files:
         os.chdir(tod)
-        postinst = os.path.join(tod, 'template.postinst')
-        ok = os.system(postinst)
+        ok = os.system('./template.postinst')
         if ok != 0:
             print("Error executing the template postinst")
         else:
             print("Postinst OK")
-        os.unlink(postinst)
+        os.unlink('./template.postinst')
 
 if __name__=='__main__':
     if len(sys.argv)!=3:

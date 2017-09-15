@@ -13,10 +13,6 @@
     height: 100%
     width: 100%
     flex-grow: 1
-    > .expand, > .expand > .expand
-      max-height: 100%
-      display: flex
-      width: 100%
     > .ui.central
       display: flex
       flex-direction: column
@@ -33,3 +29,9 @@
 
   .top.secondary.menu
     position: inherit
+.expand
+    max-height: 100%
+    display: flex
+    width: 100%
+    flex-grow: 1
+    flex-direction: column

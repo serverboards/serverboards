@@ -9,7 +9,9 @@ def ellipsis_str(str, maxs=50):
   if len(str)<maxs:
     return str
   else:
-    return "%s...%s"%(str[:30], str[-20:])
+    firsth=int(maxs*3/4)
+    lasth=maxs-firsth
+    return "%s...%s"%(str[:firsth], str[-lasth:])
 
 class RPC:
     """
@@ -49,6 +51,7 @@ class RPC:
         self.subscription_id=1
         self.pending_events_queue=[]
         self.last_rpc_id=0
+        self.async_cb={} # id to callback when receiving asynchornous responses
 
         class WriteToLog:
           """
@@ -207,7 +210,7 @@ class RPC:
         for example processing data from one event, do some remote call, another
         event arrives, and finished before the first.
 
-        This is a real ase of race condition writing to a file.
+        This is a real case of race condition writing to a file.
 
         The code here avoids the situation making events not reentrable; if
         processing an event, it queues newer to be delivered later.
@@ -215,8 +218,9 @@ class RPC:
         do_later = len(self.pending_events_queue) > 0
         self.pending_events_queue.append( (method, args, kwargs) )
         if do_later:
+            self.debug("No emit %s yet, as processing something else"%method)
             return
-        #self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
+        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         # do all the items on the queue
         while len(self.pending_events_queue)>0:
           (method, args, kwargs) = self.pending_events_queue[0]
@@ -250,11 +254,13 @@ class RPC:
         while self.loop_status=='IN':
             #self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
             if self.timers:
-                next_timeout, timeout_id, timeout, timeout_cont=min(self.timers.values())
-                next_timeout-=time.time()
+                timer=min(self.timers.values(), key=lambda x:x.next)
+                next_timeout=timer.next - time.time()
             else:
-                next_timeout, timeout_id, timeout, timeout_cont=None, None, None, None
+                timer = None
+                next_timeout = None
 
+            # self.debug("Next timeout", next_timeout, timeout_id)
             if not next_timeout or next_timeout>=0:
                 (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
             else: # maybe timeout already expired
@@ -268,11 +274,16 @@ class RPC:
                     except Exception as e:
                       self.log_traceback(e)
             else: # timeout
-                self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
+                if timer.rearm:
+                    timer.arm()
+                else:
+                    del self.timers[timer.id]
+                # rearm ?? Docs says no rearming
                 try:
-                    timeout_cont()
+                    timer.cont()
                 except Exception as e:
                   self.log_traceback(e)
+
 
         self.loop_status=prev_status
 
@@ -281,10 +292,10 @@ class RPC:
         Reads a line from the rpc input line, and parses it.
         """
         l=self.stdin.readline()
+        self.debug_stdout("< %s"%ellipsis_str(l))
         if not l:
             self.loop_stop()
             return
-        self.debug_stdout("< %s"%ellipsis_str(l, 50))
         rpc = json.loads(l)
         self.__process_request(rpc)
 
@@ -313,7 +324,7 @@ class RPC:
             return True
         return False
 
-    def add_timer(self, interval, cont):
+    def add_timer(self, interval, cont, rearm=False):
         """
         Adds a timer to the rpc object
 
@@ -321,7 +332,7 @@ class RPC:
         The timer is not rearmed; it must be added again by the caller if
         desired.
 
-        Tis timers are not in realtime, and may be called well after the
+        This timers are not in realtime, and may be called well after the
         timer expires, if the process is performing other actions, but will be
         called as soon as possible.
 
@@ -331,22 +342,36 @@ class RPC:
         ------|------------|------------
         interval | float   | Time in seconds to wait until calling this timer
         cont  | function() | Function to call when the timer expires.
+        rearm | bool       | Whether this timer automatically rearms. Default false.
 
         # Returns
         timer_id : int
           Timer id to be used for later removal of timer
         """
+        class Timer:
+            def __init__(self, id, interval, cont, rearm):
+                self.next=None
+                self.id=id
+                self.interval=interval
+                self.cont=cont
+                self.rearm=rearm
+
+                self.arm()
+            def arm(self):
+                self.next=time.time() + self.interval
+                return self
         tid=self.timer_id
+        self.timers[tid]=Timer(tid, interval, cont, rearm)
+
         self.timer_id+=1
-        next_stop=time.time()+interval
-        self.timers[tid]=(next_stop, tid, interval, cont)
         return tid
 
     def remove_timer(self, tid):
         """
         Removes a timer.
         """
-        del self.timers[tid]
+        if tid in self.timers:
+            del self.timers[tid]
 
     def loop_stop(self, debug=True):
         """
@@ -373,18 +398,35 @@ class RPC:
         This internal function is used to do the real writing to the
         othe rend, as in some conditions it ma be delayed.
         """
-        self.last_rpc_id=rpc.get("id")
-        res=self.call_local(rpc)
-        if res: # subscription do not give back response
-            if res.get("id") not in self.manual_replies:
-                try:
-                    self.println(json.dumps(res))
-                except Exception as e:
-                    self.log_traceback(e)
-                    sys.stderr.write(repr(res)+'\n')
-                    self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
-            else:
-                self.manual_replies.discard(res.get("id"))
+        self.last_rpc_id=id=rpc.get("id")
+        self.debug_stdout(repr(rpc))
+        self.debug_stdout(repr(self.async_cb))
+        async_cb=self.async_cb.get(id) # Might be an asynchronous result or error
+        if async_cb:
+            error_cb = None # User can set only success condition, or a tuple with both
+            if type(async_cb)==tuple:
+                async_cb, error_cb = async_cb
+
+            try: # try to call the error or result handlers
+                if async_cb and 'result' in rpc:
+                    async_cb(rpc.get("result"))
+                elif error_cb and 'error' in rpc:
+                    error_cb(rpc.get("error"))
+            except Exception as e:
+                self.log_traceback(e)
+            del self.async_cb[id]
+        else:
+            res=self.call_local(rpc)
+            if res: # subscription do not give back response
+                if res.get("id") not in self.manual_replies:
+                    try:
+                        self.println(json.dumps(res))
+                    except Exception as e:
+                        self.log_traceback(e)
+                        sys.stderr.write(repr(res)+'\n')
+                        self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                else:
+                    self.manual_replies.discard(res.get("id"))
 
     def println(self, line):
         """
@@ -392,7 +434,7 @@ class RPC:
 
         This function allows for easy debugging and some error conditions.
         """
-        self.debug_stdout("> %s"%ellipsis_str(line, 50))
+        self.debug_stdout("> %s"%line)
         try:
           self.stdout.write(line + '\n')
           self.stdout.flush()
@@ -432,7 +474,7 @@ class RPC:
         self.manual_replies.add(self.last_rpc_id)
         self.println(json.dumps({"id": self.last_rpc_id, "result": result}))
 
-    def call(self, method, *params, **kwparams):
+    def call(self, method, *params, _async=False, **kwparams):
         """
         Calls a method on the other side and waits until answer.
 
@@ -442,25 +484,33 @@ class RPC:
         2. If not, queues it to be processed wehn loop is called
 
         This allows to setup the environment.
+
+        Optional arguments:
+         * _async -- Set to a callback to be called when the answer is received.
+                     Makes the call asynchronous. callback receives the answer.
+                     It is called with response None in case of error.
         """
         assert not params or not kwparams, "Use only *params(%s) or only **kwparams(%s)"%(params, kwparams)
         id=self.send_id
         self.send_id+=1
         rpc = json.dumps(dict(method=method, params=params or kwparams, id=id))
         self.println(rpc)
+        if _async: # Will get answer later calling the _async callback
+            self.async_cb[id]=_async
+            return
         return self.inner_loop(id, method=method)
 
     def inner_loop(self, id, method=None):
         """
-        Performs an inner loop to be done whiel calling into the server.
+        Performs an inner loop to be done while calling into the server.
         It is as the other loop, but until it get the proper reply.
 
-        Requires the id of the reply to wait for, and the name of the mehtod for
+        Requires the id of the reply to wait for, and the name of the method for
         error reporting.
         """
         while True: # mini loop, may request calls while here
-            res = sys.stdin.readline()
-            self.debug_stdout("call res? < %s"%ellipsis_str(res))
+            res = self.stdin.readline()
+            self.debug_stdout("<< %s"%ellipsis_str(res))
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
@@ -479,6 +529,12 @@ class RPC:
                         if rpc["error"]=="unknown_method":
                             raise Exception("unknown_method %s"%(method))
                         raise Exception(rpc["error"])
+                elif id in self.async_cb:
+                    try:
+                        self.async_cb[id]()
+                    except Exception as e:
+                        self.log_traceback(e)
+                    del self.async_cb[id]
                 else:
                     self.debug_stdout("Keep it for later, im waiting for %s"%id)
                     self.replyq[rpc['id']]=rpc
@@ -707,8 +763,8 @@ class Plugin:
         def __init__(self, plugin, method):
             self.plugin=plugin
             self.method=method
-        def __call__(self, *args, **kwargs):
-            return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs)
+        def __call__(self, *args, _async=False, **kwargs):
+            return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs, _async=_async)
 
     def __init__(self, plugin_id, kill_and_restart = False, restart = True):
         self.plugin_id = plugin_id
@@ -741,14 +797,14 @@ class Plugin:
         self.uuid = None
         return self
 
-    def call(self, method, *args, **kwargs):
+    def call(self, method, *args, _async=False, **kwargs):
         """
         Call a method by name.
 
         This is also a workaround calling methods called `call` and `stop`.
         """
         try:
-            return rpc.call("plugin.call", self.uuid, method, args or kwargs)
+            return rpc.call("plugin.call", self.uuid, method, args or kwargs, _async=_async)
         except Exception as e:
             if e == "exit" and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
                 self.start()

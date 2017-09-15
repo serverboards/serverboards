@@ -28,12 +28,12 @@ export function subscribe(types){
 export function unsubscribe(types){
   let newunsubs=[]
   for(let t of types){
-    if (subscription_count[t]==1)
+    if (subscription_count[t]<=1)
       newunsubs.push(t)
     subscription_count[t]=(subscription_count[t] || 0)-1
   }
   if (newunsubs.length!=0){
-    //console.log("Unsubscribe to %o", newunsubs)
+    // console.log("Unsubscribe to %o", newunsubs, subscription_count)
     return rpc.call("event.unsubscribe", newunsubs)
   }
   else{
@@ -41,20 +41,24 @@ export function unsubscribe(types){
   }
 }
 
+const PLAIN_EVENT_RE=/[\w.]+/
+
 export function on(event, fn){
   subscribe([event])
-  subscription_fns[event]=(subscription_fns[event] || []).concat([fn])
+  const plain_event=PLAIN_EVENT_RE.exec(event)[0]
+  subscription_fns[plain_event]=(subscription_fns[plain_event] || []).concat([fn])
   return fn
 }
 export function off(event, fn){
   unsubscribe([event])
+  const plain_event=PLAIN_EVENT_RE.exec(event)[0]
   if (fn)
-    subscription_fns[event]=(subscription_fns[event] || []).filter( (f) => (f != fn) )
+    subscription_fns[plain_event]=(subscription_fns[plain_event] || []).filter( (f) => (f != fn) )
   else
-    delete subscription_fns[event]
+    delete subscription_fns[plain_event]
 }
 export function trigger(event, data){
-  //console.log("Trigger event %o(%o)", event, data)
+  console.log("Trigger event %o(%o)", event, data)
   for (let fn of (subscription_fns[event] || [])){
     if (fn){
       try{

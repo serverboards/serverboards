@@ -10,13 +10,13 @@ node_modules/.bin/rollupnode_modules/.bin/rollup: node_modules/
 node_modules/: package.json
 	yarn
 
-compile: static/[component-type].js
+compile: static/screen.js
 
-static/[component-type].js: src/[component-type].js
+static/screen.js: src/screen.js
 	node_modules/.bin/rollup -c
 
 clean:
-	rm static/[component-type].js
+	rm static/screen.js
 
 watch:
 	node_modules/.bin/rollup -w -c -m

@@ -1,0 +1,129 @@
+id: serverboards.optional.backups
+name: Backups
+author: David Moreno <dmoreno@serverboards.io>
+url: https://serverboards.io
+description: Manage backups
+
+components:
+  - id: screen
+    type: screen
+    name: Backups
+    hints: nohtml nocss
+
+  - id: backup
+    type: cmd
+    command: serverboards_backups.py
+    timeout: 12h
+    strategy: singleton
+    name: Backup Manager Process
+    perms: service.get plugin event.emit action.trigger[serverboards.core.actions/open-or-comment-issue]
+           action.trigger[serverboards.core.actions/close-issue]
+
+  - id: backup.init.cmd
+    type: cmd
+    command: serverboards_backups_init.py
+    strategy: init
+    name: Backup Scheduler Process
+    perms: service.get plugin plugin.data action.trigger[serverboards.optional.backups/backup.now]
+
+  - id: backup.init
+    name: Checks for any change on the schedule of the backups, and triggers the actions as needed.
+    type: init
+    command: serverboards.optional.backups/backup.init.cmd
+    call: init
+
+  - id: backup.ssh
+    type: cmd
+    command: serverboards_backups_ssh.py
+    timeout: 1d
+    name: SSH Backup Service
+    perms: plugin
+
+  - id: backup.now
+    type: action
+    name: Backup now
+    command: serverboards.optional.backups/backup
+    call:
+      method: backup_now
+      params:
+        - name: backup
+          type: select call
+          label: Backup
+          options:
+            command: serverboards.optional.backups/backup
+            call: get_backup_options
+
+  - id: backup.stop
+    type: action
+    name: Backup stop
+    command: serverboards.optional.backups/backup
+    call:
+      method: backup_stop
+      params:
+        - name: backup
+          type: select call
+          label: Backup
+          options:
+            command: serverboards.optional.backups/backup
+            call: get_backup_options
+
+  - id: backup.ssh.source
+    type: backup source
+    command: serverboards.optional.backups/backup.ssh
+    read_source: read_source
+    name: SSH remote file
+    description: Backup any file from a remote SSH service
+    resume: "File at *{{service.config.url}}:{{path}}*"
+    params:
+      - name: service
+        type: service
+        traits: ssh
+        label: SSH Server
+      - name: path
+        type: text
+        label: Path to backup
+        description: Absolute path to the file
+
+  - id: backup.ssh.source.tar
+    type: backup source
+    command: serverboards.optional.backups/backup.ssh
+    read_source: read_source_tar
+    name: SSH remote directory
+    description: Backup a full directory accesible from a remote SSH service into a .tgz file.
+    resume: "Directory at *{{service.config.url}}:{{path}}*"
+    params:
+      - name: service
+        type: service
+        traits: ssh
+        label: SSH Server
+      - name: path
+        type: text
+        label: Path to backup
+        description: Absolute path to the directory to backup
+
+
+  - id: backup.ssh.destination
+    type: backup destination
+    command: serverboards.optional.backups/backup.ssh
+    write_destination: write_destination
+    name: SSH remote file system
+    resume: "{{service.config.url}}:{{path}}"
+    description: |
+      Write backup to a remote SSH accesible server.
+    params:
+      - name: service
+        type: service
+        traits: ssh
+        label: SSH Server
+      - name: path
+        type: text
+        label: Path to backup
+        description: |
+          Absolute path to the destination file.
+
+          Can use template variables as:
+          * \{{date_}} -- Date in the format YYYY-MM-DD
+          * \{{date}} -- Date in the format YYYYMMDD
+          * \{{time}} -- Time in the format hh:mm
+          * \{{times}} -- Date in the format hh:mm:ss
+          * \{{datetime}} -- Date in the format YYYY-MM-DDThh:mm:ss

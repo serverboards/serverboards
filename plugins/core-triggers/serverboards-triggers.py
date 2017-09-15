@@ -34,7 +34,7 @@ class TimerCheck:
         self.frequency=time_description_to_seconds(frequency)
         self.grace=time_description_to_seconds(grace)
         self.mgrace=self.grace
-        self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick)
+        self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick, rearm=True)
         uuid_to_timer[id]=self
          # initial status
         check_result = self.check()

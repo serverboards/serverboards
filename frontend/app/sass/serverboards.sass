@@ -52,9 +52,14 @@ $top-height: 75px
 
 h1, h1.ui.header
   color: #333
+  &.centered
+    justify-content: center
 
 h2.ui.header, h3.ui.header, h3.ui.item.header
   color: #555
+  &.centered
+    justify-content: center
+
 
 .ui.header.uppercase
   text-transform: uppercase
@@ -263,6 +268,14 @@ code
   .stretch
     flex-grow: 1
   +background-colors
+  .menu
+    background: rgba(0,0,0,0.1)
+    color: white
+    border: 0
+    margin-left: -15px
+    margin-top: -2px
+    a
+      color: white
 
 .ui.menu.pagination .item
   flex-grow: 1
@@ -282,9 +295,19 @@ body [data-variation=narrow]:hover:after
   text-align: center
 
 .ui.padding
-  padding: 1em
+  padding: 15px
+  &.left
+    padding: 0 0 0 10px
+  &.top
+    padding: 10px 0 0 0
 
 .ui.massive.button._add.icon.floating
   position: fixed
   left: 10px
   bottom: 20px
+
+.ui.central.white.background.expand .ui.expand.grid
+  margin: 0
+
+.ui.floating.right
+  float: right

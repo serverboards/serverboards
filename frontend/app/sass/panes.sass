@@ -31,6 +31,14 @@
     width: 450px
     margin: 15px auto
 
+  .ui.top.attached.small.header
+    font-weight: normal
+    padding: 8px 15px 3px 8px
+    border: 0
+
+  .ui.container
+    width: 100%
+
   .ui.fill.area
     width: 100%
     flex-grow: 1
@@ -78,3 +86,27 @@
       justify-content: center
     .justified
       text-align: justify
+
+  .top.menu
+    z-index: auto
+
+  &.with.right.side.menu, .with.right.side.menu
+    position: relative
+    display: flex
+    flex-direction: row
+    max-width: 100%
+    overflow: hidden
+    border: 0
+    flex-grow: 1
+    > *
+      flex-grow: 1
+      max-width: calc( 100% - 50px )
+    > .side.menu
+      flex-grow: 0
+      display: flex
+      flex-direction: column
+      border: 0
+      border-radius: 0
+      align-items: center
+      .item::before
+        width: 0

@@ -4,22 +4,33 @@ export function render_promise(template, future_vars){
   })
 }
 
-const handlebards_re=/{{([^}]*)}}/g
+const HANDLEBARS_RE=/(\\{{[^}]*}}|{{([^}]*)}})/g
 
 export function render(template, vars){
   if (!template)
     return ""
   if (vars == undefined)
-    return ""
+    return template
   function find_var(v, vars){
     if (v.length==0)
       return vars
     //console.log("Find: %o in %o", v, vars)
     return find_var(v.slice(1), vars[v[0]])
   }
-  function vars_replacer(_, name){
-    //console.log("Find and replace: %s in %o", name, vars)
-    return find_var(name.split('.'), vars)
+  function vars_replacer(total, _, name){
+    if (total[0]=='\\')
+      return total.slice(1)
+    try{
+      const ret = find_var(name.split('.'), vars)
+      if (ret == undefined)
+        return `{{${name}}}`
+      return ret
+    }
+    catch(e){
+      return `{{${name}}}`
+    }
   }
-  return template.replace(handlebards_re, vars_replacer)
+  return template.replace(HANDLEBARS_RE, vars_replacer)
 }
+
+export default {render, render_promise}

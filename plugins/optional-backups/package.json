@@ -1,12 +1,12 @@
 {
-  "name": "[plugin-name]",
+  "name": "Backups",
   "version": "1.0.0",
-  "description": "[description]",
+  "description": "Manage backups",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "[author-name] <[author-email]>",
+  "author": "David Moreno <dmoreno@serverboards.io>",
   "license": "Apache-2.0",
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",

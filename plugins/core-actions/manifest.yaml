@@ -120,6 +120,42 @@ components:
             Aliases are separated by spaces.
           placeholder: "eg. rule/{{rule.uuid}}"
 
+  - name: Issue Open or Comment
+    description: |
+      Uses the issue id to check if the issue exists, for example by alias,
+      and if not found creates a new issue with the given data.
+    type: action
+    id: open-or-comment-issue
+    command: cmd
+    icon: issue
+    call:
+      method: open_or_comment_issue
+      extra: true
+      params:
+        - type: description
+          description: |
+            Depending on where the action is invoked it may use one or several
+            placeholders with context sensitive data, as rule name, id, description,
+            related service and so on.
+
+            Check at [Serverboards documentation](https://serverboards.io/docs/templating#issue-open).
+        - name: title
+          type: text
+          label: Issue title
+          card: true
+        - name: description
+          type: textarea
+          label: Issue description
+        - name: aliases
+          type: text
+          label: Issue aliases
+          description: |
+            Issue may be referenced by this alias. Useful to allow closing issue
+            using the rule.id, or any other identifier for the problem.
+
+            Aliases are separated by spaces.
+          placeholder: "eg. rule/{{rule.uuid}}"
+
   - name: Issue Close
     description: |
       Closes the given issue by alias or id.
@@ -237,6 +273,6 @@ components:
     timeout: 20s
     command: serverboards-core.py
     perms: |
-      service.get service.update notifications.create notifications.create_all
-      issues.create issues.update
+      service.info service.update notifications.create notifications.create_all
+      issues.create issues.update issues.view
       settings.view[serverboards.core.settings/base]

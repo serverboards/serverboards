@@ -2,18 +2,16 @@ import React from 'react'
 import rpc from 'app/rpc'
 import RichDescription from './richdescription'
 import i18n from 'app/utils/i18n'
+import store from 'app/utils/store'
 
 const SelectService=React.createClass({
-  contextTypes:{
-    store: React.PropTypes.object.isRequired
-  },
   getInitialState(){
     return { items: [] }
   },
   componentDidMount(){
     let self=this
     let filter = {}
-    let store_state = this.context.store.getState()
+    let store_state = store.getState()
     if (self.props.traits)
       filter.traits=self.props.traits
     if (store_state.project.current)

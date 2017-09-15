@@ -55,13 +55,20 @@ const Project=React.createClass({
     const data = merge( props.data, {service} )
     let Section
     if (section.indexOf('.')>=0){
+      const plugin_component_id = `${section}/${subsection}`
+      const screen = props.project.screens.find( s => s.id == plugin_component_id) || {}
       Section = (props) => (
-        <PluginScreen {...props} data={data} plugin={section} component={subsection}/>
+        <PluginScreen {...props}
+          data={data}
+          plugin={section}
+          component={subsection}
+          hints={screen.hints}
+          />
       )
       console.log("Got plugin screen %o", Section)
     }
     else
-      Section = require(`../../containers/project/${section}`).default
+      Section = require(`app/containers/project/${section}`).default
     return Section
   },
   handleShowSidebar(show_sidebar){
