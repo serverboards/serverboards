@@ -1,5 +1,6 @@
 const {React, plugin, Flash} = Serverboards
 import View from '../views/list'
+import TopMenu from '../views/topmenu'
 import EditAction from './editaction'
 const {Modal} = Serverboards.Components.Modal
 const {merge} = Serverboards.utils
@@ -26,6 +27,12 @@ const ListModel=React.createClass({
       console.log("got actions: %o", actions)
       this.setState({actions})
     })
+    console.log("Add top menu")
+    this.props.setSectionMenu(TopMenu, {addQuickAction: this.handleOpenAddAction.bind(this)})
+  },
+  componentWillUnmount(){
+    console.log("Remove top menu")
+    this.setSectionMenu(null)
   },
   handleRunAction(a){
     if (a.confirmation){
