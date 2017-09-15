@@ -5,8 +5,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import print
 
-serverboards.rpc.set_debug(True)
-
 # Stores all backup id to timer, to remove them if necessary
 timers = {}
 all_backups = []
