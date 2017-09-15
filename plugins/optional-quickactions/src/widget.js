@@ -19,18 +19,19 @@ const style={
 }
 
 
-const Widget = React.createClass({
-  getInitialState(){
-    return {
+class Widget extends React.Components{
+  constructor(props){
+    super(props)
+    this.state = {
       actions: undefined,
       loading: true
     }
-  },
+  }
   componentDidMount(){
     plugin.start_call_stop(`serverboards.optional.quickactions/command`, "list_actions", {serverboard:this.props.serverboard, star: true}).then( actions => {
       this.setState({actions, loading: false})
     })
-  },
+  }
   runAction(a){
     if (a.confirmation){
       if (!confirm(a.name + "\n\n" + (a.description || a.confirm || "Are you sure?")))
@@ -39,7 +40,7 @@ const Widget = React.createClass({
     plugin.start_call_stop(`serverboards.optional.quickactions/command`, "run_action", [a.id]).then( () => {
       Flash.info("Sucefully run action "+a.name)
     }).catch( e => Flash.error(e) )
-  },
+  }
   render(){
     if (this.state.loading)
       return (
@@ -68,7 +69,7 @@ const Widget = React.createClass({
       </div>
     )
   }
-})
+}
 
 function main(el, config){
   Serverboards.ReactDOM.render(<Widget {...config}/>, el)
