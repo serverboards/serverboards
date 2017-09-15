@@ -21,7 +21,7 @@ components:
   - id: backup.init.cmd
     type: cmd
     command: serverboards_backups_init.py
-    strategy: one_for_one
+    strategy: init
     name: Backup Scheduler Process
     perms: service.get plugin plugin.data action.trigger[serverboards.optional.backups/backup.now]
 

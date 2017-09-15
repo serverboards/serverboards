@@ -73,6 +73,4 @@ def maybe_recalculate_timers(plugin=None, key=None, value=None):
 # on any change on backups, redo the timers
 serverboards.rpc.subscribe("plugin.data_changed[serverboards.optional.backups]", maybe_recalculate_timers)
 
-init()
-
 serverboards.loop()
