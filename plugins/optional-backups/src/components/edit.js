@@ -1,4 +1,4 @@
-const {i18n, utils, React} = Serverboards
+const {i18n, utils, Flash, React} = Serverboards
 const {Tip, GenericForm, MarkdownPreview} = Serverboards.Components
 import {get_source_type, get_destination_type} from '../utils'
 
@@ -68,7 +68,7 @@ class AddBackup extends React.Component{
   componentDidMount(){
     $(this.refs.sources).dropdown()
     $(this.refs.destination).dropdown()
-    $(this.refs.time).dropdown()
+    $(this.refs.time).dropdown({allowAdditions: true})
 
     if (this.props.backup.source)
       this.handleSetSource(this.props.backup.source.component, this.props.backup.source.config)
@@ -76,6 +76,12 @@ class AddBackup extends React.Component{
       this.handleSetDestination(this.props.backup.destination.component, this.props.backup.destination.config)
   }
   prepare_backup(){
+    const time = this.refs.time.value
+    if (!(/\d\d:\d\d/).test(time) ){
+      Flash.error(i18n("Invalid time. Must be HH:MM format"))
+      return null
+    }
+
     return utils.merge( this.props.backup || {}, {
       name: this.refs.name.value,
       description: this.refs.description.value,
@@ -89,21 +95,24 @@ class AddBackup extends React.Component{
       },
       schedule:{
         days: this.state.days,
-        time: this.refs.time.value
+        time
       }
     })
   }
   handleAddBackup(){
     const backup = this.prepare_backup()
-
-    console.log("Create backup %o", backup)
-    this.props.onAddBackup(backup)
+    if (backup){
+      console.log("Create backup %o", backup)
+      this.props.onAddBackup(backup)
+    }
   }
   handleUpdateBackup(){
     const backup = this.prepare_backup()
 
-    console.log("Update backup %o", backup)
-    this.props.onUpdateBackup(backup)
+    if (backup){
+      console.log("Update backup %o", backup)
+      this.props.onUpdateBackup(backup)
+    }
   }
   handleSetSource(id, data){
     console.log("Set source %s", id, data)
@@ -204,7 +213,10 @@ class AddBackup extends React.Component{
               <DayLabel label={i18n("Sunday")} defaultChecked={backup.schedule.days.includes(6)} onChange={(onoff) => this.toggleDay(6, onoff)}/>
             </div>
             <label>{i18n("Time")}</label>
-            <select ref="time" defaultValue={backup.schedule.time || "03:00"}>
+            <select ref="time" defaultValue={backup.schedule.time || "03:00"} className="search">
+              {!TIMES.includes(backup.schedule.time) && (
+                <option key={backup.schedule.time} value={backup.schedule.time}>{backup.schedule.time}</option>
+              )}
               {TIMES.map( t => (
                 <option key={t} value={t}>{t}</option>
               ))}
