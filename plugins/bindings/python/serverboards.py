@@ -210,7 +210,7 @@ class RPC:
         for example processing data from one event, do some remote call, another
         event arrives, and finished before the first.
 
-        This is a real ase of race condition writing to a file.
+        This is a real case of race condition writing to a file.
 
         The code here avoids the situation making events not reentrable; if
         processing an event, it queues newer to be delivered later.
@@ -218,8 +218,9 @@ class RPC:
         do_later = len(self.pending_events_queue) > 0
         self.pending_events_queue.append( (method, args, kwargs) )
         if do_later:
+            self.debug("No emit %s yet, as processing something else"%method)
             return
-        #self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
+        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         # do all the items on the queue
         while len(self.pending_events_queue)>0:
           (method, args, kwargs) = self.pending_events_queue[0]
@@ -284,10 +285,10 @@ class RPC:
         Reads a line from the rpc input line, and parses it.
         """
         l=self.stdin.readline()
+        self.debug_stdout("< %s"%ellipsis_str(l))
         if not l:
             self.loop_stop()
             return
-        self.debug_stdout("< %s"%ellipsis_str(l, 50))
         rpc = json.loads(l)
         self.__process_request(rpc)
 
@@ -412,6 +413,7 @@ class RPC:
 
         This function allows for easy debugging and some error conditions.
         """
+        self.debug_stdout("> %s"%line)
         try:
           self.stdout.write(line + '\n')
           self.stdout.flush()
@@ -486,8 +488,8 @@ class RPC:
         error reporting.
         """
         while True: # mini loop, may request calls while here
-            res = sys.stdin.readline()
-            self.debug_stdout("call res? < %s"%ellipsis_str(res))
+            res = self.stdin.readline()
+            self.debug_stdout("<< %s"%ellipsis_str(res))
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
