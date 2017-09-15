@@ -114,7 +114,8 @@ class Backup:
                 )
             now = datetime_now()
             self.update_job(status="error", size=None, completed_date=now, fifofile=None)
-            serverboards.action.trigger("serverboards.core.actions/open-issue", {
+            serverboards.action.trigger("serverboards.core.actions/open-or-comment-issue", {
+                "issue" : "backup/%s"%self.id,
                 "title" : "Backup %s failed"%(self.job.get("name")),
                 "description" : "Serverboards tried to execute the backup %s at %s, but it failed.\n\nCheck ASAP.\n\n%s"%(self.job.get("name"), now, self.job.get("description")),
                 "aliases" : "backup/%s project/%s"%(self.id,self.project)
