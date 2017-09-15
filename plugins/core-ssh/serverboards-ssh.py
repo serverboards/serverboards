@@ -376,7 +376,7 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
             return True
     check = Check()
     check.check_ok()
-    timer_id = serverboards.rpc.add_timer(period_s, check.check_ok)
+    timer_id = serverboards.rpc.add_timer(period_s, check.check_ok, rearm=True)
     serverboards.info("Start SSH script watch %s"%timer_id)
     return timer_id
 

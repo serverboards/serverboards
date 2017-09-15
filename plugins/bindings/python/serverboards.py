@@ -254,11 +254,13 @@ class RPC:
         while self.loop_status=='IN':
             #self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
             if self.timers:
-                next_timeout, timeout_id, timeout, timeout_cont=min(self.timers.values())
-                next_timeout-=time.time()
+                timer=min(self.timers.values(), key=lambda x:x.next)
+                next_timeout=timer.next - time.time()
             else:
-                next_timeout, timeout_id, timeout, timeout_cont=None, None, None, None
+                timer = None
+                next_timeout = None
 
+            # self.debug("Next timeout", next_timeout, timeout_id)
             if not next_timeout or next_timeout>=0:
                 (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
             else: # maybe timeout already expired
@@ -272,11 +274,16 @@ class RPC:
                     except Exception as e:
                       self.log_traceback(e)
             else: # timeout
-                self.timers[timeout_id]=(time.time()+timeout, timeout_id, timeout, timeout_cont)
+                if timer.rearm:
+                    timer.arm()
+                else:
+                    del self.timers[timer.id]
+                # rearm ?? Docs says no rearming
                 try:
-                    timeout_cont()
+                    timer.cont()
                 except Exception as e:
                   self.log_traceback(e)
+
 
         self.loop_status=prev_status
 
@@ -317,7 +324,7 @@ class RPC:
             return True
         return False
 
-    def add_timer(self, interval, cont):
+    def add_timer(self, interval, cont, rearm=False):
         """
         Adds a timer to the rpc object
 
@@ -325,7 +332,7 @@ class RPC:
         The timer is not rearmed; it must be added again by the caller if
         desired.
 
-        Tis timers are not in realtime, and may be called well after the
+        This timers are not in realtime, and may be called well after the
         timer expires, if the process is performing other actions, but will be
         called as soon as possible.
 
@@ -335,22 +342,36 @@ class RPC:
         ------|------------|------------
         interval | float   | Time in seconds to wait until calling this timer
         cont  | function() | Function to call when the timer expires.
+        rearm | bool       | Whether this timer automatically rearms. Default false.
 
         # Returns
         timer_id : int
           Timer id to be used for later removal of timer
         """
+        class Timer:
+            def __init__(self, id, interval, cont, rearm):
+                self.next=None
+                self.id=id
+                self.interval=interval
+                self.cont=cont
+                self.rearm=rearm
+
+                self.arm()
+            def arm(self):
+                self.next=time.time() + self.interval
+                return self
         tid=self.timer_id
+        self.timers[tid]=Timer(tid, interval, cont, rearm)
+
         self.timer_id+=1
-        next_stop=time.time()+interval
-        self.timers[tid]=(next_stop, tid, interval, cont)
         return tid
 
     def remove_timer(self, tid):
         """
         Removes a timer.
         """
-        del self.timers[tid]
+        if tid in self.timers:
+            del self.timers[tid]
 
     def loop_stop(self, debug=True):
         """
