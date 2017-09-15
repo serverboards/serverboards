@@ -111,6 +111,8 @@ defmodule Serverboards.Utils do
       {s, "m"} -> s * 1000 * 60
       {s, "h"} -> s * 1000 * 60 * 60
       {s, "d"} -> s * 1000 * 60 * 60 * 24
+      {s, "M"} -> s * 1000 * 60 * 60 * 24 * 30
+      {s, "y"} -> s * 1000 * 60 * 60 * 24 * 365
     end
   end
   def timespec_to_ms!(timespec) when is_number(timespec) do
