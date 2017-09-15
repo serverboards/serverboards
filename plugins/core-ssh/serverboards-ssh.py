@@ -71,7 +71,7 @@ def ssh_exec(url=None, command="test", options=None, service=None, outfile=None,
     else:
         url, args, precmd = __get_service_url_and_opts(service)
     args = args + ['--', precmd, *command]
-    serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
+    #serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     kwargs = {}
@@ -96,7 +96,7 @@ def ssh_exec(url=None, command="test", options=None, service=None, outfile=None,
         kwargs["_in"].close()
 
     if service:
-        serverboards.info("SSH Command executed %s'%s'"%(service, command), extra=dict(service_id=service, command=command, stdout=stdout))
+        serverboards.info("SSH Command executed %s:%s'"%(service, command), extra=dict(service_id=service, command=command))
     return {"stdout": stdout, "exit": result.exit_code}
 
 sessions={}
@@ -453,7 +453,7 @@ def run(url=None, command=None, service=None, **kwargs):
     if url:
         return ssh_exec(url=url, command=command)
     assert service and command
-    serverboards.info("Run %s:'%s'"%(service, command))
+    # serverboards.info("Run %s:'%s'"%(service, command))
     return ssh_exec(service=service, command=command, **kwargs)
 
 @serverboards.rpc_method
