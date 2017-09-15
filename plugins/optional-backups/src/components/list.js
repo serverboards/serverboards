@@ -117,6 +117,7 @@ function List(props){
         <div className="ui white background round pane">
           {current ? (
             <DetailsTab
+              key={current.id}
               backup={current}
               {...props}
               />
