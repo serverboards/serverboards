@@ -13,10 +13,23 @@ components:
   - id: backup
     type: cmd
     command: serverboards_backups.py
-    timeout: 30s
+    timeout: 12h
     strategy: singleton
     name: Backup Manager Process
     perms: service.get plugin event.emit
+
+  - id: backup.init.cmd
+    type: cmd
+    command: serverboards_backups_init.py
+    strategy: one_for_one
+    name: Backup Scheduler Process
+    perms: service.get plugin plugin.data action.trigger[serverboards.optional.backups/backup.now]
+
+  - id: backup.init
+    name: Checks for any change on the schedule of the backups, and triggers the actions as needed.
+    type: init
+    command: serverboards.optional.backups/backup.init.cmd
+    call: init
 
   - id: backup.ssh
     type: cmd
