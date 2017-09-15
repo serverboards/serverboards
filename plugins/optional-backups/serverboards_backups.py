@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys, os, sys, uuid, datetime, sh
+import sys, os, uuid, datetime, sh
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import print, plugin, Plugin, rpc
@@ -42,7 +42,7 @@ def backup_stop(backup):
         backup.update({"status":"aborted", "size": None, "fifofile": None})
         rpc.call("plugin.data.update", backup["id"], backup)
         project=backup["id"].split('-')[0]
-        serverboards.rpc.event("event.emit", "serverboards.core.backup.updated[%s]"%project, backup)
+        serverboards.rpc.event("event.emit", "serverboards.optional.backups.updated[%s]"%project, backup)
         serverboards.info("Manually stopped backup", extra={"backup": backup["id"]})
 
 @serverboards.rpc_method
@@ -128,7 +128,7 @@ class Backup:
     def update_job(self, **kwargs):
         self.job.update(kwargs)
         rpc.call("plugin.data.update", self.job["id"], self.job)
-        serverboards.rpc.event("event.emit", "serverboards.core.backup.updated[%s]"%self.project, self.job)
+        serverboards.rpc.event("event.emit", "serverboards.optional.backups.updated[%s]"%self.project, self.job)
 
     def __del__(self):
         if self.fifofile:
