@@ -112,13 +112,23 @@ class Backup:
                 "Backup error. Read %s bytes, write %s bytes."%(self.source_size, self.destination_size),
                 extra={"backup": self.id}
                 )
-            self.update_job(status="error", size=None, completed_date=datetime_now(), fifofile=None)
+            now = datetime_now()
+            self.update_job(status="error", size=None, completed_date=now, fifofile=None)
+            serverboards.action.trigger("serverboards.core.actions/open-issue", {
+                "title" : "Backup %s failed"%(self.job.get("name")),
+                "description" : "Serverboards tried to execute the backup %s at %s, but it failed.\n\nCheck ASAP.\n\n%s"%(self.job.get("name"), now, self.job.get("description")),
+                "aliases" : "backup/%s project/%s"%(self.id,self.project)
+            })
         else:
             serverboards.info(
                 "Backup finished. Read %s bytes, write %s bytes."%(self.source_size, self.destination_size),
                 extra={"backup": self.id}
                 )
             self.update_job(status="ok", size=self.destination_size, completed_date=datetime_now(), fifofile=None)
+            serverboards.action.trigger("serverboards.core.actions/close-issue", {
+                "comment" : "Backup was performed succesfully. Closing issue.",
+                "issue" : "backup/%s"%(self.id)
+            })
 
         if self.fifofile:
             print("Unlink fifo (1)")

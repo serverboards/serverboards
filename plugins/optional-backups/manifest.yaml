@@ -16,7 +16,8 @@ components:
     timeout: 12h
     strategy: singleton
     name: Backup Manager Process
-    perms: service.get plugin event.emit
+    perms: service.get plugin event.emit action.trigger[serverboards.core.actions/open-issue]
+           action.trigger[serverboards.core.actions/close-issue]
 
   - id: backup.init.cmd
     type: cmd
