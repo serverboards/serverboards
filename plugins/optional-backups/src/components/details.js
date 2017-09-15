@@ -118,7 +118,7 @@ function Details(props){
             {backup.schedule.days.length == 0 ? (
               <div className="ui red text">{i18n("No days scheduled for this backup!")}</div>
             ) : (
-              <div>{backup.schedule.days.map( i => (<span key={i}>{i18n(utils.days[i])} </span>) )}</div>
+              <div>{backup.schedule.days.map( i => (<span key={i}>{i18n(utils.days[i+1])} </span>) )}</div>
             )}
           </div>
           <div>

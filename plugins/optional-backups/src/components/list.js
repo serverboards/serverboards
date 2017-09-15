@@ -2,7 +2,33 @@ const {i18n, React, utils, Components} = Serverboards
 import DetailsTab from './detailstab'
 import {calculate_size} from '../utils'
 
-function Backup({backup, className, onClick}){
+class Toggle extends React.Component{
+  componentDidMount(){
+    const onChange = this.props.onChange
+    if (!onChange)
+      return
+    $(this.refs.el).checkbox({
+      onChecked(){
+        console.log("on")
+        onChange(true)
+      },
+      onUnchecked(){
+        console.log("off")
+        onChange(false)
+      },
+    })
+  }
+  render(){
+    return (
+      <div className="ui input checkbox toggle" ref="el">
+        <input type="checkbox" defaultChecked={this.props.isOn}/>
+        <label>{this.props.text}</label>
+      </div>
+    )
+  }
+}
+
+function Backup({backup, className, onClick, onChangeEnable}){
   const size = calculate_size(backup.size)
 
   const status = backup.status || "pending"
@@ -49,10 +75,7 @@ function Backup({backup, className, onClick}){
         )}
       </div>
       <div className="extra content">
-        <div className="ui input checkbox toggle">
-          <input type="checkbox" defaultChecked={backup.enabled}/>
-          <label/>
-        </div>
+        <Toggle text="" onChange={onChangeEnable} isOn={backup.enabled}/>
         <div className="right">
           <a>
             <i className="ui horizontal ellipsis teal icon"/>
@@ -83,6 +106,7 @@ function List(props){
                   backup={b}
                   className={props.current == b.id ? "selected" : null}
                   onClick={() => props.setCurrent(b.id)}
+                  onChangeEnable={(enabled) => props.onChangeEnable(b.id, enabled)}
                   />)
               )}
             </div>

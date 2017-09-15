@@ -46,7 +46,7 @@ class AddBackup extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      days: [],
+      days: props.backup.schedule.days,
       source: props.backup.source.config,
       destination: props.backup.destination.config,
       source_form: undefined,
@@ -195,13 +195,13 @@ class AddBackup extends React.Component{
           <div className="field">
             <label>{i18n("Schedule")}</label>
             <div ref="schedule_days" style={{display:"flex", justifyContent:"space-between"}}>
-              <DayLabel label={i18n("Monday")} defaultChecked={backup.schedule.days.includes(1)} onChange={(onoff) => this.toggleDay(1, onoff)}/>
-              <DayLabel label={i18n("Tuesday")} defaultChecked={backup.schedule.days.includes(2)} onChange={(onoff) => this.toggleDay(2, onoff)}/>
-              <DayLabel label={i18n("Wednesday")} defaultChecked={backup.schedule.days.includes(3)} onChange={(onoff) => this.toggleDay(3, onoff)}/>
-              <DayLabel label={i18n("Thursday")} defaultChecked={backup.schedule.days.includes(4)} onChange={(onoff) => this.toggleDay(4, onoff)}/>
-              <DayLabel label={i18n("Friday")} defaultChecked={backup.schedule.days.includes(5)} onChange={(onoff) => this.toggleDay(5, onoff)}/>
-              <DayLabel label={i18n("Saturday")} defaultChecked={backup.schedule.days.includes(6)} onChange={(onoff) => this.toggleDay(6, onoff)}/>
-              <DayLabel label={i18n("Sunday")} defaultChecked={backup.schedule.days.includes(7)} onChange={(onoff) => this.toggleDay(7, onoff)}/>
+              <DayLabel label={i18n("Monday")} defaultChecked={backup.schedule.days.includes(0)} onChange={(onoff) => this.toggleDay(0, onoff)}/>
+              <DayLabel label={i18n("Tuesday")} defaultChecked={backup.schedule.days.includes(1)} onChange={(onoff) => this.toggleDay(1, onoff)}/>
+              <DayLabel label={i18n("Wednesday")} defaultChecked={backup.schedule.days.includes(2)} onChange={(onoff) => this.toggleDay(2, onoff)}/>
+              <DayLabel label={i18n("Thursday")} defaultChecked={backup.schedule.days.includes(3)} onChange={(onoff) => this.toggleDay(3, onoff)}/>
+              <DayLabel label={i18n("Friday")} defaultChecked={backup.schedule.days.includes(4)} onChange={(onoff) => this.toggleDay(4, onoff)}/>
+              <DayLabel label={i18n("Saturday")} defaultChecked={backup.schedule.days.includes(5)} onChange={(onoff) => this.toggleDay(5, onoff)}/>
+              <DayLabel label={i18n("Sunday")} defaultChecked={backup.schedule.days.includes(6)} onChange={(onoff) => this.toggleDay(6, onoff)}/>
             </div>
             <label>{i18n("Time")}</label>
             <select ref="time" defaultValue={backup.schedule.time || "03:00"}>

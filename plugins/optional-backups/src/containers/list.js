@@ -30,13 +30,13 @@ class List extends React.Component{
                   return utils.merge(b, { id })
                 }  ) )
             } ) )
-      console.log("Subscribe to ", `serverboards.core.backup.updated[${this.props.project}]`)
+      console.log("Subscribe to ", `serverboards.optional.backups.updated[${this.props.project}]`)
       event
-        .on(`serverboards.core.backup.updated[${this.props.project}]`, this.updateBackupFromCore)
+        .on(`serverboards.optional.backups.updated[${this.props.project}]`, this.updateBackupFromCore)
     }
     componentWillUnmount(){
       console.log("Desubscribing from changes")
-      event.off(`serverboards.core.backup.updated[${this.props.project}]`, this.updateBackupFromCore)
+      event.off(`serverboards.optional.backups.updated[${this.props.project}]`, this.updateBackupFromCore)
     }
     updateBackup(backup){
       let backups = this.state.backups.map(
@@ -56,6 +56,16 @@ class List extends React.Component{
         .then(() => Flash.success(i18n("Stopping *{name}* backup", {name: backup.name})))
         .catch( e => Flash.error(i18n("Error stopping backup *{name}*: {e}", {name: backup.name, e})))
     }
+    handleChangeEnable(backup_id, enabled){
+      console.log("Change enable")
+      rpc.call("plugin.data.get",["serverboards.optional.backups", backup_id])
+        .then( b => {
+          b = utils.merge(b, {enabled})
+          rpc.call("plugin.data.update",["serverboards.optional.backups", backup_id, b])
+        })
+        .then( () => Flash.success(i18n("Backup updated")) )
+        .catch( (e) => Flash.error(i18n("Could not update backup: {e}",{e})) )
+    }
     render(){
       const mode = store.getState().routing.locationBeforeTransitions.pathname.endsWith("/add")  ? "add" : "list"
 
@@ -73,6 +83,7 @@ class List extends React.Component{
               updateBackup={this.updateBackup.bind(this)}
               onRunBackup={this.handleRunBackup}
               onStopBackup={this.handleStopBackup}
+              onChangeEnable={this.handleChangeEnable}
               />
           )
         case "add":
