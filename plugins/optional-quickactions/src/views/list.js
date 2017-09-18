@@ -34,7 +34,7 @@ function Action(props){
 function View(props){
   const actions = (props.actions || []).sort( (a,b) => a.name.localeCompare(b.name) )
   return (
-    <div className="" style={{paddingTop: 30}}>
+    <div className="ui padding" style={{paddingTop: 30}}>
       <div className="ui cards">
         {(actions || []).map( (a) => (
           <Action key={a.id} action={a} {...props}/>
