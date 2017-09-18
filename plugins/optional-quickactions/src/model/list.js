@@ -30,11 +30,11 @@ class ListModel extends React.Component{
       this.setState({actions})
     })
     console.log("Add top menu")
-    this.props.setSectionMenu(TopMenu, {addQuickAction: this.handleOpenAddAction.bind(this)})
+    this.props.setSectionMenu(TopMenu, {onAddQuickAction: this.handleOpenAddAction.bind(this)})
   }
   componentWillUnmount(){
     console.log("Remove top menu")
-    this.setSectionMenu(null)
+    this.props.setSectionMenu(null)
   }
   handleRunAction(a){
     if (a.confirmation){
