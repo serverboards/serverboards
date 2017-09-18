@@ -1,6 +1,6 @@
 const {React, i18n} = Serverboards
 import CloudCard from '../containers/card'
-import Details from '../containers/details'
+import Details from './detailstab'
 
 function ListView(props){
   const {items, current} = props
