@@ -11,6 +11,7 @@ components:
   - id: editor
     type: screen
     name: Quick Actions
+    hints: nohtml nocss
 
   - id: widget
     type: widget

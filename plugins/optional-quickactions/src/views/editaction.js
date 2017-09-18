@@ -1,7 +1,7 @@
 const React = Serverboards.React
 const {GenericForm} = Serverboards.Components
 
-const EditAction = React.createClass({
+class EditAction extends React.Component{
   componentDidMount(){
     let self = this
     $(this.refs.star).checkbox({
@@ -21,7 +21,7 @@ const EditAction = React.createClass({
       }
     })
     $(this.refs.form).find('.dropdown').dropdown()
-  },
+  }
   render(){
     const props=this.props
     const action = props.action
@@ -105,6 +105,6 @@ const EditAction = React.createClass({
       </div>
     )
   }
-})
+}
 
 export default EditAction

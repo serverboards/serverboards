@@ -58,7 +58,7 @@ export function off(event, fn){
     delete subscription_fns[plain_event]
 }
 export function trigger(event, data){
-  console.log("Trigger event %o(%o)", event, data)
+  // console.log("Trigger event %o(%o)", event, data)
   for (let fn of (subscription_fns[event] || [])){
     if (fn){
       try{

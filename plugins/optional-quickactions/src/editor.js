@@ -4,7 +4,11 @@ import ActionList from './model/list'
 
 function View(props){
   return (
-    <ActionList serverboard={props.project.shortname} services={props.project.services}/>
+    <ActionList
+      serverboard={props.project.shortname}
+      services={props.project.services}
+      setSectionMenu={props.setSectionMenu}
+      />
   )
 }
 
