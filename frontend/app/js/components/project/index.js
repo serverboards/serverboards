@@ -12,16 +12,6 @@ const Project=React.createClass({
   getInitialState(){
     return {
       show_sidebar: localStorage.show_sidebar == "true",
-      section_menu: null,
-      section_menu_props: {}
-    }
-  },
-  componentWillReceiveProps(nprops){
-    const params = this.props.params
-    const nparams = nprops.params
-    // console.log("Component will receive props! %o %o", params, nparams)
-    if (params.section != nparams.section){
-      this.setState({section_menu: null})
     }
   },
   shouldComponentUpdate(nprops, nstate){
@@ -42,8 +32,6 @@ const Project=React.createClass({
       )
     )
 
-    if (this.section_menu)
-      return true
     return should_update
   },
   selectSection(){
@@ -75,11 +63,11 @@ const Project=React.createClass({
     localStorage.show_sidebar=show_sidebar ?  "true" : "false"
     this.setState({show_sidebar})
   },
-  handleSetSectionMenu(section_menu, section_menu_props={}){
-    this.setState({section_menu, section_menu_props})
-  },
-  handleSetSectionMenuProps(section_menu_props){
-    this.setState({section_menu_props})
+  handleSetTopMenuHandlers(handleSetSectionMenu, handleSetSectionMenuProps){
+    // The handlers are managed by top, so that when the menu changes there is
+    // no need to redraw all the section, which can provoke a reload of the plugin
+    // and leak the previous plugin screen
+    this.setState({handleSetSectionMenu, handleSetSectionMenuProps})
   },
   render(){
     const props=this.props
@@ -91,7 +79,6 @@ const Project=React.createClass({
       )
 
     const Section = this.selectSection()
-    const SectionMenu = this.state.section_menu || (() => null)
 
     return (
       <div className="ui horizontal split area">
@@ -110,17 +97,18 @@ const Project=React.createClass({
             onShowSidebar={this.handleShowSidebar}
             show_sidebar={this.state.show_sidebar}
             params={props.params}
-            >
-            <SectionMenu {...this.state.section_menu_props}/>
-          </Top>
+            setHandlers={this.handleSetTopMenuHandlers}
+            />
           <div className="ui expand vertical split area with scroll">
-            <Section
-              project={props.project}
-              subsection={props.params.subsection}
-              location={props.location}
-              setSectionMenu={this.handleSetSectionMenu}
-              setSectionMenuProps={this.handleSetSectionMenuProps}
-              />
+            {this.state.handleSetSectionMenu && ( // Hack to prevent redraw of section when top set the handlers.
+              <Section
+                project={props.project}
+                subsection={props.params.subsection}
+                location={props.location}
+                setSectionMenu={this.state.handleSetSectionMenu}
+                setSectionMenuProps={this.state.handleSetSectionMenuProps}
+                />
+            )}
           </div>
         </div>
       </div>

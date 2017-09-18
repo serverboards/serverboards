@@ -117,7 +117,32 @@ const ProjectMenu = React.createClass({
   }
 })
 
-const Top = React.createClass({
+class Top extends React.Component{
+  constructor(props){
+    super(props)
+
+    this.state ={
+      section_menu: null,
+      section_menu_props: {}
+    }
+  }
+  componentDidMount(){
+    this.props.setHandlers( this.handleSetSectionMenu.bind(this), this.handleSetSectionMenuProps.bind(this) )
+  }
+  componentWillReceiveProps(nprops){
+    const params = this.props.params
+    const nparams = nprops.params
+    // console.log("Component will receive props! %o %o", params, nparams)
+    if (params.section != nparams.section){
+      this.setState({section_menu: null})
+    }
+  }
+  handleSetSectionMenu(section_menu, section_menu_props={}){
+    this.setState({section_menu, section_menu_props})
+  }
+  handleSetSectionMenuProps(section_menu_props){
+    this.setState({section_menu_props})
+  }
   handleChangeSection(shortname, uuid){
     if (uuid){
       goto(`/project/${this.props.project_shortname}/${shortname}/${uuid}`)
@@ -125,16 +150,20 @@ const Top = React.createClass({
     else{
       goto(`/project/${this.props.project_shortname}/${shortname}/`)
     }
-  },
+  }
   render(){
     const {
       show_sidebar, onShowSidebar, project_name, section, subsection, section_name,
-      projects, sections, service, project_shortname
+      projects, sections, service, project_shortname,
       } = this.props
+    const {
+      section_menu, section_menu_props
+      } = this.state
     const section_id = (section.indexOf('.')>=0) ? `${section}/${subsection}` : section
     const section_data = sections.find( s => s.id == section_id )
     const service_data = section_data && section_data.candidates && section_data.candidates.find( s => s.uuid == service )
     const candidates = section_data && section_data.candidates
+    const ExtraMenu = section_menu
 
     return (
       <div className="ui serverboards top menu secondary">
@@ -151,7 +180,7 @@ const Top = React.createClass({
         <SectionMenu
           sections={sections}
           section_id={section_id}
-          onChangeSection={this.handleChangeSection}
+          onChangeSection={this.handleChangeSection.bind(this)}
           />
         { service_data ? ([
           <div>/</div>
@@ -165,10 +194,12 @@ const Top = React.createClass({
           ]
         ) : null}
 
-        {this.props.children}
+        {ExtraMenu && (
+          <ExtraMenu {...section_menu_props}/>
+        )}
       </div>
     )
   }
-})
+}
 
 export default Top
