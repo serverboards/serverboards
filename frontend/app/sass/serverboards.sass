@@ -311,3 +311,12 @@ body [data-variation=narrow]:hover:after
 
 .ui.floating.right
   float: right
+
+.ui.no.bullet.list, .ui.no.bullet.list ul
+  list-style-type: none
+  margin: 0
+  padding: 10px
+  li::before
+    content: ""
+  ul
+    padding-left: 20px
