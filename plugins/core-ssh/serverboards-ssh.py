@@ -47,7 +47,7 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None):
+def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None, debug=False):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
@@ -71,7 +71,8 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
     else:
         url, args, precmd = __get_service_url_and_opts(service)
     args = args + [*args, '--', precmd, *command]
-    #serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
+    if debug:
+        serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     kwargs = {}
