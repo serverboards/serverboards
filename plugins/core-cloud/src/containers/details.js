@@ -20,9 +20,6 @@ class Details extends React.Component{
         this.setState({vmc})
       })
   }
-  componentShouldUpdate(nextprops){
-    return true
-  }
   render(){
     const vmc = this.state.vmc
     return (
