@@ -61,8 +61,11 @@ h2.ui.header, h3.ui.header, h3.ui.item.header
     justify-content: center
 
 
-.ui.header.uppercase
-  text-transform: uppercase
+.ui.header
+  &.uppercase
+    text-transform: uppercase
+  &.no.bottom.margin
+    margin-bottom: 0
 
 body
   height: auto !important
