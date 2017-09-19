@@ -1,7 +1,59 @@
-const {React, i18n} = Serverboards
+const {React, cache, i18n} = Serverboards
 import CloudCard from '../containers/card'
 import Details from './detailstab'
 const {Tip} = Serverboards.Components
+
+class Future extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
+      value: undefined
+    }
+  }
+  componentDidMount(){
+    this.props.value.then( value => this.setState({value}) )
+  }
+  render(){
+    console.log("Value ", this.state.value || this.props.default)
+    return  (
+      <span>
+        {this.state.value || this.props.default}
+      </span>
+    )
+  }
+}
+
+function SimpleList(props){
+  const {items, current} = props
+  return (
+    <div className="ui cards">
+    {items.map( i => (
+      <CloudCard
+        {...props}
+        key={i.id}
+        className={current && current.parent==i.parent && current.id==i.id && "selected"}
+        item={i}
+        onClick={() => props.setCurrent(i)}
+        />
+    ))}
+    </div>
+  )
+}
+function ByProviderList(props){
+  const {items, current} = props
+  return (
+    <div>
+      {Object.keys(items).map( provider => (
+          <div key={provider}>
+            <h3 className="ui teal header padding top">
+              <Future value={cache.service(provider).then( p => p.name )} default="..."/>
+            </h3>
+            <SimpleList {...props} items={items[provider]}/>
+          </div>
+      ))}
+    </div>
+  )
+}
 
 function ListView(props){
   const {items, current} = props
@@ -34,17 +86,10 @@ function ListView(props){
           <div className="ui scroll extend with padding">
             { items.length == 0 ? (
               <div className="ui meta">No items</div>
+            ) : Array.isArray(items) ? (
+              <SimpleList {...props}/>
             ) : (
-              <div className="ui cards">
-              {items.map( i => (
-                <CloudCard
-                  {...props}
-                  className={current && current.parent==i.parent && current.id==i.id && "selected"}
-                  item={i}
-                  onClick={() => props.setCurrent(i)}
-                  />
-              ))}
-              </div>
+              <ByProviderList {...props}/>
             )}
           </div>
         </div>

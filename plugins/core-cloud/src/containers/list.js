@@ -21,7 +21,7 @@ function match_filter_word(item, word){
         return true
     }
   }
-  else if (item.toLowerCase().includes(word))
+  else if (String(item).toLowerCase().includes(word))
     return true
   return false
 }
@@ -35,6 +35,7 @@ class List extends React.Component{
       items: undefined,
       current: undefined,
       filter: undefined,
+      by_provider: true
     }
   }
   componentDidMount(){
@@ -57,10 +58,26 @@ class List extends React.Component{
     this.setState({filterTimeout})
   }
   filter(items, filter){
-    if (!filter)
-      return items
-    return items
-      .filter( i => match_filter(i, filter) )
+    let filtered=items
+    if (filter)
+      filtered = items
+        .filter( i => match_filter(i, filter) )
+    if (this.state.by_provider){
+      let lastpro=undefined
+      let current_pro=[]
+      let ret = {}
+      for (let i of filtered){
+        if (lastpro!=i.parent){
+          lastpro=i.parent
+          current_pro=ret[lastpro] || []
+          ret[lastpro]=current_pro
+        }
+        current_pro.push(i)
+      }
+      console.log("By provider", items, ret)
+      filtered = ret
+    }
+    return filtered
   }
   render(){
     if (this.state.loading == true){
