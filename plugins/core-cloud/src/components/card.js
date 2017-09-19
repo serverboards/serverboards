@@ -34,7 +34,7 @@ class CloudCard extends React.Component{
       <div className={`ui narrow card ${props.className || ""}`} onClick={props.onClick} style={{cursor:"pointer"}}>
         <div className="header">
           <IconIcon
-            icon={template.icon}
+            icon={item.icon || template.icon}
             plugin={(template.type || "").split('/')[0]}
             className="ui mini"
             />
