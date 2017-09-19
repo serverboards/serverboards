@@ -1,6 +1,7 @@
 const {React, i18n} = Serverboards
 import CloudCard from '../containers/card'
 import Details from './detailstab'
+const {Tip} = Serverboards.Components
 
 function ListView(props){
   const {items, current} = props
@@ -12,7 +13,12 @@ function ListView(props){
     )
   }
   else{
-    section=null
+    section=(
+      <Tip
+        subtitle={i18n("Direct access to your Virtual Machines and Containers.")}
+        description={i18n("Add access to your Virtual Machine and Containers and access directly from the UI via a SSH Terminal or Remote Desktop.")}
+        />
+    )
   }
 
   return (
