@@ -89,8 +89,8 @@ function BigStat({label, value, percent, description, className, show_percentage
 
 function Details({vmc, template, parent, onStart, onStop}){
   const data = {
-    ip: (vmc.props.public_ips || []).join(' '),
-    ip6: (vmc.props.public_ips6 || []).join(' '),
+    ip: utils.merge(vmc.props.public_ips || [], vmc.props.private_ips || []).join(' '),
+    ip6: utils.merge(vmc.props.public_ips6 || [], vmc.props.private_ips6 || []).join(' '),
     dns: vmc.props.dns_name
   }
   const props = vmc.props
