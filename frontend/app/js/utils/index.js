@@ -147,8 +147,14 @@ export function capitalize(string) {
 
 /// Merges two or more dicts into a new one. Do not modify origins. B items have priority.
 export function merge(){
-  let args=[{}, ...arguments]
-  return Object.assign.apply(null, args)
+  if (Array.isArray(arguments[0])){
+    let args=[[], ...arguments]
+    return Array.concat.apply(null, args)
+  }
+  else{
+    let args=[{}, ...arguments]
+    return Object.assign.apply(null, args)
+  }
 }
 
 export function object_is_equal(a,b){
