@@ -122,7 +122,7 @@ def _open(url, uidesc=None, options=""):
 
     print("SSH Terminal: '%s'"%( "' '".join(["/usr/bin/ssh"] + opts) ))
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
-        stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env={"TERM": "linux"})
     _uuid = str(uuid.uuid4())
     sessions[_uuid]=dict(process=sp, buffer=b"", end=0, uidesc=uidesc, ptymaster=ptymaster)
 
@@ -232,7 +232,7 @@ def recv(uuid, start=None, encoding='utf8'):
         else:
             i=start-bstart
     raw_data=raw_data[i:]
-    print(raw_data, repr(raw_data))
+    # print(raw_data, repr(raw_data))
     if encoding=='b64':
         data = str( base64.encodestring(raw_data), 'utf8' )
     else:
