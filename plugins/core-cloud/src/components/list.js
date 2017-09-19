@@ -8,7 +8,7 @@ function ListView(props){
   let section
   if (current){
     section=(
-      <Details key={current.id} vmc={current}/>
+      <Details key={current.id} vmc={current} reloadAll={props.reloadAll} />
     )
   }
   else{

@@ -1,4 +1,4 @@
-const {i18n, utils, React} = Serverboards
+const {i18n, utils, store, React} = Serverboards
 
 const UNITS = [ "B", "KiB", "MiB", "GiB", "TiB", "ZiB"]
 const MiB = 1024 * 1024
@@ -87,7 +87,7 @@ function BigStat({label, value, percent, description, className, show_percentage
   )
 }
 
-function Details({vmc}){
+function Details({vmc, template, parent, onStart, onStop}){
   const data = {
     ip: (vmc.props.public_ips || []).join(' '),
     ip6: (vmc.props.public_ips6 || []).join(' '),
@@ -103,11 +103,11 @@ function Details({vmc}){
       <div className={`ui attached colored top ${utils.colorize(vmc.state)} background menu`}>
         <div className="ui menu">
           {vmc.state == "running" ? (
-              <a className="item">
+              <a onClick={onStop} className="item">
                 <i className="icon stop"/>
               </a>
             ) : (
-              <a className="item">
+              <a onClick={onStart} className="item">
                 <i className="icon play"/>
               </a>
           )}
@@ -115,7 +115,15 @@ function Details({vmc}){
         <h3 className="ui header centered stretch white text">{i18n(vmc.state)}</h3>
       </div>
       <div className="ui padding">
-        <h2 className="ui header">{vmc.name}</h2>
+        <h2 className="ui header" style={{marginBottom:0}}>{vmc.name}</h2>
+        <div>
+          {template && template.name}
+        </div>
+        <div>
+          {parent && (
+            <a onClick={() => store.goto(`/services/${parent.uuid}/`)}>{parent.name}</a>
+          )}
+        </div>
       </div>
       <div className="ui divider"></div>
       <div className="ui padding">

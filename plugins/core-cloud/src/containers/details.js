@@ -1,4 +1,4 @@
-const {rpc, plugin, React} = Serverboards
+const {rpc, plugin, cache, Flash, i18n, React} = Serverboards
 import View from '../components/details'
 
 class Details extends React.Component{
@@ -9,6 +9,29 @@ class Details extends React.Component{
       vmc: this.props.vmc
     }
   }
+  call_and_reload(calln){
+    const node = this.props.vmc
+    return plugin.start_call_stop("serverboards.core.cloud/daemon", calln, [node.parent, node.id])
+      .then( () => this.props.reloadAll() )
+      .catch( error => Flash.error(i18n("Could not perform action. Check logs.\n{error}", {error})))
+  }
+  onStart(){
+    this.call_and_reload("start").then( () => {
+      Flash.success(i18n("Started *{name}*", {name: this.props.vmc.name}))
+    })
+  }
+  onPause(){
+    this.call_and_reload("pause").then( () => {
+      Flash.success(i18n("Paused *{name}*", {name: this.props.vmc.name}))
+    })
+  }
+  onStop(){
+    this.call_and_reload("stop").then( () => {
+      Flash.success(i18n("Stopped *{name}*", {name: this.props.vmc.name}))
+    })
+  }
+
+
   updateInfo(){
     const vmc = this.props.vmc
     const parent = vmc.parent
@@ -23,6 +46,13 @@ class Details extends React.Component{
     this.updateInfo()
     const updateTimer = setInterval(() => this.updateInfo(), 5000)
     this.setState({updateTimer})
+
+    cache
+      .service_type(this.props.vmc.type)
+      .then( (template) => this.setState({template}) )
+    cache
+      .service( this.props.vmc.parent )
+      .then( (parent) => this.setState({parent}))
   }
   componentWillUnmount(){
     if (this.state.updateTimer)
@@ -31,7 +61,10 @@ class Details extends React.Component{
   render(){
     const vmc = this.state.vmc
     return (
-      <View {...this.props} {...this.state}/>
+      <View {...this.props} {...this.state}
+        onStart={this.onStart.bind(this)}
+        onStop={this.onStop.bind(this)}
+        />
     )
   }
 }
