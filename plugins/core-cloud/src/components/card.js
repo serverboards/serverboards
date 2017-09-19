@@ -1,6 +1,6 @@
 const {React, i18n, cache, store, Components} = Serverboards
 const colorize = Serverboards.utils.colorize
-const {Loading} = Components
+const {Loading, IconIcon} = Components
 
 class CloudCard extends React.Component{
   constructor(props){
@@ -33,7 +33,11 @@ class CloudCard extends React.Component{
     return (
       <div className={`ui narrow card ${props.className || ""}`} onClick={props.onClick} style={{cursor:"pointer"}}>
         <div className="header">
-          {template.name} | <a onClick={() => store.goto(`/services/${parent.uuid}/`)}>{parent.name}</a>
+          <IconIcon
+            icon={template.icon}
+            plugin={(template.type || "").split('/')[0]}
+            className="ui mini"
+            />
           <div className="right">
             <span className="ui text label">
               {item.state}&nbsp;
@@ -41,14 +45,14 @@ class CloudCard extends React.Component{
             </span>
           </div>
         </div>
-        <div className="ui padding">
-          <h3 className="ui header">{item.name}</h3>
-          <div className="ui meta">{item.description}</div>
-        </div>
-        <div className="ui bottom buttons">
-          <a className="ui teal button" onClick={props.onStart}><i className="ui icon play"/></a>
-          <a className="ui button" onClick={props.onPause}><i className="ui icon pause"/></a>
-          <a className="ui button" onClick={props.onStop}><i className="ui icon stop"/></a>
+        <div className="content">
+          <h3 className="ui header no bottom margin">{item.name}</h3>
+          <div>
+            {template.name}
+          </div>
+          <div>
+            <a onClick={() => store.goto(`/services/${parent.uuid}/`)}>{parent.name}</a>
+          </div>
         </div>
       </div>
     )

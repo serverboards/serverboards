@@ -40,7 +40,7 @@ class Connection:
     self.type = type
 
   def describe(self, node):
-    return "%s node"%(self.type)
+    return None
 
   def guess_icon(self, node):
     nodename=node.name.lower()
