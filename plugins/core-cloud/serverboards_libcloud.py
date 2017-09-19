@@ -8,6 +8,7 @@ from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 
 GiB = 1024 * 1024 * 1024
+MiB = 1024 * 1024
 
 connections = {} # UUID of a service to a connection
 
@@ -15,27 +16,31 @@ state_trans = {
   "terminated" : "stopped",
 }
 
-class Connection:
-  def __init__(self, config):
+PRIVATE_IP_MASKS=[
+    "192.168.",
+    "10.",
+    "127.",
+    "172.16."
+]
+
+def is_public_ip(ip):
+    for test in PRIVATE_IP_MASKS:
+        if ip.startswith(test):
+            return False
+    return True
+
+def make_connection(config):
     type = config.get("type")
-    driver = None
     if type == 'libvirt':
-      cls=get_driver(Provider.LIBVIRT)
+        return LibVirt(config)
+    if type == 'digitalocean':
+        return DigitalOcean(config)
+    if type == 'aws.ec2':
+        return AWSEC2(config)
+    raise Exception("Could not create connexion to remote cloud provider")
 
-      ssh_server = serverboards.service.get(config['server'])
-      keyfile=os.path.join(os.environ["HOME"],"../serverboards.core.ssh/id_rsa")
-      url="qemu+ssh://%s/system?keyfile=%s"%(ssh_server["config"]['url'], keyfile)
-
-      #serverboards.debug("Connect to libvirt // %s"%url)
-      driver=cls( url )
-    elif type == 'digitalocean':
-      cls=get_driver(Provider.DIGITAL_OCEAN)
-      driver=cls(config['token'], api_version='v2')
-    elif type == 'aws.ec2':
-      cls=get_driver(Provider.EC2)
-      driver=cls(config["access_key"], config["access_secret"], region=config["region"])
-    if not driver:
-      raise Exception("Could not create connexion to remote cloud provider")
+class Connection:
+  def __init__(self, type, driver):
     self.driver = driver
     self.type = type
 
@@ -61,13 +66,120 @@ class Connection:
         nodes = self.driver.list_nodes()
         return next(x for x in nodes if x.uuid == uuid)
 
+  def details(self, node, extra_info=False):
+    extra = {
+        'private_ips':node.private_ips,
+        'public_ips':node.public_ips,
+        'created_at':str(node.created_at),
+        'mem_total':node.extra.get("used_memory"),
+    }
+    if extra_info:
+        extra.update(node.extra)
+        extra["size"]=node.size
+        try:
+            extra["image"]=self.driver.get_image(extra["image_id"]).extra
+        except:
+            extra["image"]=node.image
+
+        try:
+            extra["disk_total"] = extra["image"]["block_device_mapping"][0]["ebs"]["volume_size"] * 1024 # from GiB to MiB
+        except:
+            pass
+
+        extra = ensure_jsonable(extra)
+
+    return {
+      "name" : node.name,
+      "description" : self.describe(node),
+      "id" : node.uuid,
+      "state" : state_trans.get(node.state, node.state),
+      "icon" : self.guess_icon(node),
+      "props" : extra
+    }
+
+
+
+class LibVirt(Connection):
+    def __init__(self, config):
+      type = config.get("type")
+      cls=get_driver(Provider.LIBVIRT)
+
+      ssh_server = serverboards.service.get(config['server'])
+      keyfile=os.path.join(os.environ["HOME"],"../serverboards.core.ssh/id_rsa")
+      url="qemu+ssh://%s/system?keyfile=%s"%(ssh_server["config"]['url'], keyfile)
+
+      #serverboards.debug("Connect to libvirt // %s"%url)
+      driver=cls( url )
+      super().__init__("libvirt", driver)
+
+      self.prev_used_cpu_time_v={}
+      self.prev_used_cpu_time_t={}
+
+    def details(self, node, extra_info=False):
+        details = super().details(node, extra_info)
+
+        if extra_info:
+            extra = details["props"]
+
+            used_cpu_time=extra.get("used_cpu_time")
+            if used_cpu_time:
+                used_cpu_time/=1_000_000_000;
+                now=time.time()
+                if node.uuid in self.prev_used_cpu_time_v:
+                    extra["CPU_rt"]=(used_cpu_time-self.prev_used_cpu_time_v[node.uuid])/(now-self.prev_used_cpu_time_t[node.uuid])
+                self.prev_used_cpu_time_t[node.uuid]=now
+                self.prev_used_cpu_time_v[node.uuid]=used_cpu_time
+
+            if details["state"]=="running":
+                extra["private_ips"], extra["public_ips"] = self.get_ips(node)
+            extra["disk_total"], extra["disk_free_rt"] = self.get_disk_total_free(node)
+
+        return details
+
+    def get_libvirt_node(self, node):
+        return next(x for x in self.driver.connection.listAllDomains() if x.name() == node.name)
+
+    def get_ips(self, node):
+        lnode = self.get_libvirt_node(node)
+        private_ips, public_ips = [], []
+        for iface, data in lnode.interfaceAddresses(0).items():
+            for addr in data["addrs"]:
+                ip = addr["addr"]
+                if is_public_ip(ip):
+                    public_ips.append(ip)
+                else:
+                    private_ips.append(ip)
+        return private_ips, public_ips
+
+    def get_disk_total_free(self, node):
+        lnode = self.get_libvirt_node(node)
+
+        try:
+            total, used, _physical = lnode.blockInfo("vda")
+            return (total / MiB, used / MiB)
+        except:
+            return None, None
+
+class DigitalOcean(Connection):
+    def __init__(self, config):
+      cls=get_driver(Provider.DIGITAL_OCEAN)
+      driver=cls(config['token'], api_version='v2')
+      super().__init__("digitalocean", driver)
+
+class AWSEC2(Connection):
+    def __init__(self, config):
+      cls=get_driver(Provider.EC2)
+      driver=cls(config["access_key"], config["access_secret"], region=config["region"])
+      super().__init__("aws.ec2", driver)
+
+
 @cache_ttl(60)
 def get_connection(service):
   conn = connections.get(service["uuid"], None)
   if conn:
     return conn
 
-  conn = Connection( service["config"] )
+  conn = make_connection( service["config"] )
   connections[service["uuid"]] = conn
   return conn
 
@@ -83,60 +195,18 @@ def ensure_jsonable(data):
     except:
         return repr(data)
 
-# to be able to check cpu usage
-prev_used_cpu_time_v={}
-prev_used_cpu_time_t={}
-
-def details(conn, node, extra_info=False, ):
-  extra = {
-      'private_ips':node.private_ips,
-      'public_ips':node.public_ips,
-      'created_at':str(node.created_at),
-      'mem_total':node.extra.get("used_memory"),
-  }
-  if extra_info:
-      extra.update(node.extra)
-      extra["size"]=node.size
-      try:
-          extra["image"]=conn.driver.get_image(extra["image_id"]).extra
-      except:
-          extra["image"]=node.image
-
-      try:
-          extra["disk_total"] = extra["image"]["block_device_mapping"][0]["ebs"]["volume_size"] * 1024 # from GiB to MiB
-      except:
-          pass
-
-      used_cpu_time=extra.get("used_cpu_time")
-      if used_cpu_time:
-          used_cpu_time/=1_000_000_000;
-          now=time.time()
-          if node.uuid in prev_used_cpu_time_v:
-              extra["CPU_rt"]=(used_cpu_time-prev_used_cpu_time_v[node.uuid])/(now-prev_used_cpu_time_t[node.uuid])
-          prev_used_cpu_time_t[node.uuid]=now
-          prev_used_cpu_time_v[node.uuid]=used_cpu_time
-
-      extra = ensure_jsonable(extra)
-
-  return {
-    "name" : node.name,
-    "description" : conn.describe(node),
-    "id" : node.uuid,
-    "state" : state_trans.get(node.state, node.state),
-    "icon" : conn.guess_icon(node),
-    "props" : extra
-  }
 
 @serverboards.rpc_method("details")
 def _details(service, vmc):
   conn = get_connection(service)
-  return details(conn, conn.get_node(vmc), True)
+  return conn.details(conn.get_node(vmc), True)
 
 @serverboards.rpc_method("list")
 def _list(service):
+  print("Get list from libvirt", service)
   conn = get_connection(service)
 
-  return [details(conn, node) for node in conn.driver.list_nodes()]
+  return [conn.details(node) for node in conn.driver.list_nodes()]
 
 @serverboards.rpc_method
 def start(service, vmc):
