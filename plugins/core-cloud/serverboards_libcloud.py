@@ -7,6 +7,8 @@ from serverboards import rpc, cache_ttl, print
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 
+GiB = 1024 * 1024 * 1024
+
 connections = {} # UUID of a service to a connection
 
 state_trans = {
@@ -81,15 +83,40 @@ def ensure_jsonable(data):
     except:
         return repr(data)
 
-def details(conn, node, extra_info=False, ):
-  extra = {}
-  if extra_info:
-      extra=node.extra
-      extra["size"]=node.size
-      extra["image"]=node.image
-      extra = ensure_jsonable(extra)
+# to be able to check cpu usage
+prev_used_cpu_time_v={}
+prev_used_cpu_time_t={}
 
-  print("Extra data", extra)
+def details(conn, node, extra_info=False, ):
+  extra = {
+      'private_ips':node.private_ips,
+      'public_ips':node.public_ips,
+      'created_at':str(node.created_at),
+      'mem_total':node.extra.get("used_memory"),
+  }
+  if extra_info:
+      extra.update(node.extra)
+      extra["size"]=node.size
+      try:
+          extra["image"]=conn.driver.get_image(extra["image_id"]).extra
+      except:
+          extra["image"]=node.image
+
+      try:
+          extra["disk_total"] = extra["image"]["block_device_mapping"][0]["ebs"]["volume_size"] * 1024 # from GiB to MiB
+      except:
+          pass
+
+      used_cpu_time=extra.get("used_cpu_time")
+      if used_cpu_time:
+          used_cpu_time/=1_000_000_000;
+          now=time.time()
+          if node.uuid in prev_used_cpu_time_v:
+              extra["CPU_rt"]=(used_cpu_time-prev_used_cpu_time_v[node.uuid])/(now-prev_used_cpu_time_t[node.uuid])
+          prev_used_cpu_time_t[node.uuid]=now
+          prev_used_cpu_time_v[node.uuid]=used_cpu_time
+
+      extra = ensure_jsonable(extra)
 
   return {
     "name" : node.name,
@@ -97,12 +124,7 @@ def details(conn, node, extra_info=False, ):
     "id" : node.uuid,
     "state" : state_trans.get(node.state, node.state),
     "icon" : conn.guess_icon(node),
-    "props" : {
-        'private_ips':node.private_ips,
-        'public_ips':node.public_ips,
-        'created_at':str(node.created_at),
-        **extra
-    }
+    "props" : extra
   }
 
 @serverboards.rpc_method("details")

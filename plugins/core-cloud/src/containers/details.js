@@ -9,16 +9,24 @@ class Details extends React.Component{
       vmc: this.props.vmc
     }
   }
-  componentDidMount(){
+  updateInfo(){
     const vmc = this.props.vmc
     const parent = vmc.parent
     const id = vmc.id
     plugin
       .start_call_stop("serverboards.core.cloud/daemon","details", [parent, id])
       .then( vmc => {
-        console.log("Got more info: ", vmc)
         this.setState({vmc})
       })
+  }
+  componentDidMount(){
+    this.updateInfo()
+    const updateTimer = setInterval(() => this.updateInfo(), 5000)
+    this.setState({updateTimer})
+  }
+  componentWillUnmount(){
+    if (this.state.updateTimer)
+      clearTimeout(this.state.updateTimer)
   }
   render(){
     const vmc = this.state.vmc

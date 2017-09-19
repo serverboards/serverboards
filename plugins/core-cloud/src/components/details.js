@@ -1,9 +1,11 @@
 const {i18n, utils, React} = Serverboards
 
 const UNITS = [ "B", "KiB", "MiB", "GiB", "TiB", "ZiB"]
-const KiB = 1024 * 1024
+const MiB = 1024 * 1024
 
 export function calculate_size(size){
+  if (!size)
+    return null
   let csize = size
   let i
   for (i=0;i<UNITS.length;i++){
@@ -70,7 +72,7 @@ function BigStat({label, value, percent, description, className, show_percentage
   return (
     <div className={`ui centered text ${className || ""}`}>
       <div>{label}</div>
-      <div className="ui bigger text">
+      <div className="ui bigger text oneline">
         {value}
       </div>
       {percent ? (
@@ -86,7 +88,6 @@ function BigStat({label, value, percent, description, className, show_percentage
 }
 
 function Details({vmc}){
-  console.log(vmc)
   const data = {
     ip: (vmc.props.public_ips || []).join(' '),
     ip6: (vmc.props.public_ips6 || []).join(' '),
@@ -94,7 +95,8 @@ function Details({vmc}){
   }
   const props = vmc.props
 
-  let memory=calculate_size(props.memory_total * KiB)
+  let memory=calculate_size(props.mem_total * MiB)
+  let disk=calculate_size(props.disk_total * MiB)
 
   return (
     <div className="extend">
@@ -123,23 +125,27 @@ function Details({vmc}){
               className="column"
               label={i18n("MEM TOTAL")}
               value={`${memory.size} ${memory.unit}`}
-              percent={(props.memory_used || 0.0)/props.memory_total}
-              description={i18n("{size} {unit} used", calculate_size( (props.memory_used || 0.0) * KiB ))}
+              percent={props.mem_free_rt && (props.mem_total-props.mem_free_rt)/props.mem_total}
+              description={i18n("{size} {unit} free", calculate_size( (props.mem_free_rt || 0.0) * MiB ))}
               />
           )}
-          <BigStat
-            className="column"
-            label={i18n("DISK TOTAL")}
-            value={"3 TiB"}
-            percent={1.4/3}
-            description={i18n("1.4 TiB used")}
-            />
-          <BigStat
-            className="column"
-            label={i18n("CPU USAGE")}
-            value={"68 %"}
-            percent={0.68}
-            />
+          {disk && (
+            <BigStat
+              className="column"
+              label={i18n("DISK TOTAL")}
+              value={`${disk.size} ${disk.unit}`}
+              percent={props.disk_free_rt && (props.disk_total-props.disk_free_rt)/props.disk_total}
+              description={i18n("{size} {unit} free", calculate_size( (props.disk_free_rt || 0.0) * MiB ))}
+              />
+          )}
+          {(props.CPU_rt != undefined) && (
+            <BigStat
+              className="column"
+              label={i18n("CPU USAGE")}
+              value={`${(props.CPU_rt*100.0).toFixed(1)} %`}
+              percent={props.CPU_rt}
+              />
+          )}
         </div>
         {data.ip && (
           <div style={{paddingTop:30}}>
