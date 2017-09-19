@@ -31,17 +31,17 @@ class DetailsTab extends React.Component{
              >
             <i className="file text outline icon"></i>
           </a>
-          <a className={`item ${section == "edit" ? "active" : ""}`}
-             data-tooltip={i18n("Edit")}
+          <a className={`item ${section == "ssh" ? "active" : ""}`}
+             data-tooltip={i18n("SSH Remote Terminal")}
              data-position="left center"
-             onClick={() => this.setState({tab:"edit"})}
+             onClick={() => this.setState({tab:"ssh"})}
              >
             <i className="code icon"></i>
           </a>
-          <a className={`item ${section == "logs" ? "active" : ""}`}
-             data-tooltip={i18n("Logs")}
+          <a className={`item ${section == "remote_desktop" ? "active" : ""}`}
+             data-tooltip={i18n("Remote Desktop")}
              data-position="left center"
-             onClick={() => this.setState({tab:"logs"})}
+             onClick={() => this.setState({tab:"remote_desktop"})}
              >
             <i className="desktop icon"></i>
             </a>
