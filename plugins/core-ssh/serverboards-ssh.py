@@ -120,6 +120,7 @@ def _open(url, uidesc=None, options=""):
     opts += ['-t','-t', '--', '/bin/bash']
     (ptymaster, ptyslave) = pty.openpty()
 
+    print("SSH Terminal: '%s'"%( "' '".join(["/usr/bin/ssh"] + opts) ))
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
         stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _uuid = str(uuid.uuid4())
