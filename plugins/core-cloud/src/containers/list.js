@@ -44,7 +44,7 @@ class List extends React.Component{
       this.setState({items: this.filter(all_items, this.state.filter), all_items, loading: false})
     }).catch( e => this.setState({loading: "error", error: e}))
   }
-  handleSetFilter(filter){
+  handleSetFilter(filter=""){
     if (this.state.filterTimeout)
       clearTimeout(this.state.filterTimeout)
     const filterTimeout = setTimeout( () => {
@@ -56,6 +56,10 @@ class List extends React.Component{
       })
     }, 400)
     this.setState({filterTimeout})
+  }
+  handleSetByProvider(by_provider){
+    this.setState({by_provider})
+    this.handleSetFilter((this.state.filter || []).join(' '))
   }
   filter(items, filter){
     let filtered=items
@@ -74,7 +78,6 @@ class List extends React.Component{
         }
         current_pro.push(i)
       }
-      console.log("By provider", items, ret)
       filtered = ret
     }
     return filtered
@@ -97,6 +100,8 @@ class List extends React.Component{
         current={this.state.current}
         setCurrent={(current) => this.setState({current})}
         setFilter={this.handleSetFilter.bind(this)}
+        setByProvider={this.handleSetByProvider.bind(this)}
+        by_provider={this.state.by_provider}
         />
     )
   }
