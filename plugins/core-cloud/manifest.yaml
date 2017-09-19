@@ -167,6 +167,7 @@ components:
         value: aws.ec2
   - id: libcloud-daemon
     name: Libvirt Daemon
+    strategy: singleton
     timeout: 30s
     type: cmd
     command: serverboards_libcloud.py
@@ -206,6 +207,8 @@ components:
           Check https://forum.serverboards.io for more information.
   - id: lxc-daemon
     name: LXC Daemon
+    strategy: singleton
+    timeout: 30s
     type: cmd
     command: serverboards_lxc.py
     perms: service.get plugin
