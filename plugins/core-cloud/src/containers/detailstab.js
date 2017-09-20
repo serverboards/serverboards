@@ -1,12 +1,14 @@
 const {rpc, plugin, cache, Flash, i18n, React} = Serverboards
-import View from '../components/details'
+import View from '../components/detailstab'
 
-class Details extends React.Component{
+class DetailsTab extends React.Component{
   constructor(props){
     super(props)
 
     this.state={
-      vmc: this.props.vmc
+      vmc: this.props.vmc,
+      parent: null,
+      template: null,
     }
   }
   call_and_reload(calln){
@@ -69,4 +71,4 @@ class Details extends React.Component{
   }
 }
 
-export default Details
+export default DetailsTab

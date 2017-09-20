@@ -1,6 +1,6 @@
 const {React, cache, i18n} = Serverboards
 import CloudCard from '../containers/card'
-import Details from './detailstab'
+import DetailsTab from '../containers/detailstab'
 const {Tip} = Serverboards.Components
 
 class Future extends React.Component{
@@ -88,7 +88,7 @@ class ListView extends React.Component{
     let section
     if (current){
       section=(
-        <Details key={current.id} vmc={current} reloadAll={props.reloadAll} />
+        <DetailsTab key={current.id} vmc={current} reloadAll={props.reloadAll} />
       )
     }
     else{
