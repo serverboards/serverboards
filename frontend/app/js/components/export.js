@@ -10,6 +10,7 @@ import Error from './error'
 import Tip from './tip'
 import Logs from './logs'
 import IconIcon from './iconicon'
+import PluginScreen from './plugin/screen'
 
 const components = {
   Modal,
@@ -22,7 +23,8 @@ const components = {
   Error,
   Tip,
   Logs,
-  IconIcon
+  IconIcon,
+  PluginScreen
 }
 
 export default components
