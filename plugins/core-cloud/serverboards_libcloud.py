@@ -29,6 +29,16 @@ def is_public_ip(ip):
             return False
     return True
 
+def xml_to_json(root):
+    ret = {}
+    if root.attrib:
+        ret.update(root.attrib)
+    for child in root:
+        ret.update( xml_to_json(child) )
+    if not ret:
+        ret = root.text
+    return {root.tag: ret}
+
 def make_connection(config):
     type = config.get("type")
     if type == 'libvirt':
@@ -130,17 +140,32 @@ class LibVirt(Connection):
                 self.prev_used_cpu_time_t[node.uuid]=now
                 self.prev_used_cpu_time_v[node.uuid]=used_cpu_time
 
+
+            lnode = self.get_libvirt_node(node)
             if details["state"]=="running":
-                extra["private_ips"], extra["public_ips"] = self.get_ips(node)
-            extra["disk_total"], extra["disk_free_rt"] = self.get_disk_total_free(node)
+                extra["private_ips"], extra["public_ips"] = self.get_ips(lnode)
+            extra["disk_total"], extra["disk_free_rt"] = self.get_disk_total_free(lnode)
+
+            import xml.etree.ElementTree as ET
+
+            xmlo = ET.fromstring( lnode.XMLDesc() )
+            extra.update( xml_to_json( xmlo ) )
+
+            if details["state"]=="running":
+                try:
+                    graphics=extra["domain"]["devices"]["graphics"]
+                    if graphics["type"]=="spice":
+                        extra["spice_port"]=graphics["port"]
+                except:
+                    # no graphics
+                    pass
 
         return details
 
     def get_libvirt_node(self, node):
         return next(x for x in self.driver.connection.listAllDomains() if x.name() == node.name)
 
-    def get_ips(self, node):
-        lnode = self.get_libvirt_node(node)
+    def get_ips(self, lnode):
         private_ips, public_ips = [], []
         for iface, data in lnode.interfaceAddresses(0).items():
             for addr in data["addrs"]:
@@ -151,9 +176,7 @@ class LibVirt(Connection):
                     private_ips.append(ip)
         return private_ips, public_ips
 
-    def get_disk_total_free(self, node):
-        lnode = self.get_libvirt_node(node)
-
+    def get_disk_total_free(self, lnode):
         try:
             total, used, _physical = lnode.blockInfo("vda")
             return (total / MiB, used / MiB)

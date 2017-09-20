@@ -1,6 +1,7 @@
 const {i18n, React} = Serverboards
 import Details from './details'
 import SSH from './ssh'
+import Spice from './spice'
 
 class DetailsTab extends React.Component{
   constructor(props){
@@ -21,10 +22,13 @@ class DetailsTab extends React.Component{
       case "ssh":
         Section=SSH
         break;
+      case "spice":
+        Section=Spice
+        break;
     }
 
     const has_ssh = Boolean((this.props.vmc.props.private_ips || this.props.vmc.props.public_ips || []).length>0)
-    const has_spice = Boolean(this.props.vmc.props.spice_url)
+    const has_spice = Boolean(this.props.vmc.props.spice_port)
 
     return (
       <div className="ui expand with right side menu">
@@ -48,10 +52,10 @@ class DetailsTab extends React.Component{
             </a>
           )}
           {has_spice && (
-            <a className={`item ${section == "remote_desktop" ? "active" : ""}`}
+            <a className={`item ${section == "spice" ? "active" : ""}`}
                data-tooltip={i18n("Remote Desktop")}
                data-position="left center"
-               onClick={() => this.setState({tab:"remote_desktop"})}
+               onClick={() => this.setState({tab:"spice"})}
                >
               <i className="desktop icon"></i>
             </a>
