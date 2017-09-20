@@ -41,7 +41,7 @@ export function unsubscribe(types){
   }
 }
 
-const PLAIN_EVENT_RE=/[\w.]+/
+const PLAIN_EVENT_RE=/[\w.-]+/
 
 export function on(event, fn){
   subscribe([event])

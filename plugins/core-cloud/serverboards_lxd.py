@@ -23,7 +23,7 @@ def details_(node, extra=False):
         "name": node.get("name"),
         "state": (node.get("status") or "stopped").lower(),
         "icon" : "cloud",
-        "description" : "LXD managed node",
+        "description" : None,
         "id" : node.get("name"),
         "props" : {
             **extra_info

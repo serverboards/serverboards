@@ -58,7 +58,7 @@ def list(project=None):
 def start(parent, node):
   p = get_provider_by_uuid( parent )
 
-  ret = p.start( get_service(parent), node )
+  ret = p.call("start", get_service(parent), node )
   list.invalidate_cache()
 
   return ret

@@ -178,8 +178,8 @@ export function start_call_stop(pluginid, method, args){
   return start(pluginid).then( (pl) => (
     pl
       .call(method, args)
-      .then( (res) => {pl.stop(); return res; })
-      .catch( (e) => { pl.stop(); throw e; })
+      .then( (res) => { pl.stop().catch( () => false); return res; })
+      .catch( (e) => { pl.stop().catch( () => false); throw e; })
       .catch( (e) => { if (e!="cant_stop") throw e; })
   ))
 }

@@ -23,7 +23,7 @@ def _list( service ):
         "name": l[0],
         "state": l[1].lower(),
         "icon": "cloud",
-        "descritpion": "LXC container",
+        "descritpion": None,
         "props":{
           "ip": l[4],
           "ip6": l[5]

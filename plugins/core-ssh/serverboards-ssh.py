@@ -47,7 +47,7 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None):
+def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None, debug=False):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
@@ -71,7 +71,8 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
     else:
         url, args, precmd = __get_service_url_and_opts(service)
     args = args + [*args, '--', precmd, *command]
-    #serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
+    if debug:
+        serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     kwargs = {}
@@ -107,7 +108,8 @@ def _open(url, uidesc=None, options=""):
     ensure_ID_RSA()
     if not uidesc:
         uidesc=url
-    options=[x for x in options.split('\n') if x]
+    options=[x.strip() for x in options.split('\n')]
+    options=[x for x in options if x and not x.startswith('#')]
 
     (opts, url) = url_to_opts(url)
     options = __get_global_options() + options
@@ -119,8 +121,9 @@ def _open(url, uidesc=None, options=""):
     opts += ['-t','-t', '--', '/bin/bash']
     (ptymaster, ptyslave) = pty.openpty()
 
+    print("SSH Terminal: '%s'"%( "' '".join(["/usr/bin/ssh"] + opts) ))
     sp=subprocess.Popen(["/usr/bin/ssh"] + opts,
-        stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdin=ptyslave, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env={"TERM": "linux"})
     _uuid = str(uuid.uuid4())
     sessions[_uuid]=dict(process=sp, buffer=b"", end=0, uidesc=uidesc, ptymaster=ptymaster)
 
@@ -230,7 +233,7 @@ def recv(uuid, start=None, encoding='utf8'):
         else:
             i=start-bstart
     raw_data=raw_data[i:]
-    print(raw_data, repr(raw_data))
+    # print(raw_data, repr(raw_data))
     if encoding=='b64':
         data = str( base64.encodestring(raw_data), 'utf8' )
     else:
@@ -280,17 +283,17 @@ def __get_service_url_and_opts(service_uuid):
     return (url, options, precmd)
 
 @serverboards.rpc_method
-def open_port(url=None, ssh_service=None, hostname="localhost", port="22"):
+def open_port(url=None, service=None, hostname="localhost", port="22"):
     """
     Opens a connection to a remote ssh server on the given hostname and port.
 
-    This will make a local port accesible that will be equivalen to the remote
+    This will make a local port accesible that will be equivalent to the remote
     one. The local one is random.
 
     Arguments:
         url --  The ssh server url, as ssh://[username@]hostname[:port], or
-                simple hostname (required or ssh_service)
-        ssh_service -- UUID of the proxying service, instead of the URL.
+                simple hostname (required or service)
+        service -- UUID of the proxying service, instead of the URL.
         hostname -- Remote hostname to connect to. Default `localhost` which
                 would be the SSH server
         port -- Remote port to connect to
@@ -303,12 +306,14 @@ def open_port(url=None, ssh_service=None, hostname="localhost", port="22"):
         serverboards.warning("Deprecated open port by URL. Better use open port by service UUID, as it uses all SSH options.")
         (opts, url) = url_to_opts(url)
     else:
-        assert ssh_service
-        (url, opts, _precmd) = __get_service_url_and_opts(ssh_service)
-        serverboards.debug("Service %s url is %s"%(ssh_service, url))
+        assert service
+        (url, opts, _precmd) = __get_service_url_and_opts(service)
 
-    if url in open_ports:
-        return open_ports[url]
+    port_key=(url.netloc,port)
+    print("Open port at %s", port_key)
+    maybe = open_ports.get(port_key)
+    if maybe:
+        return maybe
 
     keep_trying=True
     while keep_trying:
@@ -334,7 +339,7 @@ def open_port(url=None, ssh_service=None, hostname="localhost", port="22"):
             if ret==3:
                 keep_trying=False
                 running=False
-    open_ports[url]=localport
+    open_ports[port_key]=localport
     serverboards.debug("Port redirect localhost:%s -> %s:%s"%(localport, hostname, port))
     return localport
 
@@ -411,10 +416,10 @@ def __get_global_options():
     options = (
         serverboards
             .rpc.call("settings.get","serverboards.core.ssh/ssh.settings", {})
-            .get("options","").split('\n')
+            .get("options","")
         )
-    options = [ o.strip() for o in options ]
-    options = [ o for o in options if o ]
+    options = [ o.strip() for o in options.split('\n') ]
+    options = [ o for o in options if o and not o.startswith('#') ]
     return options
 
 @serverboards.rpc_method

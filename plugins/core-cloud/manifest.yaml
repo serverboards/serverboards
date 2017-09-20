@@ -30,6 +30,7 @@ components:
   - id: node_list
     name: Cloud nodes
     type: screen
+    hints: nohtml nocss
 
   - id: start
     name: Start node
@@ -166,6 +167,8 @@ components:
         value: aws.ec2
   - id: libcloud-daemon
     name: Libvirt Daemon
+    strategy: singleton
+    timeout: 30s
     type: cmd
     command: serverboards_libcloud.py
     perms: service.get
@@ -204,6 +207,8 @@ components:
           Check https://forum.serverboards.io for more information.
   - id: lxc-daemon
     name: LXC Daemon
+    strategy: singleton
+    timeout: 30s
     type: cmd
     command: serverboards_lxc.py
     perms: service.get plugin

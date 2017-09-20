@@ -21,7 +21,7 @@ function match_filter_word(item, word){
         return true
     }
   }
-  else if (item.toLowerCase().includes(word))
+  else if (String(item).toLowerCase().includes(word))
     return true
   return false
 }
@@ -35,6 +35,7 @@ class List extends React.Component{
       items: undefined,
       current: undefined,
       filter: undefined,
+      by_provider: true
     }
   }
   componentDidMount(){
@@ -43,7 +44,7 @@ class List extends React.Component{
       this.setState({items: this.filter(all_items, this.state.filter), all_items, loading: false})
     }).catch( e => this.setState({loading: "error", error: e}))
   }
-  handleSetFilter(filter){
+  handleSetFilter(filter=""){
     if (this.state.filterTimeout)
       clearTimeout(this.state.filterTimeout)
     const filterTimeout = setTimeout( () => {
@@ -56,11 +57,30 @@ class List extends React.Component{
     }, 400)
     this.setState({filterTimeout})
   }
+  handleSetByProvider(by_provider){
+    this.setState({by_provider})
+    this.handleSetFilter((this.state.filter || []).join(' '))
+  }
   filter(items, filter){
-    if (!filter)
-      return items
-    return items
-      .filter( i => match_filter(i, filter) )
+    let filtered=items
+    if (filter)
+      filtered = items
+        .filter( i => match_filter(i, filter) )
+    if (this.state.by_provider){
+      let lastpro=undefined
+      let current_pro=[]
+      let ret = {}
+      for (let i of filtered){
+        if (lastpro!=i.parent){
+          lastpro=i.parent
+          current_pro=ret[lastpro] || []
+          ret[lastpro]=current_pro
+        }
+        current_pro.push(i)
+      }
+      filtered = ret
+    }
+    return filtered
   }
   render(){
     if (this.state.loading == true){
@@ -80,6 +100,8 @@ class List extends React.Component{
         current={this.state.current}
         setCurrent={(current) => this.setState({current})}
         setFilter={this.handleSetFilter.bind(this)}
+        setByProvider={this.handleSetByProvider.bind(this)}
+        by_provider={this.state.by_provider}
         />
     )
   }
