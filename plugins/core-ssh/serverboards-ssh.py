@@ -108,7 +108,8 @@ def _open(url, uidesc=None, options=""):
     ensure_ID_RSA()
     if not uidesc:
         uidesc=url
-    options=[x for x in options.split('\n') if x]
+    options=[x.strip() for x in options.split('\n')]
+    options=[x for x in options if x and not x.startswith('#')]
 
     (opts, url) = url_to_opts(url)
     options = __get_global_options() + options
@@ -413,10 +414,10 @@ def __get_global_options():
     options = (
         serverboards
             .rpc.call("settings.get","serverboards.core.ssh/ssh.settings", {})
-            .get("options","").split('\n')
+            .get("options","")
         )
-    options = [ o.strip() for o in options ]
-    options = [ o for o in options if o ]
+    options = [ o.strip() for o in options.split('\n') ]
+    options = [ o for o in options if o and not o.startswith('#') ]
     return options
 
 @serverboards.rpc_method
