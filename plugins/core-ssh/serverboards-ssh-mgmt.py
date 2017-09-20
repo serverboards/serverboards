@@ -36,8 +36,8 @@ def get_fingerprint(url, *args, **kwargs):
         return None
 
 @serverboards.rpc_method
-def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
-    serverboards.info(repr(kwargs))
+def remote_fingerprint(url="", options="", **kwargs):
+    # serverboards.info(repr(kwargs))
     fingerprint=get_fingerprint(url, options)
     if not fingerprint:
         return {
@@ -73,8 +73,8 @@ def remote_fingerprint(url="192.168.1.200", options="", **kwargs):
     }
 
 @serverboards.rpc_method
-def toggle_remote_fingerprint(url=None, status=None, **args):
-    fingerprint=get_fingerprint(url)
+def toggle_remote_fingerprint(url=None, status=None, options="", **args):
+    fingerprint=get_fingerprint(url, options)
 
     enabled=False
 
@@ -110,6 +110,8 @@ def toggle_remote_fingerprint(url=None, status=None, **args):
                 fd.write('\n')
             serverboards.info("Added SSH known_host fingerprint for url %s"%(url))
             return "Fingerprint added"
+    print("Orig: ", status["fingerprint_orig"])
+    print("Real: ", fingerprint)
     raise Exception("Fingerprint has changed")
 
 def test():

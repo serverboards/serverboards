@@ -1,4 +1,4 @@
-const {i18n, cache, plugin, React} = Serverboards
+const {i18n, cache, plugin, Flash, React} = Serverboards
 const {PluginScreen, Loading} = Serverboards.Components
 
 class SSH extends React.Component{
@@ -18,6 +18,9 @@ class SSH extends React.Component{
       username: null,
       options: "",
       ssh_key_pub: null,
+      fingerprint: i18n("Loading..."),
+      fingerprint_enabled: undefined,
+      finterprint_orig: null
     }
   }
   componentDidMount(){
@@ -35,21 +38,43 @@ class SSH extends React.Component{
             let options = proxy && `# Connect through "${ssh.name}"\nProxyCommand ssh ${proxy} -q -W %h:%p\n`
 
             this.setState({ip, proxy, options, loading: false})
+            this.updateFingerprint(ip, options)
           })
       }
       else{
         this.setState({ip, loading: false, proxy: undefined})
+        this.updateFingerprint(ip, "")
       }
     }
     else{
       // Public IP, no proxy
       this.setState({ip, loading: false, proxy: undefined})
+      this.updateFingerprint(ip, "")
     }
     plugin
       .start_call_stop("serverboards.core.ssh/mgmt", "ssh_public_key", [])
       .then( ssh_key_pub => this.setState({ssh_key_pub}))
   }
-  handleConnect(){
+  updateFingerprint(url, options){
+    if (!url){
+      if (!this.refs.ip)
+        return
+      url = this.refs.ip.value
+      options = this.refs.options.value
+    }
+
+    this.setState({fingerprint: i18n("Loading...")})
+    console.log(url, options)
+    plugin
+      .start_call_stop("serverboards.core.ssh/mgmt", "remote_fingerprint", {url, options})
+      .then( fingerprint => this.setState({
+        fingerprint: fingerprint.fingerprint,
+        fingerprint_enabled: fingerprint.enabled,
+        fingerprint_orig: fingerprint.fingerprint_orig
+      }) )
+      .catch(e => this.setState({fingerprint: i18n("Error: {e}", {e})}))
+  }
+  connect(){
     const refs = this.refs
     this.setState({
       username: refs.username.value || "root",
@@ -57,6 +82,26 @@ class SSH extends React.Component{
       options: refs.options.value,
       ip: refs.ip.value
     })
+  }
+  handleConnect(){
+    if (!this.state.fingerprint_enabled){
+      plugin
+        .start_call_stop(
+            "serverboards.core.ssh/mgmt",
+            "toggle_remote_fingerprint",
+            {
+              status: {
+                fingerprint_orig: this.state.fingerprint_orig,
+              },
+              url: this.refs.ip.value,
+              options: this.refs.options.value
+            })
+        .then(() => this.connect() )
+        .catch( e => Flash.error(e) )
+    }
+    else {
+      this.connect()
+    }
   }
   render(){
       const {vmc} = this.props
@@ -71,33 +116,46 @@ class SSH extends React.Component{
             <h2 className="ui header centered">
               {i18n("Connect via SSH")}
             </h2>
-            <div className="field">
-              <label>{i18n("Username")}</label>
-              <input type="text" placeholder={i18n("root")} ref="username"/>
-            </div>
-            <div className="field">
-              <label>{i18n("Address")}</label>
-              <input type="text" defaultValue={this.state.ip} ref="ip"/>
-            </div>
-            <div className="field">
-              <label>{i18n("Port")}</label>
-              <input type="number" placeholder={i18n("22")} ref="port"/>
-            </div>
-            <div className="field">
-              <label>{i18n("Options")}</label>
-              <textarea defaultValue={this.state.options} ref="options"/>
-            </div>
-            <div className="field">
-              {i18n("Remember to add this public SSH key to the remote server")}
-              <pre>
-                {this.state.ssh_key_pub}
-              </pre>
-            </div>
-            <div className="inline field">
-              <div className="ui buttons">
-                <a className="ui button teal" onClick={() => this.handleConnect()}>
-                  {i18n("Connect")}
-                </a>
+            <div className="ui expand with scroll">
+              <div className="field">
+                <label>{i18n("Username")}</label>
+                <input type="text" placeholder={i18n("root")} ref="username"/>
+              </div>
+              <div className="field">
+                <label>{i18n("Address")}</label>
+                <input type="text" defaultValue={this.state.ip} ref="ip" onChange={() => this.updateFingerprint()}/>
+              </div>
+              <div className="field">
+                <label>{i18n("Port")}</label>
+                <input type="number" placeholder={i18n("22")} ref="port" onChange={() => this.updateFingerprint()}/>
+              </div>
+              <div className="field">
+                <label>{i18n("Options")}</label>
+                <textarea defaultValue={this.state.options} ref="options" onChange={() => this.updateFingerprint()}/>
+              </div>
+              <div className="field">
+                {i18n("Remember to add this public SSH key to the remote server")}
+                <pre>
+                  {this.state.ssh_key_pub}
+                </pre>
+              </div>
+              <div className="field">
+                {i18n("The remote fingerprint is")}
+                <pre>
+                  {this.state.fingerprint}
+                </pre>
+                {this.state.fingerprint_enabled != undefined ? !this.state.fingerprint_enabled ? (
+                  <div className="ui yellow text">{i18n("You have never connected to this SSH server")}</div>
+                ) : (
+                  <div className="ui green text">{i18n("You have already connected to this SSH server")}</div>
+                ) : null }
+              </div>
+              <div className="inline field">
+                <div className="ui buttons">
+                  <a className="ui button teal" onClick={() => this.handleConnect()}>
+                    {i18n("Connect")}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
