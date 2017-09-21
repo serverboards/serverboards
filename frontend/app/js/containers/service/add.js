@@ -21,10 +21,18 @@ export function service_add_future(sbds, service){
 }
 
 const Model = connect({
+  state(state, props){
+    return {
+      project: state.project.project
+    }
+  },
   handlers(dispatch, props){
     return {
       onAddService(project, service){
-        return service_add_future(project, service)
+        let fut = service_add_future(project, service)
+        if (props.onAddService)
+          fut = fut.then((uuid) => { props.onAddService(uuid); return uuid })
+        return fut
       },
       onAttachService(project, service_uuid){
         console.log("Attach service %o %o", project, service_uuid)

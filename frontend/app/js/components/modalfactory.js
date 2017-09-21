@@ -1,5 +1,7 @@
 export function get_modal(name){
   switch(name){
+    case "service.add":
+      return require('app/components/service/addmodal').default
     case "service.settings":
       return require('app/containers/service/settingsmodal').default
     case "service.virtual":
