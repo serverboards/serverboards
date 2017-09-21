@@ -303,3 +303,47 @@ export function match_traits({has, any, all}){
   else
     return true
 }
+
+/**
+ * For each items uses the to_str_f function to extract a description text, and
+ * all items at filters (a str list) must be in that description
+ */
+export function filter_items_str( items, filters, to_str_f = (s) => s){
+  let ret = []
+  for (let i of items){
+    let is_in = true
+    let desc = to_str_f(i).toLocaleLowerCase()
+    for (let f of filters){
+      if (desc.indexOf(f)<0){
+        is_in == false
+        break;
+      }
+    }
+    if (is_in)
+      ret.push(i)
+  }
+  return ret
+}
+
+export default {
+  to_map,
+  to_list,
+  dedup,
+  flatmap,
+  is_empty,
+  map_drop,
+  map_get,
+  map_set,
+  concat,
+  sort_by_name,
+  colorize,
+  random_color,
+  capitalize,
+  merge,
+  object_is_equal,
+  pretty_ago,
+  pretty_date,
+  unwrap,
+  match_traits,
+  filter_items_str,
+}
