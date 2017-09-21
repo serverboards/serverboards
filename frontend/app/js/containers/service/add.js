@@ -30,12 +30,11 @@ const Model = connect({
     return {
       onAddService(project, service){
         let fut = service_add_future(project, service)
-        if (props.onAddService)
-          fut = fut.then((uuid) => { props.onAddService(uuid); return uuid })
+        if (props.onServiceAdded)
+          fut = fut.then((uuid) => { props.onServiceAdded(uuid); return uuid })
         return fut
       },
       onAttachService(project, service_uuid){
-        console.log("Attach service %o %o", project, service_uuid)
         return rpc.call("service.attach", [project, service_uuid]).then(function(){
           Flash.success(i18n("Service attached to current project"))
         }).catch(error => {

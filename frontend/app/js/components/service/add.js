@@ -121,12 +121,14 @@ class AddServiceNewOrOld extends React.Component{
                   <label>{i18n("Create new")}</label>
                 </div>
               </div>
-              <div className="field">
-                <div className="ui radio checkbox">
-                  <input name="new_or_create" value="2" type="radio" checked={tab==2 && "checked"}/>
-                  <label>{i18n("Select existing")}</label>
+              {!props.hide_old && (
+                <div className="field">
+                  <div className="ui radio checkbox">
+                    <input name="new_or_create" value="2" type="radio" checked={tab==2 && "checked"}/>
+                    <label>{i18n("Select existing")}</label>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -271,12 +273,6 @@ class AddService extends React.Component{
       step: 1,
       service: undefined,
     }
-
-    this.handleAddService = (project, service) => {
-      console.log("Add service to project %o", project)
-      return this.props.onAddService(project, service)
-        .then( (uuid) => goto(`/project/${project}/services/${uuid}`))
-    }
   }
   handleSelectServiceType(service){
     this.setState({step:2, service})
@@ -299,8 +295,9 @@ class AddService extends React.Component{
             service={this.state.service}
             gotoStep={(step) => this.setState({step})}
             project={this.props.project.shortname}
-            onAddService={this.handleAddService}
+            onAddService={this.props.onAddService}
             onAttachService={this.props.onAttachService}
+            hide_old={this.props.hide_old}
             />)
         break;
     }

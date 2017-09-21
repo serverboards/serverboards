@@ -58,6 +58,7 @@ class SelectService extends React.Component{
     const filter = this.prepareFilter()
     store.set_modal("service.add", {
       filter,
+      hide_old: true,
       onAdded: (s) => {
         console.log("%o ready", s)
         this.updateServices()
