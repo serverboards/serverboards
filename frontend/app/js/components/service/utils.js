@@ -23,21 +23,6 @@ export function setup_fields(service, service_catalog){
   return fields
 }
 
-export function match_traits(s1, s2){
-  if (is_empty(s1) && is_empty(s2)) // both empty, ok
-    return true
-  if (is_empty(s1) || is_empty(s2)) // only one empty, nok
-    return false
-
-  // Search for coincidences, if just one, ok
-  for (let s of s1){
-    if (s2.indexOf(s)>=0)
-      return true
-  }
-  // eoc: nok
-  return false
-}
-
 export function get_service_data(uuid){
   if (uuid.uuid){ // Maybe asking already a service
     console.warn("Please, ask me a uuid, not a service. Returning as is.")
@@ -61,4 +46,9 @@ export function get_service_data(uuid){
       return service
     }
   })
+}
+
+export default {
+  is_same_service, setup_fields,
+  get_service_data
 }

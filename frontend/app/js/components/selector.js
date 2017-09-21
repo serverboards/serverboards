@@ -2,11 +2,11 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import utils from 'app/utils'
 import Icon from './iconicon'
 import Loading from './loading'
 import Error from './error'
 import {MarkdownPreview} from 'react-marked-markdown'
-import {match_traits} from 'app/utils'
 
 const DEFAULT_ICON={
   cloud: "cloud",
@@ -24,14 +24,10 @@ function default_icon_for(item, section){
 }
 
 function filter_items(items, filter){
-  let filtered = items
-  for(let filter of filter.split(' ')){
-    filtered = filtered.filter( s => (
-      (s.name || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
-      (s.description || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase())
-    ) )
+  if (filter.call){ // is function
+    return items.filter( s => filter(s) )
   }
-  return filtered
+  return utils.filter_items_str( items, filter.toLocaleLowerCase().split(' '), (s) => `${s.name || ""} ${s.description}` )
 }
 
 function Card({item, default_icon, onClick, className}){
@@ -78,9 +74,9 @@ class Selector extends React.Component{
     let server=[]
     let other=[]
     for (const i of items){
-      if (match_traits({has: i.traits, all: ["cloud"]}))
+      if (utils.match_traits({has: i.traits, all: ["cloud"]}))
         cloud.push(i)
-      else if (match_traits({has: i.traits, all: ["server"]}))
+      else if (utils.match_traits({has: i.traits, all: ["server"]}))
         server.push(i)
       else
         other.push(i)
@@ -213,7 +209,10 @@ Selector.propTypes={
   next_label: PropTypes.func,
 
   show_filter: PropTypes.bool, // Whether to show the filter line
-  filter: PropTypes.string, // Current filter, may be out of the view itself
+  filter: PropTypes.oneOfType([
+    PropTypes.string, // Current filter, may be out of the view itself
+    PropTypes.func, // Current filter, may be out of the view itself
+  ])
 }
 
 Selector.defaultProps={
