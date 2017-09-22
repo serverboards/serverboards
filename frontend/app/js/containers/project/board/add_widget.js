@@ -1,15 +1,13 @@
-import {connect} from 'react-redux'
+import connect from 'app/containers/connect'
 import View from 'app/components/project/board/add_widget'
 import {map_get} from 'app/utils'
 import rpc from 'app/rpc'
 import {goto} from 'app/utils/store'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
-import store from 'app/utils/store'
-import { project_get_dashboard } from 'app/actions/project'
 
-const Controller = connect(
-  (state) => {
+const Controller = connect({
+  state: (state) => {
     const dashboard = map_get(state, ["project", "dashboard", "current"], ["project", "dashboards", 0]) || {}
     return {
       widget_catalog: state.project.widget_catalog,
@@ -17,13 +15,12 @@ const Controller = connect(
       dashboard
     }
   },
-  (dispatch, props) => ({
+  handlers: (dispatch, props) => ({
     addWidget(widget, dashboard, config){
       const data={ widget, dashboard, config }
 
       rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
-        store.dispatch( project_get_dashboard(dashboard) )
         if (props.onClose)
           props.onClose()
         else{
@@ -33,8 +30,19 @@ const Controller = connect(
       }).catch( e =>
         Flash.error(i18n(`Could not add widget *{name}* to dashboard: {e}`, {name: widget, e}))
       )
-    }
+    },
   }),
-)(View)
+  subscriptions: (state, props) => {
+    const dashboard = props.dashboard_uuid
+    console.log("New subscription for dashboard: %o", dashboard)
+    if (!dashboard)
+      return []
+    return [
+      `dashboard.widget.created[${dashboard}]`,
+      `dashboard.widget.removed[${dashboard}]`,
+      `dashboard.widget.updated[${dashboard}]`
+    ]
+  },
+})(View)
 
 export default Controller
