@@ -16,9 +16,10 @@ const DEFAULT_ICON={
 }
 
 function default_icon_for(item, section){
-  if (item.traits.indexOf("cloud")!=-1)
+  const traits = item.traits || []
+  if (traits.indexOf("cloud")!=-1)
     return "cloud"
-  if (item.traits.indexOf("server")!=-1)
+  if (traits.indexOf("server")!=-1)
     return "server"
   return DEFAULT_ICON[section]
 }
@@ -27,7 +28,12 @@ function filter_items(items, filter){
   if (filter.call){ // is function
     return items.filter( s => filter(s) )
   }
-  return utils.filter_items_str( items, filter.toLocaleLowerCase().split(' '), (s) => `${s.name || ""} ${s.description}` )
+  if (!Array.isArray(filter))
+    filter = filter.toLocaleLowerCase().split(' ')
+  console.log(items, filter)
+  let ret = utils.filter_items_str( items, filter, (s) => `${s.name || ""} ${s.description}` )
+  console.log(ret)
+  return ret
 }
 
 function Card({item, default_icon, onClick, className}){
@@ -95,7 +101,7 @@ class Selector extends React.Component{
   componentDidMount(){
     this.props.get_items().then( items => {
       const all_items=items
-        .filter( s => s.traits.indexOf("hidden")==-1 )
+        .filter( s => (s.traits || []).indexOf("hidden")==-1 )
         .sort( (a,b) => a.name.localeCompare(b.name) )
 
       const filter = this.props.filter

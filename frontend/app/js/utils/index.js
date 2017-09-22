@@ -310,12 +310,13 @@ export function match_traits({has, any, all}){
  */
 export function filter_items_str( items, filters, to_str_f = (s) => s){
   let ret = []
+  let is_in = true
   for (let i of items){
-    let is_in = true
+    is_in = true
     let desc = to_str_f(i).toLocaleLowerCase()
     for (let f of filters){
       if (desc.indexOf(f)<0){
-        is_in == false
+        is_in = false
         break;
       }
     }
