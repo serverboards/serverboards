@@ -99,7 +99,7 @@ const Project=React.createClass({
             params={props.params}
             setHandlers={this.handleSetTopMenuHandlers}
             />
-          <div className="ui expand vertical split area with scroll">
+          <div className="ui expand vertical split area with scroll" id="centralarea">
             {this.state.handleSetSectionMenu && ( // Hack to prevent redraw of section when top set the handlers.
               <Section
                 project={props.project}
