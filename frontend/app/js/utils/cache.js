@@ -26,6 +26,10 @@ const cache={
     store_get: () => store.getState().services.catalog,
     store_update: require('app/actions/service').services_update_catalog()
   }),
+  widget_catalog: cache_builder({
+    store_get: () => store.getState().project.widget_catalog,
+    store_update: require('app/actions/project').project_update_widget_catalog()
+  }),
   action_catalog: cache_builder({
       store_get: () => {
         const catalog = store.getState().action.catalog
@@ -126,8 +130,9 @@ function cache_builder(props){
                   accept(store_get())
                 pending=undefined
               } catch(e){
-                for (let {reject} of pending)
-                  reject(e)
+                if (pending)
+                  for (let {reject} of pending)
+                    reject(e)
                 pending=undefined
               }
             })

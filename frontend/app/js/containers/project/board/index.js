@@ -1,4 +1,6 @@
+import React from 'react'
 import BoardView from 'app/components/project/board'
+import AddWidget from 'app/containers/project/board/add_widget'
 import store from 'app/utils/store'
 import {
   project_update_widget_catalog,
@@ -47,4 +49,17 @@ const Board = store.connect({
   }
 }, BoardView)
 
-export default Board
+function BoardRouter(props){
+  console.log(props)
+  if (props.location.pathname.endsWith("/add")){
+    console.log("Add")
+    return (
+      <AddWidget {...props}/>
+    )
+  }
+  return (
+    <Board {...props}/>
+  )
+}
+
+export default BoardRouter

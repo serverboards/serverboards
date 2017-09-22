@@ -96,7 +96,7 @@ function project(state=default_state, action){
         return merge(state, {project: merge(state.project, {services: current_services})})
       }
     case 'UPDATE_WIDGET_CATALOG':
-      const widget_catalog=action.widget_catalog
+      const widget_catalog=action.payload
       return merge(state, {widget_catalog})
     case "@RPC_EVENT/dashboard.widget.created":
     {

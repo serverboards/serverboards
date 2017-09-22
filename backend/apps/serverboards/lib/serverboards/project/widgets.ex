@@ -48,19 +48,16 @@ defmodule Serverboards.Project.Widget do
 
 
   @doc ~S"""
-  Returns the list of compatible plugins for the given project.
-
-  Compatibility depends on installed services / traits.
-
-  TODO. Now returns all.
+  Returns the list of plugins.
   """
-  def catalog(_project) do
+  def catalog() do
     for w <- Serverboards.Plugin.Registry.filter_component([type: "widget"]) do
       %{
         id: w.id,
         name: w.name,
         description: w.description,
-        params: w.extra["params"]
+        params: w.extra["params"],
+        traits: w.traits
       }
     end
   end
@@ -99,6 +96,7 @@ defmodule Serverboards.Project.Widget do
       )
     data = Map.put(data, :dashboard_id, dashboard_id)
     {:ok, _widget} = Repo.insert( Model.Widget.changeset(%Model.Widget{}, data) )
+    Logger.info("Added new widget #{data.widget} to dashboard #{dashboard}")
 
     Serverboards.Event.emit("dashboard.widget.created", data, ["project.get"])
     Serverboards.Event.emit("dashboard.widget.created[#{dashboard}]", data, ["project.get"])
