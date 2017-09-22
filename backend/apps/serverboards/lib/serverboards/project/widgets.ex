@@ -100,6 +100,7 @@ defmodule Serverboards.Project.Widget do
 
     Serverboards.Event.emit("dashboard.widget.created", data, ["project.get"])
     Serverboards.Event.emit("dashboard.widget.created[#{dashboard}]", data, ["project.get"])
+    # Logger.debug("Emit dashboard.widget.created[#{dashboard}]")
     {:ok, data.uuid}
   end
 
