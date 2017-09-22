@@ -81,7 +81,7 @@ function AddServiceButton({service}){
   )
 }
 
-class AddServiceNewOrOld extends React.Component{
+class AddServiceRouter extends React.Component{
   constructor(props){
     super(props)
     this.state={
@@ -291,7 +291,7 @@ class AddService extends React.Component{
         break;
       case 2:
         section = (
-          <AddServiceNewOrOld
+          <AddServiceRouter
             service={this.state.service}
             gotoStep={(step) => this.setState({step})}
             project={this.props.project.shortname}
