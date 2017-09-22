@@ -3,12 +3,11 @@ import thunk from 'redux-thunk';
 import rpc from '../rpc'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { hashHistory } from 'react-router'
-import { routerMiddleware, push } from 'react-router-redux'
+import { routerMiddleware, push, goBack } from 'react-router-redux'
 import { merge, object_is_equal } from 'app/utils'
 import React from 'react'
 const react_redux_connect = require('react-redux').connect
 import serverboards_connect from 'app/containers/connect'
-
 
 import AsyncPromises from 'app/containers/asyncpromises'
 import Subscribed from 'app/containers/subscribed'
@@ -138,8 +137,13 @@ export function goto(url, extradata={}){
   }))
 }
 
+export function back(){
+  store.dispatch( goBack() )
+}
+
 store.set_modal = set_modal
 store.goto = goto
+store.back = back
 
 export function location(){
   return store.getState().routing.locationBeforeTransitions

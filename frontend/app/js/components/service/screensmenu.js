@@ -1,7 +1,7 @@
 import React from 'react'
 import {merge, is_empty} from 'app/utils'
 import {set_modal} from 'app/utils/store'
-import {match_traits} from './utils'
+import {match_traits} from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
 function by_name(a,b){
@@ -97,7 +97,7 @@ const ScreensMenu=React.createClass({
             key={s.id}
             screen={s}
             data={{serverboard}}
-            candidates={props.services.filter((c) => match_traits(c.traits, s.traits))}
+            candidates={props.services.filter((c) => match_traits({all: c.traits, has: s.traits}))}
             onSectionChange={this.handleSectionChange}
             onOpen={ () => this.toggleScreen(s.id) }
             active={ s.id == props.section }

@@ -11,6 +11,7 @@ import Tip from './tip'
 import Logs from './logs'
 import IconIcon from './iconicon'
 import PluginScreen from './plugin/screen'
+import Selector from './selector'
 
 const components = {
   Modal,
@@ -24,7 +25,27 @@ const components = {
   Tip,
   Logs,
   IconIcon,
-  PluginScreen
+  PluginScreen,
+  Selector
 }
 
+// Export as default, and as destructuring.
+// This allows both :
+// * `import Components from 'export'`
+// * `import {Modal} from 'export'`
 export default components
+export {
+  Modal,
+  Loading,
+  MarkdownPreview,
+  ActionEdit,
+  HoldButton,
+  GenericForm,
+  Calendar,
+  Error,
+  Tip,
+  Logs,
+  IconIcon,
+  PluginScreen,
+  Selector
+}

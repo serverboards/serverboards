@@ -62,8 +62,8 @@ class TabBar extends React.Component{
     return (
       <div ref="parent" className="ui top secondary pointing menu">
         <div ref="tabbar" className="ui top secondary pointing menu" style={{paddingBottom: 0, overflow: "hidden", maxWidth: "100%"}}>
-          {tabs.slice(0, visible_items).map( (s) => (
-            <Item key={s.name} s={s}/>
+          {tabs.slice(0, visible_items).map( (s, i) => (
+            <Item key={s.name || i} s={s}/>
           ) ) }
         </div>
         { (visible_items != tabs.length)  && (
@@ -71,8 +71,8 @@ class TabBar extends React.Component{
             <i className="ui vertical ellipsis icon"/>
             { show_menu &&(
               <div className="ui menu transition visible" style={{left: -100, width: 150}}>
-                {tabs.slice(visible_items).map( (s) => (
-                  <Item key={s.name} s={s}/>
+                {tabs.slice(visible_items).map( (s, i) => (
+                  <Item key={s.name || i} s={s}/>
                 ) ) }
               </div>
             )}

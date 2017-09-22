@@ -50,7 +50,7 @@ class AddButton extends React.Component{
           </Restricted>
           <Restricted perm="dashboard.create">
             <a
-                onClick={() => set_modal_and_close("dashboard.widget.create", {project})}
+                onClick={() => goto(`/project/${project}/dashboard/add`)}
                 title={i18n("Add a widget")}
                 >
               <i className="ui mid massive button add area chart yellow icon"></i>

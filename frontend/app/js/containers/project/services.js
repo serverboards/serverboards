@@ -2,6 +2,7 @@ import ServicesView from 'app/components/project/services'
 import ServiceAdd from 'app/containers/service/add'
 import connect from 'app/containers/connect'
 import React from 'react'
+import store from 'app/utils/store'
 
 var Services = connect({
   state: (state) => ({
@@ -14,7 +15,10 @@ var Services = connect({
 
 function ServicesOrAdd(props){
   if (props.subsection=="add"){
-    return <ServiceAdd {...props}/>
+    return <ServiceAdd
+      {...props}
+      onServiceAdded={(uuid) => store.goto(`/project/${props.project.shortname}/services/${uuid}`)}
+      />
   }
   return <Services {...props}/>
 }

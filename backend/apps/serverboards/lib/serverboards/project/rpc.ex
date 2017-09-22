@@ -104,8 +104,8 @@ defmodule Serverboards.Project.RPC do
       Serverboards.Project.Widget.widget_list(shortname)
     end, [required_perm: "project.get"]
 
-    RPC.MethodCaller.add_method mc, "dashboard.widget.catalog", fn [project] ->
-        Serverboards.Project.Widget.catalog(project)
+    RPC.MethodCaller.add_method mc, "dashboard.widget.catalog", fn _filter ->
+        Serverboards.Project.Widget.catalog()
     end, [required_perm: "project.get"]
 
     # Add this method caller once authenticated.

@@ -14,13 +14,14 @@ defmodule Serverboards.Event.RPC do
     add_method mc, "event.subscribe", fn events, context ->
       subscriptions = MOM.RPC.Context.get context, :subscriptions, []
       events = List.wrap(events)
-      Logger.debug("Subscribe #{inspect context} to #{inspect events}")
+      # Logger.debug("Subscribe #{inspect context} to #{inspect events}")
       MOM.RPC.Context.set context, :subscriptions, Enum.uniq(subscriptions ++ events)
       :ok
     end, context: true
     add_method mc, "event.unsubscribe", fn events, context ->
       subscriptions = MOM.RPC.Context.get context, :subscriptions, []
       subscriptions = Enum.filter(subscriptions, &(not &1 in events))
+      # Logger.debug("Unsubscribe #{inspect context} from #{inspect events}")
       MOM.RPC.Context.set context, :subscriptions, subscriptions
       :ok
     end, context: true

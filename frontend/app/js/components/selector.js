@@ -2,11 +2,11 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import utils from 'app/utils'
 import Icon from './iconicon'
 import Loading from './loading'
 import Error from './error'
 import {MarkdownPreview} from 'react-marked-markdown'
-import {match_traits} from 'app/utils'
 
 const DEFAULT_ICON={
   cloud: "cloud",
@@ -16,22 +16,24 @@ const DEFAULT_ICON={
 }
 
 function default_icon_for(item, section){
-  if (item.traits.indexOf("cloud")!=-1)
+  const traits = item.traits || []
+  if (traits.indexOf("cloud")!=-1)
     return "cloud"
-  if (item.traits.indexOf("server")!=-1)
+  if (traits.indexOf("server")!=-1)
     return "server"
   return DEFAULT_ICON[section]
 }
 
 function filter_items(items, filter){
-  let filtered = items
-  for(let filter of filter.split(' ')){
-    filtered = filtered.filter( s => (
-      (s.name || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
-      (s.description || "").toLocaleLowerCase().includes(filter.toLocaleLowerCase())
-    ) )
+  if (filter.call){ // is function
+    return items.filter( s => filter(s) )
   }
-  return filtered
+  if (!Array.isArray(filter))
+    filter = filter.toLocaleLowerCase().split(' ')
+  console.log(items, filter)
+  let ret = utils.filter_items_str( items, filter, (s) => `${s.name || ""} ${s.description}` )
+  console.log(ret)
+  return ret
 }
 
 function Card({item, default_icon, onClick, className}){
@@ -78,9 +80,9 @@ class Selector extends React.Component{
     let server=[]
     let other=[]
     for (const i of items){
-      if (match_traits({has: i.traits, all: ["cloud"]}))
+      if (utils.match_traits({has: i.traits, all: ["cloud"]}))
         cloud.push(i)
-      else if (match_traits({has: i.traits, all: ["server"]}))
+      else if (utils.match_traits({has: i.traits, all: ["server"]}))
         server.push(i)
       else
         other.push(i)
@@ -99,7 +101,7 @@ class Selector extends React.Component{
   componentDidMount(){
     this.props.get_items().then( items => {
       const all_items=items
-        .filter( s => s.traits.indexOf("hidden")==-1 )
+        .filter( s => (s.traits || []).indexOf("hidden")==-1 )
         .sort( (a,b) => a.name.localeCompare(b.name) )
 
       const filter = this.props.filter
@@ -213,7 +215,10 @@ Selector.propTypes={
   next_label: PropTypes.func,
 
   show_filter: PropTypes.bool, // Whether to show the filter line
-  filter: PropTypes.string, // Current filter, may be out of the view itself
+  filter: PropTypes.oneOfType([
+    PropTypes.string, // Current filter, may be out of the view itself
+    PropTypes.func, // Current filter, may be out of the view itself
+  ])
 }
 
 Selector.defaultProps={

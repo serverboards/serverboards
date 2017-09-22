@@ -10,6 +10,7 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import ServiceSelect from 'app/components/service/select'
 import {goto} from 'app/utils/store'
 import Tip from 'app/components/tip'
+import utils from 'app/utils'
 
 export class AddServiceDetailsForm extends React.Component{
   constructor(props){
@@ -80,7 +81,7 @@ function AddServiceButton({service}){
   )
 }
 
-class AddServiceNewOrOld extends React.Component{
+class AddServiceRouter extends React.Component{
   constructor(props){
     super(props)
     this.state={
@@ -120,12 +121,14 @@ class AddServiceNewOrOld extends React.Component{
                   <label>{i18n("Create new")}</label>
                 </div>
               </div>
-              <div className="field">
-                <div className="ui radio checkbox">
-                  <input name="new_or_create" value="2" type="radio" checked={tab==2 && "checked"}/>
-                  <label>{i18n("Select existing")}</label>
+              {!props.hide_old && (
+                <div className="field">
+                  <div className="ui radio checkbox">
+                    <input name="new_or_create" value="2" type="radio" checked={tab==2 && "checked"}/>
+                    <label>{i18n("Select existing")}</label>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -174,8 +177,22 @@ class ServiceFromExistingOrMarket extends React.Component{
     super(props)
     this.state={
       tab: 1,
-      filter: ""
+      filter: []
     }
+  }
+  filter(s){
+    let type_filter = this.props.filter || {}
+    if (type_filter.traits){
+      const check = {has: s.traits, all: type_filter.traits}
+      if (!utils.match_traits(check))
+        return false
+    }
+    let desc = `${s.name || ""} ${s.description}`.toLocaleLowerCase()
+    for (let f of this.state.filter){
+      if (desc.indexOf(f)<0)
+        return false
+    }
+    return true
   }
   render(){
     const props = this.props
@@ -186,7 +203,13 @@ class ServiceFromExistingOrMarket extends React.Component{
         <div className="ui attached top form">
           <div className="ui input seamless white">
             <i className="icon search"/>
-            <input type="text" onChange={(ev) => this.setState({filter:ev.target.value})} placeholder={i18n("Filter...")}/>
+            <input
+              type="text"
+              onChange={(ev) => {
+                this.setState({filter:ev.target.value.toLocaleLowerCase().split(' ')})
+              }}
+              placeholder={i18n("Filter...")}
+              />
           </div>
         </div>
         <div className="ui padding">
@@ -211,7 +234,7 @@ class ServiceFromExistingOrMarket extends React.Component{
           <Selector
             key="installed"
             show_filter={false}
-            filter={state.filter}
+            filter={this.filter.bind(this)}
             get_items={cache.service_catalog}
             onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
@@ -220,7 +243,7 @@ class ServiceFromExistingOrMarket extends React.Component{
           <Selector
             key="marketplace"
             show_filter={false}
-            filter={state.filter}
+            filter={this.filter.bind(this)}
             get_items={get_service_market_catalog}
             current={(props.service || {}).type}
             onSelect={(s) => {
@@ -250,12 +273,6 @@ class AddService extends React.Component{
       step: 1,
       service: undefined,
     }
-
-    this.handleAddService = (project, service) => {
-      console.log("Add service to project %o", project)
-      return this.props.onAddService(project, service)
-        .then( (uuid) => goto(`/project/${project}/services/${uuid}`))
-    }
   }
   handleSelectServiceType(service){
     this.setState({step:2, service})
@@ -274,12 +291,13 @@ class AddService extends React.Component{
         break;
       case 2:
         section = (
-          <AddServiceNewOrOld
+          <AddServiceRouter
             service={this.state.service}
             gotoStep={(step) => this.setState({step})}
             project={this.props.project.shortname}
-            onAddService={this.handleAddService}
+            onAddService={this.props.onAddService}
             onAttachService={this.props.onAttachService}
+            hide_old={this.props.hide_old}
             />)
         break;
     }

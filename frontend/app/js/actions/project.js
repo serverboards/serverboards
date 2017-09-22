@@ -58,13 +58,11 @@ function projects_update_info(project){
   }
 }
 
-function project_update_widget_catalog(project){
+function project_update_widget_catalog(){
   return function(dispatch){
-    dispatch({type:"UPDATE_WIDGET_CATALOG", project, widget_catalog: undefined})
-    if (project)
-      rpc.call("dashboard.widget.catalog", [project]).then( (widget_catalog) => {
-        dispatch({type:"UPDATE_WIDGET_CATALOG", project, widget_catalog})
-      })
+    rpc.call("dashboard.widget.catalog", {}).then( (widget_catalog) => {
+      dispatch({type:"UPDATE_WIDGET_CATALOG", payload: widget_catalog})
+    })
   }
 }
 

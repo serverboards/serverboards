@@ -74,7 +74,7 @@ const Board = React.createClass({
       update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), 60 * 1000)
     })
     // jquery hack, may be better using some property at redux
-    $('.ui.central.with.menu.white.background').removeClass("white").addClass("grey")
+    $('#centralarea').addClass("grey background")
     if (this.props.realtime){
       const update_realtime_timer_id = setInterval(this.updateRealtime, RT_INTERVAL * 1000)
       this.setState({update_realtime_timer_id})
@@ -86,7 +86,7 @@ const Board = React.createClass({
     if (this.state.update_realtime_timer_id)
       clearInterval(this.state.update_realtime_timer_id)
     // jquery hack, may be better using some property at redux
-    $('.ui.central.with.menu.grey.background').removeClass("grey").addClass("white")
+    $('#centralarea').removeClass("grey").removeClass("background")
   },
   updateRealtime(){
     const end = moment()

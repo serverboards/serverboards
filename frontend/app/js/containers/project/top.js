@@ -5,7 +5,7 @@ import { project_update_all } from 'app/actions/project'
 import _ from 'lodash'
 import {merge, map_get} from 'app/utils'
 import {i18n, i18n_nop} from 'app/utils/i18n'
-import {match_traits} from 'app/components/service/utils'
+import {match_traits} from 'app/utils'
 
 const SECTIONS = [
   {id: 'dashboard', name: i18n_nop('Dashboard')},
@@ -24,7 +24,7 @@ var Top=connect({
 
     extra_screens = extra_screens.map( s => (
       merge(s, {
-        candidates: services.filter((c) => match_traits(c.traits, s.traits))
+        candidates: services.filter((c) => match_traits({all: c.traits, has: s.traits}))
       })
     ))
     extra_screens.sort( (a,b) => a.name.localeCompare(b.name) )
