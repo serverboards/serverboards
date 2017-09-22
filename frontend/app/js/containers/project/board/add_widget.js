@@ -5,6 +5,8 @@ import rpc from 'app/rpc'
 import {goto} from 'app/utils/store'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
+import store from 'app/utils/store'
+import { project_get_dashboard } from 'app/actions/project'
 
 const Controller = connect(
   (state) => {
@@ -19,9 +21,9 @@ const Controller = connect(
     addWidget(widget, dashboard, config){
       const data={ widget, dashboard, config }
 
-      console.log("real add widget", data)
       rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
+        store.dispatch( project_get_dashboard(dashboard) )
         if (props.onClose)
           props.onClose()
         else{
