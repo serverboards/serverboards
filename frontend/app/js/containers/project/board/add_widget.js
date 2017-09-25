@@ -21,6 +21,7 @@ const Controller = connect({
 
       return rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
+        this.onClose()
       }).catch( e =>
         {
           console.error(e)
