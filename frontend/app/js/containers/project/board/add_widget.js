@@ -19,7 +19,7 @@ const Controller = connect({
     addWidget(widget, dashboard, config){
       const data={ widget, dashboard, config }
 
-      rpc.call("dashboard.widget.create", data).then( () => {
+      return rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
         if (props.onClose)
           props.onClose()

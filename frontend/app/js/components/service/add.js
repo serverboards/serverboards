@@ -172,7 +172,7 @@ function get_service_market_catalog(){
     })
 }
 
-class ServiceFromExistingOrMarket extends React.Component{
+class ServiceAddRouter extends React.Component{
   constructor(props){
     super(props)
     this.state={
@@ -238,6 +238,8 @@ class ServiceFromExistingOrMarket extends React.Component{
             get_items={cache.service_catalog}
             onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
+            onSkip={props.onSkip}
+            skip_label={props.skip_label}
             />
         ) : (tab == 2) ? (
           <Selector
@@ -257,6 +259,8 @@ class ServiceFromExistingOrMarket extends React.Component{
                 Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
               })
             }}
+            onSkip={props.onSkip}
+            skip_label={props.skip_label}
             />
         ) : (
           <Loading>{i18n("Installing the required add-on")}</Loading>
@@ -282,7 +286,7 @@ class AddService extends React.Component{
     switch (this.state.step){
       case 1:
         section = (
-          <ServiceFromExistingOrMarket
+          <ServiceAddRouter
             onSelectServiceType={(s) => this.handleSelectServiceType(s)}
             service={this.state.service}
             {...this.props}
