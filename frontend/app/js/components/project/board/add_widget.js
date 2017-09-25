@@ -1,5 +1,5 @@
 import React from 'react'
-import {Loading, GenericForm, Modal, Tip, Selector, Error} from 'app/components/export'
+import {Loading, GenericForm, Modal, Tip, Selector, Error} from 'app/components'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'

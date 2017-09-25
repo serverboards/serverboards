@@ -45,7 +45,7 @@ window.Serverboards = {
   Flash,
   React,
   ReactDOM,
-  Components: require("app/components/export").default,
+  Components: require("app/components").default,
   utils: require("app/utils"),
   location: { goto: require('app/utils/store').goto },
   add_screen: plugin.add_screen,

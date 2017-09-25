@@ -12,6 +12,7 @@ import Logs from './logs'
 import IconIcon from './iconicon'
 import PluginScreen from './plugin/screen'
 import Selector from './selector'
+import Panes from './panes'
 
 const components = {
   Modal,
@@ -26,7 +27,8 @@ const components = {
   Logs,
   IconIcon,
   PluginScreen,
-  Selector
+  Selector,
+  Panes
 }
 
 // Export as default, and as destructuring.
@@ -47,5 +49,6 @@ export {
   Logs,
   IconIcon,
   PluginScreen,
-  Selector
+  Selector,
+  Panes
 }
