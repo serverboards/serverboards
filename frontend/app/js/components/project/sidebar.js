@@ -1,6 +1,6 @@
 import React from 'react'
 import {merge} from 'app/utils'
-import {set_modal} from 'app/utils/store'
+import {goto} from 'app/utils/store'
 import rpc from 'app/rpc'
 import ScreensMenu from 'app/components/service/screensmenu'
 import {get_service_data} from 'app/components/service/utils'
@@ -131,7 +131,7 @@ const SidebarSections = React.createClass({
           {i18n("View all projects")}
           <i className={`icon folder`}/>
         </a>
-        <a className="item" id="add_project" onClick={() => set_modal("project.add")} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
+        <a className="item" id="add_project" onClick={() => goto("/project/wizard", {step:1})} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
           {i18n("Create new project")}
           <i className={`icon yellow add`}/>
         </a>

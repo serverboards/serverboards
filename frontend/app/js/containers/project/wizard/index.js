@@ -8,6 +8,7 @@ import rpc from 'app/rpc'
 import i18n from 'app/utils/i18n'
 import store from 'app/utils/store'
 import {projects_set_current} from 'app/actions/project'
+import {map_get} from 'app/utils'
 
 
 function make_shortname(name){
@@ -25,7 +26,7 @@ class WizardModel extends React.Component{
     super(props)
 
     this.state= {
-      step: 0,
+      step: map_get(this.props, ["location","state","step"]) || 0,
       project: undefined
     }
     this.funcs = {
