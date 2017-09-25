@@ -21,12 +21,6 @@ const Controller = connect({
 
       return rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
-        if (props.onClose)
-          props.onClose()
-        else{
-          const project = "SBDS"
-          goto(`/project/${project}/dashboard`)
-        }
       }).catch( e =>
         {
           console.error(e)
@@ -34,6 +28,17 @@ const Controller = connect({
         }
       )
     },
+    onClose(){
+      console.log(this, props)
+      if (props.onClose == undefined ){
+        const project = props.project
+        return goto(`/project/${project}/dashboard`)
+      }
+      if (!props.onClose){ // onClose == false
+        return
+      }
+      props.onClose()
+    }
   }),
   subscriptions: (state, props) => {
     const dashboard = props.dashboard_uuid

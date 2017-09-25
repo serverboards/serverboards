@@ -240,6 +240,8 @@ class ServiceAddRouter extends React.Component{
             current={(props.service || {}).type}
             onSkip={props.onSkip}
             skip_label={props.skip_label}
+            prevStep={props.prevStep}
+            prev_label={props.prev_label}
             />
         ) : (tab == 2) ? (
           <Selector
@@ -261,6 +263,8 @@ class ServiceAddRouter extends React.Component{
             }}
             onSkip={props.onSkip}
             skip_label={props.skip_label}
+            prevStep={props.prevStep}
+            prev_label={props.prev_label}
             />
         ) : (
           <Loading>{i18n("Installing the required add-on")}</Loading>

@@ -2,7 +2,6 @@ import React from 'react'
 import {Loading, GenericForm, Modal, Tip, Selector, Error} from 'app/components'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
-import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
@@ -168,7 +167,7 @@ class AddWidget extends React.Component{
     }
   }
   handleSelectWidget(widget){
-    if (!widget.params || widget.params.length==0){
+    if (!this.props.saveButtons && (!widget.params || widget.params.length==0)){
       // no more config
       this.props.addWidget( widget.id, this.props.dashboard_uuid, {} )
     }

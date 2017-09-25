@@ -6,6 +6,7 @@ export function make_services(props){
       <AddService
         onSkip={ () => props.nextStep() }
         onServiceAdded={props.nextStep}
+        prevStep={props.prevStep}
         />
   )
 }

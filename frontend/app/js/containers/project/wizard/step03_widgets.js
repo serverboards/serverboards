@@ -19,7 +19,7 @@ class AddWidgets extends React.Component{
         <AddWidget
           key={this.state.key}
           onSkip={ () => this.props.nextStep() }
-          onClose={ () => null }
+          onClose={false}
           saveButtons={[
               {label: i18n("Add another widget"), className: "basic teal",onClick: (data) => this.addAnotherWidget()},
               {label: i18n("Save and continue"), className: "teal", onClick: () => this.props.nextStep()},
