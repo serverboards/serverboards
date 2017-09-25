@@ -46,6 +46,13 @@ function project_attach_service(project_shortname, service_uuid){
   }
 }
 
+function projects_set_current(shortname){
+  return function(dispatch){
+    dispatch({type:"PROJECT_SET_CURRENT", payload: shortname})
+    dispatch( projects_update_info(shortname) )
+  }
+}
+
 function projects_update_info(project){
   return function(dispatch){
     dispatch({type:"UPDATE_PROJECT_INFO", project, info: undefined})
@@ -117,6 +124,7 @@ export {
   project_delete,
   project_update,
   project_attach_service,
+  projects_set_current,
   projects_update_info,
   project_update_widget_catalog,
   project_get_dashboard,

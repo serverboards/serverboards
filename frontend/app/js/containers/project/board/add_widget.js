@@ -28,7 +28,10 @@ const Controller = connect({
           goto(`/project/${project}/dashboard`)
         }
       }).catch( e =>
-        Flash.error(i18n(`Could not add widget *{name}* to dashboard: {e}`, {name: widget, e}))
+        {
+          console.error(e)
+          Flash.error(i18n(`Could not add widget *{name}* to dashboard: {e}`, {name: widget, e}))
+        }
       )
     },
   }),
