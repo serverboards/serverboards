@@ -179,7 +179,7 @@ class Selector extends React.Component{
                 </div>
               ) ) }
           </div>
-          {props.prevStep||props.nextStep ? (
+          {props.prevStep||props.nextStep||props.onSkip ? (
             <div className="right aligned">
             <span className="ui buttons">
             {props.prevStep ? (
@@ -189,7 +189,7 @@ class Selector extends React.Component{
               <button className="ui button basic" onClick={props.nextStep}>{props.next_label || i18n("Next step")}</button>
             ) : null}
             {props.onSkip ? (
-              <button className="ui button basic" onClick={props.onSkip}>{props.skip_label}</button>
+              <button className="ui button basic" onClick={props.onSkip}>{props.skip_label || i18n("Skip")}</button>
             ) : null}
             </span>
             </div>
