@@ -30,12 +30,12 @@ export class AddServiceDetailsForm extends React.Component{
         description: state.description,
         config: state.data
       }
-      props
+      return props
         .onAddService(props.project, service)
     }
   }
   render(){
-    const {service, gotoStep} = this.props
+    const {service, gotoStep, saveButtons} = this.props
     return (
       <div className="ui with padding extend">
         <MarkdownPreview value={service.description}/>
@@ -63,11 +63,21 @@ export class AddServiceDetailsForm extends React.Component{
               onClick={() => gotoStep(1)}>
                 {i18n("Previous step")}
             </button>
-            <button
-              className="ui teal button"
-              onClick={this.handleAddService}>
-                {i18n("Save and Continue")}
-            </button>
+            { saveButtons ? (
+                saveButtons.map( sb => (
+                  <button key={sb.label} type="button" className={`ui button ${sb.className}`}
+                      onClick={() => this.handleAddService().then( (data) => sb.onClick && sb.onClick(data) )}
+                      >
+                    {sb.label}
+                  </button>
+                ))
+            ) : (
+              <button
+                className="ui teal button"
+                onClick={this.handleAddService}>
+                  {i18n("Save and Continue")}
+              </button>
+            ) }
           </div>
         </div>
       </div>
@@ -306,6 +316,7 @@ class AddService extends React.Component{
             onAddService={this.props.onAddService}
             onAttachService={this.props.onAttachService}
             hide_old={this.props.hide_old}
+            saveButtons={this.props.saveButtons}
             />)
         break;
     }
