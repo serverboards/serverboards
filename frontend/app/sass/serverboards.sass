@@ -302,6 +302,10 @@ body [data-variation=narrow]:hover:after
     padding: 0 0 0 10px
   &.top
     padding: 10px 0 0 0
+  &.right
+    padding: 0 10px 0 0
+  &.bottom
+    padding: 0 0 10px 0
 
 .ui.massive.button._add.icon.floating
   position: fixed
@@ -328,3 +332,13 @@ body [data-variation=narrow]:hover:after
 
 .ui.buttons .ui.button.basic.teal
   box-shadow: none !important
+
+.ui.right.aligned
+  text-align: right
+  align-self: flex-end
+
+.ui.horizontal.center.aligned
+  display: inline-flex
+  flex-direction: row
+  justify-content: center
+  align-items: center

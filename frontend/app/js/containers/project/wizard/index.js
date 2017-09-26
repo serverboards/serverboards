@@ -11,6 +11,7 @@ import store from 'app/utils/store'
 import cache from 'app/utils/cache'
 import {projects_set_current} from 'app/actions/project'
 import {map_get} from 'app/utils'
+import WizardView from 'app/components/project/wizard/wizardview'
 
 
 function make_shortname(name){
@@ -78,16 +79,21 @@ class WizardModel extends React.Component{
   render(){
     const next_step = this.make_step()
     const {tip, work} = next_step
+    let section = null
 
     if (tip){
-      return (
+      section = (
         <Panes column1={tip} column2={work}/>
       )
     }
     else{
-      return next_step // its a full main area component
+      section = next_step // its a full main area component
     }
-
+    return (
+      <WizardView step={this.state.step}>
+      {section}
+      </WizardView>
+    )
   }
 }
 
