@@ -5,6 +5,7 @@ import i18n from 'app/utils/i18n'
 import store from 'app/utils/store'
 import {match_traits} from 'app/utils'
 import cache from 'app/utils/cache'
+import AddServiceModal from 'app/components/service/addmodal'
 
 function match_filter(s, filter){
   if (filter.project)
@@ -17,7 +18,8 @@ class SelectService extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      items: []
+      items: [],
+      show_add_modal: false
     }
   }
   prepareFilter(){
@@ -56,14 +58,7 @@ class SelectService extends React.Component{
   }
   handleAddService(){
     const filter = this.prepareFilter()
-    store.set_modal("service.add", {
-      filter,
-      hide_old: true,
-      onAdded: (s) => {
-        console.log("%o ready", s)
-        this.updateServices()
-      }
-    })
+    this.setState({show_add_modal: true})
   }
   render(){
     const props = this.props
@@ -90,6 +85,18 @@ class SelectService extends React.Component{
           onClick={() => this.handleAddService()}
           >
           {i18n("Add new service")}</a>
+          {this.state.show_add_modal && (
+            <AddServiceModal
+              filter={this.prepareFilter()}
+              hide_old={true}
+              onServiceAdded={(s) => {
+                this.setState({show_add_modal: false})
+                this.updateServices()
+                $(this.refs.select).dropdown('refresh').dropdown('set value', s)
+              }}
+              onClose={() => this.setState({show_add_modal: false})}
+              />
+          )}
       </div>
     )
   }
