@@ -5,8 +5,10 @@ import {make_projectname} from 'app/components/project/wizard/step02_projectname
 import {make_widgets} from 'app/containers/project/wizard/step03_widgets'
 import {make_services} from 'app/containers/project/wizard/step04_services'
 import rpc from 'app/rpc'
+import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import store from 'app/utils/store'
+import cache from 'app/utils/cache'
 import {projects_set_current} from 'app/actions/project'
 import {map_get} from 'app/utils'
 
@@ -39,13 +41,19 @@ class WizardModel extends React.Component{
       prevStep: () => this.setState({step: this.state.step-1}),
       handleCreateProject: (name) => {
         const shortname = make_shortname(name)
-        rpc
-          .call("project.create", {shortname, name })
-          .then((uuid) => {
-            this.setState({project: shortname})
-            store.dispatch( projects_set_current(shortname) )
-            this.funcs.nextStep()
-          })
+        cache.project(shortname).then( p => {
+          if (p)
+            Flash.error(i18n("Project shortname {shortname} already exist. Try another project name.",{shortname}))
+          else{
+            return rpc
+              .call("project.create", {shortname, name })
+              .then((uuid) => {
+                this.setState({project: shortname})
+                store.dispatch( projects_set_current(shortname) )
+                this.funcs.nextStep()
+              })
+          }
+        })
       }
     }
   }

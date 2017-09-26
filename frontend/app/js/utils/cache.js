@@ -64,6 +64,9 @@ const cache={
     store_update: require('app/actions/project').project_update_all(),
     subscriptions: ["project.updated"]
   }),
+  project(shortname){
+    return cache.projects().then( projects => projects.find( p => p.shortname==shortname) )
+  },
   plugins(){
     var data = cache_data["plugins"]
     if (!data){
