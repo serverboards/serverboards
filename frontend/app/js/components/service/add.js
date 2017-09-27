@@ -30,12 +30,12 @@ export class AddServiceDetailsForm extends React.Component{
         description: state.description,
         config: state.data
       }
-      props
+      return props
         .onAddService(props.project, service)
     }
   }
   render(){
-    const {service, gotoStep} = this.props
+    const {service, gotoStep, saveButtons} = this.props
     return (
       <div className="ui with padding extend">
         <MarkdownPreview value={service.description}/>
@@ -61,13 +61,23 @@ export class AddServiceDetailsForm extends React.Component{
             <button
               className="ui button basic"
               onClick={() => gotoStep(1)}>
-                {i18n("Previous step")}
+                {i18n("Back")}
             </button>
-            <button
-              className="ui teal button"
-              onClick={this.handleAddService}>
-                {i18n("Save and Continue")}
-            </button>
+            { saveButtons ? (
+                saveButtons.map( sb => (
+                  <button key={sb.label} type="button" className={`ui button ${sb.className}`}
+                      onClick={() => this.handleAddService().then( (data) => sb.onClick && sb.onClick(data) )}
+                      >
+                    {sb.label}
+                  </button>
+                ))
+            ) : (
+              <button
+                className="ui teal button"
+                onClick={this.handleAddService}>
+                  {i18n("Save and Continue")}
+              </button>
+            ) }
           </div>
         </div>
       </div>
@@ -172,7 +182,7 @@ function get_service_market_catalog(){
     })
 }
 
-class ServiceFromExistingOrMarket extends React.Component{
+class ServiceAddRouter extends React.Component{
   constructor(props){
     super(props)
     this.state={
@@ -238,6 +248,10 @@ class ServiceFromExistingOrMarket extends React.Component{
             get_items={cache.service_catalog}
             onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
+            onSkip={props.onSkip}
+            skip_label={props.skip_label}
+            prevStep={props.prevStep}
+            prev_label={props.prev_label}
             />
         ) : (tab == 2) ? (
           <Selector
@@ -257,6 +271,10 @@ class ServiceFromExistingOrMarket extends React.Component{
                 Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
               })
             }}
+            onSkip={props.onSkip}
+            skip_label={props.skip_label}
+            prevStep={props.prevStep}
+            prev_label={props.prev_label}
             />
         ) : (
           <Loading>{i18n("Installing the required add-on")}</Loading>
@@ -282,7 +300,7 @@ class AddService extends React.Component{
     switch (this.state.step){
       case 1:
         section = (
-          <ServiceFromExistingOrMarket
+          <ServiceAddRouter
             onSelectServiceType={(s) => this.handleSelectServiceType(s)}
             service={this.state.service}
             {...this.props}
@@ -298,6 +316,7 @@ class AddService extends React.Component{
             onAddService={this.props.onAddService}
             onAttachService={this.props.onAttachService}
             hide_old={this.props.hide_old}
+            saveButtons={this.props.saveButtons}
             />)
         break;
     }

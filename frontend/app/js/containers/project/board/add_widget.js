@@ -19,18 +19,27 @@ const Controller = connect({
     addWidget(widget, dashboard, config){
       const data={ widget, dashboard, config }
 
-      rpc.call("dashboard.widget.create", data).then( () => {
+      return rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
-        if (props.onClose)
-          props.onClose()
-        else{
-          const project = "SBDS"
-          goto(`/project/${project}/dashboard`)
-        }
+        this.onClose()
       }).catch( e =>
-        Flash.error(i18n(`Could not add widget *{name}* to dashboard: {e}`, {name: widget, e}))
+        {
+          console.error(e)
+          Flash.error(i18n(`Could not add widget *{name}* to dashboard: {e}`, {name: widget, e}))
+        }
       )
     },
+    onClose(){
+      console.log(this, props)
+      if (props.onClose == undefined ){
+        const project = props.project
+        return goto(`/project/${project}/dashboard`)
+      }
+      if (!props.onClose){ // onClose == false
+        return
+      }
+      props.onClose()
+    }
   }),
   subscriptions: (state, props) => {
     const dashboard = props.dashboard_uuid

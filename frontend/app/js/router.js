@@ -20,6 +20,7 @@ import IssuesAdd from 'app/containers/issues/add'
 import IssuesView from 'app/containers/issues/details'
 import ServiceDetails from 'app/containers/service/details'
 import RuleDetails from 'app/containers/rules/edit'
+import Wizard from 'app/containers/project/wizard'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
@@ -31,6 +32,7 @@ var ServerboardsRouter = React.createClass({
           <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
           <Route path="/project/">
+            <Route path="wizard" component={Wizard}/>
             <Route path=":project/" component={Project}/>
             <Route path=":project/:section" component={Project}/>
             <Route path=":project/:section/:subsection" component={Project}/>
@@ -38,6 +40,7 @@ var ServerboardsRouter = React.createClass({
           </Route>
           <Route path="/settings/" component={Settings}>
             <Route path=":section" component={Settings}/>
+            <Route path=":section/:subsection" component={Settings}/>
           </Route>
           <Route path="/process/">
             <Route path="history" component={ProcessesHistory}/>

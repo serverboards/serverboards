@@ -24,12 +24,12 @@ function tag_color(status){
   return "grey"
 }
 
-const img1 = require('imgs/008-Button+.png')
+const img1 = require('imgs/026-illustration-nocontent.svg')
 
 function EmptyFilter(props){
   return (
     <div className="ui fill centered">
-      <img src={img1} style={{height:"50%"}}/>
+      <img src={img1} style={{height:"50%", width:"100%"}}/>
       <h2 className="ui header" style={{margin: 0}}>{i18n("There are no issues to show.")}</h2>
       <h3 className="ui grey text header" style={{marginTop: 0}}>
         {i18n("Try diferent filters to look beyond, or create a new issue.")}

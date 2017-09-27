@@ -54,7 +54,7 @@ add_command_search('projects', function(Q, context){
   ]
   if (context.path.startsWith("/")){
     results.push(
-      {id: 'sbds-add', title: "Add project", description: "Add a new project", path: "/project/add"}
+      {id: 'sbds-add', title: "Add project", description: "Add a new project", path: "/project/wizard", data: {step: 1}}
     )
   }
   if (context.path.startsWith("/project/")){

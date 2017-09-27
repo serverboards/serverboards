@@ -105,7 +105,11 @@ const ProjectMenu = React.createClass({
             key="project_selector_menu"
             ref="project_selector_menu"
             >
-          <a className="item" onClick={() => set_modal(`project.add`)} style={{borderBottom: "1px solid #eee", width: 200}} id="add_project">{i18n("Add project")}</a>
+          <a  className="item"
+              onClick={() => goto(`#/project/wizard`, {step: 1})}
+              style={{borderBottom: "1px solid #eee", width: 200}}
+              id="add_project"
+            >{i18n("Add project")}</a>
           {(projects || []).map( p => (
             <a key={p.shortname} className={`item ${p.shortname == project_shortname ? "bold teal" : null}`} onClick={() => this.handleChangeProject(p.shortname)}>
               {p.name}

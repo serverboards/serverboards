@@ -7,7 +7,7 @@ import { get_last_project } from 'app/utils/project'
 let Dashboard = connect(
   (state) => {
     get_last_project()
-      .then(project => project ? goto(`/project/${project}/`) : null )
+      .then(project => project ? goto(`/project/${project}/`) : goto(`/project/wizard`)  )
     return {}
   }
 )(View)

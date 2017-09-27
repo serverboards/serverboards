@@ -1,8 +1,7 @@
 import React from 'react'
-import {Loading, GenericForm, Modal, Tip, Selector, Error} from 'app/components/export'
+import {Loading, GenericForm, Modal, Tip, Selector, Error} from 'app/components'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
-import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
@@ -15,10 +14,11 @@ class SetupWidget extends React.Component{
     }
   }
   handleAddWidget(){
-    this.props.onAddWidget(this.state.config)
+    return this.props.onAddWidget(this.state.config)
   }
   render(){
-    const widget=this.props.widget
+    const props = this.props
+    const widget=props.widget
     console.log(widget)
     return (
       <div className="ui padding">
@@ -29,9 +29,19 @@ class SetupWidget extends React.Component{
           <button type="button" className="ui basic button" onClick={this.props.cancelSetup}>
             {i18n("Back")}
           </button>
-          <button type="button" className="ui button teal" onClick={this.handleAddWidget.bind(this)}>
-            {i18n("Add widget")}
-          </button>
+          { props.saveButtons ? (
+              props.saveButtons.map( sb => (
+                <button type="button" className={`ui button ${sb.className}`}
+                    onClick={() => this.handleAddWidget().then( (data) => sb.onClick && sb.onClick(data) )}
+                    >
+                  {sb.label}
+                </button>
+              ))
+          ) : (
+            <button type="button" className="ui button teal" onClick={this.handleAddWidget.bind(this)}>
+              {i18n("Add widget")}
+            </button>
+          )}
         </div>
       </div>
     )
@@ -76,7 +86,8 @@ class SelectWidget extends React.Component{
     })
   }
   render(){
-    const {tab} = this.state
+    const {state, props} = this
+    const {tab} = state
 
     return (
       <div className="extend">
@@ -114,19 +125,27 @@ class SelectWidget extends React.Component{
           <Selector
             key="installed"
             get_items={cache.widget_catalog}
-            onSelect={this.props.onSelectWidget}
-            current={(this.props.widget || {}).id}
+            onSelect={props.onSelectWidget}
+            current={(props.widget || {}).id}
             show_filter={false}
-            filter={this.state.filter}
+            filter={state.filter}
+            skip_label={props.skip_label}
+            onSkip={props.onSkip}
+            prev_label={props.prev_label}
+            prevStep={props.prevStep}
           />
         ) : (tab==2) ? (
           <Selector
             key="marketplace"
             get_items={get_widget_market_catalog}
             onSelect={this.handleInstallWidget.bind(this)}
-            current={(this.props.widget || {}).id}
+            current={(props.widget || {}).id}
             show_filter={false}
-            filter={this.state.filter}
+            filter={state.filter}
+            skip_label={props.skip_label}
+            onSkip={props.onSkip}
+            prev_label={props.prev_label}
+            prevStep={props.prevStep}
           />
         ) : (
           <Loading>
@@ -148,7 +167,7 @@ class AddWidget extends React.Component{
     }
   }
   handleSelectWidget(widget){
-    if (!widget.params || widget.params.length==0){
+    if (!this.props.saveButtons && (!widget.params || widget.params.length==0)){
       // no more config
       this.props.addWidget( widget.id, this.props.dashboard_uuid, {} )
     }
@@ -156,7 +175,7 @@ class AddWidget extends React.Component{
       this.setState({widget, step: 1})
   }
   handleAddWidget(config){
-    this.props.addWidget( this.state.widget.id, this.props.dashboard_uuid, config )
+    return this.props.addWidget( this.state.widget.id, this.props.dashboard_uuid, config )
   }
   render(){
     let section=null

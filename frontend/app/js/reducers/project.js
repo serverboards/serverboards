@@ -56,6 +56,8 @@ function project(state=default_state, action){
         }
       return state
     }
+    case 'PROJECT_SET_CURRENT':
+      return merge(state, {current: action.payload} )
     case 'UPDATE_ALL_PROJECTS':
       return merge(state, {projects: action.projects} )
     case 'UPDATE_PROJECT_SERVICES':

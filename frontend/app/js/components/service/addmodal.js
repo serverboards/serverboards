@@ -8,7 +8,7 @@ function AddServiceModal(props){
     <Modal className="wide">
       <AddService
         {...props}
-        onServiceAdded={() => store.back() }
+        onServiceAdded={props.onServiceAdded || store.back}
         />
     </Modal>
   )

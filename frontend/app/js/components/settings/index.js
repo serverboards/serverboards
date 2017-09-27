@@ -3,7 +3,7 @@ import Link from 'app/router'
 import Overview from 'app/containers/settings/overview'
 import Users from 'app/containers/settings/users'
 import Groups from 'app/containers/settings/groups'
-import Plugins from 'app/components/settings/plugins'
+import Plugins from 'app/containers/settings/plugins'
 import System from 'app/containers/settings/system'
 import Logs from 'app/containers/logs'
 import Restricted from 'app/restricted'
@@ -68,7 +68,7 @@ function Settings(props){
     <div className="ui horizontal split area expand">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
       <div className="ui expand vertical expand split area with scroll">
-        <Section service={props.service} location={props.location}/>
+        <Section {...props} location={props.location}/>
       </div>
     </div>
   )
