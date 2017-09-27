@@ -61,7 +61,7 @@ export class AddServiceDetailsForm extends React.Component{
             <button
               className="ui button basic"
               onClick={() => gotoStep(1)}>
-                {i18n("Previous step")}
+                {i18n("Back")}
             </button>
             { saveButtons ? (
                 saveButtons.map( sb => (

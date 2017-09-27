@@ -191,10 +191,10 @@ class Selector extends React.Component{
             <div className="right aligned">
             <span className="ui buttons">
             {props.prevStep ? (
-              <button className="ui button basic" onClick={props.prevStep}>{props.prev_label || i18n("Previous step")}</button>
+              <button className="ui button basic" onClick={props.prevStep}>{props.prev_label || i18n("Back")}</button>
             ) : null}
             {props.nextStep ? (
-              <button className="ui button basic" onClick={props.nextStep}>{props.next_label || i18n("Next step")}</button>
+              <button className="ui button basic" onClick={props.nextStep}>{props.next_label || i18n("Continue")}</button>
             ) : null}
             {props.onSkip ? (
               <button className="ui button basic" onClick={props.onSkip}>{props.skip_label || i18n("Skip")}</button>
