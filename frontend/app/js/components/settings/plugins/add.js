@@ -33,24 +33,44 @@ function View(props){
           </div>
         </div>
       </div>
+      {(props.nextStep || props.prevStep) && (
+        <div>
+          <div className="ui divider" style={{marginTop:0}}/>
+          <div className="ui padding right aligned">
+            <div className="ui buttons">
+              {props.prevStep && (
+                <button className="ui basic button" onClick={props.prevStep}>
+                  {props.prev_label || i18n("Back")}
+                </button>
+              )}
+              {props.nextStep && (
+                  <button className="ui teal button" onClick={props.nextStep}>
+                    {props.next_label || i18n("Continue")}
+                  </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 
   return (
     <div className="ui vertical split area">
-      <div className="ui top secondary menu">
-        <h3 className="ui header">{i18n("Plugins")}</h3>
-        <div className="item stretch"/>
-        <div className="item">
-          <a
-              className="ui medium button"
-              onClick={() => goto('/settings/plugins')}
-              >
-            {i18n("Back to list")}
-          </a>
+      {!props.hide_menu && (
+        <div className="ui top secondary menu">
+          <h3 className="ui header">{i18n("Plugins")}</h3>
+          <div className="item stretch"/>
+          <div className="item">
+            <a
+                className="ui medium button"
+                onClick={() => goto('/settings/plugins')}
+                >
+              {i18n("Back to list")}
+            </a>
+          </div>
         </div>
-      </div>
-
+      )}
       <Panes
         column1={tip}
         column2={work}

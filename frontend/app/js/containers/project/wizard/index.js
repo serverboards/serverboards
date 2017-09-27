@@ -4,6 +4,7 @@ import {make_introduction} from 'app/components/project/wizard/step01_introducti
 import {make_projectname} from 'app/components/project/wizard/step02_projectname'
 import {make_widgets} from 'app/containers/project/wizard/step03_widgets'
 import {make_services} from 'app/containers/project/wizard/step04_services'
+import {make_plugins} from 'app/containers/project/wizard/step05_plugins'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
@@ -34,7 +35,7 @@ class WizardModel extends React.Component{
     }
     this.funcs = {
       nextStep: () => {
-        if (this.state.step==3)
+        if (this.state.step==4)
           store.goto(`/project/${this.state.project}/`)
         else
           this.setState({step: this.state.step+1})
@@ -69,6 +70,8 @@ class WizardModel extends React.Component{
         return make_widgets(props)
       case 3:
         return make_services(props)
+      case 4:
+        return make_plugins(props)
     }
     return (
       <Error>
