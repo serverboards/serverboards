@@ -6,7 +6,7 @@ import IconIcon from '../../iconicon'
 import {goto} from 'app/utils/store'
 import store from 'app/utils/store'
 const icon = require("../../../../imgs/services.svg")
-import {match_traits, get_service_data} from '../utils'
+import {get_service_data} from '../utils'
 import PluginScreen from 'app/components/plugin/screen'
 
 import Empty from 'app/components/empty'
@@ -17,6 +17,7 @@ import Rules from './rules'
 import ExternalUrl from './externalurl'
 import {i18n} from 'app/utils/i18n'
 import TabBar from 'app/components/tabbar'
+import {match_traits} from 'app/utils'
 
 const tab_options={
   details: DetailsTab,
@@ -126,7 +127,7 @@ const Details = React.createClass({
     ];
 
     props.screens.map( (s) => {
-      if (match_traits(s.traits, props.service.traits)){
+      if (match_traits({has: s.traits, any: props.service.traits})){
         sections.push({
           name: s.name,
           id: s.id,
