@@ -342,3 +342,9 @@ body [data-variation=narrow]:hover:after
   flex-direction: row
   justify-content: center
   align-items: center
+
+// Semantic ui default is too big
+body
+  .ui.circular.label, .ui.circular.labels .label
+    min-width: 1em
+    min-height: 1em
