@@ -347,4 +347,8 @@ export default {
   unwrap,
   match_traits,
   filter_items_str,
+
+  days,
+  months,
+  templates
 }
