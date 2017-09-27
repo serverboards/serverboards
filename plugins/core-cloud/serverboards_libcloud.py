@@ -116,7 +116,10 @@ class LibVirt(Connection):
 
       ssh_server = serverboards.service.get(config['server'])
       keyfile=os.path.join(os.environ["HOME"],"../serverboards.core.ssh/id_rsa")
-      url="qemu+ssh://%s/system?keyfile=%s"%(ssh_server["config"]['url'], keyfile)
+      url=ssh_server["config"]['url']
+      if url.startswith('ssh://'):
+          url=url[6:]
+      url="qemu+ssh://%s/system?keyfile=%s"%(url, keyfile)
 
       #serverboards.debug("Connect to libvirt // %s"%url)
       driver=cls( url )
