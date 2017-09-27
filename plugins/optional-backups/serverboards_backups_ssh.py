@@ -36,7 +36,11 @@ def read_source_tar(fifofile, config):
     print("Read from %s to %s"%(config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
         ssh.run(service=config["service"], command=["tar", "cz", config["path"]], outfile=fifofile)
-        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
+        output = ssh.run(service=config["service"], command=["du","-sb",config["path"]])
+        stdout = output["stdout"]
+        if not stdout:
+            raise Exception("file not exists")
+        size = int(stdout.split()[0])
         print("Done, read %s"%size)
         return size
 
@@ -49,7 +53,10 @@ def write_destination(fifofile, config):
         if '{{' in copyto:
             copyto = render_template_with_dates(copyto)
         ssh.run(service=config["service"], command=["cat", ">", copyto], infile=fifofile)
-        size = int(ssh.run(service=config["service"], command=["du","-sb",copyto])["stdout"].split()[0])
+        stdout = ssh.run(service=config["service"], command=["du","-sb",copyto])["stdout"]
+        if not stdout:
+            raise Exception("file not created")
+        size = int(stdout.split()[0])
         print("Done, write %s"%size)
         return size
 
