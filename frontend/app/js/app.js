@@ -18,6 +18,7 @@ import cache from 'app/utils/cache'
 import i18n from 'app/utils/i18n'
 import {set_lang} from 'app/actions/i18n'
 import lodash from 'lodash'
+import utils from 'app/utils'
 
 require('moment-range');
 
@@ -46,8 +47,8 @@ window.Serverboards = {
   React,
   ReactDOM,
   Components: require("app/components").default,
-  utils: require("app/utils"),
-  location: { goto: require('app/utils/store').goto },
+  utils,
+  location: { goto: store.goto, back: store.back, location: store.location },
   add_screen: plugin.add_screen,
   add_widget: plugin.add_widget,
   add_command_search: Command.add_command_search,
