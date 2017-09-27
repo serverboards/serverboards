@@ -164,7 +164,7 @@ class Selector extends React.Component{
           <div className="ui with scroll and padding">
             {(!state.all_items || state.all_items.length==0) ? (
               <div>
-                <img src={require("imgs/026-illustration-nocontent.svg")}/>
+                <img className="ui centered big image" src={require("imgs/026-illustration-nocontent.svg")}/>
                 <div className="ui padding">
                   <MarkdownPreview value={props.no_items_label || i18n("There are no items for selection.")}/>
                 </div>
