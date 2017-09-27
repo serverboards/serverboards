@@ -40,6 +40,7 @@ var ServerboardsRouter = React.createClass({
           </Route>
           <Route path="/settings/" component={Settings}>
             <Route path=":section" component={Settings}/>
+            <Route path=":section/:subsection" component={Settings}/>
           </Route>
           <Route path="/process/">
             <Route path="history" component={ProcessesHistory}/>

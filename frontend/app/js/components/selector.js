@@ -135,6 +135,7 @@ class Selector extends React.Component{
       )
     }
     const props = this.props
+    const state = this.state
     const show_items = this.state.show_items
     const sections = Object.keys(show_items)
 
@@ -161,23 +162,30 @@ class Selector extends React.Component{
           ) : null }
 
           <div className="ui with scroll and padding">
-              {sections.length==0 ? (
-                <div className="ui meta">{i18n("No matches found")}</div>
-              ) : sections.map( (s) => (
-                <div key={s}>
-                  <h3 className="ui teal header">{s}</h3>
-                  { show_items[s].map( i => (
-                    <Card
-                      className={props.current==(i.id || i.type) ? "active" : null}
-                      key={i.id || i.type}
-                      item={i}
-                      default_icon={default_icon_for(i, "cloud")}
-                      onClick={() => props.onSelect(i)}
-                      />
-                  ))}
-                  <div className="ui separator" style={{height: 10}}/>
+            {(!state.all_items || state.all_items.length==0) ? (
+              <div>
+                <img src={require("imgs/026-illustration-nocontent.svg")}/>
+                <div className="ui padding">
+                  <MarkdownPreview value={props.no_items_label || i18n("There are no items for selection.")}/>
                 </div>
-              ) ) }
+              </div>
+            ) : (sections.length==0) ? (
+                <div className="ui meta">{i18n("No matches found")}</div>
+            ) : sections.map( (s) => (
+              <div key={s}>
+                <h3 className="ui teal header">{s}</h3>
+                { show_items[s].map( i => (
+                  <Card
+                    className={props.current==(i.id || i.type) ? "active" : null}
+                    key={i.id || i.type}
+                    item={i}
+                    default_icon={default_icon_for(i, "cloud")}
+                    onClick={() => props.onSelect(i)}
+                    />
+                ))}
+                <div className="ui separator" style={{height: 10}}/>
+              </div>
+            ) ) }
           </div>
           {props.prevStep||props.nextStep||props.onSkip ? (
             <div className="right aligned">

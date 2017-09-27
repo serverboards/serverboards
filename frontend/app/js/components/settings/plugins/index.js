@@ -6,7 +6,7 @@ import plugin from 'app/utils/plugin'
 import {merge} from 'app/utils'
 import event from 'app/utils/event'
 import i18n from 'app/utils/i18n'
-import {set_modal} from 'app/utils/store'
+import {set_modal, goto} from 'app/utils/store'
 import cache from 'app/utils/cache'
 
 require('sass/cards.sass')
@@ -57,20 +57,6 @@ const Plugins=React.createClass({
   contextTypes: {
     router: React.PropTypes.object
   },
-  handleInstallPlugin(){
-    const plugin_url=this.refs.plugin_url.value
-    if (!plugin_url){
-      Flash.error(i18n("Please set a valid URL"))
-      return;
-    }
-    rpc.call("plugin.install", [plugin_url]).then( () => {
-      Flash.info(i18n("Plugin from {plugin_url} installed and ready.",{plugin_url}))
-      this.componentDidMount() // reload plugin list
-    }).catch( (e) => {
-      Flash.error(e)
-      this.componentDidMount() // reload plugin list
-    })
-  },
   render(){
     const plugins=this.state.plugins
     const settings=this.state.settings
@@ -79,29 +65,13 @@ const Plugins=React.createClass({
       <div className="ui vertical split area">
         <div className="ui top secondary menu">
           <h3 className="ui header">{i18n("Plugins")}</h3>
-          <div className="item">
-            <div className="ui form">
-              <div className="inline fields" style={{marginBottom: 0}}>
-                <div className="field">
-                  <input ref="plugin_url" type="text" style={{width: "30em"}} placeholder={i18n("Enter plugin git repository URL")}/>
-                </div>
-                <div className="field">
-                  <button className="ui button yellow" onClick={this.handleInstallPlugin}>{i18n("Install")}</button>
-                </div>
-              </div>
-            </div>
-          </div>
           <div className="item stretch"/>
           <div className="item">
             <a
                 className="ui teal medium button"
-                href="https://serverboards.io/downloads/plugins/"
-                target="_blank"
-                data-tooltip={i18n("View the full plugin list at https://serverboards.io")}
-                data-position="bottom right"
-                style={{fontSize: 14}}
+                onClick={() => goto('/settings/plugins/add')}
                 >
-              {i18n("Get Plugins")}
+              {i18n("Marketplace")}
             </a>
           </div>
         </div>
