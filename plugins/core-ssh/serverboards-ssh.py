@@ -70,7 +70,7 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         precmd = []
     else:
         url, args, precmd = __get_service_url_and_opts(service)
-    args = args + [*args, '--', precmd, *command]
+    args = [*args, '--', *precmd, *command]
     if debug:
         serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
     # Each argument is an element in the list, so the command, even if it
@@ -97,8 +97,12 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         kwargs["_in"].close()
 
     if service:
-        serverboards.info("SSH Command executed %s:%s'"%(service, command), extra=dict(service_id=service, command=command))
-    return {"stdout": stdout, "exit": result.exit_code}
+        serverboards.info("SSH Command executed %s:'%s'"%(service, "' '".join(command)), extra=dict(service_id=service, command=command))
+    return {
+        "stdout": stdout,
+        "stderr": result.stderr.decode('utf8'),
+        "exit": result.exit_code
+        }
 
 sessions={}
 import uuid
