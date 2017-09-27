@@ -18,7 +18,7 @@ defmodule Serverboards.Project.RPC do
         project_add projectname, options, Context.get(context, :user)
       %{} = attr, context ->
         projectname = attr["shortname"]
-        options = Map.take(attr, ["shortname"])
+        options = Map.drop(attr, ["shortname"])
         project_add projectname, options, Context.get(context, :user)
     end, [required_perm: "project.create", context: true]
 

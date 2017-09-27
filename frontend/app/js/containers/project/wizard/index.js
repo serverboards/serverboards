@@ -17,7 +17,7 @@ import WizardView from 'app/components/project/wizard/wizardview'
 function make_shortname(name){
   let shortname = name
   if (shortname.length>5)
-    shortname = shortname.replace(/[aeiou]/gi,"")
+    shortname = shortname.replace(/[aeiou ]/gi,"")
   if (shortname.length>5)
     shortname=shortname.slice(0,2) + shortname.slice( shortname.length - 3)
   shortname=shortname.toUpperCase()
