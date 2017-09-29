@@ -65,8 +65,8 @@ class Details extends React.Component{
         this.componentDidMount()
       })
   }
-  handleAddLabel(tags){
-    return update_issue(this.state.issue_id, {type:"set_labels", data:tags})
+  handleAddLabel(tag){
+    return update_issue(this.state.issue_id, {type:"set_labels", data:[tag]})
       .then( () => this.componentDidMount() )
   }
   handleRemoveLabel(tag){

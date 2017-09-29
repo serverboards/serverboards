@@ -78,7 +78,7 @@ function IssueEventSetLabels({event}){
       <CardHeader event={event} label={i18n("added tags")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
-          <span key={l} className={`ui text green`}>{l}&nbsp; </span>
+          <span key={l} className={`ui text green`}>{String(l)}&nbsp; </span>
         ))}
       </div>
     </div>
@@ -90,7 +90,7 @@ function IssueEventUnsetLabels({event}){
       <CardHeader event={event} label={i18n("removed tag")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
-          <span key={l} className={`ui text red`}>{l}</span>
+          <span key={l} className={`ui text red`}>{String(l)}</span>
         ))}
       </div>
     </div>
@@ -195,9 +195,7 @@ class Details extends React.Component{
           <div className="ui padding">
             <h4 className="ui header">
               <span className="ui meta big text"># {issue.id}</span>
-              {issue.labels.map( l => (
-                <span key={l.name} className={`ui text ${l.color}`} style={{paddingLeft: 5}}> {l.name} </span>
-              ))}
+              <Labels {...props}/>
             </h4>
             <h3 className="ui big header">
               <span className="ui content">
@@ -229,17 +227,13 @@ class Details extends React.Component{
               </div>
             </div>
             <div className="ui divider"></div>
-            <div className="ui padding">
-              <Labels {...props}/>
-            </div>
-
             <div className="ui padding" ref="new_comment">
               <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
                 <div className="field">
                   <label>{i18n("New comment")}</label>
                   <textarea placeholder={i18n("Write your comment here...")}></textarea>
                 </div>
-                <div className="ui inline fields form" style={{marginBottom: 30}}>
+                <div className="ui inline fields form" style={{margin: "30px 0"}}>
                   <div className="field">
                     <button className="ui button yellow" onClick={() => this.handleAddComment()}>{i18n("Add comment")}</button>
                   </div>

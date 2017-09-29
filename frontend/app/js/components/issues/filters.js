@@ -2,6 +2,7 @@ import React from 'react'
 import {goto} from 'app/utils/store'
 import rpc from 'app/rpc'
 import i18n from 'app/utils/i18n'
+import {sort_by_name} from 'app/utils'
 
 const RelatedElement=React.createClass({
   getInitialState(){
@@ -85,44 +86,80 @@ function Related({issue}){
   )
 }
 
-const Labels=React.createClass({
-  componentDidMount(){
-    $(this.refs.add_labels).hide()
-    $(this.refs.add_labels_input).on("change", () => {
-      this.props.onAddLabel(this.refs.add_labels_input.value.split(" "))
-      this.refs.add_labels_input.value=""
-      $(this.refs.add_labels).slideUp()
-    })
-  },
-  handleOpenEditFilters(){
-    $(this.refs.add_labels).slideDown(() => {
-      $(this.refs.add_labels_input).focus()
-    })
-  },
-  render(){
-    const {issue} = this.props
-    return (
-      <div>
-        <div style={{position: "relative"}}>
-          <a style={{position: "absolute", top:9, right:0, cursor: "pointer"}} onClick={this.handleOpenEditFilters}><i className="ui add yellow icon"/></a>
-          <h4 className="ui header">{i18n("Labels")}</h4>
-          <div className="ui form" style={{margin: 20}} ref="add_labels">
-            <input type="text" ref="add_labels_input" placeholder={i18n("Press ENTER when finished")}/>
-          </div>
-          {(issue.labels || []).map( (l) => (
-            <span key={l.name} style={{paddingBottom: 10}}>
-              <span className={`ui text ${l.color}`}>
-                {l.name}
-                <a onClick={() => this.props.onRemoveLabel(l.name)}>
-                  <i className={`ui icon ${l.color} close`}/>
-                </a>
-              </span>
-            </span>
-          ))}
-        </div>
-      </div>
-    )
+function has_tag(issue, l){
+  for (const t of issue.labels){
+    if (l.name == t.name)
+      return true
   }
-})
+  return false
+}
+
+class Labels extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
+      show_all_tags: false
+    }
+  }
+  render(){
+    const {props} = this
+    const {issue, labels} = props
+    if (this.state.show_all_tags){
+      return (
+        <span style={{lineHeight: "35px"}}>
+          {sort_by_name(labels).map( l => (
+            <a
+                key={l.name}
+                className={`ui pointer text ${l.color}`}
+                style={{marginLeft: 5}}
+                onClick={() => has_tag(issue, l) ? props.onRemoveLabel(l.name) : props.onAddLabel(l.name) }
+            >
+              {l.name}
+              {has_tag(issue, l) ? (
+                <i className="icon remove"/>
+              ) : (
+                <i className="icon plus"/>
+              )}
+            </a>
+          ))}
+          <div className="ui inline form" style={{display: "inline-block"}}>
+            <input
+              type="text"
+              className="ui inline input"
+              placeholder={i18n("New label. Press ENTER when finished.")}
+              style={{marginTop:-10}}
+              onKeyDown={(ev) => {
+                console.log(ev, ev.charCode, ev.keyCode, ev.code)
+                if (ev.keyCode==13){
+                  props.onAddLabel(ev.target.value)
+                  ev.target.value=""
+                }
+              }}
+              />
+          </div>
+          <a
+            className="ui pointer"
+            onClick={() => this.setState({show_all_tags: false})}>
+              <i className="icon close grey"/>
+          </a>
+        </span>
+      )
+    }
+    else{
+      return (
+        <span>
+          {sort_by_name(issue.labels).map( l => (
+            <span key={l.name} className={`ui text ${l.color}`} style={{marginLeft: 5}}> {l.name} </span>
+          ))}
+          <a
+            className="ui pointer"
+            onClick={() => this.setState({show_all_tags: true})}>
+            <i className="icon edit grey" title={i18n("Edit labels")} alt={i18n("Edit labels")}/>
+          </a>
+        </span>
+      )
+    }
+  }
+}
 
 export {Labels, Related}

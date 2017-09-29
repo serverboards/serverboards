@@ -156,7 +156,7 @@ class Issues extends React.Component{
         <AddIssue />
       )
     return (
-      <IssueDetails key={selected} issue_id={selected}/>
+      <IssueDetails key={selected} issue_id={selected} labels={this.props.labels}/>
     )
   }
   handleSelect(issue){
