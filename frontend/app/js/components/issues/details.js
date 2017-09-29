@@ -86,7 +86,7 @@ function IssueEventSetLabels({event}){
 }
 function IssueEventUnsetLabels({event}){
   return (
-    <div className="ui card connected">
+    <div className="ui card with side rail connected">
       <CardHeader event={event} label={i18n("removed tag")}/>
       <div style={{display:"flex", flexDirection:"row"}}>
         {event.data.map( (l) => (
@@ -98,7 +98,7 @@ function IssueEventUnsetLabels({event}){
 }
 function IssueEventMisc({event, desc}){
   return (
-    <div className="ui card connected">
+    <div className="ui card with side rail connected">
       <CardHeader event={event} icon={desc.icon} label={i18n(desc.text)} text={i18n(event.data)} color={desc.color}/>
     </div>
   )
