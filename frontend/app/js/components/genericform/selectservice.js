@@ -68,7 +68,9 @@ class SelectService extends React.Component{
     return (
       <div className="field">
         <label>{i18n(props.label)}</label>
-        <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+        {props.description && (
+          <RichDescription className="ui meta" value={props.description} vars={props.vars}/>
+        )}
         <div ref="select" className={`ui fluid ${props.search ? "search" : ""} selection dropdown`}>
           <input type="hidden" name={defaultName} defaultValue={props.value} onChange={props.onChange}/>
           <i className="dropdown icon"></i>
@@ -89,6 +91,7 @@ class SelectService extends React.Component{
             <AddServiceModal
               filter={this.prepareFilter()}
               hide_old={true}
+              store={store}
               onServiceAdded={(s) => {
                 this.setState({show_add_modal: false})
                 this.updateServices()

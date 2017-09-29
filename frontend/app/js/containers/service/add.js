@@ -2,10 +2,12 @@ import connect from 'app/containers/connect'
 import View from 'app/components/service/add'
 import i18n from 'app/utils/i18n'
 import rpc from 'app/rpc'
+import cache from 'app/utils/cache'
 import Flash from 'app/flash'
 
 export function service_add_future(sbds, service){
   return rpc.call("service.create", service).then(function(service_uuid){
+    cache.invalidate_all()
     if (sbds){
       return rpc.call("service.attach",[sbds, service_uuid]).then(function(){
         Flash.info(i18n("Added service and attached to project"))
