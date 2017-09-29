@@ -424,6 +424,7 @@ defmodule Serverboards.Service do
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
+    Logger.debug(inspect service_catalog([type: service.type]))
     service = case service_catalog([type: service.type]) do
       [] ->
         service
@@ -431,7 +432,7 @@ defmodule Serverboards.Service do
           |> Map.put(:traits, [])
           |> Map.put(:description, "")
           |> Map.put(:icon, nil)
-      [service_definition] ->
+      [service_definition | _other ] ->
         fields = service_definition.fields |> Enum.map(fn f ->
           Map.put(f, :value, Map.get(service.config, f["name"], ""))
         end)
