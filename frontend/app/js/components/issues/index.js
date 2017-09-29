@@ -121,17 +121,17 @@ class Issues extends React.Component{
         <div className="ui attached tabular menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
           <a
             className={`item ${ filter.indexOf("status:open")>=0 ? "active" : ""}`}
-            onClick={() => props.setFilter("status:open")}>
+            onClick={() => props.updateFilter("status:open")}>
               {i18n("Open")}&nbsp;<span className="ui meta"> ({props.open_count})</span>
           </a>
           <a
             className={`item ${ filter.indexOf("status:closed")>=0 ? "active" : ""}`}
-            onClick={() => props.setFilter("status:closed")}>
+            onClick={() => props.updateFilter("status:closed")}>
               {i18n("Closed")}&nbsp;<span className="ui meta"> ({props.closed_count})</span>
           </a>
           <a
-            className={`item ${ filter.indexOf("status:*")>=0 ? "active" : ""}`}
-            onClick={() => props.setFilter("status:*")}>
+            className={`item ${ filter.indexOf("status:closed")<0 && filter.indexOf("status:open")<0 ? "active" : ""}`}
+            onClick={() => props.updateFilter("-status:")}>
               {i18n("All")}&nbsp;<span className="ui meta">({props.all_count})</span>
           </a>
         </div>
@@ -156,7 +156,7 @@ class Issues extends React.Component{
         <AddIssue />
       )
     return (
-      <IssueDetails key={selected} issue_id={selected}/>
+      <IssueDetails key={selected} issue_id={selected} labels={this.props.labels}/>
     )
   }
   handleSelect(issue){
@@ -169,15 +169,16 @@ class Issues extends React.Component{
         <Loading>Issues</Loading>
       )
     const issues_by_day = group_by_day(props.issues_show)
+    const {show_filter_options} = this.state
 
     const right_side = this.get_current_section(this.state.selected)
 
     return (
       <div className="ui split area vertical" style={{flexDirection:"column", height: "100%"}} id="issues">
-        {this.props.setSectionMenu ? null :  (
+        {props.setSectionMenu ? null :  (
           <div className="ui top secondary menu" style={{paddingBottom: 0, zIndex: 9}}>
             <h3 className="ui header">{i18n("Issues")}</h3>
-            {this.render_menu()}
+            {this.render_menu(props)}
           </div>
         )}
         <div className="ui expand two column grid grey background" style={{margin:0, flexGrow: 1, margin: 0}}>
@@ -186,9 +187,40 @@ class Issues extends React.Component{
               <div className="ui attached top form">
                 <div className="ui input seamless white">
                   <i className="icon search"/>
-                  <input type="text" onChange={(ev) => this.setFilter(ev.target.value)} placeholder={i18n("Filter...")}/>
+                  <input type="text"
+                    onChange={(ev) => props.setFilter(ev.target.value)}
+                    placeholder={i18n("Filter...")}
+                    value={props.filter}
+                    style={{maxWidth: "calc( 100% - 52px )"}}
+                    />
+                </div>
+                <div className="ui floating right menu">
+                  <a
+                      className={`ui item ${show_filter_options ? "active" : null}`}
+                      onClick={() => this.setState({show_filter_options: !show_filter_options})}
+                      >
+                    <i className="options icon"/>
+                    <span className="ui small text">{i18n("Filters")}</span>
+                  </a>
                 </div>
               </div>
+              {show_filter_options && (
+                <div className="ui shadow" style={{marginBottom: 3}}>
+                  <div className="ui secondary menu" style={{margin: 0}}>
+                    <a onClick={() => {console.log("close"); this.setState({show_filter_options: false})}} className="right item">
+                      <i className="black close icon"/>
+                    </a>
+                  </div>
+                  <div className="ui form with padding" style={{paddingTop: 0}}>
+                    <Filters
+                      filter={props.filter}
+                      labels={props.labels}
+                      setFilter={props.setFilter}
+                      updateFilter={props.updateFilter}
+                      />
+                  </div>
+                </div>
+              )}
               <div className="ui scroll extend with padding">
                 {(props.issues.length == 0) ? (
                   <EmptyFilter/>

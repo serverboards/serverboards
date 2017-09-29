@@ -15,16 +15,14 @@ const IssueTag = React.createClass({
   render(){
     const props = this.props
     return (
-      <div className="label">
-        <span className={`ui tag label mini ${props.color}`}> </span>
-        <span className="name">{props.value}</span>
-        <div className="inline field">
-          <div ref="el" className="ui toggle checkbox">
+      <span className="label">
+        <div className="inline field" style={{display: "inline-block"}}>
+          <div ref="el" className="ui checkbox">
             <input type="checkbox" className="hidden"/>
-            <label> </label>
+            <label className={`ui text ${props.color}`}>{props.value}</label>
           </div>
         </div>
-      </div>
+      </span>
     )
   }
 })
@@ -37,50 +35,25 @@ const Filters = React.createClass({
   },
   handleFilterChange(ev){
     const value=ev.target.value
-    this.props.setFilter(value)
+    this.props.updateFilter(value)
   },
-  handleServerboardChange(ev){
+  handleProjectChange(ev){
     const value=ev.target.value
-    this.props.setFilter("project:"+value)
+    this.props.updateFilter(value)
   },
   render(){
     const props = this.props
-    const current_project = (props.filter.filter( f => f.startsWith("project:") ).map( f => f.slice(8) )  || [""])[0]
+    const current_project = (props.filter.split(' ').filter( f => f.startsWith("project:") ).map( f => f.slice(8) )  || [""])[0]
     return (
       <div className="" ref="el">
-        <div className="ui search">
-          <div className="ui icon input">
-            <input className="prompt" type="text" placeholder={i18n("Search...")} value={props.filter.join(" ")}/>
-            <i className="search icon"></i>
-          </div>
-          <div className="results"></div>
-        </div>
         <div className="ui form">
-          {/*
-          <div className="field" style={{marginBottom: 40}}>
-            <select className="ui dropdown">
-              <option value="order:-open">Show recents first</option>
-              <option value="order:+open">Show older first</option>
-              <option value="order:-modified">Show recentyly modified first</option>
-              <option value="order:+modified">Show more time not modified first</option>
-            </select>
-          </div>
-          <div className="field">
-            <select className="ui dropdown" onChange={this.handleFilterChange} placeholder={i18n("Preset filters")}>
-              <option value="">{i18n("Preset filters")}</option>
-              <option value="status:open">{i18n("Show open")}</option>
-              <option value="status:closed">{i18n("Show closed")}</option>
-            </select>
-          </div>
-          */}
           {(props.labels.length > 0) ? (
             <div className="ui labels">
               <h4 className="ui grey header">{i18n("Filter by labels")}</h4>
-              <div className="ui divider"/>
               {props.labels.map( (t) => (
                 <IssueTag key={t.name} value={t.name} color={t.color}
-                  onEnable={() => props.setFilter(`+tag:${t.name}`)}
-                  onDisable={() => props.setFilter(`-tag:${t.name}`)}
+                  onEnable={() => props.updateFilter(`+tag:${t.name}`)}
+                  onDisable={() => props.updateFilter(`-tag:${t.name}`)}
                 />
               ))}
               <div className="ui divider"/>
@@ -89,11 +62,15 @@ const Filters = React.createClass({
           {props.project ? null : (
             <div className="field">
               <h4 className="ui grey header">{i18n("At project")}</h4>
-              <div className="ui divider"/>
-              <select className="ui dropdown search" onChange={this.handleServerboardChange} placeholder={i18n("All projects")} defaultValue={current_project}>
-                <option value="none">{i18n("All projects")}</option>
+              <select
+                  className="ui dropdown search"
+                  onChange={this.handleProjectChange}
+                  placeholder={i18n("All projects")}
+                  defaultValue={current_project}
+                  >
+                <option value="-project:">{i18n("All projects")}</option>
                 {sorted_projects(props.projects).map((s) => (
-                  <option key={s.shortname} value={s.shortname}>{s.name}</option>
+                  <option key={s.shortname} value={`project:${s.shortname}`}>{s.name}</option>
                 ))}
               </select>
             </div>
