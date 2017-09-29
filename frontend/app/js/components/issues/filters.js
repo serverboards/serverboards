@@ -104,61 +104,72 @@ class Labels extends React.Component{
   render(){
     const {props} = this
     const {issue, labels} = props
-    if (this.state.show_all_tags){
-      return (
-        <span style={{lineHeight: "35px"}}>
-          {sort_by_name(labels).map( l => (
-            <a
-                key={l.name}
-                className={`ui pointer text ${l.color}`}
-                style={{marginLeft: 5}}
-                onClick={() => has_tag(issue, l) ? props.onRemoveLabel(l.name) : props.onAddLabel(l.name) }
-            >
-              {l.name}
-              {has_tag(issue, l) ? (
-                <i className="icon remove"/>
-              ) : (
-                <i className="icon plus"/>
-              )}
-            </a>
-          ))}
-          <div className="ui inline form" style={{display: "inline-block"}}>
-            <input
-              type="text"
-              className="ui inline input"
-              placeholder={i18n("New label. Press ENTER when finished.")}
-              style={{marginTop:-10}}
-              onKeyDown={(ev) => {
-                console.log(ev, ev.charCode, ev.keyCode, ev.code)
-                if (ev.keyCode==13){
-                  props.onAddLabel(ev.target.value)
-                  ev.target.value=""
-                }
-              }}
-              />
+    return (
+      <span>
+        {sort_by_name(issue.labels).map( l => (
+          <span key={l.name} className={`ui text ${l.color}`} style={{marginLeft: 5}}> {l.name} </span>
+        ))}
+        <a
+          className="ui pointer floating right"
+          onClick={() => this.setState({show_all_tags: !this.state.show_all_tags})}>
+          {i18n("Edit labels")}
+          <i className="icon edit grey" title={i18n("Edit labels")} alt={i18n("Edit labels")}/>
+        </a>
+        {this.state.show_all_tags && (
+          <div className="ui shadow white background floating" style={{zIndex: 10}}>
+            <div className="ui secondary menu">
+              <a
+                className="ui right item"
+                onClick={() => this.setState({show_all_tags: false})}>
+                  <i className="icon close grey"/>
+              </a>
+            </div>
+
+            <div className="ui padding left right" style={{paddingTop: 0}}>
+              <span style={{lineHeight: "30px"}}>
+                {sort_by_name(labels).map( l => (
+                  <a
+                      key={l.name}
+                      className={`ui basic right labeled icon micro button ${l.color}`}
+                      style={{marginLeft: 5}}
+                      onClick={() => has_tag(issue, l) ? props.onRemoveLabel(l.name) : props.onAddLabel(l.name) }
+                  >
+                    {l.name}
+                    {has_tag(issue, l) ? (
+                      <i className="icon remove"/>
+                    ) : (
+                      <i className="icon plus"/>
+                    )}
+                  </a>
+                ))}
+              </span>
+            </div>
+            <div className="ui divider"/>
+            <div className="ui form with padding left right down">
+              <div className="field">
+                <label>{i18n("Add a new label")}</label>
+                <input
+                  id="labeltoadd"
+                  type="text"
+                  className="ui inline input"
+                  placeholder={i18n("Label to add")}
+                  onKeyDown={(ev) => {
+                    console.log(ev, ev.charCode, ev.keyCode, ev.code)
+                    if (ev.keyCode==13){
+                      props.onAddLabel(ev.target.value)
+                      ev.target.value=""
+                    }
+                  }}
+                  />
+              </div>
+              <button className="ui button teal" onClick={() => props.onAddLabel($('#labeltoadd').val())}>
+                {i18n("Add label")}
+              </button>
+            </div>
           </div>
-          <a
-            className="ui pointer"
-            onClick={() => this.setState({show_all_tags: false})}>
-              <i className="icon close grey"/>
-          </a>
-        </span>
-      )
-    }
-    else{
-      return (
-        <span>
-          {sort_by_name(issue.labels).map( l => (
-            <span key={l.name} className={`ui text ${l.color}`} style={{marginLeft: 5}}> {l.name} </span>
-          ))}
-          <a
-            className="ui pointer"
-            onClick={() => this.setState({show_all_tags: true})}>
-            <i className="icon edit grey" title={i18n("Edit labels")} alt={i18n("Edit labels")}/>
-          </a>
-        </span>
-      )
-    }
+        )}
+      </span>
+    )
   }
 }
 
