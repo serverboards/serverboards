@@ -1,91 +1,153 @@
 import React from 'react'
 import IssuesView from 'app/components/issues'
 import rpc from 'app/rpc'
-import {flatmap, dedup} from 'app/utils'
+import {flatmap, dedup, sort_by_name} from 'app/utils'
 import connect from 'app/containers/connect'
 import { load_issues, clear_issues, clear_issues_count } from 'app/actions/issues'
 import i18n from 'app/utils/i18n'
 
-const Issues = connect({
-  state(state, props){
-    const issues = state.issues.issues || []
-    const filter = state.issues.filter.filter( f => !f.startsWith("status:") )
+class Issues extends React.Component{
+  constructor(props){
+    super(props)
 
-    // Manual filter for status
-    let issues_show=issues
-    {
-      const statusl = state.issues.filter.filter( f => f.startsWith("status:") )
-      if (statusl.length>0 && statusl[0]!="status:*"){
-        const status = statusl[0].slice(7,1000)
-        issues_show = issues.filter( i => i.status == status )
-      }
+    this.state = {
+      filter: this.props.filter || "status:open",
+      issues: [],
+      issues_show: [],
+      labels: [],
+      open_count: 0,
+      closed_count: 0,
+      all_count: 0
     }
-
-    // Manual filter for tags
-    filter.filter( f => f.startsWith("tag:") ).map( f => {
-      let tag=f.slice(4)
-      issues_show=issues_show.filter( (i) => i.labels.filter( (l) => l.name == tag ).length>0 )
-    })
-
-    const labels = dedup(flatmap(issues_show, (i) => i.labels )).sort( (a,b) => (a.name.localeCompare(b.name)) )
-    return {
-      issues,
-      issues_show,
-      all_count: issues.length,
-      open_count: issues.filter( (i) => i.status=='open' ).length,
-      closed_count: issues.filter( (i) => i.status=='closed' ).length,
-      filter: state.issues.filter,
-      labels
-    }
-  },
-  handlers: (dispatch) => ({
-    setFilter(filtermod){
-      if (!filtermod){
-        dispatch( load_issues(["status:open"]) )
+  }
+  componentDidMount(){
+    this.updateIssues()
+  }
+  updateIssues(filter=undefined){
+    if (filter == undefined)
+      filter = this.state.filter
+    else {
+      if (filter == this.state.filter){ // no changes
+        console.log("No filter change", filter, this.state.filter)
         return
       }
-      let filter = this.filter
-      for (let update of filtermod.split(' ')){
-        if (update[0]=="+")
-          filter=filter.concat(update.slice(1))
-        else if (update[0]=="-"){
-          const tag=update.slice(1)
-          filter=filter.filter( (f) => f!=tag)
-        }
-        else if (update.indexOf(':')>0){ // for change status: projects: ...
-          const prefix=update.split(':')[0]+':'
-          const postfix=update.slice(prefix.length)
-          filter = filter.filter( (s) => !s.startsWith(prefix))
-          if (postfix!="none" && postfix!=""){
-            filter = filter.concat(update)
-          }
-        }
+    }
+    this.setState({filter})
+
+    let real_filter = {}
+    for (const f of filter.split(' ')){
+      const kv = f.split(':')
+      if (kv.length==1)
+        real_filter["q"] = (real_filter["q"] || []).concat(kv)
+      else{
+        real_filter[kv[0]] = (real_filter[kv[0]] || []).concat(kv[1])
       }
-      console.log("Set filter %o %o", filter)
-      dispatch( load_issues(filter) )
-
     }
-  }),
-  store_enter: (state, props) => {
-    let filter
-    if (props.project)
-      filter=[`project:${props.project}`, "status:open"]
-    else
-      filter = state.issues.filter
 
-    return [
-      () => load_issues(filter),
-      clear_issues_count
-    ]
-  },
-  store_exit: [ clear_issues ],
-  loading(state, props){
-    if (state.issues.issues == undefined){
-      return i18n("Issues")
+    let status, q, tags
+    if (real_filter["project"])
+      real_filter["project"]=real_filter["project"][0]
+    if (real_filter["status"]){
+      status = real_filter["status"][0]
+      delete real_filter["status"]
     }
-    return false
+    if (real_filter["q"]){
+      q = real_filter["q"].map( i => i.toLowerCase() ).filter( i => i)
+      delete real_filter["q"]
+    }
+    if (real_filter["tag"]){
+      tags = real_filter["tag"]
+      delete real_filter["tag"]
+    }
+
+    console.log("Filter: %o -> %o", filter, real_filter)
+
+    rpc.call("issues.list", real_filter).then( issues => {
+      let issues_show = status ? issues.filter( i => i.status == status ) : issues
+      if (q){
+        issues_show = issues_show.filter( is => {
+          let descr = `${is.title} ${is.status} ${is.labels.map(l => l.name).join(' ')} ${is.id} #${is.id} ${is.date} ${is.creator || "system"}`.toLowerCase()
+          for (const qq of q){
+            if (!descr.includes(qq))
+              return false
+          }
+          return true
+        })
+      }
+      if (tags){
+        issues_show = issues_show.filter( is => {
+          for (const t of tags){
+            console.log("tags", t, is)
+            let ok = false
+            for (const l of is.labels)
+              if (l.name == t)
+                ok = true
+            if (!ok)
+              return false
+          }
+          return true
+        })
+      }
+
+      let open_count=0, closed_count=0, all_count=0
+      for (const i of issues){
+        if (i.status=="open")
+          open_count+=1
+        if (i.status=="closed")
+          closed_count+=1
+        all_count+=1
+      }
+
+      const labels = sort_by_name( dedup( flatmap(issues, (i) => i.labels) ) )
+      this.setState({issues, labels, issues_show, open_count, closed_count, all_count})
+    })
   }
-})(IssuesView)
+  setFilter(filter){
+    console.log("Set filter", filter)
+    this.updateIssues(filter)
+  }
+  updateFilter(update){
+    console.log("Update filter with this data", update)
+    let filter = this.state.filter.split(' ')
+    if (update.startsWith('+')){
+      filter = filter.concat(update.slice(1))
+    }
+    else if (update.startsWith('-')){
+      let torem = update.slice(1)
+      if (torem.endsWith(":"))
+        filter = filter.filter( f => !f.startsWith(torem) )
+      else
+        filter = filter.filter( f => f != torem )
+    }
+    else{
+      let updated = false
+      const k = update.split(':')[0]+':'
+      filter = filter.map( f => {
+        if (f.startsWith(k)){
+          if (updated)
+            return ""
+          updated = true
+          return update
+        }
+        else
+          return f
+      })
+      if (!updated)
+        filter = filter.concat(update)
+    }
 
+    this.setFilter(filter.join(' '))
+  }
+  render(){
+    return (
+      <IssuesView
+        {...this.state}
+        {...this.props}
+        setFilter={this.setFilter.bind(this)}
+        updateFilter={this.updateFilter.bind(this)}
+        />
+    )
+  }
+}
 
 export default Issues

@@ -70,7 +70,22 @@ const RelatedElement=React.createClass({
   }
 })
 
-const Filters=React.createClass({
+function Related({issue}){
+  return (
+    <div>
+      {issue.aliases.length>0 ? (
+        <div>
+          <h4 className="ui header">{i18n("Related")}</h4>
+            {issue.aliases.map( (a) => (
+              <RelatedElement key={a} alias={a}/>
+            ))}
+        </div>
+      ) : null }
+    </div>
+  )
+}
+
+const Labels=React.createClass({
   componentDidMount(){
     $(this.refs.add_labels).hide()
     $(this.refs.add_labels_input).on("change", () => {
@@ -95,34 +110,19 @@ const Filters=React.createClass({
             <input type="text" ref="add_labels_input" placeholder={i18n("Press ENTER when finished")}/>
           </div>
           {(issue.labels || []).map( (l) => (
-            <div key={l.name} style={{paddingBottom: 10}}>
-              <span className={`ui tag label ${l.color}`}>{l.name} <a onClick={() => this.props.onRemoveLabel(l.name)}><i className="ui icon close"/></a></span>
-            </div>
+            <span key={l.name} style={{paddingBottom: 10}}>
+              <span className={`ui text ${l.color}`}>
+                {l.name}
+                <a onClick={() => this.props.onRemoveLabel(l.name)}>
+                  <i className={`ui icon ${l.color} close`}/>
+                </a>
+              </span>
+            </span>
           ))}
         </div>
-        {issue.aliases.length>0 ? (
-          <div>
-            <h4 className="ui header">{i18n("Related")}</h4>
-              {issue.aliases.map( (a) => (
-                <RelatedElement key={a} alias={a}/>
-              ))}
-          </div>
-        ) : null }
-        {/*
-        <div>
-          <h4 className="ui header">Asignees</h4>
-          <a><i className="ui add yellow"/></a>
-        </div>
-        <div>
-          <h4 className="ui header">Participants</h4>
-        </div>
-        <div>
-          <h4 className="ui header">Files</h4>
-        </div>
-        */}
       </div>
     )
   }
 })
 
-export default Filters
+export {Labels, Related}

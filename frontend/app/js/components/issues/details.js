@@ -6,7 +6,7 @@ import {merge, colorize, pretty_ago} from 'app/utils'
 import Avatar from 'app/containers/avatar'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 
-import Filters from './filters'
+import {Related, Labels} from './filters'
 
 function tag_color(status){
   if (status=="open")
@@ -217,6 +217,7 @@ class Details extends React.Component{
                   />
               </div>
             </div>
+            <Related {...props}/>
           </div>
           <div className="ui divider"></div>
           <div className="ui scroll">
@@ -228,6 +229,10 @@ class Details extends React.Component{
               </div>
             </div>
             <div className="ui divider"></div>
+            <div className="ui padding">
+              <Labels {...props}/>
+            </div>
+
             <div className="ui padding" ref="new_comment">
               <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
                 <div className="field">
