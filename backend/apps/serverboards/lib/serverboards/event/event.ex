@@ -9,7 +9,7 @@ defmodule Serverboards.Event do
   """
   def start_link(options) do
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client } } ->
-      MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
+      subscription_id = MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
         subscriptions = MOM.RPC.Client.get client, :subscriptions, []
         event_type = payload.type
 
@@ -38,6 +38,12 @@ defmodule Serverboards.Event do
           #Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
         end
         :ok
+      end)
+      # I subscribe the monitoring of any element in the client caller
+      Logger.debug("Monitor #{inspect client.pid} with subscription id #{inspect subscription_id}")
+      Serverboards.Utils.MonitorCallbacks.monitor(client.pid, fn ->
+        Logger.warn("Unsubscribing from client_events")
+        MOM.Channel.unsubscribe(:client_events, subscription_id)
       end)
     end)
 

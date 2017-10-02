@@ -27,8 +27,9 @@ defmodule Serverboards.IO.HTTP.WebSocketHandler do
 
     {:ok, req, %{client: client} }
   end
-  def websocket_terminate(_reason, _req, _state) do
+  def websocket_terminate(_reason, _req, state) do
     Logger.info("Websocket disconnected.")
+    RPC.Client.stop(state.client)
     :ok
   end
 
