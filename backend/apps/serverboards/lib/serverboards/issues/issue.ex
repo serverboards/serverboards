@@ -101,7 +101,7 @@ defmodule Serverboards.Issues.Issue do
 
     (from i in Model.Issue,
       where: i.id == ^issue_id,
-      update: [set: [updated_at: fragment("?", "NOW()")]]
+      update: [set: [updated_at: fragment("NOW() at TIME ZONE 'utc'")]]
     ) |>  Repo.update_all([])
 
     Logger.info("DONE Update updated at")
