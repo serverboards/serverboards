@@ -14,3 +14,11 @@ export function rules_v2_list_clear(){
     payload: undefined
   }
 }
+
+export function update_trigger_catalog(filter={}){
+  return function(dispatch){
+    rpc.call("rules.catalog", {}).then(function(catalog){
+      dispatch({type: "UPDATE_TRIGGER_CATALOG", catalog })
+    })
+  }
+}

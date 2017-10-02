@@ -107,8 +107,7 @@ const SidebarSections = React.createClass({
           <ProjectHeader {...props}/>
           <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
           <MenuItem section="services">{i18n("Services")}</MenuItem>
-          <MenuItem section="rules">{i18n("Rules")}</MenuItem>
-          <MenuItem section="rules_v2">{i18n("Rules v2")}</MenuItem>
+          <MenuItem section="rules_v2">{i18n("Rules")}</MenuItem>
           <MenuItem section="issues" style={{display:"flex"}}><span>{i18n("Issues")}</span>
             {props.new_issues ? (
               <span className={`ui micro label circular blue`}/>
