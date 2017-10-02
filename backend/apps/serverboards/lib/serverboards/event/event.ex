@@ -40,9 +40,9 @@ defmodule Serverboards.Event do
         :ok
       end)
       # I subscribe the monitoring of any element in the client caller
-      Logger.debug("Monitor #{inspect client.pid} with subscription id #{inspect subscription_id}")
+      # Logger.debug("Monitor #{inspect client.pid} with subscription id #{inspect subscription_id}")
       Serverboards.Utils.MonitorCallbacks.monitor(client.pid, fn ->
-        Logger.warn("Unsubscribing from client_events")
+        # Logger.warn("Unsubscribing from client_events")
         MOM.Channel.unsubscribe(:client_events, subscription_id)
       end)
     end)
