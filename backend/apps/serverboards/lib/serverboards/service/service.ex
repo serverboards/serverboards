@@ -424,7 +424,7 @@ defmodule Serverboards.Service do
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
-    Logger.debug(inspect service_catalog([type: service.type]))
+    #Logger.debug(inspect service_catalog([type: service.type]))
     service = case service_catalog([type: service.type]) do
       [] ->
         service
