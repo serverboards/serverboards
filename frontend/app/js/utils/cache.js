@@ -40,8 +40,8 @@ const cache={
       store_update: require('app/actions/action').action_catalog()
   }),
   trigger_catalog: cache_builder({
-      store_get: () => store.getState().rules.trigger_catalog,
-      store_update: require('app/actions/rules').update_trigger_catalog()
+      store_get: () => store.getState().rules_v2.trigger_catalog,
+      store_update: require('app/actions/rules_v2').update_trigger_catalog()
   }),
   service(service_id){
     let services = store.getState().services.services
