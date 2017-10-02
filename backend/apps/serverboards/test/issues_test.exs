@@ -154,9 +154,9 @@ defmodule Serverboards.IssuesTest do
     assert Test.Client.expect(client, method: "issue.updated")
 
     {:ok, since_items} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
-    Logger.info("Got #{Enum.count(since_items)} // #{inspect since_items} from #{inspect issue["updated_at"]}")
+    Logger.info("Got #{Enum.count(since_items)} // #{inspect since_items, pretty: true} from #{inspect issue["updated_at"], pretty: true}")
     # {:ok, res} = Test.Client.call(client, "issues.list", %{ project: "TEST", project: "TEST" })
-    # Logger.debug("All #{inspect res} from #{inspect issue["updated_at"]}")
+    Logger.debug("All #{inspect res} from #{inspect issue["updated_at"]}")
     {:ok, count} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], return: "count" })
     Logger.info("Count #{inspect count}")
     assert 1 == count
