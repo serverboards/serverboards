@@ -23,7 +23,7 @@ export function make_introduction(props){
     work: (
       <div className="ui fill area centered">
         <h3>{i18n("Start by creating your first project")}</h3>
-        <button className="ui teal button" onClick={() => props.nextStep()}>{i18n("CREATE PROJECT")}</button>
+        <button className="ui teal button" onClick={() => props.nextStep()} id="create_project">{i18n("CREATE PROJECT")}</button>
       </div>
     )
   }
