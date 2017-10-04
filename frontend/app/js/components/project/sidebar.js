@@ -19,13 +19,13 @@ const SPECIAL_ITEM_STYLE = {
 
 function ProjectHeader(props){
   return (
-    <div className="ui vertical split area">
-      <div className="ui horizontal split area padding">
-        <h3 className="ui header expand" style={{margin: 0, fontSize: 30}}>
-          <img src={serverboards_logo} style={{width: "100%", marginTop: -2}}/>
-        </h3>
-        <a className="item" id="side_menu_toggle" onClick={props.onHideSidebar} style={{cursor:"pointer", color: "white", padding: 10}}>
-          <i className="ui icon content" style={{fontSize: 22}}/>
+    <div className="">
+      <div className="ui header">
+        <div className="ui content with padding" style={{width: 210}}>
+          <img src={serverboards_logo} style={{width: "100%"}}/>
+        </div>
+        <a className="ui item image" id="side_menu_toggle" onClick={props.onHideSidebar} style={{padding: 10, height: 40, display: "inline-block", marginTop: 10}}>
+          <i className="ui white text icon content" style={{fontSize: 22}}/>
         </a>
       </div>
       <h2 className="ui header teal" style={{margin: "0 0 0 15px"}}>{props.project.name}</h2>
