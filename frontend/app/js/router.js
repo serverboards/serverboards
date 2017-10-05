@@ -55,7 +55,7 @@ var ServerboardsRouter = React.createClass({
           <Route path="/issues/" component={Issues}/>
           <Route path="/issues/">
             <Route path="add" component={IssuesAdd}/>
-            <Route path=":id" component={IssuesView}/>
+            <Route path=":id" component={Issues}/>
           </Route>
 
           <Route path="/services/">

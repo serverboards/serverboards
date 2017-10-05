@@ -108,10 +108,15 @@ class Issues extends React.Component{
   componentDidMount(){
     if (this.props.setSectionMenu)
       this.props.setSectionMenu(this.render_menu, {...this.props, setState: this.setState.bind(this)})
+    if (this.props.params && this.props.params.id)
+      this.setState({selected: this.props.params.id})
   }
   componentWillReceiveProps(nprops){
     if (this.props.setSectionMenuProps)
       this.props.setSectionMenuProps({...nprops, setState: this.setState.bind(this)})
+    if (nprops.params && nprops.params.id != this.props.params.id){
+      this.setState({selected: nprops.params.id})
+    }
   }
   render_menu(props){
     if (!props) props={}
@@ -178,7 +183,7 @@ class Issues extends React.Component{
         {props.setSectionMenu ? null :  (
           <div className="ui top secondary menu" style={{paddingBottom: 0, zIndex: 9}}>
             <h3 className="ui header">{i18n("Issues")}</h3>
-            {this.render_menu(props)}
+            {this.render_menu({...props, setState: this.setState.bind(this)})}
           </div>
         )}
         <div className="ui expand two column grid grey background" style={{margin:0, flexGrow: 1, margin: 0}}>

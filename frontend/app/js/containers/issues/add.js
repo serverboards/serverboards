@@ -3,6 +3,8 @@ import rpc from 'app/rpc'
 import {goto} from 'app/utils/store'
 import AddView from 'app/components/issues/add'
 import {parse_comment, update_issue_multi} from './utils'
+import {map_get} from 'app/utils'
+import store from 'app/utils/store'
 
 const Add = React.createClass({
   handleAdd(title, description){
@@ -14,7 +16,7 @@ const Add = React.createClass({
 
     let data = {title, description}
 
-    let project=this.props.location.state.project
+    let project=map_get(store.getState(), ["project","current"])
     if (project){
       data.aliases=[`project/${project}`]
     }
