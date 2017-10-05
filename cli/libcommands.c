@@ -475,9 +475,13 @@ static void list_subcommands_one_line_help(){
 		fflush(stdout);
 		switch(I->type){
 			case SC_EXTERNAL:
+			{
 				snprintf(tmp, sizeof(tmp), "%s --one-line-help", I->fullpath);
-				system(tmp);
+				int ok = system(tmp);
+				if (ok!=0)
+					printf("[error executing --one-line-help]");
 				break;
+			}
 			default:
 				if (I->one_line_help)
 					printf("%s\n",  I->one_line_help);

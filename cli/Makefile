@@ -24,7 +24,8 @@ test:
 CMDS=s10s-cli.py s10s-i18n-compile.py s10s-i18n-update.sh \
 		 s10s-update.sh \
 		 s10s-i18n-update--extract-manifest-yaml-po.py \
-		 s10s-shell
+		 s10s-shell \
+		 s10s-user.py
 
 install: ${CMDS} s10s
 	mkdir -p ${BINDIR}
