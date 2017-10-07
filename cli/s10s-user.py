@@ -20,7 +20,8 @@ User management:
 """
 
 
-import sys, os, configparser, psycopg2, datetime
+import sys, os, configparser, psycopg2, datetime, json
+conn = None
 
 class ServerboardsDB():
     def __init__(self):
@@ -60,8 +61,6 @@ Please ensure you have the proper permissions to access that file and
 that it is well formed."""%ini)
             sys.exit(1)
 
-
-
     def execute(self, sql, *args):
         cur = self.connection.cursor()
         cur.execute(sql, args)
@@ -71,14 +70,20 @@ that it is well formed."""%ini)
         cur.execute(sql, args)
         self.connection.commit()
 
+def log(*txt, **kwargs):
+    text = ' '.join(str(x) for x in txt)
+    print("WARN: %s"%text, file=sys.stderr)
+    conn.insert("""
+        INSERT INTO logger_line (message, level, timestamp, meta)
+             VALUES (%s, 'warn', NOW(), %s)
+         """, text, json.dumps({**kwargs, "cli": True})
+        )
+
 def list_():
-    conn = ServerboardsDB()
     for user in conn.execute("SELECT email FROM auth_user;"):
         print("- %s"%(user[0]))
 
 def details(email):
-    conn = ServerboardsDB()
-
     data = conn.execute(
         "SELECT email, name, is_active, inserted_at FROM auth_user WHERE email = %s;",
         email
@@ -100,8 +105,6 @@ def details(email):
             print(" - %s"%g[0])
 
 def add_user_to_group(user, group):
-    conn = ServerboardsDB()
-
     if not user_at_group(user, group):
         user_id = conn.execute("SELECT id FROM auth_user WHERE email = %s", user)[0]
         group_id = conn.execute("SELECT id FROM auth_group WHERE name = %s", group)[0]
@@ -110,25 +113,24 @@ def add_user_to_group(user, group):
             "INSERT INTO auth_user_group (group_id, user_id) VALUES (%s, %s)",
             group_id, user_id
             )
+        log("Manually added user %s to %s"%(user, group), user=user, group=group)
         print("added")
     else:
         print("user already at group")
 
 def remove_user_from_group(user, group):
-    conn = ServerboardsDB()
     if user_at_group(user, group):
         conn.insert("""
             DELETE FROM auth_user_group
                   WHERE user_id = (SELECT id FROM auth_user WHERE email = %s)
                     AND group_id = (SELECT id FROM auth_group WHERE name = %s)
             """, user, group )
+        log("Manually removed user %s from %s"%(user, group), user=user, group=group)
         print("removed")
     else:
         print("user not in group")
 
 def user_at_group(name, group):
-    conn = ServerboardsDB()
-
     ngroups = conn.execute("""
         SELECT count(*) from auth_group ag
         INNER JOIN auth_user_group agu ON ag.id = agu.group_id
@@ -139,7 +141,6 @@ def user_at_group(name, group):
     return ngroups > 0
 
 def create(email):
-    conn = ServerboardsDB()
     now = datetime.datetime.now()
 
     try:
@@ -147,18 +148,17 @@ def create(email):
             "INSERT INTO auth_user (email, is_active, inserted_at, updated_at) VALUES (%s, True, %s, %s)",
             email, now, now
             )
+        log("Manually created user %s"%(user), user=email)
         print("inserted")
     except psycopg2.IntegrityError:
         print("error: user already exists")
 
 def update_enabled(email, is_active):
-    conn = ServerboardsDB()
-    now = datetime.datetime.now()
-
     conn.insert(
         "UPDATE auth_user SET is_active = %s WHERE email = %s",
         is_active, email
         )
+    log("Manually enabled user %s (%s)"%(email, str(is_active)), user=email, is_active=is_active)
     print("updated")
 
 def main(argv):
@@ -168,6 +168,9 @@ def main(argv):
     if len(argv)==1 or '--help' in argv or 'help' in argv:
         print(__doc__)
         sys.exit(0)
+
+    global conn
+    conn = ServerboardsDB()
 
     if argv[1] == "list":
         list_()
