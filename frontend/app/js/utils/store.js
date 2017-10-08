@@ -49,29 +49,6 @@ function get_value(what){
   return get_value_r(what.split('.'), store.getState())
 }
 
-function object_equals(o1, o2){
-  let to1=typeof(o1)
-  let to2=typeof(o2)
-  //console.log("Compare %o==%o, %o==%o", o1, o2, to1, to2)
-  if (to1=='undefined' && to2=='undefined')
-    return true // Not really true, but it is for our use case
-  if (to1!=to2)
-    return false;
-
-  if (to1=='object'){
-    if ('_d' in o1)
-      return o1._d == o2._d
-    let k
-    for(k in o1){
-      if (k.slice(2)!='__')
-        if (!object_equals(o1[k], o2[k]))
-          return false;
-    }
-    return true
-  }
-  return o1==o2
-}
-
 /**
  * @short Adds simple .on(what, f) observer
  *
@@ -93,8 +70,8 @@ store.on=function(what, f){
     } catch(e){
       //console.warn("Error getting value %o from store. Using undefined.\n%o",what, e )
     }
-    //console.log("Check changes: %o ->? %o => %o", current_v, new_v, !object_equals(current_v,new_v))
-    if (!object_equals(current_v,new_v)){
+    //console.log("Check changes: %o ->? %o => %o", current_v, new_v, !object_is_equal(current_v,new_v))
+    if (!object_is_equal(current_v,new_v)){
       current_v=new_v
       //console.log("Changed status %o != %o", current_v, new_v)
       try{
