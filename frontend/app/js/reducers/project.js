@@ -22,7 +22,7 @@ function previous_realtime(){
 }
 
 var default_state={
-  projects: [],
+  projects: undefined,
   current: undefined,
   project: undefined,
   catalog: undefined,
