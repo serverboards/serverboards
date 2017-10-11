@@ -37,7 +37,7 @@ export class AddServiceDetailsForm extends React.Component{
   render(){
     const {service, gotoStep, saveButtons} = this.props
     return (
-      <div className="ui with padding extend">
+      <div className="ui padding">
         <MarkdownPreview value={service.description}/>
 
         <form className="ui form">
