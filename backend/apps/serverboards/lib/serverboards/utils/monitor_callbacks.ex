@@ -16,7 +16,7 @@ defmodule Serverboards.Utils.MonitorCallbacks do
   end
 
   def handle_cast({:monitor, pid, callback}, state) do
-    Logger.debug("Want to monitor #{inspect pid}, when dead, call #{inspect callback}")
+    # Logger.debug("Want to monitor #{inspect pid}, when dead, call #{inspect callback}")
 
     updated_callbacks = Map.get(state, pid, []) ++ [callback]
     Process.monitor(pid)

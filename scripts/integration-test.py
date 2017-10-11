@@ -58,6 +58,7 @@ def main():
                 print(fd.read())
             printc("FAIL UI TESTS", color="red")
             if wait_at_error:
+                printc("Server runing at http://localhost:8080. User: test@serverboards.io / asdfasdf")
                 printc("WAIT FOR <Crtl + C>", color="yellow")
                 try:
                     time.sleep(1000)
@@ -73,10 +74,21 @@ def main():
 
 
 if __name__=='__main__':
+    if '--help' in sys.argv:
+        print("""
+%s -- Runs Serverboards integration tests
+
+This tests run the backend and tries to perform some actions on a test database.
+
+Environment must be the appropiate, or it may fail.
+
+Options:
+  --visible       -- View the actions on the browser
+  --wait-at-error -- If fails, do not close the backend, keep it running until Crtl-C
+""")
+        sys.exit(1)
+
     show_ui = "--visible" in sys.argv[1:]
     wait_at_error = "--wait-at-error" in sys.argv[1:]
-    if '--help' in sys.argv[1:]:
-        print("%s [--visible] [--wait-at-error]"%(sys.argv[0]))
-        sys.exit(1)
 
     main()

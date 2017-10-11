@@ -186,6 +186,11 @@ defmodule Serverboards.RuleV2Test do
   test "Add rule to db and start it" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
+    # cleanup
+    File.rm("/tmp/rule-v2-3.test")
+    File.rm("/tmp/rule-v2-32.test")
+    File.rm("/tmp/rule-v2-2.test")
+
     {:ok, uuid} = Test.Client.call(client, "rules_v2.create", %{
         name: "Rule test",
         description: "Long description of a rule to test",
@@ -216,14 +221,18 @@ defmodule Serverboards.RuleV2Test do
           ]
         }
       } )
-    :timer.sleep(1_500)
+    :timer.sleep(1_000)
 
-    {res1, _} = File.stat("/tmp/rule-then.test")
-    File.rm("/tmp/rule-v2.test")
-    {res2, _} = File.stat("/tmp/rule-else.test")
-    File.rm("/tmp/rule-v2-2.test")
-
+    {res1, _} = File.stat("/tmp/rule-v2-3.test")
     assert res1 == :ok
+    File.rm("/tmp/rule-v2-3.test")
+
+    {res1, _} = File.stat("/tmp/rule-v2-32.test")
+    assert res1 == :ok
+    File.rm("/tmp/rule-v2-32.test")
+
+    {res2, _} = File.stat("/tmp/rule-v2-2.test")
+    File.rm("/tmp/rule-v2-2.test")
     assert res2 == :error
 
 

@@ -28,6 +28,7 @@ defmodule Serverboards.Issues.EventSourcing do
 
       text = case data.data do
         d when is_map(d) -> inspect(d)
+        l when is_list(l) -> inspect(l)
         t -> t
       end
       url= Serverboards.Config.get(:"serverboards.core.settings/base","base_url", "http://localhost:8000/")
