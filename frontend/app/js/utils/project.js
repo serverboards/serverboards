@@ -18,8 +18,15 @@ export function get_last_project(){
   if (last_project.indexOf("/")>0)
     return Promise.resolve(false)
   // Ensure it exists, if it does, go there, if not no previous.
-  return cache.projects().then( (projects) =>
-    projects.find((p) => p.shortname == last_project)
-    ? last_project
-    : false )
+  return cache.projects().then(
+      (projects) =>
+        projects.find(p => p.shortname == last_project) // ensure it exists
+        ? Promise.resolve(last_project)
+        : // if not, get first or false
+        cache.projects().then(
+          (projects) => projects.length > 0
+          ? projects[0].shortname
+          : false
+        )
+    )
 }
