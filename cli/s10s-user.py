@@ -148,7 +148,7 @@ def create(email):
             "INSERT INTO auth_user (email, is_active, inserted_at, updated_at) VALUES (%s, True, %s, %s)",
             email, now, now
             )
-        log("Manually created user %s"%(user), user=email)
+        log("Manually created user %s"%(email), user=email)
         print("inserted")
     except psycopg2.IntegrityError:
         print("error: user already exists")
