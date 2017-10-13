@@ -22,14 +22,20 @@
       background: red !important
       min-width: 0px
 
-.ui.secondary.menu .hold.item
+.ui.serverboards.menu .hold.item
+  &:hover
+    background-color: #eee
   display: block
   cursor: pointer
   max-height: 2em
+  position: relative
   .ui.attached.progress
-    min-width: calc( 100% + 30px )
-    margin: 10px -15px
     border-radius: 0
+    position: absolute
+    bottom: 1px
+    left: 0
+    height: 2px
+    width: 100%
     .bar
       background: red !important
       min-width: 0px

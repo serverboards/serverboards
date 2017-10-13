@@ -17,7 +17,10 @@ let Settings=React.createClass({
   render_menu(){
     return (
       <div className="right menu">
-        <HoldButton className="ui item" onHoldClick={this.props.handleDelete}>{i18n("Delete project")} <i className="ui icon trash"/></HoldButton>
+        <HoldButton className="item" onHoldClick={this.handleDelete}>
+          {i18n("Delete project")}
+          <i className="ui icon trash left padding" />
+        </HoldButton>
       </div>
     )
   },
