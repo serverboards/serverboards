@@ -8,6 +8,7 @@ import {
   board_set_daterange_start_and_end
   } from 'app/actions/project'
 import { map_get } from 'app/utils'
+import i18n from 'app/utils/i18n'
 
 const Board = store.connect({
   state: (state) => ({
@@ -41,10 +42,14 @@ const Board = store.connect({
   ],
   watch: ['dashboard'], // Watch this prop
   loading(state){
+    if (!state.project.dashboard)
+      return i18n("Unknown dashboard")
+      if (!state.project.dashboard.current)
+        return i18n("No current dashboard")
     if (!state.project.widget_catalog)
-      return "Widget catalog"
+      return i18n("Widget catalog")
     if (!((state.project.dashboard || {}).current || {}).widgets)
-      return "Widgets"
+      return i18n("Widgets")
     return false
   }
 }, BoardView)
