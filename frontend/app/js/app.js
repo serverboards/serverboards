@@ -9,7 +9,8 @@ import store from 'app/utils/store'
 import plugin from 'app/utils/plugin'
 import Command from 'app/utils/command'
 import {pretty_ago} from 'app/utils'
-import moment from 'moment'
+import Moment from 'moment'
+import { extendMoment } from 'moment-range';
 import * as d3 from 'd3'
 import graphs from 'app/graphs'
 import perms from 'app/utils/perms'
@@ -19,6 +20,8 @@ import i18n from 'app/utils/i18n'
 import {set_lang} from 'app/actions/i18n'
 import lodash from 'lodash'
 import utils from 'app/utils'
+
+const moment = extendMoment(Moment);
 
 require('moment-range');
 
