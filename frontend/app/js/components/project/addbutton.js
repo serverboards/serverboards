@@ -34,34 +34,46 @@ class AddButton extends React.Component{
             <a
                 onClick={() => goto(`/project/${project}/services/add`)}
                 title={i18n("Add a service")}
+                className="ui double margin left"
                 >
-              <i className="ui mid massive button id card blue icon"></i>
-              <div className="ui clear background">{i18n("Add service")}</div>
+              <div className="ui circular button blue">
+                <i className="id card outline white icon"></i>
+              </div>
+              <div className="ui clear background black bold uppercase centered text">{i18n("Add service")}</div>
             </a>
           </Restricted>
           <Restricted perm="rules.create">
             <a
                 onClick={() => goto(`/project/${project}/rules_v2/add`)}
                 title={i18n("Add a rule")}
+                className="ui double margin left"
                 >
-              <i className="ui massive button lab violet icon"></i>
-              <div className="ui clear background">{i18n("Add rule")}</div>
+              <div className="ui circular button violet">
+                <i className="lab white icon"></i>
+              </div>
+              <div className="ui clear background black bold uppercase centered text">{i18n("Add rule")}</div>
             </a>
           </Restricted>
           <Restricted perm="dashboard.create">
             <a
                 onClick={() => goto(`/project/${project}/dashboard/add`)}
                 title={i18n("Add a widget")}
+                className="ui double margin left"
                 >
-              <i className="ui mid massive button add area chart yellow icon"></i>
-              <div className="ui clear background">{i18n("Add widget")}</div>
+              <div className="ui circular button yellow">
+                <i className="area chart white icon"></i>
+              </div>
+              <div className="ui clear background black bold uppercase centered text">{i18n("Add widget")}</div>
             </a>
           </Restricted>
           <a
             onClick={() => this.setState({open:false})}
-            className="ui icon teal">
-            <i className="ui massive button grey remove icon"></i>
-            <div className="ui clear background">{i18n("Back")}</div>
+            className="ui double margin left"
+            >
+            <div className="ui circular button grey">
+              <i className="remove white icon"></i>
+            </div>
+            <div className="ui clear background black bold uppercase centered text">{i18n("Back")}</div>
           </a>
         </div>
       )
@@ -73,7 +85,9 @@ class AddButton extends React.Component{
               onClick={() => this.setState({open:true})}
               title={i18n("Add a widget, service, rule, issue...")}
               >
-            <i className="ui massive button add teal icon"></i>
+            <div className="ui circular button teal">
+              <i className="add white icon"></i>
+            </div>
           </a>
         </div>
       )
