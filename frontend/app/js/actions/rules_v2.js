@@ -17,8 +17,8 @@ export function rules_v2_list_clear(){
 
 export function update_trigger_catalog(filter={}){
   return function(dispatch){
-    rpc.call("rules.catalog", {}).then(function(catalog){
-      dispatch({type: "UPDATE_TRIGGER_CATALOG", catalog })
+    rpc.call("rules.catalog", {}).then(function(payload){
+      dispatch({type: "UPDATE_TRIGGER_CATALOG", payload })
     })
   }
 }

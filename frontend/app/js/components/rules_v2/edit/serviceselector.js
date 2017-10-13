@@ -49,7 +49,7 @@ class ServiceSelector extends React.Component{
       )
     if (state.create_new){
       return (
-        <AddServiceDetailsForm 
+        <AddServiceDetailsForm
           service={state.type}
           onAddService={this.handleRealAddService}
           project={props.project}
@@ -75,19 +75,21 @@ class ServiceSelector extends React.Component{
           <MarkdownPreview value={type.description || ""}/>
         </div>
 
-        <div className="ui cards v2 with scroll and padding">
-          {this.state.services.map(s => (
-            <Card
-              container="a"
-              key={s.uuid}
-              icon={type.icon}
-              tags={s.tags}
-              plugin={plugin_id}
-              title={s.name}
-              description={s.description}
-              onClick={() => this.props.onSelect(s)}
-              />
-          )) }
+        <div className="ui with scroll and padding">
+          <div className="ui cards v2">
+            {this.state.services.map(s => (
+              <Card
+                container="a"
+                key={s.uuid}
+                icon={type.icon}
+                tags={s.tags}
+                plugin={plugin_id}
+                title={s.name || type.name}
+                description={s.description || type.description}
+                onClick={() => this.props.onSelect(s)}
+                />
+            )) }
+          </div>
         </div>
         <div className="right aligned">
           <span className="ui buttons">
