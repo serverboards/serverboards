@@ -197,5 +197,24 @@ defmodule Serverboards.Utils do
     b
   end
 
+  def map_get(map, []) do
+    {:ok, map}
+  end
 
+  def map_get(nil, _) do
+    {:ok, nil}
+  end
+
+  def map_get(map, [h | tail]) when is_number(h) do
+    case Enum.fetch(map, h) do
+      {:ok, rest} -> map_get(rest, tail)
+      _ -> {:error, :not_found}
+    end
+  end
+  def map_get(map, [h | tail]) do
+    case Map.fetch(map, h) do
+      {:ok, rest} -> map_get(rest, tail)
+      _ -> {:error, :not_found}
+    end
+  end
 end

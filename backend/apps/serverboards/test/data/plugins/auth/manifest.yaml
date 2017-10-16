@@ -255,13 +255,17 @@ components:
     type: rule template
     name: Rule template example
     fields:
-      - id: period
+      - name: period
         type: string
         label: Period for checks
-      - id: randomp
+      - name: randomp
         label: Random probability (0-1)
-      - id: filename
+      - name: filename
         label: Which file to create/delete
+      - name: service
+        label: related service
+        type: service
+        traits: url
     rule:
       when:
         trigger: serverboards.test.auth/periodic.timer
@@ -279,7 +283,7 @@ components:
               action: serverboards.test.auth/writetofile
               params:
                 filename: "{{filename}}"
-                content: "{{A.result}}"
+                content: "{{A.result}} {{service.config.url}}"
           else:
             - type: action
               action: serverboards.test.auth/rmfile
