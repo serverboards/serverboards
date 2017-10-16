@@ -251,6 +251,7 @@ defmodule Serverboards.RuleV2Test do
 
   test "Rule templates" do
     uuid = UUID.uuid4
+    {:ok, service_uuid} = Serverboards.Service.service_add %{ "name" => "Test service", "config" => %{ "url" => "http://localhost" } }, Test.User.system
     rule = %{
       uuid: uuid,
       name: "test",
@@ -260,12 +261,19 @@ defmodule Serverboards.RuleV2Test do
         "template_data" => %{
           "period" => 1,
           "randomp" => 1.0,
-          "filename" => "/tmp/s10s-rule-template-test.tmp"
+          "filename" => "/tmp/s10s-rule-template-test.tmp",
+          "service" => service_uuid
         }
       }
     }
 
     template = Serverboards.Plugin.Registry.find("serverboards.test.auth/rule.template")
     {:ok, pid} = Serverboards.RulesV2.Rule.start_link(rule)
+
+    %{rule: rule} = Serverboards.RulesV2.Rule.status(uuid)
+    Logger.info("Real rule #{inspect rule, pretty: true}")
+
+    {:ok, content} = (Serverboards.Utils.map_get rule.rule["actions"], [1, "then", 0, "params", "content"])
+    assert String.contains? content, "http://localhost"
   end
 end

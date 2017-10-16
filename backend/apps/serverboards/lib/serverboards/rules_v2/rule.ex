@@ -60,7 +60,8 @@ defmodule Serverboards.RulesV2.Rule do
           rule: rule,
           uuid: uuid,
           running: false,
-          state: Serverboards.RulesV2.Rules.get_state(uuid) || %{}
+          state: Serverboards.RulesV2.Rules.get_state(uuid) || %{},
+          last_wakeup: DateTime.utc_now()
           }}
       {:error, error} ->
         Logger.error("Error starting trigger: #{inspect error}.", rule: rule.rule)
@@ -70,7 +71,11 @@ defmodule Serverboards.RulesV2.Rule do
   def init(rule) do
     template = Serverboards.Plugin.Registry.find(rule.from_template) |> Map.drop([:plugin])
 
-    {:ok, final_rule} = Serverboards.Utils.Template.render_map( template.extra["rule"], rule.rule["template_data"] )
+    # Logger.debug("Template data to fill: #{inspect template.extra["fields"]} #{inspect rule.rule["template_data"]}")
+    params = decorate_params( rule.rule["template_data"], template.extra["fields"] )
+    Logger.debug(inspect params)
+
+    {:ok, final_rule} = Serverboards.Utils.Template.render_map( template.extra["rule"], params )
 
     rule = %{ rule |
       rule: final_rule,
@@ -78,6 +83,21 @@ defmodule Serverboards.RulesV2.Rule do
     }
 
     init(rule)
+  end
+
+  def decorate_params( params, desc ) do
+    Enum.reduce( desc, params, fn
+      %{ "name" => name, "type" => "service" }, params ->
+        %{ params |
+            name => Serverboards.Service.decorate( params[name] )
+          }
+      _other, params ->
+        params
+    end)
+  end
+
+  def status(uuid) do
+    GenServer.call(via(uuid), :status)
   end
 
   def start_trigger(uuid, w) do
@@ -166,6 +186,7 @@ defmodule Serverboards.RulesV2.Rule do
       state = %{ state |
         running: state.rule.rule["actions"],
         state: trigger_state,
+        last_wakeup: DateTime.utc_now()
         }
       GenServer.cast(self(), :continue) # yields execution of actions.
 
@@ -208,6 +229,11 @@ defmodule Serverboards.RulesV2.Rule do
 
     {:noreply, state}
   end
+
+  def handle_call(:status, _from, state) do
+    {:reply, state, state}
+  end
+
   def execute_action(uuid, %{
       "type" => "action",
       "action" => action,
