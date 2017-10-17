@@ -6,6 +6,7 @@ defmodule Serverboards.RulesV2.Rule do
   def start_link(rule, options \\ []) do
     options = [name: via(rule.uuid)] ++ options
 
+    # Logger.info("Start rule #{inspect rule.uuid}")
     GenServer.start_link(__MODULE__, rule, options)
   end
 
@@ -31,16 +32,19 @@ defmodule Serverboards.RulesV2.Rule do
   end
 
   def trigger(rule_id, params) do
+    # Logger.debug("trigger", params)
     GenServer.cast(rule_id, {:trigger, params})
   end
 
   def stop(what), do: stop(what, :normal, :infinity)
   def stop(what, reason), do: stop(what, reason, :infinity)
   def stop(pid, reason, timeout) when is_pid(pid) do
+    # Logger.info("Stop rule #{inspect pid}")
     # Logger.info("STOP #{inspect pid}")
     GenServer.stop(pid, reason, timeout)
   end
   def stop(uuid, reason, timeout) when is_binary(uuid) do
+    # Logger.info("Stop rule #{inspect uuid}")
     # Logger.info("STOP #{inspect uuid}")
     GenServer.stop(via(uuid), reason, timeout)
   end
@@ -48,7 +52,7 @@ defmodule Serverboards.RulesV2.Rule do
   ## Server impl
 
   def init(%{ from_template: nil} = rule) do
-    # Logger.info("Starting rule #{inspect rule}")
+    # Logger.info("Starting rule #{inspect rule, pretty: true}")
     uuid = rule.uuid
 
     case start_trigger(uuid, rule.rule["when"]) do
@@ -171,7 +175,7 @@ defmodule Serverboards.RulesV2.Rule do
   """
   def handle_cast({:trigger, params}, state) do
     if state.running == false do
-      # Logger.debug("Trigger action: #{inspect state, pretty: true}\n")
+      # Logger.debug("Trigger action: #{inspect params, pretty: true}\n")
       when_id = Map.get(state.rule.rule["when"], "id", "A")
       params = Map.merge( state.rule.rule["when"]["params"], params )
       uuid = state.rule.uuid
@@ -285,11 +289,13 @@ defmodule Serverboards.RulesV2.Rule do
 
     plugin_id=state.trigger.plugin_id
 
-    case state.trigger[:stop] do
+    # Logger.debug("Stop call #{inspect Map.keys(state.trigger.trigger), pretty: true}")
+    case state.trigger.trigger[:stop] do
       nil -> :ok
       stop_method ->
         stop_id=state.trigger.stop_id
-        Serverboards.Plugin.call(plugin_id, stop_method, stop_id)
+        # Logger.debug("Call stop #{inspect {plugin_id, stop_method, stop_id}}")
+        Serverboards.Plugin.Runner.call(plugin_id, stop_method, stop_id)
     end
 
     Serverboards.Plugin.Runner.stop(plugin_id)
