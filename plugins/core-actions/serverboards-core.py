@@ -5,6 +5,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 import requests, subprocess, re, socket, time
 from urllib.parse import urlparse
+import json
+from serverboards import print
 
 @serverboards.rpc_method
 def ping(ip=None, url=None):
@@ -123,11 +125,19 @@ def open_or_comment_issue(**data):
 
 @serverboards.rpc_method
 def open_issue(**data):
+    # Do not open again if has issue alias
+    issue_id = data.get("issue")
+    if issue_id:
+        issue = serverboards.issues.get(data.get("issue"))
+        if issue:
+            print("Issue already open, not opening again.")
+            return
+
+
     from templating import render
-    import json
     title=render(data.get("title"), data)
     description=render(data.get("description"), data)
-    aliases=render(data.get("aliases"), data).split()
+    aliases=render(data.get("aliases", issue_id), data).split()
     #serverboards.rpc.info(json.dumps(data, indent=2))
     if 'service' in data or 'rule' in data:
         description+="\n\nRelated:\n\n"
@@ -140,27 +150,27 @@ def open_issue(**data):
     serverboards.rpc.call("issues.create", title=title, description=description, aliases=aliases)
 
 @serverboards.rpc_method
-def close_issue(issue=None, **data):
-    if data.get("issue"):
-        issue = serverboards.issues.get(data.get("issue"))
-        if issue["status"] == "closed":
+def close_issue(**data):
+    issue_id = data.get("issue")
+    if issue_id:
+        issue = serverboards.issues.get(issue_id)
+        if not issue or issue["status"] == "closed":
             return # nothing to do
     from templating import render
     import json
-    issue=render(issue, data)
     comment=render(data.get("comment"), data)
-    if not issue:
+    if not issue_id:
         serverboards.error("Error trying to close issue, none given")
 
     try:
-        serverboards.rpc.call("issues.update", issue,
+        serverboards.rpc.call("issues.update", issue_id,
             [
                 {"type": "comment", "data": comment},
                 {"type": "change_status", "data": "closed"}
             ])
     except:
         import traceback; traceback.print_exc()
-        serverboards.error("Error trying to close issue, cant update issue %s"%(issue))
+        serverboards.error("Error trying to close issue, cant update issue %s"%(issue_id))
 
 @serverboards.rpc_method
 def comment_issue(issue=None, **data):

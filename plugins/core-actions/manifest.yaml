@@ -96,6 +96,11 @@ components:
       method: open_issue
       extra: true
       params:
+        - name: issue
+          type: text
+          label: Default alias
+          description: Setting a default alias prevents reopening issues.
+          default: "rule/{{rule.uuid}}"
         - type: description
           description: |
             Depending on where the action is invoked it may use one or several
@@ -119,6 +124,7 @@ components:
 
             Aliases are separated by spaces.
           placeholder: "eg. rule/{{rule.uuid}}"
+          default: "rule/{{rule.uuid}}"
 
   - name: Issue Open or Comment
     description: |
@@ -171,6 +177,7 @@ components:
           type: text
           label: Issue id or alias
           placeholder: "eg. rule/{{rule.uuid}}"
+          default: "rule/{{rule.uuid}}"
         - name: comment
           type: textarea
           label: Issue comment
@@ -270,7 +277,8 @@ components:
   - name: Core actions.
     type: cmd
     id: cmd
-    timeout: 20s
+    timeout: 60s
+    strategy: singleton
     command: serverboards-core.py
     perms: |
       service.get service.update notifications.create notifications.create_all
