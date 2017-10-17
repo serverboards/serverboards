@@ -69,7 +69,32 @@ defmodule Serverboards.RuleV2Test do
     assert ExEval.eval("D == 'more contexts'", context) == {:ok, true}
 
     assert ExEval.eval("Z == 'test'", context) == {:error, {:unknown_var, "Z", context}}
+  end
 
-
+  test "Bug use proper and" do
+    assert ExEval.eval(
+        "(A.state == \"down\") and (A.for > 10)",
+        [%{ "A" => %{ "state" => "down", "for" => 15}}]
+      ) == {:ok, true}
+    assert ExEval.eval(
+        "(A.state == \"down\") and (A.for > 10)",
+        [%{ "A" => %{ "state" => "down", "for" => 5}}]
+      ) == {:ok, false}
+    assert ExEval.eval(
+        "(A.state == \"down\") and (A.for > 10)",
+        [%{ "A" => %{ "state" => "up", "for" => 15}}]
+      ) == {:ok, false}
+    assert ExEval.eval(
+        "A.state == \"down\" and A.for > 10",
+        [%{ "A" => %{ "state" => "down", "for" => 15}}]
+      ) == {:ok, true}
+    assert ExEval.eval(
+        "A.state == \"down\" and A.for > 10",
+        [%{ "A" => %{ "state" => "down", "for" => 5}}]
+      ) == {:ok, false}
+    assert ExEval.eval(
+        "A.state == \"down\" and A.for > 10",
+        [%{ "A" => %{ "state" => "up", "for" => 15}}]
+      ) == {:ok, false}
   end
 end
