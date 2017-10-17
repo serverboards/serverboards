@@ -137,8 +137,10 @@ defmodule Serverboards.RulesV2.Rules do
         else data end
         Repo.update( Model.Rule.changeset( rule, data) )
 
+        # Logger.debug("Options #{inspect options[:start]} #{inspect rule.is_active} #{inspect data}")
         if options[:start]!=false do
-          if rule.is_active do
+          is_active = Map.get(data, :is_active, rule.is_active)
+          if is_active do
             Rule.ensure_running(rule)
           else
             Rule.ensure_not_running(rule)
