@@ -32,7 +32,7 @@ defmodule Serverboards.RulesV2.Rule do
   end
 
   def trigger(rule_id, params) do
-    # Logger.debug("trigger", params)
+    # Logger.debug("trigger #{inspect params, pretty: true}")
     GenServer.cast(rule_id, {:trigger, params})
   end
 
@@ -284,6 +284,9 @@ defmodule Serverboards.RulesV2.Rule do
         end
       {:error, {:unknown_var, varname, _context}} ->
         #Logger.debug("Unknown variable #{inspect varname} at condition #{inspect condition}. Resolving as false.", rule_id: uuid)
+        { else_actions, state }
+      {:error, error} ->
+        Logger.error("Error parsing condition #{inspect condition}: #{inspect error}.", rule_id: uuid)
         { else_actions, state }
     end
   end
