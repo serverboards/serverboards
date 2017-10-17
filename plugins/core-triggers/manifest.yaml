@@ -100,6 +100,14 @@ components:
           class: half column
     stop:
       method: stop_trigger
+    returns:
+      - name: state
+        label: Connection state
+        type: select
+        options: [up, down]
+      - name: for
+        label: Time elapsed since last change
+        type: float
     traits: url
 
   - name: Periodic trigger
@@ -175,20 +183,44 @@ components:
     id: rule.http.is_up
     type: rule template
     traits: www server
-    trigger:
-      trigger: http
-      params:
-        frequency: 5m
-        grace: 10m
-    actions:
-      up:
-        action: serverboards.core.actions/set-tags
+    fields:
+      - name: service
+        label: Service to monitor
+        type: service
+        traits: url www server
+    rule:
+      when:
+        trigger: http
         params:
-          tags: UP -DOWN
-      down:
-        action: serverboards.core.actions/set-tags
-        params:
-          tags: -UP DOWN
+          frequency: 1m
+          url: "{{service.config.url}}"
+          id: A
+      actions:
+        - type: condition
+          condition: (A.state == "down") and (A.for > 120)
+          then:
+            - type: action
+              action: serverboards.core.actions/set-tags
+              params:
+                tags: -UP DOWN
+                service: "{{service.uuid}}"
+            - type: action
+              action: serverboards.core.actions/open-issue
+              params:
+                issue: "rule/{{uuid}}"
+                title: "{{service.name}} / {{service.config.url}} is DOWN"
+                description: "Please check ASAP the server {{service.name}}.\n\nMore information at {{BASE_URL}}/#/services/{{service.uuid}}"
+          else:
+            - type: action
+              action: serverboards.core.actions/set-tags
+              params:
+                tags: UP -DOWN
+                service: "{{service.uuid}}"
+            - type: action
+              action: serverboards.core.actions/close-issue
+              params:
+                issue: "rule/{{uuid}}"
+                comment: "Server is back online after {{prev.A.for}} seconds"
 
   - name: Open issue if down
     description: Monitors server tags to know when a server is DOWN or UP and notifies all users
@@ -217,5 +249,5 @@ components:
     command: serverboards-triggers.py
     shared: none
     strategy: singleton
-    perms: service.update service.info
+    perms: service.update service.info event.emit
     timeout: 7d

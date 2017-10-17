@@ -40,29 +40,29 @@ class TimerCheck:
         check_result = self.check()
         # print("Check?", check_result)
         if check_result != False:
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "up", "for": 0.0}})
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "up", "for": 0.0})
             self.is_up=True
         else:
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "down", "for": 0.0}})
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "down", "for": 0.0})
             self.is_up=False
 
 
     def tick(self):
         check_result=self.check()
-        serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
+        # serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
         if self.is_up != check_result:
-            print("Change of state")
+            # print("Change of state")
             self.last_change = time.time()
             elapsed = 0.0
         else:
             elapsed = time.time() - self.last_change
         if check_result:
-            print("Emit up", elapsed)
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "up", "for": elapsed}})
+            # print("Emit up", elapsed)
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "up", "for": elapsed})
             self.is_up=True
         else:
-            print("Emit down", elapsed)
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "down", "for": elapsed}})
+            # print("Emit down", elapsed)
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "down", "for": elapsed})
             self.is_up=False
 
 def real_ping(ip):
@@ -139,12 +139,12 @@ def socket_is_up(id, url=None, frequency=30, **kwargs):
     return id
 
 @serverboards.rpc_method
-def stop_trigger(id):
-    serverboards.debug("Stop trigger %s"%id)
+def stop_trigger(id, **kwargs):
+    # serverboards.debug("Stop trigger %s"%id)
     timer=uuid_to_timer[id]
     serverboards.rpc.remove_timer(timer.timer_id)
     del uuid_to_timer[id]
-    serverboards.debug("Stop trigger %s Done, remaining keys: %s"%(id, repr(uuid_to_timer.keys())))
+    # serverboards.debug("Stop trigger %s Done, remaining keys: %s"%(id, repr(uuid_to_timer.keys())))
     return True
 
 @serverboards.rpc_method
