@@ -184,7 +184,15 @@ defmodule Serverboards.RulesV2.Rule do
       prev_state = Map.drop(state.state, ["prev", "changes"])
       changes = Serverboards.Utils.map_diff( prev_state, trigger_state )
 
-      trigger_state = Map.merge(trigger_state, %{ "prev" => prev_state, "changes" => changes })
+      trigger_state = Map.merge(trigger_state, %{
+        "prev" => prev_state,
+        "changes" => changes,
+        "BASE_URL" => Serverboards.Config.get(
+          :"serverboards.core.settings/base",
+          :base_url,
+          "https://serverboards.io/docs/configuration-error#"
+          )
+        })
       # Logger.debug("Start trigger with state #{inspect trigger_state, pretty: true}")
 
       state = %{ state |
