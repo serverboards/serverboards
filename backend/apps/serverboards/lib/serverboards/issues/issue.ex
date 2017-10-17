@@ -97,14 +97,14 @@ defmodule Serverboards.Issues.Issue do
 
   def update_updated_at(issue_id) do
     import Ecto.Query
-    Logger.info("Update updated at")
+    # Logger.info("Update updated at")
 
     (from i in Model.Issue,
       where: i.id == ^issue_id,
       update: [set: [updated_at: fragment("NOW() at TIME ZONE 'utc'")]]
     ) |>  Repo.update_all([])
 
-    Logger.info("DONE Update updated at")
+    # Logger.info("DONE Update updated at")
   end
 
   def set_labels(issue_id, labels) do
