@@ -29,6 +29,7 @@ defmodule Serverboards.Utils.Template do
     {:ok, nlist}
   end
   def render_map(orig, context) when is_binary(orig), do: render( orig, context )
+  def render_map(orig, context), do: {:ok, orig}
 
   def re_find_and_replace("", context) do # nice for debugging: {{}}
     inspect context
