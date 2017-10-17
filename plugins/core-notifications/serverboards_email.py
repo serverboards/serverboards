@@ -43,6 +43,7 @@ def base_url():
 @serverboards.rpc_method
 def send_email(user=None, config=None, message=None, test=False):
     if not settings:
+        serverboards.warning("Email not properly configured. Not sending emails")
         return False
     _to = config and config.get("email") or user["email"]
     msg = MIMEMultipart('alternative')
@@ -115,8 +116,6 @@ else:
     try:
         settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
     except:
-        import traceback
-        traceback.print_exc()
         settings=None
 
     serverboards.loop()
