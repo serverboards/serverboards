@@ -243,7 +243,11 @@ defmodule Serverboards.RulesV2.Rule do
       "action" => action,
       "params" => params
       } = actiondef, state) do
+    # Logger.debug("Pre params #{inspect params}")
     {:ok, params} = Serverboards.Utils.Template.render_map(params, state)
+    if actiondef["debug"] do
+      Logger.debug("Run action #{inspect action} #{inspect params}\n #{inspect state, pretty: true}")
+    end
 
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
@@ -263,8 +267,13 @@ defmodule Serverboards.RulesV2.Rule do
       "condition" => condition,
       "then" => then_actions,
       "else" => else_actions
-      }, state) do
-    case ExEval.eval(condition, [state]) do
+      } = step, state) do
+
+    eval_res = ExEval.eval(condition, [state])
+    if step["debug"] do
+      Logger.debug("Check condition #{inspect condition}: #{inspect eval_res}.", state: state, rule_id: uuid)
+    end
+    case eval_res do
       {:ok, condition_result} ->
         if condition_result do
           # Logger.debug("#{inspect condition} -> true")
