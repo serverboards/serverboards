@@ -46,4 +46,18 @@ defmodule Serverboards.TemplateTest do
     {:ok, txt} = render "This is a nested with no leaf var {{test.xxx}}", test: [a: "test", b: "notest"]
     assert txt == "This is a nested with no leaf var {{test.xxx}}"
   end
+
+  test "Bug changes A for" do
+    {:ok, %{"comment" => "After 10 seconds"}} = render_map( %{
+      "comment" => "After {{changes.A.for}} seconds",
+      "other" => true
+      },
+      %{
+        "changes" => %{
+          "A" => %{
+            "for" => 10
+          }
+        }
+      })
+  end
 end
