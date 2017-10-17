@@ -43,6 +43,9 @@ defmodule Serverboards.Config do
   def get(section, keyword, default) when is_atom(section) and is_binary(keyword) do
     get(section, String.to_atom(keyword), default)
   end
+  def get(section, keyword, default) when is_binary(section) do
+    get(String.to_atom(section), keyword, default)
+  end
 
   def get(section, default \\ []) when is_atom(section) do
     # It merges from least important to more important, so that later is always
