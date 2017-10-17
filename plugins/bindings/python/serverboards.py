@@ -527,8 +527,10 @@ class RPC:
                         return rpc['result']
                     else:
                         if rpc["error"]=="unknown_method":
-                            raise Exception("unknown_method %s"%(method))
-                        raise Exception(rpc["error"])
+                            if self.stderr:
+                                self.debug_stdout("Call to remote unknown method %s known are %s. check permissions."%(method, self.call("dir")))
+                            raise Exception("unknown_method %s"%method)
+                        raise Exception("%s at %s"%(rpc["error"], method))
                 elif id in self.async_cb:
                     try:
                         self.async_cb[id]()
