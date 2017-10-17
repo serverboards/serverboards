@@ -19,13 +19,23 @@ defmodule Serverboards.Notifications.InApp do
     end
   end
 
+  defp first_not_empty([head | rest]) do
+    if String.length(head)>0 do
+      head
+    else
+      first_not_empty(rest)
+    end
+  end
+  defp first_not_empty(_), do: "--"
+
   def notify(email, subject, body, meta) do
     import Ecto.Query
     user_id = Repo.one( from u in Serverboards.Auth.Model.User, where: u.email == ^email, select: u.id )
     #Logger.debug("#{inspect meta}")
 
     tags = ["new","unread"]
-    notification = %{ user_id: user_id, subject: subject, body: body, meta: meta, tags: tags }
+    notification = %{ user_id: user_id, subject: subject, body: first_not_empty([body,subject]), meta: meta, tags: tags }
+    # Logger.debug("Insert notification #{inspect notification, pretty: true}")
 
     {:ok, notification } = Repo.insert( Model.Notification.changeset(
         %Model.Notification{}, notification
