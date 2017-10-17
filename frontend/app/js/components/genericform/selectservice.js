@@ -81,25 +81,27 @@ class SelectService extends React.Component{
             ))}
           </div>
         </div>
-        <a
-          className="ui teal basic floating right button"
-          style={{marginTop: 10}}
-          onClick={() => this.handleAddService()}
-          >
-          {i18n("Add new service")}</a>
-          {this.state.show_add_modal && (
-            <AddServiceModal
-              filter={this.prepareFilter()}
-              hide_old={true}
-              store={store}
-              onServiceAdded={(s) => {
-                this.setState({show_add_modal: false})
-                this.updateServices()
-                $(this.refs.select).dropdown('refresh').dropdown('set value', s)
-              }}
-              onClose={() => this.setState({show_add_modal: false})}
-              />
-          )}
+        <div className="right aligned" style={{marginTop: 0, marginRight: 0}}>
+          <a
+            className="ui teal basic button"
+            style={{marginTop: 10}}
+            onClick={() => this.handleAddService()}
+            >
+            {i18n("Add new service")}</a>
+            {this.state.show_add_modal && (
+              <AddServiceModal
+                filter={this.prepareFilter()}
+                hide_old={true}
+                store={store}
+                onServiceAdded={(s) => {
+                  this.setState({show_add_modal: false})
+                  this.updateServices()
+                  $(this.refs.select).dropdown('refresh').dropdown('set value', s)
+                }}
+                onClose={() => this.setState({show_add_modal: false})}
+                />
+            )}
+        </div>
       </div>
     )
   }
