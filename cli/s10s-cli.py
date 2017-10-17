@@ -734,7 +734,10 @@ class CliClient(IOClient):
             password = getpass.getpass("Password: ")
             if self.call("auth.auth", type="basic", email=email, password=password):
                 settings["token"]=self.call("auth.token.create")
-                os.makedirs(os.path.expanduser("~/.config/serverboards/"), 0o700)
+                try:
+                    os.makedirs(os.path.expanduser("~/.config/serverboards/"), 0o700)
+                except FileExistsError:
+                    pass
                 with open(os.path.expanduser("~/.config/serverboards/s10s.json"), 'w') as wd:
                     json.dump(settings, wd)
                 return True
