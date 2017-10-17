@@ -5,6 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards, time, subprocess, re, requests
 import socket
 from urllib.parse import urlparse
+from serverboards import print
 
 td_to_s_multiplier=[
     ("ms", 0.001),
@@ -25,47 +26,44 @@ def time_description_to_seconds(td):
     return float(td)
 
 class TimerCheck:
-    def __init__(self, id, check, type, frequency, grace):
+    def __init__(self, id, check, type, frequency):
         if id in uuid_to_timer:
             raise Exception("Trigger id '%s' already registered: %s"%(id, repr(uuid_to_timer.keys())))
         self.id=id
         self.check=check
         self.type=type
         self.frequency=time_description_to_seconds(frequency)
-        self.grace=time_description_to_seconds(grace)
-        self.mgrace=self.grace
         self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick, rearm=True)
+        self.last_change = time.time()
         uuid_to_timer[id]=self
          # initial status
         check_result = self.check()
         # print("Check?", check_result)
         if check_result != False:
-            print("up")
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "up"})
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "up", "for": 0.0}})
             self.is_up=True
         else:
-            print("down")
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "down"})
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "down", "for": 0.0}})
             self.is_up=False
 
 
     def tick(self):
         check_result=self.check()
-        #serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
-        if self.is_up:
-            if not check_result:
-                self.mgrace-=self.frequency
-            else:
-                self.mgrace=self.grace
-
-            if self.mgrace<=0:
-                serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "down"})
-                self.is_up=False
+        serverboards.rpc.debug("Check result[%s]: %s"%(self.id, check_result))
+        if self.is_up != check_result:
+            print("Change of state")
+            self.last_change = time.time()
+            elapsed = 0.0
         else:
-            if check_result:
-                serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : "up"})
-                self.is_up=True
-                self.mgrace=self.grace
+            elapsed = time.time() - self.last_change
+        if check_result:
+            print("Emit up", elapsed)
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "up", "for": elapsed}})
+            self.is_up=True
+        else:
+            print("Emit down", elapsed)
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state" : {"state": "down", "for": elapsed}})
+            self.is_up=False
 
 def real_ping(ip):
     try:
@@ -118,24 +116,26 @@ def real_socket_up(url=None):
         return False
 
 @serverboards.rpc_method
-def ping(id, ip=None, frequency=30, grace=60):
-    TimerCheck(id, lambda: real_ping(ip), "ping", frequency, grace)
+def ping(id, ip=None, frequency=30, **kwargs):
+    TimerCheck(id, lambda: real_ping(ip), "ping", frequency)
     return id
 
 @serverboards.rpc_method
-def http(id, url=None, maxs=1, frequency=30, grace=60):
+def http(id, url=None, maxs=1, frequency=30, **kwargs):
     def http_timelimit():
+        print("Check URL", url)
         t=real_http(url)
         if not t:
             return False
         return t <= maxs
     maxs=float(maxs)
-    TimerCheck(id, http_timelimit, "http", frequency, grace)
+    print("HTTP Check url", url, maxs, frequency, kwargs)
+    TimerCheck(id, http_timelimit, "http", frequency)
     return id
 
 @serverboards.rpc_method
-def socket_is_up(id, url=None, frequency=30, grace=60):
-    TimerCheck(id, lambda: real_socket_up(url), "socket_is_up", frequency, grace)
+def socket_is_up(id, url=None, frequency=30, **kwargs):
+    TimerCheck(id, lambda: real_socket_up(url), "socket_is_up", frequency)
     return id
 
 @serverboards.rpc_method
