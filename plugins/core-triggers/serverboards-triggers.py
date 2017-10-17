@@ -123,13 +123,13 @@ def ping(id, ip=None, frequency=30, **kwargs):
 @serverboards.rpc_method
 def http(id, url=None, maxs=1, frequency=30, **kwargs):
     def http_timelimit():
-        print("Check URL", url)
+        # print("Check URL", url)
         t=real_http(url)
         if not t:
             return False
         return t <= maxs
     maxs=float(maxs)
-    print("HTTP Check url", url, maxs, frequency, kwargs)
+    # print("HTTP Check url", url, maxs, frequency, kwargs)
     TimerCheck(id, http_timelimit, "http", frequency)
     return id
 
