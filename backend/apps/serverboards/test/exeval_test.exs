@@ -2,6 +2,7 @@ require Logger
 
 defmodule Serverboards.RuleV2Test do
   use ExUnit.Case
+  @moduletag :capture_log
 
   test "basic expr" do
     assert ExEval.eval("true") == {:ok, true}
@@ -37,6 +38,18 @@ defmodule Serverboards.RuleV2Test do
     assert ExEval.eval("'test' != 'test'") == {:ok, false}
     assert ExEval.eval("'test' == 'no test'") == {:ok, false}
     assert ExEval.eval("'no' + ' test' == 'no test'") == {:ok, true}
+
+    assert ExEval.eval("10 > 0") == {:ok, true}
+    assert ExEval.eval("10 >= 0") == {:ok, true}
+    assert ExEval.eval("10 >= 10") == {:ok, true}
+    assert ExEval.eval("0 >= 10") == {:ok, false}
+    assert ExEval.eval("0 > 10") == {:ok, false}
+
+    assert ExEval.eval("10 < 0") == {:ok, false}
+    assert ExEval.eval("10 <= 0") == {:ok, false}
+    assert ExEval.eval("10 <= 10") == {:ok, true}
+    assert ExEval.eval("0 < 10") == {:ok, true}
+    assert ExEval.eval("0 <= 10") == {:ok, true}
   end
 
   test "with vars" do

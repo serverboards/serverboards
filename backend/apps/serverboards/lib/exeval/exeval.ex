@@ -5,14 +5,17 @@ defmodule ExEval do
   def eval(expr, context) do
       # Logger.info("Try parse #{inspect expr} with context #{inspect context}")
 
-      tokens = tokenize(expr)
-      # Logger.info("tokens #{inspect tokens}")
-      {:ok, ast} = parse_ast(tokens)
-      # Logger.info("ast #{inspect ast}")
+      try do
+        tokens = tokenize(expr)
+        # Logger.info("tokens #{inspect tokens}")
+        {:ok, ast} = parse_ast(tokens)
+        # Logger.info("ast #{inspect ast}")
 
-      eval_ast(ast, context)
+        eval_ast(ast, context)
+      rescue
+        e in FunctionClauseError -> {:error, {:invalid_expression, e}}
+      end
   end
-
 
   @all_expr_regex [
     {:ignore, ~r/^ /, :ignore},
@@ -35,6 +38,10 @@ defmodule ExEval do
     {{:op, 2}, ~r/^-/, :minus},
     {{:op, 1}, ~r/^==/, :equal},
     {{:op, 1}, ~r/^!=/, :not_equal},
+    {{:op, 1}, ~r/^>=/, :greater_or_equal},
+    {{:op, 1}, ~r/^<=/, :less_or_equal},
+    {{:op, 1}, ~r/^>/, :greater},
+    {{:op, 1}, ~r/^</, :less},
 
     {:var, ~r/^[a-z][a-z0-9.]*/i, :ignore},
   ]
@@ -147,6 +154,26 @@ defmodule ExEval do
     with {:ok, op1} <- eval_ast(op1, context),
          {:ok, op2} <- eval_ast(op2, context),
       do: {:ok, op1 == op2}
+  end
+  def eval_ast({:greater, op1, op2}, context) do
+    with {:ok, op1} <- eval_ast(op1, context),
+         {:ok, op2} <- eval_ast(op2, context),
+      do: {:ok, op1 > op2}
+  end
+  def eval_ast({:less, op1, op2}, context) do
+    with {:ok, op1} <- eval_ast(op1, context),
+         {:ok, op2} <- eval_ast(op2, context),
+      do: {:ok, op1 < op2}
+  end
+  def eval_ast({:greater_or_equal, op1, op2}, context) do
+    with {:ok, op1} <- eval_ast(op1, context),
+         {:ok, op2} <- eval_ast(op2, context),
+      do: {:ok, op1 >= op2}
+  end
+  def eval_ast({:less_or_equal, op1, op2}, context) do
+    with {:ok, op1} <- eval_ast(op1, context),
+         {:ok, op2} <- eval_ast(op2, context),
+      do: {:ok, op1 <= op2}
   end
   def eval_ast({:not_equal, op1, op2}, context) do
     with {:ok, op1} <- eval_ast(op1, context),
