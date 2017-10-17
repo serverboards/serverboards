@@ -112,7 +112,7 @@ defmodule Serverboards.RulesV2.Rule do
       setup_client_for_rules(self(), uuid, client)
 
       default_params = %{
-        id: uuid,
+        "id" => uuid,
       }
 
       params = Map.merge(w["params"], default_params)
