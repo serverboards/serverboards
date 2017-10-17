@@ -118,7 +118,7 @@ defmodule Serverboards.Notifications do
         {:ok, subject} = Serverboards.Utils.Template.render(subject, extra)
         {:ok, body} = Serverboards.Utils.Template.render(body, extra)
 
-        Logger.debug("Extra data for notification: #{inspect extra}\n#{subject}\n#{body}")
+        # Logger.debug("Extra data for notification: #{inspect extra}\n#{subject}\n#{body}")
 
         :ok = Serverboards.Notifications.InApp.notify(
           email,
