@@ -17,6 +17,7 @@ import ExternalUrl from './externalurl'
 import {i18n} from 'app/utils/i18n'
 import TabBar from 'app/components/tabbar'
 import {match_traits} from 'app/utils'
+import { colorize } from 'app/utils'
 
 const tab_options={
   details: DetailsTab,
@@ -156,7 +157,7 @@ const Details = React.createClass({
 
     return (
       <div className="extend">
-        <div className="ui top secondary pointing menu" style={{paddingBottom: 0}}>
+        <div className="ui top secondary pointing menu" style={{paddingBottom: 0, paddingRight: 0, position: "relative"}}>
           {props.service.icon ? (
             <IconIcon src={icon} icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
           ) : (
@@ -175,6 +176,14 @@ const Details = React.createClass({
             active: (s.id == current_tab),
             description: s.title
           }) ) } />
+          <div className="ui aligned right" style={{position: "absolute", top: 0, right: 0, margin: 0}}>
+            {(props.service.tags || []).map( s => (
+              <span key={s} className="ui text label">
+                {s}&nbsp;
+                <i className={`ui rectangular label ${ colorize( s ) }`}/>
+              </span>
+            ))}
+          </div>
         </div>
         <div className="ui full height with scroll">
           <CurrentTab {...props} service={props.service} onClose={handleClose} />
