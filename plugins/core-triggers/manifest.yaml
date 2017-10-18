@@ -150,7 +150,11 @@ components:
     stop: tag_change_stop
 
   - name: Server socket is up
-    description: Checks every 5m/ 10m grace if the server socket is up, and sets labels according to changes.
+    description: |
+      Checks every minute if the server socket is up, sets labels
+      according to changes and creates an issue if not available.
+
+      It can be used for any server type with an URL.
     id: rule.socket.is_up
     type: rule template
     traits: url server
@@ -163,39 +167,9 @@ components:
       when:
         trigger: socket.is_up
         params:
-          frequency: 5m
-          grace: 10m
-          url: "{{service.url}}"
-      actions:
-        - action: serverboards.core.actions/set-tags
-          type: action
-          params:
-            tags: UP -DOWN
-            service: "{{service.uuid}}"
-        - action: serverboards.core.actions/set-tags
-          type: action
-          params:
-            tags: -UP DOWN
-            service: "{{service.uuid}}"
-
-  - name: HTTP server is up
-    description: Checks every 5m/ 10m grace if the HTTP server is up, and sets labels according to changes.
-    id: rule.http.is_up
-    type: rule template
-    traits: www server
-    fields:
-      - name: service
-        label: Service to monitor
-        type: service
-        traits: url www server
-    rule:
-      when:
-        trigger: http
-        params:
           frequency: 1m
-          url: "{{service.config.url}}"
-          id: A
-      actions:
+          url: "{{service.url}}"
+      actions: &RULE_DOWN_ISSUE
         - type: condition
           condition: (A.state == "down") and (A.for > 120)
           then:
@@ -222,26 +196,29 @@ components:
                 issue: "rule/{{uuid}}"
                 comment: "Server is back online after {{prev.A.for}} seconds"
 
-  - name: Open issue if down
-    description: Monitors server tags to know when a server is DOWN or UP and notifies all users
-    id: rule.server.open-issue
+  - name: HTTP server is up
+    description: |
+      Checks every minute if the HTTP server is up, sets labels according
+      to changes and creates or closes issues.
+
+      Opens if not available for more than 2 minutes.
+    id: rule.http.is_up
     type: rule template
-    trigger:
-      trigger: tag_change
-      params:
-        tag: DOWN
-    actions:
-      added:
-        action: serverboards.core.actions/open-issue
+    traits: www server
+    fields:
+      - name: service
+        label: Service to monitor
+        type: service
+        traits: url www server
+    rule:
+      when:
+        trigger: http
         params:
-          title: "{{rule.name}} // {{state}}"
-          description: "{{rule.description}}"
-          aliases: "rule/{{rule.uuid}}"
-      removed:
-        action: serverboards.core.actions/close-issue
-        params:
-          issue: "rule/{{rule.uuid}}"
-          comment: "{{state}}"
+          frequency: 1m
+          url: "{{service.config.url}}"
+          id: A
+      actions: *RULE_DOWN_ISSUE # downref
+
 
   - name: Core triggers daemon
     id: daemon
