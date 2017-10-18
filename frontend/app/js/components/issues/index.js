@@ -59,7 +59,7 @@ function IssueCard(props){
 function IssueRow(props){
   return (
     <div className="item">
-      <span className="time">{moment(props.date).format("h:mm a")}</span>
+      <span className="time">{moment.utc(props.date).local().format("h:mm a")}</span>
       <span className="ui circular image small"><Avatar email={(props.creator || {}).email}/></span>
       <hr/>
       <IssueCard {...props} onSelect={props.onSelect}/>
