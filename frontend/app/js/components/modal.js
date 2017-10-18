@@ -25,9 +25,11 @@ const Modal=React.createClass({
   render(){
     const props=this.props
 
+    const ignoreClick = (ev) => ev.stopPropagation()
+
     return (
-      <div className={`ui modal background ${props.className || ""}`} id={props.id}>
-        <div className="ui top menu">
+      <div className={`ui modal background ${props.className || ""}`} id={props.id} onClick={this.onClose}>
+        <div className="ui top menu" onClick={ignoreClick}>
           <a href="#/" className="logo">
             <img className="logo" src={logo}/>
           </a>
@@ -35,10 +37,8 @@ const Modal=React.createClass({
 
           <a className="right aligned" onClick={this.onClose} title="Close popup"><i className="big close icon "/></a>
         </div>
-        <div className="content">
-          <div className="content">
-            {props.children}
-          </div>
+        <div className="content" onClick={ignoreClick}>
+          {props.children}
         </div>
       </div>
     )
