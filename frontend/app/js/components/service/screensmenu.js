@@ -18,7 +18,9 @@ function MenuItem(props){
       <div>
         <a className={`item ${props.active ? "active" : ""}`} onClick={props.onOpen}>
           {props.children}
-          <i className="icon caret up floating"/>
+          {has_candidates && (
+            <i className="icon caret up floating"/>
+          )}
         </a>
         <div className="menu">
           {candidates.map( (s) => (
@@ -46,11 +48,8 @@ function MenuItem(props){
     return (
       <a className={`item ${props.active ? "active" : ""}`} onClick={handleClick}>
         {props.children}
-        {has_candidates ? (
+        {has_candidates && (
           <i className="icon caret down floating"/>
-        ) :
-        (
-          null
         )}
         <i className={`ui icon ${props.icon}`}/>
       </a>
@@ -97,7 +96,7 @@ const ScreensMenu=React.createClass({
             key={s.id}
             screen={s}
             data={{serverboard}}
-            candidates={props.services.filter((c) => match_traits({all: c.traits, has: s.traits}))}
+            candidates={props.services.filter((c) => match_traits({any: c.traits, has: s.traits}))}
             onSectionChange={this.handleSectionChange}
             onOpen={ () => this.toggleScreen(s.id) }
             active={ s.id == props.section }
