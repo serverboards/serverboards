@@ -38,9 +38,9 @@ const Project=React.createClass({
     const props=this.props
     const section = props.params.section || 'dashboard'
     const subsection = props.params.subsection
-    const service_uuid = props.params.service
-    const service = service_uuid && props.project.services.find( s => s.uuid == service_uuid )
-    const data = merge( props.data, {service} )
+    // const service_uuid = props.params.service
+    // const service = service_uuid && props.project.services.find( s => s.uuid == service_uuid )
+    const data = {...props.data, ...props.location.state }
     let Section
     if (section.indexOf('.')>=0){
       const plugin_component_id = `${section}/${subsection}`
