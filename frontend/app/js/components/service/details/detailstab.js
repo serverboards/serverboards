@@ -3,11 +3,9 @@ import store from 'app/utils/store'
 import {goto} from 'app/utils/store'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {i18n} from 'app/utils/i18n'
+import cache from 'app/utils/cache'
 import ServiceLink from 'app/components/servicelink'
-
-function project_name(shortname){
-  return (store.getState().project.projects.find( (s) => s.shortname == shortname) || {}).name
-}
+import {FutureLabel} from 'app/components'
 
 function is_current_project(shortname){
   return (store.getState().project.current ==  shortname)
@@ -67,7 +65,7 @@ function DetailsTab(props){
         <div className="ui vertical secondary menu" style={{width:"100%"}}>
           {props.service.projects.map( (s) => (
             <div key={s} className={`item ${is_current_project(s) ? "active" : ""}`} onClick={() => goto(`/project/${s}/`)} style={{cursor: "pointer"}}>
-              {s} - {project_name(s)}
+              {s} - <FutureLabel promise={() => cache.project(s).then(s => s.name)}/>
               <i className="ui chevron right icon"/>
             </div>
           ))}
@@ -78,8 +76,8 @@ function DetailsTab(props){
         <MarkdownPreview className="ui grey text" value={props.service.description || i18n("Not provided")}/>
         <h3 className="ui header">{i18n("Config Details")}</h3>
         <div className="ui grid">
-          {((props.service_template || {}).fields || []).map( (f) => (
-            <DataField key={f.name} field={f} value={props.service.config[f.name]}/>
+          {((props.service_template || {}).fields || []).map( (f, i) => (
+            <DataField key={f.name || i} field={f} value={props.service.config[f.name]}/>
           ))}
         </div>
       </div>

@@ -12,6 +12,7 @@ import IconIcon from './iconicon'
 import PluginScreen from './plugin/screen'
 import Selector from './selector'
 import Panes from './panes'
+import FutureLabel from './futurelabel'
 
 const components = {
   Modal,
@@ -26,7 +27,8 @@ const components = {
   IconIcon,
   PluginScreen,
   Selector,
-  Panes
+  Panes,
+  FutureLabel
 }
 
 // Export as default, and as destructuring.
@@ -47,5 +49,6 @@ export {
   IconIcon,
   PluginScreen,
   Selector,
-  Panes
+  Panes,
+  FutureLabel
 }
