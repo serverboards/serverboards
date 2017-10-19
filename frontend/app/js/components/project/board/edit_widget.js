@@ -48,7 +48,7 @@ const AddWidget = React.createClass({
     }
     return (
       <Modal className="wide">
-        <div className="ui top secondary menu">
+        <div className="ui top serverboards secondary menu">
           <h3 className="ui header">{widget.name}</h3>
           <div className="right menu">
             <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
