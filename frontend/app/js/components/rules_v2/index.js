@@ -284,7 +284,7 @@ class Rules extends React.Component{
     )
   }
   componentDidMount(){
-    this.props.setSectionMenu( this.RuleMenu, {project: this.props.project.shortname } )
+    this.props.setSectionMenu( this.RuleMenu, { project: this.props.project.shortname } )
   }
   render(){
     let rules = (this.props.rules || [])
