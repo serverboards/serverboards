@@ -274,39 +274,19 @@ class Rules extends React.Component{
     const project = this.props.project.shortname
     goto(`/project/${project}/rules_v2/${rule.uuid}`)
   }
+  RuleMenu(props){
+    return (
+      <div className="right menu">
+        <button className="ui teal button" onClick={() => goto(`/project/${props.project}/rules_v2/add`)}>
+          {i18n("New rule")}
+        </button>
+      </div>
+    )
+  }
+  componentDidMount(){
+    this.props.setSectionMenu( this.RuleMenu, {project: this.props.project.shortname } )
+  }
   render(){
-    if (this.props.subsection){
-      if (this.props.subsection=="add"){
-        if (this.props.location.state.template)
-          return (
-            <RuleAddTemplate
-              template={this.props.location.state.template.id}
-              prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
-              {...this.props}
-              />
-          )
-        return (
-          <RuleAdd {...this.props}/>
-        )
-      }
-      const subsection = this.props.subsection
-      const rule = this.props.rules.find( r => r.uuid == subsection)
-      if (rule.from_template)
-        return (
-          <RuleAddTemplate
-            template={rule.from_template}
-            prevStep={() => goto(`/project/${this.props.project.shortname}/rules_v2/`)}
-            data={rule.rule.template_data || {}}
-            edit={rule}
-            {...this.props}
-            />
-        )
-    else
-        return (
-          <Rule {...this.props} rule={rule}/>
-        )
-    }
-
     let rules = (this.props.rules || [])
     rules = sort_by_name(rules)
     return (
@@ -347,4 +327,39 @@ class Rules extends React.Component{
   }
 }
 
-export default Rules
+function RulesRouter(props){
+  if (props.subsection){
+    if (props.subsection=="add"){
+      if (props.location.state.template)
+        return (
+          <RuleAddTemplate
+            template={props.location.state.template.id}
+            prevStep={() => goto(`/project/${props.project.shortname}/rules_v2/`)}
+            {...props}
+            />
+        )
+      return (
+        <RuleAdd {...props}/>
+      )
+    }
+    const subsection = props.subsection
+    const rule = props.rules.find( r => r.uuid == subsection)
+    if (rule.from_template)
+      return (
+        <RuleAddTemplate
+          template={rule.from_template}
+          prevStep={() => goto(`/project/${props.project.shortname}/rules_v2/`)}
+          data={rule.rule.template_data || {}}
+          edit={rule}
+          {...props}
+          />
+      )
+  else
+      return (
+        <Rule {...props} rule={rule}/>
+      )
+  }
+  return <Rules {...props}/>
+}
+
+export default RulesRouter
