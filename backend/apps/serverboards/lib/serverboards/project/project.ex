@@ -78,6 +78,11 @@ defmodule Serverboards.Project do
         %{ shortname: shortname, project: project},
         ["project.get"]
         )
+      Serverboards.Event.emit(
+        "project.updated[#{shortname}]",
+        %{ shortname: shortname, project: project},
+        ["project.get"]
+        )
 
       :ok
     end

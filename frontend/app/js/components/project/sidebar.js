@@ -104,7 +104,7 @@ const SidebarSections = React.createClass({
     return (
       <div className="ui dark vertical menu sections">
         <div>
-          <ProjectHeader {...props}/>
+          <ProjectHeader key={props.project.name} {...props}/>
           <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
           <MenuItem section="services">{i18n("Services")}</MenuItem>
           <MenuItem section="rules_v2">{i18n("Rules")}</MenuItem>

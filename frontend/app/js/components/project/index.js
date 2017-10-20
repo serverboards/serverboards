@@ -84,6 +84,7 @@ const Project=React.createClass({
       <div className="ui horizontal split area">
         {this.state.show_sidebar ? (
           <SidebarSections
+            key={props.project.name}
             section={props.params.section}
             subsection={props.params.subsection}
             project={props.project}

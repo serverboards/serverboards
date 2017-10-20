@@ -27,7 +27,10 @@ var Project=store.connect({
   store_exit: (state, props) => [
     () => projects_update_info(),
   ],
-  subscriptions: ["service.updated"],
+  subscriptions: (state) => ([
+    "service.updated",
+    `project.updated[${state.project.current}]`
+  ]),
   watch: ["shortname"]
 }, ServerboardView)
 
