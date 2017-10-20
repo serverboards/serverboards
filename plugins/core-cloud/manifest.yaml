@@ -182,6 +182,11 @@ components:
     for: serverboards.core.cloud/aws.ec2
     name: AWS Management
     command: serverboards.core.cloud/libcloud-daemon
+  - id: libvirt-digitalocean
+    type: vmc
+    for: serverboards.core.cloud/digital.ocean
+    name: Digital Ocean Management
+    command: serverboards.core.cloud/libcloud-daemon
 
   # LXC
   - id: lxc
