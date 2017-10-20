@@ -29,7 +29,7 @@ var Settings=React.createClass({
       let project = {
         name: fields.name,
         shortname: fields.shortname,
-        tags: fields.tags.split(' '),
+        // tags: fields.tags.split(' '),
         description: fields.description,
       }
       this.props.onSubmit( project )
