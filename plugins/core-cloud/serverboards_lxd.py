@@ -5,6 +5,46 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import rpc, Plugin, print
 
+PRIVATE_IP_MASKS=[
+    "192.168.",
+    "10.",
+    "127.",
+    "172.16."
+]
+
+def is_public_ip(ip):
+    for test in PRIVATE_IP_MASKS:
+        if ip.startswith(test):
+            return False
+    return True
+
+def xpath(data, *q):
+    if not q:
+        return [data]
+    head = q[0]
+    rest = q[1:]
+    if head == "*":
+        print(type(data), type(data)==list, list, data)
+        if type(data) == list:
+            v = data
+        else:
+            v = data.values()
+        return [
+            f
+            for i in v
+            for f in xpath(i, *rest)
+        ]
+    else:
+        return [*xpath(data[head], *rest)]
+
+LOCALS = ["127.0", "fc00::"]
+
+def is_localhost(ip):
+    for i in LOCALS:
+        if ip.startswith(i):
+            return True
+    return False
+
 ssh = Plugin("serverboards.core.ssh/daemon")
 
 def maybe_sudo(service):
@@ -13,10 +53,17 @@ def maybe_sudo(service):
 def details_(node, extra=False):
     extra_info={}
     if extra:
+        ips = [
+            ip
+            for ip in xpath(node, "state", "network", "*", "addresses", "*", "address")
+            if not is_localhost(ip)
+            ]
         extra_info={
             "state": node["state"] or {},
             "config": {**node["config"], **node["expanded_config"]},
             "ephemeral": node.get("ephemeral"),
+            'private_ips': [ip for ip in ips if not is_public_ip(ip)],
+            'public_ips': [ip for ip in ips if is_public_ip(ip)],
             }
 
     return {
@@ -30,8 +77,8 @@ def details_(node, extra=False):
         }
     }
 
-@serverboards.rpc_method
-def list(service):
+@serverboards.rpc_method("list")
+def list_(service):
     sudo = maybe_sudo(service)
     json_data = ssh.run(service=service["config"]["server"], command=[*sudo, "lxc", "ls", "--format=json"])["stdout"]
     data = json.loads(json_data)
