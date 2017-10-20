@@ -89,8 +89,8 @@ function BigStat({label, value, percent, description, className, show_percentage
 
 function Details({vmc, template, parent, onStart, onStop}){
   const data = {
-    ip: utils.merge(vmc.props.public_ips || [], vmc.props.private_ips || []).join(' '),
-    ip6: utils.merge(vmc.props.public_ips6 || [], vmc.props.private_ips6 || []).join(' '),
+    ip: utils.merge(vmc.props.public_ips || [], vmc.props.private_ips || []),
+    ip6: utils.merge(vmc.props.public_ips6 || [], vmc.props.private_ips6 || []),
     dns: vmc.props.dns_name
   }
   const props = vmc.props
@@ -155,22 +155,28 @@ function Details({vmc, template, parent, onStart, onStop}){
               />
           )}
         </div>
-        {data.ip && (
+        {data.ip && data.ip.length!=0 && (
           <div style={{paddingTop:30}}>
             <h4 className="ui header">{i18n("IP Address")}</h4>
-            {data.ip}
+            {data.ip.map( ip => (
+              <div>{ip}</div>
+            ))}
           </div>
         )}
-        {data.ip6 && (
+        {data.ip6 && data.ip6.length!=0 && (
           <div className="ui top padding">
             <h4 className="ui header">{i18n("IPv6 Address")}</h4>
-            {data.ip6}
+            {data.ip6.map( ip => (
+              <div>{ip}</div>
+            ))}
           </div>
         )}
-        {data.dns && (
+        {data.dns && data.dns.length!=0 && (
           <div className="ui top padding">
             <h4 className="ui header">{i18n("DNS")}</h4>
-            {data.dns}
+            {data.dns.map( dns  => (
+              <div>{dns}</div>
+            ))}
           </div>
         )}
       </div>
