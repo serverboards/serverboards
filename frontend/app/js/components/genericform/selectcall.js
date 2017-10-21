@@ -53,7 +53,7 @@ const SelectCall = React.createClass({
           <div className="default text" style={{display:"block"}}>{(props.value || {}).uuid || props.value || props.placeholder}</div>
           <div className="menu">
             {(this.state.items || []).map( (ac) => (
-              <div key={ac.value} className="item" data-value={ac.value}>{ac.name}</div>
+              <div key={ac.value} className="item" data-value={ac.value}>{ac.name || ac.value}</div>
             ))}
           </div>
         </div>
