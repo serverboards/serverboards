@@ -4,6 +4,7 @@ import SelectService from './selectservice'
 import SelectCall from './selectcall'
 import RichDescription from './richdescription'
 import GenericButton from './genericbutton'
+import TextArea from './textarea'
 import i18n from 'app/utils/i18n'
 
 function class_sbds_to_sui(klass){
@@ -85,15 +86,7 @@ const GenericField=React.createClass({
         )
       case 'textarea':
         return (
-          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
-            <label>{i18n(props.label)}</label>
-            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
-            <textarea
-              name={props.name}
-              placeholder={i18n(props.placeholder || props.description)}
-              defaultValue={props.value}
-              onChange={this.handleChange}/>
-          </div>
+          <TextArea {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'password':
         return (
