@@ -1,3 +1,647 @@
+serverboards (17.10.0~alpha.768) unstable; urgency=medium
+
+  * Improvements on empty dashboard
+  * Fixes to empty services
+  * Improved visualization of log messages
+  * Fixes to cloud actions: start/stop
+  * Select calls can have dynamic data
+  * Improved IP selection and show at VMC
+  * Show IPS at lxd
+  * Fixed missing DO cloud provider
+  * Fix get first dashboard
+  * Fixes to changes to specific project name.
+  * No error on project update
+  * Style code fix
+  * Use rule router to fix menu problems
+  * Fix access to service details modal from zero
+  * Fixes on hold buttons
+  * Fix access screens per service
+  * Fixed sidebar open open with children
+  * Show issue dates in local time, not UTC.
+  * Can click on dark area on modals to close
+  * Show service tags at service details
+  * Improvements to HTTP/socket rule templates
+  * Cleanup debug log
+  * Pass properly data to trigger. Fixes http template.
+  * Improved error reporting when no email server configured
+  * Improved open/close issue actions
+  * Improved help for remote failures
+  * Updated tests for templates
+  * Updated tests for evals
+  * Map render works on non strings too
+  * Added BASE_URL torule context
+  * Pass properly the rule uuid to context
+  * Improvements error logging on rules
+  * Allow to set debug: true for rule templates
+  * Cleanup logging
+  * Ensure always body on messages
+  * Cleanup debug logs
+  * Allow to get config by string on any param
+  * Updated exeval priorities
+  * Added >, <, >=, <= operators to exeval
+  * Improved visualization select service
+  * Periodic checks now returns time since change
+  * Updated service.get permission on actions
+  * No fail at cli execution on exisitng config dirs
+  * Properly start/stop rules
+  * Improved rule template service filling
+  * Fix scroll at panes
+  * Fix show a dashboard when entering project
+  * Removed old code for rule templates at service
+  * Export properly moment-range
+  * Create necesary directories for cli config
+  * Can scroll on settings and others at service
+  * Fixes to project settings
+  * Fix style of wizard's step 1
+  * Fix get trigger catalog for rules
+  * Fix show rule style
+  * Fixed add button icons. Reworked style
+  * Updated semantic ui latest icon set
+  * Fix compile backups
+  * Fix return last project if invalid last
+  * Fix add users via s10s user add
+  * Improved integration test docs
+  * Fixes to sidebar style for FF
+  * Style fixes on tests
+  * Store updated issues in UTC time. Can send issue updates about lists.
+  * Improved test consistency
+  * Removed some messages
+  * Improved visualization select service
+  * Periodic checks now returns time since change
+  * Updated service.get permission on actions
+  * No fail at cli execution on exisitng config dirs
+  * Properly start/stop rules
+  * Improved rule template service filling
+  * Fix scroll at panes
+  * Fix show a dashboard when entering project
+  * Removed old code for rule templates at service
+  * Export properly moment-range
+  * Create necesary directories for cli config
+  * Can scroll on settings and others at service
+  * Fixes to project settings
+  * Fix style of wizard's step 1
+  * Fix get trigger catalog for rules
+  * Fix show rule style
+  * Fixed add button icons. Reworked style
+  * Updated semantic ui latest icon set
+  * Fix return last project if invalid last
+  * Fix add users via s10s user add
+  * Fix compile backups
+  * No known projects at start
+  * Improved scroll areas
+  * Use object_is_equal at store
+  * Logs manual CLI changes
+  * Added s10s user management command
+  * Added missing babelrc files
+  * Added missing babelrc
+  * Improved integration test docs
+  * Fixes to sidebar style for FF
+  * Style fixes on tests
+  * Store updated issues in UTC time. Can send issue updates about lists.
+  * Improved test consistency
+  * Removed some messages
+  * Moved trigger.ex file to rules_v2
+  * Recovered missing rules v1 trigger.ex
+  * Cleuanup log message
+  * Added generic process monitor, properly unsubscribe at disconnect
+  * Removed rules v2 backend
+  * Removed Rules V1 from UI
+  * Improved label edition on issues
+  * Fix: Can select services when add in situ
+  * More resilent to double components
+  * Fixed improper show of delted tags cards
+  * Improved edit of labels at issues
+  * Working filters at issues
+  * Fixes at style for FF
+  * Improved errors on SSH backups
+  * Fix some SSH commands were not running
+  * Fix access to ssh:// urls
+  * Fix use proper match_traits for service screens
+  * Fixed bugs on new utils exports
+  * Wording changes for wizard steps
+  * Improved selector empty image dimensions
+  * Circle labels are smaller
+  * Can add plugins at the end of project wizard
+  * Us eproper image at issues
+  * At install of plugin, reload all plugins and invalidate caches
+  * Improvements to split areas use all available space
+  * Install plugins listed at the marketplace with a click
+  * Fix create project with proper attributes
+  * Cleanup exports at app
+  * Go to wizard if no projects
+  * Can press enter to submit project name
+  * Show current progress step on wizard
+  * Add services from select modal rework
+  * Allow to add several services at wizard
+  * Do not allow to add twice the same project
+  * Fix to simple add widgets
+  * Improved flow on add widgets
+  * Fixes on wizard navigation
+  * Basic teal on buttons bar styling
+  * Show properly skip buttons at selector
+  * All add projects go to the wizard
+  * Add project uses the wizard.
+  * Initial version of the working wizard
+  * Export all components from components/index
+  * Can add a widget from the marketplace
+  * Fixes to selector filters
+  * Imrpoved naming
+  * Improve on tips style
+  * Properly subscribe to dashboard changes
+  * Cleanup comments
+  * Force update dashboard at add widget
+  * Style fixes to main dashboard
+  * New add widget screen
+  * After adding a service from selector, go back to same screen
+  * Export a store.back function to easy go back in history
+  * Proper unificatin of match_traits
+  * Added filter_items_str to ease filter. Export all at utils
+  * Added key to all items at tabbar
+  * Added spice support for VMC
+  * Fixes to open_port
+  * Added support for adding fingerprint of remote VMC SSH
+  * Added access to SSH terminals
+  * Added number inputs style
+  * Export PluginScreen component
+  * Allow comments on SSH options
+  * Improved SSH terminal backend
+  * Some extra SSH debug data
+  * Fixed not subscribing properly to some events
+  * Also show private ips
+  * Show proper vm icon, not provider, if provided
+  * Can return IPs and Dik sizes on libvirt
+  * USe singletons for cloud providers
+  * Can also merge lists
+  * Can group by provider
+  * Style. Added shadow elements and floating menus on panes
+  * Show VMC tip
+  * Use proper placeholders for future functionalities
+  * Improved VMCs card
+  * Small style improvements
+  * Exports IconIcon
+  * Improved VMC details, can start stop, show provider parent
+  * Fix start vmcs
+  * Improved show details on VMC
+  * Improved text sizes
+  * Cleanup cant stop on call_Start_stop
+  * Cleanup dead code
+  * recover debug at ssh_Exec
+  * Small style fixes
+  * Style added more padding to quick actions
+  * Reworked how the top menu is changed, to avoid redraws
+  * Properly disable top menu on quick acitons
+  * Up to date react class and screen hints
+  * Added top menu to quick actions
+  * Cleanup Remove debug loggins
+  * Adde gitignore to quick actions
+  * Open or comment issues, instead of alwasy opening
+  * Can open issue or comment
+  * Fixes to get issue by alias
+  * Create and close issues when jobs fail/succed
+  * Fixes on timer scheduling
+  * Click on the list go to details on the detailstab
+  * Allow to select any time by writing it at backups
+  * Properly log backup SSH
+  * Added rearming timers
+  * Fixes to init for scheduler backup
+  * Removed debug from backups scheduler daemon
+  * Working backup scheduling as init service
+  * Use proper named events
+  * Fixes to day schedule changes on backups
+  * Improved debug comments
+  * Improved debug mode
+  * Added support for M (month) and y (year) timespecs
+  * Emit also event for data changed on only one specific type
+  * Ensure event subscriptions are in a list
+  * Show extra msg if no scheduled days.
+  * Fixes to logs index header
+  * Log information on backup progress
+  * Show tooltips when on logs, was z-index problem
+  * Fix return log for specific json datum
+  * SSH final file templating works
+  * Initial stop backups, just allow to retry
+  * Removed extra logging
+  * Improved show origin and destination resume
+  * Added no vars template corner case
+  * Reexport templates from utils for plugins
+  * Fix template border case
+  * Improved backups details
+  * Improved JS templates
+  * Fixed presentation of comments on SSH dest
+  * Sort backups
+  * Improved event subscription
+  * RT update of performing backups
+  * Added error reporting on backup failures
+  * Updates the backup object and releases resources
+  * Stops the ssh temporal commands at ssh backups
+  * Python async callbacks receive the result data
+  * Working SSH backups using plugins
+  * Fix read and write to files at run/ssh_exec
+  * Python bindings allow _async calls from plugins too
+  * Fixes to forms at backup SSH fors
+  * Can add backups again
+  * Can scroll on backup editing
+  * Simplified expand rules
+  * Improved edition of backups
+  * Added only left padding
+  * Fix select service generic field from plugins
+  * Can pass infile and outfile to ssh run
+  * Can run the backup now action from the backup UI
+  * Allow async calls into the server
+  * Improvements to no backup details. Run backup button
+  * Export tips component
+  * Can set screen hints at plugins to avoid try load html/css
+  * Ignore generated files at backups
+  * Improved side menu on paned views
+  * Added day name list
+  * Added more basic text classes
+  * Force expand of plugin screens
+  * Force expand of plugin screens
+  * Fixes to plugin template
+  * Removed genreated files at quickactions
+  * Filtering on cloud listing
+  * Can ask for extra debug on ssh.run/ssh_exec
+  * Use command by list on LXC cloud provider
+  * Added invisible errors to rpc
+  * Cleanup style
+  * Fill template data when eceuting actions at rules
+  * Call commands by list of arguments
+  * Added LXD support
+  * Fixed change tags core action
+  * Automatic restart of some plugins on call on exitted
+  * Color of null string is red (for labels)
+  * Show more information on cloud vmc details
+  * Fix possible unrelated failure
+  * Added more log screenshots to check failures
+  * Create test user with greater care of ids
+  * Allow to stop at failure. Used for testing.
+  * Updated run test seeds on the proper database
+  * Do also local.rebar to avoid other blocks
+  * Force hex installation on each backend test compile
+  * Save more screenshots to detect when login test fails
+  * Executable integration test
+  * Split frontend test into frontend and integration
+  * Check for 20 seconds to terminate ssh copy of file
+  * Improved resilency on dashboard UI test
+  * Improved show UI flag
+  * Allowed to be used with visible UI
+  * Increased timeout for elements
+  * Removed old sh based test runners
+  * Compile properly on the appropiate MIX_ENV
+  * Fixes to top header, so easier to access user menu
+  * Removed test debug screenshots
+  * Do not force id on adding initial groups as it breaks adding more
+  * Fixed frontend tests
+  * Improved user creation
+  * Install required openssh-server
+  * Properly exit with the right exit code
+  * Install proper nodejs
+  * Install npm and yarn on CI
+  * Fixes to plugins and frontend tests to kill backend at start
+  * Store log artifacts at frontend tests
+  * Updated frontend test
+  * Plugin test must be in prod to perform corretly the logging
+  * Create .ssh if does not exist on ssh test
+  * Write to stdout as bytes (maybe)
+  * Disable cloud tests, as fai lon the test server
+  * Force flush after every line on s10s cli / tests
+  * Porperly compile and use s10s-plugin-test
+  * Improved plugin test fail reporting
+  * Updated plugin tests
+  * Fix issues test: should have one item since last
+  * Show % of time saved, not number.
+  * Fix to issues test
+  * Properly log issues test
+  * Ignore old rules tests.
+  * Fixes rules v2 tests
+  * Fix template test
+  * Fix corner case for log history wihtout logger running
+  * Fix exval test
+  * Force flush of log data at each line
+  * Optional inotifywait by config file
+  * Compile also ejournald for tests
+  * Ensure serverboards and gitlab use rare superusers
+  * Fix run test seeds
+  * Fixes to background test: compile hacks, more logging
+  * Even more backend test logging
+  * Dump db logs to log/
+  * Improved logging of backend test
+  * Fix plugin tet fail when server dies at start
+  * Install deps on backend test compile phase
+  * Improved error reporting, what tests fail
+  * Save some time using a template database and copy on tests
+  * Improvements to backend tet framework
+  * Improved compilation error report.
+  * Fixed not finding Model structs sometimes
+  * Revert "Do not use structs for models on inserts"
+  * Updated ecto
+  * Removed requirement for pgcrypto
+  * Show first faling test output on stdout
+  * Give serverboards user wide priviledges
+  * Save log files to .txt to view at gitlab file browser
+  * Aded psmisc to CI setup
+  * Updated timex
+  * Fix for elixir 1.5 else on with
+  * Open logfiles as binary
+  * Always store artifacts for research of failures.
+  * Create log dir at backend test start
+  * Redone backend parallel test using python3
+  * Do not use structs for models on inserts
+  * Updated elixir dependencies
+  * Improved setup-ci script
+  * Side menu on issues details
+  * Improved reflow
+  * Does tabbar reflow at window size change
+  * Added tabbar that can hide nonvisible items + menu
+  * Improved details at service details tab
+  * Improved details on passwords (do not show on UI)
+  * Show service details on the side at cards view
+  * Fix sometimes secondary menu over section combo
+  * Cloud view improvements
+  * Improved sudo set at LXC
+  * Allow to pass EnvVars to executed programs
+  * Export Error component
+  * Fix was reusing an array for successive SSH calls
+  * Cleanup logs
+  * Fix how to start LXC containers
+  * Improved SSH debug
+  * Updated compilation of plugins
+  * Delete generated node_list.js
+  * Allow start/stop/pause VMC
+  * Cleanup logs
+  * Working AWS integration via libcloud
+  * Generic fields can have simple label is same as value
+  * Improved cloud node card
+  * Core SSH now uses a full react component
+  * Improvements to core.cloud backend
+  * panes.sass always loaded
+  * Added checkbox generic form field
+  * Rule template filter works
+  * Improved error detection of manifest.yaml
+  * Improved errors on parsing yaml files
+  * Can get a forced plugin market manifest
+  * Disable broken rules that can not be even started
+  * Cleanup logger messages
+  * Fix rule yaml to be loadable
+  * Passing tests
+  * Rule tempaltes execute as normal rules.
+  * Can template maps. Leave unknowns as is.
+  * Fix warnings
+  * Fix add rules templates
+  * Improved resilence to bad formed rules
+  * Filter rules
+  * Style panel with columns height scroll fix
+  * Added keys attach service to project list
+  * Added Tip component
+  * Can add rule templates
+  * Fix type of service for socket is up rule template
+  * Rules v2 can store the from_template data
+  * Various small fixes to rules
+  * Use proper ISO date to store date ranges
+  * Fix webpack hot module reload
+  * Improvements on chunk generation
+  * Improved webpack compile time
+  * Working webpack3. Reverted to react-router 2
+  * Can add services when creating a rule
+  * Show filter by default on selector
+  * Fix no shadow on selector buttons
+  * Added the filter to the top of add, as in designs
+  * Working new service add screen
+  * Added serverboards specificallity for top menus
+  * Top menus styles specificallity improved
+  * Selector is now a list, not a tabbed component
+  * Cleanup Removed old add service dead code
+  * Improved button at add button bar
+  * Improved error ressitance to invalid type at service
+  * Cleanup Fixed some warnings/errors
+  * Easier image address path for webpack
+  * Added hint message for dev on other server address
+  * Moved the Selector to top level components
+  * Cleanup debug logs
+  * Cache_ttl added to python bindings
+  * Cleanup: Some logging
+  * Added plugin.component symbol to export
+  * Allow to create projects with all data in a dict
+  * Some fixes to rules start debugging
+  * Fixes to frontend compilation
+  * Updated version to 17.10
+  * Fixes to router v4 use
+  * Use react router v4
+  * Removed dead code.
+  * Fix insert is_active was nil
+  * Fixes at serverboards python bindings
+  * Improved reentry on events
+  * Pass the ready/cloed fd to the event
+  * Shows execution time for tests
+  * Fix error on unkonwn method call
+  * Forces no reentry on events.
+  * Cleanup some code to funcitons
+  * Cleanup and check for reentrant signal calling
+  * Return data on when event is properly removed
+  * Use daemon SSH
+  * Log messages using cast, as no reply is required
+  * Removed debug on each event
+  * Fix try to kill :not_found
+  * Improved kill of plugins
+  * Updated MOM dependency
+  * Do not crash when a call into an event fails
+  * Fix error when closed popen read end
+  * Soved misterious reordering fail bug on ssh.popen
+  * Cleanup debug log
+  * Improved debug on long messages
+  * Improved set_debug repeatedly
+  * Stop plugin at `with` __exit__
+  * Show more debug messages
+  * Return enabled flag on SSH fingerprint check
+  * Improved unsubscribe from events
+  * More resilent to comm errors, but should not happen
+  * Cleanup logs filter debug msg
+  * Store debug logger messages if on debug mode
+  * Ensure read from a closed w pipe returns closed value
+  * Cleanup message throttling speed
+  * Return read when closing write end
+  * Improved return messages
+  * Cleanup debug logging
+  * Increased speed for rate limiting
+  * Allow to interrupt individual tests with C-c
+  * Improved traceback logging
+  * Improved show logs on plugin test error
+  * Fix sometimes log order is reversed
+  * Instead of giving an error, closing a file succeeds
+  * Can kill a singleton plugin by component_id
+  * Export file RPCWrapper, and print
+  * Can use the Plugin class with `with`
+  * Improved logging to allow any number of params.
+  * Cleanup. Removed many logs
+  * Added internal b64encode and b64decode s10s cli cmds
+  * Improved tests, log on server start/end
+  * Fixes to tests to match doc descriptions
+  * Allow file.pipe with [] argument
+  * Read more data per line
+  * Fix close client at TCP disconnect
+  * File pipe read/write return semantics as in docs
+  * Fixes to blocking write
+  * Added nonblock write if buffers full
+  * Updated also RPC async -> nonblock
+  * Renamed read/async to read/nonlblock to match docs
+  * Added file rpc methods and tests
+  * Added file.fcntl call
+  * Emit events if async mode, can sync write data.
+  * File pipe monitors a parent and closes at termination
+  * Initial version of file pipes between process.
+  * Fix sometimes not updating action card
+  * Fixed add from dashboard
+  * Improved rule cards when no name/description
+  * Initial add new rules v2
+  * Added add button to rules v2 listing
+  * Ensure add is over the content of the scroll area
+  * Updated add button to new hub design
+  * Fix go to first action when no service on trigger
+  * Go to current selected section
+  * Can select "no service" service
+  * Filtering on available triggers by service traits
+  * Fix typo.
+  * Cache will store sucesive calls and prevent recall
+  * Use changes at rules v1 -> v2 migration
+  * Added changes to state at trigger.
+  * Added initial diff of two maps
+  * Updated inital sql schema.
+  * Fixes to login via PAM
+  * Fix can disable plugins.
+  * Show changes at rules_v2
+  * Improved filter by active or not
+  * Improved rule card visualization
+  * Sort cards by name
+  * Disable save when no modifications have been made.
+  * Show "next" or "save" on action params
+  * Improved selected card visualization
+  * Show message when no condition
+  * Can add nodes to the rule
+  * Recover issues at project sidebar
+  * Show settings on each plugin
+  * Fixed sidebar at Firefox.
+  * Half column fields at Generic Forms
+  * Updated action descriptions.
+  * Show properly names at the when card
+  * Pass along the prev state. Cleanup logging.
+  * Harmonized use of A.state to follow 17.04
+  * Returns more information on uknown_var eval.
+  * Starts all rules at program start
+  * Rules are activated at creation
+  * Rules V2 list of future actions to not block
+  * Added ExEval simple expression evaluator
+  * Initial frontend visualization of rules v2: index
+  * Can return a specific rule.
+  * Added more v1 compatibility
+  * Fixes to show the proper service on v1 compat
+  * Aded rules_v2 delete
+  * Added missing changes for listing projects.
+  * Moved to rules_v2_rule. Can add/list via RPC
+  * Fix down alter notification text migration
+  * Created Rules V2 model and migration
+  * Show circle if new issues at sidebar
+  * Fix update updated_at always
+  * New/updated issues circle at top header
+  * Improved issues listings and events
+  * Fix goto simple sections at sidebar
+  * Fix goto section at sidebar
+  * Improved access to create new projects
+  * UI Fix use appropiate colors for graphs
+  * Fix race for change project test
+  * Reset the database on frontend watch mode
+  * Added test for adding dashboards and projects
+  * Project creation is now a modal
+  * Allow scroll on project selector
+  * Allow modals to close themselves
+  * Fix use timer id at board
+  * Added support for multiple dashboards
+  * Can return promises at redux actions
+  * Updated gitignore.
+  * Use localstorage to store last dashboard filter
+  * Improved restart of plugins on error
+  * Fix SSH core test
+  * Fixed frontend tests
+  * No header on quickactions
+  * First version of the new header
+  * Updated to latest semantic ui
+  * Fix proper get base url for recover password email
+  * Fix use proper base url for reset password link
+  * Another fix to add SSH fingerprints
+  * Fix add fingerprint
+  * Removed unnecessary debug data
+  * Improved config get
+  * Updated version
+  * Initial frontend webdriver.io tests
+  * Added cache to backend and test tests
+  * Test works on previously unexistant SSH config
+  * Updated backend test CI
+  * Added initial tests for plugins gitlab CI support
+  * Updated timestamps -> timestamps()
+  * SSH component tests
+  * Added s10s plugin-test
+  * Added Plugin and RPCWrapper to Python bindings
+  * Allow plugins to create services
+  * Improve error detection on fail start command
+  * Improved authentication workflow
+  * Fixed all compilation warnings on backend
+  * Store SSH output to the logs
+  * Fix show proper fields at rules service selector
+  * Fix show proper fields at rules service selector
+  * Added services tooltip ad add
+  * Added services tooltip ad add
+  * Fixes to SSH plugin, to be usabel again
+  * Try to use semver with - instead of + at elixir
+  * Core SSH use service_uuid as conn mode
+  * Udpated .gitignore for .map and .kdev4
+  * Ignore .mo file at i18n
+  * Improved debug of repeated id conditions
+  * Removed logging of some auth info
+  * Updated to ignore some temporary files on development
+  * Fix tests
+  * Improved loggind data, for debugging pourposes
+  * Fix event emmiting service.udpate on creation
+  * Only PS on currently running
+  * Fix init case where could not start
+  * Added plugin.kill RPC call
+  * Added plugin.ps and some more tracing info
+  * SCP return True if everything ok, exception if not
+  * Fixed communication between process and core and cli
+  * Improved internals. Added more builtins.
+  * Fix remove all envvars, leave PWD
+  * Send more events on service modification. Removed on_update.
+  * Fixed autompletion
+  * Can set the init daemon as relative to the current plugin
+  * Removed all unnecesary envvars from the running code.
+  * Fix manifest for actions and triggers for HTTP services
+  * Notifications body at db is text
+  * Fixed http timeout test and added preset for http
+  * Loading intro screen
+  * Added on_updated to services to call a callback
+  * Added cache to plugin checker
+  * Do not give the option of keep logged in
+  * Can delete rules
+  * Added rules tab to service details
+  * Fixes to author name at deb package and CI vars
+  * Improvements to version update get version and publish
+  * Reworked version gathering and update
+  * Publish automatically to the unstable channel
+  * Conflated two log history search tests into one
+  * Improved log pagination visualization
+  * Added pagination to logs.
+  * Added UI to search on log history
+  * Do not output logs test debug if no fail
+  * Added full text search to logger lines
+  * Fixes on how to use the logs on tests
+  * Added more logging metadata on rules edit/run
+  * Shows log tab at service details
+  * At issues show project link
+  * At issues, link to plain rule, not in project
+  * Reworked rules routes
+  * Improved parameters description
+  * Show quick actions only on the proper serverboard
+
+ -- David Moreno <dmoreno@coralbits.com>  Mon, 23 Oct 2017 16:16:51 +0200
+
 serverboards (17.7.0~alpha.90) unstable; urgency=medium
 
   * Forces to exist to databases file, so tests fail on this error
