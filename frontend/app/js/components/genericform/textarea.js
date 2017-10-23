@@ -76,7 +76,8 @@ class TextArea extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      autocomplete: undefined
+      autocomplete: undefined,
+      autocomplete_current: undefined
     }
   }
   componentDidMount(){
@@ -111,6 +112,49 @@ class TextArea extends React.Component{
     this.setState({autocompletedelay})
     this.props.onChange(ev)
   }
+  handleKeyboard(ev){
+    if (!this.state.autocomplete)
+      return
+    console.log("%o",ev.key)
+    if (ev.key == "ArrowUp"){
+      let autocomplete_current = (this.state.autocomplete_current || 0)-1
+      if (autocomplete_current<0)
+        autocomplete_current=this.state.autocomplete.length-1
+      this.setState({autocomplete_current})
+      if (this.refs.popup)
+        this.refs.popup.scrollTop=autocomplete_current*30
+      ev.stopPropagation()
+      ev.preventDefault()
+    }
+    if (ev.key == "ArrowDown"){
+      let autocomplete_current = (this.state.autocomplete_current || 0)+1
+      if (autocomplete_current>=this.state.autocomplete.length)
+        autocomplete_current=0
+      this.setState({autocomplete_current})
+      if (this.refs.popup)
+        this.refs.popup.scrollTop=autocomplete_current*30
+      ev.stopPropagation()
+      ev.preventDefault()
+    }
+    if (ev.key == "Enter"){
+      if (this.state.autocomplete[this.state.autocomplete_current]){
+        this.insertAtCursor(this.state.autocomplete[this.state.autocomplete_current])
+        ev.stopPropagation()
+        ev.preventDefault()
+      }
+    }
+    if (ev.key == "ArrowLeft"){
+      this.setState({cursor: this.refs.textarea.selectionStart})
+    }
+    if (ev.key == "ArrowRight"){
+      this.setState({cursor: this.refs.textarea.selectionStart})
+    }
+    if (ev.key == "Escape"){
+      this.setState({autocomplete:[]})
+      ev.stopPropagation()
+      ev.preventDefault()
+    }
+  }
   render(){
     const {state, props} = this
     return (
@@ -124,11 +168,13 @@ class TextArea extends React.Component{
             name={props.name}
             placeholder={i18n(props.placeholder || props.description)}
             defaultValue={props.value}
-            onChange={this.handleChange.bind(this)}/>
+            onChange={this.handleChange.bind(this)}
+            onKeyDown={this.handleKeyboard.bind(this)}
+            />
           {state.autocomplete && state.autocomplete.length>0 && (
-              <div className="ui mini dropdown menu with scroll" style={{maxHeight: "10em", position: "absolute", top: cursor_top(this.refs.textarea), left: cursor_left(this.refs.textarea) }}>
-                {state.autocomplete.map( i => (
-                  <div key={i} className="item" onClick={() => this.insertAtCursor(i)}>
+              <div className="ui mini dropdown menu with scroll" ref="popup" style={{maxHeight: "10em", position: "absolute", top: cursor_top(this.refs.textarea), left: cursor_left(this.refs.textarea) }}>
+                {state.autocomplete.map( (i,n) => (
+                  <div key={i} className={`item ${ n == state.autocomplete_current ? "selected" : ""} `} onClick={() => this.insertAtCursor(i)}>
                     {i}
                   </div>
                 ))}
