@@ -13,7 +13,9 @@ function Column({h1, t1, h2, t2, img}){
       <div>
         {t1}
       </div>
-      <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img}/></div>
+      { img && (
+        <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img}/></div>
+      )}
       <h2 className="ui small header">{i18n("TIP")}</h2>
       <div className="ui grey text">
         {t2}
@@ -34,7 +36,6 @@ function Empty(props){
           h2={i18n("One dashboard per project")}
           t1={i18n("Dashboards are the control panels for your projects. The visible area for the connections to your Cloud Apps and Servers. Use the + button to add new widgets.")}
           t2={i18n("Widgets in the Dashboards are directly related with the plugins you already installed. We suggest to create new projects depending on the objectives of your project. If you want to manage servers, create a specific project, and do te same to manage the actions related a specific client.")}
-          img={img1}
           />
 
         <Column

@@ -1,6 +1,12 @@
 const {i18n, cache, plugin, Flash, React} = Serverboards
 const {PluginScreen, Loading} = Serverboards.Components
 
+function maybe_ip6(ip){
+  if (ip && ip.includes(":"))
+    return `[${ip}]`
+  return ip
+}
+
 class SSH extends React.Component{
   constructor(props){
     super(props)
@@ -14,7 +20,7 @@ class SSH extends React.Component{
     this.state ={
       loading: true,
       proxy: null,
-      ip,
+      ip: maybe_ip6(ip),
       username: null,
       options: "",
       ssh_key_pub: null,
@@ -27,9 +33,9 @@ class SSH extends React.Component{
     const props = this.props.vmc.props
     const parent = this.props.parent
 
-    let ip = (props.public_ips && props.public_ips[0])
+    let ip = maybe_ip6(props.public_ips && props.public_ips[0])
     if (!ip){
-      ip = (props.private_ips && props.private_ips[0])
+      ip = maybe_ip6(props.private_ips && props.private_ips[0])
       if (parent.config.server){
         cache
           .service(parent.config.server)

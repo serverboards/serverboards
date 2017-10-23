@@ -13,7 +13,9 @@ function Column({h1, t1, h2, t2, img}){
       <div>
         {t1}
       </div>
-      <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img}/></div>
+      { img && (
+        <div style={{textAlign: "center", margin: "2em auto", height: 100}}><img src={img}/></div>
+      )}
       <h2 className="ui small header">{i18n("TIP")}</h2>
       <div className="ui grey text">
         {t2}
@@ -34,7 +36,6 @@ function Empty(props){
           h2={i18n("Third party integrations, no limits")}
           t1={i18n("Add as many servers and cloud apps as you need to each of your projects. Manage, monitorize and even interconnect them by creating rules. To add do it clicking on the + button on the bottom corner of this screen.")}
           t2={i18n("For each project you can add new Servers and Cloud Apps, that will be only present on this project, or select one of the already existing services to access to it from diferent projects.")}
-          img={img1}
           />
 
         <Column
