@@ -61,6 +61,7 @@ integration-test:
       - log
     expire_in: 1 week
     when: always
+  allow_failure: true
 
 plugins-test:
   stage: test
