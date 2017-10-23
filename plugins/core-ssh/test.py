@@ -84,7 +84,7 @@ def t03_ssh_scp_test_():
     os.unlink("/tmp/s10s-hosts-test")
 
 @serverboards.rpc_method
-def t04_ssh_backup_test():
+def t04_ssh_backup_test_ignore():
   url_orig = "localhost"
   url_dest = "localhost"
   file_orig = "/etc/services"

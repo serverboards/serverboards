@@ -489,6 +489,7 @@ def popen(service_uuid, command, stdin=None, stdout=None):
   """
   url,opts,precmd = __get_service_url_and_opts(service_uuid)
   opts=opts+["--", precmd]+command
+  opts=[item for sublist in opts for item in sublist]
   ssh = subprocess.Popen(["ssh"]+opts, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
   # adapter from pipe at the ssh to the s10s pipes, one for each stdin/out
 
