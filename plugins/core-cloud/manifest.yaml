@@ -40,11 +40,25 @@ components:
     icon: play
     call:
       method: start
-      params:
-        - name: connection
+      params: &select_node_params
+        - name: parent
+          label: VM or Container provider
+          type: service
+          traits: core.cloud.compute
         - name: node
-  - id: shutdown
-    name: Shutdown node
+          label: Node
+          type: select call
+          dynamic: true
+          options:
+            command: serverboards.core.cloud/daemon
+            call: get_nodes
+            params:
+              - name: parent
+                type: service
+
+
+  - id: stop
+    name: Stop node
     description: |
       Shuts down the selected node
     type: action
@@ -52,37 +66,8 @@ components:
     command: serverboards.core.cloud/daemon
     icon: stop
     call:
-      method: shutdown
-      params:
-        - name: connection
-        - name: node
-  - id: force_stop
-    name: Force stop node
-    type: action
-    description: |
-      Forces shut down the selected node
-    traits: core.cloud.node running server
-    command: serverboards.core.cloud/daemon
-    icon: stop circle outline
-    call:
-      method: force_stop
-      params:
-        - name: connection
-        - name: node
-  - id: reboot
-    name: Reboot node
-    description: |
-      Do a soft reset of the node; a Crtl-Alt-Supr.
-    type: action
-    traits: core.cloud.node running server
-    command: serverboards.core.cloud/daemon
-    icon: undo
-    call:
-      method: reboot
-      params:
-        - name: connection
-        - name: node
-
+      method: stop
+      params: *select_node_params
 
   ## libvirt
   - id: libvirt

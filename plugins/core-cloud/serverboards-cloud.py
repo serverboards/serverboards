@@ -55,6 +55,22 @@ def list(project=None):
   return l
 
 @serverboards.rpc_method
+def get_nodes(parent = None, **kwargs):
+    service = parent # in this context the service is the provider configuration service (specific account)
+    print(service)
+    if not service:
+        return []
+    provider = get_provider(service) # and the provider is the definition of the provider
+    if not provider:
+        return []
+
+    ret = []
+    for s in provider.list( service ):
+        print(s)
+        ret.append({ "label": s["name"], "value": s["id"] })
+    return ret
+
+@serverboards.rpc_method
 def start(parent, node):
   p = get_provider_by_uuid( parent )
 
@@ -64,11 +80,10 @@ def start(parent, node):
   return ret
 
 @serverboards.rpc_method
-def stop(service=None, vmc=None, force = False):
-  assert service and vmc
-  p = get_provider_by_uuid( service )
+def stop(parent, node, force = False):
+  p = get_provider_by_uuid( parent )
 
-  ret = p.call("stop", service=get_service(service), vmc=vmc, force=force )
+  ret = p.call("stop", get_service(parent), node, force )
   list.invalidate_cache()
 
   return ret

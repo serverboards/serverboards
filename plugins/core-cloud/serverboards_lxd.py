@@ -21,6 +21,8 @@ def is_public_ip(ip):
 def xpath(data, *q):
     if not q:
         return [data]
+    if not data:
+        return []
     head = q[0]
     rest = q[1:]
     if head == "*":
@@ -35,7 +37,12 @@ def xpath(data, *q):
             for f in xpath(i, *rest)
         ]
     else:
-        return [*xpath(data[head], *rest)]
+        try:
+            return [*xpath(data[head], *rest)]
+        except Exception as e:
+            rpc.log_traceback(e)
+            return []
+
 
 LOCALS = ["127.0", "fc00::"]
 
