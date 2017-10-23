@@ -170,6 +170,7 @@ class TextArea extends React.Component{
             defaultValue={props.value}
             onChange={this.handleChange.bind(this)}
             onKeyDown={this.handleKeyboard.bind(this)}
+            onClick={() => this.setState({autocomplete:[]})}
             />
           {state.autocomplete && state.autocomplete.length>0 && (
               <div className="ui mini dropdown menu with scroll" ref="popup" style={{maxHeight: "10em", position: "absolute", top: cursor_top(this.refs.textarea), left: cursor_left(this.refs.textarea) }}>
