@@ -87,37 +87,39 @@ function Details(props){
 
   return (
     <Modal>
-      <div className="ui top secondary header menu">
-        <h3 className="ui header">{i18n("Log line details")}</h3>
+      <div className="ui top serverboards header menu with padding">
+        <h2 className="ui header">{i18n("Log line details")}</h2>
         <div className="right menu">
           <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
         </div>
       </div>
-      <h3 className="ui header uppercase">{i18n("Date")}</h3>
-      <div className="meta">{line.timestamp.replace('T',' ')}</div>
+      <div className="ui content" style={{marginTop: 20}}>
+        <h3 className="ui header uppercase">{i18n("Date")}</h3>
+        <div className="meta">{line.timestamp.replace('T',' ')}</div>
 
 
-      <h3 className="ui header uppercase">{i18n("Full Message")}</h3>
-      <div>
-        <pre className="ui code">
-          {reformatMessage(line.message)}
-        </pre>
-      </div>
+        <h3 className="ui header uppercase">{i18n("Full Message")}</h3>
+        <div>
+          <pre className="ui code">
+            {reformatMessage(line.message)}
+          </pre>
+        </div>
 
-      <h3 className="ui header uppercase">{i18n("Metadata")}</h3>
-      <div>
-        {Object.keys(line.meta).map( (k) => (
-          <div key={k}>
-            <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>{k}</h4>
-            <DataView name={k} data={line.meta[k]}/>
-          </div>
-        ))}
+        <h3 className="ui header uppercase">{i18n("Metadata")}</h3>
+        <div>
+          {Object.keys(line.meta).map( (k) => (
+            <div key={k}>
+              <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>{k}</h4>
+              <DataView name={k} data={line.meta[k]}/>
+            </div>
+          ))}
 
-      </div>
-      <h3 className="ui header uppercase">{i18n("Related")}</h3>
-      <div>
-        <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
-        <a href={related} target="_blank">{related}</a>
+        </div>
+        <h3 className="ui header uppercase">{i18n("Related")}</h3>
+        <div>
+          <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
+          <a href={related} target="_blank">{related}</a>
+        </div>
       </div>
     </Modal>
   )
