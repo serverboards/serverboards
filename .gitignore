@@ -5,3 +5,4 @@ serverboards.tar.gz
 *.kdev4
 log
 local/
+debian/
