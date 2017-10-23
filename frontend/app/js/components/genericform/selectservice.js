@@ -6,6 +6,7 @@ import store from 'app/utils/store'
 import {match_traits} from 'app/utils'
 import cache from 'app/utils/cache'
 import AddServiceModal from 'app/components/service/addmodal'
+import PropTypes from 'prop-types'
 
 function match_filter(s, filter){
   if (filter.project)
@@ -105,6 +106,15 @@ class SelectService extends React.Component{
       </div>
     )
   }
+}
+
+SelectService.propTypes={
+  traits:  PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]).isRequired,
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  dynamic: PropTypes.bool,
+  default: PropTypes.string,
 }
 
 export default SelectService
