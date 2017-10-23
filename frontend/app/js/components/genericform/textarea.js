@@ -6,7 +6,7 @@ import plugin from 'app/utils/plugin'
 const SEPARATORS=/ \:\n.\[\]\s/
 
 function is_space(c){
-  return (c ==" " || c==":" || c=="[" || c == "]" || c == "\n")
+  return (c ==" " || c==":" || c == "\n")
 }
 
 function prefix_at_cursor(textarea){
@@ -45,11 +45,39 @@ function replace_around_cursor(textarea, value){
   textarea.selectionStart = start+value.length
 }
 
+function cursor_top(ta){
+  if (!ta)
+    return 0
+  const text = ta.value
+  const end = ta.selectionStart
+  let line=1
+  for(let i=0; i<end; i++){
+    if (text[i]=='\n')
+      line+=1
+  }
+  return line*18
+}
+
+function cursor_left(ta){
+  if (!ta)
+    return 0
+    const text = ta.value
+    const end = ta.selectionStart
+    let col=1
+    for(let i=0; i<end; i++){
+      if (text[i]=='\n')
+        col=0
+      col+=1
+    }
+    return col*8.5+8
+}
+
 class TextArea extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      autocomplete: undefined
+      autocomplete: undefined,
+      autocomplete_current: undefined
     }
   }
   componentDidMount(){
@@ -58,9 +86,15 @@ class TextArea extends React.Component{
   }
   updateAutocomplete(){
     const ac = this.props.autocomplete
-    plugin.start_call_stop( ac.command, ac.call, {"current": this.refs.textarea.value, ...this.form_data}).then(
-      autocomplete => this.setState({autocomplete, autocomplete_all: autocomplete})
-    )
+
+    const newtext=prefix_at_cursor(this.refs.textarea).toLocaleLowerCase()
+    console.log("Handle change to %o", newtext)
+
+    plugin.start_call_stop( ac.command, ac.call, {"current": newtext, ...this.form_data}).then(
+      autocomplete => {
+        console.log(autocomplete)
+        this.setState({autocomplete})
+      })
   }
   insertAtCursor(value){
     replace_around_cursor(this.refs.textarea, value)
@@ -72,37 +106,81 @@ class TextArea extends React.Component{
     if (this.state.autocompletedelay)
       clearTimeout(this.state.autocompletedelay)
     const autocompletedelay = setTimeout(() => {
-      const newtext=prefix_at_cursor(this.refs.textarea).toLocaleLowerCase()
-      console.log("Handle change to %o", newtext)
-
-      const autocomplete = this.state.autocomplete_all.filter( ac => ac.toLocaleLowerCase().includes(newtext) )
-      this.setState({autocomplete, autocompletedelay: undefined})
+      this.updateAutocomplete()
     }, 300)
 
     this.setState({autocompletedelay})
     this.props.onChange(ev)
   }
+  handleKeyboard(ev){
+    if (!this.state.autocomplete)
+      return
+    console.log("%o",ev.key)
+    if (ev.key == "ArrowUp"){
+      let autocomplete_current = (this.state.autocomplete_current || 0)-1
+      if (autocomplete_current<0)
+        autocomplete_current=this.state.autocomplete.length-1
+      this.setState({autocomplete_current})
+      if (this.refs.popup)
+        this.refs.popup.scrollTop=autocomplete_current*30
+      ev.stopPropagation()
+      ev.preventDefault()
+    }
+    if (ev.key == "ArrowDown"){
+      let autocomplete_current = (this.state.autocomplete_current || 0)+1
+      if (autocomplete_current>=this.state.autocomplete.length)
+        autocomplete_current=0
+      this.setState({autocomplete_current})
+      if (this.refs.popup)
+        this.refs.popup.scrollTop=autocomplete_current*30
+      ev.stopPropagation()
+      ev.preventDefault()
+    }
+    if (ev.key == "Enter"){
+      if (this.state.autocomplete[this.state.autocomplete_current]){
+        this.insertAtCursor(this.state.autocomplete[this.state.autocomplete_current])
+        ev.stopPropagation()
+        ev.preventDefault()
+      }
+    }
+    if (ev.key == "ArrowLeft"){
+      this.setState({cursor: this.refs.textarea.selectionStart})
+    }
+    if (ev.key == "ArrowRight"){
+      this.setState({cursor: this.refs.textarea.selectionStart})
+    }
+    if (ev.key == "Escape"){
+      this.setState({autocomplete:[]})
+      ev.stopPropagation()
+      ev.preventDefault()
+    }
+  }
   render(){
     const {state, props} = this
     return (
-      <div className={`field ${props.className || ""}`} style={{position: "relative"}}>
+      <div className={`field ${props.className || ""}`}>
         <label>{i18n(props.label)}</label>
         <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
-        <textarea
-          ref="textarea"
-          name={props.name}
-          placeholder={i18n(props.placeholder || props.description)}
-          defaultValue={props.value}
-          onChange={this.handleChange.bind(this)}/>
-            {state.autocomplete && (
-                <div className="ui dropdown menu with scroll" style={{maxHeight: "10em"}}>
-                  {state.autocomplete.map( i => (
-                    <div key={i} className="item" onClick={() => this.insertAtCursor(i)}>
-                      {i}
-                    </div>
-                  ))}
-              </div>
-            )}
+        <div style={{position: "relative"}}>
+          <textarea
+            ref="textarea"
+            className={this.props.autocomplete && "ui fixed text"}
+            name={props.name}
+            placeholder={i18n(props.placeholder || props.description)}
+            defaultValue={props.value}
+            onChange={this.handleChange.bind(this)}
+            onKeyDown={this.handleKeyboard.bind(this)}
+            />
+          {state.autocomplete && state.autocomplete.length>0 && (
+              <div className="ui mini dropdown menu with scroll" ref="popup" style={{maxHeight: "10em", position: "absolute", top: cursor_top(this.refs.textarea), left: cursor_left(this.refs.textarea) }}>
+                {state.autocomplete.map( (i,n) => (
+                  <div key={i} className={`item ${ n == state.autocomplete_current ? "selected" : ""} `} onClick={() => this.insertAtCursor(i)}>
+                    {i}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
       </div>
     )
   }

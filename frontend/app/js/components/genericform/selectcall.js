@@ -84,8 +84,8 @@ class SelectCall extends React.Component{
           <i className="dropdown icon"></i>
           <div className="default text" style={{display:"block"}}>{(props.value || {}).uuid || props.value || props.placeholder}</div>
           <div className="menu">
-            {(state.items || []).map( (ac) => (
-              <div key={ac.value} className="item" data-value={ac.value}>{ac.name || ac.label}</div>
+            {(this.state.items || []).map( (ac) => (
+              <div key={ac.value} className="item" data-value={ac.value}>{ac.name || ac.value}</div>
             ))}
           </div>
         </div>
