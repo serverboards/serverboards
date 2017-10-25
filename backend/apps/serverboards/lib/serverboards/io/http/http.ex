@@ -3,7 +3,11 @@ require Logger
 
 defmodule Serverboards.IO.HTTP do
   def start_link(options) do
-    port = Serverboards.Config.get(:http, :port, 8080)
+    port = if options[:port] do
+      options[:port]
+    else
+      Serverboards.Config.get(:http, :port, 8080)
+    end
     if port do
       start_link(port, options)
     else
