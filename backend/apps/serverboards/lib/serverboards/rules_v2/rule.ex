@@ -31,9 +31,13 @@ defmodule Serverboards.RulesV2.Rule do
     Serverboards.RulesV2.Rules.set_state(uuid, state, %{ email: "rule/#{uuid}"})
   end
 
-  def trigger(rule_id, params) do
-    # Logger.debug("trigger #{inspect params, pretty: true}")
-    GenServer.cast(rule_id, {:trigger, params})
+  def trigger(uuid, params) when is_binary(uuid) do
+    trigger(via(uuid), params)
+  end
+
+  def trigger(pid, params) when is_pid(pid) or is_tuple(pid) do
+    Logger.debug("trigger #{inspect {pid, params}, pretty: true}")
+    GenServer.cast(pid, {:trigger, params})
   end
 
   def stop(what), do: stop(what, :normal, :infinity)
@@ -77,7 +81,7 @@ defmodule Serverboards.RulesV2.Rule do
 
     # Logger.debug("Template data to fill: #{inspect template.extra["fields"]} #{inspect rule.rule["template_data"]}")
     params = decorate_params( rule.rule["template_data"], template.extra["fields"] )
-    Logger.debug(inspect params)
+    # Logger.debug(inspect params)
 
     {:ok, final_rule} = Serverboards.Utils.Template.render_map( template.extra["rule"], params )
 
@@ -104,9 +108,14 @@ defmodule Serverboards.RulesV2.Rule do
     GenServer.call(via(uuid), :status)
   end
 
+  def trigger_type(uuid) when is_binary(uuid) do
+    GenServer.call(via(uuid), :trigger_type)
+  end
+
   def start_trigger(uuid, w) do
     with [trigger] <- Serverboards.Rules.Trigger.find(id: w["trigger"]),
-         {:ok, plugin_id} <- Serverboards.Plugin.Runner.start(trigger.command, "system/rule_v2"),
+         {:ok, trigger_command} <- (if trigger.command do {:ok, trigger.command} else {:error, :no_trigger} end),
+         {:ok, plugin_id} <- Serverboards.Plugin.Runner.start(trigger_command, "system/rule_v2"),
          {:ok, client} <- Serverboards.Plugin.Runner.client plugin_id
     do
       setup_client_for_rules(self(), uuid, client)
@@ -132,6 +141,13 @@ defmodule Serverboards.RulesV2.Rule do
       end
     else
       [] -> {:error, :not_found}
+      {:error, :no_trigger} ->
+        Logger.info("Starting rule #{inspect uuid}, with external trigger.", rule_uuid: uuid)
+          {:ok, %{
+            trigger: nil,
+            plugin_id: nil,
+            stop_id: nil
+          }}
       error -> error
     end
   end
@@ -174,8 +190,9 @@ defmodule Serverboards.RulesV2.Rule do
 
   """
   def handle_cast({:trigger, params}, state) do
-    if state.running == false do
-      # Logger.debug("Trigger action: #{inspect params, pretty: true}\n")
+    if state.running == false do # already runing, no retriggers
+      {:ok, trigger_type} = Serverboards.Utils.map_get(state.rule.rule, ["when", "trigger"])
+      Logger.debug("Trigger action: #{inspect {state.rule.name, trigger_type}}#{inspect params, pretty: true}", rule_uuid: state.rule.uuid)
       when_id = Map.get(state.rule.rule["when"], "id", "A")
       params = Map.merge( state.rule.rule["when"]["params"], params )
       uuid = state.rule.uuid
@@ -246,6 +263,18 @@ defmodule Serverboards.RulesV2.Rule do
     {:reply, state, state}
   end
 
+  def handle_call(:trigger_type, _from, state) do
+    data = Serverboards.Utils.map_get(state.rule.rule, ["when", "trigger"])
+    Logger.debug("Get trigger type: #{inspect state.rule.rule} -> #{inspect data}")
+    res = case data do
+      {:ok, trigger_type} ->
+        {:ok, trigger_type}
+      _ ->
+        {:error, :not_set}
+    end
+    {:reply, res, state}
+  end
+
   def execute_action(uuid, %{
       "type" => "action",
       "action" => action,
@@ -307,17 +336,20 @@ defmodule Serverboards.RulesV2.Rule do
         Logger.error("Terminate #{inspect reason}")
     end
 
-    plugin_id=state.trigger.plugin_id
+    case state.trigger.plugin_id do
+      nil -> nil
+      plugin_id ->
 
-    # Logger.debug("Stop call #{inspect Map.keys(state.trigger.trigger), pretty: true}")
-    case state.trigger.trigger[:stop] do
-      nil -> :ok
-      stop_method ->
-        stop_id=state.trigger.stop_id
-        # Logger.debug("Call stop #{inspect {plugin_id, stop_method, stop_id}}")
-        Serverboards.Plugin.Runner.call(plugin_id, stop_method, stop_id)
+        # Logger.debug("Stop call #{inspect Map.keys(state.trigger.trigger), pretty: true}")
+        case state.trigger.trigger[:stop] do
+          nil -> :ok
+          stop_method ->
+            stop_id=state.trigger.stop_id
+            # Logger.debug("Call stop #{inspect {plugin_id, stop_method, stop_id}}")
+            Serverboards.Plugin.Runner.call(plugin_id, stop_method, stop_id)
+        end
+
+        Serverboards.Plugin.Runner.stop(plugin_id)
     end
-
-    Serverboards.Plugin.Runner.stop(plugin_id)
   end
 end

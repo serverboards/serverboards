@@ -24,6 +24,7 @@ defmodule Serverboards.IO.HTTP do
           {"/static/:plugin/[...]", Serverboards.IO.HTTP.StaticPlugin, []},
           {"/ws", Serverboards.IO.HTTP.WebSocketHandler, []},
           {"/ws/:uuid", Serverboards.IO.HTTP.PortToWebsocket.Handler, []},
+          {"/webhook/:uuid", Serverboards.IO.HTTP.Webhooks.Handler, []},
           {"/[...]", :cowboy_static, {:dir, frontend_path}}
         ]
       }
