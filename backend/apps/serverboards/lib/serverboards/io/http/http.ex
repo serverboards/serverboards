@@ -3,7 +3,11 @@ require Logger
 
 defmodule Serverboards.IO.HTTP do
   def start_link(options) do
-    port = Serverboards.Config.get(:http, :port, 8080)
+    port = if options[:port] do
+      options[:port]
+    else
+      Serverboards.Config.get(:http, :port, 8080)
+    end
     if port do
       start_link(port, options)
     else
@@ -24,6 +28,7 @@ defmodule Serverboards.IO.HTTP do
           {"/static/:plugin/[...]", Serverboards.IO.HTTP.StaticPlugin, []},
           {"/ws", Serverboards.IO.HTTP.WebSocketHandler, []},
           {"/ws/:uuid", Serverboards.IO.HTTP.PortToWebsocket.Handler, []},
+          {"/webhook/:uuid", Serverboards.IO.HTTP.Webhooks.Handler, []},
           {"/[...]", :cowboy_static, {:dir, frontend_path}}
         ]
       }

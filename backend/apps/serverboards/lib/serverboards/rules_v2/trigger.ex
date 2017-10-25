@@ -21,10 +21,13 @@ defmodule Serverboards.Rules.Trigger do
        end
        command = tr.extra["command"]
        #Logger.debug("Command is #{inspect command}")
-       command = if is_binary(command) and String.contains?(command, "/") do
+       command = cond do
+        is_binary(command) and String.contains?(command, "/") ->
          command
-       else
-         "#{tr.plugin}/#{command}"
+        command == "" or command == nil ->
+          nil
+        is_binary(command) ->
+          "#{tr.plugin}/#{command}"
        end
 
        %{

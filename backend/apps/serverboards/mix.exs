@@ -39,7 +39,8 @@ defmodule Serverboards.Mixfile do
             :uuid,
             :eini,
             :logger_journald_backend,
-            :quantum
+            :quantum,
+            :httpoison
             ],
       mod: {Serverboards, []},
     ]
@@ -74,7 +75,8 @@ defmodule Serverboards.Mixfile do
       {:exrm, ">= 1.0.8"},
       {:uuid, "~> 1.1" },
       {:eini, "~> 1.2"},
-      {:quantum, ">= 1.8.1"},
+      {:quantum, "~> 1.9.3"},
+      {:httpoison, "~> 0.13"},
     ]
   end
 end

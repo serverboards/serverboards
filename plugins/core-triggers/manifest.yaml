@@ -149,6 +149,13 @@ components:
           class: half column
     stop: tag_change_stop
 
+  - name: Webhook called
+    type: trigger
+    id: webhook
+    description: |
+      Will be called when the `{{BASE_URL}}/webhooks/{{rule.uuid}}`
+      is externally called, with the data parameters as passed.
+
   - name: Server socket is up
     description: |
       Checks every minute if the server socket is up, sets labels
