@@ -24,9 +24,8 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     reply = case trigger_data do
       {:ok, @allowed_trigger_type} ->
         Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
-        Serverboards.RulesV2.Rule.trigger(uuid, qsvals)
-        {:ok, %{status: :ok, data: %{}}}
-
+        res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
+        {:ok, %{status: :ok, data: res}}
 
       {:ok, other_trigger} ->
         Logger.error("Try to trigger bad trigger type #{inspect uuid} / #{inspect other_trigger}", rule_uuid: uuid)

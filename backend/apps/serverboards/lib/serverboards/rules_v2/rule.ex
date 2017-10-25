@@ -34,10 +34,19 @@ defmodule Serverboards.RulesV2.Rule do
   def trigger(uuid, params) when is_binary(uuid) do
     trigger(via(uuid), params)
   end
-
   def trigger(pid, params) when is_pid(pid) or is_tuple(pid) do
     Logger.debug("trigger #{inspect {pid, params}, pretty: true}")
     GenServer.cast(pid, {:trigger, params})
+  end
+
+  def trigger_wait(uuid, params) when is_binary(uuid) do
+    trigger_wait(via(uuid), params)
+  end
+  def trigger_wait(pid, params) when is_pid(pid) or is_tuple(pid) do
+    Logger.debug("trigger wait #{inspect {pid, params}, pretty: true}")
+    res = GenServer.call(pid, {:trigger, params})
+    Logger.debug("Response #{inspect res}")
+    res
   end
 
   def stop(what), do: stop(what, :normal, :infinity)
@@ -69,7 +78,8 @@ defmodule Serverboards.RulesV2.Rule do
           uuid: uuid,
           running: false,
           state: Serverboards.RulesV2.Rules.get_state(uuid) || %{},
-          last_wakeup: DateTime.utc_now()
+          last_wakeup: DateTime.utc_now(),
+          signal_end_of_trigger: nil
           }}
       {:error, error} ->
         Logger.error("Error starting trigger: #{inspect error}.", rule: rule.rule)
@@ -236,8 +246,13 @@ defmodule Serverboards.RulesV2.Rule do
     # Store the state in the DB
     set_state(state.uuid, state.state)
 
+    if state.signal_end_of_trigger do
+      GenServer.reply(state.signal_end_of_trigger, state.state)
+    end
+
     state = %{ state |
       running: false,
+      signal_end_of_trigger: nil
     }
 
     {:noreply, state}
@@ -273,6 +288,14 @@ defmodule Serverboards.RulesV2.Rule do
         {:error, :not_set}
     end
     {:reply, res, state}
+  end
+  def handle_call({:trigger, params}, from, state) do
+    if state.signal_end_of_trigger do
+      {:error, :already_running}
+    else
+      GenServer.cast(self(), {:trigger, params})
+      {:noreply, %{ state | signal_end_of_trigger: from }}
+    end
   end
 
   def execute_action(uuid, %{
