@@ -61,9 +61,9 @@ let EditUser = React.createClass({
               <input type="text" name="name" defaultValue={props.user.name}/>
             </div>
           </form>
-        </div>
-        <div className="actions">
-          <div className="ui accept yellow button" onClick={this.handleEditUser}>{i18n("Update user")}</div>
+          <div className="actions">
+            <div className="ui accept teal button" onClick={this.handleEditUser}>{i18n("Update user")}</div>
+          </div>
         </div>
       </Modal>
     )

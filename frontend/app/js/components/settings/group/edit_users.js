@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'app/components/modal'
+import i18n from 'app/utils/i18n'
 
 let EditPerms=React.createClass({
   getInitialState:function(){
@@ -41,10 +42,12 @@ let EditPerms=React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <h2 className="ui header">
-          Update users at {props.group.name}
-        </h2>
-        <div className="content">
+        <div className="ui top secondary menu">
+          <h3 className="ui header">
+            {i18n("Update users at {name}", {name: props.group.name})}
+          </h3>
+        </div>
+        <div className="ui content with padding">
           <form ref="form" className="ui form" onSubmit={(ev) => { ev.preventDefault(); this.handleSubmit() }}>
             <label className="ui header">Add new users</label>
             <div className="ui field inline">
@@ -69,7 +72,7 @@ let EditPerms=React.createClass({
               </div>
             ))}
             <div className="field">
-              <button type="button" className="ui accept yellow button" onClick={this.handleSubmit}>Accept changes</button>
+              <button type="button" className="ui accept teal button" onClick={this.handleSubmit}>Accept changes</button>
             </div>
           </form>
         </div>

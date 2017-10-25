@@ -27,10 +27,10 @@ let AddUser = React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <h2 className="ui header">
-          Add a new user
-        </h2>
-        <div className="content">
+        <div className="ui top secondary menu">
+          <h3>{i18n("Add a new user")}</h3>
+        </div>
+        <div className="ui content with padding and scroll">
           <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
             <div className="field">
               <label>{i18n("Email")}</label>
@@ -41,7 +41,7 @@ let AddUser = React.createClass({
               <input type="text" name="name"/>
             </div>
             <div className="field">
-              <div className="ui accept yellow button" onClick={this.handleAddUser}>{i18n("Add user")}</div>
+              <div className="ui accept teal button" onClick={this.handleAddUser}>{i18n("Add user")}</div>
             </div>
           </form>
         </div>

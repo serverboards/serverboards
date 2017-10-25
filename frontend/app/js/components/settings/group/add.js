@@ -1,5 +1,6 @@
 import React from 'react'
 import Modal from 'app/components/modal'
+import i18n from 'app/utils/i18n'
 
 let AddGroup = React.createClass({
   handleAddGroup : function(ev){
@@ -22,18 +23,22 @@ let AddGroup = React.createClass({
 
     return (
       <Modal onClose={props.onClose}>
-        <h2 className="ui header">
-          Add a new group
-        </h2>
-        <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
-          <div className="field">
-            <label>Group name</label>
-            <input type="text" name="name" placeholder="This will be used as the group identifier"/>
-          </div>
-          <div className="field">
-            <div className="ui accept yellow button" onClick={this.handleAddGroup}>Add group</div>
-          </div>
-        </form>
+        <div className="ui top secondary menu">
+          <h3 className="ui header">
+            {i18n("Add a new group")}
+          </h3>
+        </div>
+        <div className="ui padding with scroll">
+          <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
+            <div className="field">
+              <label>Group name</label>
+              <input type="text" name="name" placeholder="This will be used as the group identifier"/>
+            </div>
+            <div className="field">
+              <div className="ui accept teal button" onClick={this.handleAddGroup}>Add group</div>
+            </div>
+          </form>
+        </div>
       </Modal>
     )
   }

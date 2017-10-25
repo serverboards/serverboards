@@ -3,6 +3,7 @@ import Loading from '../loading'
 import Table from '../maxtable'
 import HoldButton from '../holdbutton'
 import i18n from 'app/utils/i18n'
+import Restricted from 'app/restricted'
 
 let Groups=React.createClass({
   handleEditUsers(g){
@@ -60,14 +61,20 @@ let Groups=React.createClass({
     }
 
     return (
-      <div className="ui text container">
-        <h1>{i18n("Groups and permissions")}</h1>
+      <div className="ui expand vertical split" >
+        <div className="ui top secondary menu">
+          <h3 className="ui header">{i18n("Groups and permissions")}</h3>
+          <div className="right menu">
+            <Restricted perm="auth.manage_groups">
+              <a onClick={this.handleAddGroup} className="ui teal button">{i18n("Add group")}</a>
+            </Restricted>
+          </div>
+        </div>
 
-        {props.groups.map(Group)}
+        <div className="ui content with padding and scroll">
+          {props.groups.map(Group)}
+        </div>
 
-        <a onClick={this.handleAddGroup} className="ui massive button _add icon floating orange">
-          <i className="add icon"></i>
-        </a>
       </div>
     )
   }

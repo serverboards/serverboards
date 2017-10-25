@@ -83,34 +83,40 @@ const Users=React.createClass({
       )
 
     return (
-      <div className="ui container" ref="el">
-        <h1>{i18n("Users")}</h1>
+      <div className="ui expand vertical split" >
+        <div className="ui top secondary menu">
+          <h3 className="ui header">{i18n("Users")}</h3>
+          <div className="right menu">
+            <Restricted perm="auth.create_user">
+              <a onClick={this.handleOpenAddUser} className="ui teal button">{i18n("Add user")}</a>
+            </Restricted>
+          </div>
+        </div>
 
-        <table className="ui table">
-          <thead>
-            <tr>
-              <th>{i18n("Name")}</th>
-              <th>{i18n("Email")}</th>
-              <th>{i18n("Groups")}</th>
-              <th>{i18n("Is active?")}</th>
-              <th style={{width: "8em"}}></th>
-            </tr>
-          </thead>
-          <tbody ref="tbody">
-          {this.props.users.map((u) => (
-            <UserRow user={u}
-              key={u.email}
-              onOpenEditUser={() => this.handleOpenEditUser(u)}
-              onDisableUser={() => this.handleDisableUser(u)}
-              onEnableUser={() => this.handleEnableUser(u)}
-              onOpenSendNotification={() => this.handleOpenSendNotification(u)}
-              />
-          ))}
-          </tbody>
-        </table>
-        <Restricted perm="auth.create_user">
-          <a onClick={this.handleOpenAddUser}><i className="ui massive button add icon floating olive"></i></a>
-        </Restricted>
+        <div className="ui content with padding expand with scroll">
+          <table className="ui table">
+            <thead>
+              <tr>
+                <th>{i18n("Name")}</th>
+                <th>{i18n("Email")}</th>
+                <th>{i18n("Groups")}</th>
+                <th>{i18n("Is active?")}</th>
+                <th style={{width: "8em"}}></th>
+              </tr>
+            </thead>
+            <tbody ref="tbody">
+            {this.props.users.map((u) => (
+              <UserRow user={u}
+                key={u.email}
+                onOpenEditUser={() => this.handleOpenEditUser(u)}
+                onDisableUser={() => this.handleDisableUser(u)}
+                onEnableUser={() => this.handleEnableUser(u)}
+                onOpenSendNotification={() => this.handleOpenSendNotification(u)}
+                />
+            ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }
