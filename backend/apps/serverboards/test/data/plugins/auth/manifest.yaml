@@ -289,3 +289,7 @@ components:
               action: serverboards.test.auth/rmfile
               params:
                 filename: "{{filename}}"
+  - name: Webhook
+    id: webhook
+    type: trigger
+    

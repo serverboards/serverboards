@@ -204,7 +204,7 @@ defmodule Serverboards.RulesV2.Rule do
       {:ok, trigger_type} = Serverboards.Utils.map_get(state.rule.rule, ["when", "trigger"])
       Logger.debug("Trigger action: #{inspect {state.rule.name, trigger_type}}#{inspect params, pretty: true}", rule_uuid: state.rule.uuid)
       when_id = Map.get(state.rule.rule["when"], "id", "A")
-      params = Map.merge( state.rule.rule["when"]["params"], params )
+      params = Map.merge( state.rule.rule["when"]["params"] || %{}, params )
       uuid = state.rule.uuid
       trigger_state = Map.put(%{ "uuid" => uuid}, when_id, params)
 

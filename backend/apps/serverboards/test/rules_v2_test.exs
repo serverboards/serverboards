@@ -9,6 +9,8 @@ defmodule Serverboards.RuleV2Test do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
     # Setting the shared mode must be done only after checkout
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+
+    :ok
   end
 
   test "Create rule v2" do
@@ -82,6 +84,7 @@ defmodule Serverboards.RuleV2Test do
     rule = %{
       uuid: UUID.uuid4(),
       from_template: nil,
+      name: "test",
       rule: %{
         "when" => %{
           "type" => "trigger",
@@ -131,6 +134,7 @@ defmodule Serverboards.RuleV2Test do
   test "Rule with conditionals" do
     rule = %{
       uuid: UUID.uuid4(),
+      name: "test",
       from_template: nil,
       rule: %{
         "when" => %{
@@ -275,5 +279,46 @@ defmodule Serverboards.RuleV2Test do
 
     {:ok, content} = (Serverboards.Utils.map_get rule.rule["actions"], [1, "then", 0, "params", "content"])
     assert String.contains? content, "http://localhost"
+  end
+
+  test "Webhooks" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, http_pid} = Serverboards.IO.HTTP.start_link port: 8080
+
+    {:ok, service_uuid} = Serverboards.Service.service_add %{ "name" => "Test service", "config" => %{ "url" => "http://localhost" } }, Test.User.system
+    rule = %{
+      "name" => "test",
+      "description" => "description",
+      "rule" => %{
+        "when" => %{
+          "trigger" => "serverboards.test.auth/webhook"
+        },
+        "actions" => [%{
+          "type" => "action",
+          "action" => "serverboards.test.auth/touchfile",
+          "params" => %{
+            "filename" => "/tmp/rule-webhooks.test"
+          }
+        }]
+      },
+      "is_active" => true
+    }
+
+    {:ok, uuid} = Test.Client.call(client, "rules_v2.create", rule)
+
+    :timer.sleep(1_000)
+
+    {res1, _} = File.stat("/tmp/rule-webhooks.test")
+    if res1 == :ok do
+      File.rm("/tmp/rule-webhooks.test")
+    end
+
+    response = HTTPoison.get!("http://localhost:8080/webhook/#{uuid}")
+
+    Logger.debug("Response #{inspect response}")
+
+    assert response.status_code == 200
+
+    Process.exit(http_pid, :normal)
   end
 end

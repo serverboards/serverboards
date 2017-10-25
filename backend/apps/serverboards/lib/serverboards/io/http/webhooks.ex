@@ -3,6 +3,7 @@ require Logger
 defmodule Serverboards.IO.HTTP.Webhooks.Handler do
 
   @allowed_trigger_type "serverboards.core.triggers/webhook"
+  @allowed_trigger_type_test "serverboards.test.auth/webhook"
 
   def init(_type, req, []) do
     {:ok, req, :no_state}
@@ -23,6 +24,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
 
     reply = case trigger_data do
       {:ok, @allowed_trigger_type} ->
+        Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
+        res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
+        {:ok, %{status: :ok, data: res}}
+      {:ok, @allowed_trigger_type_test} ->
         Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
         res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
         {:ok, %{status: :ok, data: res}}
