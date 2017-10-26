@@ -116,6 +116,12 @@ else:
     try:
         settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
     except:
-        settings=None
+        settings={
+            "servername" : "localhost",
+            "port": "",
+            "from" : "noreply@localhost",
+            "username" : "",
+            "password_pw" : ""
+        }
 
     serverboards.loop()
