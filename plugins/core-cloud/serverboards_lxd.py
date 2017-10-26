@@ -87,7 +87,7 @@ def details_(node, extra=False):
 @serverboards.rpc_method("list")
 def list_(service):
     sudo = maybe_sudo(service)
-    json_data = ssh.run(service=service["config"]["server"], command=[*sudo, "lxc", "ls", "--format=json"])["stdout"]
+    json_data = ssh.run(service=service["config"]["server"], command=[*sudo, "lxc", "list", "--format=json"])["stdout"]
     data = json.loads(json_data)
     ret = []
     for node in data:
