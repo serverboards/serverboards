@@ -52,7 +52,10 @@ envvar to the correct location.""", file=sys.stderr)
         try:
             config = configparser.ConfigParser(allow_no_value=True)
             config.read(ini)
-            return config.get("database","url")
+            url = config.get("database","url")
+            if url[0]=='"'  and url[-1]=='"':
+                url=url[1:-1]
+            return url
         except:
             import traceback
             traceback.print_exc()
