@@ -18,33 +18,33 @@ function Paginator({count, current, onChange, max}){
   if (count<max){
     for (let i=0; i<count; i++){
       pages.push(
-        <PageItem active={i==current} onChange={onChange} n={i}/>
+        <PageItem key={i} active={i==current} onChange={onChange} n={i}/>
       )
     }
     pages.push(
-      <span className="item disabled" style={{flexGrow:max-count+6}}></span>
+      <span key="max" className="item disabled" style={{flexGrow:max-count+6}}></span>
     )
   }
   else if (current<(max/2)){
     for (let i=0; i<max; i++){
       pages.push(
-        <PageItem active={i==current} onChange={onChange} n={i}/>
+        <PageItem key={i} active={i==current} onChange={onChange} n={i}/>
       )
     }
     pages.push(
-      <span className="item disabled">...</span>
+      <span key="dots1" className="item disabled">...</span>
     )
     pages.push(
-      <PageItem active={(count-1)==current} onChange={onChange} n={count-1}/>
+      <PageItem key="max2" active={(count-1)==current} onChange={onChange} n={count-1}/>
     )
   }
   else{
     pages.push(
-      <PageItem active={0==current} onChange={onChange} n={0}/>
+      <PageItem key="max3" active={0==current} onChange={onChange} n={0}/>
     )
 
     pages.push(
-      <span className="item disabled">...</span>
+      <span key="dots2" className="item disabled">...</span>
     )
     const padding = Math.ceil(max/2)-1
     const start = Math.min(count-max, current - padding)
@@ -52,17 +52,17 @@ function Paginator({count, current, onChange, max}){
 
     for (let i=start; i<end; i++){
       pages.push(
-        <PageItem active={i==current} onChange={onChange} n={i}/>
+        <PageItem key={i} active={i==current} onChange={onChange} n={i}/>
       )
     }
 
 
     if (end<count){
       pages.push(
-        <span className="item disabled">...</span>
+        <span key="dots3" className="item disabled">...</span>
       )
       pages.push(
-        <PageItem active={(count-1)==current} onChange={onChange} n={count-1}/>
+        <PageItem key={i} active={(count-1)==current} onChange={onChange} n={count-1}/>
       )
     }
   }
