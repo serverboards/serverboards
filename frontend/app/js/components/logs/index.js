@@ -86,7 +86,7 @@ function Details(props){
   const related=`https://github.com/serverboards/serverboards/tree/master/${shortpath}#L${line.meta.line}`
 
   return (
-    <Modal>
+    <Modal onClose={props.onClose}>
       <div className="ui top serverboards header menu with padding">
         <h2 className="ui header">{i18n("Log line details")}</h2>
         <div className="right menu">
@@ -132,6 +132,7 @@ const Logs = React.createClass({
       lines: [],
       page: 0,
       q: "",
+      modal: undefined
     }
   },
   componentDidMount(){
@@ -162,19 +163,10 @@ const Logs = React.createClass({
     })
   },
   showDetails(line){
-    this.setModal("details", {line: line})
-  },
-  setModal(modal, data={}){
-    this.context.router.push( {
-      pathname: store.location().pathname,
-      state: { modal, data }
-    } )
+    this.setState({modal: line})
   },
   closeModal(){
-    this.setModal(false)
-  },
-  contextTypes: {
-    router: React.PropTypes.object
+    this.setState({modal: undefined})
   },
   handleQChange(ev){
     if (this.q_timeout)
@@ -197,15 +189,13 @@ const Logs = React.createClass({
       )
     }
     let popup=[]
-    const modal = store.location().state || {}
-    switch(modal.modal){
-      case 'details':
-        popup=(
-          <Details
-            line={modal.data.line}
-            />
-        )
-        break;
+    if (this.state.modal){
+      popup=(
+        <Details
+          line={this.state.modal}
+          onClose={() => this.closeModal()}
+          />
+      )
     }
 
     return (
