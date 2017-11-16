@@ -33,6 +33,7 @@ config :serverboards,
   debug: false,
   ini_files: [
     "/etc/serverboards.ini",
+    "/etc/serverboards/*.ini",
     "{{SERVERBOARDS_PATH}}/serverboards.ini",
     "{{HOME}}/.local/serverboards/serverboards.ini"
   ]
