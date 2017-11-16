@@ -48,12 +48,12 @@ defmodule Serverboards.Config do
   end
 
   def get(section, default \\ []) when is_atom(section) do
-    # It merges from least important to more important, so that later is always
+    # It merges from more important to least important, so that former is always
     # what stays.
     [
       get_env(section),
-      get_ini(section),
       get_db(section),
+      get_ini(section),
       get_econfig(section),
       default,
     ] |> Enum.reduce([], &Keyword.merge/2)
@@ -134,6 +134,7 @@ defmodule Serverboards.Config do
         |> Enum.reduce([], &Keyword.merge/2)
   end
   def get_ini(tfilename, section) do
+    section = String.to_atom(String.replace(Atom.to_string(section), "/", "-"))
     {:ok, filename} = Serverboards.Utils.Template.render(tfilename, System.get_env)
     with {:ok, data_with_comments} <- File.read(filename),
       {:ok, data} <- remove_comments(data_with_comments),
