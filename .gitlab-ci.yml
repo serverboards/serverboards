@@ -91,7 +91,7 @@ release:
     expire_in: 1 week
   only:
     - master
-    - CORE-4-unstable-deb-channel
+    - CORE-80-improved-installation
 
 publish:
   stage: publish
@@ -106,4 +106,4 @@ publish:
     - rsync-www
   only:
     - master
-    - CORE-4-unstable-deb-channel
+    - CORE-80-improved-installation
