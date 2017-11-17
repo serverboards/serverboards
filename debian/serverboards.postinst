@@ -188,6 +188,7 @@ EOF
     s10s user create $EMAIL
     s10s user add $EMAIL to admin
     s10s user add $EMAIL to user
+    s10s user recover $EMAIL
   fi
 }
 
