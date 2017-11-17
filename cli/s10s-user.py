@@ -97,7 +97,8 @@ def details(email):
         email
         )
     if not data:
-        print("unknown")
+        print("unknown user")
+        return
     groups = conn.execute("""
         SELECT ag.name from auth_group ag
         INNER JOIN auth_user_group agu ON ag.id = agu.group_id

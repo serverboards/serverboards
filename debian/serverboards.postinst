@@ -184,11 +184,15 @@ EOF
   wait_for_port 4040
 
   if [ "$EMAIL" ]; then
-    log "Creating user"
-    s10s user create $EMAIL
-    s10s user add $EMAIL to admin
-    s10s user add $EMAIL to user
-    s10s user recover $EMAIL
+    if [ "$( s10s user details $EMAIL )" = "unknown user" ]; then
+      log "Creating user"
+      s10s user create $EMAIL
+      s10s user add $EMAIL to admin
+      s10s user add $EMAIL to user
+      s10s user recover $EMAIL
+    else
+      log "User $EMAIL already exists"
+    fi
   fi
 }
 
