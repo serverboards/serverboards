@@ -18,6 +18,20 @@ get(){
   fi
 }
 
+wait_for_port(){
+  PORT=$1
+  STOP=""
+  COUNT=20
+  while [ ! "$STOP" -a $COUNT != 0 ]; do
+    if [ "$( ss -ln4 | grep :4040 )" ]; then
+      STOP=1
+    else
+      COUNT=$(( $COUNT - 1 ))
+      sleep 1
+    fi
+  done
+}
+
 get_user_data(){
   log "Loading data"
   # set -x
@@ -117,10 +131,6 @@ username = $EMAIL_USER
 password_pw = $EMAIL_PASSWORD
 EOF
 
-  if [ "$( systemctl is-active serverboards )" = "active" ]; then
-    systemctl restart serverboards
-  fi
-
   if [ "$NGINX" = true ]; then
     SERVERNAME=$(python3 -c "import urllib.parse; print(urllib.parse.urlparse(\"$BASE_URL\").hostname)" )
     sed -i "s/beta.serverboards.io/$SERVERNAME/g" /etc/nginx/sites-available/serverboards.conf
@@ -162,6 +172,22 @@ EOF
       fi
       set -e
     fi
+  fi
+
+  log "Starting server"
+  if [ "$( systemctl is-active serverboards )" = "active" ]; then
+    systemctl restart serverboards
+  else
+    systemctl enable serverboards
+    systemctl start serverboards
+  fi
+  wait_for_port 4040
+
+  if [ "$EMAIL" ]; then
+    log "Creating user"
+    s10s user create $EMAIL
+    s10s user add $EMAIL to admin
+    s10s user add $EMAIL to user
   fi
 }
 
