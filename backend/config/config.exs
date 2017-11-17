@@ -31,11 +31,11 @@ config :serverboards,
   ],
   frontend_path: "../frontend/dist",
   debug: false,
-  ini_files: [
-    "/etc/serverboards.ini",
-    "/etc/serverboards/*.ini",
+  ini_files: [ # From least important to more
+    "{{HOME}}/.local/serverboards/serverboards.ini",
     "{{SERVERBOARDS_PATH}}/serverboards.ini",
-    "{{HOME}}/.local/serverboards/serverboards.ini"
+    "/etc/serverboards/*.ini",
+    "/etc/serverboards.ini",
   ]
 
 config :eventsourcing, ecto_repos: [Serverboards.Repo]
