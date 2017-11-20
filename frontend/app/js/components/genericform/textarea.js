@@ -112,10 +112,14 @@ class TextArea extends React.Component{
     this.setState({autocompletedelay})
     this.props.onChange(ev)
   }
+  is_autocomplete_open(){
+    return !!(this.state.autocomplete && this.state.autocomplete.length>0)
+  }
   handleKeyboard(ev){
-    if (!this.state.autocomplete)
+    if (!this.is_autocomplete_open())
       return
-    console.log("%o",ev.key)
+    let ignorekey=false
+
     if (ev.key == "ArrowUp"){
       let autocomplete_current = (this.state.autocomplete_current || 0)-1
       if (autocomplete_current<0)
@@ -123,8 +127,7 @@ class TextArea extends React.Component{
       this.setState({autocomplete_current})
       if (this.refs.popup)
         this.refs.popup.scrollTop=autocomplete_current*30
-      ev.stopPropagation()
-      ev.preventDefault()
+      ignorekey=true
     }
     if (ev.key == "ArrowDown"){
       let autocomplete_current = (this.state.autocomplete_current || 0)+1
@@ -133,14 +136,11 @@ class TextArea extends React.Component{
       this.setState({autocomplete_current})
       if (this.refs.popup)
         this.refs.popup.scrollTop=autocomplete_current*30
-      ev.stopPropagation()
-      ev.preventDefault()
+      ignorekey=true
     }
     if (ev.key == "Enter"){
       if (this.state.autocomplete[this.state.autocomplete_current]){
         this.insertAtCursor(this.state.autocomplete[this.state.autocomplete_current])
-        ev.stopPropagation()
-        ev.preventDefault()
       }
     }
     if (ev.key == "ArrowLeft"){
@@ -151,8 +151,13 @@ class TextArea extends React.Component{
     }
     if (ev.key == "Escape"){
       this.setState({autocomplete:[]})
+      ignorekey=true
+    }
+
+    if (ignorekey){
       ev.stopPropagation()
       ev.preventDefault()
+      console.log("Must ignore key", ev, this.state.autocomplete)
     }
   }
   render(){
@@ -172,7 +177,7 @@ class TextArea extends React.Component{
             onKeyDown={this.handleKeyboard.bind(this)}
             onClick={() => this.setState({autocomplete:[]})}
             />
-          {state.autocomplete && state.autocomplete.length>0 && (
+          {this.is_autocomplete_open() && (
               <div className="ui mini dropdown menu with scroll" ref="popup" style={{maxHeight: "10em", position: "absolute", top: cursor_top(this.refs.textarea), left: cursor_left(this.refs.textarea) }}>
                 {state.autocomplete.map( (i,n) => (
                   <div key={i} className={`item ${ n == state.autocomplete_current ? "selected" : ""} `} onClick={() => this.insertAtCursor(i)}>
