@@ -48,12 +48,12 @@ defmodule Serverboards.Config do
   end
 
   def get(section, default \\ []) when is_atom(section) do
-    # It merges from least important to more important, so that later is always
+    # It merges from more important to least important, so that former is always
     # what stays.
     [
       get_env(section),
-      get_ini(section),
       get_db(section),
+      get_ini(section),
       get_econfig(section),
       default,
     ] |> Enum.reduce([], &Keyword.merge/2)
@@ -122,19 +122,30 @@ defmodule Serverboards.Config do
   end
 
   def get_ini(section) do
-      init_files = case System.get_env("SERVERBOARDS_INI") do
-        nil ->
-          files = Application.get_env(:serverboards, :ini_files, [])
-          files
-        ini_file ->
-          [ini_file]
-      end
-      init_files
+    section = String.to_atom(String.replace(Atom.to_string(section), "/", "-"))
+    init_files = case System.get_env("SERVERBOARDS_INI") do
+      nil ->
+        files = Application.get_env(:serverboards, :ini_files, [])
+        files
+      ini_file ->
+        [ini_file]
+    end
+    init_files
+      |> Enum.map(&get_iniw(&1, section))
+      |> Enum.reduce([], &Keyword.merge/2)
+  end
+  def get_iniw(wfilename, section) do
+    {:ok, wfilename} = Serverboards.Utils.Template.render(wfilename, System.get_env)
+    if String.contains?(wfilename,"{") do
+      []
+    else
+      wfilename
+        |> Path.wildcard
         |> Enum.map(&get_ini(&1, section))
         |> Enum.reduce([], &Keyword.merge/2)
+    end
   end
-  def get_ini(tfilename, section) do
-    {:ok, filename} = Serverboards.Utils.Template.render(tfilename, System.get_env)
+  def get_ini(filename, section) do
     with {:ok, data_with_comments} <- File.read(filename),
       {:ok, data} <- remove_comments(data_with_comments),
       {:ok, kwlist} <- :eini.parse(data),

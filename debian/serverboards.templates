@@ -1,0 +1,52 @@
+Template: serverboards/url
+Type: string
+Description: Serverboards public URL
+  Serverboards sends emails and notifications to users with embeded links.
+  .
+  To allow such links to properly link to this Serverboards installation
+  we need to know the canonical name of this server.
+  .
+  For example: https://test.serverboards.io
+
+Template: serverboards/nginx
+Type: boolean
+Description: Autoconfigure nginx?
+  Do you want this script to autoconfigure NGINX so that it properly
+  points to the Serverboards installation and do basic certificate
+  management?
+  .
+  This will update the /etc/nginx/sites-available/serverboards.conf file
+  and link it to the enabled sites.
+
+Template: serverboards/letsencrypt
+Type: boolean
+Description: Use letsencrypt certificates?
+  If you want I can use a lets encrypt certificate for this server, so it
+  has a valid SSL certificate. This requires the server to be directly
+  connected to internet, no HTTP proxy in the middle.
+  .
+  Also I will take care of updating it every 2.5 months using the system cron.
+  .
+  Using this letsencrypt helper implies that you accept the Terms Of Service
+  of Let's Encrypt.
+
+Template: serverboards/mail.server
+Type: string
+Default: smtp://localhost
+Description: Email server address used to send emails.
+  As per email security requirements his server may have access to this server,
+  maybe via a user:password or as it was configured as smarthost.
+  .
+  Use FQDM to set the URL, for example: smtp://username:password@server:port or
+  smtps://username:password@server:port.
+
+Template: serverboards/email
+Type: string
+Description: Initial user email for Serverboards
+  Enter an email address that will be used as first user of Serverboards,
+  with admin priviledges. It will send an email with a change password link.
+  .
+  Leave it blank and no default user will be added.
+  .
+  Any user in the system that is on the wheel group can also access Serverboards
+  with admin priviledges with his/her user and password.

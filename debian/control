@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: David Moreno <dmoreno@serverboards.io>
 Build-Depends: debhelper (>=9), elixir (>=1.5), nodejs (>=6.9), libpam-dev,
-  pkg-config, libsystemd-dev, dh-systemd
+  pkg-config, libsystemd-dev, dh-systemd, debconf, letsencrypt
 Standards-Version: 3.9.6
 Homepage: https://serverboards.io
 Vcs-Git: https://github.com/serverboards/serverboards.git

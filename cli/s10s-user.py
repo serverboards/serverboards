@@ -14,13 +14,14 @@ User management:
     s10s user details <email> -- Show user details in yaml format
     s10s user create <email>  -- Creates the given user. User must ask for a email reset using the UI.
     s10s user enable <email>  -- Disables the user
+    s10s user recover <email> -- Sends the recover email for the given user
     s10s user disable <email> -- Disables the user
     s10s user add <email> to <group>      -- Adds the user to the group
     s10s user remove <email> from <group> -- Removes the user to the group
 """
 
 
-import sys, os, configparser, psycopg2, datetime, json
+import sys, os, configparser, psycopg2, datetime, json, glob, socket, time
 conn = None
 
 class ServerboardsDB():
@@ -43,26 +44,30 @@ class ServerboardsDB():
         url=os.environ.get("SERVERBOARDS_DATABASE_URL")
         if url:
             return url
-        ini=os.environ.get("SERVERBOARDS_INI", "/etc/serverboards.ini")
-        if not os.path.exists(ini):
-            print("""Can't find Serverboards settings file (serverboards.ini).
-Ensure Serverboards is properly installed or set the `SERVERBOARDS_INI`
-envvar to the correct location.""", file=sys.stderr)
-            sys.exit(1)
-        try:
-            config = configparser.ConfigParser(allow_no_value=True)
-            config.read(ini)
-            url = config.get("database","url")
-            if url[0]=='"'  and url[-1]=='"':
-                url=url[1:-1]
-            return url
-        except:
-            import traceback
-            traceback.print_exc()
-            print("""Could not read %s settings file.
+        inis = [
+            *glob.glob("/etc/serverboards/*.ini"),
+            "/etc/serverboards.ini",
+            os.environ.get("SERVERBOARDS_INI", "")
+        ]
+        for ini in inis:
+            if not os.path.exists(ini):
+                print("""Can't find Serverboards settings file (serverboards.ini).
+    Ensure Serverboards is properly installed or set the `SERVERBOARDS_INI`
+    envvar to the correct location.""", file=sys.stderr)
+                sys.exit(1)
+            try:
+                config = configparser.ConfigParser(allow_no_value=True)
+                config.read(ini)
+                url = config.get("database","url")
+                if url[0]=='"'  and url[-1]=='"':
+                    url=url[1:-1]
+                return url
+            except:
+                pass
+        print("""Could not read %s settings file.
 Please ensure you have the proper permissions to access that file and
 that it is well formed."""%ini)
-            sys.exit(1)
+        sys.exit(1)
 
     def execute(self, sql, *args):
         cur = self.connection.cursor()
@@ -92,7 +97,8 @@ def details(email):
         email
         )
     if not data:
-        print("unknown")
+        print("unknown user")
+        return
     groups = conn.execute("""
         SELECT ag.name from auth_group ag
         INNER JOIN auth_user_group agu ON ag.id = agu.group_id
@@ -164,6 +170,35 @@ def update_enabled(email, is_active):
     log("Manually enabled user %s (%s)"%(email, str(is_active)), user=email, is_active=is_active)
     print("updated")
 
+class TCPClient:
+    def __init__(self, host, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((host, int(port)))
+        self.socket=s
+        self.max_id=0
+        time.sleep(1)
+    def call(self, f, *args, **kwargs):
+        self.max_id+=1
+        js = json.dumps({
+            "method" : f,
+            "params" : args or kwargs,
+            "id" : self.max_id
+        })
+        self.socket.send(js.encode('utf8')+b'\n')
+        id = None
+        while id != self.max_id:
+            res = self.socket.recv(4096)
+            js = json.loads(res.decode('utf8'))
+            id = ('result' in js or 'error' in js) and (js.get("id"))
+        if js.get("error"):
+            raise Exception(js.get("result"))
+        return json.dumps(js.get("result"))
+
+
+def recover(email):
+    conn=TCPClient("localhost", "4040")
+    print(conn.call("auth.reset_password", email))
+
 def main(argv):
     if '--one-line-help' in argv:
         print("User management")
@@ -185,6 +220,8 @@ def main(argv):
         update_enabled(argv[2], True)
     elif argv[1] == "disable":
         update_enabled(argv[2], False)
+    elif argv[1] == "recover":
+        recover(argv[2])
     elif argv[1] == "add" and argv[3] == "to":
         add_user_to_group(argv[2], argv[4])
     elif argv[1] == "remove" and argv[3] == "from":

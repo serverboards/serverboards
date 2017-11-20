@@ -41,7 +41,7 @@ defmodule Serverboards.ConfigTest do
   end
 
   test "Priorities" do
-    Serverboards.Settings.update("test", %{ at: "db", at2: "db" }, Test.User.system)
+    Serverboards.Settings.update("test", %{ at2: "db" }, Test.User.system)
     System.put_env("SERVERBOARDS_TEST_AT", "env")
 
     #Serverboards.Config.get(:test, [at: :default]) |> IO.inspect
@@ -67,6 +67,6 @@ defmodule Serverboards.ConfigTest do
     Logger.debug("#{inspect System.get_env()}")
     envs = System.get_env()
       |> Enum.filter( &(not String.starts_with?(elem(&1,0), "SERVERBOARDS_")) )
-    assert Enum.count(envs) == 4 # HOME USER PATH PWD 
+    assert Enum.count(envs) == 4 # HOME USER PATH PWD
   end
 end

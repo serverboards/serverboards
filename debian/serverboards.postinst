@@ -1,55 +1,223 @@
 #!/bin/dash
 
-# This script is idempotent, running several times results n the same state
-set -e
-case "$1" in
-  "configure")
+. /usr/share/debconf/confmodule
 
-    export INSTALL=/opt/serverboards
+BASE_URL=""
 
-    # Create users and groups
-    adduser -q --system serverboards --home $INSTALL --no-create-home
-    addgroup -q --system serverboards
-    addgroup -q serverboards serverboards
+log(){
+  echo "Serverboards:" $* >&2
+}
 
-    # Create necessary directories and set permissions
-    INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
-      $INSTALL/local/ $INSTALL/log $INSTALL/local/data/ \
-      $INSTALL/running_config $INSTALL/.ssh"
+get(){
+  db_get $1
+  if [ "$?" = 0 ]; then
+    echo "$RET"
+  else
+    log "Error loading data. Use `dpkg-reconfigure serverboards`" >&2
+    exit 1
+  fi
+}
 
-    for p in $INTERNAL_PATHS; do
-      mkdir -p $p
-      chown serverboards:serverboards $p -R
-      chmod 0770 $p -R
-    done
+wait_for_port(){
+  PORT=$1
+  STOP=""
+  COUNT=20
+  while [ ! "$STOP" -a $COUNT != 0 ]; do
+    if [ "$( ss -ln4 | grep :4040 )" ]; then
+      STOP=1
+    else
+      COUNT=$(( $COUNT - 1 ))
+      sleep 1
+    fi
+  done
+}
 
-    [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
-    chown serverboards:serverboards /var/log/serverboards
+get_user_data(){
+  log "Loading data"
+  # set -x
+  set +e
 
-    # Create basic SSH directories
-    [ -e $INSTALL/local/data/serverboards.core.ssh ] || ln -s $INSTALL/.ssh $INSTALL/local/data/serverboards.core.ssh
-    chown -h serverboards:serverboards $INSTALL/local/data/serverboards.core.ssh
-    chmod 0700 $INSTALL/.ssh
-    [ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
+  db_input high serverboards/url
+  db_input high serverboards/mail.server
+  db_input high serverboards/email
+  db_input high serverboards/nginx
+  db_go
 
-    if [ "$( grep PASSWD /etc/serverboards.ini)" ]; then
-      echo "Configuring database with random password"
-      PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32 )
-      sudo -u postgres psql > /dev/null << EOF
+  BASE_URL=$( get serverboards/url )
+  MAIL_SERVER=$( get serverboards/mail.server )
+  EMAIL=$( get serverboards/email )
+  NGINX=$( get serverboards/nginx )
+
+  if [ "$NGINX" = true ]; then
+    db_input high serverboards/letsencrypt
+    db_go
+    LETSENCRYPT=$( get serverboards/letsencrypt )
+  fi
+
+  log $BASE_URL $MAIL_SERVER $EMAIL $NGINX $LETSENCRYPT
+
+  set -e
+}
+
+configure(){
+  get_user_data
+  log "URL is $BASE_URL"
+
+  export INSTALL=/opt/serverboards
+
+  # Create users and groups
+  adduser -q --system serverboards --home $INSTALL --no-create-home
+  addgroup -q --system serverboards
+  addgroup -q serverboards serverboards
+
+  # Create necessary directories and set permissions
+  INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
+    $INSTALL/local/ $INSTALL/log $INSTALL/local/data/ \
+    $INSTALL/running_config $INSTALL/.ssh"
+
+  for p in $INTERNAL_PATHS; do
+    mkdir -p $p
+    chown serverboards:serverboards $p -R
+    chmod 0770 $p -R
+  done
+
+  [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
+  chown serverboards:serverboards /var/log/serverboards
+  mkdir -p /etc/serverboards/
+
+  # Create basic SSH directories
+  [ -e $INSTALL/local/data/serverboards.core.ssh ] || ln -s $INSTALL/.ssh $INSTALL/local/data/serverboards.core.ssh
+  chown -h serverboards:serverboards $INSTALL/local/data/serverboards.core.ssh
+  chmod 0700 $INSTALL/.ssh
+  [ -e "$INSTALL/.ssh/id_rsa" ] && chmod 0600 $INSTALL/.ssh/*
+
+  if [ ! -e "/etc/serverboards/01-database.ini" ]; then
+    log "Configuring database with random password"
+    PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32 )
+    sudo -u postgres psql > /dev/null << EOF
 CREATE DATABASE serverboards;
 CREATE USER serverboards WITH PASSWORD '$PASSWD';
 GRANT ALL ON DATABASE serverboards TO serverboards;
 EOF
     sudo -u postgres psql serverboards < $INSTALL/share/serverboards/backend/initial.sql > /dev/null
-    sed -i s/PASSWD/$PASSWD/ /etc/serverboards.ini
+    cat > /etc/serverboards/01-database.ini << EOF
+[database]
+
+# URL to connect the database
+url = "postgresql://serverboards:$PASSWD@localhost/serverboards"
+EOF
+    chmod 0600 /etc/serverboards/01-database.ini
+    chown serverboards:serverboards /etc/serverboards/01-database.ini
+  fi
+
+# Generate the debian specific INI file.
+  log "Generating debian.ini config file"
+
+  EMAIL_SERVERNAME=$(python3 -c "import urllib.parse; print(urllib.parse.urlparse(\"$MAIL_SERVER\").hostname)" )
+  EMAIL_USER=$(python3 -c "import urllib.parse; print(urllib.parse.urlparse(\"$MAIL_SERVER\").username or '')" )
+  EMAIL_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.urlparse(\"$MAIL_SERVER\").password or '')" )
+  EMAIL_PORT=$(python3 -c "import urllib.parse; p=urllib.parse.urlparse(\"$MAIL_SERVER\"); print(p.port or (25 if p.scheme==\"smtp\" else 465))" )
+
+  cat > /etc/serverboards/02-debconf.ini << EOF
+# AUTOGENERATED by serverboards postinst. Reconfigure with 'dpkg-reconfigure serverboards'
+[serverboards.core.settings-base]
+base_url = $BASE_URL
+
+[serverboards.core.notifications-settings.email]
+servername = $EMAIL_SERVERNAME
+port = $EMAIL_PORT
+from = "noreply+serverboards@$EMAIL_SERVERNAME"
+username = $EMAIL_USER
+password_pw = $EMAIL_PASSWORD
+EOF
+
+  if [ "$NGINX" = true ]; then
+    SERVERNAME=$(python3 -c "import urllib.parse; print(urllib.parse.urlparse(\"$BASE_URL\").hostname)" )
+    sed -i "s/beta.serverboards.io/$SERVERNAME/g" /etc/nginx/sites-available/serverboards.conf
+    rm -rf /etc/nginx/sites-enabled/serverboards.conf
+    ln -s /etc/nginx/sites-available/serverboards.conf /etc/nginx/sites-enabled/serverboards.conf
+
+    mkdir -p /etc/nginx/ssl/$SERVERNAME
+
+    if [ ! -e "/etc/nginx/ssl/$SERVERNAME/privkey.pem" ]; then
+      log "Generating self signed certificate"
+      openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+        -keyout /etc/nginx/ssl/$SERVERNAME/privkey.pem \
+        -out  /etc/nginx/ssl/$SERVERNAME/fullchain.pem \
+        -subj "/C=NL/ST=$USER/L=Unknown/O=Unknown/OU=IT Department/CN=$SERVERNAME"
+      service nginx restart
     fi
 
-    if [ "$( systemctl is-active serverboards )" = "active" ]; then
-      systemctl restart serverboards
-    fi
+    if [ "$LETSENCRYPT" = true ]; then
+      log "Generating letsencrypt certificate"
+      set +e
+      letsencrypt -n certonly \
+        -a webroot \
+        --webroot-path=/opt/serverboards/share/serverboards/frontend/ \
+        -d $SERVERNAME \
+        --agree-tos \
+        --email $EMAIL_USER
+      if [ "$?" = 0 ]; then
+        rm /etc/nginx/ssl/$SERVERNAME
+        ln -s /etc/letsencrypt/live/$SERVERNAME /etc/nginx/ssl/
+        service nginx reload
 
+        cat > /etc/cron.d/$SERVERNAME.cert << EOF
+30 0 1 */2 * letsencrypt certonly -a webroot --webroot-path=/opt/serverboards/share/serverboards/frontend/ -d $SERVERNAME
+EOF
+        log "Lets encrypt ready"
+      else
+        log "Could not set up letsencrypt."
+        exit 1
+      fi
+      set -e
+    fi
+  fi
+
+  log "Starting server"
+  if [ "$( systemctl is-active serverboards )" = "active" ]; then
+    systemctl restart serverboards
+  else
+    systemctl enable serverboards
+    systemctl start serverboards
+  fi
+  wait_for_port 4040
+
+  if [ "$EMAIL" ]; then
+    if [ "$( s10s user details $EMAIL )" = "unknown user" ]; then
+      log "Creating user"
+      s10s user create $EMAIL
+      s10s user add $EMAIL to admin
+      s10s user add $EMAIL to user
+      s10s user recover $EMAIL
+    else
+      log "User $EMAIL already exists"
+    fi
+  fi
+}
+
+# This script is idempotent, running several times results n the same state
+set -e
+case "$1" in
+  reconfigure)
+    log "Purge"
+    set +e
+    db_reset serverboards/url
+    db_reset serverboards/nginx
+    db_reset serverboards/letsencrypt
+    db_reset serverboards/email
+    db_reset serverboards/mail.server
+    set -e
+    configure
+  ;;
+  "configure")
+    configure
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+  purge)
+    . /usr/share/debconf/confmodule
+    dh_purge
     ;;
   *)
     echo "postinst called with unknown argument \`$1'" >&2
