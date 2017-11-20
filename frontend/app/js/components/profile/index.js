@@ -64,7 +64,7 @@ let Profile = React.createClass({
           <EditUser
             user={this.props.user}
             onClose={() => this.setState({ modal: undefined })}
-            onSubmit={this.props.onUpdateUser}
+            onUpdateUser={this.props.onUpdateUser}
             />
         )
       break;
