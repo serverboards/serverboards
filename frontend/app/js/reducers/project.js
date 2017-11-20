@@ -107,10 +107,14 @@ function project(state=default_state, action){
     }
     case "@RPC_EVENT/dashboard.widget.updated":
     {
-      let widgets = map_get(state,["dashboard","current","widgets"])
+      let widgets = map_get(state,["dashboard","current","widgets"]) || []
       widgets = widgets.map( (w) => {
-        if (w.uuid==action.uuid && action.config)
-          return merge(w, {config: action.config, ui: action.ui})
+        if (w.uuid==action.uuid){
+          if (action.config)
+            return merge(w, {config: action.config, ui: action.ui})
+          else
+            return merge(w, {ui: action.ui})
+          }
         return w
       })
       return map_set(state, ["dashboard","current","widgets"], widgets)
