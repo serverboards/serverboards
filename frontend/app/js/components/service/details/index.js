@@ -157,7 +157,7 @@ const Details = React.createClass({
 
     return (
       <div className="extend">
-        <div className="ui top secondary pointing menu" style={{paddingBottom: 0, paddingRight: 0, position: "relative"}}>
+        <div className="ui top serverboards secondary pointing menu">
           {props.service.icon ? (
             <IconIcon src={icon} icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
           ) : (

@@ -63,7 +63,11 @@ class Cards extends React.Component{
         <Loading>{i18n("Service catalog")}</Loading>
       )
     let services = props.services
-    const {filter, selected_service} = this.state
+    const {filter} = this.state
+    const selected_service_uuid = this.state.selected_service
+    // Dyn change as the service config changes. We only store the UUID at the state
+    const selected_service = props.services.find( s => s.uuid == selected_service_uuid )
+
 
     if (filter != ""){
       services = services.filter( s => match_service(s, filter) )
@@ -90,7 +94,7 @@ class Cards extends React.Component{
                       className={ selected_service && selected_service.uuid==p.uuid ? "selected" : ""}
                       key={p.uuid}
                       service={p}
-                      onClick={() => this.setState({selected_service: p})}
+                      onClick={() => this.setState({selected_service: p.uuid})}
                       bottomElement={CardBottom}
                       />
                   ))
