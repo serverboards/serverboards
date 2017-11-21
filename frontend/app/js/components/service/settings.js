@@ -89,10 +89,11 @@ const SetupComponent=React.createClass({
           </div>
         </div>
         <div className="actions" style={{margin: "20px 0 0 0"}}>
-          <button className="ui ok yellow button" onClick={this.handleAccept} style={{margin: 0}}>
+          <button className="ui ok teal button" onClick={this.handleAccept} style={{margin: 0}}>
             {i18n("Update service settings")}
           </button>
         </div>
+        <div className="ui padding"/>
       </div>
     )
   }
