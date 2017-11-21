@@ -141,6 +141,9 @@ class Top extends React.Component{
       this.setState({section_menu: null})
     }
   }
+  componentWillUnmount(){
+    this.props.setHandlers(null, null)
+  }
   handleSetSectionMenu(section_menu, section_menu_props={}){
     this.setState({section_menu, section_menu_props})
   }
