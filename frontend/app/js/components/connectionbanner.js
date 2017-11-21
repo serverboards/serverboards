@@ -30,9 +30,9 @@ function ConnectionBanner(props){
           <div className="content">
             <div className="header">
               {props.extra ? (
-                {i18n("Reconnecting in {seconds} seconds", {seconds: props.extra/1000})}
+                i18n("Reconnecting in {seconds} seconds", {seconds: props.extra/1000})
               ) : (
-                {i18n("Reconnecting soon...")}
+                i18n("Reconnecting soon...")
               )}
             </div>
             <p>{i18n("Snap! there was a connection problem. Trying to solve.")}</p>
