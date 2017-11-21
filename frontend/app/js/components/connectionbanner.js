@@ -1,4 +1,5 @@
 import React from 'react'
+import i18n from 'app/utils/i18n'
 
 function ConnectionBanner(props){
   switch(props.status){
@@ -11,11 +12,11 @@ function ConnectionBanner(props){
           <i className="notched circle loading icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
-              Reconnecting...
+              {i18n("Reconnecting...")}
             </div>
-            <p>Snap! there was a connection problem. Trying to solve.</p>
+            <p>{i18n("Snap! there was a connection problem. Trying to solve.")}</p>
             <div className="ui buttons">
-              <a className="ui button disabled">Reconnecting...</a>
+              <a className="ui button disabled">{i18n("Reconnecting...")}</a>
             </div>
           </div>
         </div>
@@ -28,11 +29,15 @@ function ConnectionBanner(props){
           <i className="notched circle loading icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
-              Reconnecting in {props.extra/1000} seconds
+              {props.extra ? (
+                {i18n("Reconnecting in {seconds} seconds", {seconds: props.extra/1000})}
+              ) : (
+                {i18n("Reconnecting soon...")}
+              )}
             </div>
-            <p>Snap! there was a connection problem. Trying to solve.</p>
+            <p>{i18n("Snap! there was a connection problem. Trying to solve.")}</p>
             <div className="ui buttons">
-              <a className="ui button yellow" onClick={props.reconnect}>Reconnect now</a>
+              <a className="ui button yellow" onClick={props.reconnect}>{i18n("Reconnect now")}</a>
             </div>
           </div>
         </div>
@@ -43,11 +48,11 @@ function ConnectionBanner(props){
           <i className="warning sign icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
-              Too many errors reconnecting
+              {i18n("Too many errors reconnecting")}
             </div>
-            <p>I will not try to reconnect automatically. You can force reconnection if you will.</p>
+            <p>{i18n("I will not try to reconnect automatically. You can force reconnection if you will.")}</p>
             <div className="ui buttons">
-              <a className="ui button yellow" onClick={props.reconnect}>Reconnect now</a>
+              <a className="ui button yellow" onClick={props.reconnect}>{i18n("Reconnect now")}</a>
             </div>
           </div>
         </div>
@@ -59,11 +64,11 @@ function ConnectionBanner(props){
           <i className="warning sign icon" style={{marginLeft: 25}}></i>
           <div className="content">
             <div className="header">
-              Unknown connection status: {props.status}
+              {i18n("Unknown connection status: {status}", {status: props.status})}
             </div>
-            <p>Snap! there was a connection problem. Trying to solve.</p>
+            <p>{i18n("Snap! there was a connection problem. Trying to solve.")}</p>
             <div className="ui buttons">
-              <a className="ui button yellow" onClick={props.reconnect}>Reconnect now</a>
+              <a className="ui button yellow" onClick={props.reconnect}>{i18n("Reconnect now")}</a>
             </div>
           </div>
         </div>
