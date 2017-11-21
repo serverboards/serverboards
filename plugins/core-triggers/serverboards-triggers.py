@@ -34,16 +34,18 @@ class TimerCheck:
         self.type=type
         self.frequency=time_description_to_seconds(frequency)
         self.timer_id=serverboards.rpc.add_timer(self.frequency, self.tick, rearm=True)
-        self.last_change = time.time()
+        self.last_change = 0
         uuid_to_timer[id]=self
          # initial status
         check_result = self.check()
         # print("Check?", check_result)
+
+        # As we dont know for how long, we set as from begining of (unix) time
         if check_result != False:
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "up", "for": 0.0})
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "up", "for": time.time()})
             self.is_up=True
         else:
-            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "down", "for": 0.0})
+            serverboards.rpc.event("trigger", {"type": self.type, "id": self.id, "state": "down", "for": time.time()})
             self.is_up=False
 
 
