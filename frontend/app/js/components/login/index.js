@@ -40,7 +40,7 @@ var LoginView = React.createClass({
       }
     }).on('submit', self.handleSubmit)
 
-    $(self.refs.el).find('[type=email]').focus()
+    $(self.refs.el).find('[name=email]').focus()
 
     const token_match=window.location.hash.match(/pr=([-0-9a-fA-F]*)/)
     if (token_match){

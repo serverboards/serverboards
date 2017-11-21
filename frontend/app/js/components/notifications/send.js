@@ -5,7 +5,7 @@ import Flash from 'app/flash'
 import { dispatch_set_modal } from 'app/actions/modal'
 import {i18n} from 'app/utils/i18n'
 
-let SendNotification=React.createClass({
+class SendNotification extends React.Component{
   handleSend(){
     let form = $(this.refs.form)
     let data={
@@ -19,7 +19,10 @@ let SendNotification=React.createClass({
     }).catch(()=>{
       Flash.error(i18n("Error sending notification."))
     })
-  },
+  }
+  componentDidMount(){
+    $(this.refs.subject).focus()
+  }
   render(){
     const props=this.props
     return (
@@ -28,24 +31,26 @@ let SendNotification=React.createClass({
           <h3 className="ui header">{i18n("Send notification to {user}", {user: props.user.name})}</h3>
         </div>
         <div className="content">
-          <form ref="form" className="ui form" onSubmit={this.handleSend}>
+          <div ref="form" className="ui form">
             <div className="field">
               <label>{i18n("Subject")}</label>
-              <input name="subject" placeholder=""/>
+              <input name="subject" placeholder="" ref="subject"/>
             </div>
             <div className="field">
               <label>{i18n("Body")}</label>
               <textarea name="body"/>
             </div>
-          </form>
-        </div>
-        <div className="actions">
-          <div className="ui accept yellow button" onClick={this.handleSend}>{i18n("Send notification")}</div>
-          <div className="ui cancel button" onClick={props.onClose}>{i18n("Cancel")}</div>
+          </div>
+          <div className="ui top padding">
+            <span className="ui buttons">
+              <button className="ui accept teal button" onClick={this.handleSend.bind(this)}>{i18n("Send notification")}</button>
+              <button className="ui cancel button" onClick={props.onClose}>{i18n("Cancel")}</button>
+            </span>
+          </div>
         </div>
       </Modal>
     )
   }
-})
+}
 
 export default SendNotification

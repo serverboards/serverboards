@@ -2,9 +2,10 @@ import React from 'react'
 import Modal from 'app/components/modal'
 import store from 'app/utils/store'
 import i18n from 'app/utils/i18n'
+import PropTypes from 'prop-types'
 
-let EditUser = React.createClass({
-  handleEditUser : function(ev){
+class EditUser extends React.Component{
+  handleEditUser(ev){
     ev.preventDefault()
     const props=this.props
     const show_is_active = props.user.email != store.getState().auth.user.email
@@ -17,8 +18,8 @@ let EditUser = React.createClass({
       name: $form.find('[name=name]').val(),
       is_active,
     } )
-    props.setModal(false)
-  },
+    props.onClose()
+  }
   componentDidMount(){
     let $form = $(this.refs.form)
     $form.form({
@@ -28,7 +29,7 @@ let EditUser = React.createClass({
       }
     })
     $(this.refs.is_active).checkbox()
-  },
+  }
   render(){
     const props=this.props
 
@@ -51,7 +52,7 @@ let EditUser = React.createClass({
           </div>
         </div>
         <div className="content">
-          <form ref="form" className="ui form" onSubmit={this.handleEditUser}>
+          <div ref="form" className="ui form" onSubmit={this.handleEditUser.bind(this)}>
             <div className="field">
               <label>{i18n("Email")}</label>
               <input disabled="true" type="email" name="email" defaultValue={props.user.email} placeholder={i18n("This will be used as the user identifier")}/>
@@ -60,14 +61,19 @@ let EditUser = React.createClass({
               <label>{i18n("First Name")}</label>
               <input type="text" name="name" defaultValue={props.user.name}/>
             </div>
-          </form>
+          </div>
           <div className="actions">
-            <div className="ui accept teal button" onClick={this.handleEditUser}>{i18n("Update user")}</div>
+            <button className="ui accept teal button" onClick={this.handleEditUser.bind(this)}>{i18n("Update user")}</button>
           </div>
         </div>
       </Modal>
     )
   }
-})
+}
+
+EditUser.PropTypes = {
+  onUpdateUser: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired
+}
 
 export default EditUser

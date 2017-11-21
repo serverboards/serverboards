@@ -1,4 +1,4 @@
-import json, os, sys, select, time
+import json, os, sys, select, time, io
 
 try:
     input=raw_input
@@ -33,7 +33,8 @@ class RPC:
 
         """
         self.rpc_registry={}
-        self.stdin=stdin
+        # ensure input is utf8, https://stackoverflow.com/questions/16549332/python-3-how-to-specify-stdin-encoding
+        self.stdin=io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
         self.stdout=stdout
         self.stderr=None
         self.loop_status='OUT' # IN | OUT | EXIT
