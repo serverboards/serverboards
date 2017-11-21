@@ -119,25 +119,36 @@ class TextArea extends React.Component{
     if (!this.is_autocomplete_open())
       return
     let ignorekey=false
+    let autocomplete_current = this.state.autocomplete_current || 0
+    // console.log(ev.key)
 
     if (ev.key == "ArrowUp"){
-      let autocomplete_current = (this.state.autocomplete_current || 0)-1
+      autocomplete_current = autocomplete_current - 1
+      ignorekey=true
+    }
+    if (ev.key == "ArrowDown"){
+      autocomplete_current = autocomplete_current + 1
+      ignorekey=true
+    }
+    if (ev.key == "PageUp"){
+      autocomplete_current = autocomplete_current - 3
+      ignorekey=true
+    }
+    if (ev.key == "PageDown"){
+      autocomplete_current = autocomplete_current + 3
+      ignorekey=true
+    }
+
+    if (autocomplete_current != this.state.autocomplete_current){
+      if (autocomplete_current>=this.state.autocomplete.length)
+        autocomplete_current=0
       if (autocomplete_current<0)
         autocomplete_current=this.state.autocomplete.length-1
       this.setState({autocomplete_current})
       if (this.refs.popup)
         this.refs.popup.scrollTop=autocomplete_current*30
-      ignorekey=true
     }
-    if (ev.key == "ArrowDown"){
-      let autocomplete_current = (this.state.autocomplete_current || 0)+1
-      if (autocomplete_current>=this.state.autocomplete.length)
-        autocomplete_current=0
-      this.setState({autocomplete_current})
-      if (this.refs.popup)
-        this.refs.popup.scrollTop=autocomplete_current*30
-      ignorekey=true
-    }
+
     if (ev.key == "Enter"){
       if (this.state.autocomplete[this.state.autocomplete_current]){
         this.insertAtCursor(this.state.autocomplete[this.state.autocomplete_current])
