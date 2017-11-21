@@ -16,7 +16,7 @@ import AddButton from 'app/components/project/addbutton'
 require('sass/board.sass')
 require('sass/gridlayout.sass')
 
-const RT_INTERVAL = 30
+const RT_INTERVAL = 5
 
 const Board = React.createClass({
   handleEdit(uuid){
