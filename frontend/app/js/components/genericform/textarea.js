@@ -88,7 +88,7 @@ class TextArea extends React.Component{
     const ac = this.props.autocomplete
 
     const newtext=prefix_at_cursor(this.refs.textarea).toLocaleLowerCase()
-    console.log("Handle change to %o", newtext)
+    // console.log("Handle change to %o", newtext)
 
     plugin.start_call_stop( ac.command, ac.call, {"current": newtext, ...this.form_data}).then(
       autocomplete => {
@@ -157,7 +157,7 @@ class TextArea extends React.Component{
     if (ignorekey){
       ev.stopPropagation()
       ev.preventDefault()
-      console.log("Must ignore key", ev, this.state.autocomplete)
+      // console.log("Must ignore key", ev, this.state.autocomplete)
     }
   }
   render(){
