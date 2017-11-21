@@ -140,15 +140,19 @@ class PluginCaller{
     this.uuid = undefined
     this.options = { restart: true }
   }
-  start(method, params){
+  start(){
     return rpc.call("plugin.start", [this.pluginid]).then( (uuid_) => {
       this.uuid = uuid_
       return this
     })
   }
   call(method, params){
-    return rpc.call(`${this.uuid}.${method}`, params).catch( (e) => {
-      if (e=='unknown_method' || e=="exit")
+    if (!this.uuid){
+      return this.start().then(() => this.call(method, params))
+    }
+    return rpc.call("plugin.call", [this.uuid, method, params]).catch( (e) => {
+      console.log(e, e == 'exit')
+      if (e=='unknown_method' || e=="exit" || e == "timeout") // try again... maybe
         return this.maybe_reconnect(e).then( () => this.call(method, params) )
       throw(e)
     })
@@ -196,5 +200,5 @@ export function install(giturl){
 export default {
   load, add_screen, do_screen, add_widget, do_widget, join_path,
   start, start_call_stop,
-  install
+  install, PluginCaller
 }
