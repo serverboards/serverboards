@@ -5,13 +5,15 @@ import i18n from 'app/utils/i18n'
 import moment from 'moment'
 import {set_modal} from 'app/utils/store'
 
-const HeaderMenu = React.createClass({
-  getInitialState(){
-    return {
+class HeaderMenu extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
       filter: undefined
     }
-  },
+  }
   componentDidMount(){
+    console.log("Set dashboard header")
     $("#maximize").on( 'click', () => {
       request_fullscreen($('#dashboard')[0])
     })
@@ -27,7 +29,7 @@ const HeaderMenu = React.createClass({
       $(this.refs.rt).checkbox('check')
     else
       $(this.refs.rt).checkbox('uncheck')
-  },
+  }
   setFilter(filter){
     $(this.refs.filter_selector).popup('hide')
 
@@ -37,13 +39,13 @@ const HeaderMenu = React.createClass({
     this.props.onDateRangeChange(start, end)
     console.log("%o to %o", start, end)
     this.setState({filter})
-  },
+  }
   handleDashboardChange(ds){
     this.props.onDashboardChange(ds)
-  },
+  }
   handleAddDashboard(){
     set_modal('dashboard.create',{project: this.props.project})
-  },
+  }
   render(){
     const props = this.props
     const filter = this.state.filter
@@ -58,7 +60,7 @@ const HeaderMenu = React.createClass({
             </a>
           ))}
           <div className="ui item separator"/>
-          <a className="item" onClick={this.handleAddDashboard} id="add_dashboard">
+          <a className="item" onClick={this.handleAddDashboard.bind(this)} id="add_dashboard">
             <i className="ui icon add teal"/>
           </a>
         </div>
@@ -94,5 +96,6 @@ const HeaderMenu = React.createClass({
       </div>
     )
   }
-})
+}
+
 export default HeaderMenu
