@@ -229,8 +229,8 @@ defmodule Serverboards.Auth do
 				# Check user exists, and is active
 				case Serverboards.Auth.User.user_info(email, [require_active: true], %{email: email}) do
 					{:error, :unknown_user} ->
-						Logger.error("Denied password reset link requested for #{email}")
-						{:error, :not_allowed}
+						Logger.error("Requested password reset for unknown user #{email}")
+						{:ok, :ok}
 					{:ok, me} ->
 						Logger.info("Password reset link requested for #{email}")
 						token = Serverboards.Auth.User.Token.create(me, ["auth.reset_password"])
@@ -255,7 +255,8 @@ defmodule Serverboards.Auth do
 							Logger.info("Password reset for #{user.email}")
 							{:ok, :ok}
 						else
-							{:error, :not_allowed}
+							Logger.error("Requested password reset for unknown user #{email}")
+							{:ok, :ok}
 						end
 				end
 		end)

@@ -8,9 +8,9 @@ const ResetPassword=React.createClass({
     const email=$(this.refs.el).find('input[name=email]').val()
     let self=this
 
-    Flash.info(`Sending email to ${email}`)
+    // Flash.info(`Sending email to ${email}`)
     rpc.call('auth.reset_password',[email]).then(function(){
-      Flash.info(i18n("Email sent. Check your email at {email}", {email}))
+      Flash.info(i18n("Check **{email}**'s email inbox for further password recovery instructions.", {email}))
       self.props.setPassword(email)
     }).catch(function(e){
       Flash.error(i18n("Could not request password reset: {e}", {e}))
