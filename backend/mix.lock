@@ -29,7 +29,7 @@
   "logger_journald_backend": {:git, "git://github.com/xerions/logger_journald_backend", "0e241b74550d4772856ac90373fb1e5f3138d697", []},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], [], "hexpm"},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], [], "hexpm"},
-  "mom": {:hex, :mom, "0.5.1", "dcfddf3549b40dc81585eb1bcffef621e32fae71820f8b0cdc66a9158275ce3d", [:mix], [{:poison, "~> 3.1", [hex: :poison, repo: "hexpm", optional: false]}, {:uuid, "~> 1.1", [hex: :uuid, repo: "hexpm", optional: false]}], "hexpm"},
+  "mom": {:hex, :mom, "0.5.2", "9b114781e168a24bf4dad3ddc0387666f71c470d2ed1800e72a09e6ce666eb11", [:mix], [{:poison, "~> 3.1", [hex: :poison, repo: "hexpm", optional: false]}, {:uuid, "~> 1.1.8", [hex: :uuid, repo: "hexpm", optional: false]}], "hexpm"},
   "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], [], "hexpm"},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], [], "hexpm"},
   "postgrex": {:hex, :postgrex, "0.13.3", "c277cfb2a9c5034d445a722494c13359e361d344ef6f25d604c2353185682bfc", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}], "hexpm"},
