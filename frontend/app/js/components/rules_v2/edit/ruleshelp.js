@@ -127,15 +127,17 @@ class RulesHelp extends React.Component{
 
     // console.log(rule)
 
+    const extra_help = this.state.extra_help
+
     const help = {
       "rule" : {
         "uuid" : i18n("Rule UUID"),
         "name" : i18n("Rule name"),
-        "description" : i18n("Rule description")
+        "description" : i18n("Rule description"),
       },
-      ...this.state.extra_help,
-      "changes" : this.state.extra_help,
-      "prev" : this.state.extra_help
+      "changes" : extra_help,
+      "prev" : extra_help,
+      "BASE_URL" : i18n("This installation's base url"),
     }
 
     return (
@@ -146,6 +148,9 @@ class RulesHelp extends React.Component{
         </div>
         <div className="ui with scroll">
           <ul className="ui no bullet list with padding">
+            {Object.keys(extra_help).sort().map( k => (
+              <DL key={k} label={k} value={extra_help[k]}/>
+            ))}
             {Object.keys(help).sort().map( k => (
               <DL key={k} label={k} value={help[k]}/>
             ))}
