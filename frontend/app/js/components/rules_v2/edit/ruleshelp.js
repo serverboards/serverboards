@@ -82,12 +82,12 @@ class RulesHelp extends React.Component{
     const id = this.props.rule.rule.when.id
     if (id){
       cache.trigger(this.props.rule.rule.when.trigger).then( trigger => {
-        console.log("Got data from rule ", trigger)
+        // console.log("Got data from rule ", trigger)
         if (trigger && trigger.result){
           const extra_help = this.state.extra_help
           this.setState({extra_help: {...extra_help, [id]: trigger.result }})
         }
-        console.log("Trigger ", trigger.result || {})
+        // console.log("Trigger ", trigger.result || {})
       })
     }
   }

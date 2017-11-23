@@ -180,11 +180,36 @@ function prepare_for_save(rule){
   }
 }
 
+const ACTION_IDS="BCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+function rest_ids(rule, rest=ACTION_IDS){
+  console.log("rest_ids", rule, rest)
+
+  if (rule.length!=undefined){
+    rule.map( r => {
+      rest = rest_ids(r, rest)
+    })
+  } else if (rule.type=="action") {
+    if (rule.id)
+      rest = rest.replace(rule.id, "")
+  } else if (rule.type=="condition") {
+    rest = rest_ids(rule.then, rest)
+    rest = rest_ids(rule.else, rest)
+  }
+
+  return rest
+}
+
 class Model extends React.Component {
   constructor(props){
     super(props)
+
+    let rule = this.props.rule
+    rule = map_set(rule, ["rest_ids"], rest_ids(rule.rule.actions))
+    rule = map_set(rule, ['rule','actions'], decorate_actions(this.props.rule.rule.actions) )
+
     this.state = {
-      rule: map_set( this.props.rule, ['rule','actions'], decorate_actions(this.props.rule.rule.actions) ),
+      rule,
       section: {
         id: "description",
         data: {},
