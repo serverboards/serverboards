@@ -130,8 +130,9 @@ class RulesHelp extends React.Component{
     const extra_help = this.state.extra_help
 
     const help = {
+      "uuid" : i18n("Rule unique identifier"),
       "rule" : {
-        "uuid" : i18n("Rule UUID"),
+        "uuid" : i18n("Rule unique identifier"),
         "name" : i18n("Rule name"),
         "description" : i18n("Rule description"),
       },
