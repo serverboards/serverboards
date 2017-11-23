@@ -218,7 +218,12 @@ defmodule Serverboards.RulesV2.Rule do
           :"serverboards.core.settings/base",
           :base_url,
           "https://serverboards.io/docs/configuration-error#"
-          )
+          ),
+        "rule" => %{
+          "uuid" => uuid,
+          "name" => state.rule.name,
+          "description" => state.rule.description,
+        }
         })
       # Logger.debug("Start trigger with state #{inspect trigger_state, pretty: true}")
 
@@ -303,8 +308,9 @@ defmodule Serverboards.RulesV2.Rule do
       "action" => action,
       "params" => params
       } = actiondef, state) do
-    # Logger.debug("Pre params #{inspect params}")
+    # Logger.debug("Pre params #{inspect params} -> #{inspect state}")
     {:ok, params} = Serverboards.Utils.Template.render_map(params, state)
+    # Logger.debug("Post params: #{inspect params}")
     if actiondef["debug"] do
       Logger.debug("Run action #{inspect action} #{inspect params}\n #{inspect state, pretty: true}")
     end
