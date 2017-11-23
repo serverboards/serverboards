@@ -164,7 +164,7 @@ components:
     start:
       method: watch_start
       params:
-        - name: service
+        - name: service_id
           label: SSH Service
           type: service
           traits: ssh
