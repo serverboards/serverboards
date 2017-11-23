@@ -113,15 +113,13 @@ class RulesHelp extends React.Component{
     if (!action.id)
       return
     cache.action(action.action).then( ac => {
-      if (map_get(ac, ["extra","call","result"])){
-        const extra_help=this.state.extra_help
-        let params = ac.extra.call.result || {}
-        map_get(ac, ["extra","call","params"], []).map( p => {
-          params[p.name]=p.label
-        })
+      const extra_help=this.state.extra_help
+      let params = ac.extra.call.result || {}
+      map_get(ac, ["extra","call","params"], []).map( p => {
+        params[p.name]=p.label
+      })
 
-        this.setState({extra_help: {...extra_help, [action.id]: params}})
-      }
+      this.setState({extra_help: {...extra_help, [action.id]: params}})
     })
   }
   render(){
@@ -141,16 +139,18 @@ class RulesHelp extends React.Component{
     }
 
     return (
-      <div>
+      <div className="ui extend">
         <h3>{i18n("Conditional template help")}</h3>
         <div className="ui meta">
           {i18n("You can use these variables to construct your exapression, for example 'A.exit == 0'")}
         </div>
-        <ul className="ui no bullet list with padding">
-          {Object.keys(help).sort().map( k => (
-            <DL key={k} label={k} value={help[k]}/>
-          ))}
-        </ul>
+        <div className="ui with scroll">
+          <ul className="ui no bullet list with padding">
+            {Object.keys(help).sort().map( k => (
+              <DL key={k} label={k} value={help[k]}/>
+            ))}
+          </ul>
+        </div>
       </div>
     )
   }
