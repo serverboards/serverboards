@@ -369,7 +369,7 @@ defmodule Serverboards.RulesV2.Rule do
           stop_method ->
             stop_id=state.trigger.stop_id
             # Logger.debug("Call stop #{inspect {plugin_id, stop_method, stop_id}}")
-            Serverboards.Plugin.Runner.call(plugin_id, stop_method, stop_id)
+            Serverboards.Plugin.Runner.call(plugin_id, stop_method, [stop_id])
         end
 
         Serverboards.Plugin.Runner.stop(plugin_id)
