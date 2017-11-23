@@ -207,6 +207,7 @@ class Model extends React.Component {
     let rule = this.props.rule
     rule = map_set(rule, ["rest_ids"], rest_ids(rule.rule.actions))
     rule = map_set(rule, ['rule','actions'], decorate_actions(this.props.rule.rule.actions) )
+    rule = map_set(rule, ['rule','when','id'], "A")
 
     this.state = {
       rule,
@@ -377,9 +378,13 @@ class Model extends React.Component {
                 console.log("Add node %o, %o", step, type)
                 let rule
                 switch(type){
-                  case "action":
-                    rule = this.updateRule(step, {type: type})
+                  case "action":{
+                    let id = this.state.rule.rest_ids[0]
+                    rule = this.updateRule(step, {type, id})
+                    rule = map_set(rule, ["rest_ids"], rule.rest_ids.slice(1))
+                    console.log("New aciton with id ", id, rule)
                     break;
+                  }
                   case "condition":
                     rule = this.updateRule(step, decorate_actions( {type: type, then: [], else: []} ))
                     break;
