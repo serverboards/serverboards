@@ -351,6 +351,10 @@ defmodule Serverboards.RulesV2.Rule do
     end
   end
 
+  def execute_action(uuid, action, state) do
+    Logger.warn("Unknown action or incomplete to execute #{action["type"]}", action: action, rule_id: uuid)
+    {[], state}
+  end
   def terminate(reason, state) do
     case reason do
       :normal ->
