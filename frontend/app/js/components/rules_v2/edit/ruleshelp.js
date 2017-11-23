@@ -114,7 +114,7 @@ class RulesHelp extends React.Component{
       return
     cache.action(action.action).then( ac => {
       const extra_help=this.state.extra_help
-      let params = ac.extra.call.result || {}
+      let params = map_get(ac, ["extra","call", "result"]) || {}
       map_get(ac, ["extra","call","params"], []).map( p => {
         params[p.name]=p.label
       })
