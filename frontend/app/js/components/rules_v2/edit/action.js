@@ -31,6 +31,7 @@ class ActionParams extends React.Component{
         <div className="description">{props.description}</div>
         <div className="separator" style={{height: 40}}/>
         <GenericForm
+          className="ui scroll"
           fields={props.fields}
           data={state.data}
           updateForm={this.updateForm}
