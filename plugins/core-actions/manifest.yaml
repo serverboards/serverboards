@@ -77,15 +77,23 @@ components:
         - name: email
           type: text
           label: User email or @group
+          description: |
+            If a user email is set, it will be sent to this user.
+            If a user is set it will be sent to all users on that group.
           card: true
+          placeholder: "@user"
         - name: subject
           type: text
           label: Subject
           card: true
         - name: body
           type: textarea
-          lable: Body
+          label: Body
         - name: service
+          type: service
+          label: Related service
+          description: If a related service is set, it will send a direct link to that service in the notification.
+          traits: ""
       result:
         success: Whether the notification was properly sent
   - name: Issue Open
@@ -94,7 +102,7 @@ components:
     type: action
     id: open-issue
     command: cmd
-    icon: issue
+    icon: alarm
     call:
       method: open_issue
       extra: true
@@ -136,8 +144,8 @@ components:
       and if not found creates a new issue with the given data.
     type: action
     id: open-or-comment-issue
+    icon: alarm outline
     command: cmd
-    icon: issue
     call:
       method: open_or_comment_issue
       extra: true
@@ -174,7 +182,7 @@ components:
     type: action
     id: close-issue
     command: cmd
-    icon: issue
+    icon: alarm mute
     call:
       method: close_issue
       extra: true
@@ -205,6 +213,7 @@ components:
 
   - name: Open issue
     type: action template
+    icon: alarm outline
     id: action.openclose-issue
     actions:
       added:
