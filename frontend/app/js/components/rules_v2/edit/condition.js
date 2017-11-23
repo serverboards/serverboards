@@ -1,5 +1,6 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
+import RulesHelp from './ruleshelp'
 
 function Condition(props){
   const {condition, gotoStep, onUpdate, id, section} = props
@@ -19,6 +20,8 @@ function Condition(props){
           <input key={input_id} type="text" defaultValue={condition} id={input_id}/>
         </div>
       </div>
+      <div className="separator" style={{height: 40}}/>
+      <RulesHelp rule={props.rule}/>
       <div className="separator" style={{height: 40}}/>
       <div className="ui right aligned">
         <div className="ui buttons">

@@ -101,7 +101,8 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
     return {
         "stdout": stdout,
         "stderr": result.stderr.decode('utf8'),
-        "exit": result.exit_code
+        "exit": result.exit_code,
+        "success": result.exit_code == 0,
         }
 
 sessions={}
@@ -370,10 +371,13 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
             self.state=None
         def check_ok(self):
             stdout=None
+            stderr=None
+            exit_code=0
             try:
                 p = ssh_exec(service=service_uuid, command=script)
-                stdout=p["stdout"]
-                p = (p["exit"] == 0)
+                stdout = p["stdout"]
+                stderr = p["stderr"]
+                exit_code = p["exit"]
                 # serverboards.info(
                 #     "SSH remote check script: %s: %s"%(script, p),
                 #     extra=dict(
@@ -383,12 +387,20 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
                 #         stdout=stdout,
                 #         exit_code=p)
                 #     )
-            except:
+            except Exception as e:
                 serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"]))
-                p = False
-            nstate = "ok" if p else "nok"
+                exit_code = -256
+                stdout = str(e)
+            nstate = "ok" if (exit_code == 0) else "nok"
             if self.state != nstate:
-                serverboards.rpc.event("trigger", {"id":id, "state": nstate})
+                serverboards.rpc.event("trigger", {
+                    "id": id,
+                    "state": nstate,
+                    "success": (exit_code == 0),
+                    "exit": exit_code,
+                    "stdout": stdout,
+                    "stderr": stderr
+                })
                 self.state=nstate
             return True
     check = Check()

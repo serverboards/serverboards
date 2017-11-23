@@ -103,6 +103,12 @@ components:
           type: text
           label: Command to execute
           description: Non blocking command to execute
+      result:
+        stdout: Stdout for command execution
+        stderr: Stderr for command execution
+        exit: Exit code, 0 is success
+        success: True or false on whether the command executed successfully
+
 
   - name: SSH daemon
     id: daemon
@@ -181,6 +187,12 @@ components:
             If this script returns an error code, it goes to the nok status.
           type: textarea
     stop: watch_stop
+    result:
+      state: "'ok' or 'nok' depending of command execution exit code"
+      success: Whether command executed correctly
+      exit_code: Command execution exit code
+      stdout: Command stdout result
+      stderr: Command stderr result
 
 
   - name: SSH Test Command
