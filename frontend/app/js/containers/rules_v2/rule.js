@@ -375,14 +375,14 @@ class Model extends React.Component {
             onChangeSection("add", step, {
               action,
               addNode: (type) => {
-                console.log("Add node %o, %o", step, type)
+                // console.log("Add node %o, %o", step, type)
                 let rule
                 switch(type){
                   case "action":{
                     let id = this.state.rule.rest_ids[0]
                     rule = this.updateRule(step, {type, id})
                     rule = map_set(rule, ["rest_ids"], rule.rest_ids.slice(1))
-                    console.log("New aciton with id ", id, rule)
+                    // console.log("New action with id ", id, rule)
                     break;
                   }
                   case "condition":
