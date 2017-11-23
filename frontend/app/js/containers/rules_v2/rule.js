@@ -183,7 +183,7 @@ function prepare_for_save(rule){
 const ACTION_IDS="BCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 function rest_ids(rule, rest=ACTION_IDS){
-  console.log("rest_ids", rule, rest)
+  // console.log("rest_ids", rule, rest)
 
   if (rule.length!=undefined){
     rule.map( r => {

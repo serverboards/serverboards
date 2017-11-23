@@ -1,6 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import {map_get} from 'app/utils'
 
 class DL extends React.Component{
   constructor(props){
@@ -73,9 +74,7 @@ class RulesHelp extends React.Component{
     super(props)
 
     this.state = {
-      extra_help: {
-        ...process_actions(props.rule.rule.actions)
-      }
+      extra_help: {}
     }
   }
   componentDidMount(){
@@ -90,11 +89,36 @@ class RulesHelp extends React.Component{
         // console.log("Trigger ", trigger.result || {})
       })
     }
+
+    // Get the other actions params
+    this.cacheGetActions(this.props.rule.rule.actions)
+  }
+  cacheGetActions(actions){
+    console.log(actions)
+    for (let ac of actions){
+      console.log(ac)
+      if (ac.type=="action"){
+        this.cacheGetAction(ac)
+      } else if (ac.type=="condition") {
+        this.cacheGetActions(ac.then)
+        this.cacheGetActions(ac.else)
+      }
+    }
+  }
+  cacheGetAction(action){
+    if (!action.id)
+      return
+    cache.action(action.action).then( ac => {
+      if (map_get(ac, ["extra","call","result"])){
+        const extra_help=this.state.extra_help
+        this.setState({extra_help: {...extra_help, [action.id]: ac.extra.call.result}})
+      }
+    })
   }
   render(){
     const {rule} = this.props
 
-    console.log(rule)
+    // console.log(rule)
 
     const help = {
       "rule" : {
@@ -109,9 +133,9 @@ class RulesHelp extends React.Component{
 
     return (
       <div>
-        <h3>{i18n("Rule templating help")}</h3>
+        <h3>{i18n("Conditional template help")}</h3>
         <div className="ui meta">
-          {i18n("These variables can be used as templates on any writtable area, using {{parameter.subelement}}.")}
+          {i18n("You can use these variables to construct your exapression, for example 'A.exit == 0'")}
         </div>
         <ul className="ui no bullet list with padding">
           {Object.keys(help).sort().map( k => (

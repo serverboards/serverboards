@@ -4,7 +4,7 @@ import RulesHelp from './ruleshelp'
 
 function Condition(props){
   const {condition, gotoStep, onUpdate, id, section} = props
-  console.log(props)
+  // console.log(props)
   let input_id="condition_"+id.join("_")
   return (
     <div className="ui extend with padding">
