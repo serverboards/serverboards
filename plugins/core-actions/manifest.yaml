@@ -18,7 +18,9 @@ components:
         - name: ip
           label: Remote IP address or DNS name
           type: text
-      returns: ms
+      result:
+        ms: Ping milliseconds return time.
+        success: Whether the remote server answered the ping.
     traits: ip url server # this means any of `ip` or `url`
 
   - name: Webhook call
@@ -35,10 +37,10 @@ components:
           label: Remote URL
           placeholder: eg. http://example.com, https://example.com/path
           type: text
-      returns:
-        code: int
-        ms: ms
-        text: text
+      result:
+        code: Response code for the webhook call
+        ms: Milliseconds for response
+        text: Response text
     traits: url cloud server
 
   - name: Service tag change
@@ -84,7 +86,8 @@ components:
           type: textarea
           lable: Body
         - name: service
-
+      result:
+        success: Whether the notification was properly sent
   - name: Issue Open
     description: |
       Opens a new issue with the given parameters.
@@ -125,7 +128,8 @@ components:
             Aliases are separated by spaces.
           placeholder: "eg. rule/{{rule.uuid}}"
           default: "rule/{{rule.uuid}}"
-
+      result:
+        issue_id: Issue id
   - name: Issue Open or Comment
     description: |
       Uses the issue id to check if the issue exists, for example by alias,
@@ -161,7 +165,9 @@ components:
 
             Aliases are separated by spaces.
           placeholder: "eg. rule/{{rule.uuid}}"
-
+      result:
+        is_new: Whether the issue was opened
+        issue_id: Issue id
   - name: Issue Close
     description: |
       Closes the given issue by alias or id.
@@ -181,6 +187,8 @@ components:
         - name: comment
           type: textarea
           label: Issue comment
+      result:
+        updated: Whether the issue was closed. It may already be closed.
 
   - name: Notify all users
     description: |
