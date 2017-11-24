@@ -19,17 +19,21 @@ $black: #666
     .card
       margin: -10px 2em 2em 0em
       width: calc( 100% - 3em )
-      padding: 1em
+      padding: 1.5em 1em 1em 1.5em
       cursor: pointer
       a
         color: #333
         display: block
         &:hover
           color: $blue
+          .ui.circle
+            border-color: $blue
       &.active
         box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
       .active a, a.active
         color: $blue
+        .ui.circle
+          border-color: $blue
       .ui.right.floating
         position: absolute
         top: 3px
@@ -95,6 +99,12 @@ $black: #666
       position: relative
     .ui.connected > .legend:first-child + .action
       padding-top: 20px
+    .card
+      position: relative
+      .floating.top.left
+        position: absolute
+        top: 2px
+        left: 4.5px
   .ui.rule.graph > .connected > .condition
     padding-top: 0
 

@@ -5,6 +5,7 @@ import Selector from 'app/components/selector'
 import GenericForm from 'app/components/genericform'
 import Loading from 'app/components/loading'
 import {object_is_equal} from 'app/utils'
+import RulesHelp from './ruleshelp'
 
 class ActionParams extends React.Component{
   constructor(props){
@@ -36,7 +37,11 @@ class ActionParams extends React.Component{
           data={state.data}
           updateForm={this.updateForm}
           />
-        <div className="separator" style={{height: 40}}/>
+        <RulesHelp
+          rule={props.rule}
+          title={i18n("Templating help")}
+          description={i18n("You can use templated variables to change the behaviour of your action, for example using '{{rule.name}}'")}/>
+        <div className="separator" style={{height: 20}}/>
         <div className="ui right aligned">
           <div className="ui buttons">
             <button className="ui button basic" onClick={props.prevStep}>{i18n("Previous step")}</button>
@@ -116,6 +121,7 @@ class Action extends React.Component{
           prevStep={() => this.setState({step: 1})}
           nextStep={() => props.gotoStep("next", undefined, props.id)}
           onUpdate={this.handleUpdate}
+          rule={props.rule}
           />
       )
     }

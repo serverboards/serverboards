@@ -21,7 +21,7 @@ function Condition(props){
         </div>
       </div>
       <div className="separator" style={{height: 40}}/>
-      <RulesHelp rule={props.rule}/>
+      <RulesHelp rule={props.rule} show={true}/>
       <div className="separator" style={{height: 40}}/>
       <div className="ui right aligned">
         <div className="ui buttons">

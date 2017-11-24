@@ -30,9 +30,14 @@ export class Action extends React.Component{
           <HoldButton className="ui right floating icon trash"
              onHoldClick={(ev) => { removeStep(path) }}/>
           <a
-            className={active}
-            onClick={() => gotoStep(path)}
-            >{this.state.description}</a>
+              className={active}
+              onClick={() => gotoStep(path)}
+              >
+            { this.props.action.id && (
+              <span className="ui icon circle floating top left">{this.props.action.id}</span>
+            )}
+            {this.state.description}
+          </a>
         </div>
       </div>
     )
@@ -80,7 +85,12 @@ export function Condition(props){
         <a
           className={active}
           onClick={() => gotoStep(path)}
-          >{action.condition || i18n("Please set a condition")}</a>
+          >
+            {props.action.id &&
+              <span className="ui icon circle floating top left">{props.action.id}</span>
+            }
+            {action.condition || i18n("Please set a condition")}
+        </a>
       </div>
       {action.then.length>0 ? (
         <div className="ui connected">

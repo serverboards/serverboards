@@ -74,7 +74,8 @@ class RulesHelp extends React.Component{
     super(props)
 
     this.state = {
-      extra_help: {}
+      extra_help: {},
+      show_all: !!this.props.show,
     }
   }
   componentDidMount(){
@@ -122,9 +123,12 @@ class RulesHelp extends React.Component{
       this.setState({extra_help: {...extra_help, [action.id]: params}})
     })
   }
+  toggleShowHelp(){
+    this.setState({show_all: !this.state.show_all})
+  }
   render(){
-    const {rule} = this.props
-
+    const {rule, title, description} = this.props
+    const {show_all} = this.state
     // console.log(rule)
 
     const extra_help = this.state.extra_help
@@ -142,21 +146,36 @@ class RulesHelp extends React.Component{
     }
 
     return (
-      <div className="ui extend">
-        <h3>{i18n("Conditional template help")}</h3>
-        <div className="ui meta">
-          {i18n("You can use these variables to construct your exapression, for example 'A.exit == 0'")}
-        </div>
-        <div className="ui with scroll">
-          <ul className="ui no bullet list with padding">
-            {Object.keys(extra_help).sort().map( k => (
-              <DL key={k} label={k} value={extra_help[k]}/>
-            ))}
-            {Object.keys(help).sort().map( k => (
-              <DL key={k} label={k} value={help[k]}/>
-            ))}
-          </ul>
-        </div>
+      <div className={`ui ${show_all ? "extend" : ""} padding top`}>
+        <div className="ui divider"/>
+        <h4
+            className="ui blue pointer aligned right header"
+            onClick={() => this.toggleShowHelp()}
+            style={{marginRight: 0}}>
+          {title || i18n("Conditional template help")}
+          {show_all ? (
+            <i className="ui tiny down chevron icon"/>
+          ) : (
+            <i className="ui tiny right chevron icon"/>
+          )}
+        </h4>
+        {show_all && (
+          <div className="ui extend scroll">
+            <div className="ui meta">
+              {description || i18n("You can use these variables to construct your exapression, for example 'A.exit == 0'")}
+            </div>
+            <div className="ui with scroll">
+              <ul className="ui no bullet list with padding">
+                {Object.keys(extra_help).sort().map( k => (
+                  <DL key={k} label={k} value={extra_help[k]}/>
+                ))}
+                {Object.keys(help).sort().map( k => (
+                  <DL key={k} label={k} value={help[k]}/>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
