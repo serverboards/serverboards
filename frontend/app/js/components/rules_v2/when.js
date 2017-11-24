@@ -12,6 +12,7 @@ function When(props){
       </div>
       <div className="ui card">
         <div className={`${section.section=="when:service" ? "active" : ""}`}>
+          <span className="ui icon circle floating top left">{props.when.id}</span>
           <a onClick={() => gotoStep("when:service")}>
             <i className="ui cloud icon"/>
             {service_name || i18n("Select related service")}

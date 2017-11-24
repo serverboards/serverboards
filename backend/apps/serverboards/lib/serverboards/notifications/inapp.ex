@@ -35,7 +35,7 @@ defmodule Serverboards.Notifications.InApp do
 
     tags = ["new","unread"]
     notification = %{ user_id: user_id, subject: subject, body: first_not_empty([body,subject]), meta: meta, tags: tags }
-    # Logger.debug("Insert notification #{inspect notification, pretty: true}")
+    # Logger.debug("Insert notification #{inspect email} (#{inspect user_id}) : #{inspect Map.take(notification, ["subject","body"]), pretty: true}")
 
     {:ok, notification } = Repo.insert( Model.Notification.changeset(
         %Model.Notification{}, notification

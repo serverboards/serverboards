@@ -9,6 +9,7 @@ const EMPTY_RULE={
   description: "",
   rule: {
     when: {
+      id: "A",
       type: "trigger",
       trigger: undefined,
       params: {}

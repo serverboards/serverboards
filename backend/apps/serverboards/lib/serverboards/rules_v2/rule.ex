@@ -218,7 +218,12 @@ defmodule Serverboards.RulesV2.Rule do
           :"serverboards.core.settings/base",
           :base_url,
           "https://serverboards.io/docs/configuration-error#"
-          )
+          ),
+        "rule" => %{
+          "uuid" => uuid,
+          "name" => state.rule.name,
+          "description" => state.rule.description,
+        }
         })
       # Logger.debug("Start trigger with state #{inspect trigger_state, pretty: true}")
 
@@ -303,8 +308,9 @@ defmodule Serverboards.RulesV2.Rule do
       "action" => action,
       "params" => params
       } = actiondef, state) do
-    # Logger.debug("Pre params #{inspect params}")
+    # Logger.debug("Pre params #{inspect params} -> #{inspect state}")
     {:ok, params} = Serverboards.Utils.Template.render_map(params, state)
+    # Logger.debug("Post params: #{inspect params}")
     if actiondef["debug"] do
       Logger.debug("Run action #{inspect action} #{inspect params}\n #{inspect state, pretty: true}")
     end
@@ -351,6 +357,10 @@ defmodule Serverboards.RulesV2.Rule do
     end
   end
 
+  def execute_action(uuid, action, state) do
+    Logger.warn("Unknown action or incomplete to execute #{action["type"]}", action: action, rule_id: uuid)
+    {[], state}
+  end
   def terminate(reason, state) do
     case reason do
       :normal ->
@@ -369,7 +379,7 @@ defmodule Serverboards.RulesV2.Rule do
           stop_method ->
             stop_id=state.trigger.stop_id
             # Logger.debug("Call stop #{inspect {plugin_id, stop_method, stop_id}}")
-            Serverboards.Plugin.Runner.call(plugin_id, stop_method, stop_id)
+            Serverboards.Plugin.Runner.call(plugin_id, stop_method, [stop_id])
         end
 
         Serverboards.Plugin.Runner.stop(plugin_id)

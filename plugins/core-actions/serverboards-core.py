@@ -22,14 +22,14 @@ def ping(ip=None, url=None):
             return False
         ms = re.findall(r" time=(\d+\.\d+) ms", output)
         if ms:
-            return { "ms" : float(ms[0]) }
+            return { "ms" : float(ms[0]), "success": True }
         return False
     elif url.startswith("http://") or url.startswith("https://") or url.startswith("ftp://") :
         res = http_get(url)
-        return { "ms": res["ms"], "description" :  "Response code: %s"%(res["code"]) }
+        return { "ms": res["ms"], "description" :  "Response code: %s"%(res["code"]), "success": True }
     elif '://' in url:
         res = socket_connect(url)
-        return { "ms": res["ms"], "description" :  "Socket connection time." }
+        return { "ms": res["ms"], "description" :  "Socket connection time.", "success": False }
 
     raise Exception("Invalid ping type")
 
@@ -67,7 +67,8 @@ def http_get(url=None):
     return {
         #"text": ret.text,
         "code": ret.status_code,
-        "ms": ret.elapsed.total_seconds()*1000
+        "ms": ret.elapsed.total_seconds()*1000,
+        "text": ret.text
     }
 
 @serverboards.rpc_method
@@ -104,13 +105,11 @@ def base_url():
 
 @serverboards.rpc_method
 def send_notification(email, subject, body, service=None, **extra):
-    if service:
-        if service["serverboards"]:
-            serverboard=service["serverboards"][0]
-            service["url"] = "%s/#/serverboard/%s/services"%(base_url(), serverboard)
-        extra["service"] = service
+    if not email:
+        email="@user"
 
     serverboards.rpc.call("notifications.create", email=email, subject=subject, body=body, extra=extra)
+    return {"success": True} # Fake, alwasy right. FIXME
 
 @serverboards.rpc_method
 def open_or_comment_issue(**data):
@@ -120,8 +119,16 @@ def open_or_comment_issue(**data):
         issue = None
     if issue and issue["status"] == "open":
         comment_issue(issue=data.get("issue"), comment=data.get("description"))
+        return {
+            "is_new" : False,
+            "issue_id" : issue.get("id")
+        }
     else:
-        open_issue(**data)
+        issue = open_issue(**data)
+        return {
+            "is_new": True,
+            **issue
+        }
 
 @serverboards.rpc_method
 def open_issue(**data):
@@ -147,7 +154,8 @@ def open_issue(**data):
             description+=" * Rule: [%s](%s/#/rules/%s)\n"%(data["rule"].get("name"), base_url(), data["rule"].get("uuid"))
         description+="\n"
 
-    serverboards.rpc.call("issues.create", title=title, description=description, aliases=aliases)
+    issue_id = serverboards.rpc.call("issues.create", title=title, description=description, aliases=aliases)
+    return {"issue_id": issue_id}
 
 @serverboards.rpc_method
 def close_issue(**data):
@@ -155,7 +163,7 @@ def close_issue(**data):
     if issue_id:
         issue = serverboards.issues.get(issue_id)
         if not issue or issue["status"] == "closed":
-            return # nothing to do
+            return {"updated": False }# nothing to do
     from templating import render
     import json
     comment=render(data.get("comment"), data)
@@ -168,6 +176,7 @@ def close_issue(**data):
                 {"type": "comment", "data": comment},
                 {"type": "change_status", "data": "closed"}
             ])
+        return {"updated": True}
     except:
         import traceback; traceback.print_exc()
         serverboards.error("Error trying to close issue, cant update issue %s"%(issue_id))

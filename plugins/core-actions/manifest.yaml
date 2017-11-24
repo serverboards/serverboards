@@ -18,7 +18,9 @@ components:
         - name: ip
           label: Remote IP address or DNS name
           type: text
-      returns: ms
+      result:
+        ms: Ping milliseconds return time.
+        success: Whether the remote server answered the ping.
     traits: ip url server # this means any of `ip` or `url`
 
   - name: Webhook call
@@ -35,10 +37,10 @@ components:
           label: Remote URL
           placeholder: eg. http://example.com, https://example.com/path
           type: text
-      returns:
-        code: int
-        ms: ms
-        text: text
+      result:
+        code: Response code for the webhook call
+        ms: Milliseconds for response
+        text: Response text
     traits: url cloud server
 
   - name: Service tag change
@@ -68,6 +70,7 @@ components:
     type: action
     command: cmd
     icon: mail
+    debug: true
     call:
       method: send_notification
       extra: true
@@ -75,23 +78,27 @@ components:
         - name: email
           type: text
           label: User email or @group
+          description: |
+            If a user email is set, it will be sent to this user.
+            If a user is set it will be sent to all users on that group.
           card: true
+          placeholder: "@user"
         - name: subject
           type: text
           label: Subject
           card: true
         - name: body
           type: textarea
-          lable: Body
-        - name: service
-
+          label: Body
+      result:
+        success: Whether the notification was properly sent
   - name: Issue Open
     description: |
       Opens a new issue with the given parameters.
     type: action
     id: open-issue
     command: cmd
-    icon: issue
+    icon: alarm
     call:
       method: open_issue
       extra: true
@@ -125,15 +132,16 @@ components:
             Aliases are separated by spaces.
           placeholder: "eg. rule/{{rule.uuid}}"
           default: "rule/{{rule.uuid}}"
-
+      result:
+        issue_id: Issue id
   - name: Issue Open or Comment
     description: |
       Uses the issue id to check if the issue exists, for example by alias,
       and if not found creates a new issue with the given data.
     type: action
     id: open-or-comment-issue
+    icon: alarm outline
     command: cmd
-    icon: issue
     call:
       method: open_or_comment_issue
       extra: true
@@ -161,14 +169,16 @@ components:
 
             Aliases are separated by spaces.
           placeholder: "eg. rule/{{rule.uuid}}"
-
+      result:
+        is_new: Whether the issue was opened
+        issue_id: Issue id
   - name: Issue Close
     description: |
       Closes the given issue by alias or id.
     type: action
     id: close-issue
     command: cmd
-    icon: issue
+    icon: alarm mute
     call:
       method: close_issue
       extra: true
@@ -181,6 +191,8 @@ components:
         - name: comment
           type: textarea
           label: Issue comment
+      result:
+        updated: Whether the issue was closed. It may already be closed.
 
   - name: Notify all users
     description: |
@@ -197,6 +209,7 @@ components:
 
   - name: Open issue
     type: action template
+    icon: alarm outline
     id: action.openclose-issue
     actions:
       added:

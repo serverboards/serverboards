@@ -101,7 +101,8 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
     return {
         "stdout": stdout,
         "stderr": result.stderr.decode('utf8'),
-        "exit": result.exit_code
+        "exit": result.exit_code,
+        "success": result.exit_code == 0,
         }
 
 sessions={}
@@ -362,33 +363,43 @@ def close_port(port):
     return True
 
 @serverboards.rpc_method
-def watch_start(id=None, period=None, service=None, script=None, **kwargs):
+def watch_start(id=None, period=None, service_id=None, script=None, **kwargs):
     period_s = time_description_to_seconds(period or "5m")
-    service_uuid=service["uuid"]
     class Check:
         def __init__(self):
             self.state=None
         def check_ok(self):
             stdout=None
+            stderr=None
+            exit_code=0
             try:
-                p = ssh_exec(service=service_uuid, command=script)
-                stdout=p["stdout"]
-                p = (p["exit"] == 0)
+                p = ssh_exec(service=service_id, command=script)
+                stdout = p["stdout"]
+                stderr = p["stderr"]
+                exit_code = p["exit"]
                 # serverboards.info(
                 #     "SSH remote check script: %s: %s"%(script, p),
                 #     extra=dict(
                 #         rule=id,
-                #         service=service_uuid,
+                #         service=service_id,
                 #         script=script,
                 #         stdout=stdout,
                 #         exit_code=p)
                 #     )
-            except:
+            except Exception as e:
                 serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"]))
-                p = False
-            nstate = "ok" if p else "nok"
+                exit_code = -256
+                stdout = str(e)
+            nstate = "ok" if (exit_code == 0) else "nok"
             if self.state != nstate:
-                serverboards.rpc.event("trigger", {"id":id, "state": nstate})
+                serverboards.rpc.event("trigger", {
+                    "id": id,
+                    "state": nstate,
+                    "success": (exit_code == 0),
+                    "exit": exit_code,
+                    "stdout": stdout,
+                    "stderr": stderr
+                })
                 self.state=nstate
             return True
     check = Check()
@@ -398,7 +409,8 @@ def watch_start(id=None, period=None, service=None, script=None, **kwargs):
     return timer_id
 
 @serverboards.rpc_method
-def watch_stop(id):
+def watch_stop(id, **kwargs):
+    print(kwargs)
     serverboards.info("Stop SSH script watch %s"%(id))
     serverboards.rpc.remove_timer(id)
     return "ok"

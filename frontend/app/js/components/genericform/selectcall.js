@@ -33,8 +33,11 @@ class SelectCall extends React.Component{
     }
   }
   componentDidMount(){
-    const data = data_from_form_data( props.options.params, this.props.form_data )
-    this.reloadData(data)
+    const props = this.props
+    if (props.options && props.options.params){
+      const data = data_from_form_data( props.options.params, this.props.form_data )
+      this.reloadData(data)
+    }
   }
   reloadData(data){
     this.setState({loading:true})
