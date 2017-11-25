@@ -9,6 +9,8 @@ exec 1<>/tmp/serverboards-update.log
 exec 2>&1
 export DEBIAN_FRONTEND=noninteractive
 
+dpkg --configure -a
+
 if [ -e "/etc/apt/sources.list.d/serverboards.list" ]; then
   # Easy apt update
   apt-get update
