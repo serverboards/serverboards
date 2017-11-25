@@ -72,13 +72,16 @@ configure(){
 
   # Create necessary directories and set permissions
   INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
-    $INSTALL/local/ $INSTALL/log $INSTALL/local/data/ \
+    $INSTALL/log $INSTALL/local/data/ \
     $INSTALL/running_config $INSTALL/.ssh"
 
   for p in $INTERNAL_PATHS; do
     mkdir -p $p
     chown serverboards:serverboards $p -R
-    chmod 0770 $p -R
+    chmod u+rw $p -R
+    chmod g+r $p -R
+    chmod g-w $p -R
+    chmod o-rwx $p -R
   done
 
   [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
