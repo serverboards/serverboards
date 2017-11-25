@@ -11,10 +11,10 @@ const Modal=React.createClass({
       this.onClose()
   },
   componentDidMount(){
-    $(window).on("keyup", this.handleMaybeClose)
+    $(window).on("keydown", this.handleMaybeClose)
   },
   componentWillUnmount(){
-    $(window).off("keyup", this.handleMaybeClose)
+    $(window).off("keydown", this.handleMaybeClose)
   },
   onClose(){
     if (this.props.onClose)
