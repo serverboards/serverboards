@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: David Moreno <dmoreno@serverboards.io>
 Build-Depends: debhelper (>=9), elixir (>=1.5), nodejs (>=6.9), libpam-dev,
-  pkg-config, libsystemd-dev, dh-systemd, debconf, letsencrypt
+  pkg-config, libsystemd-dev, dh-systemd, debconf
 Standards-Version: 3.9.6
 Homepage: https://serverboards.io
 Vcs-Git: https://github.com/serverboards/serverboards.git
@@ -14,7 +14,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, python3,
   python3-requests, python3-pexpect, python3-yaml, python3-markdown, python3-pip,
   postgresql, postgresql-client, inotify-tools, git, nginx,
-  python3-venv, python3-sh, python3-psycopg2
+  python3-venv, python3-sh, python3-psycopg2, letsencrypt, screen
 Description: Serverboards is a single platform to integrate all the services of your organizaion
   Serverboards is a Web appliction that lets the users Manage, Monitor and Automate
   management tasks on Services.

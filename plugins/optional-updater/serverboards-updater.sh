@@ -14,7 +14,7 @@ dpkg --configure -a
 if [ -e "/etc/apt/sources.list.d/serverboards.list" ]; then
   # Easy apt update
   apt-get update
-  apt-get install serverboards -o Dpkg::Options::="--force-confold"
+  screen -dmS serverboards-update apt-get install serverboards -o Dpkg::Options::="--force-confold"
 else
   dpkg --configure -a
   apt-get -fy install
