@@ -31,6 +31,7 @@ const Plugins=React.createClass({
       Flash.error(`Could not load plugin list.\n ${e}`)
     }).then( () => {
       event.on("plugin.update.required", this.updateRequired)
+      event.on("plugin.updated", this.updated)
       return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
     } )
     rpc.call("plugin.component.catalog", {type: "settings"})
@@ -44,11 +45,21 @@ const Plugins=React.createClass({
   },
   componentWillUnmount(){
     event.off("plugin.update.required", this.updateRequired)
+    event.off("plugin.updated", this.updateRequired)
   },
   updateRequired({plugin_id, changelog}){
     const plugins = this.state.plugins.map( (pl) => {
       if (pl.id==plugin_id)
         return merge(pl, {changelog: changelog, status: pl.status.concat("updatable")})
+      else
+        return pl
+    })
+    this.setState({plugins})
+  },
+  updated({plugin_id}){
+    const plugins = this.state.plugins.map( (pl) => {
+      if (pl.id==plugin_id)
+        return merge(pl, {changelog: null, status: pl.status.filter( t => t!="updatable") })
       else
         return pl
     })

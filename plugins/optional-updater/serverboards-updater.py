@@ -36,7 +36,7 @@ def check_plugin_updates(action_id=None, **args):
     global plugins_state_timestamp
 
     ctime=time.time()
-    print(ctime,plugins_state_timestamp,ctime-plugins_state_timestamp,MAX_CACHE_TIME)
+    # print(ctime,plugins_state_timestamp,ctime-plugins_state_timestamp,MAX_CACHE_TIME)
     if plugins_state and (ctime-plugins_state_timestamp < MAX_CACHE_TIME):
         update_count=0
         for pl,changelog in plugins_state.items():
@@ -61,7 +61,8 @@ def check_plugin_updates(action_id=None, **args):
                     output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
                 except Exception as e:
                     serverboards.rpc.log_traceback(e)
-                    output=None
+                    serverboards.error("Error checking update of %s"%(pl), extra={"output": e.output.decode('utf8')})
+                    output=False
                 if output:
                     plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]
                     changelog=output.decode('utf8').strip()
@@ -90,6 +91,9 @@ def update_plugin(action_id=None, plugin_id=None):
         current_plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]
         if current_plugin_id == plugin_id:
             update_at(pl)
+            serverboards.rpc.event("event.emit","plugin.updated", {"plugin_id": plugin_id}, ["plugin.install"])
+            global plugins_state_timestamp
+            plugins_state_timestamp=0
             return "ok"
     raise Exception("not-found")
 
