@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "17.10.0+alpha.804",
+  "version": "17.10.0+alpha.835",
   "description": "Serverboards Frontend",
   "main": "index.js",
   "dependencies": {
