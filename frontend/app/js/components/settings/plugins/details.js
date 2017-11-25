@@ -56,9 +56,10 @@ const PluginDetails=React.createClass({
   handleUpdate(){
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
-      this.props.updateAll()
+      // this.props.updateAll()
       this.setState({is_updatable: false, tags: this.state.tags.filter( t => t!="updatable" ) })
     }).catch( (e) => {
+      console.log(e)
       Flash.error("Error updating plugin: "+e)
     })
   },
@@ -87,7 +88,18 @@ const PluginDetails=React.createClass({
               <div className="item">
                 <button className="ui yellow button" onClick={this.handleUpdate}>{i18n("Update now")}</button>
               </div>
-            ) : null }
+            ) : (
+              <div className="item">
+                <button
+                  className="ui teal button"
+                  onClick={this.handleUpdate}
+                  data-tooltip={i18n("Altough no update has been detected for this plugin, you can force update.")}
+                  data-position="bottom right"
+                  >
+                    {i18n("Force update")}
+                </button>
+              </div>
+            ) }
             {!plugin.id.startsWith("serverboards.core.") ? (
               <div className="item two lines">
                 <div>

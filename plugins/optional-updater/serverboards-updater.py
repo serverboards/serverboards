@@ -57,7 +57,11 @@ def check_plugin_updates(action_id=None, **args):
             pl=PLUGIN_PATH+pl
             if os.path.exists(pl+"/.git/"):
                 cmd="cd %s && git remote update > /dev/null && git log --oneline $(git rev-parse --abbrev-ref --symbolic-full-name @{u})...HEAD"%pl
-                output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+                try:
+                    output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+                except Exception as e:
+                    serverboards.rpc.log_traceback(e)
+                    output=None
                 if output:
                     plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]
                     changelog=output.decode('utf8').strip()
