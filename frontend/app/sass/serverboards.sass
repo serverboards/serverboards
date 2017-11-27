@@ -174,6 +174,8 @@ code
 .ui.main.area
   width: 100vw
   height: calc( 100vh - #{$top-height - 5})
+  display: flex
+  flex-direction: column
   .ui.dimmer
     display: flex
     flex-direction: column
@@ -186,6 +188,11 @@ code
     padding-bottom: 20%
     h1
       margin-top: 0px
+  > .extend
+    flex-grow: 1
+    overflow: hidden
+    > .ui.full.height
+      max-height: calc( 100% - #{$top-height} )
 .ui.basic.plain.label
   border: 0
   background: none !important
