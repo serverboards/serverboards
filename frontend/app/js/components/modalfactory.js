@@ -36,7 +36,8 @@ export function get_modal(name){
       return require('app/components/settings/plugins/details').default
     case "plugin.settings":
       return require('app/components/settings/plugins/settings').default
-
+    case "logs":
+      return require('app/components/logs/modal').default
   }
 }
 
