@@ -64,6 +64,7 @@ function Table(props){
        <Loading>Service catalog</Loading>
     )
   return (
+    <div className="ui scroll with padding">
     <table className="ui service selectable table">
       <thead><tr>
         <th/><th>{i18n("Name")}</th><th>{i18n("Type")}</th><th>{i18n("Description")}</th><th>{i18n("Status")}</th><th>{i18n("Actions")}</th>
@@ -74,6 +75,7 @@ function Table(props){
       ))}
       </tbody>
     </table>
+    </div>
   )
 }
 
