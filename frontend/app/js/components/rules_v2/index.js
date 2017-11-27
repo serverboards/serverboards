@@ -1,6 +1,6 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
-import { goto } from 'app/utils/store'
+import { goto, set_modal } from 'app/utils/store'
 import cache from 'app/utils/cache'
 import Rule from 'app/containers/rules_v2/rule'
 import RuleAdd from 'app/containers/rules_v2/add'
@@ -68,6 +68,8 @@ class RuleCard extends React.Component{
     const trigger_name = map_get(props, ["rule","rule","when","trigger"])
     let trigger_icon
 
+    $(this.refs.menu).dropdown()
+
     if (trigger_name)
       trigger_icon = cache
         .trigger(trigger_name)
@@ -103,6 +105,9 @@ class RuleCard extends React.Component{
           }
         })
     }
+  }
+  showLog(rule){
+    set_modal("logs", {filter: {extra:{rule_uuid: rule.uuid}}})
   }
   render(){
     const {rule, gotoRule, filter} = this.props
@@ -156,9 +161,19 @@ class RuleCard extends React.Component{
             <input type="checkbox" defaultChecked={rule.is_active} ref="toggle_input"/>
           </div>
           <div className="right">
-            <a className="ui text teal" onClick={() => gotoRule(rule)} >
+            <div className="ui dropdown" ref="menu" >
               <i className="ui ellipsis horizontal icon teal"/>
-            </a>
+              <div className="ui vertical menu">
+                <a className="ui item" onClick={() => gotoRule(rule)}>
+                  {i18n("Details")}
+                  <i className="icon id card outline"/>
+                </a>
+                <a className="ui item" onClick={() => this.showLog(rule)}>
+                  {i18n("Logs")}
+                  <i className="icon file text outline"/>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
