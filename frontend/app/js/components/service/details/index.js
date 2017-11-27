@@ -185,7 +185,7 @@ const Details = React.createClass({
             ))}
           </div>
         </div>
-        <div className="ui full height with scroll">
+        <div className="ui extend with scroll">
           <CurrentTab {...props} service={props.service} onClose={handleClose} />
         </div>
       </div>
