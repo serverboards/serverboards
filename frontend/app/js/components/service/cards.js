@@ -3,20 +3,46 @@ import Card from './card_v2'
 import Loading from '../loading'
 import {i18n} from 'app/utils/i18n'
 import {goto} from 'app/utils/store'
+import store from 'app/utils/store'
 import {sort_by_name} from 'app/utils'
 import Tip from '../tip'
 import ServiceDetails from 'app/containers/service/details'
+import HoldButton from '../holdbutton'
+import {service_detach} from 'app/actions/service'
 
 export function service_definition(service_type, service_catalog){
   return service_catalog.find( (c) => c.type == service_type )
 }
 
-function CardBottom(props){
-  return (
-    <div className="right">
-      <a onClick={(ev) => {ev.stopPropagation(); console.log("details", props)}}><i className="ui teal ellipsis horizontal icon"/></a>
-    </div>
-  )
+class CardBottom extends React.Component{
+  componentDidMount(){
+    $(this.refs.dropdown).dropdown()
+  }
+  detachService(){
+    console.log(this)
+    store.dispatch( service_detach(this.props.project.shortname, this.props.service.uuid) )
+  }
+  render(){
+    const props = this.props
+    return (
+      <div className="right">
+        <div className="ui dropdown" ref="dropdown">
+          <a onClick={(ev) => {ev.stopPropagation(); console.log("details", props)}}><i className="ui teal ellipsis horizontal icon"/></a>
+          <div className="ui vertical menu">
+            <a className="ui item">
+              {i18n("Details")}
+              <i className="icon id card outline"/>
+            </a>
+            <HoldButton className="ui item" onHoldClick={this.detachService.bind(this)}>
+              {i18n("Hold to remove")}
+              <i className="ui trash icon"/>
+            </HoldButton>
+          </div>
+        </div>
+      </div>
+    )
+
+  }
 }
 
 function match_service(s, filter){
@@ -95,6 +121,7 @@ class Cards extends React.Component{
                       key={p.uuid}
                       service={p}
                       onClick={() => this.setState({selected_service: p.uuid})}
+                      project={props.project}
                       bottomElement={CardBottom}
                       />
                   ))

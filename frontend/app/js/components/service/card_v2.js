@@ -40,7 +40,7 @@ class Card extends React.Component{
         </div>
         <div className="extra content">
           {props.bottomElement && (
-            <props.bottomElement service={service}/>
+            <props.bottomElement {...props}/>
           )}
         </div>
       </div>
