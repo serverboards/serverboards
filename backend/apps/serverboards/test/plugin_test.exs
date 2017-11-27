@@ -267,7 +267,7 @@ defmodule Serverboards.PluginTest do
         test_cmd,
         "data_sete",
         ["k", %{test: true} ]
-       ]) == {:error, "not_allowed"}
+       ]) == {:error, "not_allowed at plugin.data.update"}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
 
     {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
@@ -277,7 +277,7 @@ defmodule Serverboards.PluginTest do
         "data_gete",
         ["k"]
       ]
-    ) == {:error, "not_allowed"}
+    ) == {:error, "not_allowed at plugin.data.get"}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
   end
 

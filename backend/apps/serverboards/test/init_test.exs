@@ -2,7 +2,7 @@ require Logger
 
 defmodule InitTest do
   use ExUnit.Case, async: false
-  @moduletag :capture_log
+  # @moduletag :capture_log
 
   alias Test.Client
 

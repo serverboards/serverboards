@@ -285,7 +285,10 @@ defmodule Serverboards.RuleV2Test do
 
   test "Webhooks" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    {:ok, http_pid} = Serverboards.IO.HTTP.start_link port: 8080
+    http_pid = case Serverboards.IO.HTTP.start_link(port: 8080) do
+      {:ok, http_pid} -> http_pid
+      {:error, _} -> nil
+    end
 
     {:ok, service_uuid} = Serverboards.Service.service_add %{ "name" => "Test service", "config" => %{ "url" => "http://localhost" } }, Test.User.system
     rule = %{
@@ -321,6 +324,8 @@ defmodule Serverboards.RuleV2Test do
 
     assert response.status_code == 200
 
-    Process.exit(http_pid, :normal)
+    if http_pid do
+      Process.exit(http_pid, :normal)
+    end
   end
 end

@@ -200,7 +200,7 @@ defmodule Serverboards.Plugin.Runner do
     iex> call cmd, "ping"
     {:ok, "pong"}
     iex> call cmd, "unknown"
-    {:error, :unknown_method}
+    {:error, "unknown_method unknown"}
     iex> stop cmd
     true
 
