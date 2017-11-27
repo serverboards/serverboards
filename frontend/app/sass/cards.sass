@@ -64,7 +64,10 @@
 
 .ui.cards .narrow.card
   width: 200px
-  overflow: hidden
+  > .header, > .content
+    overflow: hidden
+  > .extra.content
+    overflow: visible
   &.selected
     box-shadow: 0 1px 3px 0 $blue, 0 0 0 1px $blue
   .header, .extra.content
@@ -83,5 +86,7 @@
         font-size: 23px
   > .content, > .extra.content
     border-top: 0px !important
-  > .content
-    overflow: hidden
+
+  .ui.dropdown > .ui.vertical.menu
+    .item .icon
+      margin-top: -14px

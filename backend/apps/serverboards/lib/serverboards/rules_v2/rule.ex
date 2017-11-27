@@ -141,6 +141,7 @@ defmodule Serverboards.RulesV2.Rule do
       case Serverboards.Plugin.Runner.call( plugin_id, method, params ) do
         {:ok, stop_id} ->
           stop_id = if stop_id do stop_id else uuid end
+          Logger.info("Starting rule #{inspect uuid}.", rule_uuid: uuid)
 
           {:ok, %{
             trigger: trigger,
@@ -202,7 +203,7 @@ defmodule Serverboards.RulesV2.Rule do
   def handle_cast({:trigger, params}, state) do
     if state.running == false do # already runing, no retriggers
       {:ok, trigger_type} = Serverboards.Utils.map_get(state.rule.rule, ["when", "trigger"])
-      Logger.debug("Trigger action: #{inspect {state.rule.name, trigger_type}}#{inspect params, pretty: true}", rule_uuid: state.rule.uuid)
+      Logger.info("Triggered #{inspect {state.rule.name, trigger_type}}", params: params, rule_uuid: state.rule.uuid)
       when_id = Map.get(state.rule.rule["when"], "id", "A")
       params = Map.merge( state.rule.rule["when"]["params"] || %{}, params )
       uuid = state.rule.uuid
@@ -317,6 +318,8 @@ defmodule Serverboards.RulesV2.Rule do
 
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
+    Logger.info("Executed action #{inspect action}", rule_uuid: uuid)
+
     result = if Enum.count(result)==1 and Map.has_key?(result, :result) do
       result[:result] else result end
 
@@ -336,9 +339,7 @@ defmodule Serverboards.RulesV2.Rule do
       } = step, state) do
 
     eval_res = ExEval.eval(condition, [state])
-    if step["debug"] do
-      Logger.debug("Check condition #{inspect condition}: #{inspect eval_res}.", state: state, rule_id: uuid)
-    end
+    Logger.info("Check condition #{inspect condition}: #{inspect eval_res}.", state: state, rule_uuid: uuid)
     case eval_res do
       {:ok, condition_result} ->
         if condition_result do
@@ -349,24 +350,24 @@ defmodule Serverboards.RulesV2.Rule do
           { else_actions, state }
         end
       {:error, {:unknown_var, varname, _context}} ->
-        #Logger.debug("Unknown variable #{inspect varname} at condition #{inspect condition}. Resolving as false.", rule_id: uuid)
+        #Logger.debug("Unknown variable #{inspect varname} at condition #{inspect condition}. Resolving as false.", rule_uuid: uuid)
         { else_actions, state }
       {:error, error} ->
-        Logger.error("Error parsing condition #{inspect condition}: #{inspect error}.", rule_id: uuid)
+        Logger.error("Error parsing condition #{inspect condition}: #{inspect error}.", rule_uuid: uuid)
         { else_actions, state }
     end
   end
 
   def execute_action(uuid, action, state) do
-    Logger.warn("Unknown action or incomplete to execute #{action["type"]}", action: action, rule_id: uuid)
+    Logger.warn("Unknown action or incomplete to execute #{action["type"]}", action: action, rule_uuid: uuid)
     {[], state}
   end
   def terminate(reason, state) do
     case reason do
       :normal ->
-        Logger.info("Rule #{inspect state.uuid} stopped.", rule_id: state.uuid)
+        Logger.info("Rule #{inspect state.uuid} stopped.", rule_uuid: state.uuid)
       other ->
-        Logger.error("Terminate #{inspect reason}")
+        Logger.error("Terminate #{inspect reason}", rule_uuid: state.uuid)
     end
 
     case state.trigger.plugin_id do

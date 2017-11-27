@@ -70,6 +70,13 @@ const Top = React.createClass({
       lastResort: 'bottom right'
     })
     $(this.refs.el).find("[data-content]").popup()
+    $(this.refs.settings).popup({
+      popup: this.refs.settings_menu,
+      on: 'hover',
+      hoverable: true,
+      position: 'bottom right',
+      lastResort: 'bottom right'
+    })
   },
   handleGotoProjects(){
     get_last_project()
@@ -167,16 +174,25 @@ const Top = React.createClass({
           <span className="ui item separator"/>
         </Restricted>
         <Restricted perm="settings.view">
-          <a
-              ref="settings"
-              id="settings"
-              onClick={() => goto("/settings/")}
-              className={`item icon ${( section == 'settings' ) ? "active" : ""}`}
-              data-content={i18n("Settings")}
-              data-position="bottom center"
+          <span>
+            <a
+                ref="settings"
+                id="settings"
+                onClick={() => goto("/settings/")}
+                className={`item icon ${( section == 'settings' ) ? "active" : ""}`}
+                >
+              <i className="big setting icon"/>
+            </a>
+            <div className="ui popup vertical menu" id="settings_menu" ref="setings_menu">
+              <a
+                className="item"
+                onClick={() => goto("/settings/")}
               >
-            <i className="big setting icon"/>
-          </a>
+                {i18n("Settings")}
+                <i className="right setting icon"/>
+              </a>
+            </div>
+          </span>
         </Restricted>
         <span className="ui item separator"/>
         <a
@@ -188,7 +204,7 @@ const Top = React.createClass({
           <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
             data-tooltip={props.user.email}/>
         </a>
-        <div className="ui popup" id="profile_menu" ref="profile_menu" style={{padding:0}}>
+        <div className="ui popup vertical menu" id="profile_menu" ref="profile_menu">
           <UserMenu/>
         </div>
       </nav>
