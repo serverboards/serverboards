@@ -51,18 +51,25 @@ defmodule Serverboards.Service do
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
       #Logger.debug("Operations: #{inspect operations}")
-      case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
-        nil -> :none
+      changes = case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
+        nil -> false
         l when is_list(l) ->
           update_tags_real(service, l)
+          true
         s when is_binary(s) ->
           tags = String.split(s)
           update_tags_real(service, tags)
+          true
       end
 
-      {:ok, upd} = Repo.update( ServiceModel.changeset(
-      service, operations
-      ) )
+
+      changeset = ServiceModel.changeset(
+        service, operations
+      )
+      changes = changes or (changeset.changes != %{})
+
+      Logger.debug("Changeset #{inspect changeset}")
+      {:ok, upd} = Repo.update( changeset )
 
       {:ok, service} = service_get upd.uuid, me
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
@@ -72,7 +79,9 @@ defmodule Serverboards.Service do
         Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
       end
 
-      Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me)
+      if changes do
+        Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me, operations: operations)
+      end
 
       :ok
     else
