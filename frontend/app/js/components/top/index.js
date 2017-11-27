@@ -183,7 +183,7 @@ const Top = React.createClass({
                 >
               <i className="big setting icon"/>
             </a>
-            <div className="ui popup vertical menu" id="settings_menu" ref="setings_menu" style={{padding:0, zIndex: 100}}>
+            <div className="ui popup vertical menu" id="settings_menu" ref="setings_menu">
               <a
                 className="item"
                 onClick={() => goto("/settings/")}
@@ -204,7 +204,7 @@ const Top = React.createClass({
           <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
             data-tooltip={props.user.email}/>
         </a>
-        <div className="ui popup vertical menu" id="profile_menu" ref="profile_menu" style={{padding:0, zIndex: 100}}>
+        <div className="ui popup vertical menu" id="profile_menu" ref="profile_menu">
           <UserMenu/>
         </div>
       </nav>
