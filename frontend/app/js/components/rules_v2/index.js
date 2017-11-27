@@ -133,7 +133,7 @@ class RuleCard extends React.Component{
 
     return (
       <div className="narrow rule card">
-        <div className="header">
+        <div className="ui header pointer" onClick={() => gotoRule(rule)}>
           {icons.map( (icon, i) => (i == 0) ? (
             <Icon key={i} icon={icon} className="ui mini"/>
           ) : (
@@ -151,7 +151,7 @@ class RuleCard extends React.Component{
             ))}
           </div>
         </div>
-        <div className="content">
+        <div className="ui content pointer" onClick={() => gotoRule(rule)}>
           <h3 className="ui header">{state.name}</h3>
           <div>{state.description}</div>
         </div>
