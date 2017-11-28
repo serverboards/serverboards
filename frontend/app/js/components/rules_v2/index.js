@@ -11,6 +11,15 @@ import Selector from 'app/components/selector'
 import RuleAddTemplate from 'app/containers/rules_v2/addtemplate'
 import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
+import templates from 'app/utils/templates'
+import {MarkdownPreview} from 'react-marked-markdown';
+
+function get_address(){
+  if (localStorage.servername)
+    return localStorage.servername
+  return `${document.location.protocol}//${document.location.host}`
+}
+
 
 function get_services_id(node){
   if (!node){
@@ -97,10 +106,16 @@ class RuleCard extends React.Component{
         cache.trigger(trigger_name).then( t => {
           if (t){
             let changes = {}
+
+            let description = templates.render(t.description,{
+                rule: this.props.rule,
+                BASE_URL: get_address()
+              })
+
             if (!this.state.name)
               changes["name"]=t.name
             if (!this.state.description)
-              changes["description"]=t.description
+              changes["description"]=description
             this.setState(changes)
           }
         })
@@ -153,7 +168,7 @@ class RuleCard extends React.Component{
         </div>
         <div className="ui content pointer" onClick={() => gotoRule(rule)}>
           <h3 className="ui header">{state.name}</h3>
-          <div>{state.description}</div>
+          <div><MarkdownPreview value={state.description || ""}/></div>
         </div>
 
         <div className="extra content">

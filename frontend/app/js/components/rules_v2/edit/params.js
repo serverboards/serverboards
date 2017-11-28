@@ -3,6 +3,15 @@ import i18n from 'app/utils/i18n'
 import GenericForm from 'app/components/genericform'
 import cache from 'app/utils/cache'
 import PropTypes from 'prop-types'
+import {map_get} from 'app/utils'
+import templates from 'app/utils/templates'
+import {MarkdownPreview} from 'react-marked-markdown';
+
+function get_address(){
+  if (localStorage.servername)
+    return localStorage.servername
+  return `${document.location.protocol}//${document.location.host}`
+}
 
 class Params extends React.Component{
   constructor(props){
@@ -17,13 +26,16 @@ class Params extends React.Component{
   }
   componentDidMount(){
     cache.trigger(this.props.trigger).then( trigger => {
-      let fields = trigger.start.params || []
+      let fields = map_get(trigger, ["start", "params"], [])
       const toskip = this.props.skip_fields || []
       fields = fields.filter( f => !toskip.includes(f.name) )
       if (trigger){
         this.setState({
           fields,
-          description: trigger.description,
+          description: templates.render(trigger.description, {
+            BASE_URL: get_address(),
+            rule: this.props.rule
+          }),
         })
       }
     })
@@ -39,7 +51,7 @@ class Params extends React.Component{
           <i className="ui wrench icon"/>
           Setup Options
         </h2>
-        <div className="description">{this.state.description}</div>
+        <div className="description"><MarkdownPreview value={this.state.description || ""}/></div>
         <div className="separator" style={{height: 40}}/>
         <GenericForm fields={this.state.fields} data={this.state.data} updateForm={this.updateForm}/>
         <div className="separator" style={{height: 40}}/>
