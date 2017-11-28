@@ -13,7 +13,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
     {qsvals, _} = :cowboy_req.qs_vals(req)
-    qsvals = Map.new(qsvals) |> Map.put("id", uuid)
+    qsvals = %{
+      "id" => uuid,
+      "data" => Map.new(qsvals)
+    }
 
     trigger_data = try do
       Serverboards.RulesV2.Rule.trigger_type(uuid)
@@ -41,6 +44,9 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     end
     reply = case reply do
       {:ok, res} ->
+        res = res.data
+          |> Map.drop(["changes", "prev", "rule"])
+          |> Map.put("status", res.status)
         {:ok, json_reply} = Poison.encode(res)
         {:ok, reply} = :cowboy_req.reply(200, [
             {"content-type", "application/json"}
@@ -50,6 +56,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
           )
         reply
       {:error, res} ->
+        res = res.data
+          |> Map.drop(["changes", "prev", "rule"])
+          |> Map.put("status", res.status)
+
         {:ok, json_reply} = Poison.encode(res)
         {:ok, reply} = :cowboy_req.reply(404, [
             {"content-type", "application/json"}
