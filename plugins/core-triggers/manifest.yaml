@@ -154,7 +154,7 @@ components:
 
       is externally called, with the data parameters as passed.
     result:
-      data: Object with data as sent by GET or POST query
+      data: Object with data as sent by GET or POST query, for example `{{A.data.subject}}`
 
   - name: Server socket is up
     description: |

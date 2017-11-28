@@ -2,6 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import {map_get} from 'app/utils'
+import {MarkdownPreview} from 'react-marked-markdown';
 
 class DL extends React.Component{
   constructor(props){
@@ -20,7 +21,7 @@ class DL extends React.Component{
       return (
         <li onClick={() => this.setState({open: true})}>
           <label className="ui bold text" style={{paddingLeft: 20}}>{label}:</label>
-          <span style={{paddingLeft: 10}}>{value}</span>
+          <span style={{paddingLeft: 10}}><MarkdownPreview value={value}/></span>
         </li>
       )
 
@@ -165,7 +166,7 @@ class RulesHelp extends React.Component{
               {description || i18n("You can use these variables to construct your exapression, for example 'A.exit == 0'")}
             </div>
             <div className="ui with scroll">
-              <ul className="ui no bullet list with padding">
+              <ul className="ui no bullet list with padding inline markdown">
                 {Object.keys(extra_help).sort().map( k => (
                   <DL key={k} label={k} value={extra_help[k]}/>
                 ))}
