@@ -136,7 +136,7 @@ class LibVirt(Connection):
 
             used_cpu_time=extra.get("used_cpu_time")
             if used_cpu_time:
-                used_cpu_time/=1_000_000_000;
+                used_cpu_time/=1000000000;
                 now=time.time()
                 if node.uuid in self.prev_used_cpu_time_v:
                     extra["CPU_rt"]=(used_cpu_time-self.prev_used_cpu_time_v[node.uuid])/(now-self.prev_used_cpu_time_t[node.uuid])
