@@ -163,6 +163,11 @@ components:
         - name: optional
           label: Optional values
           description: Coma separated optional values.
+        - name: redirect_ok
+          label: Redirect to this URL after trigger success
+        - name: redirect_nok
+          label: Redirect to this URL after trigger failure
+
     result:
       data: Object with data as sent by GET or POST query, for example `{{A.data.subject}}`
 
