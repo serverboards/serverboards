@@ -217,4 +217,11 @@ defmodule Serverboards.Utils do
       _ -> {:error, :not_found}
     end
   end
+
+  def map_get(map, q, defv) do
+    case map_get(map, q) do
+      {:ok, val} -> val
+      {:error, _} -> defv
+    end
+  end
 end

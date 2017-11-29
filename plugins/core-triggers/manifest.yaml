@@ -153,6 +153,16 @@ components:
         [{{BASE_URL}}/webhook/{{rule.uuid}}]({{BASE_URL}}/webhook/{{rule.uuid}})
 
       is externally called, with the data parameters as passed.
+    start:
+      params:
+        - type: description
+          description: Please set which values are required and optional. Any other value will be discarded.
+        - name: required
+          label: Required values
+          description: Coma separated required values. If any missing, return error.
+        - name: optional
+          label: Optional values
+          description: Coma separated optional values.
     result:
       data: Object with data as sent by GET or POST query, for example `{{A.data.subject}}`
 
