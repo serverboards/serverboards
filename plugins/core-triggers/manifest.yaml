@@ -160,9 +160,11 @@ components:
         - name: required
           label: Required values
           description: Coma separated required values. If any missing, return error.
+          card: true
         - name: optional
           label: Optional values
           description: Coma separated optional values.
+          card: true
         - name: redirect_ok
           label: Redirect to this URL after trigger success
         - name: redirect_nok
