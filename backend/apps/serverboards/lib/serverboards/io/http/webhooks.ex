@@ -15,7 +15,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Logger.debug("Get rule #{inspect uuid}")
     rule = Serverboards.RulesV2.Rules.get(uuid)
     # Logger.debug("Webhook rule #{inspect rule, pretty: true}")
-    params = Utils.map_get(rule, [:rule, "when", "params"], %{}) 
+    params = Utils.map_get(rule, [:rule, "when", "params"], %{})
     required = (params["required"] || "" ) |> String.split(~r"[,\s]", trim: true)
     # Logger.debug("Required: #{inspect required}")
     optional = (params["optional"] || "" ) |> String.split(~r"[,\s]", trim: true)
@@ -51,6 +51,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
     {qsvals, _} = :cowboy_req.qs_vals(req)
+    qsvals = if qsvals == [] do
+      {:ok, qsvals, _} = :cowboy_req.body_qs(req)
+      qsvals
+    end
     qsvals = Map.new(qsvals)
 
     trigger_data = try do
