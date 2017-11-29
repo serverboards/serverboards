@@ -9,11 +9,48 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     {:ok, req, :no_state}
   end
 
+  def filter_query(uuid, vals) do
+    alias Serverboards.Utils
+
+    # Logger.debug("Get rule #{inspect uuid}")
+    rule = Serverboards.RulesV2.Rules.get(uuid)
+    # Logger.debug("Webhook rule #{inspect rule, pretty: true}")
+    required = Utils.map_get(rule, [:rule, "when", "params", "required"], "") |> String.split(~r"[,\s]", trim: true)
+    # Logger.debug("Required: #{inspect required}")
+    optional = Utils.map_get(rule, [:rule, "when", "params", "optional"], "") |> String.split(~r"[,\s]", trim: true)
+    # Logger.debug("Optional: #{inspect optional}")
+
+    has_all = required |> Enum.all?(&(Map.has_key?(vals, &1)))
+
+    if has_all do
+      qsvals = %{
+        "id" => uuid,
+        "data" => vals |> Map.take(optional ++ required)
+      }
+
+      {:ok, qsvals}
+    else
+      {:error, :required_keys_not_present}
+    end
+  end
+
+  def do_webhook_call(uuid, qsvals) do
+    case filter_query(uuid, qsvals) do
+      {:ok, qsvals} ->
+        Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
+        res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
+        {:ok, %{status: :ok, data: res}}
+      {:error, e} ->
+        Logger.error("Webhook call is missing some keys #{inspect uuid}", rule_uuid: uuid)
+        {:error, %{ status: :error, data: e}}
+    end
+  end
+
   def handle(req, state) do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
     {qsvals, _} = :cowboy_req.qs_vals(req)
-    qsvals = Map.new(qsvals) |> Map.put("id", uuid)
+    qsvals = Map.new(qsvals)
 
     trigger_data = try do
       Serverboards.RulesV2.Rule.trigger_type(uuid)
@@ -24,14 +61,9 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
 
     reply = case trigger_data do
       {:ok, @allowed_trigger_type} ->
-        Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
-        res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
-        {:ok, %{status: :ok, data: res}}
+        do_webhook_call(uuid, qsvals)
       {:ok, @allowed_trigger_type_test} ->
-        Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
-        res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
-        {:ok, %{status: :ok, data: res}}
-
+        do_webhook_call(uuid, qsvals)
       {:ok, other_trigger} ->
         Logger.error("Try to trigger bad trigger type #{inspect uuid} / #{inspect other_trigger}", rule_uuid: uuid)
         {:error, %{status: :not_found, data: %{}}}
@@ -41,6 +73,9 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     end
     reply = case reply do
       {:ok, res} ->
+        res = res.data
+          |> Map.drop(["changes", "prev", "rule"])
+          |> Map.put("status", res.status)
         {:ok, json_reply} = Poison.encode(res)
         {:ok, reply} = :cowboy_req.reply(200, [
             {"content-type", "application/json"}

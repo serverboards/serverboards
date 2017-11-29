@@ -15,17 +15,25 @@ function When(props){
           <span className="ui icon circle floating top left">{props.when.id}</span>
           <a onClick={() => gotoStep("when:service")}>
             <i className="ui cloud icon"/>
-            {service_name || i18n("Select related service")}
+            {service_name || (
+              <span className="ui meta">{i18n("Select related service")}</span>
+            )}
           </a>
         </div>
         <div className={`${section.section=="when:trigger" ? "active" : ""}`}>
           <a onClick={() => gotoStep("when:trigger")}>
-            <i className="ui toggle on icon"/> {trigger_name || i18n("Select a trigger")}
+            <i className="ui toggle on icon"/>
+            {trigger_name || (
+              <span className="ui meta">{i18n("Select a trigger")}</span>
+            )}
           </a>
         </div>
         <div className={`${section.section=="params" ? "active" : ""}`}>
           <a onClick={() => gotoStep("when:params")}>
-            <i className="ui wrench icon"/> {params_resume || i18n("Setup trigger")}
+            <i className="ui wrench icon"/>
+            {params_resume || (
+              <span className="ui meta">{i18n("Setup trigger")}</span>
+            )}
           </a>
         </div>
       </div>

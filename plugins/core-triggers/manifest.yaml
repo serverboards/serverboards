@@ -100,14 +100,9 @@ components:
           class: half column
     stop:
       method: stop_trigger
-    returns:
-      - name: state
-        label: Connection state
-        type: select
-        options: [up, down]
-      - name: for
-        label: Time elapsed since last change
-        type: float
+    result:
+      state: Connection state
+      for: Time elapsed since last change
     traits: url
 
   - name: Periodic trigger
@@ -153,8 +148,23 @@ components:
     type: trigger
     id: webhook
     description: |
-      Will be called when the `{{BASE_URL}}/webhooks/{{rule.uuid}}`
+      Will be called when the address:
+
+        [{{BASE_URL}}/webhook/{{rule.uuid}}]({{BASE_URL}}/webhook/{{rule.uuid}})
+
       is externally called, with the data parameters as passed.
+    start:
+      params:
+        - type: description
+          description: Please set which values are required and optional. Any other value will be discarded.
+        - name: required
+          label: Required values
+          description: Coma separated required values. If any missing, return error.
+        - name: optional
+          label: Optional values
+          description: Coma separated optional values.
+    result:
+      data: Object with data as sent by GET or POST query, for example `{{A.data.subject}}`
 
   - name: Server socket is up
     description: |

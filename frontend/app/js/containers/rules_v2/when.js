@@ -2,6 +2,7 @@ import React from 'react'
 import View from 'app/components/rules_v2/when'
 import cache from 'app/utils/cache'
 import i18n from 'app/utils/i18n'
+import {map_get} from 'app/utils'
 
 class WhenModel extends React.Component{
   constructor(props){
@@ -29,7 +30,7 @@ class WhenModel extends React.Component{
     }
     else{
       this.setState({
-        service_name: i18n("No related service"),
+        service_name: undefined,
         service_type: undefined,
         service_params: {}
       })
@@ -42,7 +43,7 @@ class WhenModel extends React.Component{
         }
         let params = []
         const data = when.params
-        for (let p of t.start.params){
+        for (let p of map_get(t, ["start","params"], [])){
           if (p.card){
             params.push(`${p.label}: ${data[p.name] || p.default}`)
           }
