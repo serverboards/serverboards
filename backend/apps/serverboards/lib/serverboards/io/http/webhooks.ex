@@ -15,9 +15,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Logger.debug("Get rule #{inspect uuid}")
     rule = Serverboards.RulesV2.Rules.get(uuid)
     # Logger.debug("Webhook rule #{inspect rule, pretty: true}")
-    required = Utils.map_get(rule, [:rule, "when", "params", "required"], "") |> String.split(~r"[,\s]", trim: true)
+    params = Utils.map_get(rule, [:rule, "when", "params"], %{})
+    required = (params["required"] || "" ) |> String.split(~r"[,\s]", trim: true)
     # Logger.debug("Required: #{inspect required}")
-    optional = Utils.map_get(rule, [:rule, "when", "params", "optional"], "") |> String.split(~r"[,\s]", trim: true)
+    optional = (params["optional"] || "" ) |> String.split(~r"[,\s]", trim: true)
     # Logger.debug("Optional: #{inspect optional}")
 
     has_all = required |> Enum.all?(&(Map.has_key?(vals, &1)))
@@ -28,21 +29,21 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         "data" => vals |> Map.take(optional ++ required)
       }
 
-      {:ok, qsvals}
+      {:ok, qsvals, params}
     else
-      {:error, :required_keys_not_present}
+      {:error, :required_keys_not_present, params}
     end
   end
 
   def do_webhook_call(uuid, qsvals) do
     case filter_query(uuid, qsvals) do
-      {:ok, qsvals} ->
+      {:ok, qsvals, params} ->
         Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
         res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
-        {:ok, %{status: :ok, data: res}}
-      {:error, e} ->
+        {:ok, %{status: :ok, data: res}, params}
+      {:error, e, params} ->
         Logger.error("Webhook call is missing some keys #{inspect uuid}", rule_uuid: uuid)
-        {:error, %{ status: :error, data: e}}
+        {:error, %{ status: :error, data: e}, params}
     end
   end
 
@@ -50,6 +51,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
     {qsvals, _} = :cowboy_req.qs_vals(req)
+    qsvals = if qsvals == [] do
+      {:ok, qsvals, _} = :cowboy_req.body_qs(req)
+      qsvals
+    end
     qsvals = Map.new(qsvals)
 
     trigger_data = try do
@@ -72,27 +77,37 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         {:error, %{status: :not_found, data: %{}}}
     end
     reply = case reply do
-      {:ok, res} ->
-        res = res.data
-          |> Map.drop(["changes", "prev", "rule"])
-          |> Map.put("status", res.status)
-        {:ok, json_reply} = Poison.encode(res)
-        {:ok, reply} = :cowboy_req.reply(200, [
-            {"content-type", "application/json"}
-          ],
-          json_reply,
-          req
-          )
-        reply
-      {:error, res} ->
-        {:ok, json_reply} = Poison.encode(res)
-        {:ok, reply} = :cowboy_req.reply(404, [
-            {"content-type", "application/json"}
-          ],
-          json_reply,
-          req
-          )
-        reply
+      {:ok, res, params} ->
+        if params["redirect_ok"] do
+          :cowboy_req.reply(301, [
+              {"location", params["redirect_ok"]}
+            ],"",req)
+        else
+          res = res.data
+            |> Map.drop(["changes", "prev", "rule"])
+            |> Map.put("status", res.status)
+          {:ok, json_reply} = Poison.encode(res)
+          :cowboy_req.reply(200, [
+              {"content-type", "application/json"}
+            ],
+            json_reply,
+            req
+            )
+        end
+      {:error, res, params} ->
+        if params["redirect_nok"] do
+          :cowboy_req.reply(301, [
+              {"location", params["redirect_nok"]}
+            ],"",req)
+        else
+          {:ok, json_reply} = Poison.encode(res)
+          :cowboy_req.reply(404, [
+              {"content-type", "application/json"}
+            ],
+            json_reply,
+            req
+            )
+        end
     end
 
 

@@ -53,8 +53,12 @@ defmodule Serverboards.IO.HTTP do
     res
   end
 
-  defp postrequest(404, headers, _, req) do
-      body = '404 Not found'
+  defp postrequest(404, headers, body, req) do
+      body = if body do
+        String.to_charlist(body)
+      else
+        '404 Not found'
+      end
       headers=update_header(headers, "content-length", "#{Enum.count body}")
       {:ok, req} = :cowboy_req.reply(404, headers, body, req)
       log_request( req, headers, 404 )

@@ -286,7 +286,7 @@ defmodule Serverboards.RulesV2.Rule do
 
   def handle_call(:trigger_type, _from, state) do
     data = Serverboards.Utils.map_get(state.rule.rule, ["when", "trigger"])
-    Logger.debug("Get trigger type: #{inspect state.rule.rule} -> #{inspect data}")
+    # Logger.debug("Get trigger type: #{inspect state.rule.rule} -> #{inspect data}")
     res = case data do
       {:ok, trigger_type} ->
         {:ok, trigger_type}
