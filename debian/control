@@ -13,6 +13,7 @@ Package: serverboards
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, python3,
   python3-requests, python3-pexpect, python3-yaml, python3-markdown, python3-pip,
+  python3-dateutil, python3-tz, python3-yaml
   postgresql, postgresql-client, inotify-tools, git, nginx,
   python3-venv, python3-sh, python3-psycopg2, letsencrypt, screen
 Description: Serverboards is a single platform to integrate all the services of your organizaion
