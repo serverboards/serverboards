@@ -72,8 +72,9 @@ configure(){
 
   # Create necessary directories and set permissions
   INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
-    $INSTALL/log $INSTALL/local/data/ \
+    $INSTALL/log $INSTALL/local/data/\
     $INSTALL/running_config $INSTALL/.ssh"
+  INTERNAL_PATHS_NOCHMOD="$INSTALL/local/plugins"
 
   for p in $INTERNAL_PATHS; do
     mkdir -p $p
@@ -82,6 +83,11 @@ configure(){
     chmod g+r $p -R
     chmod g-w $p -R
     chmod o-rwx $p -R
+  done
+
+  for p in $INTERNAL_PATHS_NOCHMOD; do
+    mkdir -p $p
+    chown serverboards:serverboards $p
   done
 
   [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
