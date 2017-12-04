@@ -141,6 +141,8 @@ defmodule Serverboards.RulesV2.Rules do
         if options[:start]!=false do
           is_active = Map.get(data, :is_active, rule.is_active)
           if is_active do
+            Logger.info("Restaring rule #{inspect rule.uuid}")
+            Rule.ensure_not_running(rule) # stop, and then start again
             Rule.ensure_running(rule)
           else
             Rule.ensure_not_running(rule)
