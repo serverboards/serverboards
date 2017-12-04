@@ -61,7 +61,7 @@ class Action extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      step: 1,
+      step: this.props.action.action ? 2 : 1, // If has action, go to edit params. 
       data: props.action.params,
       action: undefined,
     }

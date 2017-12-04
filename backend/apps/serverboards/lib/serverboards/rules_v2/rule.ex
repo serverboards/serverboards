@@ -65,7 +65,7 @@ defmodule Serverboards.RulesV2.Rule do
   ## Server impl
 
   def init(%{ from_template: nil} = rule) do
-    # Logger.info("Starting rule #{inspect rule, pretty: true}")
+    Logger.info("Starting rule #{inspect rule.uuid, pretty: true}")
     uuid = rule.uuid
 
     case start_trigger(uuid, rule.rule["when"]) do

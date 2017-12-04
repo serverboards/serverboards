@@ -71,15 +71,16 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         do_webhook_call(uuid, qsvals)
       {:ok, other_trigger} ->
         Logger.error("Try to trigger bad trigger type #{inspect uuid} / #{inspect other_trigger}", rule_uuid: uuid)
-        {:error, %{status: :not_found, data: %{}}}
+        {:error, %{status: :not_found, data: %{}}, %{}}
       _ ->
         Logger.error("Could not access to trigger data of #{inspect uuid}")
-        {:error, %{status: :not_found, data: %{}}}
+        {:error, %{status: :not_found, data: %{}}, %{}}
     end
-    reply = case reply do
+
+    {:ok, reply} = case reply do
       {:ok, res, params} ->
         if params["redirect_ok"] do
-          :cowboy_req.reply(301, [
+          :cowboy_req.reply(302, [
               {"location", params["redirect_ok"]}
             ],"",req)
         else
@@ -90,21 +91,21 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
           :cowboy_req.reply(200, [
               {"content-type", "application/json"}
             ],
-            json_reply,
+            (json_reply),
             req
             )
         end
       {:error, res, params} ->
         if params["redirect_nok"] do
-          :cowboy_req.reply(301, [
+          :cowboy_req.reply(302, [
               {"location", params["redirect_nok"]}
-            ],"",req)
+            ],'',req)
         else
           {:ok, json_reply} = Poison.encode(res)
           :cowboy_req.reply(404, [
               {"content-type", "application/json"}
             ],
-            json_reply,
+            (json_reply),
             req
             )
         end
@@ -114,7 +115,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     {:ok, reply, state}
   end
 
-  def terminate(_reason, _req, _state) do
+  def terminate(reason, request, state) do
+    if reason != {:normal, :shutdown} do
+      Logger.error("Not normal webhook termination", request: request, state: state, reason: reason)
+    end
     :ok
   end
 end
