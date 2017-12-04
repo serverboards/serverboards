@@ -91,7 +91,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
           :cowboy_req.reply(200, [
               {"content-type", "application/json"}
             ],
-            String.to_charlist(json_reply),
+            (json_reply),
             req
             )
         end
@@ -105,7 +105,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
           :cowboy_req.reply(404, [
               {"content-type", "application/json"}
             ],
-            String.to_charlist(json_reply),
+            (json_reply),
             req
             )
         end
