@@ -168,7 +168,7 @@ class AddServiceRouter extends React.Component{
 function get_service_market_catalog(){
   return Promise.all([
       plugin.start_call_stop(
-            "serverboards.optional.update/updater",
+            "serverboards.optional.update/catalog",
             "component_filter",
             {type: "service"}
           )

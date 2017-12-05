@@ -52,7 +52,7 @@ class SetupWidget extends React.Component{
 function get_widget_market_catalog(){
   return Promise.all([
       plugin.start_call_stop(
-            "serverboards.optional.update/updater",
+            "serverboards.optional.update/catalog",
             "component_filter",
             {type: "widget"}
           )

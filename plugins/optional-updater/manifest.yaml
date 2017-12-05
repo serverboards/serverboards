@@ -38,6 +38,16 @@ components:
     timeout: 5m
     perms: event.emit action.update settings.view[serverboards.optional.updater]
 
+  - id: catalog
+    type: cmd
+    name: Catalog check
+    command: ./serverboards-updater.py
+    requires: perms[update]
+    strategy: singleton
+    timeout: 5m
+    perms: event.emit action.update settings.view[serverboards.optional.updater]
+    description: Same executable as updater, but another instance, to allow logn running plugin update check.
+
   - id: check_plugin_updates
     traits: plugins hidden
     type: action
