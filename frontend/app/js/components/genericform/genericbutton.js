@@ -20,6 +20,13 @@ const GenericButton= React.createClass({
     }
   },
   componentDidMount(){
+    this.prepareToUpdate()
+  },
+  prepareToUpdate(){
+    const to = setTimeout(() => this.updateVariables(), 1000)
+    this.setState({waitforupdate: to, loading: true})
+  },
+  updateVariables(){
     const props=this.props
     resolve_form_vars(props.vars, props.form_data || {}).then( (vars) => { // Then set it into the state, update content
       this.setState({
@@ -45,8 +52,7 @@ const GenericButton= React.createClass({
       if (this.state.waitforupdate){
         clearTimeout(this.state.waitforupdate)
       }
-      const to = setTimeout(() => this.componentDidMount(), 1000)
-      this.setState({waitforupdate: to})
+      this.prepareToUpdate()
     }
   },
   setError(code){

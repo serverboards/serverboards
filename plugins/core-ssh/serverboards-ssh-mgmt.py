@@ -26,18 +26,20 @@ def get_fingerprint(url, *args, **kwargs):
         return None
     (hostname, port) = ssh_urlparse(url)
     try:
-        output = str(subprocess.check_output(["ssh-keyscan", "-p", port, hostname]), 'utf8')
+        output = str(subprocess.check_output(["ssh-keyscan", "-p", port, hostname], timeout=5), 'utf8')
         output=output.strip().split('\n')
         output.sort()
         # serverboards.debug(repr(output))
         return '\n'.join(output)
+    except subprocess.TimeoutExpired:
+        return None
     except:
         import traceback; traceback.print_exc()
         return None
 
 @serverboards.rpc_method
 def remote_fingerprint(url="", options="", **kwargs):
-    # serverboards.info(repr(kwargs))
+    # print(url, options, repr(kwargs))
     fingerprint=get_fingerprint(url, options)
     if not fingerprint:
         return {
