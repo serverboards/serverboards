@@ -7,6 +7,7 @@ import {merge} from 'app/utils'
 import event from 'app/utils/event'
 import i18n from 'app/utils/i18n'
 import {set_modal, goto} from 'app/utils/store'
+import store from 'app/utils/store'
 import cache from 'app/utils/cache'
 
 require('sass/cards.sass')
@@ -32,7 +33,9 @@ const Plugins=React.createClass({
     }).then( () => {
       event.on("plugin.update.required", this.updateRequired)
       event.on("plugin.updated", this.updated)
-      return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
+      // do not launch more times. May miss some updates needed.
+      if (!store.getState().action.actions.some( i => i.id=="serverboards.optional.update/check_plugin_updates" ))
+        return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
     } )
     rpc.call("plugin.component.catalog", {type: "settings"})
       .then( formlist => {
