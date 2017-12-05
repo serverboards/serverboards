@@ -24,7 +24,7 @@ defmodule InitTest do
     {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
     assert Serverboards.Plugin.Runner.status(init.command) == :running
-    :timer.sleep(1500)
+    :timer.sleep(2500)
     # timeout, plugin runner killed the command
     assert Serverboards.Plugin.Runner.status(init.command) == :not_running
     :timer.sleep(1200)
