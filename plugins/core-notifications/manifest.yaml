@@ -18,12 +18,17 @@ components:
         description: IP address or DNS name of the SMTP Server
         type: text
         validation: empty
-        class: half column
       - label: Port
         name: port
         type: text
         description: Port of communication
         placeholder: Leave empty to use defaults
+        class: half column
+      - label: Use SSL
+        name: ssl
+        type: checkbox
+        default: true
+        description: Use a secure connection.
         class: half column
       - label: Email from
         name: from
@@ -59,3 +64,33 @@ components:
     command: serverboards_email.py
     type: singleton
     timeout: 1m
+
+  - name: Send Email
+    description: |
+      Sends an email to the given address or addresses.
+
+      If you are sending some notification to an user of the system, better
+      use `Send notification`
+    id: send-email
+    type: action
+    command: daemon.email
+    icon: mail
+    debug: true
+    call:
+      method: send_email_action
+      extra: true
+      params:
+        - name: email
+          type: text
+          label: Email address or addresses
+          card: true
+          placeholder: "@user"
+        - name: subject
+          type: text
+          label: Subject
+          card: true
+        - name: body
+          type: textarea
+          label: Body
+      result:
+        success: Whether the email was properly sent

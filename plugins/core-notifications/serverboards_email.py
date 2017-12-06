@@ -7,13 +7,17 @@ import smtplib, email, markdown
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
+email_utils=email.utils
+from serverboards import print
 
 settings=None
 
 def find_var_rec(context, var):
+    if not context:
+        return ''
     if var in context:
         return context[var]
-    return "[UNKNOWN %s]"%var
+    return ''
 
 def template_var_match(context):
     def replace(match):
@@ -46,17 +50,24 @@ def send_email(user=None, config=None, message=None, test=False):
         serverboards.warning("Email not properly configured. Not sending emails")
         return False
     _to = config and config.get("email") or user["email"]
+    extra={ k:v for k,v in message["extra"].items() if k not in ['email','subject','body']}
+    extra["user"]=user
+    #serverboards.debug("email extra data: %s"%(repr(extra)))
+    return send_email_action(_to, message["subject"], message["body"], **extra)
+
+@serverboards.rpc_method
+def send_email_action(email=None, subject=None, body=None, **extra):
+    if not settings:
+        serverboards.warning("Email not properly configured. Not sending emails")
+        return False
     msg = MIMEMultipart('alternative')
-    extra=message["extra"]
     #serverboards.debug("email extra data: %s"%(repr(extra)))
 
-    body_md = message["body"]
-
     context = {
-        "email": _to,
-        "user": user,
-        "subject": message["subject"],
-        "body": markdown.markdown(body_md, safe_mode='escape'),
+        "email": email,
+        "user": extra.get("user"),
+        "subject": subject,
+        "body": markdown.markdown(body, safe_mode='escape'),
         "settings": settings,
         "APP_URL": base_url(),
         "type": extra.get("type", "MESSAGE"),
@@ -65,45 +76,58 @@ def send_email(user=None, config=None, message=None, test=False):
     body_html = render_template(os.path.join(os.path.dirname(__file__), "email-template.html"), context)
 
     msg.attach(MIMEText(body_html,"html",'UTF-8'))
-    msg.attach(MIMEText(body_md,"plain",'UTF-8'))
+    msg.attach(MIMEText(body,"plain",'UTF-8'))
 
     msg["From"]="Serverboards <%s>"%settings["from"]
-    msg["To"]=_to
-    msg["Subject"]=message["subject"]
-    msg["Date"]=email.utils.formatdate()
+    msg["To"]=email
+    msg["Subject"]=subject
+    msg["Date"]=email_utils.formatdate()
 
     if "message_id" in extra:
         msg["Message-Id"] = extra["message_id"]
     if "thread_id" in extra:
         msg["In-Reply-To"] = extra["thread_id"]
 
-    if test:
+    if extra.get("test"):
         with open("/tmp/lastmail.html","w") as fd:
             fd.write(markdown.markdown(body_html, safe_mode='escape'))
         with open("/tmp/lastmail.md","w") as fd:
-            fd.write(body_md)
+            fd.write(body)
 
-    smtp = smtplib.SMTP(settings["servername"], int(settings["port"] or "0"))
+    port=settings.get("port")
+    if port:
+        if port == '465' or settings.get("ssl"):
+            port = port or '465'
+            smtp = smtplib.SMTP_SSL(settings["servername"], int(port))
+        else:
+            smtp = smtplib.SMTP(settings["servername"], int(port))
+    else:
+        smtp = smtplib.SMTP(settings["servername"])
     if settings.get("username") :
-        smtp.login(settings["username"], settings["password_pw"])
-    smtp.sendmail(settings["from"], _to, msg.as_string())
+        smtp.login(settings.get("username"), settings.get("password_pw"))
+    smtp.sendmail(settings["from"], email, msg.as_string())
     smtp.close()
 
-    serverboards.info("Sent email to %s, with subject '%s'"%(user["email"], message["subject"]))
+    serverboards.info("Sent email to %s, with subject '%s'"%(email, subject))
 
     return True
 
 
-
 if len(sys.argv)==2 and sys.argv[1]=="test":
     base_url_cache="http://localhost/"
-    settings={
-        "servername" : "mail.serverboards.io",
-        "port" : "",
-        "from" : "test@serverboards.io",
-        "username" : "",
-        "password_pw" : ""
-    }
+    settings={'username': 'dmoreno@serverboards.io', 'servername': 'smtp.zoho.eu', 'port': '465', 'ssl': True, 'password_pw': 'A3Q6KvqNfbzp', 'from': 'dmoreno+test@serverboards.io'}
+    # {
+    #     "servername" : "mail.serverboards.io",
+    #     "port" : "",
+    #     "from" : "test@serverboards.io",
+    #     "username" : "",
+    #     "password_pw" : ""
+    # }
+    print(send_email_action(
+        "dmoreno@coralbits.com",
+        "This is a test from s10s test",
+        "The body of the test"
+        ))
     print(send_email(
         user={ "email": "dmoreno@serverboards.io" },
         config={},
@@ -119,6 +143,7 @@ else:
         settings={
             "servername" : "localhost",
             "port": "",
+            "ssl": False,
             "from" : "noreply@localhost",
             "username" : "",
             "password_pw" : ""
