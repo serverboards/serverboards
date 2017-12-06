@@ -179,7 +179,7 @@ class RPC:
         This is use internally for all incomming rpc calls.
         """
         method=rpc['method']
-        params=rpc['params']
+        params=rpc['params'] or []
         call_id=rpc.get('id')
         (args,kwargs) = ([],params) if type(params)==dict else (params, {})
 

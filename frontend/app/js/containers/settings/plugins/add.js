@@ -18,7 +18,7 @@ class AddModel extends React.Component{
   get_plugins(){
     return Promise.all([
         plugin
-          .start_call_stop("serverboards.optional.update/updater", "plugin_catalog")
+          .start_call_stop("serverboards.optional.update/catalog", "plugin_catalog")
         , cache.plugins()
       ]).then( (cp) => {
         const catalog = cp[0]
@@ -29,7 +29,7 @@ class AddModel extends React.Component{
       })
 
     return plugin
-      .start_call_stop("serverboards.optional.update/updater", "plugin_catalog")
+      .start_call_stop("serverboards.optional.update/catalog", "plugin_catalog")
   }
   handleInstallPlugin(plugin_url){
     if (!plugin_url){
