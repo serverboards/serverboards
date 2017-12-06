@@ -13,6 +13,8 @@ defmodule Serverboards.Settings do
   alias Serverboards.Repo
   alias Serverboards.Settings.Model
 
+  @nochange "%%NOCHANGE%%"
+
   def start_link(options) do
     {:ok, es} = EventSourcing.start_link [name: :settings] ++ options
     {:ok, _rpc} = Serverboards.Settings.RPC.start_link
@@ -55,6 +57,15 @@ defmodule Serverboards.Settings do
       sec ->
         #Logger.debug("#{inspect sec}")
         if data != sec.data do
+          # No changes on pw use old value
+          data = for {k,v} <- data, into: %{} do
+            if String.ends_with?(k, "_pw") and v==@nochange do
+              {k, sec.data[k]}
+            else
+              {k, v}
+            end
+          end
+
           Repo.update( Model.Settings.changeset(sec, %{data: data}) )
           MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
           Serverboards.Event.emit("settings.updated", %{ section: section, data: data}, ["settings.view"])
@@ -125,7 +136,7 @@ defmodule Serverboards.Settings do
           fields = Enum.map(fields, fn f ->
             name = Map.get(f, "name", "")
             if String.ends_with? name, "_pw" do
-              Map.put(f, "value", "")
+              Map.put(f, "value", @nochange)
             else
               Map.put(f, "value", Map.get( values, name, nil ))
             end
