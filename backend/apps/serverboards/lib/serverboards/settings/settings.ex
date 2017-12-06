@@ -135,7 +135,7 @@ defmodule Serverboards.Settings do
           values = Map.get(all_values, id, %{})
           fields = Enum.map(fields, fn f ->
             name = Map.get(f, "name", "")
-            if String.ends_with? name, "_pw" do
+            if String.ends_with?(to_string(name), "_pw") do
               Map.put(f, "value", @nochange)
             else
               Map.put(f, "value", Map.get( values, name, nil ))
