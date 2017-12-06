@@ -59,7 +59,7 @@ defmodule Serverboards.Settings do
         if data != sec.data do
           # No changes on pw use old value
           data = for {k,v} <- data, into: %{} do
-            if String.ends_with?(k, "_pw") and v==@nochange do
+            if String.ends_with?(to_string(k), "_pw") and v==@nochange do
               {k, sec.data[k]}
             else
               {k, v}
