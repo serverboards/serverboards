@@ -102,10 +102,12 @@ const GenericField=React.createClass({
         )
       case "checkbox":
         return (
-          <div className="ui checkbox">
-            <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked}/>
-            <label htmlFor={props.name}>{props.label}</label>
-            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
+          <div className={`field ${class_sbds_to_sui(props["class"])}`}>
+            <div className="ui checkbox">
+              <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked}/>
+              <label htmlFor={props.name} className="ui pointer">{props.label}</label>
+              <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
+            </div>
           </div>
         )
       case 'description':

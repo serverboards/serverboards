@@ -51,10 +51,15 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
     {qsvals, _} = :cowboy_req.qs_vals(req)
+    Logger.debug(inspect {qsvals})
     qsvals = if qsvals == [] do
+      Logger.debug("No qvals?")
       {:ok, qsvals, _} = :cowboy_req.body_qs(req)
       qsvals
+    else
+      qsvals
     end
+    Logger.debug(inspect {qsvals})
     qsvals = Map.new(qsvals)
 
     trigger_data = try do
