@@ -14,22 +14,23 @@ function Section(props){
     <section key={props.id}>
       <h2 className="ui header">{i18n(props.name)}</h2>
       <div className="ui description"><MarkdownPreview value={i18n(props.description)}/></div>
-      <GenericForm fields={props.fields} onSubmit={(ev) => ev.preventDefault() }/>
+      <GenericForm fields={props.fields} onSubmit={(ev) => ev.preventDefault() } updateForm={props.updateSection}/>
     </section>
   )
 }
 
 let System=React.createClass({
+  getInitialState(){
+    return {}
+  },
   handleSubmit(){
     //console.log(this.refs)
     var all_updates=[]
     for(let section of this.props.settings){
       section=section.id
-      let data={}
-      let $form=$(this.refs[section]).find('form')
-      $form.serializeArray().map( ({name, value}) => {
-        data[name]=value
-      })
+      let data=this.state[section]
+      if (!data)
+        continue
       all_updates.push(
         rpc.call("settings.update", [section, data])
       )
@@ -37,6 +38,9 @@ let System=React.createClass({
     Promise.all(all_updates).then(function(){
       Flash.success(i18n("Updated settings!"))
     }).then( () => store.dispatch(settings_all()) )
+  },
+  handleUpdateSection(section, data){
+    this.setState({[section]:data})
   },
   render(){
     let props=this.props
@@ -55,7 +59,7 @@ let System=React.createClass({
 
           {props.settings.map( (section) => (
               <div key={section.id} ref={section.id}>
-                <Section {...section} />
+                <Section {...section} updateSection={(data) => this.handleUpdateSection(section.id, data)}/>
               </div>
             )) }
           <Restricted perm="settings.update">
