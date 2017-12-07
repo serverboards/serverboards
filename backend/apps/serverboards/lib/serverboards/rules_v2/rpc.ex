@@ -22,7 +22,7 @@ defmodule Serverboards.RulesV2.RPC do
     end, required_perm: "rules.update", context: true
 
     add_method mc, "rules_v2.list", fn filter when is_map(filter) ->
-      filter = filter |> Serverboards.Utils.keys_to_atoms_from_list(~w"project")
+      filter = filter |> Serverboards.Utils.keys_to_atoms_from_list(~w"project trigger deleted is_active")
       Serverboards.RulesV2.Rules.list(filter)
     end, required_perm: "rules.view"
 

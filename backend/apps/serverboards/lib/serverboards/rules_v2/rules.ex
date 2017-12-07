@@ -242,6 +242,10 @@ defmodule Serverboards.RulesV2.Rules do
         |> where([_r, p], p.shortname == ^filter[:project])
     else q end
 
+    q = if filter[:trigger] do
+      where(q, [rule], fragment("?->'when'->>'trigger' = ?", rule.rule, ^filter[:trigger]))
+    else q end
+
     for r <- Repo.all(q) do
       decorate(r)
     end
