@@ -339,7 +339,7 @@ defmodule Serverboards.RulesV2.Rule do
       } = step, state) do
 
     eval_res = ExEval.eval(condition, [state])
-    Logger.info("Check condition #{inspect condition}: #{inspect eval_res}.", state: state, rule_uuid: uuid)
+    #Logger.info("Check condition #{inspect condition}: #{inspect eval_res}.", state: state, rule_uuid: uuid)
     case eval_res do
       {:ok, condition_result} ->
         if condition_result do
