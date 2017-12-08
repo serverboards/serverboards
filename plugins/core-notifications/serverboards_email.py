@@ -3,7 +3,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 
-import smtplib, email, markdown
+import smtplib, email, markdown, json
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -75,8 +75,8 @@ def send_email_action(email=None, subject=None, body=None, **extra):
         }
     body_html = render_template(os.path.join(os.path.dirname(__file__), "email-template.html"), context)
 
-    msg.attach(MIMEText(body_html,"html",'UTF-8'))
     msg.attach(MIMEText(body,"plain",'UTF-8'))
+    msg.attach(MIMEText(body_html,"html",'UTF-8'))
 
     msg["From"]="Serverboards <%s>"%settings["from"]
     msg["To"]=email
@@ -115,7 +115,7 @@ def send_email_action(email=None, subject=None, body=None, **extra):
 
 if len(sys.argv)==2 and sys.argv[1]=="test":
     base_url_cache="http://localhost/"
-    settings=json.load("config.json")
+    settings=json.load(open("config.json"))
     # {
     #     "servername" : "mail.serverboards.io",
     #     "port" : "",
