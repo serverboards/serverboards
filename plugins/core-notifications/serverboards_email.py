@@ -115,7 +115,7 @@ def send_email_action(email=None, subject=None, body=None, **extra):
 
 if len(sys.argv)==2 and sys.argv[1]=="test":
     base_url_cache="http://localhost/"
-    settings={'username': 'dmoreno@serverboards.io', 'servername': 'smtp.zoho.eu', 'port': '465', 'ssl': True, 'password_pw': 'A3Q6KvqNfbzp', 'from': 'dmoreno+test@serverboards.io'}
+    settings=json.load("config.json")
     # {
     #     "servername" : "mail.serverboards.io",
     #     "port" : "",
