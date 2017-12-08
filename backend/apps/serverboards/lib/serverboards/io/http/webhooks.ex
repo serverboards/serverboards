@@ -35,11 +35,20 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     end
   end
 
+  defp empty?(nil), do: true
+  defp empty?(""), do: true
+  defp empty?(_), do: false
+
   def do_webhook_call(uuid, qsvals) do
     case filter_query(uuid, qsvals) do
       {:ok, qsvals, params} ->
         Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
-        res = Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
+        wait = empty?(params["redirect_ok"]) or empty?(params["redirect_nok"])
+        res = if wait do
+          Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
+        else
+          Serverboards.RulesV2.Rule.trigger(uuid, qsvals)
+        end
         {:ok, %{status: :ok, data: res}, params}
       {:error, e, params} ->
         Logger.error("Webhook call is missing some keys #{inspect uuid}", rule_uuid: uuid)
@@ -82,11 +91,13 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         {:error, %{status: :not_found, data: %{}}, %{}}
     end
 
+
     {:ok, reply} = case reply do
       {:ok, res, params} ->
-        if params["redirect_ok"] do
+        redirect_ok = params["redirect_ok"]
+        if redirect_ok do
           :cowboy_req.reply(302, [
-              {"location", params["redirect_ok"]}
+              {"location", redirect_ok}
             ],"",req)
         else
           res = res.data
@@ -101,9 +112,10 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
             )
         end
       {:error, res, params} ->
-        if params["redirect_nok"] do
+        redirect_nok = params["redirect_nok"]
+        if redirect_nok do
           :cowboy_req.reply(302, [
-              {"location", params["redirect_nok"]}
+              {"location", redirect_nok}
             ],'',req)
         else
           {:ok, json_reply} = Poison.encode(res)
