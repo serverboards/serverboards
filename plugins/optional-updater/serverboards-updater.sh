@@ -14,7 +14,10 @@ dpkg --configure -a
 if [ -e "/etc/apt/sources.list.d/serverboards.list" ]; then
   # Easy apt update
   apt-get update
-  screen -dmS serverboards-update apt-get install serverboards -o Dpkg::Options::="--force-confold"
+  apt-get install serverboards -o Dpkg::Options::="--force-confold"
+  # Restart serverboards. Will make current serverboards fail and even this script to exit.
+  service serverboards restart &
+  exit 0
 else
   dpkg --configure -a
   apt-get -fy install

@@ -59,6 +59,28 @@ get_user_data(){
   set -e
 }
 
+# Checks if this postinst is utimately inside a systemd service, so no restart
+# writes yes | no .
+running_inside_systemd(){
+  local PID=$1
+  while true; do
+    local CMD=$( grep Name /proc/$PID/status | awk -F: '{ print $2 }' | sed 's/\s//g' )
+    case $CMD in
+      fish|bash|dash|sh|zsh)
+        echo no
+        return
+        ;;
+      systemd)
+        echo yes
+        return
+        ;;
+      *)
+        local PID=$( grep PPid /proc/$PID/status | awk -F: '{ print $2 }' | sed 's/\s//g' )
+      ;;
+    esac
+  done
+}
+
 configure(){
   get_user_data
   log "URL is $BASE_URL"
@@ -183,10 +205,15 @@ EOF
     fi
   fi
 
-  log "Starting server"
   if [ "$( systemctl is-active serverboards )" = "active" ]; then
-    systemctl restart serverboards
+    if [ $( running_inside_systemd $$ ) = "no" ]; then
+      log "Restarting server"
+      systemctl restart serverboards
+    else
+      log "Not restarting Serverboards, as it will make apt|dpkg fail"
+    fi
   else
+    log "Enabling and starting server"
     systemctl enable serverboards
     systemctl start serverboards
   fi
