@@ -35,7 +35,7 @@ defmodule Serverboards.RulesV2.Rule do
     trigger(via(uuid), params)
   end
   def trigger(pid, params) when is_pid(pid) or is_tuple(pid) do
-    Logger.debug("trigger #{inspect {pid, params}, pretty: true}")
+    # Logger.debug("trigger #{inspect {pid, params}, pretty: true}")
     GenServer.cast(pid, {:trigger, params})
   end
 

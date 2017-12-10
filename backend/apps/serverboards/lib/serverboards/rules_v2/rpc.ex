@@ -47,6 +47,14 @@ defmodule Serverboards.RulesV2.RPC do
       %{} -> Serverboards.Rules.Trigger.find
     end, required_perm: "rules.view"
 
+    add_method mc, "rules_v2.trigger", fn params when is_map(params) ->
+      Serverboards.RulesV2.Rule.trigger(params["id"] || params["uuid"], params)
+    end, required_perm: "rules.trigger"
+
+    add_method mc, "rules_v2.trigger_wait", fn params when is_map(params) ->
+      Serverboards.RulesV2.Rule.trigger_wait(params["id"] || params["uuid"], params)
+    end, required_perm: "rules.trigger"
+
     setup_rpc_v1(mc)
 
     # Add this method caller once authenticated.
