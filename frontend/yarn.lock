@@ -5900,6 +5900,12 @@ mouse-wheel@^1.0.2:
     signum "^1.0.0"
     to-px "^1.0.1"
 
+moustache@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/moustache/-/moustache-0.0.2.tgz#4bc141ca36b45d2799823635dfdba7cba110c077"
+  dependencies:
+    mustache "2.2.1"
+
 mozjpeg@^4.0.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/mozjpeg/-/mozjpeg-4.1.1.tgz#859030b24f689a53db9b40f0160d89195b88fd50"
@@ -5948,6 +5954,10 @@ mumath@^3.0.0:
 murmurhash-js@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/murmurhash-js/-/murmurhash-js-1.0.0.tgz#b06278e21fc6c37fa5313732b0412bcb6ae15f51"
+
+mustache@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.2.1.tgz#2c40ca21c278f53150682bcf9090e41a3339b876"
 
 mute-stream@0.0.7:
   version "0.0.7"
