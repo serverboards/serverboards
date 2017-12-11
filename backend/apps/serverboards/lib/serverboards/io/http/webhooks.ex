@@ -95,7 +95,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     {:ok, reply} = case reply do
       {:ok, res, params} ->
         redirect_ok = params["redirect_ok"]
-        if redirect_ok do
+        if not empty?(redirect_ok) do
           :cowboy_req.reply(302, [
               {"location", redirect_ok}
             ],"",req)
@@ -113,7 +113,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         end
       {:error, res, params} ->
         redirect_nok = params["redirect_nok"]
-        if redirect_nok do
+        if not empty?(redirect_nok) do
           :cowboy_req.reply(302, [
               {"location", redirect_nok}
             ],'',req)
