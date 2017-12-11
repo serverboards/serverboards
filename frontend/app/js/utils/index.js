@@ -264,6 +264,38 @@ export function pretty_date(d, precission){
   return moment(d).format("llll")
 }
 
+const timeunits_abbr={
+  ms: 1,
+  s: 1000,
+  m: 1000 * 60,
+  h: 1000 * 60 * 60,
+  d: 1000 * 60 * 60 * 24,
+  w: 1000 * 60 * 60 * 24 * 7,
+  mo: 1000 * 60 * 60 * 24 * 31
+}
+
+i18n_nop("ms")
+i18n_nop("s")
+i18n_nop("m")
+i18n_nop("h")
+i18n_nop("d")
+i18n_nop("w")
+i18n_nop("mo")
+
+
+export function pretty_time(time){
+  console.log(time)
+  let lastunit='ms'
+  for (let d in timeunits_abbr){
+    if (time >= timeunits_abbr[d])
+      lastunit=d
+  }
+  let units=Math.floor(time / timeunits_abbr[lastunit])
+  let expr=i18n("{units}{timeunit}", {units, timeunit: `${i18n(lastunit)}` })
+  return expr
+}
+
+
 export const months = [
     i18n_nop("January"),
     i18n_nop("February"),
@@ -358,6 +390,7 @@ export default {
   object_is_equal,
   pretty_ago,
   pretty_date,
+  pretty_time,
   unwrap,
   match_traits,
   filter_items_str,

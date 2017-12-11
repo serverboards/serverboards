@@ -12,7 +12,8 @@ const Controller = connect({
     realtime: state.project.realtime,
     dashboard_list: state.project.dashboard.list,
     dashboard_current: state.project.dashboard.current,
-    project: state.project.current
+    project: state.project.current,
+    filter: (state.project.daterange.end - state.project.daterange.start)/1000,
   }),
   handlers: (dispatch, prop) => ({
     onDateRangeChange: (start, end) => {

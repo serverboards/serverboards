@@ -4,12 +4,13 @@ import { request_fullscreen } from 'app/utils/fullscreen'
 import i18n from 'app/utils/i18n'
 import moment from 'moment'
 import {set_modal} from 'app/utils/store'
+import utils from 'app/utils'
 
 class HeaderMenu extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      filter: undefined
+      filter: props.filter,
     }
   }
   componentDidMount(){
@@ -50,6 +51,9 @@ class HeaderMenu extends React.Component{
     const props = this.props
     const filter = this.state.filter
     const current = props.dashboard_current || {}
+
+    const filter_time = utils.pretty_time(filter*1000)
+
     return (
       <div className="menu">
         <div style={{width: 30}}/>
@@ -68,6 +72,10 @@ class HeaderMenu extends React.Component{
         <div className="ui item separator"/>
         <a className="item" ref="filter_selector">
           <i className="ui icon filter"/>
+          <div style={{display: "inline-block"}}>
+            <div className="ui small text">{props.realtime ? "RT" : null}</div>
+            <div className="ui small text">{filter_time ? filter_time : null}</div>
+          </div>
         </a>
         <div className="ui popup" ref="filters">
           <div className="item">
