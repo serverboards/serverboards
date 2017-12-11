@@ -7,6 +7,10 @@ export function render_promise(template, future_vars){
 }
 
 export function render(template, vars){
+  if (!vars)
+    return template
+  if (!template)
+    return ""
   return Moustache.render(template, vars)
 }
 
