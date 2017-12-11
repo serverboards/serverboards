@@ -60,22 +60,22 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
     {qsvals, _} = :cowboy_req.qs_vals(req)
-    Logger.debug(inspect {qsvals})
+    # Logger.debug(inspect {qsvals})
     qsvals = if qsvals == [] do
-      Logger.debug("No qvals?")
+      # Logger.debug("No qvals?")
       {:ok, qsvals, _} = :cowboy_req.body_qs(req)
       qsvals
     else
       qsvals
     end
-    Logger.debug(inspect {qsvals})
+    # Logger.debug(inspect {qsvals})
     qsvals = Map.new(qsvals)
 
     trigger_data = try do
       Serverboards.RulesV2.Rule.trigger_type(uuid)
     catch
       :exit, _ -> # not existing
-        {:error, :not_found}
+        {:error, :not_enabled}
     end
 
     reply = case trigger_data do
@@ -86,9 +86,9 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
       {:ok, other_trigger} ->
         Logger.error("Try to trigger bad trigger type #{inspect uuid} / #{inspect other_trigger}", rule_uuid: uuid)
         {:error, %{status: :not_found, data: %{}}, %{}}
-      _ ->
-        Logger.error("Could not access to trigger data of #{inspect uuid}")
-        {:error, %{status: :not_found, data: %{}}, %{}}
+      e ->
+        Logger.error("Could not access to trigger data of #{inspect uuid}: #{inspect e}")
+        {:error, %{status: :not_enabled, data: %{}}, %{}}
     end
 
 
