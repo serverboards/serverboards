@@ -85,6 +85,7 @@ release:
     - make deb
   tags:
     - ubuntu1604
+    - gpg
   artifacts:
     paths:
       - serverboards.deb
