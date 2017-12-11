@@ -34,8 +34,8 @@ class SelectCall extends React.Component{
   }
   componentDidMount(){
     const props = this.props
-    if (props.options && props.options.params){
-      const data = data_from_form_data( props.options.params, this.props.form_data )
+    if (props.options){
+      const data = data_from_form_data( props.options.params || [], this.props.form_data )
       this.reloadData(data)
     }
   }
