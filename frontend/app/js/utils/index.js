@@ -284,7 +284,6 @@ i18n_nop("mo")
 
 
 export function pretty_time(time){
-  console.log(time)
   let lastunit='ms'
   for (let d in timeunits_abbr){
     if (time >= timeunits_abbr[d])

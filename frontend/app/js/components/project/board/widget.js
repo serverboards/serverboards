@@ -4,6 +4,7 @@ import {object_is_equal} from 'app/utils'
 import {merge} from 'app/utils'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
+import {MarkdownPreview} from 'react-marked-markdown'
 
 const Widget = React.createClass({
   umount: undefined,
@@ -104,7 +105,7 @@ const Widget = React.createClass({
             <div className="ui text red bold">{i18n("Error loading widget")}</div>
             <div className="ui meta">{widget.name}</div>
             <div className="ui meta">{this.props.widget}</div>
-            <div style={{paddingTop:10}}>{this.state.error}</div>
+            <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
           </section>
         ) : (
           <div ref="el"/>
