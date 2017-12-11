@@ -80,7 +80,7 @@ class AddButton extends React.Component{
     }
     else{
       return (
-        <div className="ui floating bottom right add">
+        <div className="ui floating bottom right add nofullscreen">
           <a
               onClick={() => this.setState({open:true})}
               title={i18n("Add a widget, service, rule, issue...")}

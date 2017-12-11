@@ -14,7 +14,7 @@ class HeaderMenu extends React.Component{
     }
   }
   componentDidMount(){
-    console.log("Set dashboard header")
+    // console.log("Set dashboard header")
     $("#maximize").on( 'click', () => {
       request_fullscreen($('#dashboard')[0])
     })
