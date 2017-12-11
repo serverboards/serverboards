@@ -95,8 +95,9 @@ def send_email_action(email=None, subject=None, body=None, **extra):
             fd.write(body)
 
     port=settings.get("port")
-    if port:
-        if port == '465' or settings.get("ssl"):
+    ssl=settings.get("ssl")
+    if port or ssl:
+        if port == '465' or ssl:
             port = port or '465'
             smtp = smtplib.SMTP_SSL(settings["servername"], int(port))
         else:
