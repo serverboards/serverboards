@@ -1,4 +1,4 @@
-import Moustache from 'moustache'
+import Mustache from 'mustache'
 
 export function render_promise(template, future_vars){
   return future_vars.then( (vars) => {
@@ -11,7 +11,7 @@ export function render(template, vars){
     return template
   if (!template)
     return ""
-  return Moustache.render(template, vars)
+  return Mustache.render(template, vars)
 }
 
 export default {render, render_promise}
