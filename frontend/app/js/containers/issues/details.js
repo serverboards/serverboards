@@ -27,7 +27,7 @@ class Details extends React.Component{
     this.maybeUpdateIssueB=this.maybeUpdateIssue.bind(this)
   }
   componentDidMount(){
-    rpc.call("issues.get", [this.state.issue_id]).then( (issue) => {
+    rpc.call("issues.get", [Number(this.state.issue_id)]).then( (issue) => {
       this.setState({issue})
     })
     event.on("issue.updated", this.maybeUpdateIssueB)
