@@ -16,7 +16,8 @@ describe("Templates", () => {
       "Hello world B!"
     )
   })
-  it("Unknown marks leave as is", () => {
+  // 2017-12-12 -- Use standard mustache, this feature disapears. Mustache is used to use conditionals.
+  xit("Unknown marks leave as is", () => {
     assert.equal( render("Hello {{world}}", {}), "Hello {{world}}")
     assert.equal( render("Hello {{a.world}}", {a:10}), "Hello {{a.world}}")
     assert.equal(
@@ -24,10 +25,12 @@ describe("Templates", () => {
       "Hello {{b.world}}"
     )
   })
-  it("Can scape {{ }} with \\", () => {
+  // 2017-12-12 -- Use standard mustache, no escaping, use &#123;{var}}
+  xit("Can scape {{ }} with \\", () => {
     assert.equal( render("Hello \\{{world}}", {world: "world!"}), "Hello {{world}}")
   })
-  it("No vars, return the same template", () => {
+  // 2017-12-12 -- Use standard mustache, this feature disapears. Mustache is used to use conditionals.
+  xit("No vars, return the same template", () => {
     assert.equal( render("Hello {{world}}", undefined),  "Hello {{world}}")
   })
 })

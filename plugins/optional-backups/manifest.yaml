@@ -123,8 +123,8 @@ components:
           Absolute path to the destination file.
 
           Can use template variables as:
-          * date_ -- Date in the format YYYY-MM-DD
-          * date -- Date in the format YYYYMMDD
-          * time -- Time in the format hh:mm
-          * times -- Date in the format hh:mm:ss
-          * datetime -- Date in the format YYYY-MM-DDThh:mm:ss
+          * &#123;{date_}} -- Date in the format YYYY-MM-DD
+          * &#123;{date}} -- Date in the format YYYYMMDD
+          * &#123;{time}} -- Time in the format hh:mm
+          * &#123;{times}} -- Date in the format hh:mm:ss
+          * &#123;{datetime}} -- Date in the format YYYY-MM-DDThh:mm:ss
