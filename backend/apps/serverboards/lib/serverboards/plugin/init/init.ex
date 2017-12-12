@@ -104,12 +104,14 @@ defmodule Serverboards.Plugin.Init do
 
   def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
     # this is when already finished properly, it may close the cmd.
-    #Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    # Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
     Serverboards.Plugin.Runner.stop(state.cmd)
+    # and restart soon
+    state = handle_wait_run(state)
     {:noreply, state}
   end
 def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
-    #Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
+    # Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
     Serverboards.Plugin.Runner.stop(state.cmd)
     state = handle_wait_run(state)
     {:noreply, state}
