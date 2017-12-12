@@ -69,11 +69,15 @@ defmodule Serverboards.Issues do
     else q end
 
 
-    res = if Map.get(filter, :return, "issues") == "issues" do
-      Serverboards.Repo.all(q)
-        |> Enum.map(&decorate_issues_list/1)
-    else
-      Serverboards.Repo.aggregate(q, :count, :id)
+    res = case Map.get(filter, :return, "issues") do
+      "issues" ->
+        Serverboards.Repo.all(q)
+          |> Enum.map(&decorate_issues_list/1)
+      "count" ->
+        %{
+          count: Serverboards.Repo.aggregate(q, :count, :id),
+          timestamp: Serverboards.Repo.aggregate(q, :max, :updated_at)
+        }
     end
 
     res
