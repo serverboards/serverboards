@@ -80,7 +80,7 @@ export function emit(type, args){
   return rpc.call("event.emit", [type, args])
 }
 
-const event = {subscribe, unsubscribe, subscriptions, emit, on, off, trigger}
+const event = {subscribe, unsubscribe, subscriptions, emit, on, off, trigger, subscription_fns}
 // Inject the event manager into the RPC, required for triggers and some events
 rpc.set_event( event )
 

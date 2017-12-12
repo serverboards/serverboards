@@ -5,12 +5,15 @@ import AddView from 'app/components/issues/add'
 import {parse_comment, update_issue_multi} from './utils'
 import {map_get} from 'app/utils'
 import store from 'app/utils/store'
+import Flash from 'app/flash'
 
 const Add = React.createClass({
   handleAdd(title, description){
     let updates = parse_comment(description)
-    if (updates[0].type!="comment")
+    if (updates.length==0 || updates[0].type!="comment"){
+      Flash.error("Need some comment.")
       return
+    }
     description=updates[0].data
     updates=updates.slice(1)
 

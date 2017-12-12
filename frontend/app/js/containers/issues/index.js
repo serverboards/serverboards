@@ -2,6 +2,7 @@ import React from 'react'
 import IssuesView from 'app/components/issues'
 import rpc from 'app/rpc'
 import store from 'app/utils/store'
+import event from 'app/utils/event'
 import {flatmap, dedup, sort_by_name} from 'app/utils'
 import connect from 'app/containers/connect'
 import { clear_issues_count } from 'app/actions/issues'
@@ -20,9 +21,16 @@ class Issues extends React.Component{
       closed_count: 0,
       all_count: 0
     }
+    this.updateAllIssues=(() => this.updateIssues())
   }
   componentDidMount(){
     this.updateIssues()
+    event.on("issue.updated", this.updateAllIssues)
+    event.on("issue.created", this.updateAllIssues)
+  }
+  componentWillUnmount(){
+    event.off("issue.updated", this.updateAllIssues)
+    event.off("issue.created", this.updateAllIssues)
   }
   updateIssues(filter=undefined){
     if (filter == undefined)
