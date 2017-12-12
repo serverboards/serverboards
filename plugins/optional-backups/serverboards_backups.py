@@ -11,7 +11,7 @@ try:
 except:
     pass
 
-print(rpc.call("dir"))
+# print(rpc.call("dir"))
 
 def get_backup_fn(component, type):
     s = serverboards.plugin.component.catalog(id=component)[0]
@@ -86,25 +86,21 @@ class Backup:
     def source_done(self, size):
         serverboards.debug("Source backup finished: %s"%str(size), extra={"backup": self.id})
         self.source_size=size
-        print(self.destination_size)
         if self.destination_size != None:
             self.finished_backup()
     def source_error(self, error):
         serverboards.error("Error on source backup: %s"%str(error), extra={"backup": self.id})
         self.source_size="error"
-        print(self.destination_size)
         if self.destination_size != None:
             self.finished_backup()
     def destination_done(self, size):
         serverboards.debug("Destination backup finished: %s"%str(size), extra={"backup": self.id})
         self.destination_size=size
-        print(self.source_size)
         if self.source_size != None:
             self.finished_backup()
     def destination_error(self, error):
         serverboards.error("Error on destination backup: %s"%str(error), extra={"backup": self.id})
         self.destination_size="error"
-        print(self.source_size)
         if self.source_size != None:
             self.finished_backup()
 

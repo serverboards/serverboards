@@ -85,7 +85,7 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
     # Real call to SSH
     stdout=None
     try:
-        print("ssh ", ' '.join(args), ' '.join("--%s=%s"%(k,v) for (k,v) in kwargs.items() if not k.startswith('_')))
+        # print("ssh ", ' '.join(args), ' '.join("--%s=%s"%(k,v) for (k,v) in kwargs.items() if not k.startswith('_')))
         result = sh.ssh(*args, **kwargs)
     except Exception as e:
         result = e
