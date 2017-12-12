@@ -118,6 +118,7 @@ components:
       - name: path
         type: text
         label: Path to backup
+        placeholder: /var/backup/backup-{{date}}.tgz
         description: |
           Absolute path to the destination file.
 

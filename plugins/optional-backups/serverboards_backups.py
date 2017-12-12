@@ -11,11 +11,11 @@ try:
 except:
     pass
 
-print(rpc.call("dir"))
+# print(rpc.call("dir"))
 
 def get_backup_fn(component, type):
     s = serverboards.plugin.component.catalog(id=component)[0]
-    print(s, type)
+    # print(s, type)
     f = s.get("extra",{}).get(type, type)
     p = Plugin(s.get("extra",{}).get("command",{}))
     return getattr(p, f)
@@ -132,7 +132,7 @@ class Backup:
             })
 
         if self.fifofile:
-            print("Unlink fifo (1)")
+            print("Unlink fifo (1)", self.fifofile)
             os.unlink(self.fifofile)
             self.fifofile=None
         del self
