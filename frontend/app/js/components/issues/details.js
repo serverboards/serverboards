@@ -227,11 +227,11 @@ class Details extends React.Component{
               </div>
             </div>
             <div className="ui divider"></div>
-            <div className="ui padding" ref="new_comment">
+            <div className="ui padding" ref="new_comment_area">
               <div className="ui form container" style={{display:"flex", flexDirection:"column"}}>
                 <div className="field">
                   <label>{i18n("New comment")}</label>
-                  <textarea placeholder={i18n("Write your comment here...")}></textarea>
+                  <textarea ref="new_comment" placeholder={i18n("Write your comment here...")}></textarea>
                 </div>
                 <div className="ui inline fields form" style={{margin: "30px 0"}}>
                   <div className="field">
@@ -259,7 +259,7 @@ class Details extends React.Component{
           <a className="item" onClick={() => this.handleFocus('comments')}>
             <i className="ui comments icon"/>
           </a>
-          <a className="item" onClick={() => this.handleFocus('new_comment')}>
+          <a className="item" onClick={() => this.handleFocus('new_comment_area')}>
             <i className="ui file text outline icon"/>
           </a>
         </div>
