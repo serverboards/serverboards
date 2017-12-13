@@ -3,7 +3,7 @@
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-import requests, subprocess, yaml, time, urllib.request, gzip
+import requests, subprocess, yaml, time, urllib.request, gzip, sh
 from serverboards import print, settings
 
 PLUGINS_YAML_URL="https://serverboards.io/downloads/plugins.yaml.gz"
@@ -18,13 +18,7 @@ def latest_version(**args):
 @serverboards.rpc_method
 def update_now(**args):
     serverboards.rpc.reply({"level": "warning", "message": "Serverboards is restarting and should reconnect shortly.\nPage reload is highly encouraged."})
-    res = os.system("sudo ./serverboards-updater.sh 1>&2")
-    with open("/tmp/serverboards-update.log") as fd:
-        data=fd.read()
-        if res == 0:
-            serverboards.log("Update Serverboards result\n%s"%data)
-        else:
-            serverboards.error("Error updating Serverboards\n%s"%data)
+    res = sh.sudo("./serverboards-updater.sh", _out=serverboards.info, _err_to_out=True)
 
 plugins_state={}
 plugins_state_timestamp=0
@@ -161,12 +155,14 @@ def update_at(path):
     serverboards.info("Updating plugin at %s"%path)
     cmd="cd %s && git reset --hard && git pull"%path
     try:
-        output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        serverboards.error("Error updating %s: %s"%(path, e.output))
+        with serverboards.info.context() as info:
+            sh.git("reset","--hard", _out=info, _err_to_out=True, _cwd=path)
+            sh.git("pull", _out=info, _err_to_out=True, _cwd=path)
+    except:
+        serverboards.error("Error updating %s"%(path))
         raise Exception("cant-update")
-    serverboards.info("Updated plugin at %s: %s"%(path, output))
-    return output
+    serverboards.info("Updated plugin at %s"%(path))
+    return True
 
 def test():
     #print(repr( latest_version() ))

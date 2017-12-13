@@ -1,4 +1,5 @@
 import json, os, sys, select, time, io
+from contextlib import contextmanager
 
 try:
     input=raw_input
@@ -655,14 +656,27 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
-def debug(*s, extra={}):
-    rpc.debug(*s, extra=extra, level=1)
-def info(*s, extra={}):
-    rpc.info(*s, extra=extra, level=1)
-def warning(*s, extra={}):
-    rpc.warning(*s, extra=extra, level=1)
-def error(*s, extra={}):
-    rpc.error(*s, extra=extra, level=1)
+class WriteTo:
+    def __init__(self, fn):
+        self.fn = fn
+    def __call__(self, *args, **kwargs):
+        self.fn(*args, extra=kwargs, level=1)
+    def write(self, data, *args, **kwargs):
+        if data.endswith('\n'):
+            data=data[:-1]
+        self.fn(data, *args, *kwargs)
+    @contextmanager
+    def context(self, level=2, **kwargs):
+        value = io.StringIO()
+        yield value
+        value.seek(0)
+        self.fn(value.read(), level = level, extra=kwargs)
+
+
+error = WriteTo(rpc.error)
+debug = WriteTo(rpc.debug)
+info = WriteTo(rpc.info)
+warning = WriteTo(rpc.warning)
 
 def __simple_hash__(*args, **kwargs):
     hs = ";".join(str(x) for x in args)
