@@ -26,8 +26,8 @@ components:
         value: Update now
         className: yellow
         onclick:
-          command: serverboards.optional.update/updater
-          call: update_now
+          action: serverboards.optional.update/update.now
+          params: {}
 
   - id: updater
     type: cmd
@@ -37,6 +37,16 @@ components:
     strategy: singleton
     timeout: 5m
     perms: event.emit action.update settings.view[serverboards.optional.updater]
+
+  - id: update.now
+    type: action
+    name: Update now
+    description: Update now. Will reboot Serverboards as last step.
+    command: updater
+    call:
+      method: update_now
+      params:
+        - name: action_id
 
   - id: catalog
     type: cmd

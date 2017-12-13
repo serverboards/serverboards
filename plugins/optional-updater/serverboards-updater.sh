@@ -2,11 +2,6 @@
 
 set -x
 
-# Write log to /tmp/serverboards-update.log
-exec 1<&-
-exec 2<&-
-exec 1<>/tmp/serverboards-update.log
-exec 2>&1
 export DEBIAN_FRONTEND=noninteractive
 
 dpkg --configure -a

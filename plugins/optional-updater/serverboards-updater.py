@@ -16,9 +16,11 @@ def latest_version(**args):
     return req.json()
 
 @serverboards.rpc_method
-def update_now(**args):
-    serverboards.rpc.reply({"level": "warning", "message": "Serverboards is restarting and should reconnect shortly.\nPage reload is highly encouraged."})
-    res = sh.sudo("./serverboards-updater.sh", _out=serverboards.info, _err_to_out=True)
+def update_now(action_id=None, **args):
+    if action_id:
+        serverboards.rpc.call("action.update", action_id, {"label": "Serverboards is updating.\nIt may restart but should reconnect shortly.\nPage reload is highly encouraged."})
+    res = sh.sudo("-n", "./serverboards-updater.sh", _out=serverboards.info, _err=serverboards.error)
+    return True
 
 plugins_state={}
 plugins_state_timestamp=0
