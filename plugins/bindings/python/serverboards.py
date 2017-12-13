@@ -852,6 +852,8 @@ class RPCWrapper:
     def __getattr__(self, sub):
         return RPCWrapper(self.module+'.'+sub)
     def __call__(self, *args, **kwargs):
+        if args and kwargs:
+            return rpc.call(self.module, *args, kwargs)
         return rpc.call(self.module, *args, **kwargs)
 
 action = RPCWrapper("action")
