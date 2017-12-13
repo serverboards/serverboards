@@ -6,6 +6,7 @@ import {parse_comment, update_issue_multi, update_issue} from './utils'
 import {merge} from 'app/utils'
 import Loading from 'app/components/loading'
 import {i18n} from 'app/utils/i18n'
+import event from 'app/utils/event'
 
 class Details extends React.Component{
   constructor(props){
@@ -23,11 +24,21 @@ class Details extends React.Component{
       onRemoveLabel: this.handleRemoveLabel.bind(this),
       onAddLabel: this.handleAddLabel.bind(this),
     }
+    this.maybeUpdateIssueB=this.maybeUpdateIssue.bind(this)
   }
   componentDidMount(){
-    rpc.call("issues.get", [this.state.issue_id]).then( (issue) => {
+    rpc.call("issues.get", [Number(this.state.issue_id)]).then( (issue) => {
       this.setState({issue})
     })
+    event.on("issue.updated", this.maybeUpdateIssueB)
+  }
+  componentWillUnmount(){
+    event.off("issue.updated", this.maybeUpdateIssueB)
+  }
+  maybeUpdateIssue({issue}){
+    if (issue.id == this.state.issue_id){
+      this.setState({issue})
+    }
   }
   handleAddComment(comment){
     return update_issue_multi(this.state.issue_id, parse_comment(comment))

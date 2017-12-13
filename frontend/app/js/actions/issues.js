@@ -5,13 +5,15 @@ import { object_is_equal } from 'app/utils'
 export function get_issues_count_since(timestamp){
   return rpc
     .call("issues.list", {"return": "count", since: timestamp})
-    .then( i => ({
-      type: "ISSUES_COUNT",
-      payload: {
-        count: i,
-        timestamp: timestamp
+    .then( ({count, timestamp}) => {
+      return {
+        type: "ISSUES_COUNT",
+        payload: {
+          count,
+          timestamp
+        }
       }
-    }))
+    })
 }
 
 export function clear_issues_count(){

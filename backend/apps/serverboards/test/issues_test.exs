@@ -132,7 +132,9 @@ defmodule Serverboards.IssuesTest do
 
     res = Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", return: "count" })
     Logger.debug(inspect res)
-    assert {:ok, 1} == res
+
+    # assert with placeholders
+    {:ok, %{ "count" => 1, "timestamp" => _ }} = res
 
     {:ok, list} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", project: "TEST" })
     Logger.debug(inspect list)
@@ -157,7 +159,7 @@ defmodule Serverboards.IssuesTest do
     Logger.info("Got #{Enum.count(since_items)} // #{inspect since_items, pretty: true} from #{inspect issue["updated_at"], pretty: true}")
     # {:ok, res} = Test.Client.call(client, "issues.list", %{ project: "TEST", project: "TEST" })
     Logger.debug("All #{inspect res} from #{inspect issue["updated_at"]}")
-    {:ok, count} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], return: "count" })
+    {:ok, %{ "count" => count }} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], return: "count" })
     Logger.info("Count #{inspect count}")
     assert 1 == count
   end
