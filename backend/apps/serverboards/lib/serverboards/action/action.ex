@@ -352,6 +352,7 @@ defmodule Serverboards.Action do
         [{"error", result}] -> {:error, result}
         [{"ok", result}] -> {:ok, result}
         [{code, _}] -> {:error, code}
+        [] -> {:error, :unknown_action}
       end
     else
       nil

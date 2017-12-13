@@ -1,4 +1,5 @@
 import json, os, sys, select, time, io
+from contextlib import contextmanager
 
 try:
     input=raw_input
@@ -495,7 +496,7 @@ class RPC:
         self.send_id+=1
         # if both, pass kwparams as last argument. This sensible default works
         # with for example action calling and passing more calls to plugins
-        if params and kwparams: 
+        if params and kwparams:
             params = [*params, kwparams]
         rpc = json.dumps(dict(method=method, params=params or kwparams, id=id))
         self.println(rpc)
@@ -658,14 +659,29 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
-def debug(*s, extra={}):
-    rpc.debug(*s, **{**{"level":1}, **extra})
-def info(*s, extra={}):
-    rpc.info(*s, **{**{"level":1}, **extra})
-def warning(*s, extra={}):
-    rpc.warning(*s, **{**{"level":1}, **extra})
-def error(*s, extra={}):
-    rpc.error(*s, **{**{"level":1}, **extra})
+class WriteTo:
+    def __init__(self, fn, **extra):
+        self.fn = fn
+        self.extra = extra
+    def __call__(self, *args, **extra):
+        if not args: # if no data, add extras for contexts.
+            return WriteTo(self.fn, **{**self.extra, **extra})
+        self.fn(*args, **{**{"level":1}, **extra})
+    def write(self, data, *args, **extra):
+        if data.endswith('\n'):
+            data=data[:-1]
+        self.fn(data, *args, **{**{"level":1}, **extra})
+    @contextmanager
+    def context(self, level=2, **extra):
+        value = io.StringIO()
+        yield value
+        value.seek(0)
+        self.fn(value.read(), **{**{"level":level}, **extra})
+
+error = WriteTo(rpc.error)
+debug = WriteTo(rpc.debug)
+info = WriteTo(rpc.info)
+warning = WriteTo(rpc.warning)
 
 def __simple_hash__(*args, **kwargs):
     hs = ";".join(str(x) for x in args)
@@ -841,6 +857,8 @@ class RPCWrapper:
     def __getattr__(self, sub):
         return RPCWrapper(self.module+'.'+sub)
     def __call__(self, *args, **kwargs):
+        if args and kwargs:
+            return rpc.call(self.module, *args, kwargs)
         return rpc.call(self.module, *args, **kwargs)
 
 action = RPCWrapper("action")

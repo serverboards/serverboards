@@ -5,6 +5,7 @@ import {merge} from 'app/utils'
 import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
+import rpc from 'app/rpc'
 
 const GenericButton= React.createClass({
   getInitialState(){
@@ -61,16 +62,27 @@ const GenericButton= React.createClass({
   handleClick(ev){
     ev.preventDefault()
     const args = merge(this.props.form_data || {}, this.state.vars)
-    console.log(args)
-    plugin
-      .start_call_stop(this.props.onclick.command, this.props.onclick.call, args)
-      .then( (msg) => { console.info(msg);
+    const onclick = this.props.onclick
+    let click_action
+    if (onclick.command){
+      click_action = plugin
+        .start_call_stop(this.props.onclick.command, this.props.onclick.call, args)
+    } else if (onclick.action) {
+      click_action = rpc.call("action.trigger_wait", [onclick.action, onclick.params])
+    }
+
+    if (click_action){
+      click_action.then( (msg) => {
+        console.info(msg);
         if (msg.level)
           Flash.log(msg.message, {level: msg.level})
         else
           Flash.info(msg)
-      } )
-      .catch( (e) => { console.error(e); Flash.error(e) } )
+        } ).catch( (e) => {
+          console.error(e);
+          Flash.error(e)
+        } )
+    }
   },
   render(){
     const props = this.props
