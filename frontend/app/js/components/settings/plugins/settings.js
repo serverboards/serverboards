@@ -52,7 +52,7 @@ class Settings extends React.Component{
             <h3 className="ui header">{i18n("{plugin} settings",{plugin: props.plugin.name})}</h3>
           </div>
         </div>
-        <div className="ui container">
+        <div className="ui text container">
           {this.props.settings.map( settings => (
             <div className="" key={settings.id}>
               <h4 className="ui header">{settings.name}</h4>
