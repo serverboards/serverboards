@@ -61,7 +61,7 @@ def check_plugin_updates(action_id=None, **args):
                     output=subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
                 except Exception as e:
                     serverboards.rpc.log_traceback(e)
-                    serverboards.error("Error checking update of %s"%(pl), extra={"output": e.output.decode('utf8')})
+                    serverboards.error("Error checking update of %s"%(pl), output=e.output.decode('utf8'))
                     output=False
                 if output:
                     plugin_id=yaml.load(open('%s/manifest.yaml'%pl))["id"]

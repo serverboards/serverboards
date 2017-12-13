@@ -98,7 +98,7 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         kwargs["_in"].close()
 
     if service:
-        serverboards.info("SSH Command executed %s:'%s'"%(service, "' '".join(command)), extra=dict(service_id=service, command=command))
+        serverboards.info("SSH Command executed %s:'%s'"%(service, "' '".join(command)), service_id=service, command=command)
     return {
         "stdout": stdout,
         "stderr": result.stderr.decode('utf8'),
@@ -388,7 +388,7 @@ def watch_start(id=None, period=None, service_id=None, script=None, **kwargs):
                 #         exit_code=p)
                 #     )
             except Exception as e:
-                serverboards.error("Error on SSH script: %s"%script, extra=dict(rule=id, script=script, service=service["uuid"]))
+                serverboards.error("Error on SSH script: %s"%script, rule=id, script=script, service=service["uuid"])
                 exit_code = -256
                 stdout = str(e)
             nstate = "ok" if (exit_code == 0) else "nok"
