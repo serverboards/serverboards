@@ -671,6 +671,8 @@ class WriteTo:
         if data.endswith('\n'):
             data=data[:-1]
         self.fn(data, *args, **{**{"level":1}, **extra})
+    def flush(*args, **kwargs):
+        pass
     @contextmanager
     def context(self, level=2, **extra):
         value = io.StringIO()
