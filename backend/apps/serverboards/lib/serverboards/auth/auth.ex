@@ -75,7 +75,7 @@ defmodule Serverboards.Auth do
 					false
 				end
 		end
-		Logger.debug("Got user: #{inspect user}")
+		Logger.info("Log in user #{user[:name]} <#{user[:email]}>", user: user)
 
 		if user do
 			{:ok,
