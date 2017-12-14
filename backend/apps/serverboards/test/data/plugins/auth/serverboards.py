@@ -1,4 +1,5 @@
 import json, os, sys, select, time, io
+from contextlib import contextmanager
 
 try:
     input=raw_input
@@ -125,19 +126,19 @@ class RPC:
         caller.update(extra)
         return caller
 
-    def debug(self, *msg, extra={}, level=0):
+    def debug(self, *msg, level=0, **extra):
         msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.debug", str(msg), self.__decorate_log(extra, level=2+level))
-    def error(self, *msg, extra={}, level=0):
+    def error(self, *msg, level=0, **extra):
         msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.error", str(msg), self.__decorate_log(extra, level=2+level))
-    def info(self, *msg, extra={}, level=0):
+    def info(self, *msg, level=0, **extra):
         msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.info", str(msg), self.__decorate_log(extra, level=2+level))
-    def warning(self, *msg, extra={}, level=0):
+    def warning(self, *msg, level=0, **extra):
         msg = ' '.join(str(x) for x in msg)
         self.debug_stdout(msg)
         return self.event("log.warning", str(msg), self.__decorate_log(extra, level=2+level))
@@ -179,7 +180,7 @@ class RPC:
         This is use internally for all incomming rpc calls.
         """
         method=rpc['method']
-        params=rpc['params']
+        params=rpc['params'] or []
         call_id=rpc.get('id')
         (args,kwargs) = ([],params) if type(params)==dict else (params, {})
 
@@ -491,9 +492,12 @@ class RPC:
                      Makes the call asynchronous. callback receives the answer.
                      It is called with response None in case of error.
         """
-        assert not params or not kwparams, "Use only *params(%s) or only **kwparams(%s)"%(params, kwparams)
         id=self.send_id
         self.send_id+=1
+        # if both, pass kwparams as last argument. This sensible default works
+        # with for example action calling and passing more calls to plugins
+        if params and kwparams:
+            params = [*params, kwparams]
         rpc = json.dumps(dict(method=method, params=params or kwparams, id=id))
         self.println(rpc)
         if _async: # Will get answer later calling the _async callback
@@ -655,14 +659,29 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
-def debug(*s, extra={}):
-    rpc.debug(*s, extra=extra, level=1)
-def info(*s, extra={}):
-    rpc.info(*s, extra=extra, level=1)
-def warning(*s, extra={}):
-    rpc.warning(*s, extra=extra, level=1)
-def error(*s, extra={}):
-    rpc.error(*s, extra=extra, level=1)
+class WriteTo:
+    def __init__(self, fn, **extra):
+        self.fn = fn
+        self.extra = extra
+    def __call__(self, *args, **extra):
+        if not args: # if no data, add extras for contexts.
+            return WriteTo(self.fn, **{**self.extra, **extra})
+        self.fn(*args, **{**{"level":1}, **extra})
+    def write(self, data, *args, **extra):
+        if data.endswith('\n'):
+            data=data[:-1]
+        self.fn(data, *args, **{**{"level":1}, **extra})
+    @contextmanager
+    def context(self, level=2, **extra):
+        value = io.StringIO()
+        yield value
+        value.seek(0)
+        self.fn(value.read(), **{**{"level":level}, **extra})
+
+error = WriteTo(rpc.error)
+debug = WriteTo(rpc.debug)
+info = WriteTo(rpc.info)
+warning = WriteTo(rpc.warning)
 
 def __simple_hash__(*args, **kwargs):
     hs = ";".join(str(x) for x in args)
@@ -838,6 +857,8 @@ class RPCWrapper:
     def __getattr__(self, sub):
         return RPCWrapper(self.module+'.'+sub)
     def __call__(self, *args, **kwargs):
+        if args and kwargs:
+            return rpc.call(self.module, *args, kwargs)
         return rpc.call(self.module, *args, **kwargs)
 
 action = RPCWrapper("action")
