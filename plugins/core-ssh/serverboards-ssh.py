@@ -47,17 +47,17 @@ def url_to_opts(url):
     return (ret, u)
 
 @serverboards.rpc_method
-def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None, debug=False):
+def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=None, infile=None, debug=False, context={}):
     #serverboards.debug(repr(dict(url=url, command=command, options=options, service=service)))
     ensure_ID_RSA()
     if options:
-        serverboards.warning("ssh_exec options deprecated. Better use ssh_exec by ssh service uuid. Currently ignored.")
+        serverboards.warning("ssh_exec options deprecated. Better use ssh_exec by ssh service uuid. Currently ignored.", **context)
     if not command:
         raise Exception("Need a command to run")
     if isinstance(command, str):
         command=shlex.split(command)
     if url:
-        serverboards.warning("ssh_exec by URL deprecated. Better use ssh_exec by ssh service uuid")
+        serverboards.warning("ssh_exec by URL deprecated. Better use ssh_exec by ssh service uuid", **context)
         (args, url) = url_to_opts(url)
         global_options=(rpc.call("settings.get","serverboards.core.ssh/ssh.settings", None) or {}).get("options","")
         options =global_options+"\n"+(options or "")
@@ -72,7 +72,7 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         url, args, precmd = __get_service_url_and_opts(service)
     args = [*args, '--', *precmd, *command]
     if debug:
-        serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command))
+        serverboards.debug("Executing SSH command: [ssh '%s'] // Command %s"%("' '".join(str(x) for x in args), command), **context)
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
     kwargs = {}
@@ -98,7 +98,7 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         kwargs["_in"].close()
 
     if service:
-        serverboards.info("SSH Command executed %s:'%s'"%(service, "' '".join(command)), service_id=service, command=command)
+        serverboards.info("SSH Command executed %s:'%s'"%(service, "' '".join(command)), **{**dict(service_id=service, command=command), **context})
     return {
         "stdout": stdout,
         "stderr": result.stderr.decode('utf8'),
@@ -444,7 +444,7 @@ def __get_global_options():
     return options
 
 @serverboards.rpc_method
-def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
+def scp(fromservice=None, fromfile=None, toservice=None, tofile=None, context={}):
     """
     Copies a file from a service to a service.
 
@@ -457,7 +457,6 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
     """
     assert fromfile and tofile
     assert not (fromservice and toservice)
-    serverboards.info("Copy from %s:%s to %s:%s"%(fromservice, fromfile, toservice, tofile))
     opts=[]
     if fromservice:
         url = __get_service_url(fromservice)
@@ -475,12 +474,19 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None):
         urlb = "%s:%s"%(url, tofile)
     else:
         urlb=tofile
-    serverboards.info("scp %s %s %s"%(' '.join(opts), urla, urlb))
+    # serverboards.info("scp %s %s %s"%(' '.join(opts), urla, urlb), **context)
     try:
-        sh.scp(*opts, urla, urlb).stdout.decode("utf8")
+        sh.scp(*opts, urla, urlb,
+            _out=serverboards.info(**context),
+            _err=serverboards.error(**context)
+            )
+        serverboards.info("Copy from %s:%s to %s:%s"%(fromservice, fromfile, toservice, tofile), **context)
         return True
     except Exception as e:
-        raise Exception(e.stderr)
+        import traceback; traceback.print_exc()
+        pass
+    serverboards.error("Could not copy from %s:%s to %s:%s"%(fromservice, fromfile, toservice, tofile), **context)
+    raise Exception("eaccess")
 
 @serverboards.rpc_method
 def run(url=None, command=None, service=None, **kwargs):
