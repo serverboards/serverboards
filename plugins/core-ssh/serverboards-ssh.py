@@ -6,6 +6,7 @@ import urllib.parse as urlparse
 import base64, re, time
 from common import *
 from serverboards import file, print, rpc, cache_ttl
+sys.stderr=serverboards.error
 
 td_to_s_multiplier=[
     ("ms", 0.001),
