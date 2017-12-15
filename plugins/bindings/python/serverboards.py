@@ -791,8 +791,8 @@ class Plugin:
         def __init__(self, plugin, method):
             self.plugin=plugin
             self.method=method
-        def __call__(self, *args, _async=False, **kwargs):
-            return rpc.call("plugin.call", self.plugin.uuid, self.method, args or kwargs, _async=_async)
+        def __call__(self, *args, **kwargs):
+            return self.plugin.call(self.method, *args, **kwargs)
 
     def __init__(self, plugin_id, kill_and_restart = False, restart = True):
         self.plugin_id = plugin_id
