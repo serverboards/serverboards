@@ -316,7 +316,6 @@ def open_port(url=None, service=None, hostname="localhost", port="22"):
         (url, opts, _precmd) = __get_service_url_and_opts(service)
 
     port_key=(url.netloc,port)
-    print("Open port at %s", port_key)
     maybe = open_ports.get(port_key)
     if maybe:
         return maybe
@@ -325,7 +324,7 @@ def open_port(url=None, service=None, hostname="localhost", port="22"):
     while keep_trying:
         localport=random.randint(20000,60000)
         mopts=opts+["-nNT","-L","%s:%s:%s"%(localport, hostname, port)]
-        serverboards.debug("Start ssh with opts: %s"%mopts)
+        serverboards.debug("Open port with: [ssh '%s']"%"' '".join(mopts), service_id = service)
         sp=pexpect.spawn("/usr/bin/ssh",mopts)
         port_to_pexpect[localport]=sp
         running=True
