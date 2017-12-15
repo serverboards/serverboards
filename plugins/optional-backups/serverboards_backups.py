@@ -4,6 +4,7 @@ import sys, os, uuid, datetime, sh
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
 from serverboards import print, plugin, Plugin, rpc
+sys.stderr=serverboards.error
 
 TMPDIR="/tmp/.serverboards-backup/"
 try:
@@ -60,7 +61,8 @@ def datetime_now():
 class Backup:
     def __init__(self, job):
         self.id=job["id"]
-        serverboards.info("Starting backup.", backup=self.id )
+        self.context = {"backup": self.id}
+        serverboards.info("Starting backup.", **self.context )
         try:
             self.project=self.id.split('-',1)[0]
             self.job=job
@@ -72,34 +74,36 @@ class Backup:
             self.write_destination = get_backup_fn(destination["component"], "write_destination")
 
             self.fifofile = os.path.join(TMPDIR, str(uuid.uuid4()))
-            print("Backup %s at %s"%(self.id, self.fifofile), backup = self.id)
+            print("Backup %s at %s"%(self.id, self.fifofile), **self.context)
             os.mkfifo(self.fifofile, 0o0600)
-            self.source_job = self.read_source(self.fifofile, source["config"], _async=(self.source_done, self.source_error))
-            self.destination_job = self.write_destination(self.fifofile, destination["config"], _async=(self.destination_done, self.destination_error))
+            self.source_job = self.read_source(fifofile=self.fifofile, config=source["config"], _async=(self.source_done, self.source_error), context=self.context)
+            self.destination_job = self.write_destination(fifofile=self.fifofile, config=destination["config"], _async=(self.destination_done, self.destination_error), context=self.context)
 
             self.source_size=None
             self.destination_size=None
             self.update_job(status="running", size=None, fifofile=self.fifofile)
         except:
-            serverboards.error("Error initializing backup, check configuration.", backup = self.id)
+            import traceback
+            traceback.print_exc()
+            serverboards.error("Error initializing backup, check configuration.", **self.context)
 
     def source_done(self, size):
-        serverboards.debug("Source backup finished: %s"%str(size), backup = self.id)
+        serverboards.debug("Source backup finished: %s"%str(size), **self.context)
         self.source_size=size
         if self.destination_size != None:
             self.finished_backup()
     def source_error(self, error):
-        serverboards.error("Error on source backup: %s"%str(error), backup = self.id)
+        serverboards.error("Error on source backup: %s"%str(error), **self.context)
         self.source_size="error"
         if self.destination_size != None:
             self.finished_backup()
     def destination_done(self, size):
-        serverboards.debug("Destination backup finished: %s"%str(size), backup = self.id)
+        serverboards.debug("Destination backup finished: %s"%str(size), **self.context)
         self.destination_size=size
         if self.source_size != None:
             self.finished_backup()
     def destination_error(self, error):
-        serverboards.error("Error on destination backup: %s"%str(error), backup = self.id)
+        serverboards.error("Error on destination backup: %s"%str(error), **self.context)
         self.destination_size="error"
         if self.source_size != None:
             self.finished_backup()
@@ -110,7 +114,7 @@ class Backup:
             ):
             serverboards.error(
                 "Backup error. Read %s bytes, write %s bytes."%(self.source_size, self.destination_size),
-                backup = self.id
+                **self.context
                 )
             now = datetime_now()
             self.update_job(status="error", size=None, completed_date=now, fifofile=None)
@@ -123,7 +127,7 @@ class Backup:
         else:
             serverboards.info(
                 "Backup finished. Read %s bytes, write %s bytes."%(self.source_size, self.destination_size),
-                backup = self.id
+                **self.context
                 )
             self.update_job(status="ok", size=self.destination_size, completed_date=datetime_now(), fifofile=None)
             serverboards.action.trigger("serverboards.core.actions/close-issue", {

@@ -23,41 +23,41 @@ def render_template_with_dates(template):
     return TEMPLATE_RE.sub(replace, template)
 
 @serverboards.rpc_method
-def read_source(fifofile, config):
+def read_source(fifofile, config, context={}):
     print("Read from %s to %s"%(config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
-        ssh.run(service=config["service"], command=["cat", config["path"]], outfile=fifofile)
-        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]])["stdout"].split()[0])
-        print("Done, read %s"%size)
+        ssh.run(service=config["service"], command=["cat", config["path"]], outfile=fifofile, context=context)
+        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]], context=context)["stdout"].split()[0])
+        serverboards.info("Done, read %s"%size, **context)
         return size
 
 @serverboards.rpc_method
-def read_source_tar(fifofile, config):
+def read_source_tar(fifofile, config, context={}):
     print("Read from %s to %s"%(config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
-        ssh.run(service=config["service"], command=["tar", "cz", config["path"]], outfile=fifofile)
-        output = ssh.run(service=config["service"], command=["du","-sb",config["path"]])
+        ssh.run(service=config["service"], command=["tar", "cz", config["path"]], outfile=fifofile, context=context)
+        output = ssh.run(service=config["service"], command=["du","-sb",config["path"]],context=context)
         stdout = output["stdout"]
         if not stdout:
             raise Exception("file not exists")
         size = int(stdout.split()[0])
-        print("Done, read %s"%size)
+        serverboards.info("Done, read %s"%size, **context)
         return size
 
 
 @serverboards.rpc_method
-def write_destination(fifofile, config):
+def write_destination(fifofile, config, context={}):
     print("Write to %s from %s"%(config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
         copyto = config["path"]
         if '{{' in copyto:
             copyto = render_template_with_dates(copyto)
-        ssh.run(service=config["service"], command=["cat", ">", copyto], infile=fifofile)
-        stdout = ssh.run(service=config["service"], command=["du","-sb",copyto])["stdout"]
+        ssh.run(service=config["service"], command=["cat", ">", copyto], infile=fifofile, context=context)
+        stdout = ssh.run(service=config["service"], command=["du","-sb",copyto], context=context)["stdout"]
         if not stdout:
             raise Exception("file not created")
         size = int(stdout.split()[0])
-        print("Done, write %s"%size)
+        serverboards.info("Done, write %s"%size, **context)
         return size
 
 if 'test' in sys.argv:
