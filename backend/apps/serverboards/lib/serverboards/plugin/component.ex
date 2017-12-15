@@ -88,6 +88,7 @@ defmodule Serverboards.Plugin.Component do
     end
     [
       {'HOME', to_charlist home},
+      {'PLUGIN_ID', to_charlist id},
       {'SERVERBOARDS_PATH', to_charlist serverboards_path},
     ]
   end

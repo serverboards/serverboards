@@ -1,6 +1,8 @@
 import json, os, sys, select, time, io
 from contextlib import contextmanager
 
+plugin_id = os.environ.get("PLUGIN_ID")
+
 try:
     input=raw_input
 except:
@@ -118,6 +120,7 @@ class RPC:
         callerf=inspect.stack()[level]
 
         caller={
+          "plugin_id":plugin_id,
           "function":callerf[3],
           "file":callerf[1],
           "line":callerf[2],
