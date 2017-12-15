@@ -666,11 +666,7 @@ class WriteTo:
     def __call__(self, *args, **extra):
         nextra = {**{"level":1}, **self.extra, **extra}
         if not args: # if no data, add extras for contexts.
-            sys.stderr.write("Create context %s\n"%nextra)
-            sys.stderr.flush()
             return WriteTo(self.fn, **nextra)
-        sys.stderr.write("write extra: %s -- %s\n"%(nextra, ' '.join(str(e) for e in args)))
-        sys.stderr.flush()
         self.fn(*args, **nextra)
     def write(self, data, *args, **extra):
         if data.endswith('\n'):
