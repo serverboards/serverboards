@@ -99,7 +99,17 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         kwargs["_in"].close()
 
     if service:
-        serverboards.info("SSH Command executed %s:'%s'"%(service, "' '".join(command)), **{**dict(service_id=service, command=command), **context})
+        if result.exit_code == 0:
+            serverboards.info("SSH Command success %s:'%s'"%(service, "' '".join(command)),
+                **{**dict(service_id=service, command=command), **context})
+        else:
+            serverboards.error("SSH Command error %s:'%s'"%(service, "' '".join(command)),
+                **{**dict(
+                    service_id=service,
+                    command=command,
+                    exit_code=result.exit_code,
+                    stderr=result.stderr.decode('utf8')
+                ), **context})
     return {
         "stdout": stdout,
         "stderr": result.stderr.decode('utf8'),
