@@ -831,7 +831,8 @@ class Plugin:
         try:
             return rpc.call("plugin.call", self.uuid, method, args or kwargs, _async=_async)
         except Exception as e:
-            if e == "exit" and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
+            # if exited or plugin call returns unknown method (refered to the method to call at the plugin), restart and try again.
+            if (e == "exit" or e == "unknown_method plugin.call") and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
                 self.start()
                 return rpc.call("plugin.call", self.uuid, method, args or kwargs)
             else:
