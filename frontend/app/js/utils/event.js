@@ -41,6 +41,11 @@ export function unsubscribe(types){
   }
 }
 
+// Sends again all subscription requests.
+export function resubscribe(){
+  rpc.call("event.subscribe", Object.keys(subscription_count))
+}
+
 const PLAIN_EVENT_RE=/[\w.-]+/
 
 export function on(event, fn){

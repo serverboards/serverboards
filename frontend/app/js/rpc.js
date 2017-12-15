@@ -78,6 +78,7 @@ var RPC = function(options={}){
         rpc.event.subscribe(["user.updated"])
 
         require('app/actions/auth').logged_in_as(user)(rpc.store.dispatch)
+        require('app/utils/event').resubscribe()
 
         // Send pending messages
         for (let msg of rpc.reconnection_message_queue){
