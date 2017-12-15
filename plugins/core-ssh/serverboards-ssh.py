@@ -79,10 +79,10 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
     kwargs = {}
     if outfile:
         assert outfile.startswith("/tmp/") and not '..' in outfile # some security
-        kwargs["_out"]=open(outfile,"w")
+        kwargs["_out"]=open(outfile,"wb")
     if infile:
         assert infile.startswith("/tmp/") and not '..' in infile
-        kwargs["_in"]=open(infile,"r")
+        kwargs["_in"]=open(infile,"rb")
     # Real call to SSH
     stdout=None
     try:
