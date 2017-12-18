@@ -15,6 +15,7 @@ User management:
     s10s user create <email>  -- Creates the given user. User must ask for a email reset using the UI.
     s10s user enable <email>  -- Disables the user
     s10s user recover <email> -- Sends the recover email for the given user
+    s10s user passwd <email>  -- Asks for new password for the given user
     s10s user disable <email> -- Disables the user
     s10s user add <email> to <group>      -- Adds the user to the group
     s10s user remove <email> from <group> -- Removes the user to the group
@@ -199,6 +200,36 @@ def recover(email):
     conn=TCPClient("localhost", "4040")
     print(conn.call("auth.reset_password", email))
 
+def passwd(email, raw_password):
+    import bcrypt
+    if not raw_password:
+        import getpass
+        print("This is an insecure practice.\nPassword should only be known by the final user.\nThe recomended practice is to use the UI to request a password reset.\nUse only for exceptional cases.")
+        try:
+            raw_password = getpass.getpass()
+            if not raw_password:
+                print("No password provided. Use `s10s recover %s` to send a recover link to the user"%(email))
+                sys.exit(1)
+            if raw_password != getpass.getpass("Repeat password: "):
+                print("Password dont match!")
+                sys.exit(2)
+        except KeyboardInterrupt:
+            print()
+            sys.exit(0)
+    salt = bcrypt.gensalt()
+    pwhash = bcrypt.hashpw(raw_password.encode('utf8'), salt)
+    password = "$bcrypt$%s"%pwhash.decode('utf8')
+    user_id = conn.execute("SELECT id FROM auth_user WHERE email = %s", email)
+    if not user_id:
+        sys.exit(1)
+    user_id = user_id[0]
+    now = datetime.datetime.now()
+    if conn.execute("SELECT id FROM auth_user_password WHERE user_id = %s", user_id):
+        conn.insert("UPDATE auth_user_password SET password = %s, updated_at = %s WHERE user_id = %s", password, now, user_id)
+    else:
+        conn.insert("INSERT INTO auth_user_password (password, user_id, inserted_at, updated_at) VALUES (%s, %s, %s, %s)", password, user_id, now, now)
+    log("Password for <%s> has been manually updated"%email)
+
 def main(argv):
     if '--one-line-help' in argv:
         print("User management")
@@ -222,6 +253,8 @@ def main(argv):
         update_enabled(argv[2], False)
     elif argv[1] == "recover":
         recover(argv[2])
+    elif argv[1] == "passwd":
+        passwd(argv[2], (len(argv)>=4) and argv[3])
     elif argv[1] == "add" and argv[3] == "to":
         add_user_to_group(argv[2], argv[4])
     elif argv[1] == "remove" and argv[3] == "from":
