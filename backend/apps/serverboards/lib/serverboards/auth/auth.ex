@@ -75,9 +75,9 @@ defmodule Serverboards.Auth do
 					false
 				end
 		end
-		Logger.info("Log in user #{user[:name]} <#{user[:email]}>", user: user)
 
 		if user do
+			Logger.info("Log in user #{user[:name]} <#{user[:email]}>", user: user)
 			{:ok,
 				user
 					|> decorate
