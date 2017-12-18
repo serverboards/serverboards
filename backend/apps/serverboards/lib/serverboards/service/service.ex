@@ -370,7 +370,7 @@ defmodule Serverboards.Service do
   def service_list(filter) do
     import Ecto.Query
 
-    Logger.info("Get service list for #{inspect filter}", filter: filter)
+    # Logger.info("Get service list for #{inspect filter}", filter: filter)
 
     query = if filter do
         Enum.reduce(filter, from(c in ServiceModel), fn {k,v}, acc ->
