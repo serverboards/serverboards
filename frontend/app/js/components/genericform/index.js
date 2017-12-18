@@ -20,7 +20,7 @@ const GenericForm=React.createClass({
   getInitialState(props){
     props = props || this.props
     let state={};
-    (props.fields || []).map((f) => { if (f.name){ state[f.name]=(f.value || '') } } )
+    (props.fields || []).map((f) => { if (f.name){ state[f.name]=(f.value || f.default || '') } } )
     if (props.data){
       Object.keys(props.data).map( (k) => { if (k){ state[k]=props.data[k] }})
     }

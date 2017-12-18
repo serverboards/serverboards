@@ -68,7 +68,7 @@ const GenericField=React.createClass({
             <input type="text"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
-              defaultValue={props.value}
+              defaultValue={props.value || props.default}
               onChange={this.handleChange}/>
           </div>
         )
