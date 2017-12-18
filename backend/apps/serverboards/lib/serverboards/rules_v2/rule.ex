@@ -318,7 +318,7 @@ defmodule Serverboards.RulesV2.Rule do
 
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
-    Logger.info("Executed action #{inspect action}", rule_uuid: uuid)
+    Logger.info("Executed action #{inspect action}", rule_uuid: uuid, params: params)
 
     result = if Enum.count(result)==1 and Map.has_key?(result, :result) do
       result[:result] else result end
