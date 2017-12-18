@@ -144,7 +144,10 @@ def open_issue(**data):
     from templating import render
     title=render(data.get("title"), data)
     description=render(data.get("description"), data)
-    aliases=render(data.get("aliases", issue_id), data).split()
+    aliases=render(data.get("aliases", ""), data).split()
+    if issue_id:
+        aliases.append(issue_id)
+    aliases = [x for x in aliases if x] # no empty aliases
     #serverboards.rpc.info(json.dumps(data, indent=2))
     if 'service' in data or 'rule' in data:
         description+="\n\nRelated:\n\n"
