@@ -35,9 +35,10 @@ def check_plugin_updates(action_id=None, **args):
     # print(ctime,plugins_state_timestamp,ctime-plugins_state_timestamp,MAX_CACHE_TIME)
     if plugins_state and (ctime-plugins_state_timestamp < MAX_CACHE_TIME):
         update_count=0
-        for pl,changelog in plugins_state.items():
-            if changelog:
-                serverboards.rpc.event("event.emit","plugin.update.required", {"plugin_id": plugin_id, "payload": changelog}, ["plugin.install"])
+        for pl,payload in plugins_state.items():
+            if payload:
+                print(payload["plugin_id"], "requires update")
+                serverboards.rpc.event("event.emit","plugin.update.required", payload, ["plugin.install"])
                 update_count+=1
         serverboards.info("Using cached plugin update data: %s plugins require updates"%update_count)
         return update_count
@@ -67,9 +68,10 @@ def check_plugin_updates(action_id=None, **args):
                         "changelog": changelog
                     }
                     serverboards.info("Plugin %s requires update"%plugin_id)
+                    print(plugin_id, "requires update")
                     serverboards.rpc.event("event.emit","plugin.update.required", payload, ["plugin.install"])
                     update_count+=1
-                    plugins_state[pl]=changelog
+                    plugins_state[pl]=payload
                 else:
                     plugins_state[pl]=None
         except:
