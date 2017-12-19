@@ -65,9 +65,8 @@ const Widget = React.createClass({
     Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then(
       () => this.do_widget(this.props)
     ).catch( (e) => {
-      console.error(e)
-      this.setState({error: String(e)})
-      this.refs.el.html("")
+      this.setState({error: e.name || e.message || i18n("Could not load JS code")})
+      $(this.refs.el).html("")
     } )
   },
   componentWillUnmount(){
