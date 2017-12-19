@@ -60,8 +60,7 @@ function get_widget_market_catalog(){
     ]).then( (cp) => {
       const catalog = cp[0]
       const plugin_list = cp[1]
-
-      console.log("Got catalog %o // %o", catalog, plugin_list)
+      // console.log("Got catalog %o // %o", catalog, plugin_list)
       return catalog.filter( c => !plugin_list[c.plugin] )
     })
 }
@@ -77,8 +76,8 @@ class SelectWidget extends React.Component{
   handleInstallWidget(w){
     this.setState({tab:3})
     plugin.install(w.giturl).then(() => {
-      w = {...w, type: w.id} // I need the component id in the type field.
-      this.props.onSelectWidget(w)
+      const widget = {...w, type: w.id} // I need the component id in the type field.
+      this.props.onSelectWidget(widget)
     }).catch((e) => {
       console.error(e)
       this.setState({tab:2})

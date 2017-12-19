@@ -148,6 +148,7 @@ def component_filter(type=None, traits=None):
         matched_filters-=1
 
       if matched_filters==0:
+        co={**co} # dup
         co["id"]="%s/%s"%(pl["id"], co["id"])
         co["plugin"]=pl["id"]
         co["giturl"]=pl["giturl"]
