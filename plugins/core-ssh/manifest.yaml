@@ -43,7 +43,7 @@ components:
           **SSH Public Key:**
 
           ```
-          {{ssh_key}}
+          {{{ssh_key}}}
           ```
         vars:
           - id: ssh_key
@@ -57,7 +57,7 @@ components:
           The remote fingerprints are:
 
           ```
-          {{status.fingerprint}}
+          {{{status.fingerprint}}}
           ```
           Click on "Enable host" to add to your known_hosts. This is required to access this server.
         value: "{{status.toggle}}"
