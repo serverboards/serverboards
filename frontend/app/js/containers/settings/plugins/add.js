@@ -5,6 +5,7 @@ import plugin from 'app/utils/plugin'
 import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
+import {Loading} from 'app/components'
 
 class AddModel extends React.Component{
   constructor(props){
@@ -12,7 +13,8 @@ class AddModel extends React.Component{
 
     this.state = {
       plugins: undefined,
-      reload_key: 1
+      reload_key: 1,
+      installing: false
     }
   }
   get_plugins(){
@@ -36,11 +38,14 @@ class AddModel extends React.Component{
       Flash.error(i18n("Please set a valid URL"))
       return;
     }
+    this.setState({installing: plugin_url})
     rpc.call("plugin.install", [plugin_url]).then( () => {
       Flash.info(i18n("Plugin from {plugin_url} installed and ready.",{plugin_url}))
+      this.setState({installing: false})
       this.reload()
     }).catch( (e) => {
       Flash.error(e)
+      this.setState({installing: false})
       this.reload()
     })
   }
@@ -49,6 +54,12 @@ class AddModel extends React.Component{
     this.setState({reload_key: this.state.reload_key+1})
   }
   render(){
+    if (this.state.installing)
+      return (
+        <Loading>
+          {i18n("Installing plugin from {plugin_url}", {plugin_url: this.state.installing})}
+        </Loading>
+      )
     if (this.state.loading)
       return (
         <Loading>{i18n("Widget descriptions")}</Loading>
