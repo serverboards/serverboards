@@ -467,7 +467,7 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None, context={}
     """
     assert fromfile and tofile
     assert not (fromservice and toservice)
-    opts=[]
+    opts=['-q']
     if fromservice:
         url = __get_service_url(fromservice)
         opts, _url = url_to_opts(url)
