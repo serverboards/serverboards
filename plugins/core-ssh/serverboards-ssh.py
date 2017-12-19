@@ -300,7 +300,7 @@ def __get_service_url_and_opts(service_uuid):
     return (url, options, precmd)
 
 @serverboards.rpc_method
-def open_port(url=None, service=None, hostname="localhost", port="22"):
+def open_port(url=None, service=None, hostname=None, port=None, unix=None):
     """
     Opens a connection to a remote ssh server on the given hostname and port.
 
@@ -314,6 +314,7 @@ def open_port(url=None, service=None, hostname="localhost", port="22"):
         hostname -- Remote hostname to connect to. Default `localhost` which
                 would be the SSH server
         port -- Remote port to connect to
+        unix -- Unix socket to connect to
 
     Returns:
      localport -- Port id on Serverboards side to connect to.
@@ -334,7 +335,12 @@ def open_port(url=None, service=None, hostname="localhost", port="22"):
     keep_trying=True
     while keep_trying:
         localport=random.randint(20000,60000)
-        mopts=opts+["-nNT","-L","%s:%s:%s"%(localport, hostname, port)]
+        if hostname and port:
+            mopts=opts+["-nNT","-L","%s:%s:%s"%(localport, hostname, port)]
+        elif unix:
+            mopts=opts+["-nNT","-L","%s:%s"%(localport, unix)]
+        else:
+            raise Exception("need hostname:port or unix socket")
         serverboards.debug("Open port with: [ssh '%s']"%"' '".join(mopts), service_id = service)
         sp=pexpect.spawn("/usr/bin/ssh",mopts)
         port_to_pexpect[localport]=sp
