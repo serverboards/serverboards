@@ -21,6 +21,8 @@ const Plugins=React.createClass({
     }
   },
   componentDidMount(){
+    event.on("plugin.update.required", this.updateRequired)
+    event.on("plugin.updated", this.updated)
     cache.plugins().then((pluginsd)=>{
       let plugins=[]
       for (let k in pluginsd){
@@ -31,8 +33,6 @@ const Plugins=React.createClass({
     }).catch((e) => {
       Flash.error(`Could not load plugin list.\n ${e}`)
     }).then( () => {
-      event.on("plugin.update.required", this.updateRequired)
-      event.on("plugin.updated", this.updated)
       // do not launch more times. May miss some updates needed.
       if (!store.getState().action.actions.some( i => i.id=="serverboards.optional.update/check_plugin_updates" ))
         return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
@@ -51,6 +51,7 @@ const Plugins=React.createClass({
     event.off("plugin.updated", this.updateRequired)
   },
   updateRequired({plugin_id, changelog}){
+    console.log("Update required: %o; %o", plugin_id, changelog)
     const plugins = this.state.plugins.map( (pl) => {
       if (pl.id==plugin_id)
         return merge(pl, {changelog: changelog, status: pl.status.concat("updatable")})
