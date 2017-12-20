@@ -207,12 +207,12 @@ defmodule Serverboards.Plugin.Runner do
   If passing and unknown or already stopped cmdid
 
     iex> call "nonvalid", "ping"
-    {:error, :unknown_method}
+    {:error, :unknown_plugin}
 
     iex> {:ok, cmd} = start "serverboards.test.auth/fake", "test"
     iex> stop cmd
     iex> call cmd, "ping"
-    {:error, :unknown_method}
+    {:error, :unknown_plugin}
 
   The method can be both a binary or a map, if the method is a map, it is a map
   in the form

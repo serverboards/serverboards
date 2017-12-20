@@ -81,7 +81,7 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
     assert Client.call(client, "plugin.is_running", [test_cmd]) == {:ok, false}
 
-    assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:error, :unknown_method}
+    assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:error, "unknown_plugin"}
 
     # Fallback UUID caller
     require Logger
@@ -89,7 +89,7 @@ defmodule Serverboards.PluginTest do
     {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
     assert Client.call(client, "#{test_cmd}.ping", []) == {:ok, "pong"}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
-    assert Client.call(client, "#{test_cmd}.ping", []) == {:error, :unknown_method}
+    assert Client.call(client, "#{test_cmd}.ping", []) == {:error, "unknown_plugin"}
   end
 
   test "Set alias" do
@@ -99,7 +99,7 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, "plugin.alias", [test_cmd, "test"]) == {:ok, true}
     assert Client.call(client, "test.ping", []) == {:ok, "pong"}
     assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
-    assert Client.call(client, "#{test_cmd}.ping", []) == {:error, :unknown_method}
+    assert Client.call(client, "#{test_cmd}.ping", []) == {:error, "unknown_plugin"}
     assert Client.call(client, "test.ping", []) == {:error, :unknown_method}
   end
 
