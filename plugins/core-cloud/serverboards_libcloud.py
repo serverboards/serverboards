@@ -80,9 +80,11 @@ class Connection:
     extra = {
         'private_ips':node.private_ips,
         'public_ips':node.public_ips,
-        'created_at':str(node.created_at),
         'mem_total':node.extra.get("used_memory"),
     }
+    created_at = str(getattr(node, "created_at", None))
+    if created_at:
+        extra["created_at"] = created_at
     if extra_info:
         extra.update(node.extra)
         extra["size"]=node.size
@@ -229,7 +231,7 @@ def _details(service, vmc):
 
 @serverboards.rpc_method("list")
 def _list(service):
-  print("Get list from libvirt", service)
+  # print("Get list from libvirt", service)
   conn = get_connection(service)
 
   return [conn.details(node) for node in conn.driver.list_nodes()]

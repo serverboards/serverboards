@@ -233,7 +233,7 @@ defmodule Serverboards.Plugin.Runner do
     case GenServer.call(Serverboards.Plugin.Runner, {:get, id}) do
       :not_found ->
         Logger.error("Could not find plugin id #{inspect id}: :not_found")
-        {:error, :unknown_method}
+        {:error, :unknown_plugin}
       :exit ->
         {:error, :exit}
       %{ pid: pid } when is_pid(pid) ->
@@ -244,6 +244,9 @@ defmodule Serverboards.Plugin.Runner do
             Logger.error("Unexpected exit process while calling #{id}.#{method}")
             GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
             {:error, :exit}
+          {:error, :unknown_method} ->
+            Logger.error("Could not call method #{inspect method} at #{inspect id}")
+            {:error, [:unknown_method, method]}
           other -> other
         end
     end

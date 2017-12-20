@@ -825,6 +825,7 @@ class Plugin:
         self.uuid = None
         return self
 
+    RETRY_EVENTS = [ "exit", "unknown_plugin at plugin.call", "unknown_plugin"]
     def call(self, method, *args, _async=False, **kwargs):
         """
         Call a method by name.
@@ -835,7 +836,8 @@ class Plugin:
             return rpc.call("plugin.call", self.uuid, method, args or kwargs, _async=_async)
         except Exception as e:
             # if exited or plugin call returns unknown method (refered to the method to call at the plugin), restart and try again.
-            if (e == "exit" or e == "unknown_method plugin.call") and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
+            if (str(e) in Plugin.RETRY_EVENTS) and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
+                debug("Restarting plugin", self.plugin_id)
                 self.start()
                 return rpc.call("plugin.call", self.uuid, method, args or kwargs)
             else:
