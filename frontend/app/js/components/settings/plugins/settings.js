@@ -35,12 +35,21 @@ class Settings extends React.Component{
         data[d.id]=d.data
       })
       this.setState({data, loading: false})
+    }).catch( e => {
+      if (e=="not_found")
+        this.setState({data:{}, loading: false})
+      else{
+        console.error(e)
+        Flash.error(i18n("Error loading settings"))
+      }
     })
   }
   render(){
     if (this.state.loading){
       return (
-        <Loading>{i18n("Plugin settings")}</Loading>
+        <Modal>
+          <Loading>{i18n("Plugin settings")}</Loading>
+        </Modal>
       )
     }
     const props = this.props
