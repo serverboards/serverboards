@@ -29,7 +29,7 @@ class DetailsTab extends React.Component{
     console.log(this.props)
     const extra = this.props.vmc.props || {}
 
-    const has_ssh = Boolean((extra.private_ips || extra.public_ips || []).length>0)
+    const has_ssh = (([...(extra.private_ips || []), ...(extra.public_ips || [])]).length>0)
     const has_spice = Boolean(extra.spice_port)
 
     return (
