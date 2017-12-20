@@ -6,6 +6,7 @@ import serverboards
 from serverboards import rpc, cache_ttl, print
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
+from libcloud.compute.types import NodeState
 
 GiB = 1024 * 1024 * 1024
 MiB = 1024 * 1024
@@ -14,6 +15,14 @@ connections = {} # UUID of a service to a connection
 
 state_trans = {
   "terminated" : "stopped",
+  NodeState.ERROR: "error",
+  NodeState.RUNNING: "running",
+  NodeState.UNKNOWN: "unknown",
+  NodeState.PAUSED: "paused",
+  NodeState.STOPPED: "stopped",
+  NodeState.SUSPENDED: "suspended",
+  NodeState.REBOOTING: "rebooting",
+  NodeState.TERMINATED: "terminated",
 }
 
 PRIVATE_IP_MASKS=[
