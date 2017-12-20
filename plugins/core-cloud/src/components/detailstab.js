@@ -26,9 +26,11 @@ class DetailsTab extends React.Component{
         Section=Spice
         break;
     }
+    console.log(this.props)
+    const extra = this.props.vmc.props || {}
 
-    const has_ssh = Boolean((this.props.vmc.props.private_ips || this.props.vmc.props.public_ips || []).length>0)
-    const has_spice = Boolean(this.props.vmc.props.spice_port)
+    const has_ssh = Boolean((extra.private_ips || extra.public_ips || []).length>0)
+    const has_spice = Boolean(extra.spice_port)
 
     return (
       <div className="ui expand with right side menu">

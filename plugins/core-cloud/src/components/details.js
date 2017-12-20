@@ -88,12 +88,12 @@ function BigStat({label, value, percent, description, className, show_percentage
 }
 
 function Details({vmc, template, parent, onStart, onStop}){
+  const props = vmc.props || {}
   const data = {
-    ip: utils.merge(vmc.props.public_ips || [], vmc.props.private_ips || []),
-    ip6: utils.merge(vmc.props.public_ips6 || [], vmc.props.private_ips6 || []),
-    dns: vmc.props.dns_name
+    ip: utils.merge(props.public_ips || [], props.private_ips || []),
+    ip6: utils.merge(props.public_ips6 || [], props.private_ips6 || []),
+    dns: props.dns_name
   }
-  const props = vmc.props
 
   let memory=calculate_size(props.mem_total * MiB)
   let disk=calculate_size(props.disk_total * MiB)
@@ -186,8 +186,8 @@ function Details({vmc, template, parent, onStart, onStop}){
       <h3 className="ui teal with padding" style={{margin:0, paddingTop: 0}}>{i18n("Other Data")}</h3>
       <div className="ui extends with scroll">
         <ul className="ui no bullet list with padding">
-          {Object.keys(vmc.props).sort().map( k => (
-            <DL key={k} label={k} value={vmc.props[k]}/>
+          {Object.keys(props).sort().map( k => (
+            <DL key={k} label={k} value={props[k]}/>
           ))}
         </ul>
       </div>
