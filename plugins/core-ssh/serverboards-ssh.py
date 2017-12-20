@@ -300,7 +300,7 @@ def __get_service_url_and_opts(service_uuid):
     return (url, options, precmd)
 
 @serverboards.rpc_method
-def open_port(url=None, service=None, hostname=None, port=None, unix=None):
+def open_port(url=None, service=None, hostname=None, port=None, unix=None, context={}):
     """
     Opens a connection to a remote ssh server on the given hostname and port.
 
@@ -321,7 +321,7 @@ def open_port(url=None, service=None, hostname=None, port=None, unix=None):
     """
     ensure_ID_RSA()
     if url:
-        serverboards.warning("Deprecated open port by URL. Better use open port by service UUID, as it uses all SSH options.")
+        serverboards.warning("Deprecated open port by URL. Better use open port by service UUID, as it uses all SSH options.", **context)
         (opts, url) = url_to_opts(url)
     else:
         assert service
@@ -341,7 +341,7 @@ def open_port(url=None, service=None, hostname=None, port=None, unix=None):
             mopts=opts+["-nNT","-L","%s:%s"%(localport, unix)]
         else:
             raise Exception("need hostname:port or unix socket")
-        serverboards.debug("Open port with: [ssh '%s']"%"' '".join(mopts), service_id = service)
+        serverboards.debug("Open port with: [ssh '%s']"%"' '".join(mopts), service_id = service, **context)
         sp=pexpect.spawn("/usr/bin/ssh",mopts)
         port_to_pexpect[localport]=sp
         running=True
@@ -349,7 +349,7 @@ def open_port(url=None, service=None, hostname=None, port=None, unix=None):
             ret=sp.expect([str('^(.*)\'s password:'), str('Could not request local forwarding.'), pexpect.EOF, pexpect.TIMEOUT], timeout=2)
             if ret==0:
                 if not url.password:
-                    serverboards.error("Could not connect url %s, need password"%( url.geturl() ))
+                    serverboards.error("Could not connect url %s, need password"%( url.geturl() ), **context)
                     raise Exception("Need password")
                     sp.sendline(url.password)
             if ret==1:
@@ -362,7 +362,7 @@ def open_port(url=None, service=None, hostname=None, port=None, unix=None):
                 keep_trying=False
                 running=False
     open_ports[port_key]=localport
-    serverboards.debug("Port redirect localhost:%s -> %s:%s"%(localport, hostname, port))
+    serverboards.debug("Port redirect localhost:%s -> %s:%s"%(localport, hostname, port), **context)
     return localport
 
 @serverboards.rpc_method
@@ -473,7 +473,7 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None, context={}
     """
     assert fromfile and tofile
     assert not (fromservice and toservice)
-    opts=['-q']
+    opts=[]
     if fromservice:
         url = __get_service_url(fromservice)
         opts, _url = url_to_opts(url)
@@ -490,6 +490,7 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None, context={}
         urlb = "%s:%s"%(url, tofile)
     else:
         urlb=tofile
+    opts.append("-q")
     # serverboards.info("scp %s %s %s"%(' '.join(opts), urla, urlb), **context)
     try:
         sh.scp(*opts, urla, urlb,
