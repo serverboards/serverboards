@@ -43,9 +43,11 @@ function LogLine(props){
   const datetime = line.timestamp.slice(0,19).split('T')
   const date = datetime[0]
   const time = datetime[1]
+  const extra = line.meta || {}
   return (
     <tr className={levelToClass(line.level)} onClick={(ev) => { ev.preventDefault(); props.showDetails(line)}} style={{cursor:"pointer"}}>
       <td>{line.id}</td>
+      <td>{extra.plugin_id || extra.module || "core"}</td>
       <td>{i18n(line.level)}</td>
       <td>{date}<br/>{time}</td>
       <td>{line.message.split('\n')[0]}</td>
@@ -231,6 +233,7 @@ const Logs = React.createClass({
               <thead>
                 <tr>
                   <th>{i18n("Id")}</th>
+                  <th>{i18n("Module")}</th>
                   <th>{i18n("Level")}</th>
                   <th style={{width: "7em"}}>{i18n("Date")}</th>
                   <th>{i18n("Message")}</th>
