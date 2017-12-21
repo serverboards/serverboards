@@ -51,18 +51,18 @@ defmodule Serverboards.Plugin.Installer do
           cd: finalpath
         ]
 
-        Logger.info("Executing postinst for #{cmd}", plugin: data, path: finalpath)
+        Logger.info("Executing postinst for #{cmd}", plugin: data["id"], path: finalpath)
         {log, exitcode} = System.cmd cmd, [], cmdopts
 
 
         if exitcode == 0 do
-          Logger.info(log, plugin: data, exitcode: 0, file: cmd, line: "--")
+          Logger.info("Postinst #{data["id"]} ok", stdout: log, plugin: data["id"], exitcode: 0, file: cmd, line: "--")
 
           mark_as_ok(plugin_id)
 
           :ok
         else
-          Logger.error(log, plugin: data, exitcode: exitcode, file: cmd, line: "--")
+          Logger.error("Postinst #{data["id"]} error", stdout: log, plugin: data["id"], exitcode: exitcode, file: cmd, line: "--")
 
           mark_as_broken(plugin_id)
 
