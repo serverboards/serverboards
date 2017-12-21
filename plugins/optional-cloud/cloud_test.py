@@ -13,11 +13,11 @@ cloud = None
 @serverboards.rpc_method
 def t00_setup_test():
   global cloud
-  try: plugin.kill("serverboards.core.cloud/daemon")
+  try: plugin.kill("serverboards.optional.cloud/daemon")
   except: pass
   try: plugin.kill("serverboards.core.ssh/daemon")
   except: pass
-  cloud = Plugin("serverboards.core.cloud/daemon")
+  cloud = Plugin("serverboards.optional.cloud/daemon")
 
   global service_ssh, service_libvirt
   project.create(
@@ -35,7 +35,7 @@ def t00_setup_test():
     )
   service_libvirt = service.create(
     name = "libvirt",
-    type = "serverboards.core.cloud/libvirt",
+    type = "serverboards.optional.cloud/libvirt",
     config = {
       "type":"libvirt",
       "server": service_ssh
@@ -44,7 +44,7 @@ def t00_setup_test():
     )
   service_lxc = service.create(
     name = "lxc",
-    type = "serverboards.core.cloud/lxc",
+    type = "serverboards.optional.cloud/lxc",
     config = {
       "server": service_ssh,
       "sudo": True,
@@ -72,8 +72,8 @@ def t01_list_nodes_test():
   assert l != [], str(l)
   first_node = l[0]
   types = [x["type"] for x in l]
-  assert [x for x in types if x == "serverboards.core.cloud/libvirt"], types
-  assert [x for x in types if x == "serverboards.core.cloud/lxc"], types
+  assert [x for x in types if x == "serverboards.optional.cloud/libvirt"], types
+  assert [x for x in types if x == "serverboards.optional.cloud/lxc"], types
 
 @serverboards.rpc_method
 def t02_start_node_test():

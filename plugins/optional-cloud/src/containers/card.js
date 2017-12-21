@@ -5,7 +5,7 @@ import View from '../components/card'
 class Model extends React.Component{
   call_and_reload(calln){
     const node = this.props.item
-    return plugin.start_call_stop("serverboards.core.cloud/daemon", calln, [node.parent, node.id])
+    return plugin.start_call_stop("serverboards.optional.cloud/daemon", calln, [node.parent, node.id])
       .then( () => this.props.reloadAll() )
       .catch( error => Flash.error(i18n("Could not perform action. Check logs.\n{error}", {error})))
   }

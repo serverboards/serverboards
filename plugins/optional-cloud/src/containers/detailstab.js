@@ -13,7 +13,7 @@ class DetailsTab extends React.Component{
   }
   call_and_reload(calln){
     const node = this.props.vmc
-    return plugin.start_call_stop("serverboards.core.cloud/daemon", calln, [node.parent, node.id])
+    return plugin.start_call_stop("serverboards.optional.cloud/daemon", calln, [node.parent, node.id])
       .then( () => this.props.reloadAll() )
       .catch( error => Flash.error(i18n("Could not perform action. Check logs.\n{error}", {error})))
   }
@@ -39,7 +39,7 @@ class DetailsTab extends React.Component{
     const parent = vmc.parent
     const id = vmc.id
     plugin
-      .start_call_stop("serverboards.core.cloud/daemon","details", [parent, id])
+      .start_call_stop("serverboards.optional.cloud/daemon","details", [parent, id])
       .then( vmc => {
         this.setState({vmc})
       })

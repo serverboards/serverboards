@@ -28,7 +28,7 @@ function main(el, config){
   }
   var service=config.service.config
   console.log(service)
-  rpc.call('plugin.start',["serverboards.core.cloud/daemon"]).then(function(daemon){
+  rpc.call('plugin.start',["serverboards.optional.cloud/daemon"]).then(function(daemon){
     d.daemon=daemon
     return rpc.call(d.daemon+'.connect', service)
   }).then(function(server){
@@ -43,4 +43,4 @@ function main(el, config){
   })
 }
 
-Serverboards.add_screen("serverboards.core.cloud/list", main)
+Serverboards.add_screen("serverboards.optional.cloud/list", main)

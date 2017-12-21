@@ -1,5 +1,5 @@
-id: serverboards.core.cloud
-name: Core cloud services
+id: serverboards.optional.cloud
+name: Optional core cloud services
 author: David Moreno <dmoreno@serverboards.io>
 version: 17.04
 description: >
@@ -9,7 +9,7 @@ components:
   - id: daemon
     name: Cloud services daemon
     type: cmd
-    perms: settings.view[serverboards.core.cloud] event.emit service.get plugin
+    perms: settings.view[serverboards.optional.cloud] event.emit service.get plugin
     strategy: singleton
     timeout: 24h
     command: ./serverboards-cloud.py
@@ -18,7 +18,7 @@ components:
     type: service
     name: Cloud node
     description: A node in a cloud service, as an AWS instance or libvirt virtual machine.
-    traits: core.cloud.node cloud
+    traits: optional.cloud.node cloud
     fields:
       - name: connection
         description: Connection UUID
@@ -35,8 +35,8 @@ components:
   - id: start
     name: Start node
     type: action
-    traits: core.cloud.node stopped cloud server
-    command: serverboards.core.cloud/daemon
+    traits: optional.cloud.node stopped cloud server
+    command: serverboards.optional.cloud/daemon
     icon: play
     call:
       method: start
@@ -44,13 +44,13 @@ components:
         - name: parent
           label: VM or Container provider
           type: service
-          traits: core.cloud.compute
+          traits: optional.cloud.compute
         - name: node
           label: Node
           type: select call
           dynamic: true
           options:
-            command: serverboards.core.cloud/daemon
+            command: serverboards.optional.cloud/daemon
             call: get_nodes
             params:
               - name: parent
@@ -62,8 +62,8 @@ components:
     description: |
       Shuts down the selected node
     type: action
-    traits: core.cloud.node running cloud server
-    command: serverboards.core.cloud/daemon
+    traits: optional.cloud.node running cloud server
+    command: serverboards.optional.cloud/daemon
     icon: stop
     call:
       method: stop
@@ -74,7 +74,7 @@ components:
     type: service
     name: Libvirt
     description: Management of [libvirt](https://libvirt.org) based clouds.
-    traits: core.cloud.compute server cloud
+    traits: optional.cloud.compute server cloud
     icon: libvirtLogo.png
     fields:
       - name: server
@@ -89,7 +89,7 @@ components:
     name: Digital Ocean
     type: service
     description: Management of [Digital Ocean](https://digitalocean.com) clouds.
-    traits: core.cloud.compute cloud
+    traits: optional.cloud.compute cloud
     icon: digitalocean.svg
     fields:
       - name: token
@@ -104,7 +104,7 @@ components:
     name: AWS EC2
     type: service
     description: Management of [Amazon AWS EC2](https://aws.amazon.com) nodes.
-    traits: core.cloud.compute cloud
+    traits: optional.cloud.compute cloud
     icon: aws.svg
     fields:
       - type: description
@@ -159,26 +159,26 @@ components:
     perms: service.get
   - id: libvirt-vmc
     type: vmc
-    for: serverboards.core.cloud/libvirt
+    for: serverboards.optional.cloud/libvirt
     name: Libvirt Management
-    command: serverboards.core.cloud/libcloud-daemon
+    command: serverboards.optional.cloud/libcloud-daemon
   - id: libvirt-aws
     type: vmc
-    for: serverboards.core.cloud/aws.ec2
+    for: serverboards.optional.cloud/aws.ec2
     name: AWS Management
-    command: serverboards.core.cloud/libcloud-daemon
+    command: serverboards.optional.cloud/libcloud-daemon
   - id: libvirt-digitalocean
     type: vmc
-    for: serverboards.core.cloud/digital.ocean
+    for: serverboards.optional.cloud/digital.ocean
     name: Digital Ocean Management
-    command: serverboards.core.cloud/libcloud-daemon
+    command: serverboards.optional.cloud/libcloud-daemon
 
   # LXC
   - id: lxc
     name: LXC
     type: service
     description: Management of LXC Containers
-    traits: core.cloud.compute cloud
+    traits: optional.cloud.compute cloud
     icon: cloud
     fields:
       - name: server
@@ -204,16 +204,16 @@ components:
     perms: service.get plugin
   - id: lxc-vmc
     type: vmc
-    for: serverboards.core.cloud/lxc
+    for: serverboards.optional.cloud/lxc
     name: LXC Management
-    command: serverboards.core.cloud/lxc-daemon
+    command: serverboards.optional.cloud/lxc-daemon
 
   # LXD
   - id: lxd
     name: LXD
     type: service
     description: Management of LXD Containers
-    traits: core.cloud.compute cloud
+    traits: optional.cloud.compute cloud
     icon: cloud
     fields:
       - name: server
@@ -237,9 +237,9 @@ components:
     perms: service.get plugin
   - id: lxd-vmc
     type: vmc
-    for: serverboards.core.cloud/lxd
+    for: serverboards.optional.cloud/lxd
     name: LXD Management
-    command: serverboards.core.cloud/lxd-daemon
+    command: serverboards.optional.cloud/lxd-daemon
 
 
   ## Test
@@ -260,4 +260,4 @@ components:
   - id: test
     name: Test Cloud Services
     type: test disabled
-    command: serverboards.core.cloud/test-daemon
+    command: serverboards.optional.cloud/test-daemon

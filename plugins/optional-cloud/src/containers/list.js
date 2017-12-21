@@ -39,7 +39,7 @@ class List extends React.Component{
     }
   }
   componentDidMount(){
-    plugin.start_call_stop("serverboards.core.cloud/daemon", "list", {project: this.props.project}).then( (items) => {
+    plugin.start_call_stop("serverboards.optional.cloud/daemon", "list", {project: this.props.project}).then( (items) => {
       const all_items = utils.sort_by_name(items)
       this.setState({items: this.filter(all_items, this.state.filter), all_items, loading: false})
     }).catch( e => this.setState({loading: "error", error: e}))
