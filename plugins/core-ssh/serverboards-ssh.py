@@ -499,6 +499,8 @@ def scp(fromservice=None, fromfile=None, toservice=None, tofile=None, context={}
             )
         serverboards.info("Copy from %s:%s to %s:%s"%(fromservice, fromfile, toservice, tofile), **context)
         return True
+    except sh.ErrorReturnCode:
+        pass
     except Exception as e:
         import traceback; traceback.print_exc()
         pass
