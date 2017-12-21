@@ -62,7 +62,7 @@ function Paginator({count, current, onChange, max}){
         <span key="dots3" className="item disabled">...</span>
       )
       pages.push(
-        <PageItem key={i} active={(count-1)==current} onChange={onChange} n={count-1}/>
+        <PageItem key={end} active={(count-1)==current} onChange={onChange} n={count-1}/>
       )
     }
   }
