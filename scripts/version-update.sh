@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VERSIONBASE="17.10.0~alpha"
-BASEREVISION="44ce87a"
+VERSIONBASE="17.10"
+BASEREVISION="f3b68ed55610d541e06586d32d5ce70401fe52f1"
 NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
 AUTHOR="$( git config --get user.name ) <$( git config --get user.email )>"
 
