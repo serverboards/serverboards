@@ -19,7 +19,6 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.Issues, [ [name: Serverboards.Issues] ]),
       supervisor(Serverboards.IO.HTTP.Supervisor, [[name: Serverboards.IO.HTTP.Supervisor]]),
       supervisor(Serverboards.Plugin.Supervisor, [[name: Serverboards.Plugin.Supervisor]]),
-      supervisor(Serverboards.File.Supervisor, [[name: Serverboards.File.Supervisor]]),
 
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
       worker(Serverboards.Project, [ [name: Serverboards.Project] ]),
