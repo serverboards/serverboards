@@ -62,15 +62,21 @@ const Widget = React.createClass({
     } )
   },
   componentDidMount(){
-    Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then(
-      () => this.do_widget(this.props)
-    ).catch( (e) => {
+    Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then( () => {
+      if (!this.cancel_widget)
+        this.do_widget(this.props)
+    }).catch( (e) => {
       this.setState({error: e.name || e.message || i18n("Could not load JS code")})
       $(this.refs.el).html("")
     } )
   },
   componentWillUnmount(){
-    this.umount && this.umount()
+    try{
+      this.cancel_widget = true // the widget may be unmounted beore we got the promise of the js
+      this.umount && this.umount()
+    } catch(e) {
+      console.error("Could not umount widget %o %o", this.props.template.id,  e)
+    }
   },
   componentWillReceiveProps(nextprops){
     if (!object_is_equal(nextprops.config, this.props.config) ||
