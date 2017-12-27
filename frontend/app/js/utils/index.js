@@ -78,7 +78,7 @@ export function map_set(orig, path, value){
     return value
   const head = path[0]
   const rest = path.slice(1)
-  return merge(orig, {[head]: map_set( orig[head], rest, value )})
+  return merge(orig, {[head]: map_set( orig[head] || {}, rest, value )})
 }
 
 /// Concatenates lists returning a new one
