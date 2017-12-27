@@ -1,14 +1,15 @@
 #!/bin/bash
 
+set -ex
+
 VERSIONBASE="17.10"
-BASEREVISION="f3b68ed55610d541e06586d32d5ce70401fe52f1"
+BASEREVISION="733c425767f1b6cd1df9b2ab9beed4c0367840f8"
 NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
 AUTHOR="$( git config --get user.name ) <$( git config --get user.email )>"
 
 # it will build $VERSIONBASE.$NPATCHES,
 # it may use a full semver with .$NPATCHES for alpha and beta versions too
 
-set -ex
 cd "$( dirname $0 )/.."
 
 function get_version(){

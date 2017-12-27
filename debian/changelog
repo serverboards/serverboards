@@ -1,3 +1,9 @@
+serverboards (17.10.1) stable; urgency=medium
+
+  * 17.10 Release.
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 27 Dec 2017 10:58:06 +0100
+
 serverboards (17.10.0~alpha.835) unstable; urgency=medium
 
   * No leak at recover passwor dof unknown user
