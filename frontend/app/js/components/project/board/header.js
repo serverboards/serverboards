@@ -38,7 +38,7 @@ class HeaderMenu extends React.Component{
     const start = moment(end).subtract(filter, 'seconds')
 
     this.props.onDateRangeChange(start, end)
-    console.log("%o to %o", start, end)
+    // console.log("%o to %o", start, end)
     this.setState({filter})
   }
   handleDashboardChange(ds){
