@@ -49,6 +49,8 @@ function get_value(what){
   return get_value_r(what.split('.'), store.getState())
 }
 
+
+store.subscriptions={}
 /**
  * @short Adds simple .on(what, f) observer
  *
@@ -62,8 +64,32 @@ store.on=function(what, f){
   } catch(e){
     console.warn("Error getting initial value %o from store. Using undefined.\n%o",what, e )
   }
-  // And subscribe
-  return store.subscribe(function(){
+  if (!store.subscriptions[what]){
+    store.subscriptions[what] = {value: current_v, fs: [f]}
+  }
+  else{
+    store.subscriptions[what].fs.push(f)
+  }
+  // returns function to unsubscribe
+  return function(){
+    store.off(what, f)
+  }
+}
+
+store.off = function(what, f){
+  if (!store.subscriptions[what])
+    return
+  if (!f){
+    delete store.subscriptions[what]
+  }
+  store.subscriptions[what].fs = store.subscriptions[what].fs.filter( oldf => oldf != f )
+  if (store.subscriptions[what].fs.length==0)
+    delete store.subscriptions[what]
+}
+
+store.subscribe(function(){
+  for (let what of Object.keys(store.subscriptions)){
+    let sub = store.subscriptions[what]
     let new_v
     try{
       new_v=get_value(what)
@@ -71,18 +97,21 @@ store.on=function(what, f){
       //console.warn("Error getting value %o from store. Using undefined.\n%o",what, e )
     }
     //console.log("Check changes: %o ->? %o => %o", current_v, new_v, !object_is_equal(current_v,new_v))
-    if (!object_is_equal(current_v,new_v)){
-      current_v=new_v
+    if (!object_is_equal(sub.value, new_v)){
+      sub.value= new_v
       //console.log("Changed status %o != %o", current_v, new_v)
-      try{
-        f(new_v)
-      }
-      catch(e){
-        console.error("Error on %o observer: %o", what, e)
+      for (let f of sub.fs){
+        try{
+          f(new_v)
+        }
+        catch(e){
+          console.error("Error on %o observer: %o", what, e)
+        }
       }
     }
-  })
-}
+  }
+})
+
 
 rpc.set_redux_store(store)
 
