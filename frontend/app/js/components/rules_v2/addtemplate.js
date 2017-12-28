@@ -75,12 +75,12 @@ class AddTemplate extends React.Component{
               middle_img={require("imgs/019-illustration-tips.svg")}
               title={i18n("Add a simple rule to your project.")}
               subtitle={i18n("Fill the form on the right and you will be adding this rule to this project. Simple.")}
-              description={i18n(`
-Using the rule templates it is very easy to add rules to your project for the most common tasks.
-
-Watching uptimes and creating issues has never been easier. Check out the marketplace for many more
-simple rules. If you have any idea, don't hesitate to [contact us](mailto:connect@serverboards.io)!
-`)}
+              description={i18n("\
+Using the rule templates it is very easy to add rules to your project for the most common tasks.\n\
+\n\
+Watching uptimes and creating issues has never been easier. Check out the marketplace for many more\n\
+simple rules. If you have any idea, don't hesitate to [contact us](mailto:connect@serverboards.io)!\
+")}
               />
         	</div>
           <div className="ui column">

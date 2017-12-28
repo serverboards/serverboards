@@ -3,6 +3,7 @@
 import sys, yaml
 
 EXTRACT_TAGS=["description", "name", "label"]
+FULL_EXTRACT_TAGS=["result"]
 
 def cleanify(t):
     return t.replace("\n", "\\n").replace('"', '\\"')
@@ -16,17 +17,31 @@ def extract_text_in_context(k, context):
         return k!="name"
     return True
 
+def add_to_trans(v, filename):
+    v=cleanify(v)
+    if not v in known_texts:
+        print("#: %s"%filename)
+        print("msgid \"%s\""%(v))
+        print("msgstr \"\"")
+        print("")
+        known_texts.add(v)
+
+def full_extract(d, filename):
+    if isinstance(d, str):
+        add_to_trans(d, filename)
+    else:
+        for v in d.values():
+            full_extract(v, filename)
+
 def extract_texts(d, context, filename):
+    if isinstance(d, str):
+        return
     for k,v in d.items():
         if k in EXTRACT_TAGS:
-            v=cleanify(v)
             if extract_text_in_context(k, context):
-                if not v in known_texts:
-                    print("#: %s"%filename)
-                    print("msgid \"%s\""%(v))
-                    print("msgstr \"\"")
-                    print("")
-                    known_texts.add(v)
+                add_to_trans(v, filename)
+        if k in FULL_EXTRACT_TAGS:
+            full_extract(v, filename)
         if type(v) == dict:
             extract_texts(v, k, filename)
         if type(v) == list:

@@ -40,7 +40,7 @@ if [ "$GTFILES" ]; then
 fi
 
 if [ "$YAMLFILES" ]; then
-  ${BASEDIR}/serverboards-i18n-update--extract-manifest-yaml-po.py ${YAMLFILES} | msgcat ${OUTFILE} - --use-first -o ${OUTFILE}
+  ${BASEDIR}/s10s-i18n-update--extract-manifest-yaml-po.py ${YAMLFILES} | msgcat ${OUTFILE} - --use-first -o ${OUTFILE}
 fi
 
 exit 0
