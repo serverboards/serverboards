@@ -29,7 +29,7 @@ class ActionParams extends React.Component{
           <i className="ui wrench icon"/>
           {i18n("Setup action")}
         </h2>
-        <div className="description">{props.description}</div>
+        <div className="description">{i18n(props.description)}</div>
         <div className="separator" style={{height: 40}}/>
         <GenericForm
           className="ui scroll"
@@ -61,7 +61,7 @@ class Action extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      step: this.props.action.action ? 2 : 1, // If has action, go to edit params. 
+      step: this.props.action.action ? 2 : 1, // If has action, go to edit params.
       data: props.action.params,
       action: undefined,
     }

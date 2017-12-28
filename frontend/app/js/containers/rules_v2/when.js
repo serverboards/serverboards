@@ -45,7 +45,7 @@ class WhenModel extends React.Component{
         const data = when.params
         for (let p of map_get(t, ["start","params"], [])){
           if (p.card){
-            params.push(`${p.label}: ${data[p.name] || p.default}`)
+            params.push(`${i18n(p.label)}: ${data[p.name] || p.default}`)
           }
         }
         let params_resume=params.join('; ')

@@ -107,7 +107,7 @@ class RuleCard extends React.Component{
           if (t){
             let changes = {}
 
-            let description = templates.render(t.description,{
+            let description = templates.render(i18n(t.description),{
                 rule: this.props.rule,
                 BASE_URL: get_address()
               })

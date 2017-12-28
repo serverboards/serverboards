@@ -21,7 +21,7 @@ class DL extends React.Component{
       return (
         <li onClick={() => this.setState({open: true})}>
           <label className="ui bold text" style={{paddingLeft: 20}}>{label}:</label>
-          <span style={{paddingLeft: 10}}><MarkdownPreview value={value}/></span>
+          <span style={{paddingLeft: 10}}><MarkdownPreview value={i18n(value)}/></span>
         </li>
       )
 

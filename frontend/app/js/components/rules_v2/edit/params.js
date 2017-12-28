@@ -32,7 +32,7 @@ class Params extends React.Component{
       if (trigger){
         this.setState({
           fields,
-          description: templates.render(trigger.description, {
+          description: templates.render(i18n(trigger.description), {
             BASE_URL: get_address(),
             rule: this.props.rule
           }),
@@ -49,7 +49,7 @@ class Params extends React.Component{
       <div className="ui extend with padding">
         <h2 className="ui centered header">
           <i className="ui wrench icon"/>
-          Setup Options
+          {i18n("Setup Options")}
         </h2>
         <div className="description"><MarkdownPreview value={this.state.description || ""}/></div>
         <div className="separator" style={{height: 40}}/>

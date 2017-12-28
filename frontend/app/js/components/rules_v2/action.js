@@ -36,7 +36,7 @@ export class Action extends React.Component{
             { this.props.action.id && (
               <span className="ui icon circle floating top left">{this.props.action.id}</span>
             )}
-            {this.state.description}
+            {i18n(this.state.description)}
           </a>
         </div>
       </div>

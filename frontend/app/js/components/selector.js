@@ -43,10 +43,10 @@ function Card({item, default_icon, onClick, className}){
     <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
       <h3 className="ui header">
         <Icon className="mini" icon={icon} plugin={plugin}/>
-        {item.name}
+        {i18n(item.name)}
       </h3>
       <div className="description">
-        <MarkdownPreview value={item.description || ""}/>
+        <MarkdownPreview value={i18n(item.description) || ""}/>
       </div>
     </a>
   )

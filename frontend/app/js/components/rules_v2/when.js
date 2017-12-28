@@ -23,7 +23,7 @@ function When(props){
         <div className={`${section.section=="when:trigger" ? "active" : ""}`}>
           <a onClick={() => gotoStep("when:trigger")}>
             <i className="ui toggle on icon"/>
-            {trigger_name || (
+            {i18n(trigger_name) || (
               <span className="ui meta">{i18n("Select a trigger")}</span>
             )}
           </a>

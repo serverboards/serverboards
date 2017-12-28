@@ -1,6 +1,7 @@
 import React from 'react'
 import Icon from './iconicon'
 import {colorize} from 'app/utils'
+import {MarkdownPreview} from 'react-marked-markdown'
 
 /// To be able to change container to <a> or whatever. Normally would be div
 function Div(props){
@@ -42,7 +43,7 @@ function Card(props){
         </div>
       </div>
       <h3 className="ui header">{props.title}</h3>
-      <div className="ui description">{props.description}</div>
+      <div className="ui description"><MarkdownPreview value={props.description}/></div>
       {props.children}
     </Container>
   )

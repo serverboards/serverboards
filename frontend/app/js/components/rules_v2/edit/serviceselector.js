@@ -69,10 +69,10 @@ class ServiceSelector extends React.Component{
         </div>
         <h2 className="ui centered header">
           <Icon icon={type.icon || "server"} plugin={plugin_id}/>
-          <span>{i18n(`Select a ${type.name} or create one`)}</span>
+          <span>{i18n("Select a {name} or create one", {name: type.name})}</span>
         </h2>
         <div className="ui padding">
-          <MarkdownPreview value={type.description || ""}/>
+          <MarkdownPreview value={i18n(type.description) || ""}/>
         </div>
 
         <div className="ui with scroll and padding">
@@ -84,8 +84,8 @@ class ServiceSelector extends React.Component{
                 icon={type.icon}
                 tags={s.tags}
                 plugin={plugin_id}
-                title={s.name || type.name}
-                description={s.description || type.description}
+                title={s.name || i18n(type.name)}
+                description={s.description || i18n(type.description)}
                 onClick={() => this.props.onSelect(s)}
                 />
             )) }

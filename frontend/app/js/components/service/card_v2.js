@@ -3,6 +3,7 @@ import { colorize } from 'app/utils'
 import Icon from '../iconicon'
 import cache from 'app/utils/cache'
 import {MarkdownPreview} from 'react-marked-markdown'
+import i18n from 'app/utils/i18n'
 
 class Card extends React.Component{
   constructor(props){
@@ -13,7 +14,7 @@ class Card extends React.Component{
   }
   componentDidMount(){
     if (!this.props.service.description){
-      cache.service_type(this.props.service.type).then(st => this.setState({description: st.description}))
+      cache.service_type(this.props.service.type).then(st => this.setState({description: i18n(st.description)}))
     }
   }
   render(){
