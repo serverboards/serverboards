@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-28 10:12+0100\n"
-"PO-Revision-Date: 2017-12-28 14:32+0100\n"
+"POT-Creation-Date: 2017-12-28 14:52+0100\n"
+"PO-Revision-Date: 2017-12-28 14:53+0100\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -4614,7 +4614,6 @@ msgid "Management of [Amazon AWS EC2](https://aws.amazon.com) nodes."
 msgstr "Gestión de nodos  [Amazon AWS EC2](https://aws.amazon.com)."
 
 #: plugins/optional-cloud/manifest.yaml
-#, fuzzy
 msgid ""
 "To access AWS EC2 it is required to obtain access key and secret.\n"
 "To get them you have to create an IAM account, provide the appropiate "
@@ -5122,3 +5121,15 @@ msgstr "Si la incidencia fue cerrada o ya estaba cerrada"
 #: plugins/core-actions/manifest.yaml
 msgid "Notifies all users in the @user group.\n"
 msgstr "Notifica a todos los usuarios en el grupo @user.\n"
+
+#: frontend/app/js/components/loading.js:11
+msgid "Loading data"
+msgstr "Cargando datos"
+
+#: frontend/app/js/components/rules_v2/edit/params.js:52
+msgid "Setup Options"
+msgstr "Configurar opciones"
+
+#: frontend/app/js/components/rules_v2/edit/serviceselector.js:72
+msgid "Select a {name} or create one"
+msgstr "Selecciona un {name}"
