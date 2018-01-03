@@ -849,7 +849,11 @@ class Plugin:
       return self
 
     def __exit__(self, _type, _value, _traceback):
-      self.stop()
+        try:
+            self.stop()
+        except Exception as ex:
+            if str(ex) != "cant_stop at plugin.stop":
+                raise
 
 class RPCWrapper:
     """
