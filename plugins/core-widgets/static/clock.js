@@ -1,7 +1,21 @@
 // This file uses vanilla JS ES5 as it is not compiled. It nontheless uses React
 
-function main(element, config){
+(function(){
   const React=Serverboards.React
+
+  const styles = {
+    clock: {
+      fontFamily:"fixed",
+      lineHeight: "75px",
+      fontSize: "65px",
+      paddingTop:"0px",
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 0
+     }
+  }
 
   const Clock=React.createClass({
     getInitialState: function(){
@@ -12,6 +26,7 @@ function main(element, config){
         interval_id = setInterval(this.update_timer.bind(this), 1000)
         this.setState({interval_id: interval_id})
       }
+      this.props.setClass("orange card")
     },
     componentWillUnmount: function(){
       if (this.state.interval_id){
@@ -41,23 +56,17 @@ function main(element, config){
       return (
         React.createElement('div', {className: "content"}, [
           //React.createElement('div', {className: "ui header"}, [ "Current time" ]),
-          React.createElement('div', {className: "content", style: {"font-family":"fixed", "line-height": "75px", "font-size": "75px", "padding-top":"20px"}}, [
+          React.createElement('div', {className: "content", style: styles.clock}, [
             React.createElement('span', {className: "hour"}, hour),
             ":",
             React.createElement('span', {className: "minute"}, minute),
             ":",
-            React.createElement('span', {className: "second", style: {"font-size":"50px", "color":"#888"}}, second)
+            React.createElement('span', {className: "second", style: {fontSize:"50px", color:"#333", alignSelf: "end"}}, second)
           ] )
         ] )
       )
     }
   })
 
-  Serverboards.ReactDOM.render(React.createElement(Clock, null), element)
-
-  return function(){
-    Serverboards.ReactDOM.unmountComponentAtNode(element)
-  }
-}
-
-Serverboards.add_widget("serverboards.core.widgets/clock", main)
+  Serverboards.add_widget("serverboards.core.widgets/clock", Clock, {react: true})
+})()

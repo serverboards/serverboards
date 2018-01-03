@@ -11,7 +11,9 @@ const Widget = React.createClass({
   getInitialState(){
     return {
       title: undefined,
-      error: false
+      error: false,
+      component: undefined,
+      context: {}
     }
   },
   setTitle(title){
@@ -42,6 +44,7 @@ const Widget = React.createClass({
     const context={
       setTitle: self.setTitle,
       setError(err){ self.setState({error: err}) },
+      setClass(klass){ self.setState({klass}) },
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
       widget_id: props.template.id,
@@ -57,8 +60,11 @@ const Widget = React.createClass({
       this.refs.el,
       this.decorate_config(props.config),
       context
-    ).then( (umount) => {
-      this.umount=umount
+    ).then( ({umount, component}) => {
+      if (umount)
+        this.umount=umount
+      if (react)
+        this.setState({component, context})
     } )
   },
   componentDidMount(){
@@ -66,6 +72,7 @@ const Widget = React.createClass({
       if (!this.cancel_widget)
         this.do_widget(this.props)
     }).catch( (e) => {
+      console.error(e)
       this.setState({error: e.name || e.message || i18n("Could not load JS code")})
       $(this.refs.el).html("")
     } )
@@ -91,6 +98,7 @@ const Widget = React.createClass({
     const config = this.props.config || {}
     const widget = this.props.template || {}
     const state = this.state
+    const Component = this.state.component
 
     return (
       <div>
@@ -104,17 +112,21 @@ const Widget = React.createClass({
             </a>
           </Restricted>
         </div>
-        {this.state.error ? (
-          <section ref="error" className="plugin error">
-            <div><i className="ui huge warning sign red icon"/></div>
-            <div className="ui text red bold">{i18n("Error loading widget")}</div>
-            <div className="ui meta">{widget.name}</div>
-            <div className="ui meta">{this.props.widget}</div>
-            <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
-          </section>
-        ) : (
-          <div ref="el"/>
-        )}
+        <div className={state.klass || "white card"}>
+          {this.state.error ? (
+            <section ref="error" className="plugin error">
+              <div><i className="ui huge warning sign red icon"/></div>
+              <div className="ui text red bold">{i18n("Error loading widget")}</div>
+              <div className="ui meta">{widget.name}</div>
+              <div className="ui meta">{this.props.widget}</div>
+              <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
+            </section>
+          ) : (Component!=undefined) ? (
+            <Component {...state} {...this.state.context}/>
+          ) : (
+            <div ref="el"/>
+          )}
+        </div>
       </div>
     )
   }

@@ -1,3 +1,4 @@
+@import colors
 @import "graphs/colors.sass"
 
 .ui.board
@@ -80,9 +81,14 @@
       > div:nth-child(2)
         flex-grow: 1
         position: relative
+      > div.card
         background: white
         border: 1px solid #eaeeed !important
         border-radius: 6px !important
+        .content
+          height: 100%
+        +background-colors-with-text
+
 
       .content
         padding: 5px
