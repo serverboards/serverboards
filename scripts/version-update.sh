@@ -2,8 +2,8 @@
 
 set -ex
 
-VERSIONBASE="17.10"
-BASEREVISION="733c425767f1b6cd1df9b2ab9beed4c0367840f8"
+VERSIONBASE="18.1.0-"
+BASEREVISION="a65aa0fc62500961675278fb96ad9d61f85c28af"
 NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
 AUTHOR="$( git config --get user.name ) <$( git config --get user.email )>"
 
@@ -13,7 +13,7 @@ AUTHOR="$( git config --get user.name ) <$( git config --get user.email )>"
 cd "$( dirname $0 )/.."
 
 function get_version(){
-	local VERSION=$VERSIONBASE.$NPATCHES
+	local VERSION=$VERSIONBASE$NPATCHES
 	[ "$VERSION" ] || get_prev_version
 	echo $VERSION
 }

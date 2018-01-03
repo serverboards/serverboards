@@ -1,8 +1,8 @@
-serverboards (17.10.1) stable; urgency=medium
+serverboards (18.1.0-0) unstable; urgency=medium
 
-  * 17.10 Release.
+  * 18.01 Release.
 
- -- David Moreno <dmoreno@coralbits.com>  Wed, 27 Dec 2017 10:58:06 +0100
+ -- David Moreno Montero <dmoreno@coralbits.com>  Wed, 03 Jan 2018 13:37:46 +0100
 
 serverboards (17.10.0~alpha.835) unstable; urgency=medium
 
