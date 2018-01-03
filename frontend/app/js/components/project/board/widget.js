@@ -19,25 +19,6 @@ const Widget = React.createClass({
   setTitle(title){
     this.setState({title})
   },
-  find_service(uuid){
-    //console.log("Find service %o in %o", uuid, this.props.services.map( (s) => s.uuid ))
-    let service = this.props.services.find( (s) => s.uuid == uuid )
-    //console.log("Got %o", service)
-    if (!service)
-      return {uuid: uuid, error: i18n("Not at current project, cant load full data.")}
-    return service
-  },
-  decorate_config(config){
-    config = merge(config, {project: this.props.project})
-    const params = this.props.template.params || []
-    for(let p of params){
-      if (p.type=="service" && config[p.name]){
-        const service = this.find_service(config[p.name])
-        config[p.name]=service
-      }
-    }
-    return config
-  },
   do_widget(props){
     let self=this
     let plugin_component=props.template.id.split('/')
@@ -58,7 +39,7 @@ const Widget = React.createClass({
     return plugin.do_widget(
       props.widget,
       this.refs.el,
-      this.decorate_config(props.config),
+      props.config,
       context
     ).then( ({umount, component}) => {
       if (umount)

@@ -57,7 +57,8 @@ defmodule Serverboards.Project.Widget do
         name: w.name,
         description: w.description,
         params: w.extra["params"],
-        traits: w.traits
+        traits: w.traits,
+        hints: Map.get(w.extra, "hints", %{}),
       }
     end
   end

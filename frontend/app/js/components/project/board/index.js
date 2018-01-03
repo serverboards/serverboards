@@ -1,5 +1,5 @@
 import React from 'react'
-import Widget from 'app/containers/project/board/widget'
+import Widget from './widget'
 import AddWidget from 'app/containers/project/board/add_widget'
 import EditWidget from 'app/containers/project/board/edit_widget'
 import Loading from 'app/components/loading'
@@ -101,7 +101,11 @@ const Board = React.createClass({
     return undefined
   },
   render() {
-    const widgets=this.props.widgets
+    const widget_catalog = this.props.widget_catalog
+    const widgets=this.props.widgets.map( w => ({
+      widget: w,
+      template: widget_catalog.find( t => t.id == w.widget )
+    }))
     if (widgets == undefined){
       return (
         <Loading>Serverboard widget data</Loading>
@@ -125,20 +129,21 @@ const Board = React.createClass({
               layout={this.state.layout}
               onLayoutChange={this.handleLayoutChange}
               >
-                {widgets.map( (w) => (
+                {widgets.map( ({widget, template}) => (
                   <div
-                    key={w.uuid}
-                    data-grid={w.ui}
+                    key={widget.uuid}
+                    data-grid={{...widget.ui, ...template.hints}}
                     className="ui card"
                     >
                     <Widget
-                      key={w.uuid}
-                      widget={w.widget}
-                      config={w.config}
-                      uuid={w.uuid}
-                      onEdit={() => this.handleEdit(w.uuid)}
+                      key={widget.uuid}
+                      widget={widget.widget}
+                      config={widget.config}
+                      uuid={widget.uuid}
+                      template={template}
+                      onEdit={() => this.handleEdit(widget.uuid)}
                       project={this.props.project}
-                      layout={this.getLayout(w.uuid)}
+                      layout={this.getLayout(widget.uuid)}
                       />
                   </div>
                 ))}
