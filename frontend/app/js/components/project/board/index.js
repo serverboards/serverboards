@@ -118,9 +118,9 @@ const Board = React.createClass({
             <ReactGridLayout
               className="ui cards layout"
               cols={8}
-              rowHeight={280}
+              rowHeight={130}
               width={2400}
-              margin={[15,15]}
+              margin={[15,0]}
               draggableHandle=".ui.top.mini.menu .ui.header"
               layout={this.state.layout}
               onLayoutChange={this.handleLayoutChange}

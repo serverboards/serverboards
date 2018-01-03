@@ -38,10 +38,10 @@
 
   .ui.cards > .card
     box-shadow: none !important
-    border: 1px solid #eaeeed !important
     color: #596770
-    border-radius: 6px !important
     margin: 0
+    background: none
+    box-shadow: none
     > div
       display: flex
       flex-direction: column
@@ -53,10 +53,12 @@
       > .ui.top.menu
         border: 0
         box-shadow: none
-        //background: #eee
-        min-height: 35px
-        max-height: 35px
+        background: none
+        min-height: 28px
+        max-height: 28px
         cursor: move
+        margin: 0
+        display: flex
         > .item
           color: #02a7a1
           padding: 5px 10px
@@ -64,18 +66,24 @@
           width: 30px
           font-size: 15px
           visibility: hidden
+          align-self: end
           &:before
             width: 0
         > .ui.header
           text-transform: uppercase
           vertical-align: middle
-          padding: 10px 0px 9px 15px
+          padding: 8px 0px 8px 15px
           font-weight: normal
+          font-size: 12px
           margin: 0
           min-width: calc( 100% - 60px )
       > div:nth-child(2)
         flex-grow: 1
         position: relative
+        background: white
+        border: 1px solid #eaeeed !important
+        border-radius: 6px !important
+
       .content
         padding: 5px
 
