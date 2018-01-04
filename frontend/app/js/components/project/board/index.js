@@ -132,7 +132,7 @@ const Board = React.createClass({
                 {widgets.map( ({widget, template}) => (
                   <div
                     key={widget.uuid}
-                    data-grid={{...widget.ui, ...template.hints}}
+                    data-grid={{x:0, y: 0, w: 1, h: 1, ...widget.ui, ...template.hints}}
                     className="ui card"
                     >
                     <Widget
