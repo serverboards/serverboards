@@ -103,7 +103,7 @@ const Widget = React.createClass({
               <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
             </section>
           ) : (Component!=undefined) ? (
-            <Component {...state} {...this.state.context}/>
+            <Component {...this.props} {...state} {...this.state.context}/>
           ) : (
             <div ref="el"/>
           )}
