@@ -14,6 +14,7 @@ components:
     description: Simple clock with local time
     id: clock
     type: widget
+    hints: nocss
   - name: Markdown text
     description: A simple markdown text to write notes
     id: markdown
@@ -26,3 +27,39 @@ components:
         name: text
         type: textarea
         placeholder: "# Title"
+  - name: Mini Information 5
+    type: widget
+    description: Small widget with name, two columns of data with number, name and icon.
+    id: mini5
+    hints:
+      maxW: 1
+      maxH: 1
+      nocss: true
+    params:
+      - label: Title
+        class: half column
+        name: title
+      - label: Color
+        class: half column
+        name: color
+
+      - label: Left Icon
+        class: half column
+        name: icon_left
+      - label: Right Icon
+        class: half column
+        name: icon_right
+
+      - label: Left Expression
+        class: half column
+        name: expr_left
+      - label: Right Expression
+        class: half column
+        name: expr_right
+
+      - label: Left Text
+        class: half column
+        name: text_left
+      - label: Right Text
+        class: half column
+        name: text_right
