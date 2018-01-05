@@ -27,7 +27,25 @@ components:
         name: text
         type: textarea
         placeholder: "# Title"
-  - name: Mini Information 5
+  - name: Mini 2
+    type: widget
+    description: Small widget with name, and a value.
+    id: mini2
+    hints:
+      maxW: 1
+      maxH: 1
+      nocss: true
+    params:
+      - label: Title
+        class: half column
+        name: title
+      - label: Color
+        class: half column
+        name: color
+      - label: Text
+        name: text
+
+  - name: Mini 5
     type: widget
     description: Small widget with name, two columns of data with number, name and icon.
     id: mini5

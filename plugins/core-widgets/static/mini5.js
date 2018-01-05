@@ -4,13 +4,12 @@
   class Mini5 extends React.Component{
     componentDidMount(){
       const props = this.props
-      props.setClass( `${props.config.color} card` )
+      props.setClass( `${props.config.color || "grey"} card` )
       props.setTitle(" ")
     }
     render(){
       const props = this.props
       const config = props.config
-      console.log("config is", config)
 
       return React.createElement('div', {className: "ui content half padding"}, [
         React.createElement('h3',{className: "ui white header text"}, [config.title]),
