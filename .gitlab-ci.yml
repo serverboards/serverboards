@@ -91,8 +91,7 @@ release:
       - serverboards.deb
     expire_in: 1 week
   only:
-    - master
-    - CORE-80-improved-installation
+    - v18.01
 
 publish:
   stage: publish
@@ -108,5 +107,3 @@ publish:
   only:
     - v18.01
   when: manual
-
-
