@@ -61,7 +61,7 @@
             ":",
             React.createElement('span', {className: "minute"}, minute),
             ":",
-            React.createElement('span', {className: "second", style: {fontSize:"50px", color:"#333", alignSelf: "end"}}, second)
+            React.createElement('span', {className: "second"}, second)
           ] )
         ] )
       )
