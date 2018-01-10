@@ -664,6 +664,26 @@ def popen(service_uuid, command, stdin=None, stdout=None):
 
   return [write_in_fd, read_out_fd]
 
+
+@serverboards.rpc_method
+def ssh_is_up(service):
+    print(service)
+    try:
+        result = ssh_exec(service=service["uuid"], command=["true"])
+        if result["exit"]==0:
+            return "ok"
+        elif "No route to host" in result["stderr"]:
+            serverboards.error("Cant connect host: ", service["config"]["url"], stderr=result["stderr"], url=service["config"]["url"], service_id=service["uuid"])
+            return "error"
+        elif "unauthorized" in result["stderr"]:
+            serverboards.error("Not authorized. Did you share the public SSH RSA key?", url=service["config"]["url"], service_id=service["uuid"])
+            return "not-authorized"
+        else:
+            return "nok"
+    except Exception as e:
+        serverboards.error("Error checking the state of service", error=str(e), service_id = service.get("uuid"))
+        return "error"
+
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
         #print(ssh_exec("localhost","ls -l | tr -cs '[:alpha:]' '\\\\n' | sort | uniq -c | sort -n"))

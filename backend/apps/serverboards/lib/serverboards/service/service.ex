@@ -50,6 +50,7 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
+      service_id = service.id
       #Logger.debug("Operations: #{inspect operations}")
       changes = case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
         nil -> false
@@ -68,10 +69,19 @@ defmodule Serverboards.Service do
       )
       changes = changes or (changeset.changes != %{})
 
-      Logger.debug("Changeset #{inspect changeset}")
       {:ok, upd} = Repo.update( changeset )
 
-      {:ok, service} = service_get upd.uuid, me
+      ## If the status changed, update the tags, and get again
+      status = service_check_status(uuid, me)
+
+      {:ok, service} = service_get(upd.uuid, me)
+      {:ok, service} = if service.tags != [status] do
+        update_tags_real(%{ id: service_id }, [status])
+        {:ok, service} = service_get(upd.uuid, me)
+      else
+        {:ok, service}
+      end
+
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
@@ -86,6 +96,25 @@ defmodule Serverboards.Service do
       :ok
     else
       {:error, :not_found}
+    end
+  end
+
+  defp service_check_status(uuid, me) do
+    {:ok, service} = service_get(uuid, me)
+    [type] = Serverboards.Plugin.Registry.filter_component(type: "service", id: service.type)
+    status = type.extra["status"]
+    if status do
+      Logger.debug("Checking service update status #{inspect status, pretty: true}")
+      res = Serverboards.Plugin.Runner.start_call_stop(status["command"], status["call"], %{ "service" => service }, me)
+      case res do
+        {:ok, status} ->
+          status
+        {:error, error} ->
+          Logger.error("Error checking state of service: #{inspect error}", service_id: uuid)
+          "error"
+      end
+    else
+      ""
     end
   end
 

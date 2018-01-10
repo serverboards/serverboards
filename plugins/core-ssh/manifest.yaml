@@ -14,6 +14,10 @@ components:
     id: ssh
     description: Access via SSH to any server
     icon: terminal
+    status:
+      command: serverboards.core.ssh/daemon
+      call: ssh_is_up
+      frequency: 1h
     fields:
       - label: SSH Address
         name: url
