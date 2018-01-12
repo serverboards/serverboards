@@ -222,16 +222,23 @@ defmodule Serverboards.Service do
       user: me
       )
 
+    tags = case service_check_status(%{ servicem | tags: []}, me) do
+      {:changed, status} ->
+        [status | attributes.tags]
+      _other ->
+        attributes.tags
+    end
+
+    Enum.map(tags, fn name ->
+      Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
+    end)
+
     service = decorate(servicem)
     Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, ["service.get"])
     for p <- service.projects do
       Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
     end
-
-    Enum.map(attributes.tags, fn name ->
-      Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
-    end)
   end
 
   defp service_delete_real( uuid, me) do
