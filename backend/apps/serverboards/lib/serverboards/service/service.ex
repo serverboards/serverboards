@@ -72,8 +72,13 @@ defmodule Serverboards.Service do
       {:ok, upd} = Repo.update( changeset )
 
       ## If the status changed, update the tags, and get again
-      status = service_check_status(uuid, me)
-      {:ok, service} = service_update_tag(service_id, uuid, "status", status, me)
+      {:ok, service} = service_get(uuid, me)
+      {:ok, service} = case service_check_status(service, me) do
+        {:changed, status} ->
+          service_update_tag(service_id, service, "status", status, me)
+        _other ->
+          {:ok, service}
+      end
 
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
@@ -92,42 +97,42 @@ defmodule Serverboards.Service do
     end
   end
 
-  defp service_update_tag(service_id, uuid, tag_category, tag, me) do
-    {:ok, service} = service_get(uuid, me)
+  defp service_update_tag(service_id, service, tag_category, tag, me) do
     fulltag = "#{tag_category}:#{tag}"
-    {:ok, service} = if not Enum.member?(service.tags, fulltag) do
-      newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
-      newtags = if tag do
-        [fulltag | newtags ]
-      else
-        newtags
-      end
-      update_tags_real(%{ id: service_id }, newtags)
-      service = %{ service |
-        tags: newtags
-      }
-      {:ok, service}
+    newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
+    newtags = if tag do
+      [fulltag | newtags ]
     else
-      {:ok, service}
+      newtags
     end
+    update_tags_real(%{ id: service_id }, newtags)
+    service = %{ service |
+      tags: newtags
+    }
+    {:ok, service}
   end
 
-  defp service_check_status(uuid, me) do
-    {:ok, service} = service_get(uuid, me)
+  defp service_check_status(service, me) do
     [type] = Serverboards.Plugin.Registry.filter_component(type: "service", id: service.type)
     status = type.extra["status"]
-    if status do
-      Logger.debug("Checking service update status #{inspect status, pretty: true}")
+    newstatus = if status do
       res = Serverboards.Plugin.Runner.start_call_stop(status["command"], status["call"], %{ "service" => service }, me)
       case res do
         {:ok, status} ->
           status
         {:error, error} ->
-          Logger.error("Error checking state of service: #{inspect error}", service_id: uuid)
+          Logger.error("Error checking state of service: #{inspect error}", service_id: service.uuid)
           "error"
       end
     else
       nil
+    end
+
+    fulltag = "status:#{newstatus}"
+    if Enum.member?(service.tags, fulltag) do
+      {:not_changed, newstatus}
+    else
+      {:changed, newstatus}
     end
   end
 
