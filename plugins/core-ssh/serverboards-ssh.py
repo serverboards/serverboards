@@ -440,6 +440,8 @@ def __get_service_url(uuid):
 
 @cache_ttl(ttl=60)
 def __get_service(uuid):
+    if isinstance(uuid, dict): # may get the full service instead of the uuid
+        return uuid
     data = serverboards.rpc.call("service.get", uuid)
     # serverboards.info("data: %s -> %s"%(uuid, data))
     return data
@@ -667,9 +669,8 @@ def popen(service_uuid, command, stdin=None, stdout=None):
 
 @serverboards.rpc_method
 def ssh_is_up(service):
-    print(service)
     try:
-        result = ssh_exec(service=service["uuid"], command=["true"])
+        result = ssh_exec(service=service, command=["true"])
         if result["exit"]==0:
             return "ok"
         elif "No route to host" in result["stderr"]:

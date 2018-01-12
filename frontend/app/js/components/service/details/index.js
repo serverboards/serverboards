@@ -18,6 +18,7 @@ import {i18n} from 'app/utils/i18n'
 import TabBar from 'app/components/tabbar'
 import {match_traits} from 'app/utils'
 import { colorize } from 'app/utils'
+import {simple_tag} from '../utils'
 
 const tab_options={
   details: DetailsTab,
@@ -177,7 +178,7 @@ const Details = React.createClass({
             description: s.title
           }) ) } />
           <div className="ui aligned right" style={{position: "absolute", top: 0, right: 0, margin: 0}}>
-            {(props.service.tags || []).map( s => (
+            {(props.service.tags || []).map( s => simple_tag(s)).map( s => (
               <span key={s} className="ui text label">
                 {s}&nbsp;
                 <i className={`ui rectangular label ${ colorize( s ) }`}/>

@@ -48,6 +48,12 @@ export function get_service_data(uuid){
   })
 }
 
+export function simple_tag(tag){
+  if (tag.indexOf(':')<0)
+    return tag
+  return tag.split(':')[1]
+}
+
 export default {
   is_same_service, setup_fields,
   get_service_data

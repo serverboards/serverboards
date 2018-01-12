@@ -73,14 +73,7 @@ defmodule Serverboards.Service do
 
       ## If the status changed, update the tags, and get again
       status = service_check_status(uuid, me)
-
-      {:ok, service} = service_get(upd.uuid, me)
-      {:ok, service} = if service.tags != [status] do
-        update_tags_real(%{ id: service_id }, [status])
-        {:ok, service} = service_get(upd.uuid, me)
-      else
-        {:ok, service}
-      end
+      {:ok, service} = service_update_tag(service_id, uuid, "status", status, me)
 
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
@@ -99,6 +92,26 @@ defmodule Serverboards.Service do
     end
   end
 
+  defp service_update_tag(service_id, uuid, tag_category, tag, me) do
+    {:ok, service} = service_get(uuid, me)
+    fulltag = "#{tag_category}:#{tag}"
+    {:ok, service} = if not Enum.member?(service.tags, fulltag) do
+      newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
+      newtags = if tag do
+        [fulltag | newtags ]
+      else
+        newtags
+      end
+      update_tags_real(%{ id: service_id }, newtags)
+      service = %{ service |
+        tags: newtags
+      }
+      {:ok, service}
+    else
+      {:ok, service}
+    end
+  end
+
   defp service_check_status(uuid, me) do
     {:ok, service} = service_get(uuid, me)
     [type] = Serverboards.Plugin.Registry.filter_component(type: "service", id: service.type)
@@ -114,7 +127,7 @@ defmodule Serverboards.Service do
           "error"
       end
     else
-      ""
+      nil
     end
   end
 
