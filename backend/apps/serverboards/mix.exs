@@ -77,6 +77,7 @@ defmodule Serverboards.Mixfile do
       {:eini, "~> 1.2"},
       {:quantum, "~> 1.9.3"},
       {:httpoison, "~> 0.13"},
+      {:exosql, "~> 0.1"},
     ]
   end
 end
