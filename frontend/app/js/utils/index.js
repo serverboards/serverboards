@@ -128,6 +128,8 @@ const fixed_colors={
 }
 
 export function colorize(str){
+  if (str.indexOf("error")>=0)
+    return "red"
   if (!str)
     return "white"
   str=str.toLowerCase()
