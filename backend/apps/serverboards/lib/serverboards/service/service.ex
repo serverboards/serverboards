@@ -71,15 +71,7 @@ defmodule Serverboards.Service do
 
       {:ok, upd} = Repo.update( changeset )
 
-      ## If the status changed, update the tags, and get again
       {:ok, service} = service_get(uuid, me)
-      {:ok, service} = case service_check_status(service, me) do
-        {:changed, status} ->
-          service_update_tag(service_id, service, "status", status, me)
-        _other ->
-          {:ok, service}
-      end
-
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
@@ -110,30 +102,6 @@ defmodule Serverboards.Service do
       tags: newtags
     }
     {:ok, service}
-  end
-
-  defp service_check_status(service, me) do
-    [type] = Serverboards.Plugin.Registry.filter_component(type: "service", id: service.type)
-    status = type.extra["status"]
-    newstatus = if status do
-      res = Serverboards.Plugin.Runner.start_call_stop(status["command"], status["call"], %{ "service" => service }, me)
-      case res do
-        {:ok, status} ->
-          status
-        {:error, error} ->
-          Logger.error("Error checking state of service: #{inspect error}", service_id: service.uuid)
-          "error"
-      end
-    else
-      nil
-    end
-
-    fulltag = "status:#{newstatus}"
-    if Enum.member?(service.tags, fulltag) do
-      {:not_changed, newstatus}
-    else
-      {:changed, newstatus}
-    end
   end
 
   defp update_tags_real(service, tags) do
@@ -222,12 +190,7 @@ defmodule Serverboards.Service do
       user: me
       )
 
-    tags = case service_check_status(%{ servicem | tags: []}, me) do
-      {:changed, status} ->
-        [status | attributes.tags]
-      _other ->
-        attributes.tags
-    end
+    tags = attributes.tags
 
     Enum.map(tags, fn name ->
       Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
