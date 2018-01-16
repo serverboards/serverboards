@@ -6,6 +6,7 @@ import serverboards
 from serverboards import print
 import gettext
 _=gettext.gettext
+sys.stderr=serverboards.error
 
 OK_TAGS=["ok","up"]
 
@@ -24,7 +25,10 @@ def recheck_service(service, *args, **kwargs):
     status = get_status_checker(service["type"])
     if not status:
         return
-    tag = status["plugin"].call(status["call"], service)
+    try:
+        tag = status["plugin"].call(status["call"], service)
+    except:
+        tag = "plugin-error"
     fulltag="status:"+tag
     if fulltag in service["tags"]:
         return
