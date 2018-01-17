@@ -50,6 +50,7 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
+      service_id = service.id
       #Logger.debug("Operations: #{inspect operations}")
       changes = case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
         nil -> false
@@ -68,10 +69,9 @@ defmodule Serverboards.Service do
       )
       changes = changes or (changeset.changes != %{})
 
-      Logger.debug("Changeset #{inspect changeset}")
       {:ok, upd} = Repo.update( changeset )
 
-      {:ok, service} = service_get upd.uuid, me
+      {:ok, service} = service_get(uuid, me)
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
@@ -87,6 +87,21 @@ defmodule Serverboards.Service do
     else
       {:error, :not_found}
     end
+  end
+
+  defp service_update_tag(service_id, service, tag_category, tag, me) do
+    fulltag = "#{tag_category}:#{tag}"
+    newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
+    newtags = if tag do
+      [fulltag | newtags ]
+    else
+      newtags
+    end
+    update_tags_real(%{ id: service_id }, newtags)
+    service = %{ service |
+      tags: newtags
+    }
+    {:ok, service}
   end
 
   defp update_tags_real(service, tags) do
@@ -175,16 +190,18 @@ defmodule Serverboards.Service do
       user: me
       )
 
+    tags = attributes.tags
+
+    Enum.map(tags, fn name ->
+      Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
+    end)
+
     service = decorate(servicem)
     Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, ["service.get"])
     for p <- service.projects do
       Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
     end
-
-    Enum.map(attributes.tags, fn name ->
-      Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
-    end)
   end
 
   defp service_delete_real( uuid, me) do

@@ -15,8 +15,6 @@ td_to_s_multiplier=[
     ("d", 24*60*60),
 ]
 
-uuid_to_timer={}
-
 def time_description_to_seconds(td):
     if type(td) in (int, float):
         return float(td)
@@ -24,6 +22,8 @@ def time_description_to_seconds(td):
         if td.endswith(sufix):
             return float(td[:-len(sufix)])*multiplier
     return float(td)
+
+uuid_to_timer={}
 
 class TimerCheck:
     def __init__(self, id, check, type, frequency):

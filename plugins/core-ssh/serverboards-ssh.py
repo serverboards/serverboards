@@ -99,13 +99,17 @@ def ssh_exec(url=None, command=["test"], options=None, service=None, outfile=Non
         kwargs["_in"].close()
 
     if service:
-        if result.exit_code == 0:
-            serverboards.info("SSH Command success %s:'%s'"%(service, "' '".join(command)),
-                **{**dict(service_id=service, command=command), **context})
+        if isinstance(service, dict):
+            service_id=service["uuid"]
         else:
-            serverboards.error("SSH Command error %s:'%s'"%(service, "' '".join(command)),
+            service_id=service
+        if result.exit_code == 0:
+            serverboards.info("SSH Command success %s:'%s'"%(service_id, "' '".join(command)),
+                **{**dict(service_id=service_id, command=command), **context})
+        else:
+            serverboards.error("SSH Command error %s:'%s'"%(service_id, "' '".join(command)),
                 **{**dict(
-                    service_id=service,
+                    service_id=service_id,
                     command=command,
                     exit_code=result.exit_code,
                     stderr=result.stderr.decode('utf8')
@@ -440,6 +444,8 @@ def __get_service_url(uuid):
 
 @cache_ttl(ttl=60)
 def __get_service(uuid):
+    if isinstance(uuid, dict): # may get the full service instead of the uuid
+        return uuid
     data = serverboards.rpc.call("service.get", uuid)
     # serverboards.info("data: %s -> %s"%(uuid, data))
     return data
@@ -663,6 +669,25 @@ def popen(service_uuid, command, stdin=None, stdout=None):
   rpc.add_event( ssh.stdout, read_from_ssh )
 
   return [write_in_fd, read_out_fd]
+
+
+@serverboards.rpc_method
+def ssh_is_up(service):
+    try:
+        result = ssh_exec(service=service, command=["true"])
+        if result["exit"]==0:
+            return "ok"
+        elif "No route to host" in result["stderr"]:
+            serverboards.error("Cant connect host: ", service["config"]["url"], stderr=result["stderr"], url=service["config"]["url"], service_id=service["uuid"])
+            return "error"
+        elif "unauthorized" in result["stderr"]:
+            serverboards.error("Not authorized. Did you share the public SSH RSA key?", url=service["config"]["url"], service_id=service["uuid"])
+            return "not-authorized"
+        else:
+            return "nok"
+    except Exception as e:
+        serverboards.error("Error checking the state of service", error=str(e), service_id = service.get("uuid"))
+        return "error"
 
 if __name__=='__main__':
     if len(sys.argv)==2 and sys.argv[1]=='test':
