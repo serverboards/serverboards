@@ -62,11 +62,11 @@ const SetPassword=React.createClass({
               </div>
             </div>
 
-            <div className="actions">
+            <div className="ui centered actions">
               <button type="button" className="ui right button" onClick={props.closeReset}>
                 {i18n("Cancel")}
               </button>
-              <button type="button" className="ui positive right labeled icon button" onClick={this.setPassword}>
+              <button type="button" className="ui teal right labeled icon button" onClick={this.setPassword}>
                 {i18n("Set new password")}
                 <i className="caret right icon"></i>
               </button>
