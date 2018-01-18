@@ -91,13 +91,12 @@ release:
       - serverboards.deb
     expire_in: 1 week
   only:
-    - master
-    - CORE-80-improved-installation
+    - v18.01
 
 publish:
   stage: publish
   script:
-    - sudo -H /usr/local/bin/publish-unstable
+    - sudo -H /usr/local/bin/publish-stable
   dependencies:
     - release
   variables:
@@ -106,5 +105,5 @@ publish:
     - ubuntu1604
     - rsync-www
   only:
-    - master
-    - CORE-80-improved-installation
+    - v18.01
+  when: manual
