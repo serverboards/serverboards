@@ -91,12 +91,12 @@ release:
       - serverboards.deb
     expire_in: 1 week
   only:
-    - v18.01
+    - master
 
 publish:
   stage: publish
   script:
-    - sudo -H /usr/local/bin/publish-stable
+    - sudo -H /usr/local/bin/publish-unstable
   dependencies:
     - release
   variables:
@@ -105,5 +105,5 @@ publish:
     - ubuntu1604
     - rsync-www
   only:
-    - v18.01
+    - master
   when: manual
