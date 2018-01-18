@@ -97,6 +97,7 @@ export function sort_by_name(list){
 
 const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
 const fixed_colors={
+  "": "white",
   "stopped" : "lightgrey",
   "running" : "green",
   "unknown" : "grey",
@@ -112,7 +113,6 @@ const fixed_colors={
   "active" : "green",
   "broken" : "red",
   "updatable" : "yellow",
-  "": "grey",
   "red": "red",
   "orange": "orange",
   "yellow": "yellow",
@@ -128,8 +128,10 @@ const fixed_colors={
 }
 
 export function colorize(str){
-  if (!str)
+  if (str.indexOf("error")>=0)
     return "red"
+  if (!str)
+    return "white"
   str=str.toLowerCase()
   if (fixed_colors[str])
     return fixed_colors[str]

@@ -225,7 +225,7 @@ class RPC:
         if do_later:
             self.debug("No emit %s yet, as processing something else"%method)
             return
-        self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
+        # self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         # do all the items on the queue
         while len(self.pending_events_queue)>0:
           (method, args, kwargs) = self.pending_events_queue[0]
