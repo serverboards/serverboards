@@ -146,17 +146,19 @@ class AddServiceRouter extends React.Component{
         {tab == 1 ? (
           <AddServiceDetailsForm {...props}/>
         ) : (
-          <div className="ui padding extend">
-            <div className="description">
+          <div className="">
+            <div className="ui padding extend description">
               {i18n("This services are used on other projects but may be attached to the current one, so they will be shared between the projects.")}
             </div>
             <div className="ui separator" style={{height: 10}}/>
-            <ServiceSelect
-              filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
-              onBack={() => gotoStep(1)}
-              onSelect={(s) => this.handleAttachService(s.uuid)}
-              bottomElement={AddServiceButton}
-              />
+            <div className="ui extend with padding">
+              <ServiceSelect
+                filter={(s) => s.type == my_type && s.projects.indexOf(my_project)<0 }
+                onBack={() => gotoStep(1)}
+                onSelect={(s) => this.handleAttachService(s.uuid)}
+                bottomElement={AddServiceButton}
+                />
+            </div>
           </div>
         )}
         </div>
