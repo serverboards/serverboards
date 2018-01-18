@@ -19,7 +19,7 @@ defmodule Serverboards.Plugin.Cron do
   # impl
   def init([]) do
     MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
-      if payload.type == "plugins_reload" do
+      if payload.type == "plugins.reloaded" do
         reload_cron()
       end
     end)

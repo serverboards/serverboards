@@ -56,7 +56,7 @@ defmodule InitTest do
     {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
 
-    Serverboards.Event.emit("plugins_reload", [])
+    Serverboards.Event.emit("plugins.reloaded", [])
     :timer.sleep(100)
 
     # still running, it issued a stop (not kill), it will timeout anyway later
