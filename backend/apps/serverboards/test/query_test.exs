@@ -35,6 +35,10 @@ defmodule Serverboards.QueryTest do
 
     {:ok, result} = Query.query("SELECT random FROM A.random", context)
 
+    assert Enum.count(result.columns) == 1
+    assert Enum.count(result.rows) == 1
+    assert Enum.count(Enum.at(result.rows,0)) == 1
+
     Logger.debug ExoSQL.format_result(result)
   end
 
@@ -49,11 +53,15 @@ defmodule Serverboards.QueryTest do
 
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
 
-    {:ok, res} = Test.Client.call client, "query.query", %{
+    {:ok, result} = Test.Client.call client, "query.query", %{
       query: "SELECT random FROM A.random",
       context: context
     }
 
-    Logger.debug("Response #{inspect res}")
+    assert Enum.count(result["columns"]) == 1
+    assert Enum.count(result["rows"]) == 1
+    assert Enum.count(Enum.at(result["rows"],0)) == 1
+
+    Logger.debug("Response #{inspect result}")
   end
 end

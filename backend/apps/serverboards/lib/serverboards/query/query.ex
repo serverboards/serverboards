@@ -70,6 +70,8 @@ defmodule Serverboards.Query do
 
     Logger.debug("Processed context #{inspect context}")
 
-    ExoSQL.query(query, context)
+    with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
+      {:ok, %{ columns: headers, rows: rows}}
+    end
   end
 end
