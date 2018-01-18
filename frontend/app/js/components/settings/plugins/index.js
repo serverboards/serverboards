@@ -23,6 +23,10 @@ const Plugins=React.createClass({
   componentDidMount(){
     event.on("plugin.update.required", this.updateRequired)
     event.on("plugin.updated", this.updated)
+    event.on("plugins.reloaded", this.reload_plugin_list)
+    this.load_plugin_list()
+  },
+  load_plugin_list(){
     cache.plugins().then((pluginsd)=>{
       let plugins=[]
       for (let k in pluginsd){
@@ -46,9 +50,14 @@ const Plugins=React.createClass({
         this.setState({settings})
       })
   },
+  reload_plugin_list(){
+    cache.invalidate("plugins") // ensure invalidated. May happen later too. Needed at the cache side too.
+    this.load_plugin_list()
+  },
   componentWillUnmount(){
     event.off("plugin.update.required", this.updateRequired)
     event.off("plugin.updated", this.updateRequired)
+    event.off("plugins.reloaded", this.reload_plugin_list)
   },
   updateRequired({plugin_id, changelog}){
     console.log("Update required: %o; %o", plugin_id, changelog)
@@ -61,6 +70,7 @@ const Plugins=React.createClass({
     this.setState({plugins})
   },
   updated({plugin_id}){
+    cache.invalidate("plugins")
     const plugins = this.state.plugins.map( (pl) => {
       if (pl.id==plugin_id)
         return merge(pl, {changelog: null, status: pl.status.filter( t => t!="updatable") })
