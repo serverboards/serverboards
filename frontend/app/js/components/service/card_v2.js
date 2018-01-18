@@ -4,6 +4,7 @@ import Icon from '../iconicon'
 import cache from 'app/utils/cache'
 import {MarkdownPreview} from 'react-marked-markdown'
 import i18n from 'app/utils/i18n'
+import {simple_tag} from './utils'
 
 class Card extends React.Component{
   constructor(props){
@@ -27,7 +28,7 @@ class Card extends React.Component{
         <div className="header">
           <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini"/>
           <div className="right">
-            {(service.tags || []).map( s => (
+            {(service.tags || []).map(s => simple_tag(s)).map( s => (
               <span key={s} className="ui text label">
                 {s}&nbsp;
                 <i className={`ui rectangular label ${ colorize( s ) }`}/>

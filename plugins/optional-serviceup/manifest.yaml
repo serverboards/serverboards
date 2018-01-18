@@ -1,0 +1,26 @@
+id: serverboards.optional.serviceup
+name: Check services stay up
+description: |
+  Performs service is up checks at any service update and periodically,
+  changing status label and sending/closing issues as required.
+
+  This is very similar to what a rule can do, but specialized and integrated
+  so that every service can use without any need for external rules.
+author: David Moreno <dmoreno@serverboards.io>
+version: 18.4
+license: Apache 2.0
+url: https://serverboards.io
+
+components:
+  - id: init
+    type: init
+    command: serverboards.optional.serviceup/daemon
+    call: init
+    name: Service Up Init service
+  - id: daemon
+    type: cmd
+    command: ./serverboards-serviceup.py
+    name: Service up daemon
+    perms: service.get service.update issues.view issues.create issues.update plugin settings.view[serverboards.core.settings/base]
+    timeout: 24h
+    strategy: singleton

@@ -28,6 +28,11 @@ const ServiceTableLine = React.createClass({
     let tags = s.tags || []
     if (!s.config || $.isEmptyObject(s.config))
       tags = tags.concat("NOT-CONFIGURED")
+    tags = tags.map( t => {
+      if (t.startsWith("status:"))
+        return t.slice(7)
+      return t
+    })
 
     return (
       <tr ref="el" onClick={this.handleOpenDetails} style={{cursor: "pointer"}}>
