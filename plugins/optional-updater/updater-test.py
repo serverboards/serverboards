@@ -29,7 +29,7 @@ def t02_get_service_components_test():
 
   catalog = updater.component_filter(type="service", traits=["sql"])
   print(yaml.dump(catalog))
-  assert all(x["traits"]=="sql" for x in catalog)
+  assert all("sql" in x["traits"] for x in catalog)
   assert all(x.get("giturl") for x in catalog), catalog
   assert catalog
   assert len(catalog)==1
