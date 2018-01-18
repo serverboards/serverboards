@@ -219,8 +219,6 @@ defmodule Serverboards.Plugin.Registry do
 
   ## server impl, just stores state
   def init([]) do
-    Serverboards.Plugin.Monitor.start_link
-
     MOM.Channel.subscribe(:settings, fn
       %MOM.Message{ payload: %{ type: :update, section: section }} ->
         if section in ["plugins", "broken_plugins"] do
