@@ -16,7 +16,7 @@ defmodule Serverboards.Plugin.Init.Supervisor do
     end
 
     MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
-      if payload.type == "plugins_reload" do
+      if payload.type == "plugins.reloaded" do
         Logger.info("Reloading init services. #{inspect pid}")
         for {_id, pid, _type, _modules} <- Supervisor.which_children(pid) do
           Logger.debug("Stop #{inspect pid}")
