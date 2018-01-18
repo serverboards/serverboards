@@ -5,6 +5,14 @@ defmodule Serverboards.QueryTest do
 	#@moduletag :capture_log
 
   alias Serverboards.Query
+  setup do
+    # Explicitly get a connection before each test
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
+    # Setting the shared mode must be done only after checkout
+    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+
+    :ok
+  end
 
   test "Get schema" do
     {:ok, tables} = Query.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil })
@@ -28,5 +36,24 @@ defmodule Serverboards.QueryTest do
     {:ok, result} = Query.query("SELECT random FROM A.random", context)
 
     Logger.debug ExoSQL.format_result(result)
+  end
+
+  test "Simple query using RPC" do
+    context = %{
+      "A" => %{
+        service: nil,
+        extractor: "test.extractor/extractor",
+        user: nil
+      }
+    }
+
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, res} = Test.Client.call client, "query.query", %{
+      query: "SELECT random FROM A.random",
+      context: context
+    }
+
+    Logger.debug("Response #{inspect res}")
   end
 end

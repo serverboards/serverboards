@@ -1,0 +1,23 @@
+name: Core extractors
+id: serverboards.core.extractors
+description: |
+  Extract data from Serverboards itself, as services, status, users
+  and builtin pivot tables.
+author: David Moreno <dmoreno@serverboards.io>
+version: 18.4
+license: Apache 2.0
+url: https://serverboards.io
+
+components:
+  - id: daemon
+    type: cmd
+    command: ./serverboards-extractors.py
+    strategy: singleton
+    timeout: 10m
+
+  - id: serverboards
+    name: Serverboards internal data
+    type: extractor
+    command: serverboards.core.extractors/daemon
+    extractor: serverboards_extractor
+    schema: serverboards_schema
