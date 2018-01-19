@@ -49,6 +49,9 @@ import Loading from 'app/components/loading'
  *            Returns a string to show in a loading component or false if all
  *            data ready. Doing it here prevents downstream component to get
  *            undefined states
+ *   promises(state, props)
+ *            Returns a dict with keys and promises, that when resolved will
+ *            set that key on state to the result of that promise.
  *
  * Use as redux connect: serverboards_connect(options)(View)
  */
@@ -57,6 +60,9 @@ export function serverboards_connect(options){
     let SubscribedConnect = React.createClass({
       contextTypes: {
         store: React.PropTypes.object
+      },
+      getInitialState(){
+        return { }
       },
       _componentDidMount(props){ // Wrapper to allow call with specific props
         const state = this.context.store.getState()
@@ -76,6 +82,18 @@ export function serverboards_connect(options){
       },
       componentDidMount(){
         this._componentDidMount(this.props)
+        const state = this.context.store.getState()
+        const promises = unwrap(options.promises, state, this.props)
+
+        console.log("Promises are ", options.promises, promises)
+        Object.keys(promises || {}).map( k => {
+          promises[k].then( v => {
+            console.log("Set promise", k, v);
+            this.setState({[k]: v})}
+          ).catch( e => {
+            console.error("Error setting promise value", k, e)
+          })
+        })
       },
       componentWillUnmount(){
         this._componentWillUnmount(this.props)
@@ -105,7 +123,7 @@ export function serverboards_connect(options){
         }
 
         return (
-          <Component {...this.props}/>
+          <Component {...this.state} {...this.props}/>
         )
       }
     })

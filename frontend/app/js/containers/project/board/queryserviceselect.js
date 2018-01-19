@@ -1,6 +1,7 @@
 import connect from 'app/containers/connect'
 import QueryServiceSelectView from 'app/components/project/board/queryserviceselect'
 import { services_update_catalog, services_update_all } from 'app/actions/service'
+import cache from 'app/utils/cache'
 
 const QueryServiceSelect = connect({
   state: (state, props) => {
@@ -14,6 +15,9 @@ const QueryServiceSelect = connect({
       all_services
     }
   },
+  promises: () => ({
+    extractors: cache.plugin_component("extractor")
+  }),
   handlers: (dispatch) => ({
   }),
   store_enter: [services_update_all]
