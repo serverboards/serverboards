@@ -7,18 +7,19 @@ import rpc from 'app/rpc'
 import { merge, to_map, to_list } from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
-const SetupComponent=React.createClass({
-  getInitialState(){
+class SetupComponent extends React.Component{
+  constructor(props){
+    super(props)
     let fields=undefined
     if (this.props.service_catalog){
       fields = this.get_fields()
     }
-    return {fields,
+    this.state = {fields,
       values:
         Object.assign({name: this.props.service.name}, this.props.service.config),
     }
-  },
-  handleAccept : function(ev){
+  }
+  handleAccept(ev){
     ev && ev.preventDefault()
 
     let $form = $(this.refs.form.refs.form)
@@ -42,17 +43,16 @@ const SetupComponent=React.createClass({
       } )
       this.props.onClose()
     }
-  },
-  handleUpdateForm : function(data){
+  }
+  handleUpdateForm(data){
     this.setState({values:data})
-  },
-  get_fields(){
+  }
+  getFields(){
     if (this.state && this.state.fields)
       return this.state.fields
     return setup_fields(this.props.service, this.props.service_catalog)
-  },
+  }
   render(){
-
     let props=this.props
     let state=this.state
     if (!props.service_catalog)
@@ -63,7 +63,7 @@ const SetupComponent=React.createClass({
       )
     let fields = state.fields
     if (!fields)
-      fields=this.get_fields()
+      fields=this.getFields()
     let servicedef=service_definition(this.props.service.type, this.props.service_catalog)
     return (
       <div className="ui text container" style={{paddingTop: 20}}>
@@ -76,7 +76,13 @@ const SetupComponent=React.createClass({
                 defaultValue={props.service.name}/>
             </div>
 
-            <GenericForm ref="form" fields={fields} data={{service: props.service}} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+            <GenericForm
+              ref="form"
+              fields={fields}
+              data={{service: props.service}}
+              updateForm={this.handleUpdateForm.bind(this)}
+              onSubmit={this.handleAccept.bind(this)}
+              />
 
             <div className="field">
               <label>{i18n("Description")}</label>
@@ -89,7 +95,11 @@ const SetupComponent=React.createClass({
           </div>
         </div>
         <div className="actions" style={{margin: "20px 0 0 0"}}>
-          <button className="ui ok teal button" onClick={this.handleAccept} style={{margin: 0}}>
+          <button
+              className="ui ok teal button"
+              onClick={this.handleAccept.bind(this)}
+              style={{margin: 0}}
+            >
             {i18n("Update service settings")}
           </button>
         </div>
@@ -97,7 +107,7 @@ const SetupComponent=React.createClass({
       </div>
     )
   }
-})
+}
 
 
 export default SetupComponent
