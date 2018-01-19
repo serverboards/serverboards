@@ -12,6 +12,8 @@ defmodule Serverboards.Plugin.Monitor do
     if Serverboards.Config.get(:plugins, :watch, true) do
       paths = Serverboards.Plugin.Registry.plugin_paths()
       GenServer.start_link __MODULE__, paths, options
+    else
+      :ignore
     end
   end
 

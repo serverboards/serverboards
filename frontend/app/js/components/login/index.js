@@ -71,9 +71,9 @@ var LoginView = React.createClass({
         <img src={white_logo} className="ui serverboards logo"/>
 
         <div className="ui small modal active" id="login">
-          <div className="header">
-            {i18n("Login into Serverboards")}
-          </div>
+          <h1 className="ui huge header">
+            {i18n("Login")}
+          </h1>
 
           <div className="content">
             <div className="field">
@@ -88,13 +88,16 @@ var LoginView = React.createClass({
               <input type="password" name="password" placeholder="*******"
                 />
             </div>
+            <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>
+              {i18n("Reset your password")}&nbsp;
+              <i className="ui circle icon arrow right"/>
+            </a>
             <div className="ui error message"></div>
           </div>
 
-          <div className="actions">
-            <a href="#" onClick={(ev) => { ev.preventDefault(); this.resetPassword(this.state.email)}}>{i18n("Reset password")}</a>
-            <button type="button" className={`ui login positive right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
-              {i18n("Login")}
+          <div className="ui centered actions">
+            <button type="button" className={`ui wide login teal right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
+              {i18n("Log In")}
               {logging ? (
                 <i className="loading spinner icon"></i>
               ) : (

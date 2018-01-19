@@ -219,8 +219,6 @@ defmodule Serverboards.Plugin.Registry do
 
   ## server impl, just stores state
   def init([]) do
-    Serverboards.Plugin.Monitor.start_link
-
     MOM.Channel.subscribe(:settings, fn
       %MOM.Message{ payload: %{ type: :update, section: section }} ->
         if section in ["plugins", "broken_plugins"] do
@@ -268,7 +266,7 @@ defmodule Serverboards.Plugin.Registry do
     end
     Logger.debug("Reload plugins done: #{inspect st}")
 
-    Serverboards.Event.emit("plugins_reload", nil, ["plugin"])
+    Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
 
     {:noreply, %{
       all: all_plugins,

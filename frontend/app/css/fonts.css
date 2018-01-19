@@ -14,6 +14,13 @@
 
 @font-face {
     font-family: Lato;
+    font-style: normal;
+    font-weight: 300;
+    src: local('Lato Light'),local('Lato-Light'),url(fonts/Lato-Light.ttf) format('truetype')
+}
+
+@font-face {
+    font-family: Lato;
     font-style: italic;
     font-weight: 400;
     src: local('Lato Italic'),local('Lato-Italic'),url(fonts/Lato-Italic.ttf) format('truetype')

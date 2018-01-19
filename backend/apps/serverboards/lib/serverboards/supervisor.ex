@@ -35,10 +35,9 @@ defmodule Serverboards.Supervisor do
       # this should be the last, as it may use others
       # worker(Serverboards.Rules, [ [name: Serverboards.Rules] ]),
       supervisor(Serverboards.RulesV2.Supervisor, [ [name: Serverboards.RulesV2.Supervisor] ]),
-      supervisor(Serverboards.Plugin.Init.Supervisor, [ [name: Serverboards.Plugin.Init.Supervisor] ]),
     ]
 
-    opts = [strategy: :one_for_one]
+    opts = [strategy: :one_for_one, name: __MODULE__]
 
     supervise(children, opts)
   end

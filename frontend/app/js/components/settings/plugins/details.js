@@ -6,6 +6,8 @@ import {to_list} from 'app/utils'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
+import event from 'app/utils/event'
+import cache from 'app/utils/cache'
 import {colorize, capitalize} from 'app/utils'
 
 const icon = require("../../../../imgs/plugins.svg")
@@ -31,11 +33,16 @@ const left_pane_style={
 }
 
 const PluginDetails=React.createClass({
-  getInitialState(){
+  getInitialState(props){
+    let status
+    if (props)
+      status = props.plugin.status
+    else
+      status = this.props.plugin.status
     return {
-      is_active: this.props.plugin.status.includes("active"),
-      is_updatable: this.props.plugin.status.includes("updatable"),
-      tags: this.props.plugin.status
+      is_active: status.includes("active"),
+      is_updatable: status.includes("updatable"),
+      tags: status
     }
   },
   componentDidMount(){
@@ -46,6 +53,19 @@ const PluginDetails=React.createClass({
         self.handleSetActive(self.props.plugin.id, is_active)
         self.setState({is_active})
       }
+    })
+    event.on("plugins.reloaded", this.checkUpdates)
+  },
+  componentWillUnmount(){
+    event.off("plugins.reloaded", this.checkUpdates)
+  },
+  checkUpdates(){
+    console.log("Maybe some changes, reload the plugin data from cache.")
+    const pid = this.props.plugin.id
+    cache.plugins().then( pl => {
+      console.log(pl)
+      const plugin = pl[pid]
+      this.setState( this.getInitialState({plugin}) )
     })
   },
   handleSetActive(plugin_id, is_active){

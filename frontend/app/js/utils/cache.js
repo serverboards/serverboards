@@ -2,7 +2,8 @@ import store from './store'
 import event from './event'
 import rpc from 'app/rpc'
 
-var cache_data = {}
+let cache_data = {}
+let first_time_plugins = true;
 
 /**
  * @short Uses the store for caching some data.
@@ -70,6 +71,11 @@ const cache={
   plugins(){
     var data = cache_data["plugins"]
     if (!data){
+      if (first_time_plugins){
+        event.on("plugins.reloaded", () => cache.invalidate("plugins"))
+        first_time_plugins=false
+      }
+
       return rpc
         .call("plugin.catalog",[])
         .then( data => {
@@ -103,6 +109,10 @@ const cache={
   invalidate_all(){
     store.dispatch({type: "CACHE_CLEAN_ALL"})
     cache_data={}
+  },
+  invalidate(name){
+    if (name in cache_data)
+      delete cache_data[name]
   }
 }
 

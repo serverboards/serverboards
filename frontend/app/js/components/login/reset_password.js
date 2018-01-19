@@ -45,15 +45,15 @@ const ResetPassword=React.createClass({
                 <input type="email" name="email" placeholder="user@company.com"
                   defaultValue={props.email}
                   />
+                <a href="#" onClick={this.setPassword}>{i18n("I already have a password change token")}</a>
               </div>
             </div>
 
-            <div className="actions">
-              <a href="#" onClick={this.setPassword}>{i18n("I already have a password change token")}</a>
+            <div className="ui centered actions">
               <button type="button" className="ui right button" onClick={props.closeReset}>
                 {i18n("Cancel")}
               </button>
-              <button type="button" className="ui positive right labeled icon button" onClick={this.sendEmail}>
+              <button type="button" className="ui teal right labeled icon button" onClick={this.sendEmail}>
                 {i18n("Request email")}
                 <i className="caret right icon"></i>
               </button>
