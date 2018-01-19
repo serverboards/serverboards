@@ -17,6 +17,7 @@ components:
 
   - id: serverboards
     name: Serverboards internal data
+    icon: cube
     type: extractor
     command: serverboards.core.extractors/daemon
     extractor: serverboards_extractor

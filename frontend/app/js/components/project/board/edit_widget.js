@@ -55,7 +55,7 @@ class AddWidget extends React.Component{
       return p
     })
   }
-  handleSetServices(service){
+  handleSetServices(services){
     this.setState({ services })
   }
   render(){

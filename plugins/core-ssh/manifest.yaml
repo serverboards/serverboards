@@ -198,6 +198,15 @@ components:
       stdout: Command stdout result
       stderr: Command stderr result
 
+  - id: csv.extractor
+    icon: disk outline
+    type: extractor
+    service: serverboards.core.ssh/ssh
+    name: Remote CSV File
+    description: Access to a CSV file stored in an SSH accessible server
+    command: serverboards.core.ssh/daemon
+    extractor: csv_extractor
+    schema: csv_schema
 
   - name: SSH Test Command
     id: test-daemon

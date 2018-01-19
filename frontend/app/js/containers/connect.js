@@ -62,7 +62,7 @@ export function serverboards_connect(options){
         store: React.PropTypes.object
       },
       getInitialState(){
-        return { }
+        return { options }
       },
       _componentDidMount(props){ // Wrapper to allow call with specific props
         const state = this.context.store.getState()
@@ -85,12 +85,12 @@ export function serverboards_connect(options){
         const state = this.context.store.getState()
         const promises = unwrap(options.promises, state, this.props)
 
-        console.log("Promises are ", options.promises, promises)
         Object.keys(promises || {}).map( k => {
           promises[k].then( v => {
-            console.log("Set promise", k, v);
-            this.setState({[k]: v})}
-          ).catch( e => {
+            let state_update={}
+            state_update[k]=v
+            this.setState(state_update)
+          } ).catch( e => {
             console.error("Error setting promise value", k, e)
           })
         })

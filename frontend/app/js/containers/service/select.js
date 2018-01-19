@@ -4,12 +4,16 @@ import { services_update_catalog, services_update_all } from 'app/actions/servic
 
 const ServiceSelect = connect({
   state: (state, props) => {
-    let services = state.services.services || []
-    if (props.project == true){
-      const project = state.project.current
-      services = services.filter( s => s.projects.indexOf(project)>=0)
+    let services
+    if (props.services)
+      services = props.services
+    else{
+      services = state.services.services || []
+      if (props.project == true){
+        const project = state.project.current
+        services = services.filter( s => s.projects.indexOf(project)>=0)
+      }
     }
-
     return {
       services
     }
