@@ -8,12 +8,12 @@ class QueryServiceSelect extends React.Component{
   constructor(props){
     super(props)
 
-    const services = (props.services || []) // format is [{id, extractor, service}] // service is uuid
+    const extractors = (props.extractors || []) // format is [{id, extractor, service}] // service is uuid
 
     this.state = {
       openSelector: false,
       selected: undefined,
-      services,
+      extractors,
       last_service_id: 0, // TODO get max available
       extractor: undefined,
       services_for_extractor: [],
@@ -26,9 +26,9 @@ class QueryServiceSelect extends React.Component{
     this.setState({openSelector: true, selected: id_uuid})
   }
   handleSelectService(extractor, service){
-    let {services, selected, last_service_id} = this.state
+    let {extractors, selected, last_service_id} = this.state
     if (this.state.selected){ // replace selected
-      services = services.map( s => {
+      extractors = extractors.map( s => {
         if (s.id == selected.id)
           return {id: s.id, service, extractor}
         return s
@@ -36,7 +36,7 @@ class QueryServiceSelect extends React.Component{
       selected={id: selected.id, service, extractor}
     }
     else{ // append to end
-      services = services.concat( {
+      extractors = extractors.concat( {
         id: ID_LIST[last_service_id],
         service,
         extractor
@@ -44,8 +44,8 @@ class QueryServiceSelect extends React.Component{
       last_service_id+=1
       this.setState({extractor: undefined})
     }
-    this.setState({services, last_service_id, selected})
-    this.props.onSetServices(services)
+    this.setState({extractors, last_service_id, selected})
+    this.props.onSetExtractors(extractors)
   }
   handleSelectExtractor(extractor){
     const service_type = extractor.extra.service
@@ -67,7 +67,7 @@ class QueryServiceSelect extends React.Component{
     return "??"
   }
   getExtractorName(ext){
-    const extractor = this.props.extractors.find( s => s.id == ext )
+    const extractor = (this.props.known_extractors || []).find( s => s.id == ext )
     if (extractor)
       return extractor.name
     return "??"
@@ -76,19 +76,19 @@ class QueryServiceSelect extends React.Component{
     const props = this.props
     const state = this.state
     const selected = state.openSelector && state.selected || {}
-    const services = this.state.services
+    const extractors = this.state.extractors
     return (
       <div>
-        <label className="ui bold text">{i18n("Add services to apply Service Queries on this widget")}</label>
+        <label className="ui bold text">{i18n("Add extractors to apply Service Queries on this widget")}</label>
         <div className="ui service selector list" style={{marginBottom: 20}}>
-          {(services || []).map( s => (
+          {(extractors || []).map( s => (
             <a className={`ui square basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
               onClick={() => this.handleChangeService(s)}>{s.id}: {this.getExtractorName(s.extractor)} {this.getServiceName(s.service)}</a>
           ))}
           {state.openSelector ? (
             <a className="ui dashed square basic red button"
                onClick={this.handleToggleSelector.bind(this)}>
-              x
+              {i18n("hide")}
             </a>
           ) : (
             <a className="ui dashed square basic teal button"
@@ -114,8 +114,8 @@ class QueryServiceSelect extends React.Component{
               <div>
                 <label>{i18n("Select an extractor:")}</label>
                 <div className="ui cards">
-                  {props.extractors.map( e => (
-                    <div className={`ui narrow card ${selected.extractor == e.id ? "selected" : ""}`}
+                  {props.known_extractors.map( e => (
+                    <div className={`ui narrow card ${selected.extractor == e.id ? "selected" : ""} with pointer`}
                          onClick={() => this.handleSelectExtractor(e)}>
                       <i className={`icon ${e.extra.icon || "database"}`}/>
                       <h3>{e.name}</h3>

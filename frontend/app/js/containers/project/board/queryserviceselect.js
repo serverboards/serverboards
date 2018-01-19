@@ -16,7 +16,7 @@ const QueryServiceSelect = connect({
     }
   },
   promises: () => ({
-    extractors: cache.plugin_component({type: "extractor"})
+    known_extractors: cache.plugin_component({type: "extractor"})
   }),
   handlers: (dispatch) => ({
   }),

@@ -13,9 +13,11 @@ import QueryServiceSelect from 'app/containers/project/board/queryserviceselect'
 class AddWidget extends React.Component{
   constructor(props){
     super(props)
+    const config = this.props.widget.config || {}
     this.state = {
       widget: undefined,
-      config: this.props.widget.config,
+      config: config,
+      extractors: config.extractors || [],
     }
   }
   updateWidget(){
@@ -25,7 +27,7 @@ class AddWidget extends React.Component{
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: state.config
+      config: {...state.config, extractors: this.state.extractors}
     }
     rpc.call("dashboard.widget.update", data).then( () => {
       set_modal(null)
@@ -55,8 +57,8 @@ class AddWidget extends React.Component{
       return p
     })
   }
-  handleSetServices(services){
-    this.setState({ services })
+  handleSetExtractors(extractors){
+    this.setState({ extractors })
   }
   render(){
     const widget = this.props.template
@@ -106,8 +108,8 @@ class AddWidget extends React.Component{
                 {this.hasQuery() && (
                   <div className="">
                     <QueryServiceSelect
-                      services={state.services}
-                      onSetServices={this.handleSetServices.bind(this)}
+                      extractors={state.extractors}
+                      onSetExtractors={this.handleSetExtractors.bind(this)}
                       />
                   </div>
                 )}
