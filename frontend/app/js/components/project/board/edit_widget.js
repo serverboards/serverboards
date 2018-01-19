@@ -8,14 +8,16 @@ import HoldButton from 'app/components/holdbutton'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
+import QueryServiceSelect from 'app/containers/project/board/queryserviceselect'
 
-const AddWidget = React.createClass({
-  getInitialState(){
-    return {
+class AddWidget extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       widget: undefined,
-      config: this.props.widget.config
+      config: this.props.widget.config,
     }
-  },
+  }
   updateWidget(){
     const state=this.state
     const props=this.props
@@ -28,7 +30,7 @@ const AddWidget = React.createClass({
     rpc.call("dashboard.widget.update", data).then( () => {
       set_modal(null)
     })
-  },
+  }
   removeWidget(){
     // console.log("remove", this.props.widget_id, this.props.widget.uuid)
     rpc.call("dashboard.widget.remove", [this.props.widget.uuid]).then(() => {
@@ -38,12 +40,27 @@ const AddWidget = React.createClass({
       console.error(e)
       Flash.error("Could not remove widget.")
     })
-  },
+  }
   setFormData(config){
     this.setState({config})
-  },
+  }
+  hasQuery(){
+    return true
+  }
+  updateQueryParams(params){
+    return params.map( p => {
+      if (p.type=='query'){
+        return {...p, type: "textarea"} // TODO data for autocomplete and so on.
+      }
+      return p
+    })
+  }
+  handleSetServices(service){
+    this.setState({ services })
+  }
   render(){
-    const widget=this.props.template
+    const widget = this.props.template
+    const state = this.state
     if (!widget){
       return (
         <Modal>
@@ -57,7 +74,7 @@ const AddWidget = React.createClass({
           <div className="ui top serverboards secondary menu">
             <h3 className="ui header">{this.props.widget_id}</h3>
             <div className="right menu">
-              <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
+              <HoldButton className="item" onHoldClick={this.removeWidget.bind(this)}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
             </div>
           </div>
           <div className="ui text container">
@@ -73,7 +90,7 @@ const AddWidget = React.createClass({
         <div className="ui top serverboards secondary menu">
           <h3 className="ui header">{widget.name}</h3>
           <div className="right menu">
-            <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
+            <HoldButton className="item" onHoldClick={this.removeWidget.bind(this)}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
           </div>
         </div>
         <div className="ui text container">
@@ -86,8 +103,17 @@ const AddWidget = React.createClass({
             ) : (
               <div>
                 <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
-                <GenericForm fields={widget.params} data={this.state.config} updateForm={this.setFormData}/>
-                <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
+                {this.hasQuery() && (
+                  <div className="">
+                    <QueryServiceSelect
+                      services={state.services}
+                      onSetServices={this.handleSetServices.bind(this)}
+                      />
+                  </div>
+                )}
+
+                <GenericForm fields={this.updateQueryParams(widget.params)} data={this.state.config} updateForm={this.setFormData.bind(this)}/>
+                <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget.bind(this)}>
                   {i18n("Update widget")}
                 </button>
               </div>
@@ -97,6 +123,6 @@ const AddWidget = React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default AddWidget

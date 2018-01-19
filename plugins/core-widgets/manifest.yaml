@@ -64,20 +64,19 @@ components:
       - label: Left Icon
         class: half column
         name: icon_left
-      - label: Right Icon
-        class: half column
-        name: icon_right
-
-      - label: Left Expression
-        class: half column
-        name: expr_left
-      - label: Right Expression
-        class: half column
-        name: expr_right
-
       - label: Left Text
         class: half column
         name: text_left
+      - label: Left Expression
+        type: query
+        name: expr_left
+
+      - label: Right Icon
+        class: half column
+        name: icon_right
       - label: Right Text
         class: half column
         name: text_right
+      - label: Right Expression
+        type: query
+        name: expr_right
