@@ -39,7 +39,7 @@ defmodule Serverboards.QueryTest do
     assert Enum.count(result.rows) == 1
     assert Enum.count(Enum.at(result.rows,0)) == 1
 
-    Logger.debug ExoSQL.format_result(result)
+    Logger.debug inspect(result)
   end
 
   test "Simple query using RPC" do

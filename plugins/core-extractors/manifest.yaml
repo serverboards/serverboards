@@ -14,8 +14,9 @@ components:
     command: ./serverboards-extractors.py
     strategy: singleton
     timeout: 10m
+    perms: service.get auth.list
 
-  - id: serverboards
+  - id: extractor
     name: Serverboards internal data
     icon: cube
     type: extractor

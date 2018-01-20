@@ -155,4 +155,49 @@ defmodule Serverboards.Project.Widget do
     Serverboards.Event.emit("dashboard.widget.removed[#{dashboard}]", %{uuid: uuid}, ["project.get"])
     :ok
   end
+
+  defp get_widget_params(type) do
+    [widget] = Serverboards.Plugin.Registry.filter_component([type: "widget", id: type])
+    widget.extra["params"]
+  end
+
+  @doc ~S"""
+  Extracts data for the widget using the proper extractors.
+  """
+  def extract(uuids, me) do
+    import Ecto.Query
+
+    widgets = Repo.all(
+      from w in Model.Widget,
+      where: w.uuid in ^uuids,
+      select: {w.widget, w.config}
+    )
+    configs = for {widget, config} <- widgets do
+      params = get_widget_params(widget)
+      extractors = case config["extractors"] do
+        nil -> %{}
+        other ->
+          Enum.map(other, fn
+            %{"id" => id, "extractor" => extractor, "service" => service} ->
+              {id, %{ extractor: extractor, service: service, user: me}}
+          end) |> Map.new
+      end
+
+      for p <- params do
+        Logger.debug("Param #{inspect p}, from #{inspect config}")
+        name = p["name"]
+        type = p["type"]
+        case type do
+          "query" ->
+            {:ok, value} = Serverboards.Query.query(config[name], extractors)
+            {name, value}
+          other ->
+            {name, config[name]}
+        end
+      end |> Map.new
+    end
+
+    Logger.debug("Widgets: #{inspect configs, pretty: true}")
+    {:ok, configs}
+  end
 end

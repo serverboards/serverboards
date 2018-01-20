@@ -36,10 +36,15 @@ defmodule Serverboards.Query do
   Returns the list of tables on this extractor
   """
   def schema(config) do
+    Logger.debug("schema #{inspect config}")
     extractor = config.extractor
-    [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
+    case Serverboards.Plugin.Registry.filter_component(id: extractor) do
+      [component] ->
+        Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, nil], config.user)
+      _ ->
+        {:error, :unknown_extractor}
+    end
 
-    Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, nil], config.user)
   end
 
   @doc ~S"""
@@ -47,19 +52,23 @@ defmodule Serverboards.Query do
   """
   def schema(config, table) do
     extractor = config.extractor
-    [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
+    case Serverboards.Plugin.Registry.filter_component(id: extractor) do
+      [component] ->
+        res = Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, table], config.user)
+        case res do
+          {:ok, %{ "columns" => columns}} ->
+            columns = Enum.map(columns, fn
+              %{ "name" => name } -> name
+              other when is_binary(other) -> other
+            end)
+            {:ok, %{ headers: columns }}
 
-    res = Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, table], config.user)
-    case res do
-      {:ok, %{ "columns" => columns}} ->
-        columns = Enum.map(columns, fn
-          %{ "name" => name } -> name
-          other when is_binary(other) -> other
-        end)
-        {:ok, %{ headers: columns }}
-
-      other -> other
+          other -> other
+        end
+      _ ->
+        {:error, {:unknown_extractor, extractor}}
     end
+
   end
 
   def query(query, context) do

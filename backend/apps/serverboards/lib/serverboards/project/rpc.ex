@@ -108,6 +108,11 @@ defmodule Serverboards.Project.RPC do
         Serverboards.Project.Widget.catalog()
     end, [required_perm: "project.get"]
 
+    RPC.MethodCaller.add_method mc, "dashboard.widget.extract", fn uuids ->
+        Serverboards.Project.Widget.extract(uuids)
+    end, [required_perm: "project.get"]
+
+
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->
       MOM.RPC.Client.add_method_caller client, mc

@@ -45,8 +45,11 @@ defmodule Serverboards.Auth.RPC do
     end, [context: true]
 
     ## User management
-    add_method mc, "user.list", fn [] ->
-      Auth.User.user_list nil
+    add_method mc, "user.list", fn
+      [] ->
+        Auth.User.user_list nil
+      %{} ->
+        Auth.User.user_list nil
     end, required_perm: "auth.list"
     add_method mc, "user.create", fn attributes, context ->
       me = RPC.Context.get(context, :user)
