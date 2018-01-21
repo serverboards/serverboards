@@ -14,7 +14,7 @@ components:
     command: ./serverboards-extractors.py
     strategy: singleton
     timeout: 10m
-    perms: service.get auth.list
+    perms: service.get auth.list rules.view
 
   - id: extractor
     name: Serverboards internal data

@@ -12,6 +12,8 @@ def serverboards_extractor(config, table, quals, columns):
         return service_extractor(quals, columns)
     if table == "user":
         return user_extractor(quals, columns)
+    if table == "rules":
+        return rules_extractor(quals, columns)
     return {
         "columns": columns,
         "rows": []
@@ -54,6 +56,25 @@ def user_extractor(quals, columns):
     }
 
 
+def rules_extractor(quals, columns):
+    rules = serverboards.rules_v2.list()
+
+    rows = []
+    for r in rules:
+        rows.append([
+            r["uuid"],
+            r["name"],
+            r["description"],
+            r["project"],
+            r["is_active"]
+        ])
+
+    return {
+        "columns": ["uuid", "name", "description", "project", "is_active"],
+        "rows": rows
+    }
+
+
 @serverboards.rpc_method
 def serverboards_schema(config, table=None):
     if not table:
@@ -68,6 +89,10 @@ def serverboards_schema(config, table=None):
     if table == "service":
         return {
             "columns": ["uuid", "name", "description", "tags", "type"]
+        }
+    if table == "rules":
+        return {
+            "columns": ["uuid", "name", "description", "project", "is_active"]
         }
     raise Exception("unknown-table")
 

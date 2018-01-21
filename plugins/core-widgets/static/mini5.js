@@ -1,15 +1,31 @@
 (function(){
-  const React=Serverboards.React
+  const {React, rpc}=Serverboards
 
   class Mini5 extends React.Component{
+    constructor(props){
+      super(props)
+      this.state = {
+        title: undefined, color: undefined,
+        text_left: undefined, text_right: undefined,
+        icon_left: undefined, icon_right: undefined,
+        expr_left: undefined, expr_right: undefined
+      }
+    }
     componentDidMount(){
       const props = this.props
       props.setClass( `${props.config.color || "grey"} card` )
       props.setTitle(" ")
+
+      rpc.call("dashboard.widget.extract", [props.uuid]).then( newstate => {
+        let state = newstate[0]
+        state.expr_left=state.expr_left.rows[0][0]
+        state.expr_right=state.expr_right.rows[0][0]
+        this.setState(state)
+      })
     }
     render(){
       const props = this.props
-      const config = props.config
+      const config = this.state
 
       return React.createElement('div', {className: "ui content half padding"}, [
         React.createElement('h3',{className: "ui white header text"}, [config.title]),
