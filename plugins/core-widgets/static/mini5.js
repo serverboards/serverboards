@@ -5,23 +5,33 @@
     constructor(props){
       super(props)
       this.state = {
-        title: undefined, color: undefined,
-        text_left: undefined, text_right: undefined,
-        icon_left: undefined, icon_right: undefined,
+        title: props.config.title, color: props.config.color,
+        text_left: props.config.text_left, text_right: props.config.text_right,
+        icon_left: props.config.icon_left, icon_right: props.config.icon_right,
         expr_left: undefined, expr_right: undefined
       }
     }
     componentDidMount(){
       const props = this.props
-      props.setClass( `${props.config.color || "grey"} card` )
       props.setTitle(" ")
 
+      this.updateData(props)
+    }
+    updateData(props){
+      props.setClass( `${props.config.color || "grey"} card` )
       rpc.call("dashboard.widget.extract", [props.uuid]).then( newstate => {
         let state = newstate[0]
         state.expr_left=state.expr_left.rows[0][0]
         state.expr_right=state.expr_right.rows[0][0]
+        console.log("Got new state", state)
         this.setState(state)
       })
+    }
+    componentWillReceiveProps(newprops){
+      if (!Serverboards.utils.object_is_equal(newprops.config, this.props.config)){
+        console.log("New props: ", newprops)
+        this.updateData(newprops)
+      }
     }
     render(){
       const props = this.props
