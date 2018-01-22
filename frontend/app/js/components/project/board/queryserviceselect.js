@@ -10,11 +10,18 @@ class QueryServiceSelect extends React.Component{
 
     const extractors = (props.extractors || []) // format is [{id, extractor, service}] // service is uuid
 
+    let last_service_id = 0
+    for (let e of extractors){
+      let eid = ID_LIST.indexOf(e.id)
+      if (eid >= last_service_id)
+        last_service_id = eid+1
+    }
+
     this.state = {
       openSelector: false,
       selected: undefined,
       extractors,
-      last_service_id: 0, // TODO get max available
+      last_service_id, // TODO get max available
       extractor: undefined,
       services_for_extractor: [],
     }
