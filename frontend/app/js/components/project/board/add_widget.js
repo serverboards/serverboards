@@ -11,11 +11,23 @@ class SetupWidget extends React.Component{
   constructor(props){
     super(props)
     this.state= {
-      config: {}
+      config: {},
+      delayed_config: {},
+      delayed_config_timer: undefined,
     }
   }
   handleAddWidget(){
     return this.props.onAddWidget(this.state.config)
+  }
+  setConfig(config){
+    let delayed_config_timer = this.state.delayed_config_timer
+    if (delayed_config_timer)
+      clearTimeout(delayed_config_timer)
+    delayed_config_timer = setTimeout(
+      () => this.setState({delayed_config: config, delayed_config_timer: undefined}),
+      200 )
+
+    this.setState({config, delayed_config_timer})
   }
   render(){
     const props = this.props
@@ -34,7 +46,7 @@ class SetupWidget extends React.Component{
                 <Widget
                   key={widget.uuid}
                   widget={widget.id}
-                  config={this.state.config}
+                  config={this.state.delayed_config}
                   uuid={widget.uuid}
                   project={this.props.project}
                   layout={layout}
@@ -48,7 +60,7 @@ class SetupWidget extends React.Component{
           <div className="ui round pane white background with padding and scroll">
             <h2 className="ui centered header">{widget.name}</h2>
             <div className="" style={{marginBottom:30}}>{widget.description}</div>
-            <GenericForm fields={widget.params} updateForm={(config) => this.setState({config})}/>
+            <GenericForm fields={widget.params} updateForm={(config) => this.setConfig(config)}/>
             <div className="ui right buttons" style={{marginTop:20}}>
               <button type="button" className="ui basic button" onClick={this.props.cancelSetup}>
                 {i18n("Back")}

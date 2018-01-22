@@ -14,7 +14,9 @@ const AddWidget = React.createClass({
   getInitialState(){
     return {
       widget: undefined,
-      config: this.props.widget.config
+      config: this.props.widget.config,
+      delayed_config: this.props.widget.config,
+      delayed_config_timer: undefined,
     }
   },
   updateWidget(){
@@ -41,7 +43,13 @@ const AddWidget = React.createClass({
     })
   },
   setFormData(config){
-    this.setState({config})
+    let delayed_config_timer = this.state.delayed_config_timer
+    if (delayed_config_timer)
+      clearTimeout(delayed_config_timer)
+    delayed_config_timer = setTimeout(
+      () => this.setState({delayed_config: config, delayed_config_timer: undefined}),
+      300 )
+    this.setState({config, delayed_config_timer})
   },
   render(){
     const template=this.props.template
@@ -94,7 +102,7 @@ const AddWidget = React.createClass({
                   <Widget
                     key={widget.uuid}
                     widget={widget.widget}
-                    config={this.state.config}
+                    config={this.state.delayed_config}
                     uuid={widget.uuid}
                     project={this.props.project}
                     layout={layout}
