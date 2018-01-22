@@ -8,6 +8,7 @@ const Controller = connect(
       state.project.widget_catalog.find( (w) => (w.id == props.widget.widget) ) || "not-found"
     ),
     widget_id: props.widget.widget,
+    project: state.project.current,
   }),
   (dispatch, prop) => ({}),
 )(View)

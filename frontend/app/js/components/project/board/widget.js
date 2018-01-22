@@ -41,7 +41,10 @@ const Widget = React.createClass({
     let plugin_component=props.template.id.split('/')
     const context={
       setTitle: self.setTitle,
-      setError(err){ self.setState({error: err}) },
+      setError(err){
+        console.error(err)
+        self.setState({error: err})
+      },
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
       widget_id: props.template.id,
@@ -66,6 +69,7 @@ const Widget = React.createClass({
       if (!this.cancel_widget)
         this.do_widget(this.props)
     }).catch( (e) => {
+      console.error(e)
       this.setState({error: e.name || e.message || i18n("Could not load JS code")})
       $(this.refs.el).html("")
     } )
