@@ -23,13 +23,13 @@
         let state = newstate[0]
         state.expr_left=state.expr_left.rows[0][0]
         state.expr_right=state.expr_right.rows[0][0]
-        console.log("Got new state", state)
+        // console.log("Got new state", state)
         this.setState(state)
       })
     }
     componentWillReceiveProps(newprops){
       if (!Serverboards.utils.object_is_equal(newprops.config, this.props.config)){
-        console.log("New props: ", newprops)
+        // console.log("New props: ", newprops)
         this.updateData(newprops)
       }
     }

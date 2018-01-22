@@ -44,6 +44,8 @@ components:
         name: color
       - label: Text
         name: text
+        type: query
+
 
   - name: Mini 5
     type: widget

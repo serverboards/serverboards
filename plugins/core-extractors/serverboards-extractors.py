@@ -78,7 +78,7 @@ def rules_extractor(quals, columns):
 @serverboards.rpc_method
 def serverboards_schema(config, table=None):
     if not table:
-        return ["service", "user"]
+        return ["service", "user", "rules"]
     if table == "user":
         return {
             "columns": [
