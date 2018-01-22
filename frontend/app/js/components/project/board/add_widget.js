@@ -5,6 +5,7 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
+import Widget from 'app/containers/project/board/widget'
 
 class SetupWidget extends React.Component{
   constructor(props){
@@ -19,29 +20,54 @@ class SetupWidget extends React.Component{
   render(){
     const props = this.props
     const widget=props.widget
+
+    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, width: 2, height: 2}
+
     console.log(widget)
     return (
-      <div className="ui padding">
-        <h2 className="ui centered header">{widget.name}</h2>
-        <div className="" style={{marginBottom:30}}>{widget.description}</div>
-        <GenericForm fields={widget.params} updateForm={(config) => this.setState({config})}/>
-        <div className="ui right buttons" style={{marginTop:20}}>
-          <button type="button" className="ui basic button" onClick={this.props.cancelSetup}>
-            {i18n("Back")}
-          </button>
-          { props.saveButtons ? (
-              props.saveButtons.map( sb => (
-                <button type="button" className={`ui button ${sb.className}`}
-                    onClick={() => this.handleAddWidget().then( (data) => sb.onClick && sb.onClick(data) )}
-                    >
-                  {sb.label}
+
+      <div className="ui expand two column grid grey background">
+        <div className="ui column with scroll">
+          <div className="ui board">
+            <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
+              <div className="ui card" style={{maxHeight: 280*layout.h, maxWidth: 240*layout.w, minHeight: 280*layout.h, minWidth: 240*layout.w }}>
+                <Widget
+                  key={widget.uuid}
+                  widget={widget.id}
+                  config={this.state.config}
+                  uuid={widget.uuid}
+                  project={this.props.project}
+                  layout={layout}
+                  />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="ui column">
+          <div className="ui round pane white background with padding and scroll">
+            <h2 className="ui centered header">{widget.name}</h2>
+            <div className="" style={{marginBottom:30}}>{widget.description}</div>
+            <GenericForm fields={widget.params} updateForm={(config) => this.setState({config})}/>
+            <div className="ui right buttons" style={{marginTop:20}}>
+              <button type="button" className="ui basic button" onClick={this.props.cancelSetup}>
+                {i18n("Back")}
+              </button>
+              { props.saveButtons ? (
+                  props.saveButtons.map( sb => (
+                    <button type="button" className={`ui button ${sb.className}`}
+                        onClick={() => this.handleAddWidget().then( (data) => sb.onClick && sb.onClick(data) )}
+                        >
+                      {sb.label}
+                    </button>
+                  ))
+              ) : (
+                <button type="button" className="ui button teal" onClick={this.handleAddWidget.bind(this)}>
+                  {i18n("Add widget")}
                 </button>
-              ))
-          ) : (
-            <button type="button" className="ui button teal" onClick={this.handleAddWidget.bind(this)}>
-              {i18n("Add widget")}
-            </button>
-          )}
+              )}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -181,11 +207,28 @@ class AddWidget extends React.Component{
     switch(this.state.step){
       case 0:
         section = (
-          <SelectWidget
-            onSelectWidget={this.handleSelectWidget.bind(this)}
-            widget={this.state.widget}
-            {...this.props}
-            />
+          <div className="ui expand two column grid grey background" style={{margin:0}}>
+            <div className="ui column">
+              <Tip
+                className="ui round pane white background with padding"
+                top_img={require("imgs/024-illustration-addaddons.svg")}
+                title={i18n("Add widgets to your dashboards.")}
+                middle_img={require("imgs/019-illustration-tips.svg")}
+                subtitle={i18n("Dashboards allow to have a fast graphic view of your system.")}
+                description={i18n(`Select a widget type from your left to be able to configure it.`)}
+                  />
+            </div>
+
+            <div className="ui column">
+              <div className="ui round pane white background">
+              <SelectWidget
+                onSelectWidget={this.handleSelectWidget.bind(this)}
+                widget={this.state.widget}
+                {...this.props}
+                />
+              </div>
+            </div>
+          </div>
         )
         break;
       case 1:
@@ -207,28 +250,7 @@ class AddWidget extends React.Component{
         break;
     }
 
-    return (
-      <div className="ui expand two column grid grey background" style={{margin:0}}>
-        <div className="ui column">
-          <Tip
-            className="ui round pane white background with padding"
-            top_img={require("imgs/024-illustration-addaddons.svg")}
-            title={i18n("Add widgets to your dashboards.")}
-            middle_img={require("imgs/019-illustration-tips.svg")}
-            subtitle={i18n("Dashboards allow to have a fast graphic view of your system.")}
-            description={i18n(`
-Select a widget type from your left to be able to configure it.
-`)}
-              />
-        </div>
-
-        <div className="ui column">
-          <div className="ui round pane white background">
-            {section}
-          </div>
-        </div>
-      </div>
-    )
+    return section
   }
 }
 
