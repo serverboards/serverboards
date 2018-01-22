@@ -131,7 +131,11 @@ export function do_widget(id, el, data, context){
     })
     return p
   }
-  return Promise.resolve(widgets[id](el, data, context))
+  try{
+    return Promise.resolve(widgets[id](el, data, context))
+  } catch (e){
+    return Promise.reject(e)
+  }
 }
 
 class PluginCaller{
