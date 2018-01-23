@@ -15,4 +15,10 @@ components:
     command: test.extractor/daemon
     extractor: extractor
     schema: schema
-    
+
+  - id: widget
+    type: widget
+    params:
+      - name: color
+      - name: q
+        type: query

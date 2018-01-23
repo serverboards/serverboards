@@ -154,4 +154,53 @@ defmodule ProjectTest do
 
   end
 
+  test "Dashboard extractors on queries" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST15", %{}] )
+
+    {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    widget_config = %{
+      extractors: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
+      q: "SELECT random FROM random"
+    }
+    {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
+      dashboard: dashboard,
+      widget: "test.extractor/widget",
+      config: widget_config,
+      ui: %{}
+    })
+
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", [widget])
+    Logger.debug("data #{inspect data}")
+
+    [%{ "color" => nil, "q" => res}] = data
+    %{ "columns" => _columns, "rows" => _rows } = res
+    assert Enum.count(res["rows"]) == 1
+  end
+
+  test "Dashboard extractors on queries, bad query returns error, not fails" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST15", %{}] )
+
+    {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    widget_config = %{
+      extractors: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
+      q: ""
+    }
+    {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
+      dashboard: dashboard,
+      widget: "test.extractor/widget",
+      config: widget_config,
+      ui: %{}
+    })
+
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", [widget])
+    Logger.debug("data #{inspect data}")
+
+    [%{ "color" => nil, "q" => res}] = data
+    %{ "error" => _columns } = res
+  end
+
 end

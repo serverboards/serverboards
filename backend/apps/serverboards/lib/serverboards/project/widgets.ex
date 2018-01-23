@@ -173,6 +173,7 @@ defmodule Serverboards.Project.Widget do
       select: {w.widget, w.config}
     )
     configs = for {widget, config} <- widgets do
+      Logger.debug("Widget and config: #{inspect {widget, config}}")
       params = get_widget_params(widget)
       extractors = case config["extractors"] do
         nil -> %{}
@@ -184,13 +185,25 @@ defmodule Serverboards.Project.Widget do
       end
 
       for p <- params do
-        Logger.debug("Param #{inspect p}, from #{inspect config}")
+        # Logger.debug("Param #{inspect p}, from #{inspect config}")
         name = p["name"]
         type = p["type"]
         case type do
           "query" ->
-            {:ok, value} = Serverboards.Query.query(config[name], extractors)
-            {name, value}
+            try do
+              case Serverboards.Query.query(config[name], extractors) do
+                {:ok, value} ->
+                  {name, value}
+                {:error, error} ->
+                  {name, %{error: error}}
+              end
+            catch
+              any ->
+                {name, %{error: any}}
+            rescue
+              any ->
+                {name, %{error: any}}
+            end
           other ->
             {name, config[name]}
         end
