@@ -8,16 +8,21 @@ defmodule Serverboards.Query.RPC do
     # Adds that it needs permissions.
     Serverboards.Utils.Decorators.permission_method_caller mc
 
-    add_method mc, "query.query", fn data ->
+    add_method mc, "query.query", fn data, context ->
+      me = MOM.RPC.Context.get(context, :user)
       data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"query context")
       data = %{ data |
         context: Enum.map(data.context, fn {k,ctx} ->
-          {k, Serverboards.Utils.keys_to_atoms_from_list(ctx, ~w"user extractor")}
+          {k, %{
+            user: me,
+            extractor: ctx["extractor"],
+            service: ctx["service"]
+          }}
         end) |> Map.new }
       %{ query: query, context: context } = data
 
       Serverboards.Query.query query, context
-    end, required_perm: "query.query"
+    end, required_perm: "query.query", context: true
 
     # Add this method caller once authenticated.
     MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client }} ->

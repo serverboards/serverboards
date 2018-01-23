@@ -175,7 +175,7 @@ defmodule Serverboards.Project.Widget do
     configs = for {widget, config} <- widgets do
       Logger.debug("Widget and config: #{inspect {widget, config}}")
       params = get_widget_params(widget)
-      extractors = case config["extractors"] do
+      extractors = case config["__extractors__"] do
         nil -> %{}
         other ->
           Enum.map(other, fn

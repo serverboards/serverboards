@@ -10,6 +10,7 @@ import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import QueryServiceSelect from 'app/containers/project/board/queryserviceselect'
 import Widget from 'app/containers/project/board/widget'
+import {map_get} from 'app/utils'
 
 class AddWidget extends React.Component{
   constructor(props){
@@ -17,20 +18,20 @@ class AddWidget extends React.Component{
     const config = this.props.widget.config || {}
     this.state = {
       widget: undefined,
-      extractors: config.extractors || [],
+      extractors: config.__extractors__ || [],
       config: this.props.widget.config,
-      delayed_config: this.props.widget.config,
-      delayed_config_timer: undefined,
+      postconfig: this.props.widget.config,
+      postconfig_timer: undefined,
     }
   }
-  updateWidget(){
+  handleSaveChanges(){
     const state=this.state
     const props=this.props
     const data={
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: {...state.config, extractors: state.extractors}
+      config: {...state.config, __extractors__: state.extractors}
     }
     rpc.call("dashboard.widget.update", data).then( () => {
       set_modal(null)
@@ -47,13 +48,44 @@ class AddWidget extends React.Component{
     })
   }
   setFormData(config){
-    let delayed_config_timer = this.state.delayed_config_timer
-    if (delayed_config_timer)
-      clearTimeout(delayed_config_timer)
-    delayed_config_timer = setTimeout(
-      () => this.setState({delayed_config: config, delayed_config_timer: undefined}),
-      300 )
-    this.setState({config, delayed_config_timer})
+    let postconfig_timer = this.state.postconfig_timer
+    if (postconfig_timer)
+      clearTimeout(postconfig_timer)
+    postconfig_timer = setTimeout( () => {
+      this.updateWidget(config)
+      this.setState({postconfig_timer: undefined})
+      }, 300 )
+    this.setState({config, postconfig_timer})
+  }
+  updateWidget(config){
+    // fake do as dashboard.widget.extract, to show at widget preview
+    let postconfig = {}
+    let context = {}
+    for (const ext of this.state.extractors){
+      context[ext.id]={ extractor: ext.extractor, service: ext.service }
+    }
+
+    for (const p of map_get(this.props, ["template","params"], [])){
+      let value = config[p.name]
+      if (p.type=="query"){
+        value = rpc.call("query.query", {query: value, context}).then( res => {
+          let postconfig = {...this.state.postconfig}
+          postconfig[p.name] = res
+          // console.log("Set postconfig: [%o] = %o ", p.name, res)
+          this.setState({postconfig})
+        }).catch( e => {
+          // console.error("Error getting postconfig: ", value, e)
+          let postconfig = {...this.state.postconfig}
+          postconfig[p.name] = {error: e}
+          this.setState({postconfig})
+        })
+        postconfig[p.name] = undefined
+      }
+      else
+        postconfig[p.name] = value
+    }
+
+    this.setState({postconfig})
   }
   hasQuery(){
     return this.props.template && this.props.template.params && this.props.template.params.find( t => t.type == "query" ) != undefined
@@ -127,7 +159,7 @@ class AddWidget extends React.Component{
                   <Widget
                     key={widget.uuid}
                     widget={widget.widget}
-                    config={state.delayed_config}
+                    config={state.postconfig}
                     uuid={widget.uuid}
                     project={this.props.project}
                     layout={layout}
@@ -157,7 +189,7 @@ class AddWidget extends React.Component{
                     )}
 
                     <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
-                    <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget.bind(this)}>
+                    <button className="ui button yellow" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>
                       {i18n("Update widget")}
                     </button>
                   </div>
