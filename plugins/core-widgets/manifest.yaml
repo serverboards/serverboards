@@ -20,8 +20,8 @@ components:
     id: markdown
     type: widget
     hints:
-      minW: 2
-      minH: 3
+      minW: 1
+      minH: 2
     params:
       - label: Text in markdown
         name: text
