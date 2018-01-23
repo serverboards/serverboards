@@ -159,9 +159,9 @@ defmodule Serverboards.Plugin.Parser do
 
     iex> {:ok, plugins} = read_dir("test/data/plugins/")
     iex> Enum.count plugins
-    1
-    iex> (hd plugins).id
-    "serverboards.test.auth"
+    2
+    iex> (hd Enum.sort(plugins)).id
+    "test.extractor"
 
     iex> read_dir("test/data/invalid/")
     {:error, :enoent}
