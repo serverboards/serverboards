@@ -140,6 +140,8 @@ class AddWidget extends React.Component{
       layout={...layout, ...template.traits}
     }
     layout = {...layout, ...widget.ui}
+    layout.width = layout.w
+    layout.height = layout.h
     const wwidth = layout.w*283
     const wheight = (layout.h*130)+((layout.h-1)*28)
 
