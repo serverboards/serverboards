@@ -110,7 +110,6 @@ class AddWidget extends React.Component{
     layout = {...layout, ...widget.ui}
     const wwidth = layout.w*283
     const wheight = (layout.h*130)+((layout.h-1)*28)
-    console.log("Layout: %o", layout)
 
     return (
       <Modal className="wide">
