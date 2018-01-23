@@ -34,15 +34,18 @@ class SetupWidget extends React.Component{
     const widget=props.widget
 
     let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, width: 2, height: 2}
+    if (widget.hints)
+      layout = {...layout, ...widget.hints}
+    const width = Math.max(Math.min(layout.w, layout.maxW), layout.minW)*283
+    let height = Math.max(Math.min(layout.h, layout.maxH), layout.minH)
+    height = (height*135)+(height-1)*28
 
-    console.log(widget)
     return (
-
       <div className="ui expand two column grid grey background">
         <div className="ui column with scroll">
           <div className="ui board">
             <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
-              <div className="ui card" style={{maxHeight: 280*layout.h, maxWidth: 240*layout.w, minHeight: 280*layout.h, minWidth: 240*layout.w }}>
+              <div className="ui card" style={{maxHeight: height, maxWidth: width, minHeight: height, minWidth: width }}>
                 <Widget
                   key={widget.uuid}
                   widget={widget.id}
