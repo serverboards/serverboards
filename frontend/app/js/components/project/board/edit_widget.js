@@ -73,22 +73,7 @@ class AddWidget extends React.Component{
   }
   render(){
     const template = this.props.template
-    const widget = this.props.widget
-    const state = this.state
-    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1}
 
-    if (!template){
-      return (
-        <Modal>
-          <Loading>{i18n("Widget description")}</Loading>
-        </Modal>
-      )
-    }
-    if (template.traits && template.traits.minH){
-      layout={...layout, ...template.traits}
-    }
-    layout.width = layout.w
-    layout.height = layout.h
 
     if (template=="not-found"){
       return (
@@ -107,6 +92,26 @@ class AddWidget extends React.Component{
         </Modal>
       )
     }
+
+    const widget = this.props.widget
+    const state = this.state
+    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1}
+
+    if (!template){
+      return (
+        <Modal>
+          <Loading>{i18n("Widget description")}</Loading>
+        </Modal>
+      )
+    }
+    if (template.traits && template.traits.minH){
+      layout={...layout, ...template.traits}
+    }
+    layout = {...layout, ...widget.ui}
+    const wwidth = layout.w*283
+    const wheight = (layout.h*130)+((layout.h-1)*28)
+    console.log("Layout: %o", layout)
+
     return (
       <Modal className="wide">
         <div className="ui top serverboards secondary menu">
@@ -116,10 +121,10 @@ class AddWidget extends React.Component{
           </div>
         </div>
         <div className="ui expand two column grid grey background">
-          <div className="ui column with scroll">
+          <div className="ui column with scroll with padding">
             <div className="ui board">
               <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
-                <div className="ui card" style={{maxHeight: 280*layout.h, maxWidth: 240*layout.w, minHeight: 280*layout.h, minWidth: 240*layout.w }}>
+                <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
                   <Widget
                     key={widget.uuid}
                     widget={widget.widget}
