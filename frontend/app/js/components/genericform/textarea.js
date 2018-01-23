@@ -86,6 +86,8 @@ class TextArea extends React.Component{
   }
   updateAutocomplete(){
     const ac = this.props.autocomplete
+    if (!ac)
+      return
 
     const newtext=prefix_at_cursor(this.refs.textarea).toLocaleLowerCase()
     // console.log("Handle change to %o", newtext)

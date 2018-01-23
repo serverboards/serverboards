@@ -15,7 +15,7 @@ function Main(props){
     const mod = props.location.state
     const Modal = get_modal(mod.modal)
     if (Modal){
-      console.log("Render Modal %o -> %o", mod.modal, Modal)
+      // console.log("Render Modal %o -> %o", mod.modal, Modal)
       const dispatch = require('app/utils/store').default.dispatch
       const goBack = require('react-router-redux').goBack
       modal=(
