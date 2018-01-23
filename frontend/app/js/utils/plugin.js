@@ -138,10 +138,14 @@ export function do_widget(id, el, data, context){
     })
     return p
   }
-  if (widget.options.react){
-    return Promise.resolve({component: widget.fn})
+  try{
+    if (widget.options.react){
+      return Promise.resolve({component: widget.fn})
+    }
+    return Promise.resolve({umount: widget.fn(el, data, context)})
+  } catch (e){
+    return Promise.reject(e)
   }
-  return Promise.resolve({umount: widget.fn(el, data, context)})
 }
 
 class PluginCaller{

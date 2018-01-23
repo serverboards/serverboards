@@ -9,6 +9,7 @@ import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import QueryServiceSelect from 'app/containers/project/board/queryserviceselect'
+import Widget from 'app/containers/project/board/widget'
 
 class AddWidget extends React.Component{
   constructor(props){
@@ -16,8 +17,10 @@ class AddWidget extends React.Component{
     const config = this.props.widget.config || {}
     this.state = {
       widget: undefined,
-      config: config,
       extractors: config.extractors || [],
+      config: this.props.widget.config,
+      delayed_config: this.props.widget.config,
+      delayed_config_timer: undefined,
     }
   }
   updateWidget(){
@@ -27,7 +30,7 @@ class AddWidget extends React.Component{
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: {...state.config, extractors: this.state.extractors}
+      config: {...state.config, extractors: state.extractors}
     }
     rpc.call("dashboard.widget.update", data).then( () => {
       set_modal(null)
@@ -44,12 +47,20 @@ class AddWidget extends React.Component{
     })
   }
   setFormData(config){
-    this.setState({config})
+    let delayed_config_timer = this.state.delayed_config_timer
+    if (delayed_config_timer)
+      clearTimeout(delayed_config_timer)
+    delayed_config_timer = setTimeout(
+      () => this.setState({delayed_config: config, delayed_config_timer: undefined}),
+      300 )
+    this.setState({config, delayed_config_timer})
   }
   hasQuery(){
-    return true
+    return this.props.template && this.props.template.params && this.props.template.params.find( t => t.type == "query" ) != undefined
   }
   updateQueryParams(params){
+    if (!params)
+      return
     return params.map( p => {
       if (p.type=='query'){
         return {...p, type: "textarea"} // TODO data for autocomplete and so on.
@@ -61,16 +72,25 @@ class AddWidget extends React.Component{
     this.setState({ extractors })
   }
   render(){
-    const widget = this.props.template
+    const template = this.props.template
+    const widget = this.props.widget
     const state = this.state
-    if (!widget){
+    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1}
+
+    if (!template){
       return (
         <Modal>
           <Loading>{i18n("Widget description")}</Loading>
         </Modal>
       )
     }
-    if (widget=="not-found"){
+    if (template.traits && template.traits.minH){
+      layout={...layout, ...template.traits}
+    }
+    layout.width = layout.w
+    layout.height = layout.h
+
+    if (template=="not-found"){
       return (
         <Modal className="wide">
           <div className="ui top serverboards secondary menu">
@@ -90,36 +110,56 @@ class AddWidget extends React.Component{
     return (
       <Modal className="wide">
         <div className="ui top serverboards secondary menu">
-          <h3 className="ui header">{widget.name}</h3>
+          <h3 className="ui header">{template.name}</h3>
           <div className="right menu">
             <HoldButton className="item" onHoldClick={this.removeWidget.bind(this)}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
           </div>
         </div>
-        <div className="ui text container">
-          <div className="ui form" ref="form">
-            {this.state.error ? (
-              <div className="ui message visible error">
-                <div className="header">{i18n("Error")}</div>
-                <p>{this.state.error}</p>
+        <div className="ui expand two column grid grey background">
+          <div className="ui column with scroll">
+            <div className="ui board">
+              <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
+                <div className="ui card" style={{maxHeight: 280*layout.h, maxWidth: 240*layout.w, minHeight: 280*layout.h, minWidth: 240*layout.w }}>
+                  <Widget
+                    key={widget.uuid}
+                    widget={widget.widget}
+                    config={state.delayed_config}
+                    uuid={widget.uuid}
+                    project={this.props.project}
+                    layout={layout}
+                    />
+                </div>
               </div>
-            ) : (
-              <div>
-                <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
-                {this.hasQuery() && (
-                  <div className="">
-                    <QueryServiceSelect
-                      extractors={state.extractors}
-                      onSetExtractors={this.handleSetExtractors.bind(this)}
-                      />
+            </div>
+          </div>
+          <div className="ui column">
+            <div className="ui round pane white background with padding and scroll">
+              <div className="ui form" ref="form">
+                {state.error ? (
+                  <div className="ui message visible error">
+                    <div className="header">{i18n("Error")}</div>
+                    <p>{state.error}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
+                    {this.hasQuery() && (
+                      <div className="">
+                        <QueryServiceSelect
+                          extractors={state.extractors}
+                          onSetExtractors={this.handleSetExtractors.bind(this)}
+                          />
+                      </div>
+                    )}
+
+                    <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
+                    <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget.bind(this)}>
+                      {i18n("Update widget")}
+                    </button>
                   </div>
                 )}
-
-                <GenericForm fields={this.updateQueryParams(widget.params)} data={this.state.config} updateForm={this.setFormData.bind(this)}/>
-                <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget.bind(this)}>
-                  {i18n("Update widget")}
-                </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </Modal>
