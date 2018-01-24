@@ -37,12 +37,14 @@
       const props = this.props
       const config = this.state
 
-      return React.createElement('div', {className: "ui content half padding"}, [
-        React.createElement('h3',{className: "ui white header text"}, [config.title]),
-        React.createElement('div', {className: "ui huge text", style:{ display: "flex", alignItems: "bottom", height: 35}}, [
-          config.text
-        ])
-      ])
+      return (
+        <div className="ui content half padding">
+          <h3 className="ui white header text">{config.title}</h3>
+          <div className="ui huge text" style={{display: "flex", alignItems: "bottom", height: 35}}>
+            {config.text}
+          </div>
+        </div>
+      )
     }
   }
 

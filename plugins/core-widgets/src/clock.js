@@ -54,16 +54,13 @@
       var minute=time.minute
       var second=time.second
       return (
-        React.createElement('div', {className: "content"}, [
-          //React.createElement('div', {className: "ui header"}, [ "Current time" ]),
-          React.createElement('div', {className: "content", style: styles.clock}, [
-            React.createElement('span', {className: "hour"}, hour),
-            ":",
-            React.createElement('span', {className: "minute"}, minute),
-            ":",
-            React.createElement('span', {className: "second"}, second)
-          ] )
-        ] )
+        <div className="content">
+          <div className="content" style={styles.clock}>
+            <span className="hour">{hour}</span> :
+            <span className="minute">{minute}</span> :
+            <span className="second">{second}</span>
+          </div>
+        </div>
       )
     }
   })
