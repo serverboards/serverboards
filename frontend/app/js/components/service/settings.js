@@ -12,7 +12,7 @@ class SetupComponent extends React.Component{
     super(props)
     let fields=undefined
     if (this.props.service_catalog){
-      fields = this.get_fields()
+      fields = this.getFields()
     }
     this.state = {fields,
       values:
