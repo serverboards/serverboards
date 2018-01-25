@@ -79,8 +79,18 @@ defmodule Serverboards.Query do
 
     Logger.debug("Processed context #{inspect context}")
 
-    with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
-      {:ok, %{ columns: headers, rows: rows}}
+    try do
+      with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
+        {:ok, %{ columns: headers, rows: rows}}
+      end
+    catch
+      any ->
+        {:error, any}
+    rescue
+      MatchError ->
+        {:error, :invalid_sql}
+      any ->
+        {:error, any}
     end
   end
 end

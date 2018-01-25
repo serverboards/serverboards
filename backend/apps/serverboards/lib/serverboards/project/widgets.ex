@@ -190,19 +190,11 @@ defmodule Serverboards.Project.Widget do
         type = p["type"]
         case type do
           "query" ->
-            try do
-              case Serverboards.Query.query(config[name], extractors) do
-                {:ok, value} ->
-                  {name, value}
-                {:error, error} ->
-                  {name, %{error: error}}
-              end
-            catch
-              any ->
-                {name, %{error: any}}
-            rescue
-              any ->
-                {name, %{error: any}}
+            case Serverboards.Query.query(config[name], extractors) do
+              {:ok, value} ->
+                {name, value}
+              {:error, error} ->
+                {name, %{error: error}}
             end
           other ->
             {name, config[name]}
