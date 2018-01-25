@@ -87,7 +87,8 @@ defmodule Serverboards.Query do
       any ->
         {:error, any}
     rescue
-      MatchError ->
+      e in MatchError ->
+        Logger.error(inspect e)
         {:error, :invalid_sql}
       any ->
         {:error, any}
