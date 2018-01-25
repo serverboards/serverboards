@@ -14,9 +14,10 @@ defmodule Serverboards.Query.RPC do
       data = %{ data |
         context: Enum.map(data.context, fn {k,ctx} ->
           {k, %{
-            user: me,
+            user: me.email,
             extractor: ctx["extractor"],
-            service: ctx["service"]
+            service: ctx["service"],
+            config: ctx["config"],
           }}
         end) |> Map.new }
       %{ query: query, context: context } = data

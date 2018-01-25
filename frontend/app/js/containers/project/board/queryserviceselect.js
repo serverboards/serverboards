@@ -5,11 +5,8 @@ import cache from 'app/utils/cache'
 
 const QueryServiceSelect = connect({
   state: (state, props) => {
-    let all_services = state.services.services || []
-    if (props.project == true){
-      const project = state.project.current
-      all_services = services.filter( s => s.projects.indexOf(project)>=0)
-    }
+    const project = state.project.current
+    const all_services = ( state.services.services || []).filter( s => s.projects.indexOf(project)>=0)
 
     return {
       all_services

@@ -95,6 +95,7 @@ class QueryServiceSelect extends React.Component{
     }
 
     this.setState({extractors, max_service_id, open_selector: false, selected: {}})
+    this.props.onSetExtractors(extractors)
   }
   updateExtractorConfig(config){
     const selected = {...this.state.selected, config}

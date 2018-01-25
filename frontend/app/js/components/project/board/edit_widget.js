@@ -62,7 +62,7 @@ class AddWidget extends React.Component{
     let postconfig = {}
     let context = {}
     for (const ext of this.state.extractors){
-      context[ext.id]={ extractor: ext.extractor, service: ext.service }
+      context[ext.id]={ extractor: ext.extractor, service: ext.service, config: ext.config }
     }
 
     for (const p of map_get(this.props, ["template","params"], [])){
