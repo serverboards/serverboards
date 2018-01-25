@@ -2,46 +2,45 @@
   const {React, rpc}=Serverboards
 
   class Mini2 extends React.Component{
-    constructor(props){
-      super(props)
-
-      this.state = {
-        color: props.config.color,
-        title: props.config.title,
-        text: undefined
-      }
-    }
     componentDidMount(){
       const props = this.props
       props.setTitle(" ")
-
-      this.updateData(this.props)
+      this.updateData()
     }
     updateData(props){
-      rpc.call("dashboard.widget.extract", [props.uuid]).then( state => {
-        state = state[0]
-        console.log(state)
-        props.setClass( `${state.color || "grey"} card` )
-        state.text = state.text.rows[0][0]
-
-        this.setState(state)
-      })
+      this.props.setClass( `${this.props.config.color || "grey"} card` )
     }
     componentWillReceiveProps(newprops){
       if (!Serverboards.utils.object_is_equal(newprops.config, this.props.config)){
-        console.log("New props: ", newprops)
+        // console.log("New props: ", newprops)
         this.updateData(newprops)
       }
     }
+    getData(expr){
+      if (!expr)
+        return ""
+      if (expr.error){
+        console.error(expr.error)
+        return (
+          <span className="ui centered expand" title={String(expr.error)}>
+            <i className="icon warning sign" style={{color: "yellow"}}/>
+          </span>
+        )
+      }
+      else if (expr.rows){
+        return String(expr.rows[0])
+      }
+      return String(expr)
+    }
     render(){
       const props = this.props
-      const config = this.state
+      const config = props.config
 
       return (
         <div className="ui content half padding">
           <h3 className="ui white header text">{config.title}</h3>
           <div className="ui huge text" style={{display: "flex", alignItems: "bottom", height: 35}}>
-            {config.text}
+            {this.getData(config.text)}
           </div>
         </div>
       )
