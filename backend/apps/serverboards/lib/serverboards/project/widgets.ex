@@ -173,7 +173,7 @@ defmodule Serverboards.Project.Widget do
       select: {w.widget, w.config}
     )
     configs = for {widget, config} <- widgets do
-      Logger.debug("Widget and config: #{inspect {widget, config}}")
+      # Logger.debug("Widget and config: #{inspect {widget, config}}")
       params = get_widget_params(widget)
       extractors = case config["__extractors__"] do
         nil -> %{}
@@ -207,7 +207,7 @@ defmodule Serverboards.Project.Widget do
       end |> Map.new
     end
 
-    Logger.debug("Widgets: #{inspect configs, pretty: true}")
+    # Logger.debug("Widgets: #{inspect configs, pretty: true}")
     {:ok, configs}
   end
 end

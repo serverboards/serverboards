@@ -77,25 +77,30 @@ defmodule Serverboards.Query do
       {k, nv}
     end) |> Map.new
 
-    # Logger.debug("Processed context #{inspect context}")
+    # If not starts with SELECT, it is a simple text to use
+    if not String.starts_with?(String.upcase(query), "SELECT") do
+      {:ok, query}
+    else
+      # Logger.debug("Processed context #{inspect context}")
 
-    try do
-      with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
-        {:ok, %{ columns: headers, rows: rows}}
+      try do
+        with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
+          {:ok, %{ columns: headers, rows: rows}}
+        end
+      catch
+        any ->
+          {:error, any}
+      rescue
+        e in MatchError ->
+          Logger.error(inspect e)
+          {:error, :invalid_sql}
+        e in FunctionClauseError ->
+          Logger.error(inspect e)
+          {:error, :invalid_expression}
+        any ->
+          Logger.error(inspect any)
+          {:error, "Meditation code: `#{inspect any}`. Ask for help at the forums."}
       end
-    catch
-      any ->
-        {:error, any}
-    rescue
-      e in MatchError ->
-        Logger.error(inspect e)
-        {:error, :invalid_sql}
-      e in FunctionClauseError ->
-        Logger.error(inspect e)
-        {:error, :invalid_expression}
-      any ->
-        Logger.error(inspect any)
-        {:error, "Meditation code: `#{inspect any}`. Ask for help at the forums."}
     end
   end
 end
