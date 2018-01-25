@@ -157,8 +157,9 @@ class QueryServiceSelect extends React.Component{
                 <label>{i18n("Select an extractor:")}</label>
                 <div className="ui cards">
                   {props.known_extractors.map( e => (
-                    <div className={`ui narrow card ${selected.extractor == e.id ? "selected" : ""} with pointer`}
-                         onClick={() => this.handleSelectExtractor(e)}>
+                    <div key={e.id}
+                        className={`ui narrow card ${selected.extractor == e.id ? "selected" : ""} with pointer`}
+                        onClick={() => this.handleSelectExtractor(e)}>
                       <i className={`icon ${e.extra.icon || "database"}`}/>
                       <h3>{e.name}</h3>
                     </div>
