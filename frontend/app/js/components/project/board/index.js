@@ -99,7 +99,7 @@ class Board extends React.Component{
       for (const p of (template.params || [])){
         let k = p.name
         if (p.type=="query"){
-          config[k] = ""
+          config[k] = {loading: true}
           to_extract.push(w.uuid)
         }
         else

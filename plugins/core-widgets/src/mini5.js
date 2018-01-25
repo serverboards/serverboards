@@ -19,8 +19,12 @@ class Mini5 extends React.Component{
   getData(expr){
     if (!expr)
       return ""
+    if (expr.loading){
+      return (
+        <i className="ui loading spinner icon"/>
+      )
+    }
     if (expr.error){
-      console.error(expr.error)
       return (
         <span className="ui centered expand" title={String(expr.error)}>
           <i className="icon warning sign" style={{color: "yellow"}}/>
