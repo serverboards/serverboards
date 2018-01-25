@@ -1,10 +1,7 @@
 import React from 'react'
-import Loading from 'app/components/loading'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
-import Modal from 'app/components/modal'
 import Error from 'app/components/error'
-import HoldButton from 'app/components/holdbutton'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
@@ -16,11 +13,11 @@ import {MarkdownPreview} from 'react-marked-markdown'
 class EditWidget extends React.Component{
   constructor(props){
     super(props)
-    const config = this.props.widget.config || {}
+    const config = map_get(this.props, ["widget", "config"], {})
     this.state = {
       widget: undefined,
       extractors: config.__extractors__ || [],
-      config: this.props.widget.config,
+      config: config,
       postconfig: {},
       postconfig_timer: undefined,
       errors: [],
@@ -37,16 +34,6 @@ class EditWidget extends React.Component{
       config: {...state.config, "__extractors__": state.extractors},
     }
     this.props.saveWidget(data)
-  }
-  removeWidget(){
-    // console.log("remove", this.props.widget_id, this.props.widget.uuid)
-    rpc.call("dashboard.widget.remove", [this.props.widget.uuid]).then(() => {
-      set_modal(null)
-      Flash.success("Widet removed")
-    }).catch( e => {
-      console.error(e)
-      Flash.error("Could not remove widget.")
-    })
   }
   setFormData(config){
     this.delayConfigUpdate()
@@ -117,103 +104,84 @@ class EditWidget extends React.Component{
 
     if (template=="not-found"){
       return (
-        <Modal className="wide">
-          <div className="ui top serverboards secondary menu">
-            <h3 className="ui header">{this.props.widget_id}</h3>
-            <div className="right menu">
-              <HoldButton className="item" onHoldClick={this.removeWidget.bind(this)}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
-            </div>
-          </div>
-          <div className="ui text container">
-            <Error>
-              {i18n("Could not load information about this widget. Maybe the plugin was deleted?\n\nTry to install it again, or remove the widget.")}
-            </Error>
-          </div>
-        </Modal>
+        <div className="ui text container">
+          <Error>
+            {i18n("Could not load information about this widget. Maybe the plugin was deleted?\n\nTry to install it again, or remove the widget.")}
+          </Error>
+        </div>
       )
     }
 
-    const widget = this.props.widget
+    const widget = this.props.widget || {}
     const state = this.state
-    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1}
 
-    if (!template){
-      return (
-        <Modal>
-          <Loading>{i18n("Widget description")}</Loading>
-        </Modal>
-      )
-    }
-    if (template.traits && template.traits.minH){
+    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
+    if (typeof(template.traits) == "object"){
       layout={...layout, ...template.traits}
     }
-    layout = {...layout, ...widget.ui}
-    layout.width = layout.w
-    layout.height = layout.h
+    if (widget.ui)
+      layout = {...layout, ...widget.ui}
+    layout.h = Math.max(Math.min(layout.h, layout.maxH), layout.minH)
+    layout.w = Math.max(Math.min(layout.w, layout.maxW), layout.minW)
     const wwidth = layout.w*283
     const wheight = (layout.h*130)+((layout.h-1)*28)
+    // console.log(layout)
+
+
     return (
-      <Modal className="wide">
-        <div className="ui top serverboards secondary menu">
-          <h3 className="ui header">{template.name}</h3>
-          <div className="right menu">
-            <HoldButton className="item" onHoldClick={this.removeWidget.bind(this)}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
+      <div className="ui expand two column grid grey background" style={{margin: 0}}>
+        <div className="ui column with scroll with padding">
+          <div className="ui board">
+            <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
+              <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
+                <Widget
+                  key={widget.uuid}
+                  widget={widget.widget}
+                  config={state.postconfig}
+                  uuid={widget.uuid}
+                  project={this.props.project}
+                  layout={layout}
+                  />
+              </div>
+            </div>
+            {state.errors.map( e => (
+              <MarkdownPreview key={e} className="ui red bold text" value={String(e)}/>
+            ))}
           </div>
         </div>
-        <div className="ui expand two column grid grey background">
-          <div className="ui column with scroll with padding">
-            <div className="ui board">
-              <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
-                <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
-                  <Widget
-                    key={widget.uuid}
-                    widget={widget.widget}
-                    config={state.postconfig}
-                    uuid={widget.uuid}
-                    project={this.props.project}
-                    layout={layout}
-                    />
+        <div className="ui column">
+          <div className="ui round pane white background with padding and scroll">
+            <h2 className="ui centered header">{template.name}</h2>
+            <MarkdownPreview value={template.description}/>
+
+            <div className="ui form" ref="form">
+              {state.error ? (
+                <div className="ui message visible error">
+                  <div className="header">{i18n("Error")}</div>
+                  <p>{state.error}</p>
                 </div>
-              </div>
-              {state.errors.map( e => (
-                <MarkdownPreview key={e} className="ui red bold text" value={String(e)}/>
-              ))}
-            </div>
-          </div>
-          <div className="ui column">
-            <div className="ui round pane white background with padding and scroll">
-              <h2 className="ui centered header">{template.name}</h2>
-              <MarkdownPreview value={template.description}/>
+              ) : (
+                <div>
+                  <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
+                  {this.hasQuery() && (
+                    <div className="">
+                      <QueryServiceSelect
+                        extractors={state.extractors}
+                        onSetExtractors={this.handleSetExtractors.bind(this)}
+                        />
+                    </div>
+                  )}
 
-              <div className="ui form" ref="form">
-                {state.error ? (
-                  <div className="ui message visible error">
-                    <div className="header">{i18n("Error")}</div>
-                    <p>{state.error}</p>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
-                    {this.hasQuery() && (
-                      <div className="">
-                        <QueryServiceSelect
-                          extractors={state.extractors}
-                          onSetExtractors={this.handleSetExtractors.bind(this)}
-                          />
-                      </div>
-                    )}
-
-                    <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
-                    <button className="ui button yellow" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>
-                      {i18n("Update widget")}
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
+                  <button className="ui button teal" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>
+                    {this.props.saveLabel || i18n("Update widget")}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </Modal>
+      </div>
     )
   }
 }

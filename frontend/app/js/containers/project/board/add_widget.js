@@ -18,6 +18,7 @@ const Controller = connect({
   handlers: (dispatch, props) => ({
     addWidget(widget, dashboard, config){
       const data={ widget, dashboard, config }
+      console.log("Create widget", data)
 
       return rpc.call("dashboard.widget.create", data).then( () => {
         Flash.success(i18n(`Added widget *{name}* to dashboard`, {name: widget}))
