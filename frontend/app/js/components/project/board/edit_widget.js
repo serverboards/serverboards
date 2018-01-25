@@ -21,8 +21,9 @@ class EditWidget extends React.Component{
       widget: undefined,
       extractors: config.__extractors__ || [],
       config: this.props.widget.config,
-      postconfig: this.props.widget.config,
+      postconfig: {},
       postconfig_timer: undefined,
+      errors: [],
     }
     this.delayConfigUpdate()
   }
@@ -33,7 +34,7 @@ class EditWidget extends React.Component{
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: {...state.config, "__extractors__": state.extractors}
+      config: {...state.config, "__extractors__": state.extractors},
     }
     this.props.saveWidget(data)
   }
@@ -48,6 +49,7 @@ class EditWidget extends React.Component{
     })
   }
   setFormData(config){
+    this.delayConfigUpdate()
     this.setState({config})
   }
   delayConfigUpdate(){
@@ -81,15 +83,16 @@ class EditWidget extends React.Component{
           // console.error("Error getting postconfig: ", value, e)
           let postconfig = {...this.state.postconfig}
           postconfig[p.name] = {error: e}
-          this.setState({postconfig})
+          let errors = this.state.errors.concat(e)
+          this.setState({postconfig, errors})
         })
-        postconfig[p.name] = undefined
+        postconfig[p.name] = {loading: true}
       }
       else
         postconfig[p.name] = value
     }
 
-    this.setState({postconfig})
+    this.setState({postconfig, errors: []})
   }
   hasQuery(){
     return this.props.template && this.props.template.params && this.props.template.params.find( t => t.type == "query" ) != undefined
@@ -149,7 +152,6 @@ class EditWidget extends React.Component{
     layout.height = layout.h
     const wwidth = layout.w*283
     const wheight = (layout.h*130)+((layout.h-1)*28)
-
     return (
       <Modal className="wide">
         <div className="ui top serverboards secondary menu">
@@ -173,6 +175,9 @@ class EditWidget extends React.Component{
                     />
                 </div>
               </div>
+              {state.errors.map( e => (
+                <MarkdownPreview key={e} className="ui red bold text" value={String(e)}/>
+              ))}
             </div>
           </div>
           <div className="ui column">

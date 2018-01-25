@@ -90,9 +90,12 @@ defmodule Serverboards.Query do
       e in MatchError ->
         Logger.error(inspect e)
         {:error, :invalid_sql}
+      e in FunctionClauseError ->
+        Logger.error(inspect e)
+        {:error, :invalid_expression}
       any ->
         Logger.error(inspect any)
-        {:error, any}
+        {:error, "Meditation code: `#{inspect any}`. Ask for help at the forums."}
     end
   end
 end
