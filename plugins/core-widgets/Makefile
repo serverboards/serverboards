@@ -16,7 +16,8 @@ static/%.js: src/%.js
 	node_modules/.bin/rollup -c
 
 clean:
-	rm static/*.js
+	rm -rf static/*.js
+	rm -rf node_modules
 
 watch:
 	node_modules/.bin/rollup -w -c -m
