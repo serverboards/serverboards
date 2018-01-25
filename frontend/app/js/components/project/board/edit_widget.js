@@ -23,6 +23,7 @@ class AddWidget extends React.Component{
       postconfig: this.props.widget.config,
       postconfig_timer: undefined,
     }
+    this.delayConfigUpdate()
   }
   handleSaveChanges(){
     const state=this.state
@@ -31,7 +32,7 @@ class AddWidget extends React.Component{
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: {...state.config, __extractors__: state.extractors}
+      config: {...state.config, "__extractors__": state.extractors}
     }
     rpc.call("dashboard.widget.update", data).then( () => {
       set_modal(null)
@@ -48,22 +49,26 @@ class AddWidget extends React.Component{
     })
   }
   setFormData(config){
+    this.setState({config})
+  }
+  delayConfigUpdate(){
     let postconfig_timer = this.state.postconfig_timer
     if (postconfig_timer)
       clearTimeout(postconfig_timer)
     postconfig_timer = setTimeout( () => {
-      this.updateWidget(config)
-      this.setState({postconfig_timer: undefined})
+        this.fakeWidgetExtract()
+        this.setState({postconfig_timer: undefined})
       }, 300 )
-    this.setState({config, postconfig_timer})
+    this.setState({postconfig_timer})
   }
-  updateWidget(config){
+  fakeWidgetExtract(){
     // fake do as dashboard.widget.extract, to show at widget preview
     let postconfig = {}
     let context = {}
     for (const ext of this.state.extractors){
       context[ext.id]={ extractor: ext.extractor, service: ext.service, config: ext.config }
     }
+    const config = this.state.config
 
     for (const p of map_get(this.props, ["template","params"], [])){
       let value = config[p.name]
@@ -102,6 +107,7 @@ class AddWidget extends React.Component{
   }
   handleSetExtractors(extractors){
     this.setState({ extractors })
+    this.delayConfigUpdate()
   }
   render(){
     const template = this.props.template
