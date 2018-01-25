@@ -207,6 +207,10 @@ components:
     command: serverboards.core.ssh/daemon
     extractor: csv_extractor
     schema: csv_schema
+    params:
+      - name: path
+        label: Path to CSV files
+        type: text
 
   - name: SSH Test Command
     id: test-daemon

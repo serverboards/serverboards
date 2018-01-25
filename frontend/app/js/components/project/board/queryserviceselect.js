@@ -1,8 +1,13 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import ServiceSelect from 'app/containers/service/select'
+import GenericForm from 'app/components/genericform'
 
 const ID_LIST="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+const STEP_EXTRACTOR = Symbol('extractor')
+const STEP_SERVICE = Symbol('service')
+const STEP_PARAMS = Symbol('params')
 
 class QueryServiceSelect extends React.Component{
   constructor(props){
@@ -10,60 +15,90 @@ class QueryServiceSelect extends React.Component{
 
     const extractors = (props.extractors || []) // format is [{id, extractor, service}] // service is uuid
 
-    let last_service_id = 0
+    let max_service_id = 0
     for (let e of extractors){
       let eid = ID_LIST.indexOf(e.id)
-      if (eid >= last_service_id)
-        last_service_id = eid+1
+      if (eid >= max_service_id)
+        max_service_id = eid+1
     }
 
     this.state = {
-      openSelector: false,
-      selected: undefined,
-      extractors,
-      last_service_id, // TODO get max available
+      open_selector: false,
+      selected: {}, // {id, extractor, service, config}
+      extractors, // extractors, as a list of {id, extractor, service, config}
+      max_service_id, // max id
+      services_for_extractor: [], // List of services that can use the current extractor
+      step: STEP_EXTRACTOR, // Current wizard step
+      selection_ready: false, // Selected extractor is ready to accept to add or update
+
+      extractor: undefined, // current extractor full definition
+    }
+  }
+  handleOpenSelector(){
+    this.handleToggleSelector(true)
+  }
+  handleCloseSelector(){
+    this.handleToggleSelector(false)
+  }
+  handleToggleSelector(open_selector){
+    if (open_selector === undefined){
+      open_selector = !this.state.open_selector
+    }
+    this.setState({
+      open_selector,
+      selected: {},
       extractor: undefined,
-      services_for_extractor: [],
-    }
+      params: {},
+      selection_ready: false,
+      step: STEP_EXTRACTOR
+    })
   }
-  handleToggleSelector(){
-    this.setState({openSelector:!this.state.openSelector, selected: undefined, extractor: undefined})
+  handleChangeExtractor(selected){
+    this.setState({open_selector: true, selected, step: STEP_EXTRACTOR})
   }
-  handleChangeService(id_uuid){
-    this.setState({openSelector: true, selected: id_uuid})
-  }
-  handleSelectService(extractor, service){
-    let {extractors, selected, last_service_id} = this.state
-    if (this.state.selected){ // replace selected
-      extractors = extractors.map( s => {
-        if (s.id == selected.id)
-          return {id: s.id, service, extractor}
-        return s
-      })
-      selected={id: selected.id, service, extractor}
+  handleSelectService(service){
+    console.log("Select service", service)
+    const state = this.state
+    const selected = {...this.state.selected, service: service}
+    if (state.extractor.extra.params){
+      this.setState({selected, step: STEP_PARAMS})
+    } else {
+      this.setState({selected, selection_ready: true})
     }
-    else{ // append to end
-      extractors = extractors.concat( {
-        id: ID_LIST[last_service_id],
-        service,
-        extractor
-      } )
-      last_service_id+=1
-      this.setState({extractor: undefined})
-    }
-    this.setState({extractors, last_service_id, selected})
-    this.props.onSetExtractors(extractors)
   }
   handleSelectExtractor(extractor){
     const service_type = extractor.extra.service
+    const selected = {...this.state.selected, extractor: extractor.id}
     if (service_type){
       const services_for_extractor = this.props.all_services.filter( s => s.type == service_type )
+      this.setState({extractor, services_for_extractor, selected, step: STEP_SERVICE})
+    } else if (extractor.extra.params){
+      this.setState({extractor, selected, step: STEP_PARAMS})
+    } else {
+      this.setState({selected, selection_ready: true})
+    }
+  }
+  handleAcceptExtractor(){
+    const state = this.state
+    let {selected, max_service_id, extractors} = state
+    if (selected.id){ // update
+      extractors = extractors.map( e => {
+        if (e.id == selected.id)
+          return selected
+        else
+          return e
+      })
+    } else { // new
+      selected = {...selected, id: ID_LIST[max_service_id]}
+      extractors = extractors.concat(selected)
+      max_service_id+=1
+    }
 
-      this.setState({extractor: extractor.id, services_for_extractor})
-    }
-    else{
-      this.handleSelectService( extractor.id, null )
-    }
+    this.setState({extractors, max_service_id, open_selector: false, selected: {}})
+  }
+  updateExtractorConfig(config){
+    const selected = {...this.state.selected, config}
+    this.setState({selected, selection_ready: true})
   }
   getServiceName(uuid){
     if (!uuid)
@@ -82,7 +117,7 @@ class QueryServiceSelect extends React.Component{
   render(){
     const props = this.props
     const state = this.state
-    const selected = state.openSelector && state.selected || {}
+    const selected = state.open_selector && state.selected || {}
     const extractors = this.state.extractors
     return (
       <div>
@@ -90,34 +125,29 @@ class QueryServiceSelect extends React.Component{
         <div className="ui service selector list" style={{marginBottom: 20}}>
           {(extractors || []).map( s => (
             <a className={`ui square basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
-              onClick={() => this.handleChangeService(s)}>{s.id}: {this.getExtractorName(s.extractor)} {this.getServiceName(s.service)}</a>
+              onClick={() => this.handleChangeExtractor(s)}>{s.id}: {this.getExtractorName(s.extractor)} {this.getServiceName(s.service)}</a>
           ))}
-          {state.openSelector ? (
-            <a className="ui dashed square basic red button"
-               onClick={this.handleToggleSelector.bind(this)}>
-              {i18n("hide")}
+          {(!state.open_selector || state.selected.id) ? (
+            <a className="ui dashed square basic teal button"
+               onClick={this.handleOpenSelector.bind(this)}>
+              +
             </a>
           ) : (
-            <a className="ui dashed square basic teal button"
-               onClick={this.handleToggleSelector.bind(this)}>
+            <a className="ui dashed square teal button">
               +
             </a>
           )}
         </div>
-        {state.openSelector && (
+        {state.open_selector && (
           <div>
             <hr/>
-            {state.extractor ? (
+            <a className="ui button" style={{width: "100%"}}
+               onClick={this.handleCloseSelector.bind(this)}>
               <div>
-                <label>{i18n("Select a service to extract data from.")}</label>
-                <ServiceSelect
-                  project={true}
-                  onSelect={(s) => this.handleSelectService(this.state.extractor, s.uuid)}
-                  selected={selected.service}
-                  services={state.services_for_extractor}
-                />
+                <i className="ui chevron up icon"/>
               </div>
-            ) : (
+            </a>
+            {(state.step == STEP_EXTRACTOR) ? (
               <div>
                 <label>{i18n("Select an extractor:")}</label>
                 <div className="ui cards">
@@ -129,6 +159,39 @@ class QueryServiceSelect extends React.Component{
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : (state.step == STEP_SERVICE) ? (
+              <div>
+                <label>{i18n("Select a service to extract data from.")}</label>
+                <ServiceSelect
+                  project={true}
+                  onSelect={(s) => this.handleSelectService(s.uuid)}
+                  selected={selected.service}
+                  services={state.services_for_extractor}
+                />
+              </div>
+            ) : (state.step == STEP_PARAMS) ? (
+              <div>
+                <GenericForm
+                  fields={state.extractor.extra.params}
+                  data={state.selected.config}
+                  updateForm={this.updateExtractorConfig.bind(this)}
+                  />
+              </div>
+            ) : (
+              <span>Unknown step {state.step}.</span>
+            )}
+            {state.selection_ready ? (
+              <div className="ui right aligned">
+                <a className="ui button teal" onClick={this.handleAcceptExtractor.bind(this)}>
+                  {i18n("Accept")}
+                </a>
+              </div>
+            ) : (
+              <div className="ui right aligned">
+                <a className="ui button disabled">
+                  {i18n("Accept")}
+                </a>
               </div>
             )}
             <hr/>
