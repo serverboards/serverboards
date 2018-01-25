@@ -125,8 +125,12 @@ class QueryServiceSelect extends React.Component{
         <label className="ui bold text">{i18n("Add extractors to apply Service Queries on this widget")}</label>
         <div className="ui service selector list" style={{marginBottom: 20}}>
           {(extractors || []).map( s => (
-            <a className={`ui square basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
-              onClick={() => this.handleChangeExtractor(s)}>{s.id}: {this.getExtractorName(s.extractor)} {this.getServiceName(s.service)}</a>
+            <a key={s.id}
+              className={`ui square basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
+              onClick={() => this.handleChangeExtractor(s)}>
+              {s.id}: {this.getExtractorName(s.extractor)}
+              {this.getServiceName(s.service)}
+            </a>
           ))}
           {(!state.open_selector || state.selected.id) ? (
             <a className="ui dashed square basic teal button"

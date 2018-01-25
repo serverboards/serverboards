@@ -179,8 +179,14 @@ defmodule Serverboards.Project.Widget do
         nil -> %{}
         other ->
           Enum.map(other, fn
-            %{"id" => id, "extractor" => extractor, "service" => service} ->
-              {id, %{ extractor: extractor, service: service, user: me}}
+            o ->
+              %{"id" => id, "extractor" => extractor, "service" => service}  = o
+              {id, %{
+                extractor: extractor,
+                service: service,
+                user: me.email,
+                config: Map.get(o, "config", %{})
+              }}
           end) |> Map.new
       end
 

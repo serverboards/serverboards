@@ -77,7 +77,7 @@ defmodule Serverboards.Query do
       {k, nv}
     end) |> Map.new
 
-    Logger.debug("Processed context #{inspect context}")
+    # Logger.debug("Processed context #{inspect context}")
 
     try do
       with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
@@ -91,6 +91,7 @@ defmodule Serverboards.Query do
         Logger.error(inspect e)
         {:error, :invalid_sql}
       any ->
+        Logger.error(inspect any)
         {:error, any}
     end
   end

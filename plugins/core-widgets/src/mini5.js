@@ -22,7 +22,7 @@ class Mini5 extends React.Component{
     if (expr.error){
       console.error(expr.error)
       return (
-        <span className="ui centered expand" data-tooltip={String(expr.error)}>
+        <span className="ui centered expand" title={String(expr.error)}>
           <i className="icon warning sign" style={{color: "yellow"}}/>
         </span>
       )
