@@ -11,8 +11,9 @@ import i18n from 'app/utils/i18n'
 import QueryServiceSelect from 'app/containers/project/board/queryserviceselect'
 import Widget from 'app/containers/project/board/widget'
 import {map_get} from 'app/utils'
+import {MarkdownPreview} from 'react-marked-markdown'
 
-class AddWidget extends React.Component{
+class EditWidget extends React.Component{
   constructor(props){
     super(props)
     const config = this.props.widget.config || {}
@@ -34,9 +35,7 @@ class AddWidget extends React.Component{
       project: this.props.project,
       config: {...state.config, "__extractors__": state.extractors}
     }
-    rpc.call("dashboard.widget.update", data).then( () => {
-      set_modal(null)
-    })
+    this.props.saveWidget(data)
   }
   removeWidget(){
     // console.log("remove", this.props.widget_id, this.props.widget.uuid)
@@ -178,6 +177,9 @@ class AddWidget extends React.Component{
           </div>
           <div className="ui column">
             <div className="ui round pane white background with padding and scroll">
+              <h2 className="ui centered header">{template.name}</h2>
+              <MarkdownPreview value={template.description}/>
+
               <div className="ui form" ref="form">
                 {state.error ? (
                   <div className="ui message visible error">
@@ -211,4 +213,4 @@ class AddWidget extends React.Component{
   }
 }
 
-export default AddWidget
+export default EditWidget
