@@ -22,6 +22,7 @@ components:
     hints:
       minW: 1
       minH: 2
+      nocss: true
     params:
       - label: Text in markdown
         name: text
