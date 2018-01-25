@@ -180,10 +180,9 @@ defmodule Serverboards.Project.Widget do
         other ->
           Enum.map(other, fn
             o ->
-              %{"id" => id, "extractor" => extractor, "service" => service}  = o
-              {id, %{
-                extractor: extractor,
-                service: service,
+              {o["id"], %{
+                extractor: o["extractor"],
+                service: o["service"],
                 user: me.email,
                 config: Map.get(o, "config", %{})
               }}
