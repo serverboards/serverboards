@@ -204,13 +204,21 @@ components:
     service: serverboards.core.ssh/ssh
     name: Remote CSV File
     description: Access to a CSV file stored in an SSH accessible server
-    command: serverboards.core.ssh/daemon
+    command: serverboards.core.ssh/extractor.daemon
     extractor: csv_extractor
     schema: csv_schema
     params:
       - name: path
         label: Path to CSV files
         type: text
+
+  - id: extractor.daemon
+    type: cmd
+    strategy: singleton
+    timeout: 5s
+    perms: plugin
+    name: SSH extractor
+    command: ./serverboards-ssh-extractor.py
 
   - name: SSH Test Command
     id: test-daemon
