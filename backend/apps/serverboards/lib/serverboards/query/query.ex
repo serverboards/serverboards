@@ -22,7 +22,7 @@ defmodule Serverboards.Query do
   def execute(config, table, quals, columns) do
     extractor = config.extractor
 
-    Logger.debug("Use extractor #{inspect extractor}")
+  # Logger.debug("Use extractor #{inspect extractor}")
     [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
 
     case Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
@@ -36,7 +36,7 @@ defmodule Serverboards.Query do
   Returns the list of tables on this extractor
   """
   def schema(config) do
-    Logger.debug("schema #{inspect config}")
+  # Logger.debug("schema #{inspect config}")
     extractor = config.extractor
     case Serverboards.Plugin.Registry.filter_component(id: extractor) do
       [component] ->
