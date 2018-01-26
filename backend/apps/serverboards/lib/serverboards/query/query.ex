@@ -79,13 +79,13 @@ defmodule Serverboards.Query do
 
     # If not starts with SELECT, it is a simple text to use
     if not String.starts_with?(String.upcase(query), "SELECT") do
-      {:ok, query}
+      {:ok, %{ columns: "?VALUE?", rows: [[query]]} }
     else
       # Logger.debug("Processed context #{inspect context}")
 
       try do
-        with {:ok, %{ headers: headers, rows: rows}} <- ExoSQL.query(query, context) do
-          {:ok, %{ columns: headers, rows: rows}}
+        with {:ok, %{ columns: columns, rows: rows}} <- ExoSQL.query(query, context) do
+          {:ok, %{ columns: columns, rows: rows}}
         end
       catch
         any ->
