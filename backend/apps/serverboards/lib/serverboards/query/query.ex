@@ -27,7 +27,7 @@ defmodule Serverboards.Query do
 
     case Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
       {:ok, result} ->
-        {:ok, %{ headers: result["columns"], rows: result["rows"] }}
+        {:ok, %{ columns: result["columns"], rows: result["rows"] }}
       other -> other
     end
   end
@@ -61,7 +61,7 @@ defmodule Serverboards.Query do
               %{ "name" => name } -> name
               other when is_binary(other) -> other
             end)
-            {:ok, %{ headers: columns }}
+            {:ok, %{ columns: columns }}
 
           other -> other
         end
@@ -97,9 +97,9 @@ defmodule Serverboards.Query do
         e in FunctionClauseError ->
           Logger.error(inspect e)
           {:error, :invalid_expression}
-        any ->
-          Logger.error(inspect any)
-          {:error, "Meditation code: `#{inspect any}`. Ask for help at the forums."}
+        exception ->
+          Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
+          {:error, "Meditation code: `#{inspect exception}`. Ask for help at the forums."}
       end
     end
   end
