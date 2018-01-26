@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.QueryTest do
   use ExUnit.Case
-	#@moduletag :capture_log
+	@moduletag :capture_log
 
   alias Serverboards.Query
   setup do
