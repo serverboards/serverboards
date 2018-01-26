@@ -164,50 +164,47 @@ defmodule Serverboards.Project.Widget do
   @doc ~S"""
   Extracts data for the widget using the proper extractors.
   """
-  def extract(uuids, me) do
+  def extract(uuid, me) do
     import Ecto.Query
 
-    widgets = Repo.all(
+    {widget, config} = Repo.one(
       from w in Model.Widget,
-      where: w.uuid in ^uuids,
+      where: w.uuid == ^uuid,
       select: {w.widget, w.config}
     )
-    configs = for {widget, config} <- widgets do
-      # Logger.debug("Widget and config: #{inspect {widget, config}}")
-      params = get_widget_params(widget)
-      extractors = case config["__extractors__"] do
-        nil -> %{}
-        other ->
-          Enum.map(other, fn
-            o ->
-              {o["id"], %{
-                extractor: o["extractor"],
-                service: o["service"],
-                user: me.email,
-                config: Map.get(o, "config", %{})
-              }}
-          end) |> Map.new
-      end
-
-      for p <- params do
-        # Logger.debug("Param #{inspect p}, from #{inspect config}")
-        name = p["name"]
-        type = p["type"]
-        case type do
-          "query" ->
-            case Serverboards.Query.query(config[name], extractors) do
-              {:ok, value} ->
-                {name, value}
-              {:error, error} ->
-                {name, %{error: error}}
-            end
-          other ->
-            {name, config[name]}
-        end
-      end |> Map.new
+    # Logger.debug("Widget and config: #{inspect {widget, config}}")
+    params = get_widget_params(widget)
+    extractors = case config["__extractors__"] do
+      nil -> %{}
+      other ->
+        Enum.map(other, fn
+          o ->
+            {o["id"], %{
+              extractor: o["extractor"],
+              service: o["service"],
+              user: me.email,
+              config: Map.get(o, "config", %{})
+            }}
+        end) |> Map.new
     end
 
-    # Logger.debug("Widgets: #{inspect configs, pretty: true}")
-    {:ok, configs}
+    result = for p <- params do
+      # Logger.debug("Param #{inspect p}, from #{inspect config}")
+      name = p["name"]
+      type = p["type"]
+      case type do
+        "query" ->
+          case Serverboards.Query.query(config[name], extractors) do
+            {:ok, value} ->
+              {name, value}
+            {:error, error} ->
+              {name, %{error: error}}
+          end
+        other ->
+          {name, config[name]}
+      end
+    end |> Map.new
+
+    {:ok, result}
   end
 end

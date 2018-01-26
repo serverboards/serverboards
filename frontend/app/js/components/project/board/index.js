@@ -90,7 +90,7 @@ class Board extends React.Component{
       this.setState({update_realtime_timer_id})
     }
   }
-  updateConfigs(widgets, update_state){ // update state is use ONLY to get the state first time (constructor)
+  updateConfigs(widgets, update_state){ // update_state==false is use ONLY to get the state first time (constructor)
     let configs = {}
     let to_extract = []
     for (const w of widgets){
@@ -113,12 +113,12 @@ class Board extends React.Component{
     // console.log("To extract ", to_extract)
     if (to_extract.length > 0){
       to_extract = Array.from(new Set(to_extract)) // remove dups
-      rpc.call("dashboard.widget.extract", to_extract).then( results => {
-        configs = {...this.state.configs}
-        for (let i in results){
-            configs[to_extract[i]] = results[i]
-        }
-        this.setState({configs})
+      to_extract.map( uuid => {
+        rpc.call("dashboard.widget.extract", uuid).then( result => {
+          configs = {...this.state.configs}
+          configs[uuid] = result
+          this.setState({configs})
+        })
       })
     }
     this.setState({configs})
