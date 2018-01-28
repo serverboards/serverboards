@@ -12,6 +12,7 @@ $brown: #a5673f
 $grey: #767676
 $lightgrey: #d6d6d6
 $white: #fff
+$black: #222
 
 $hover-lighten: 3.0
 
@@ -42,6 +43,35 @@ $hover-lighten: 3.0
     color:  $grey
   &.lightgrey
     color:  $lightgrey
+
+=text-colors-important
+  &.red
+    color:  $red !important
+  &.orange
+    color:  $orange !important
+  &.yellow
+    color:  $yellow !important
+  &.olive
+    color:  $olive !important
+  &.green
+    color:  $green !important
+  &.teal
+    color:  $teal !important
+  &.blue
+    color:  $blue !important
+  &.violet
+    color:  $violet !important
+  &.purple
+    color:  $purple !important
+  &.pink
+    color:  $pink !important
+  &.brown
+    color:  $brown !important
+  &.grey
+    color:  $grey !important
+  &.lightgrey
+    color:  $lightgrey !important
+
 
 =background-colors
   &.white
@@ -74,6 +104,53 @@ $hover-lighten: 3.0
     background: $lightgrey
   &.lightgrey
     background:  $lightgrey
+
+=background-colors-with-text
+  &.white
+    background: $white
+    color: $black
+  &.red
+    background: $red
+    color: $white
+  &.orange
+    background: $orange
+    color: $white
+  &.yellow
+    background: $yellow
+    color: $black
+  &.olive
+    background: $olive
+    color: $black
+  &.green
+    background: $green
+    color: $black
+  &.teal
+    background: $teal
+    color: $white
+  &.blue
+    background: $blue
+    color: $white
+  &.violet
+    background: $violet
+    color: $white
+  &.purple
+    background: $purple
+    color: $white
+  &.pink
+    background: $pink
+    color: $white
+  &.brown
+    background: $brown
+    color: $white
+  &.grey
+    background: $grey
+    color: $white
+  &.light.grey
+    background: $lightgrey
+    color: $black
+  &.lightgrey
+    background:  $lightgrey
+    color: $black
 
 =background-colors-hover
   +background-colors

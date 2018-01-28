@@ -1,0 +1,24 @@
+name: test.extractor
+id: test.extractor
+description: Example extractor plugin
+
+components:
+  - id: daemon
+    type: cmd
+    command: ./extractor.py
+    type: singleton
+    timeout: 1m
+
+  - id: extractor
+    type: extractor
+    name: Example extractor
+    command: test.extractor/daemon
+    extractor: extractor
+    schema: schema
+
+  - id: widget
+    type: widget
+    params:
+      - name: color
+      - name: q
+        type: query

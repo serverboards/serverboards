@@ -1,142 +1,189 @@
 import React from 'react'
-import Loading from 'app/components/loading'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
-import Modal from 'app/components/modal'
 import Error from 'app/components/error'
-import HoldButton from 'app/components/holdbutton'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
 import i18n from 'app/utils/i18n'
+import QueryServiceSelect from 'app/containers/project/board/queryserviceselect'
 import Widget from 'app/containers/project/board/widget'
+import {map_get} from 'app/utils'
+import {MarkdownPreview} from 'react-marked-markdown'
 
-const AddWidget = React.createClass({
-  getInitialState(){
-    return {
+class EditWidget extends React.Component{
+  constructor(props){
+    super(props)
+    const config = map_get(this.props, ["widget", "config"], {})
+    this.state = {
       widget: undefined,
-      config: this.props.widget.config,
-      delayed_config: this.props.widget.config,
-      delayed_config_timer: undefined,
+      extractors: config.__extractors__ || [],
+      config: config,
+      postconfig: {},
+      postconfig_timer: undefined,
+      errors: [],
     }
-  },
-  updateWidget(){
+    this.delayConfigUpdate()
+  }
+  handleSaveChanges(){
     const state=this.state
     const props=this.props
     const data={
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: state.config
+      config: {...state.config, "__extractors__": state.extractors},
     }
-    rpc.call("dashboard.widget.update", data).then( () => {
-      set_modal(null)
-    })
-  },
-  removeWidget(){
-    // console.log("remove", this.props.widget_id, this.props.widget.uuid)
-    rpc.call("dashboard.widget.remove", [this.props.widget.uuid]).then(() => {
-      set_modal(null)
-      Flash.success("Widet removed")
-    }).catch( e => {
-      console.error(e)
-      Flash.error("Could not remove widget.")
-    })
-  },
+    this.props.saveWidget(data)
+  }
   setFormData(config){
-    let delayed_config_timer = this.state.delayed_config_timer
-    if (delayed_config_timer)
-      clearTimeout(delayed_config_timer)
-    delayed_config_timer = setTimeout(
-      () => this.setState({delayed_config: config, delayed_config_timer: undefined}),
-      300 )
-    this.setState({config, delayed_config_timer})
-  },
-  render(){
-    const template=this.props.template
-    const widget=this.props.widget
-    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1}
+    this.delayConfigUpdate()
+    this.setState({config})
+  }
+  delayConfigUpdate(){
+    let postconfig_timer = this.state.postconfig_timer
+    if (postconfig_timer)
+      clearTimeout(postconfig_timer)
+    postconfig_timer = setTimeout( () => {
+        this.fakeWidgetExtract()
+        this.setState({postconfig_timer: undefined})
+      }, 300 )
+    this.setState({postconfig_timer})
+  }
+  fakeWidgetExtract(){
+    // fake do as dashboard.widget.extract, to show at widget preview
+    let postconfig = {}
+    let context = {}
+    for (const ext of this.state.extractors){
+      context[ext.id]={ extractor: ext.extractor, service: ext.service, config: ext.config }
+    }
+    const config = this.state.config
 
-    if (!template){
-      return (
-        <Modal>
-          <Loading>{i18n("Widget description")}</Loading>
-        </Modal>
-      )
+    for (const p of map_get(this.props, ["template","params"], [])){
+      let value = config[p.name]
+      if (p.type=="query"){
+        value = rpc.call("query.query", {query: value, context}).then( res => {
+          let postconfig = {...this.state.postconfig}
+          postconfig[p.name] = res
+          // console.log("Set postconfig: [%o] = %o ", p.name, res)
+          this.setState({postconfig})
+        }).catch( e => {
+          // console.error("Error getting postconfig: ", value, e)
+          let postconfig = {...this.state.postconfig}
+          postconfig[p.name] = {error: e}
+          let errors = this.state.errors.concat(e)
+          this.setState({postconfig, errors})
+        })
+        postconfig[p.name] = {loading: true}
+      }
+      else
+        postconfig[p.name] = value
     }
-    if (template.traits && template.traits.minH){
-      layout={...layout, ...template.traits}
-    }
-    layout.width = layout.w
-    layout.height = layout.h
+
+    this.setState({postconfig, errors: []})
+  }
+  hasQuery(){
+    return this.props.template && this.props.template.params && this.props.template.params.find( t => t.type == "query" ) != undefined
+  }
+  updateQueryParams(params){
+    if (!params)
+      return
+    return params.map( p => {
+      if (p.type=='query'){
+        return {...p, type: "textarea"} // TODO data for autocomplete and so on.
+      }
+      return p
+    })
+  }
+  handleSetExtractors(extractors){
+    this.setState({ extractors })
+    this.delayConfigUpdate()
+  }
+  render(){
+    const template = this.props.template
+
 
     if (template=="not-found"){
       return (
-        <Modal className="wide">
-          <div className="ui top serverboards secondary menu">
-            <h3 className="ui header">{this.props.widget_id}</h3>
-            <div className="right menu">
-              <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
-            </div>
-          </div>
-          <div className="ui text container">
-            <Error>
-              {i18n("Could not load information about this widget. Maybe the plugin was deleted?\n\nTry to install it again, or remove the widget.")}
-            </Error>
-          </div>
-        </Modal>
+        <div className="ui text container">
+          <Error>
+            {i18n("Could not load information about this widget. Maybe the plugin was deleted?\n\nTry to install it again, or remove the widget.")}
+          </Error>
+        </div>
       )
     }
+
+    const widget = this.props.widget || {}
+    const state = this.state
+
+    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
+    if (typeof(template.traits) == "object"){
+      layout={...layout, ...template.traits}
+    }
+    if (widget.ui)
+      layout = {...layout, ...widget.ui}
+    layout.h = Math.max(Math.min(layout.h, layout.maxH), layout.minH)
+    layout.w = Math.max(Math.min(layout.w, layout.maxW), layout.minW)
+    const wwidth = layout.w*283
+    const wheight = (layout.h*130)+((layout.h-1)*28)
+    // console.log(layout)
+
+
     return (
-      <Modal className="wide">
-        <div className="ui top serverboards secondary menu">
-          <h3 className="ui header">{template.name}</h3>
-          <div className="right menu">
-            <HoldButton className="item" onHoldClick={this.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
+      <div className="ui expand two column grid grey background" style={{margin: 0}}>
+        <div className="ui column with scroll with padding">
+          <div className="ui board">
+            <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
+              <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
+                <Widget
+                  key={widget.uuid}
+                  widget={widget.widget}
+                  config={state.postconfig}
+                  uuid={widget.uuid}
+                  project={this.props.project}
+                  layout={layout}
+                  />
+              </div>
+            </div>
+            {state.errors.map( e => (
+              <MarkdownPreview key={e} className="ui red bold text" value={String(e)}/>
+            ))}
           </div>
         </div>
-        <div className="ui expand two column grid grey background">
-          <div className="ui column with scroll">
-            <div className="ui board">
-              <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
-                <div className="ui card" style={{maxHeight: 280*layout.h, maxWidth: 240*layout.w, minHeight: 280*layout.h, minWidth: 240*layout.w }}>
-                  <Widget
-                    key={widget.uuid}
-                    widget={widget.widget}
-                    config={this.state.delayed_config}
-                    uuid={widget.uuid}
-                    project={this.props.project}
-                    layout={layout}
-                    />
+        <div className="ui column">
+          <div className="ui round pane white background with padding and scroll">
+            <h2 className="ui centered header">{template.name}</h2>
+            <MarkdownPreview value={template.description}/>
+
+            <div className="ui form" ref="form">
+              {state.error ? (
+                <div className="ui message visible error">
+                  <div className="header">{i18n("Error")}</div>
+                  <p>{state.error}</p>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className="ui column">
-            <div className="ui round pane white background with padding and scroll">
-              <div className="ui form" ref="form">
-                {this.state.error ? (
-                  <div className="ui message visible error">
-                    <div className="header">{i18n("Error")}</div>
-                    <p>{this.state.error}</p>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="ui meta" style={{marginBottom:30}}>{template.description}</div>
-                    {template.params && (
-                      <GenericForm fields={template.params} data={this.state.config} updateForm={this.setFormData}/>
-                    )}
-                    <button className="ui button yellow" style={{marginTop:20}} onClick={this.updateWidget}>
-                      {i18n("Update widget")}
-                    </button>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <div>
+                  <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
+                  {this.hasQuery() && (
+                    <div className="">
+                      <QueryServiceSelect
+                        extractors={state.extractors}
+                        onSetExtractors={this.handleSetExtractors.bind(this)}
+                        />
+                    </div>
+                  )}
+
+                  <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
+                  <button className="ui button teal" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>
+                    {this.props.saveLabel || i18n("Update widget")}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </Modal>
+      </div>
     )
   }
-})
+}
 
-export default AddWidget
+export default EditWidget

@@ -1,3 +1,4 @@
+@import colors
 @import "graphs/colors.sass"
 
 .ui.board
@@ -38,25 +39,28 @@
 
   .ui.cards > .card
     box-shadow: none !important
-    border: 1px solid #eaeeed !important
     color: #596770
-    border-radius: 6px !important
     margin: 0
+    background: none
+    box-shadow: none
+    .ui.top.mini.menu
+      .header
+        color: $grey
     > div
       display: flex
       flex-direction: column
       align-items: stretch
       height: 100%
       overflow: hidden
-      .header, h1, h2, h3, h4
-        color: $grey
       > .ui.top.menu
         border: 0
         box-shadow: none
-        //background: #eee
-        min-height: 35px
-        max-height: 35px
+        background: none
+        min-height: 28px
+        max-height: 28px
         cursor: move
+        margin: 0
+        display: flex
         > .item
           color: #02a7a1
           padding: 5px 10px
@@ -64,18 +68,32 @@
           width: 30px
           font-size: 15px
           visibility: hidden
+          align-self: end
           &:before
             width: 0
         > .ui.header
           text-transform: uppercase
           vertical-align: middle
-          padding: 10px 0px 9px 15px
+          padding: 8px 0px 8px 15px
           font-weight: normal
+          font-size: 12px
           margin: 0
           min-width: calc( 100% - 60px )
       > div:nth-child(2)
         flex-grow: 1
         position: relative
+      > div.card
+        background: white
+        border: 1px solid #eaeeed !important
+        border-radius: 6px !important
+        .content
+          height: 100%
+        +background-colors-with-text
+        .inverted.icon
+          background-color: white !important
+          +text-colors-important
+
+
       .content
         padding: 5px
 

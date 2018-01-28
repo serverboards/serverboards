@@ -111,16 +111,23 @@ export function do_screen(id, el, data, context){
 // Allow to be added asynchronously
 let waiting_for_widgets={}
 
-export function add_widget(id, fn){
-  widgets[id]=fn
+export function add_widget(id, fn, options = {}){
+  widgets[id]={fn, options}
   if (id in waiting_for_widgets)
-    for (let {accept, el, data, context} of waiting_for_widgets[id])
-      accept(fn(el, data, context))
+    for (let {accept, el, data, context} of waiting_for_widgets[id]){
+      if (options.react){
+        accept({component: fn})
+      }
+      else{
+        accept({umount: fn(el, data, context)})
+      }
+    }
   delete waiting_for_widgets[id]
 }
 
 export function do_widget(id, el, data, context){
-  if (!(id in widgets)){
+  let widget = widgets[id]
+  if (!widget){
     let p = new Promise(function(accept, reject){
       waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data, context})
       setTimeout(function(){
@@ -132,7 +139,10 @@ export function do_widget(id, el, data, context){
     return p
   }
   try{
-    return Promise.resolve(widgets[id](el, data, context))
+    if (widget.options.react){
+      return Promise.resolve({component: widget.fn})
+    }
+    return Promise.resolve({umount: widget.fn(el, data, context)})
   } catch (e){
     return Promise.reject(e)
   }

@@ -31,7 +31,7 @@ export function clear_issues_count(){
 
 
 export function get_issues_count_at_project_since(project, timestamp){
-  console.log("Get issues count %o %o", project, timestamp)
+  // console.log("Get issues count %o %o", project, timestamp)
   return rpc
     .call("issues.list", {"return": "count", project, since: timestamp})
     .then( i => ({
@@ -40,8 +40,7 @@ export function get_issues_count_at_project_since(project, timestamp){
         project,
         count: i,
         timestamp: timestamp
-      },
-      _: console.log("Got %o issues at project %o since %o", i, project, timestamp)
+      }
     }))
 }
 

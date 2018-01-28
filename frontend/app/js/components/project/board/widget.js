@@ -11,36 +11,20 @@ const Widget = React.createClass({
   getInitialState(){
     return {
       title: undefined,
-      error: false
+      error: false,
+      component: undefined,
+      context: {}
     }
   },
   setTitle(title){
     this.setState({title})
-  },
-  find_service(uuid){
-    //console.log("Find service %o in %o", uuid, this.props.services.map( (s) => s.uuid ))
-    let service = this.props.services.find( (s) => s.uuid == uuid )
-    //console.log("Got %o", service)
-    if (!service)
-      return {uuid: uuid, error: i18n("Not at current project, cant load full data.")}
-    return service
-  },
-  decorate_config(config){
-    config = merge(config, {project: this.props.project})
-    const params = this.props.template.params || []
-    for(let p of params){
-      if (p.type=="service" && config[p.name]){
-        const service = this.find_service(config[p.name])
-        config[p.name]=service
-      }
-    }
-    return config
   },
   do_widget(props){
     let self=this
     let plugin_component=props.template.id.split('/')
     const context={
       setTitle: self.setTitle,
+      setClass(klass){ self.setState({klass}) },
       setError(err){
         console.error(err)
         self.setState({error: err})
@@ -58,10 +42,13 @@ const Widget = React.createClass({
     return plugin.do_widget(
       props.widget,
       this.refs.el,
-      this.decorate_config(props.config),
+      props.config,
       context
-    ).then( (umount) => {
-      this.umount=umount
+    ).then( ({umount, component}) => {
+      if (umount)
+        this.umount=umount
+      if (react)
+        this.setState({component, context})
     } )
   },
   componentDidMount(){
@@ -95,6 +82,7 @@ const Widget = React.createClass({
     const config = this.props.config || {}
     const widget = this.props.template || {}
     const state = this.state
+    const Component = this.state.component
 
     return (
       <div>
@@ -108,17 +96,21 @@ const Widget = React.createClass({
             </a>
           </Restricted>
         </div>
-        {this.state.error ? (
-          <section ref="error" className="plugin error">
-            <div><i className="ui huge warning sign red icon"/></div>
-            <div className="ui text red bold">{i18n("Error loading widget")}</div>
-            <div className="ui meta">{widget.name}</div>
-            <div className="ui meta">{this.props.widget}</div>
-            <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
-          </section>
-        ) : (
-          <div ref="el"/>
-        )}
+        <div className={state.klass || "white card"}>
+          {this.state.error ? (
+            <section ref="error" className="plugin error">
+              <div><i className="ui huge warning sign red icon"/></div>
+              <div className="ui text red bold">{i18n("Error loading widget")}</div>
+              <div className="ui meta">{widget.name}</div>
+              <div className="ui meta">{this.props.widget}</div>
+              <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
+            </section>
+          ) : (Component!=undefined) ? (
+            <Component {...this.props} {...state} {...this.state.context}/>
+          ) : (
+            <div ref="el"/>
+          )}
+        </div>
       </div>
     )
   }

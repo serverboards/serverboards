@@ -28,6 +28,7 @@ defmodule Serverboards.Supervisor do
       worker(Serverboards.Notifications, [ [name: Serverboards.Notifications] ]),
       worker(Serverboards.Logger.RPC, [ [name: Serverboards.Logger.RPC] ]),
       worker(Serverboards.Utils.MonitorCallbacks, [ [name: Serverboards.Utils.MonitorCallbacks] ]),
+      worker(Serverboards.Query.RPC, [ [name: Serverboards.Query.RPC] ]),
 
       worker(Task, [Serverboards.IO.TCP, :start_accept, []], restart: :transient),
 

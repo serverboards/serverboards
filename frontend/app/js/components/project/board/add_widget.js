@@ -6,86 +6,23 @@ import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
 import Widget from 'app/containers/project/board/widget'
+import EditWidget from './edit_widget'
 
-class SetupWidget extends React.Component{
-  constructor(props){
-    super(props)
-    this.state= {
-      config: {},
-      delayed_config: {},
-      delayed_config_timer: undefined,
-    }
+function SetupWidget(props){
+  const widget = {
+    widget: props.widget.id,
+    ui: props.widget.hints || {},
+    config: {}
   }
-  handleAddWidget(){
-    return this.props.onAddWidget(this.state.config)
-  }
-  setConfig(config){
-    let delayed_config_timer = this.state.delayed_config_timer
-    if (delayed_config_timer)
-      clearTimeout(delayed_config_timer)
-    delayed_config_timer = setTimeout(
-      () => this.setState({delayed_config: config, delayed_config_timer: undefined}),
-      200 )
-
-    this.setState({config, delayed_config_timer})
-  }
-  render(){
-    const props = this.props
-    const widget=props.widget
-
-    let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, width: 2, height: 2}
-
-    console.log(widget)
-    return (
-
-      <div className="ui expand two column grid grey background">
-        <div className="ui column with scroll">
-          <div className="ui board">
-            <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
-              <div className="ui card" style={{maxHeight: 280*layout.h, maxWidth: 240*layout.w, minHeight: 280*layout.h, minWidth: 240*layout.w }}>
-                <Widget
-                  key={widget.uuid}
-                  widget={widget.id}
-                  config={this.state.delayed_config}
-                  uuid={widget.uuid}
-                  project={this.props.project}
-                  layout={layout}
-                  />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="ui column">
-          <div className="ui round pane white background with padding and scroll">
-            <h2 className="ui centered header">{widget.name}</h2>
-            <div className="" style={{marginBottom:30}}>{widget.description}</div>
-            <GenericForm fields={widget.params} updateForm={(config) => this.setConfig(config)}/>
-            <div className="ui right buttons" style={{marginTop:20}}>
-              <button type="button" className="ui basic button" onClick={this.props.cancelSetup}>
-                {i18n("Back")}
-              </button>
-              { props.saveButtons ? (
-                  props.saveButtons.map( sb => (
-                    <button type="button" className={`ui button ${sb.className}`}
-                        onClick={() => this.handleAddWidget().then( (data) => sb.onClick && sb.onClick(data) )}
-                        >
-                      {sb.label}
-                    </button>
-                  ))
-              ) : (
-                <button type="button" className="ui button teal" onClick={this.handleAddWidget.bind(this)}>
-                  {i18n("Add widget")}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  return (
+    <EditWidget
+      template={props.widget}
+      project={props.project}
+      widget={widget}
+      saveWidget={(w) => props.addWidget(props.widget.id, props.dashboard_uuid, w.config) }
+      />
+  )
 }
-
 
 function get_widget_market_catalog(){
   return Promise.all([
@@ -211,9 +148,6 @@ class AddWidget extends React.Component{
     else
       this.setState({widget, step: 1})
   }
-  handleAddWidget(config){
-    return this.props.addWidget( this.state.widget.id, this.props.dashboard_uuid, config )
-  }
   render(){
     let section=null
     switch(this.state.step){
@@ -248,7 +182,6 @@ class AddWidget extends React.Component{
           <SetupWidget
             widget={this.state.widget}
             cancelSetup={() => this.setState({step: 0})}
-            onAddWidget={this.handleAddWidget.bind(this)}
             {...this.props}
             />
         )

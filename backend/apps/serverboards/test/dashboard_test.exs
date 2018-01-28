@@ -154,4 +154,77 @@ defmodule ProjectTest do
 
   end
 
+  test "Dashboard extractors on queries" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST16", %{}] )
+
+    {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    widget_config = %{
+      __extractors__: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
+      q: "SELECT random FROM random"
+    }
+    {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
+      dashboard: dashboard,
+      widget: "test.extractor/widget",
+      config: widget_config,
+      ui: %{}
+    })
+
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", widget)
+    Logger.debug("data #{inspect data}")
+
+    %{ "color" => nil, "q" => res} = data
+    %{ "columns" => _columns, "rows" => _rows } = res
+    assert Enum.count(res["rows"]) == 1
+  end
+
+  test "Dashboard extractors on queries, bad query returns error, not fails" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST17", %{}] )
+
+    {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    widget_config = %{
+      __extractors__: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
+      q: "SELECT dupa"
+    }
+    {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
+      dashboard: dashboard,
+      widget: "test.extractor/widget",
+      config: widget_config,
+      ui: %{}
+    })
+
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", widget)
+    Logger.debug("data #{inspect data}")
+
+    %{ "color" => nil, "q" => res} = data
+    %{ "error" => _columns } = res
+  end
+
+  test "Widget extractor without a SELECT just returns that data" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST18", %{}] )
+
+    {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    widget_config = %{
+      __extractors__: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
+      q: "42"
+    }
+    {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
+      dashboard: dashboard,
+      widget: "test.extractor/widget",
+      config: widget_config,
+      ui: %{}
+    })
+
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", widget)
+    Logger.debug("data #{inspect data}")
+
+    %{ "color" => nil, "q" => res} = data
+    %{ "rows" => [["42"]] } = res
+  end
+
 end
