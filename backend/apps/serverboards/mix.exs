@@ -40,7 +40,8 @@ defmodule Serverboards.Mixfile do
             :eini,
             :logger_journald_backend,
             :quantum,
-            :httpoison
+            :httpoison,
+            :exosql
             ],
       mod: {Serverboards, []},
     ]
@@ -76,8 +77,8 @@ defmodule Serverboards.Mixfile do
       {:uuid, "~> 1.1" },
       {:eini, "~> 1.2"},
       {:quantum, "~> 1.9.3"},
-      {:httpoison, "~> 0.13"},
-      {:exosql, "~> 0.2"},
+      {:httpoison, "~> 1.0"},
+      {:exosql, "~> 0.2"}
     ]
   end
 end

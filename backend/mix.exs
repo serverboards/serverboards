@@ -31,7 +31,7 @@ defmodule Backend.Mixfile do
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", [env: :prod, hex: "ex_doc", repo: "hexpm", optional: false]},
-      {:cmark, ">= 0.7.0", only: :dev},
+      {:earmark, ">= 0.7.0"},
       {:exrm, "~> 1.0"},
       {:relx, "~> 3.22"}
     ]
