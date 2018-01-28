@@ -6,3 +6,5 @@ serverboards.tar.gz
 log
 local/
 debian/
+.*
+!.gitignore
