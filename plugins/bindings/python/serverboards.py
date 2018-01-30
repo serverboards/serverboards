@@ -39,7 +39,6 @@ class RPC:
         # ensure input is utf8, https://stackoverflow.com/questions/16549332/python-3-how-to-specify-stdin-encoding
         self.stdin=io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
         self.stdout=stdout
-        self.stderr=None
         self.loop_status='OUT' # IN | OUT | EXIT
         self.requestq=[] # requests that are pending to do
         self.replyq={} # replies got out of order: id to msg
@@ -56,115 +55,6 @@ class RPC:
         self.pending_events_queue=[]
         self.last_rpc_id=0
         self.async_cb={} # id to callback when receiving asynchornous responses
-
-        class WriteToLog:
-          """
-          Helper class to write exceptions to the remote log.error method.
-          """
-          def __init__(self, rpc):
-            """
-            Initializes the object that will use the given rpc object to write
-            logging data.
-            """
-            self.rpc=rpc
-            self.buffer=[]
-          def write(self, txt, *args, **kwargs):
-              """
-              Sends the error to the Serverboards core.
-
-              If a line starts with traceback, it buffers all until the end of
-              the traceback, to send it all in one go.
-              """
-              if not txt:
-                  return
-              if txt.startswith("Traceback"):
-                  self.buffer.append(txt)
-              elif self.buffer:
-                  if txt.startswith(" "):
-                      self.buffer.append(txt)
-                  else:
-                      self.buffer.append(txt)
-                      self.rpc.error(''.join(self.buffer), extra=dict(file="EXCEPTION", line="--"))
-                      self.buffer=[]
-              else:
-                  self.rpc.error(txt.rstrip())
-
-        self.write_to_log=WriteToLog(self)
-
-    def set_debug(self, debug):
-        """
-        Sets the debug mode for this rpc object.
-
-        # Parameters
-
-        param | type       | description
-        ------|------------|------------
-        debug | bool       | Whether to activate debug data to stderr
-        debug | file       | To which file to write
-        """
-        show_begin = not self.stderr
-        if debug is True:
-            self.stderr=sys.stderr
-        else:
-            self.stderr=debug
-        if show_begin:
-            self.debug("--- BEGIN ---")
-
-
-    def __decorate_log(self, extra, level=2):
-        """
-        Helper that decorates the given log messages with data of which function, line
-        and file calls the log.
-        """
-        import inspect
-        callerf=inspect.stack()[level]
-
-        caller={
-          "plugin_id":plugin_id,
-          "function":callerf[3],
-          "file":callerf[1],
-          "line":callerf[2],
-          "pid":os.getpid(),
-        }
-        caller.update(extra)
-        return caller
-
-    def debug(self, *msg, level=0, **extra):
-        msg = ' '.join(str(x) for x in msg)
-        self.debug_stdout(msg)
-        return self.event("log.debug", str(msg), self.__decorate_log(extra, level=2+level))
-    def error(self, *msg, level=0, **extra):
-        msg = ' '.join(str(x) for x in msg)
-        self.debug_stdout(msg)
-        return self.event("log.error", str(msg), self.__decorate_log(extra, level=2+level))
-    def info(self, *msg, level=0, **extra):
-        msg = ' '.join(str(x) for x in msg)
-        self.debug_stdout(msg)
-        return self.event("log.info", str(msg), self.__decorate_log(extra, level=2+level))
-    def warning(self, *msg, level=0, **extra):
-        msg = ' '.join(str(x) for x in msg)
-        self.debug_stdout(msg)
-        return self.event("log.warning", str(msg), self.__decorate_log(extra, level=2+level))
-
-    def debug_stdout(self, x):
-        """
-        Helper that writes to stderr some message.
-
-        It adds the required \\r at the line start, as elixir/erlang removes them on
-        externals processes / ports. Also adds the current PID to ease debugging,
-        as diferent calls to the same command will have diferent pids.
-
-        This is used when `self.debug` is in use.
-        """
-        if not self.stderr:
-            return
-        if type(x) != str:
-            x=repr(x)
-        try:
-            self.stderr.write("\r%d: %s\r\n"%(self.pid, x))
-            self.stderr.flush()
-        except BlockingIOError:
-            pass
 
     def add_method(self, name, f):
         """
@@ -297,7 +187,6 @@ class RPC:
         Reads a line from the rpc input line, and parses it.
         """
         l=self.stdin.readline()
-        self.debug_stdout("< %s"%ellipsis_str(l))
         if not l:
             self.loop_stop()
             return
@@ -390,12 +279,6 @@ class RPC:
           self.debug("--- EOF ---")
         self.loop_status='EXIT'
 
-    def log_traceback(self, e = None):
-      if e:
-        self.error("Exception: %s"%str(e))
-        import traceback
-        traceback.print_exc(file=self.write_to_log)
-
     def __process_request(self, rpc):
         """
         Performs the request processing to the external RPC endpoint.
@@ -404,8 +287,6 @@ class RPC:
         othe rend, as in some conditions it ma be delayed.
         """
         self.last_rpc_id=id=rpc.get("id")
-        self.debug_stdout(repr(rpc))
-        self.debug_stdout(repr(self.async_cb))
         async_cb=self.async_cb.get(id) # Might be an asynchronous result or error
         if async_cb:
             error_cb = None # User can set only success condition, or a tuple with both
@@ -439,7 +320,6 @@ class RPC:
 
         This function allows for easy debugging and some error conditions.
         """
-        self.debug_stdout("> %s"%line)
         try:
           self.stdout.write(line + '\n')
           self.stdout.flush()
@@ -518,7 +398,6 @@ class RPC:
         """
         while True: # mini loop, may request calls while here
             res = self.stdin.readline()
-            self.debug_stdout("<< %s"%ellipsis_str(res))
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
@@ -530,13 +409,10 @@ class RPC:
                 # that this answer is for some other call upper in the call stack.
                 # I save it for later.
                 if rpc['id']==id:
-                    self.debug_stdout("Done")
                     if 'result' in rpc:
                         return rpc['result']
                     else:
                         if rpc["error"]=="unknown_method":
-                            if self.stderr:
-                                self.debug_stdout("Call to remote unknown method %s known are %s. check permissions."%(method, self.call("dir")))
                             raise Exception("unknown_method %s"%method)
                         raise Exception("%s at %s"%(rpc["error"], method))
                 elif id in self.async_cb:
@@ -546,16 +422,13 @@ class RPC:
                         self.log_traceback(e)
                     del self.async_cb[id]
                 else:
-                    self.debug_stdout("Keep it for later, im waiting for %s"%id)
                     self.replyq[rpc['id']]=rpc
             else:
                 if self.loop_status=="IN":
-                    self.debug_stdout("Waiting for reply; Execute now for later: %s"% res)
                     self.__process_request(rpc)
                     # Now check if while I was answering this, I got my answer
                     rpc=self.replyq.get(id)
                     if rpc:
-                        self.debug_stdout("Got my answer while replying to server")
                         del self.replyq[id]
                         if 'result' in rpc:
                             return rpc['result']
@@ -564,7 +437,6 @@ class RPC:
                                 raise Exception("unknown_method %s"%method)
                             raise Exception(rpc["error"])
                 else:
-                    self.debug_stdout("Waiting for reply; Queue for later: %s"% res)
                     self.requestq.append(rpc)
 
     def subscribe(self, event, callback):
@@ -684,10 +556,46 @@ class WriteTo:
         value.seek(0)
         self.fn(value.read(), **{**{"level":level}, **self.extra, **extra})
 
-error = WriteTo(rpc.error)
-debug = WriteTo(rpc.debug)
-info = WriteTo(rpc.info)
-warning = WriteTo(rpc.warning)
+
+def log_(self, rpc, type):
+    def decorate_log(extra, level=2):
+        """
+        Helper that decorates the given log messages with data of which function, line
+        and file calls the log.
+        """
+        import inspect
+        callerf=inspect.stack()[level]
+
+        caller={
+          "plugin_id":plugin_id,
+          "function":callerf[3],
+          "file":callerf[1],
+          "line":callerf[2],
+          "pid":os.getpid(),
+        }
+        caller.update(extra)
+        return caller
+
+    log_method = "log.%s" % type
+    def log_inner(*msg, level=0, **extra):
+        msg = ' '.join(str(x) for x in msg)
+        return rpc.event(log_method, str(msg), decorate_log(extra, level=2+level))
+    return log_inner
+
+
+error = WriteTo(log_(rpc, "error"))
+debug = WriteTo(log_(rpc, "debug"))
+info = WriteTo(log_(rpc, "info"))
+warning = WriteTo(log_(rpc, "warning"))
+
+def log_traceback(self, e = None):
+    """
+    Logs teh given traceback to the error log.
+    """
+    if e:
+        import traceback
+        traceback.print_exc(file=error)
+
 
 def __simple_hash__(*args, **kwargs):
     hs = ";".join(str(x) for x in args)
