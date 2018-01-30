@@ -39,8 +39,8 @@ class RPC:
         self.__rpc_registry = {}
         # ensure input is utf8,
         # https://stackoverflow.com/questions/16549332/python-3-how-to-specify-stdin-encoding
-        self.__stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
-        self.__stdout = stdout
+        self.__stdin = None
+        self.stdout = stdout
         self.__loop_status = 'OUT'  # IN | OUT | EXIT
         self.__requestq = []  # requests that are pending to do
         self.__replyq = {}  # replies got out of order: id to msg
@@ -59,7 +59,7 @@ class RPC:
         # id to callback when receiving asynchornous responses
         self.__async_cb = {}
 
-        self.add_event(sys.stdin, self.__read_parse_line)
+        self.set_stdin(stdin)
 
     def __call_local(self, rpc):
         """
@@ -160,8 +160,6 @@ class RPC:
             else:  # maybe timeout already expired
                 read_ready = []
 
-            # debug("Ready fds: %s // maybe_timer %s" %
-            #       ([x for x in read_ready], timeout_id))
             if read_ready:
                 for ready in read_ready:
                     try:
@@ -290,8 +288,8 @@ class RPC:
         This function allows for easy debugging and some error conditions.
         """
         try:
-            self.__stdout.write(line + '\n')
-            self.__stdout.flush()
+            self.stdout.write(line + '\n')
+            self.stdout.flush()
         except IOError:
             if self.__loop_status == 'EXIT':
                 sys.exit(1)
@@ -326,6 +324,20 @@ class RPC:
         """
         debug("--- EOF ---")
         self.__loop_status = 'EXIT'
+
+    def set_stdin(self, stdin):
+        """
+        Replaces current stdin for RPC
+
+        Can be used for testing.
+        """
+        if stdin == sys.stdin or stdin is None:
+            stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+
+        if self.__stdin:
+            self.remove_event(self.__stdin)
+        self.add_event(stdin, self.__read_parse_line)
+        self.__stdin = stdin
 
     def add_event(self, fd, cont):
         """
@@ -547,22 +559,23 @@ def __dir():
     return list(rpc.rpc_registry.keys())
 
 
-def loop(debug=None):
+def loop(stdin=None, stdout=None):
     """
     Wrapper to easily start rpc loop
 
-    It allows setting the debug flag/file here.
+    Can replace the stdin and stdout here. Use only for debug. This change is
+    permanent.
 
-    # Parameters
+    Normal stdin may not be UTF8. To force do:
 
-    param | type       | description
-    ------|------------|------------
-    debug | bool\|file | Whether to debug to stderr, or to another file object
-
-
+    ```
+    stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+    ```
     """
-    if debug:
-        rpc.set_debug(debug)
+    if stdin:
+        rpc.set_stdin(stdin)
+    if stdout:
+        rpc.stdout = stdout
     rpc.loop()
 
 
@@ -629,6 +642,20 @@ error = WriteTo(log_(rpc, "error"))
 debug = WriteTo(log_(rpc, "debug"))
 info = WriteTo(log_(rpc, "info"))
 warning = WriteTo(log_(rpc, "warning"))
+real_print = print
+
+
+def print(*args, file=None, **kwargs):
+    """
+    Wraps around real print to allow to just print to the
+    log.
+
+    If has the file= kwarg, uses the normal print.
+    """
+    if file is None:
+        debug(*args, **kwargs)
+    else:
+        real_print(*args, file=file, **kwargs)
 
 
 def log_traceback(self, e=None):
@@ -876,4 +903,3 @@ rules_v2 = RPCWrapper("rules_v2")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
 file = RPCWrapper("file")
-print = debug
