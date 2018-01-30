@@ -1,50 +1,57 @@
 # Serverboards
 https://serverboards.io
 
-![Serverboards Video Introduction](docs/061-index-animation.gif)
+## IT Infrastructure Dashboards and management tools
 
-Serverboards is a service monitoring, management and automation platform.
+Serverboards makes it easy for you to control your IT Infrastructure from a
+single dashboard. Servers, virtual machines, websites, databases and more can
+be monitored or managed in an easy way.
 
-It allows users to connect the myriad of disperse services nowadays we need to
-be productive at our jobs. All the services we use are independant islands,
-with their own protocols and APIs and a lot of integration work is needed to
-make them talk each other.
+<p align="center"> ![Dashboard](docs/001-dashboard.png)
 
-With Serverboards it is very easy to create the small puzzle pieces required
-to talk to the services, and to allow them to fit together.
+## Automated work flows made easy with our GUI-based rules composer
 
-Serverboards is based on a simple core that is in charge of communication
-of all the microservices, doing all the common tasks that are needed:
+Easily monitor your server performance in real time, manage your virtual
+machines and automate most common infrastructure issues.
 
-* User management
-* Project management
-* Permissions
-* Plugin management
-* Notifications
-* Issues
+<p align="center"> ![Rules](docs/002-rules.png)
+
+## Embedded SSH terminal by default
+
+Serverboards comes with an embedded SSH terminal. Easily perform console actions
+from the very same place to troubleshoot faster.
+
+<p align="center"> ![Terminal](docs/003-terminal.png)
+
+## Built in Issues and Logs with alerting
+
+If something happens, you can access the traces in our in-built logging solution
+and identify what caused the error.
+
+<p align="center"> ![Alerting](docs/004-alerting.png)
+
+## Plugin based
+
+Serverboards is based on simple to develop plugins that do all the small tasks
+like checking if a service is UP, gathering the information and showing
+information to the user, letting Serverboards Core do all the orchestration and
+heavy work.
 
 ## Collaborate / Develop with Serverboards
 
-Please use the issue tracker at
-[github](https://github.com/serverboards/serverboards/issues) to report bugs and
-feature requests.
-
-It is developed under the Apache 2 license, and plugins can be developed by
-third parties using any license. Please refer to
+Serverboards is licensed under the Apache 2 license, and plugins can be
+developed by third parties using any license. Please refer to
 https://serverboards.io/developers/ for more information.
 
-There are forums in place at https://disqus.com/home/channel/serverboards/
+* Issue tracker at [github](https://github.com/serverboards/serverboards/issues)
+* Forums for troubleshooting and hanging around at
+  https://forum.serverboards.io/
+* Subscribe to our newsletter at https://serverboards.io
 
-Subscribe to our newsletter at https://serverboards.io
-
-## Download
+## Install and Download instructions
 
 Serverboards can be downloaded to be used on Ubuntu 16.04 (and maybe others) at
 https://serverboards.io/downloads/
-
-Access it at http://localhost:8080, and enter with your user and password. If
-your user is in the `adm` or `admin` group it will have admin access, and can
-add other users and disable PAM access.
 
 ## Compiling and running the server
 
@@ -73,7 +80,7 @@ Now you can connect to the backend at http://localhost:8080 or at the running
 webpack server at http://localhost:3000 .
 
 If you connect to the webpack server it is necessary to force the backend URL so
-that the Websocket can connect. Open the developer console at the browser (F12
+that the WebSocket can connect. Open the developer console at the browser (F12
 or Crtl+Shift+C), and write:
 
 ```js
@@ -85,7 +92,7 @@ Alternatively you can create the release with `make release` and run it as
 
 ## Plugin development workflow
 
-To devlop new plugins create a directory or link to your source at
+To develop new plugins create a directory or link to your source at
 $SERVERBOARDS_PATH/plugins, which by default is on installed systems at
 `/opt/serverboards/share/serverboards/plugins/`. If you use the development
 version, it would be at `~/.local/serverboards/plugins/`.
