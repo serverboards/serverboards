@@ -113,9 +113,9 @@ class RPC:
         do_later = len(self.pending_events_queue) > 0
         self.pending_events_queue.append( (method, args, kwargs) )
         if do_later:
-            self.debug("No emit %s yet, as processing something else"%method)
+            debug("No emit %s yet, as processing something else"%method)
             return
-        # self.debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
+        # debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
         # do all the items on the queue
         while len(self.pending_events_queue)>0:
           (method, args, kwargs) = self.pending_events_queue[0]
@@ -123,7 +123,7 @@ class RPC:
               for f in self.subscriptions[method]:
                   if f:
                       try:
-                          #self.debug("Calling %s b/o event %s(%s)"%(f, method, args or kwargs))
+                          #debug("Calling %s b/o event %s(%s)"%(f, method, args or kwargs))
                           f(*args, **kwargs)
                       except Exception as e:
                           self.log_traceback(e)
@@ -147,7 +147,7 @@ class RPC:
 
         # incoming
         while self.loop_status=='IN':
-            #self.debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
+            #debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
             if self.timers:
                 timer=min(self.timers.values(), key=lambda x:x.next)
                 next_timeout=timer.next - time.time()
@@ -155,13 +155,13 @@ class RPC:
                 timer = None
                 next_timeout = None
 
-            # self.debug("Next timeout", next_timeout, timeout_id)
+            # debug("Next timeout", next_timeout, timeout_id)
             if not next_timeout or next_timeout>=0:
                 (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
             else: # maybe timeout already expired
                 read_ready=[]
 
-            #self.debug("Ready fds: %s // maybe_timer %s"%([x for x in read_ready], timeout_id))
+            #debug("Ready fds: %s // maybe_timer %s"%([x for x in read_ready], timeout_id))
             if read_ready:
                 for ready in read_ready:
                     try:
@@ -276,7 +276,7 @@ class RPC:
         required.
         """
         if debug:
-          self.debug("--- EOF ---")
+          debug("--- EOF ---")
         self.loop_status='EXIT'
 
     def __process_request(self, rpc):
@@ -455,8 +455,8 @@ class RPC:
         self.call("event.subscribe",event)
         self.subscription_id+=1
 
-        self.debug("Subscribed to %s"%event)
-        #self.debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
+        debug("Subscribed to %s"%event)
+        #debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
         return sid
 
     def unsubscribe(self, subscription_id):
@@ -464,10 +464,10 @@ class RPC:
         Unsubscribes from an event.
         """
         if subscription_id in self.subscriptions:
-          self.debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
+          debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
           (event, callback) = self.subscriptions_ids[subscription_id]
           self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
-          self.debug("Removed subscription %s id %s"%(event, subscription_id))
+          debug("Removed subscription %s id %s"%(event, subscription_id))
           self.call("event.unsubscribe",event)
           del self.subscriptions_ids[subscription_id]
 
@@ -557,7 +557,7 @@ class WriteTo:
         self.fn(value.read(), **{**{"level":level}, **self.extra, **extra})
 
 
-def log_(self, rpc, type):
+def log_(rpc, type):
     def decorate_log(extra, level=2):
         """
         Helper that decorates the given log messages with data of which function, line
