@@ -1,20 +1,22 @@
-import json, os, sys, select, time, io
+import json
+import os
+import sys
+import select
+import time
+import io
 from contextlib import contextmanager
 
 plugin_id = os.environ.get("PLUGIN_ID")
 
-try:
-    input=raw_input
-except:
-    pass
 
 def ellipsis_str(str, maxs=50):
-  if len(str)<maxs:
-    return str
-  else:
-    firsth=int(maxs*3/4)
-    lasth=maxs-firsth
-    return "%s...%s"%(str[:firsth], str[-lasth:])
+    if len(str) < maxs:
+        return str
+    else:
+        firsth = int(maxs * 3 / 4)
+        lasth = maxs - firsth
+        return "%s...%s" % (str[:firsth], str[-lasth:])
+
 
 class RPC:
     """
@@ -29,42 +31,44 @@ class RPC:
 
         # Parameters
 
-        param | type       | description
-        ------|------------|------------
-        stdin | file       | Which input file to use to read JSON-RPC calls. Normally stdin.
-        stdout | file      | File to use to write JSON-RPC calls to the remote endpoint. Normally stdout.
-
+        param  | type     | description
+        -------|----------|------------
+        stdin  | file     | Which input file to use to read JSON-RPC calls.
+        stdout | file     | File to write JSON-RPC calls. The remote endpoint.
         """
-        self.rpc_registry={}
-        # ensure input is utf8, https://stackoverflow.com/questions/16549332/python-3-how-to-specify-stdin-encoding
-        self.stdin=io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
-        self.stdout=stdout
-        self.loop_status='OUT' # IN | OUT | EXIT
-        self.requestq=[] # requests that are pending to do
-        self.replyq={} # replies got out of order: id to msg
-        self.send_id=1
-        self.pid=os.getpid()
-        self.manual_replies=set()
-        self.events={}
-        self.timers={} # timer_id -> (next_stop, id, seconds, continuation)
-        self.timer_id=1
+        self.rpc_registry = {}
+        # ensure input is utf8,
+        # https://stackoverflow.com/questions/16549332/python-3-how-to-specify-stdin-encoding
+        self.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+        self.stdout = stdout
+        self.loop_status = 'OUT'  # IN | OUT | EXIT
+        self.requestq = []  # requests that are pending to do
+        self.replyq = {}  # replies got out of order: id to msg
+        self.send_id = 1
+        self.pid = os.getpid()
+        self.manual_replies = set()
+        self.events = {}
+        self.timers = {}  # timer_id -> (next_stop, id, seconds, continuation)
+        self.timer_id = 1
         self.add_event(sys.stdin, self.read_parse_line)
-        self.subscriptions={}
-        self.subscriptions_ids={}
-        self.subscription_id=1
-        self.pending_events_queue=[]
-        self.last_rpc_id=0
-        self.async_cb={} # id to callback when receiving asynchornous responses
+        self.subscriptions = {}
+        self.subscriptions_ids = {}
+        self.subscription_id = 1
+        self.pending_events_queue = []
+        self.last_rpc_id = 0
+        # id to callback when receiving asynchornous responses
+        self.async_cb = {}
 
     def add_method(self, name, f):
         """
         Adds a method to the local method registry.
 
-        All local methods that can be caled b the remote endpoint have to be registered here.
+        All local methods that can be caled b the remote endpoint have to be
+        registered here.
 
         Normally the `@rpc_method` decorator is used for ease of use.
         """
-        self.rpc_registry[name]=f
+        self.rpc_registry[name] = f
 
     def call_local(self, rpc):
         """
@@ -72,38 +76,38 @@ class RPC:
 
         This is use internally for all incomming rpc calls.
         """
-        method=rpc['method']
-        params=rpc['params'] or []
-        call_id=rpc.get('id')
-        (args,kwargs) = ([],params) if type(params)==dict else (params, {})
+        method = rpc['method']
+        params = rpc['params'] or []
+        call_id = rpc.get('id')
+        (args, kwargs) = ([], params) if type(params) == dict else (params, {})
 
         if method in self.rpc_registry:
-            f=self.rpc_registry[method]
+            f = self.rpc_registry[method]
             try:
-                #print(method, params, args, kwargs)
-                res=f(*args, **kwargs)
+                # print(method, params, args, kwargs)
+                res = f(*args, **kwargs)
                 return {
-                    'result' : res,
-                    'id' : call_id
-                    }
+                    'result': res,
+                    'id': call_id
+                }
             except Exception as e:
                 self.log_traceback(e)
                 return {
                     'error': str(e),
-                    'id' : call_id
+                    'id': call_id
                 }
         if not call_id:
-          self.emit_event(method, *args, **kwargs)
+            self.emit_event(method, *args, **kwargs)
         else:
-          return { 'error':'unknown_method %s'%method, 'id': call_id }
+            return {'error': 'unknown_method %s' % method, 'id': call_id}
 
     def emit_event(self, method, *args, **kwargs):
         """
         Emits the event to the subscription watchers.
 
         It takes care of not doing reentries, at it leads to bugs, as
-        for example processing data from one event, do some remote call, another
-        event arrives, and finished before the first.
+        for example processing data from one event, do some remote call,
+        another event arrives, and finished before the first.
 
         This is a real case of race condition writing to a file.
 
@@ -111,24 +115,26 @@ class RPC:
         processing an event, it queues newer to be delivered later.
         """
         do_later = len(self.pending_events_queue) > 0
-        self.pending_events_queue.append( (method, args, kwargs) )
+        self.pending_events_queue.append((method, args, kwargs))
         if do_later:
-            debug("No emit %s yet, as processing something else"%method)
+            debug("No emit %s yet, as processing something else" % method)
             return
-        # debug("Check subscriptions %s in %s"%(method, repr(self.subscriptions.keys())))
+        # debug("Check subscriptions %s in %s"%(method,
+        #        repr(self.subscriptions.keys())))
         # do all the items on the queue
-        while len(self.pending_events_queue)>0:
-          (method, args, kwargs) = self.pending_events_queue[0]
-          if method in self.subscriptions:
-              for f in self.subscriptions[method]:
-                  if f:
-                      try:
-                          #debug("Calling %s b/o event %s(%s)"%(f, method, args or kwargs))
-                          f(*args, **kwargs)
-                      except Exception as e:
-                          self.log_traceback(e)
-          # pop from top
-          self.pending_events_queue=self.pending_events_queue[1:]
+        while len(self.pending_events_queue) > 0:
+            (method, args, kwargs) = self.pending_events_queue[0]
+            if method in self.subscriptions:
+                for f in self.subscriptions[method]:
+                    if f:
+                        try:
+                            # debug("Calling %s b/o event %s(%s)" %
+                            #       (f, method, args or kwargs))
+                            f(*args, **kwargs)
+                        except Exception as e:
+                            self.log_traceback(e)
+            # pop from top
+            self.pending_events_queue = self.pending_events_queue[1:]
 
     def loop(self):
         """
@@ -136,39 +142,41 @@ class RPC:
 
         This loop also perform the timers watch and extra fds select.
         """
-        prev_status=self.loop_status
-        self.loop_status='IN'
+        prev_status = self.loop_status
+        self.loop_status = 'IN'
 
         # pending requests
         while self.requestq:
             rpc = self.requestq[0]
-            self.requestq=self.requestq[1:]
+            self.requestq = self.requestq[1:]
             self.__process_request(rpc)
 
         # incoming
-        while self.loop_status=='IN':
-            #debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
+        while self.loop_status == 'IN':
+            # debug("Wait fds: %s"%([x.fileno() for x in self.events.keys()]))
             if self.timers:
-                timer=min(self.timers.values(), key=lambda x:x.next)
-                next_timeout=timer.next - time.time()
+                timer = min(self.timers.values(), key=lambda x: x.next)
+                next_timeout = timer.next - time.time()
             else:
                 timer = None
                 next_timeout = None
 
             # debug("Next timeout", next_timeout, timeout_id)
-            if not next_timeout or next_timeout>=0:
-                (read_ready,_,_) = select.select(self.events.keys(),[],[], next_timeout)
-            else: # maybe timeout already expired
-                read_ready=[]
+            if not next_timeout or next_timeout >= 0:
+                res = select.select(self.events.keys(), [], [], next_timeout)
+                read_ready = res[0]
+            else:  # maybe timeout already expired
+                read_ready = []
 
-            #debug("Ready fds: %s // maybe_timer %s"%([x for x in read_ready], timeout_id))
+            # debug("Ready fds: %s // maybe_timer %s" %
+            #       ([x for x in read_ready], timeout_id))
             if read_ready:
                 for ready in read_ready:
                     try:
-                      self.events[ready]()
+                        self.events[ready]()
                     except Exception as e:
-                      self.log_traceback(e)
-            else: # timeout
+                        self.log_traceback(e)
+            else:  # timeout
                 if timer.rearm:
                     timer.arm()
                 else:
@@ -177,37 +185,38 @@ class RPC:
                 try:
                     timer.cont()
                 except Exception as e:
-                  self.log_traceback(e)
+                    self.log_traceback(e)
 
-
-        self.loop_status=prev_status
+        self.loop_status = prev_status
 
     def read_parse_line(self):
         """
         Reads a line from the rpc input line, and parses it.
         """
-        l=self.stdin.readline()
-        if not l:
+        line = self.stdin.readline()
+        if not line:
             self.loop_stop()
             return
-        rpc = json.loads(l)
+        rpc = json.loads(line)
         self.__process_request(rpc)
 
     def add_event(self, fd, cont):
         """
-        Watches for changes in a external file descriptor and calls the continuation function.
+        Watches for changes in a external file descriptor and calls the
+        continuation function.
 
-        This allows this class to also listen for external processes and file description changes.
+        This allows this class to also listen for external processes and file
+        description changes.
 
         # Parameters
 
         param | type       | description
         ------|------------|------------
         fd    | int        | File descriptor
-        cont  | function() | Continuation function to call when new data ready to read at fd
+        cont  | function() | Continuation function to call when new data ready
         """
-        if not fd in self.events:
-            self.events[fd]=cont
+        if fd not in self.events:
+            self.events[fd] = cont
 
     def remove_event(self, fd):
         """
@@ -236,7 +245,7 @@ class RPC:
         ------|------------|------------
         interval | float   | Time in seconds to wait until calling this timer
         cont  | function() | Function to call when the timer expires.
-        rearm | bool       | Whether this timer automatically rearms. Default false.
+        rearm | bool       | Whether this timer automatically rearms. [false]
 
         # Returns
         timer_id : int
@@ -244,20 +253,22 @@ class RPC:
         """
         class Timer:
             def __init__(self, id, interval, cont, rearm):
-                self.next=None
-                self.id=id
-                self.interval=interval
-                self.cont=cont
-                self.rearm=rearm
+                self.next = None
+                self.id = id
+                self.interval = interval
+                self.cont = cont
+                self.rearm = rearm
 
                 self.arm()
-            def arm(self):
-                self.next=time.time() + self.interval
-                return self
-        tid=self.timer_id
-        self.timers[tid]=Timer(tid, interval, cont, rearm)
 
-        self.timer_id+=1
+            def arm(self):
+                self.next = time.time() + self.interval
+                return self
+
+        tid = self.timer_id
+        self.timers[tid] = Timer(tid, interval, cont, rearm)
+
+        self.timer_id += 1
         return tid
 
     def remove_timer(self, tid):
@@ -276,8 +287,8 @@ class RPC:
         required.
         """
         if debug:
-          debug("--- EOF ---")
-        self.loop_status='EXIT'
+            debug("--- EOF ---")
+        self.loop_status = 'EXIT'
 
     def __process_request(self, rpc):
         """
@@ -286,14 +297,16 @@ class RPC:
         This internal function is used to do the real writing to the
         othe rend, as in some conditions it ma be delayed.
         """
-        self.last_rpc_id=id=rpc.get("id")
-        async_cb=self.async_cb.get(id) # Might be an asynchronous result or error
+        self.last_rpc_id = id = rpc.get("id")
+        # Might be an asynchronous result or error
+        async_cb = self.async_cb.get(id)
         if async_cb:
-            error_cb = None # User can set only success condition, or a tuple with both
-            if type(async_cb)==tuple:
+            # User can set only success condition, or a tuple with both
+            error_cb = None
+            if type(async_cb) == tuple:
                 async_cb, error_cb = async_cb
 
-            try: # try to call the error or result handlers
+            try:  # try to call the error or result handlers
                 if async_cb and 'result' in rpc:
                     async_cb(rpc.get("result"))
                 elif error_cb and 'error' in rpc:
@@ -302,15 +315,18 @@ class RPC:
                 self.log_traceback(e)
             del self.async_cb[id]
         else:
-            res=self.call_local(rpc)
-            if res: # subscription do not give back response
+            res = self.call_local(rpc)
+            if res:  # subscription do not give back response
                 if res.get("id") not in self.manual_replies:
                     try:
                         self.println(json.dumps(res))
                     except Exception as e:
                         self.log_traceback(e)
-                        sys.stderr.write(repr(res)+'\n')
-                        self.println(json.dumps({"error": "serializing json response", "id": res["id"]}))
+                        sys.stderr.write(repr(res) + '\n')
+                        self.println(json.dumps({
+                            "error": "serializing json response",
+                            "id": res["id"]
+                        }))
                 else:
                     self.manual_replies.discard(res.get("id"))
 
@@ -321,14 +337,12 @@ class RPC:
         This function allows for easy debugging and some error conditions.
         """
         try:
-          self.stdout.write(line + '\n')
-          self.stdout.flush()
+            self.stdout.write(line + '\n')
+            self.stdout.flush()
         except IOError:
-          if self.loop_status=='EXIT':
-            sys.exit(1)
-          self.loop_stop(debug=False)
-
-
+            if self.loop_status == 'EXIT':
+                sys.exit(1)
+            self.loop_stop(debug=False)
 
     def log(self, message=None, type="LOG"):
         """
@@ -371,20 +385,21 @@ class RPC:
         This allows to setup the environment.
 
         Optional arguments:
-         * _async -- Set to a callback to be called when the answer is received.
-                     Makes the call asynchronous. callback receives the answer.
-                     It is called with response None in case of error.
+         * _async -- Set to a callback to be called when the answer is
+                     received. Makes the call asynchronous. callback receives
+                     the answer. It is called with response None in case of
+                     error.
         """
-        id=self.send_id
-        self.send_id+=1
+        id = self.send_id
+        self.send_id += 1
         # if both, pass kwparams as last argument. This sensible default works
         # with for example action calling and passing more calls to plugins
         if params and kwparams:
             params = [*params, kwparams]
         rpc = json.dumps(dict(method=method, params=params or kwparams, id=id))
         self.println(rpc)
-        if _async: # Will get answer later calling the _async callback
-            self.async_cb[id]=_async
+        if _async:  # Will get answer later calling the _async callback
+            self.async_cb[id] = _async
             return
         return self.inner_loop(id, method=method)
 
@@ -393,28 +408,28 @@ class RPC:
         Performs an inner loop to be done while calling into the server.
         It is as the other loop, but until it get the proper reply.
 
-        Requires the id of the reply to wait for, and the name of the method for
-        error reporting.
+        Requires the id of the reply to wait for, and the name of the method
+        for error reporting.
         """
-        while True: # mini loop, may request calls while here
+        while True:  # mini loop, may request calls while here
             res = self.stdin.readline()
             if not res:
                 raise Exception("Closed connection")
             rpc = json.loads(res)
             if 'id' in rpc and ('result' in rpc or 'error' in rpc):
                 # got answer for another request. This might be because I got a
-                # request when I myself was waiting for an answer, got a request
-                # which requested on the server. The second request is here waiting
-                # for answer, but got the first request's answer. this also means
-                # that this answer is for some other call upper in the call stack.
-                # I save it for later.
-                if rpc['id']==id:
+                # request when I myself was waiting for an answer, got a
+                # request which requested on the server. The second request is
+                # here waiting for answer, but got the first request's answer.
+                # This also means that this answer is for some other call upper
+                # in the call stack. I save it for later.
+                if rpc['id'] == id:
                     if 'result' in rpc:
                         return rpc['result']
                     else:
-                        if rpc["error"]=="unknown_method":
-                            raise Exception("unknown_method %s"%method)
-                        raise Exception("%s at %s"%(rpc["error"], method))
+                        if rpc["error"] == "unknown_method":
+                            raise Exception("unknown_method %s" % method)
+                        raise Exception("%s at %s" % (rpc["error"], method))
                 elif id in self.async_cb:
                     try:
                         self.async_cb[id]()
@@ -422,19 +437,19 @@ class RPC:
                         self.log_traceback(e)
                     del self.async_cb[id]
                 else:
-                    self.replyq[rpc['id']]=rpc
+                    self.replyq[rpc['id']] = rpc
             else:
-                if self.loop_status=="IN":
+                if self.loop_status == "IN":
                     self.__process_request(rpc)
                     # Now check if while I was answering this, I got my answer
-                    rpc=self.replyq.get(id)
+                    rpc = self.replyq.get(id)
                     if rpc:
                         del self.replyq[id]
                         if 'result' in rpc:
                             return rpc['result']
                         else:
                             if rpc["error"] == "unknown_method":
-                                raise Exception("unknown_method %s"%method)
+                                raise Exception("unknown_method %s" % method)
                             raise Exception(rpc["error"])
                 else:
                     self.requestq.append(rpc)
@@ -446,17 +461,20 @@ class RPC:
 
         Returns a subscription id, tahta can be used to unsubscribe.
         """
-        eventname=event.split('[',1)[0] # maybe event[context], we keep only event as only events are sent.
-        sid=self.subscription_id
+        # maybe event[context], we keep only event as only events are sent.
+        eventname = event.split('[', 1)[0]
+        sid = self.subscription_id
 
-        self.subscriptions[eventname]=self.subscriptions.get(eventname,[]) + [callback]
-        self.subscriptions_ids[sid]=(eventname, callback)
+        events = self.subscriptions.get(eventname, []) + [callback]
+        self.subscriptions[eventname] = events
+        self.subscriptions_ids[sid] = (eventname, callback)
 
-        self.call("event.subscribe",event)
-        self.subscription_id+=1
+        self.call("event.subscribe", event)
+        self.subscription_id += 1
 
-        debug("Subscribed to %s"%event)
-        #debug("Added subscription %s id %s: %s"%(eventname, sid, repr(self.subscriptions[eventname])))
+        # debug("Subscribed to %s" % event)
+        # debug("Added subscription %s id %s: %s"%(eventname, sid,
+        #                     repr(self.subscriptions[eventname])))
         return sid
 
     def unsubscribe(self, subscription_id):
@@ -464,16 +482,20 @@ class RPC:
         Unsubscribes from an event.
         """
         if subscription_id in self.subscriptions:
-          debug("%s in %s"%(subscription_id, repr(self.subscriptions_ids)))
-          (event, callback) = self.subscriptions_ids[subscription_id]
-          self.subscriptions[event]=[x for x in self.subscriptions[event] if x!=callback]
-          debug("Removed subscription %s id %s"%(event, subscription_id))
-          self.call("event.unsubscribe",event)
-          del self.subscriptions_ids[subscription_id]
+            debug("%s in %s" % (subscription_id, repr(self.subscriptions_ids)))
+            (event, callback) = self.subscriptions_ids[subscription_id]
+            self.subscriptions[event] = [
+                x for x in self.subscriptions[event] if x != callback
+            ]
+            # debug("Removed subscription %s id %s" % (event, subscription_id))
+            self.call("event.unsubscribe", event)
+            del self.subscriptions_ids[subscription_id]
+
 
 # RPC singleton
-rpc=RPC(sys.stdin, sys.stdout)
-sys.stdout=sys.stderr # allow debugging by print
+rpc = RPC(sys.stdin, sys.stdout)
+sys.stdout = sys.stderr  # allow debugging by print
+
 
 def rpc_method(f):
     """
@@ -495,17 +517,19 @@ def rpc_method(f):
         ...
     ```
     """
-    if type(f)==str:
-        method_name=f
+    if type(f) == str:
+        method_name = f
+
         def regf(f):
-            #print("Registry %s: %s"%(method_name, repr(f)))
+            # print("Registry %s: %s"%(method_name, repr(f)))
             rpc.add_method(method_name, f)
             return f
         return regf
     else:
-        #print("Registry %s"%(f.__name__))
-        rpc.add_method(f.__name__,f)
+        # print("Registry %s"%(f.__name__))
+        rpc.add_method(f.__name__, f)
     return f
+
 
 @rpc_method("dir")
 def __dir():
@@ -514,7 +538,8 @@ def __dir():
 
     Normally used by the other endpoint.
     """
-    return list( rpc.rpc_registry.keys() )
+    return list(rpc.rpc_registry.keys())
+
 
 def loop(debug=None):
     """
@@ -534,52 +559,63 @@ def loop(debug=None):
         rpc.set_debug(debug)
     rpc.loop()
 
+
 class WriteTo:
     def __init__(self, fn, **extra):
         self.fn = fn
         self.extra = extra
+
     def __call__(self, *args, **extra):
-        nextra = {**{"level":1}, **self.extra, **extra}
-        if not args: # if no data, add extras for contexts.
+        nextra = {**{"level": 1}, **self.extra, **extra}
+        if not args:  # if no data, add extras for contexts.
             return WriteTo(self.fn, **nextra)
         self.fn(*args, **nextra)
+
     def write(self, data, *args, **extra):
         if data.endswith('\n'):
-            data=data[:-1]
-        self.fn(data, *args, **{**{"level":1}, **self.extra, **extra})
+            data = data[:-1]
+        self.fn(data, *args, **{**{"level": 1}, **self.extra, **extra})
+
     def flush(*args, **kwargs):
         pass
+
     @contextmanager
     def context(self, level=2, **extra):
         value = io.StringIO()
         yield value
         value.seek(0)
-        self.fn(value.read(), **{**{"level":level}, **self.extra, **extra})
+        self.fn(value.read(), **{**{"level": level}, **self.extra, **extra})
 
 
 def log_(rpc, type):
     def decorate_log(extra, level=2):
         """
-        Helper that decorates the given log messages with data of which function, line
-        and file calls the log.
+        Helper that decorates the given log messages with data of which
+        function, line and file calls the log.
         """
         import inspect
-        callerf=inspect.stack()[level]
+        callerf = inspect.stack()[level]
 
-        caller={
-          "plugin_id":plugin_id,
-          "function":callerf[3],
-          "file":callerf[1],
-          "line":callerf[2],
-          "pid":os.getpid(),
+        caller = {
+            "plugin_id": plugin_id,
+            "function": callerf[3],
+            "file": callerf[1],
+            "line": callerf[2],
+            "pid": os.getpid(),
         }
         caller.update(extra)
         return caller
 
     log_method = "log.%s" % type
+
     def log_inner(*msg, level=0, **extra):
         msg = ' '.join(str(x) for x in msg)
-        return rpc.event(log_method, str(msg), decorate_log(extra, level=2+level))
+        return rpc.event(
+            log_method,
+            str(msg),
+            decorate_log(extra, level=level)
+        )
+
     return log_inner
 
 
@@ -588,7 +624,8 @@ debug = WriteTo(log_(rpc, "debug"))
 info = WriteTo(log_(rpc, "info"))
 warning = WriteTo(log_(rpc, "warning"))
 
-def log_traceback(self, e = None):
+
+def log_traceback(self, e=None):
     """
     Logs teh given traceback to the error log.
     """
@@ -601,76 +638,89 @@ def __simple_hash__(*args, **kwargs):
     hs = ";".join(str(x) for x in args)
     hs += ";"
     hs += ";".join(
-      "%s=%s"%(
-        __simple_hash__(k),
-        __simple_hash__(kwargs[k])
-        ) for k in sorted( kwargs.keys() ) )
+        "%s=%s" % (
+            __simple_hash__(k),
+            __simple_hash__(kwargs[k])
+        ) for k in sorted(kwargs.keys()))
     return hash(hs)
+
 
 def cache_ttl(ttl=10, maxsize=50, hashf=__simple_hash__):
     """
     Simple decorator, not very efficient, for a time based cache.
 
     Params:
-        ttl -- seconds this entry may live. After this time, next use is evicted.
-        maxsize -- If trying to add more than maxsize elements, older will be evicted.
-        hashf -- Hash function for the arguments. Defaults to same data as keys, but may require customization.
-
+        ttl -- seconds this entry may live. After this time, next use is
+               evicted.
+        maxsize -- If trying to add more than maxsize elements, older will be
+                   evicted.
+        hashf -- Hash function for the arguments. Defaults to same data as
+                 keys, but may require customization.
     """
     def wrapper(f):
         data = {}
+
         def wrapped(*args, **kwargs):
             nonlocal data
             currentt = time.time()
-            if len(data)>=maxsize:
+            if len(data) >= maxsize:
                 # first take out all expired
-                data = { k:(timeout,v) for k,(timeout, v) in data.items() if timeout>currentt }
-                if len(data)>=maxsize:
+                data = {
+                    k: (timeout, v)
+                    for k, (timeout, v) in data.items()
+                    if timeout > currentt
+                }
+                if len(data) >= maxsize:
                     # not enough, expire oldest
-                    oldest_k=None
-                    oldest_t=currentt+ttl
-                    for k,(timeout,v) in data.items():
-                        if timeout<oldest_t:
-                            oldest_k=k
-                            oldest_t=timeout
+                    oldest_k = None
+                    oldest_t = currentt + ttl
+                    for k, (timeout, v) in data.items():
+                        if timeout < oldest_t:
+                            oldest_k = k
+                            oldest_t = timeout
 
                     del data[oldest_k]
-            assert len(data)<maxsize
+            assert len(data) < maxsize
 
             if not args and not kwargs:
                 hs = None
             else:
                 hs = hashf(*args, **kwargs)
             timeout, value = data.get(hs, (currentt, None))
-            if timeout<=currentt or not value:
+            if timeout <= currentt or not value:
                 # recalculate
                 value = f(*args, **kwargs)
                 # store
-                data[hs]=(currentt + ttl, value)
+                data[hs] = (currentt + ttl, value)
             return value
+
         def invalidate_cache():
-          nonlocal data
-          data = {}
+            nonlocal data
+            data = {}
 
         wrapped.invalidate_cache = invalidate_cache
         return wrapped
     return wrapper
+
 
 class Config:
     """
     Easy access some configuration data for this plugin
     """
     def __init__(self):
-        self.path=os.path.expanduser( os.environ.get('SERVERBOARDS_PATH','~/.local/serverboards/') )
+        self.path = os.path.expanduser(
+            os.environ.get('SERVERBOARDS_PATH', '~/.local/serverboards/')
+        )
         Config.__ensure_path_exists(self.path)
 
     def file(self, filename):
         """
         Gets the absolute path of a local file for this plugin.
 
-        This uses the serverboards configured local storage for the current plugin
+        This uses the serverboards configured local storage for the current
+        plugin
         """
-        p=os.path.join(self.path, filename)
+        p = os.path.join(self.path, filename)
         if not p.startswith(self.path):
             raise Exception("Trying to escape from config directory.")
         Config.__ensure_path_exists(os.path.dirname(p))
@@ -683,8 +733,11 @@ class Config:
         except OSError as e:
             if 'File exists' not in str(e):
                 raise
+
+
 # config singleton
-config=Config()
+config = Config()
+
 
 class Plugin:
     """
@@ -697,43 +750,44 @@ class Plugin:
     """
     class Method:
         def __init__(self, plugin, method):
-            self.plugin=plugin
-            self.method=method
+            self.plugin = plugin
+            self.method = method
+
         def __call__(self, *args, **kwargs):
             return self.plugin.call(self.method, *args, **kwargs)
 
-    def __init__(self, plugin_id, kill_and_restart = False, restart = True):
+    def __init__(self, plugin_id, kill_and_restart=False, restart=True):
         self.plugin_id = plugin_id
         if kill_and_restart:
-          try:
-            rpc.call("plugin.kill", plugin_id)
-            time.sleep(1)
-          except:
-            pass
-        self.restart=restart
+            try:
+                rpc.call("plugin.kill", plugin_id)
+                time.sleep(1)
+            except Exception:
+                pass
+        self.restart = restart
         self.start()
-
 
     def __getattr__(self, method):
         if not self.uuid:
-            self.uuid=rpc.call("plugin.start", self.plugin_id)
+            self.uuid = rpc.call("plugin.start", self.plugin_id)
         return Plugin.Method(self, method)
 
     def start(self):
-        self.uuid=rpc.call("plugin.start", self.plugin_id)
+        self.uuid = rpc.call("plugin.start", self.plugin_id)
         return self
 
     def stop(self):
         """
         Stops the plugin.
         """
-        if not self.uuid: # not running
+        if not self.uuid:  # not running
             return self
         rpc.call("plugin.stop", self.uuid)
         self.uuid = None
         return self
 
-    RETRY_EVENTS = [ "exit", "unknown_plugin at plugin.call", "unknown_plugin"]
+    RETRY_EVENTS = ["exit", "unknown_plugin at plugin.call", "unknown_plugin"]
+
     def call(self, method, *args, _async=False, **kwargs):
         """
         Call a method by name.
@@ -741,20 +795,32 @@ class Plugin:
         This is also a workaround calling methods called `call` and `stop`.
         """
         try:
-            return rpc.call("plugin.call", self.uuid, method, args or kwargs, _async=_async)
+            return rpc.call(
+                "plugin.call",
+                self.uuid,
+                method,
+                args or kwargs,
+                _async=_async
+            )
         except Exception as e:
-            # if exited or plugin call returns unknown method (refered to the method to call at the plugin), restart and try again.
-            if (str(e) in Plugin.RETRY_EVENTS) and self.restart: # if error because exitted, and may restart, restart and try again (no loop)
+            # if exited or plugin call returns unknown method (refered to the
+            # method to call at the plugin), restart and try again.
+            if (str(e) in Plugin.RETRY_EVENTS) and self.restart:
+                # if error because exitted, and may restart,
+                # restart and try again (no loop)
                 debug("Restarting plugin", self.plugin_id)
                 self.start()
-                return rpc.call("plugin.call", self.uuid, method, args or kwargs)
+                return rpc.call(
+                    "plugin.call",
+                    self.uuid,
+                    method,
+                    args or kwargs
+                )
             else:
                 raise
 
-
-
     def __enter__(self):
-      return self
+        return self
 
     def __exit__(self, _type, _value, _traceback):
         try:
@@ -762,6 +828,7 @@ class Plugin:
         except Exception as ex:
             if str(ex) != "cant_stop at plugin.stop":
                 raise
+
 
 class RPCWrapper:
     """
@@ -775,12 +842,15 @@ class RPCWrapper:
     """
     def __init__(self, module):
         self.module = module
+
     def __getattr__(self, sub):
-        return RPCWrapper(self.module+'.'+sub)
+        return RPCWrapper(self.module + '.' + sub)
+
     def __call__(self, *args, **kwargs):
         if args and kwargs:
             return rpc.call(self.module, *args, kwargs)
         return rpc.call(self.module, *args, **kwargs)
+
 
 action = RPCWrapper("action")
 auth = RPCWrapper("auth")
