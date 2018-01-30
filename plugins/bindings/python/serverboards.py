@@ -91,7 +91,7 @@ class RPC:
                     'id': call_id
                 }
             except Exception as e:
-                self.log_traceback(e)
+                log_traceback(e)
                 return {
                     'error': str(e),
                     'id': call_id
@@ -132,7 +132,7 @@ class RPC:
                             #       (f, method, args or kwargs))
                             f(*args, **kwargs)
                         except Exception as e:
-                            self.log_traceback(e)
+                            log_traceback(e)
             # pop from top
             self.pending_events_queue = self.pending_events_queue[1:]
 
@@ -175,7 +175,7 @@ class RPC:
                     try:
                         self.events[ready]()
                     except Exception as e:
-                        self.log_traceback(e)
+                        log_traceback(e)
             else:  # timeout
                 if timer.rearm:
                     timer.arm()
@@ -185,7 +185,7 @@ class RPC:
                 try:
                     timer.cont()
                 except Exception as e:
-                    self.log_traceback(e)
+                    log_traceback(e)
 
         self.loop_status = prev_status
 
@@ -278,7 +278,7 @@ class RPC:
         if tid in self.timers:
             del self.timers[tid]
 
-    def loop_stop(self, debug=True):
+    def loop_stop(self):
         """
         Forces loop stop on next iteration.
 
@@ -286,8 +286,7 @@ class RPC:
         serverboards will emit a SIGSTOP signal to stop processes when
         required.
         """
-        if debug:
-            debug("--- EOF ---")
+        debug("--- EOF ---")
         self.loop_status = 'EXIT'
 
     def __process_request(self, rpc):
@@ -312,7 +311,7 @@ class RPC:
                 elif error_cb and 'error' in rpc:
                     error_cb(rpc.get("error"))
             except Exception as e:
-                self.log_traceback(e)
+                log_traceback(e)
             del self.async_cb[id]
         else:
             res = self.call_local(rpc)
@@ -321,7 +320,7 @@ class RPC:
                     try:
                         self.println(json.dumps(res))
                     except Exception as e:
-                        self.log_traceback(e)
+                        log_traceback(e)
                         sys.stderr.write(repr(res) + '\n')
                         self.println(json.dumps({
                             "error": "serializing json response",
@@ -434,7 +433,7 @@ class RPC:
                     try:
                         self.async_cb[id]()
                     except Exception as e:
-                        self.log_traceback(e)
+                        log_traceback(e)
                     del self.async_cb[id]
                 else:
                     self.replyq[rpc['id']] = rpc
