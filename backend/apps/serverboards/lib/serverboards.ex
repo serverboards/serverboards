@@ -20,7 +20,7 @@ defmodule Serverboards do
     Serverboards.Supervisor.start_link name: Serverboards.Supervisor
   end
 
-  def stop(state) do
+  def stop(_state) do
     System.stop(1) # If serverboards app stops, stop it all. A daemon manager may restart it clean.
     # If already in a System.stop mode, it will exit with the other exit code
   end
