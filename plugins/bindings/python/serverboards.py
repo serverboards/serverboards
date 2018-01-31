@@ -273,11 +273,11 @@ class RPC:
         This internal function is used to do the real writing to the
         other end, as in some conditions it may be delayed.
         """
-        if rpc.get("result") or rpc.get("error"):
+        if "result" in rpc or "error" in rpc:
             return self.__process_result(rpc)
-        if rpc.get("method"):
+        if "method" in rpc:
             return self.__process_call(rpc)
-        raise Exception("unknown line type")
+        raise Exception("unknown line type: %s" % (rpc.keys(),))
 
     def __process_result(self, rpc):
         id = rpc.get("id")
