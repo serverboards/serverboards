@@ -83,3 +83,16 @@ components:
       - label: Right Expression
         type: query
         name: expr_right
+
+  - name: Table
+    type: widget
+    description: Table with headers and rows
+    id: table
+    hints:
+      w: 2
+      h: 5
+      nocss: true
+    params:
+      - label: Expression
+        type: query
+        name: data
