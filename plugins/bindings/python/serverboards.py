@@ -9,6 +9,8 @@ import sh as real_sh
 from contextlib import contextmanager
 
 plugin_id = os.environ.get("PLUGIN_ID")
+# May be overwritten by user program to fore all error to log
+stderr = sys.stderr
 
 
 def ellipsis_str(str, maxs=50):
@@ -60,6 +62,9 @@ class RPC:
         self.__last_rpc_id = 0
         # id to callback when receiving asynchornous responses
         self.__async_cb = {}
+        self.__debug = False
+        # functions to be called ASAP at the main loops
+        self.__call_soon = []
 
         # Async events, managed at the __event_signal_r/w fds
         # If a 4 byte int is written to event_signal_w, that event is
@@ -172,6 +177,16 @@ class RPC:
         self.__loop_status = prev_status
 
     def __loop_one(self):
+        # Call pending call_soon, in FIFO mode. New may appear while
+        # processing this, and its ok
+        while self.__call_soon:
+            cb = self.__call_soon[0]
+            try:
+                cb()
+            except Exception:
+                log_traceback()
+            self.__call_soon = self.__call_soon[1:]
+
         if self.__timers:
             timer = min(self.__timers.values(), key=lambda x: x.next)
             next_timeout = timer.next - time.time()
@@ -181,14 +196,14 @@ class RPC:
 
         # debug("Next timeout", next_timeout, timeout_id)
         # print("Wait for ", self.__fdevents.keys(),
-        #                    next_timeout, file=sys.stderr)
+        #                    next_timeout, file=stderr)
         if not next_timeout or next_timeout >= 0:
             res = select.select(self.__fdevents.keys(), [], [], next_timeout)
             read_ready = res[0]
         else:  # maybe timeout already expired
             read_ready = []
 
-        # print("Select finished: ", res, next_timeout, file=sys.stderr)
+        # print("Select finished: ", res, next_timeout, file=stderr)
 
         if read_ready:
             for ready in read_ready:
@@ -196,7 +211,7 @@ class RPC:
                     self.__fdevents[ready]()
                 except Exception:
                     log_traceback()
-        else:  # timeout
+        elif timer:  # timeout
             if timer.rearm:
                 timer.arm()
             else:
@@ -218,10 +233,10 @@ class RPC:
         # mini loop, may request calls while here
         while self.__loop_status != "EXIT":
             # if waiting for event, and event is no more, return
-            # print("Wait for events ", self.__events, file=sys.stderr)
+            # print("Wait for events ", self.__events, file=stderr)
             # I wait for an event, and its not there, then it has happened
             if event and not self.__events.get(event):
-                # print("Return from event ", event, file=sys.stderr)
+                # print("Return from event ", event, file=stderr)
                 return
 
             if self.__loop_status == "IN":
@@ -243,6 +258,8 @@ class RPC:
         Reads a line from the rpc input line, and parses it.
         """
         line = self.__stdin.readline()
+        if self.__debug:
+            print("<< %s" % line, file=stderr, end='\r\n')
         if not line:
             self.stop()
             return
@@ -260,8 +277,7 @@ class RPC:
             return self.__process_result(rpc)
         if rpc.get("method"):
             return self.__process_call(rpc)
-        print(repr(rpc), file=sys.stderr)
-        # raise Exception("unknown line type")
+        raise Exception("unknown line type")
 
     def __process_result(self, rpc):
         id = rpc.get("id")
@@ -281,11 +297,14 @@ class RPC:
             except Exception:
                 log_traceback()
             del self.__async_cb[id]
+        # Or just an answer
         else:
             # If not in IN status, queue for later
             if self.__loop_status != 'IN':
                 self.__requestq.append(rpc)
                 return
+            # keep it in the response store, later will check if ready
+            self.__replyq[id] = rpc
 
     def __process_call(self, rpc):
         self.__last_rpc_id = rpc.get("id")
@@ -315,6 +334,8 @@ class RPC:
         This function allows for easy debugging and some error conditions.
         """
         try:
+            if self.__debug:
+                print(">> %s" % line, file=stderr, end='\r\n')
             self.stdout.write(line + '\n')
             self.stdout.flush()
         except IOError:
@@ -354,6 +375,13 @@ class RPC:
         """
         self.__loop_status = 'EXIT'
         debug("--- EOF ---")
+
+    def set_debug(self, debug=True):
+        """
+        Enabled debug mode, shows all communications
+        """
+        self.__debug = debug
+        print("DEBUG MODE ON", file=stderr, end='\r\n')
 
     def set_stdin(self, stdin):
         """
@@ -401,6 +429,23 @@ class RPC:
             return True
         return False
 
+    class Timer:
+        """
+        Data about timers
+        """
+        def __init__(self, id, interval, cont, rearm):
+            self.next = None
+            self.id = id
+            self.interval = interval
+            self.cont = cont
+            self.rearm = rearm
+
+            self.arm()
+
+        def arm(self):
+            self.next = time.time() + self.interval
+            return self
+
     def add_timer(self, interval, cont, rearm=False):
         """
         Adds a timer to the rpc object
@@ -425,22 +470,10 @@ class RPC:
         timer_id : int
           Timer id to be used for later removal of timer
         """
-        class Timer:
-            def __init__(self, id, interval, cont, rearm):
-                self.next = None
-                self.id = id
-                self.interval = interval
-                self.cont = cont
-                self.rearm = rearm
-
-                self.arm()
-
-            def arm(self):
-                self.next = time.time() + self.interval
-                return self
+        assert interval and cont, "Required interval and continuation"
 
         tid = self.__timer_id
-        self.__timers[tid] = Timer(tid, interval, cont, rearm)
+        self.__timers[tid] = RPC.Timer(tid, interval, cont, rearm)
 
         self.__timer_id += 1
         return tid
@@ -575,10 +608,22 @@ class RPC:
         del self.__event_results[id]
         return res
 
+    def call_soon(self, callback):
+        """
+        Call ASAP the given callback, inside the loop
+        """
+        self.__call_soon.append(callback)
+
+    def status(self):
+        """
+        Returns current loop status
+        """
+        return self.__loop_status
+
 
 # RPC singleton
 rpc = RPC(sys.stdin, sys.stdout)
-sys.stdout = sys.stderr  # allow debugging by print
+sys.stdout = stderr  # allow debugging by print
 
 
 def rpc_method(f):
@@ -947,12 +992,12 @@ class SH:
 
     def Command(self, cmd):
         def caller(*args, **kwargs):
-            # print("Call %s(%s,%s)" % (cmd, args, kwargs), file=sys.stderr)
+            # print("Call %s(%s,%s)" % (cmd, args, kwargs), file=stderr)
 
             def run():
                 return real_sh.Command(cmd)(*args, **kwargs)
             response = rpc.thread_run(run)
-            # print("SH / %s: %s" % (cmd, repr(response)), file=sys.stderr)
+            # print("SH / %s: %s" % (cmd, repr(response)), file=stderr)
             return response
         return caller
 
