@@ -1,11 +1,12 @@
 #!/usr/bin/python3
+
 import sys, os, pty, shlex
 sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
-import serverboards, pexpect, shlex, re, subprocess, random, sh
+import serverboards, pexpect, shlex, re, subprocess, random
 import urllib.parse as urlparse
 import base64, re, time
 from common import *
-from serverboards import file, print, rpc, cache_ttl
+from serverboards import file, print, rpc, cache_ttl, sh
 sys.stderr=serverboards.error
 
 td_to_s_multiplier=[
