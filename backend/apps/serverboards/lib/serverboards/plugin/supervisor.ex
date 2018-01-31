@@ -8,7 +8,6 @@ defmodule Serverboards.Plugin.Supervisor do
       worker(Serverboards.Plugin.Data, [ [name: Serverboards.Plugin.Data] ]),
       worker(Serverboards.Plugin.Cron, [ [name: Serverboards.Plugin.Cron] ]),
       worker(Serverboards.Plugin.Monitor, [ [name: Serverboards.Plugin.Monitor] ]),
-      supervisor(Serverboards.Plugin.Init.Supervisor, [ [name: Serverboards.Plugin.Init.Supervisor] ]),
     ]
 
     Supervisor.start_link(children, [strategy: :one_for_one] ++ options)
