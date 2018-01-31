@@ -239,16 +239,15 @@ class RPC:
                 # print("Return from event ", event, file=stderr)
                 return
 
-            if self.__loop_status == "IN":
-                rpc = self.__replyq.get(id)
-                if rpc:
-                    del self.__replyq[id]
-                    if 'result' in rpc:
-                        return rpc['result']
-                    else:
-                        if rpc["error"] == "unknown_method":
-                            raise Exception("unknown_method %s" % method)
-                        raise Exception(rpc["error"])
+            rpc = self.__replyq.get(id)
+            if rpc:
+                del self.__replyq[id]
+                if 'result' in rpc:
+                    return rpc['result']
+                else:
+                    if rpc["error"] == "unknown_method":
+                        raise Exception("unknown_method %s" % method)
+                    raise Exception(rpc["error"])
             # this is last, so that if conditions are fulfilled at start, just
             # return
             self.__loop_one()
@@ -259,7 +258,7 @@ class RPC:
         """
         line = self.__stdin.readline()
         if self.__debug:
-            print("<< %s" % line, file=stderr, end='\r\n')
+            print("%s<< %s" % (plugin_id, line), file=stderr, end='\r\n')
         if not line:
             self.stop()
             return
@@ -299,14 +298,15 @@ class RPC:
             del self.__async_cb[id]
         # Or just an answer
         else:
-            # If not in IN status, queue for later
-            if self.__loop_status != 'IN':
-                self.__requestq.append(rpc)
-                return
             # keep it in the response store, later will check if ready
             self.__replyq[id] = rpc
 
     def __process_call(self, rpc):
+        # If not ready yet to process requests, queue it for later.
+        if self.__loop_status != 'IN':
+            self.__requestq.append(rpc)
+            return
+
         self.__last_rpc_id = rpc.get("id")
         res = self.__call_local(rpc)
         # subscription do not give back response
@@ -335,7 +335,7 @@ class RPC:
         """
         try:
             if self.__debug:
-                print(">> %s" % line, file=stderr, end='\r\n')
+                print("%s>> %s" % (plugin_id, line), file=stderr, end='\r\n')
             self.stdout.write(line + '\n')
             self.stdout.flush()
         except IOError:

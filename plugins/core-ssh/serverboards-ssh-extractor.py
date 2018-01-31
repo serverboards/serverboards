@@ -3,7 +3,7 @@ import sys
 import os
 import io
 import csv
-sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards
 from serverboards import print, Plugin
 
