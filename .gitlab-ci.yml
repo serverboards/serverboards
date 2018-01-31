@@ -93,7 +93,7 @@ release:
   only:
     - master
 
-publish:
+publish-unstable:
   stage: publish
   script:
     - sudo -H /usr/local/bin/publish-unstable
