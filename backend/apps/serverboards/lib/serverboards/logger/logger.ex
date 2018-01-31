@@ -12,7 +12,7 @@ defmodule Serverboards.Logger do
     * Uses a queue in state and flush it at :flush. This should increase throughput
     * First message may fail because database is not ready yet.
   """
-  use GenEvent
+  @behaviour :gen_event
 
   @doc ~S"""
   Returns a list of mesages, it can receive a filter
@@ -128,6 +128,26 @@ defmodule Serverboards.Logger do
   def handle_event({:configure, opts}, _state) do
     IO.puts("Logs configure: #{inspect opts}")
   end
+
+  @doc false
+  def handle_call(_msg, state) do
+    {:ok, state}
+  end
+
+  @doc false
+  def handle_info(_msg, state) do
+    {:ok, state}
+  end
+
+  @doc false
+  def terminate(_reason, _state) do
+    :ok
+  end
+
+  @doc false
+  def code_change(_old, state, _extra) do
+    {:ok,  state}
+  end
 end
 
 defmodule Serverboards.Logger.Server do
@@ -135,7 +155,7 @@ defmodule Serverboards.Logger.Server do
   Real logger to database; it has a queue and ensures data is properly saved
   without delaying the logger calls.
   """
-  use GenServer
+  @behaviour :gen_server
 
   @max_queue_size 100
 
@@ -215,5 +235,25 @@ defmodule Serverboards.Logger.Server do
     end
 
     {:reply, state.count, %{ count: 0, queue: [], timer: nil}}
+  end
+
+  @doc false
+  def handle_call(_msg, state) do
+    {:ok, state}
+  end
+
+  @doc false
+  def handle_info(_msg, state) do
+    {:ok, state}
+  end
+
+  @doc false
+  def terminate(_reason, _state) do
+    :ok
+  end
+
+  @doc false
+  def code_change(_old, state, _extra) do
+    {:ok,  state}
   end
 end
