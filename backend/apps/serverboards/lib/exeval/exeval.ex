@@ -110,7 +110,11 @@ defmodule ExEval do
     {:ok, expr, [{:close_paren, _, _} | rest ]} = parse_expr(rest, 1)
     {:ok, expr, rest}
   end
-  def parse_expr([{type, lit, _} | rest ], @max_op_pri) do
+  def parse_expr([{:unary_op, _, :not} | rest], pri) do
+    {:ok, ast, rest } = parse_expr(rest, pri)
+    {:ok, {:not, ast}, rest}
+  end
+  def parse_expr([{type, lit, _} | _rest ], @max_op_pri) do
     {:error, {:invalid_token, type, lit}}
   end
   def parse_expr(tokens, pri) do
@@ -122,10 +126,6 @@ defmodule ExEval do
       _ ->
         {:ok, op1, rest}
     end
-  end
-  def parse_expr([{:unary_op, _, :not} | rest], pri) do
-    {:ok, ast, rest } = parse_expr(rest, pri)
-    {:ok, {:not, ast}, rest}
   end
 
   def parse_literal(_, true), do: true
@@ -140,7 +140,7 @@ defmodule ExEval do
   end
 
 
-  def eval_ast({:literal, v}, context) do
+  def eval_ast({:literal, v}, _context) do
     {:ok, v}
   end
   def eval_ast({:var, v}, context) do

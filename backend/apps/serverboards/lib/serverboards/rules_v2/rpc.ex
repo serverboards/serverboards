@@ -80,7 +80,7 @@ defmodule Serverboards.RulesV2.RPC do
           |> Enum.into(%{})
         Serverboards.RulesV2.Rules.list(filter_a)
           |> Enum.map(&transform_rule_to_v1/1)
-      [] -> Serverboards.Rules.list
+      [] -> Serverboards.RulesV2.Rules.list
       filter ->
         if filter["service"]!=nil or filter["trigger"]!=nil do
           Logger.warn("Compatibility problem! V2 rules do not support this filter yet!")
@@ -160,7 +160,7 @@ defmodule Serverboards.RulesV2.RPC do
       {_k, v} when is_map(v) ->
         # Logger.debug("Go deeper: #{inspect v} find #{inspect key}")
         find_deep(v, key)
-      {k, v} ->
+      {_k, _v} ->
         # Logger.debug("Bad path: #{inspect k}/#{inspect v}")
         false
     end)

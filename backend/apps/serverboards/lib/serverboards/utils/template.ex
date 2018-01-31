@@ -29,7 +29,7 @@ defmodule Serverboards.Utils.Template do
     {:ok, nlist}
   end
   def render_map(orig, context) when is_binary(orig), do: render( orig, context )
-  def render_map(orig, context), do: {:ok, orig}
+  def render_map(orig, _context), do: {:ok, orig}
 
   def re_find_and_replace("", context) do # nice for debugging: {{}}
     inspect context
@@ -47,10 +47,10 @@ defmodule Serverboards.Utils.Template do
     end
   end
 
-  def re_find_and_replace_leaf(var, nil) do
+  def re_find_and_replace_leaf(_var, nil) do
     :unknown_var
   end
-  def re_find_and_replace_leaf(var, :unknown_var) do
+  def re_find_and_replace_leaf(_var, :unknown_var) do
     :unknown_var
   end
   def re_find_and_replace_leaf(_var, s) when is_binary(s) do

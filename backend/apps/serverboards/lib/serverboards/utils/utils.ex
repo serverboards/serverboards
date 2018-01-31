@@ -189,7 +189,7 @@ defmodule Serverboards.Utils do
     end)
     ret
   end
-  def map_diff(a, nil) do
+  def map_diff(_a, nil) do
     nil
   end
   # any other means just get b

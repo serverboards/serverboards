@@ -50,7 +50,6 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
-      service_id = service.id
       #Logger.debug("Operations: #{inspect operations}")
       changes = case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
         nil -> false

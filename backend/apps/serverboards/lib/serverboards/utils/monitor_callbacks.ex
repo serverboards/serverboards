@@ -26,7 +26,7 @@ defmodule Serverboards.Utils.MonitorCallbacks do
     }
   end
 
-  def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     for func <- Map.get(state, pid, []) do
       try do
         func.()
