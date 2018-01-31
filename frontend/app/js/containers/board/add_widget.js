@@ -1,5 +1,5 @@
 import connect from 'app/containers/connect'
-import View from 'app/components/project/board/add_widget'
+import View from 'app/components/board/add_widget'
 import {map_get} from 'app/utils'
 import rpc from 'app/rpc'
 import {goto} from 'app/utils/store'

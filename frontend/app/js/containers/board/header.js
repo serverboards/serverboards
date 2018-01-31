@@ -4,7 +4,7 @@ import {
   board_set_realtime,
   project_get_dashboard,
     }  from 'app/actions/project'
-import View from 'app/components/project/board/header'
+import View from 'app/components/board/header'
 import i18n from 'app/utils/i18n'
 
 const Controller = connect({

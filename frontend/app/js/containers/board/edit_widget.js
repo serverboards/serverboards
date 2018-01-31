@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import View from 'app/components/project/board/edit_widget'
+import View from 'app/components/board/edit_widget'
 import rpc from 'app/rpc'
 import {set_modal} from 'app/utils/store'
 import Modal from 'app/components/modal'

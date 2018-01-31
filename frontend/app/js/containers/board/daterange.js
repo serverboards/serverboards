@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 import { board_set_daterange_start, board_set_daterange_end}  from 'app/actions/project'
-import View from 'app/components/project/board/daterange'
+import View from 'app/components/board/daterange'
 
 const Controller = connect(
   (state) => ({

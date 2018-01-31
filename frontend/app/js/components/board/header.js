@@ -1,5 +1,5 @@
 import React from 'react'
-import DateRange from 'app/containers/project/board/daterange'
+import DateRange from 'app/containers/board/daterange'
 import { request_fullscreen } from 'app/utils/fullscreen'
 import i18n from 'app/utils/i18n'
 import moment from 'moment'

@@ -1,5 +1,5 @@
 import React from 'react'
-import AddWidget from 'app/containers/project/board/add_widget'
+import AddWidget from 'app/containers/board/add_widget'
 import i18n from 'app/utils/i18n'
 
 class AddWidgets extends React.Component{

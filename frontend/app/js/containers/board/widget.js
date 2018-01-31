@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import WidgetView from 'app/components/project/board/widget'
+import WidgetView from 'app/components/board/widget'
 
 const Widget = connect(
   (state, props) => ({

@@ -1,8 +1,8 @@
 import React from 'react'
 import {random_color} from 'app/utils'
-import Board from 'app/containers/project/board'
+import Board from 'app/containers/board'
 import Loading from '../loading'
-import HeaderMenu from 'app/containers/project/board/header'
+import HeaderMenu from 'app/containers/board/header'
 
 
 const Overview = React.createClass({

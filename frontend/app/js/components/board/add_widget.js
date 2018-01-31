@@ -5,7 +5,7 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
-import Widget from 'app/containers/project/board/widget'
+import Widget from 'app/containers/board/widget'
 import EditWidget from './edit_widget'
 
 function SetupWidget(props){

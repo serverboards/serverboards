@@ -1,6 +1,6 @@
 import React from 'react'
-import BoardView from 'app/components/project/board'
-import AddWidget from 'app/containers/project/board/add_widget'
+import BoardView from 'app/components/board'
+import AddWidget from 'app/containers/board/add_widget'
 import store from 'app/utils/store'
 import {
   project_update_widget_catalog,
