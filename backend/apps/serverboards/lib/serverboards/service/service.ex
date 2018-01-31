@@ -88,20 +88,20 @@ defmodule Serverboards.Service do
     end
   end
 
-  defp service_update_tag(service_id, service, tag_category, tag, me) do
-    fulltag = "#{tag_category}:#{tag}"
-    newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
-    newtags = if tag do
-      [fulltag | newtags ]
-    else
-      newtags
-    end
-    update_tags_real(%{ id: service_id }, newtags)
-    service = %{ service |
-      tags: newtags
-    }
-    {:ok, service}
-  end
+  # defp service_update_tag(service_id, service, tag_category, tag, me) do
+  #   fulltag = "#{tag_category}:#{tag}"
+  #   newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
+  #   newtags = if tag do
+  #     [fulltag | newtags ]
+  #   else
+  #     newtags
+  #   end
+  #   update_tags_real(%{ id: service_id }, newtags)
+  #   service = %{ service |
+  #     tags: newtags
+  #   }
+  #   {:ok, service}
+  # end
 
   defp update_tags_real(service, tags) do
     import Ecto.Query
