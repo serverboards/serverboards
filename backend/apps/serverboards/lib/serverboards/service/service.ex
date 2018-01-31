@@ -249,7 +249,7 @@ defmodule Serverboards.Service do
         project_obj = Repo.get_by(ProjectModel, shortname: project)
         service_obj = Repo.get_by(ServiceModel, uuid: service)
         if Enum.all?([project_obj, service_obj]) do
-          {:ok, _project_service} = Repo.insert( %ProjectServiceModel{
+          {:ok, _project_service} = Repo.insert( %Serverboards.Project.Model.ProjectService{
             project_id: project_obj.id,
             service_id: service_obj.id
           } )

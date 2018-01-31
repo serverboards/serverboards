@@ -4,7 +4,7 @@ defmodule Serverboards.Auth.User.Model do
 
   	schema "auth_user_password" do
   		field :password, :string
-  		belongs_to :user, User
+  		belongs_to :user, Serverboards.Auth.Model.User
 
   		timestamps()
   	end
@@ -34,7 +34,7 @@ defmodule Serverboards.Auth.User.Model do
       field :time_limit, :utc_datetime
       field :perms, {:array, :string}
 
-      belongs_to :user, User
+      belongs_to :user, Serverboards.Auth.Model.User
 
       timestamps()
   	end

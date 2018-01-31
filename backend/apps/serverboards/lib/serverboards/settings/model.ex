@@ -23,7 +23,7 @@ defmodule Serverboards.Settings.Model do
 
     schema "settings_user_settings" do
 			field :section, :string
-			belongs_to :user, User
+			belongs_to :user, Serverboards.Auth.Model.User
       field :data, :map
 
       timestamps()

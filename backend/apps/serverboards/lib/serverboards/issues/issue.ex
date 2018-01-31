@@ -1,5 +1,4 @@
 require Logger
-require Serverboards.Issues.Model
 
 defmodule Serverboards.Issues.Issue do
   alias Serverboards.Repo
