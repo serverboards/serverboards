@@ -738,6 +738,8 @@ def log_(rpc, type):
         msg = ' '.join(str(x) for x in msg)
         if file is not None:
             file.write(msg + "\n")
+        if not msg:
+            return
         return rpc.event(
             log_method,
             str(msg),
