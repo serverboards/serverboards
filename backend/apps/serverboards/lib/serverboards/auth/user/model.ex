@@ -31,7 +31,7 @@ defmodule Serverboards.Auth.User.Model do
     use Ecto.Schema
     schema "auth_user_token" do
       field :token, :string
-      field :time_limit, Ecto.DateTime
+      field :time_limit, :utc_datetime
       field :perms, {:array, :string}
 
       belongs_to :user, User

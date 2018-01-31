@@ -4,7 +4,7 @@ defmodule Serverboards.Logger.Model do
     schema "logger_line" do
       field :message, :string
       field :level, :string
-      field :timestamp, Ecto.DateTime
+      field :timestamp, :utc_datetime
       field :meta, :map
     end
 
