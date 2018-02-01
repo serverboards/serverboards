@@ -139,38 +139,27 @@ def main_all_at_once():
         )
     )
 
-    logfilename = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        "../log/backend.log.txt"
-    )
-
     with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
         start = time.time()
         printc("RUN TESTS", color="blue")
-        logfile = open(logfilename, "wb")
+        logfile = sys.stdout
         try:
             sh.mix.run(
                 "priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
             sh.mix.test(_out=logfile, _err=logfile)
-            logfile.close()
         except Exception:
-            logfile.close()
             import traceback
             traceback.print_exc()
             fail = True
         except sh.ErrorReturnCode_1:
-            logfile.close()
-            print("")
-            print("---------------------------------------")
-            print(open(logfilename).read())
-            print("")
-            print("---------------------------------------")
             fail = True
         end = time.time()
         accumulated_time += (end - start)
     printc("Done", color="grey", hl=True)
 
-    printc("Elapsed time: %s" % accumulated_time, color="grey", hl=True)
+    printc("Elapsed time: %d:%02d" %
+           (accumulated_time / 60, accumulated_time % 60),
+           color="grey", hl=True)
     if fail:
         printc("FAIL", color="red")
         sys.exit(1)
