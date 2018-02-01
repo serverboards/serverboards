@@ -12,7 +12,7 @@ import sys
 import time
 from multiprocessing import Pool
 from tests_common import random_dbname, printc, copytmpdb, chdir, envset
-from tests_common import tmpdb
+from tests_common import tmpdb, compile
 
 
 TEST_DIR = 'backend/apps/serverboards/test/'
@@ -114,5 +114,70 @@ def main():
     sys.exit(0)
 
 
+def main_all_at_once():
+    sh.mkdir("-p", "log")
+    fail = False
+
+    printc("COMPILING", color="blue")
+    start = time.time()
+    try:
+        compile(logfile=open("log/compile.txt", "wb"))
+    except Exception:
+        printc("ERROR COMPILING", color="red")
+        with open("log/compile.txt") as fd:
+            print(fd.read())
+            sys.exit(1)
+    end = time.time()
+    accumulated_time = (end - start)  # count also compilation time
+
+    dbname = random_dbname()
+    envs = dict(
+        MIX_ENV="test",
+        SERVERBOARDS_PATH=os.getcwd() + "/local/",
+        SERVERBOARDS_DATABASE_URL=(
+            "postgresql://serverboards:serverboards@localhost/" + dbname
+        )
+    )
+
+    logfilename = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        "../log/backend.log.txt"
+    )
+
+    with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
+        start = time.time()
+        printc("RUN TESTS", color="blue")
+        logfile = open(logfilename, "wb")
+        try:
+            sh.mix.run(
+                "priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
+            sh.mix.test(_out=logfile, _err=logfile)
+            logfile.close()
+        except Exception:
+            logfile.close()
+            import traceback
+            traceback.print_exc()
+            fail = True
+        except sh.ErrorReturnCode_1:
+            logfile.close()
+            print("")
+            print("---------------------------------------")
+            print(open(logfilename).read())
+            print("")
+            print("---------------------------------------")
+            fail = True
+        end = time.time()
+        accumulated_time += (end - start)
+    printc("Done", color="grey", hl=True)
+
+    printc("Elapsed time: %s" % accumulated_time, color="grey", hl=True)
+    if fail:
+        printc("FAIL", color="red")
+        sys.exit(1)
+    else:
+        printc("SUCCESS", color="green")
+        sys.exit(0)
+
+
 if __name__ == '__main__':
-    main()
+    main_all_at_once()

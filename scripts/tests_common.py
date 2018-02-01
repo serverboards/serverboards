@@ -148,11 +148,14 @@ class running:
         try:
             # hack do not throw, please
             tmp = \
-                sh._SelfWrapper__self_module.SIGNALS_THAT_SHOULD_THROW_EXCEPTION
-            sh._SelfWrapper__self_module.SIGNALS_THAT_SHOULD_THROW_EXCEPTION = set([])
+                sh._SelfWrapper__self_module.\
+                SIGNALS_THAT_SHOULD_THROW_EXCEPTION
+            sh._SelfWrapper__self_module.\
+                SIGNALS_THAT_SHOULD_THROW_EXCEPTION = set([])
             self.process.terminate()
             self.process.wait()
-            sh._SelfWrapper__self_module.SIGNALS_THAT_SHOULD_THROW_EXCEPTION = tmp
+            sh._SelfWrapper__self_module.\
+                SIGNALS_THAT_SHOULD_THROW_EXCEPTION = tmp
         except Exception as e:
             printc("TERMINATED %s: %s" % (self.command, str(e)), color="blue")
 
