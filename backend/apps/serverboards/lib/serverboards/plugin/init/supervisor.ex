@@ -2,7 +2,7 @@ require Logger
 
 defmodule Serverboards.Plugin.Init.Supervisor do
   @moduledoc """
-  Supervisor for init proceses, keep them running always.
+  Supervisor for init proceses, keep them running always.
   """
   use Supervisor
 

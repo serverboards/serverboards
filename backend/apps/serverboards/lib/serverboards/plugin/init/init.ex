@@ -132,7 +132,10 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
   end
   def handle_info({_ref, {:ok, waits}}, state) when is_number(waits) do
     %{started_at: started_at } = state
-    running_for_seconds = -Timex.Duration.diff(started_at, nil, :seconds)
+    running_for_seconds = if started_at do
+      -Timex.Duration.diff(started_at, nil, :seconds)
+    else nil end
+
     timeout = max(1, waits)
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
@@ -142,7 +145,7 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
       started_at: nil,
       task: nil
     }
-    Logger.info("Init \"#{state.init.id}\" finished properly. Did run for #{running_for_seconds} seconds. Restart in #{state.timeout} seconds.", state: state)
+    Logger.info("Init \"#{state.init.id}\" finished properly. Did run for #{inspect running_for_seconds} seconds. Restart in #{state.timeout} seconds.", state: state)
     {:noreply, state}
   end
   def handle_info({:EXIT, _from, :normal}, state) do
