@@ -142,11 +142,9 @@ def main_all_at_once():
     with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
         start = time.time()
         printc("RUN TESTS", color="blue")
-        logfile = sys.stdout
         try:
-            sh.mix.run(
-                "priv/repo/test_seeds.exs", _out=logfile, _err=logfile)
-            sh.mix.test(_out=logfile, _err=logfile)
+            assert os.system("mix run priv/repo/test_seeds.exs") == 0
+            assert os.system("mix test") == 0
         except Exception:
             import traceback
             traceback.print_exc()
