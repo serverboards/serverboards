@@ -12,9 +12,12 @@ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable
 wget -LO- https://packages.gitlab.com/install/repositories/runner/gitlab-ci-multi-runner/script.deb.sh | sudo bash
 
 sudo dpkg -i erlang-solutions_1.0_all.deb
+wget https://packages.erlang-solutions.com/debian/pool/elixir_1.5.2-1~ubuntu~xenial_amd64.deb
+sudo dpkg -i elixir_1.5.2-1~ubuntu~xenial_amd64.deb
+echo "elixir hold" | sudo dpkg --set-selections
 
 sudo apt update
-sudo apt install -y debhelper esl-erlang elixir nodejs libpam-dev \
+sudo apt install -y debhelper esl-erlang nodejs libpam-dev \
   pkg-config libsystemd-dev dh-systemd python3 \
   python3-requests python3-pexpect python3-yaml python3-markdown \
   postgresql postgresql-client inotify-tools git nginx \
