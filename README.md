@@ -7,28 +7,36 @@ Serverboards makes it easy for you to control your IT Infrastructure from a
 single dashboard. Servers, virtual machines, websites, databases and more can
 be monitored or managed in an easy way.
 
-<p align="center"> ![Dashboard](docs/001-dashboard.png)
+<p align="center">
+  <img src="docs/001-dashboard.png" title="Dashboard"/>
+</p>
 
 ## Automated work flows made easy with our GUI-based rules composer
 
 Easily monitor your server performance in real time, manage your virtual
 machines and automate most common infrastructure issues.
 
-<p align="center"> ![Rules](docs/002-rules.png)
+<p align="center">
+  <img src="docs/002-rules.png" title="Rules">
+</p>
 
 ## Embedded SSH terminal by default
 
 Serverboards comes with an embedded SSH terminal. Easily perform console actions
 from the very same place to troubleshoot faster.
 
-<p align="center"> ![Terminal](docs/003-terminal.png)
+<p align="center">
+  <img src="docs/003-terminal.png" title="Terminal"/>
+</p>
 
 ## Built in Issues and Logs with alerting
 
 If something happens, you can access the traces in our in-built logging solution
 and identify what caused the error.
 
-<p align="center"> ![Alerting](docs/004-alerting.png)
+<p align="center">
+  <img src="docs/004-alerting.png" title="Alerting"/>
+</p>
 
 ## Plugin based
 
