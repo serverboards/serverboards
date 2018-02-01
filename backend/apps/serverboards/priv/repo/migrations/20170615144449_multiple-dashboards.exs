@@ -11,7 +11,7 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
       add :name, :string
       add :order, :integer, default: 0
       add :config, :map
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     create unique_index(:project_dashboard, [:uuid])
     create index(:project_dashboard, [:project_id])

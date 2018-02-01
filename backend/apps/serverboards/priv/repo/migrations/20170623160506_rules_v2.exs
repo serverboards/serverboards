@@ -16,7 +16,7 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.RulesV2" do
 
       add :from_template, :string
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     create unique_index(:rules_v2_rule, [:uuid])
     create index(:rules_v2_rule, [:is_active])
@@ -28,7 +28,7 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.RulesV2" do
       add :rule_id, :id
       add :state, :map
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     create unique_index(:rules_v2_rule_state, [:rule_id])
   end

@@ -1,5 +1,5 @@
 defmodule Serverboards.Logger.Console do
-  use GenEvent
+  @behaviour :gen_event
 
   def colors do
     %{debug: :cyan,
@@ -140,5 +140,25 @@ defmodule Serverboards.Logger.Console do
   end
   def handle_event({:configure, opts}, _state) do
     IO.puts("Serverboards.Logger.Console configure: #{inspect opts}")
+  end
+
+  @doc false
+  def handle_call(_msg, state) do
+    {:ok, state}
+  end
+
+  @doc false
+  def handle_info(_msg, state) do
+    {:ok, state}
+  end
+
+  @doc false
+  def terminate(_reason, _state) do
+    :ok
+  end
+
+  @doc false
+  def code_change(_old, state, _extra) do
+    {:ok,  state}
   end
 end

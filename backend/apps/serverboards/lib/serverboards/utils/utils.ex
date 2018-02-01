@@ -19,8 +19,11 @@ defmodule Serverboards.Utils do
     true
 
   """
-  def clean_struct(%{ calendar: Calendar.ISO, day: _day, hour: _hour} = datetime) do
-    Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! datetime)
+  def clean_struct(%NaiveDateTime{} = datetime) do
+    DateTime.to_iso8601(DateTime.from_naive!(datetime, "Etc/UTC"))
+  end
+  def clean_struct(%DateTime{} = datetime) do
+    DateTime.to_iso8601(datetime)
   end
   def clean_struct(st) when is_map(st) do
     st = Map.to_list st
@@ -189,7 +192,7 @@ defmodule Serverboards.Utils do
     end)
     ret
   end
-  def map_diff(a, nil) do
+  def map_diff(_a, nil) do
     nil
   end
   # any other means just get b

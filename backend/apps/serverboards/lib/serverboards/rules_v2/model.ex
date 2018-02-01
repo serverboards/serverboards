@@ -14,7 +14,7 @@ defmodule Serverboards.RulesV2.Model do
       field :rule, :map, default: %{}
       field :from_template, :string, default: nil
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     @required_fields ~w(uuid is_active)a
     @optional_fields ~w(deleted name description project_id rule from_template)a
@@ -32,7 +32,7 @@ defmodule Serverboards.RulesV2.Model do
       field :rule_id, :id
       field :state, :map
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     @required_fields ~w(rule_id state)a
     @optional_fields ~w()a

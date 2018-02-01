@@ -116,7 +116,7 @@ defmodule Serverboards.RuleV2Test do
     File.rm("/tmp/rule-v2.test")
     File.rm("/tmp/rule-v2-2.test")
 
-    {:ok, pid} = Serverboards.RulesV2.Rule.start_link(rule)
+    {:ok, _pid} = Serverboards.RulesV2.Rule.start_link(rule)
 
     :timer.sleep(1000)
     Logger.info("Running: #{inspect Serverboards.Action.ps(1)}")
@@ -273,8 +273,8 @@ defmodule Serverboards.RuleV2Test do
       }
     }
 
-    template = Serverboards.Plugin.Registry.find("serverboards.test.auth/rule.template")
-    {:ok, pid} = Serverboards.RulesV2.Rule.start_link(rule)
+    _template = Serverboards.Plugin.Registry.find("serverboards.test.auth/rule.template")
+    {:ok, _pid} = Serverboards.RulesV2.Rule.start_link(rule)
 
     %{rule: rule} = Serverboards.RulesV2.Rule.status(uuid)
     Logger.info("Real rule #{inspect rule, pretty: true}")
@@ -290,7 +290,7 @@ defmodule Serverboards.RuleV2Test do
       {:error, _} -> nil
     end
 
-    {:ok, service_uuid} = Serverboards.Service.service_add %{ "name" => "Test service", "config" => %{ "url" => "http://localhost" } }, Test.User.system
+    {:ok, _service_uuid} = Serverboards.Service.service_add %{ "name" => "Test service", "config" => %{ "url" => "http://localhost" } }, Test.User.system
     rule = %{
       "name" => "test",
       "description" => "description",

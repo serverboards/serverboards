@@ -5,7 +5,7 @@ defmodule Serverboards.Repo.Migrations.Settings do
     create table :settings_settings do
       add :section, :string
       add :data, :map
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create index(:settings_settings, [:section])

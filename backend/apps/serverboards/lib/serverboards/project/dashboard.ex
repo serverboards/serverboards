@@ -95,7 +95,7 @@ defmodule Serverboards.Project.Dashboard do
     )
   end
 
-  def dashboard_add_real( %{ uuid: uuid } = attr, me) do
+  def dashboard_add_real( %{ uuid: _uuid } = attr, me) do
     {:ok, project} = Serverboards.Project.project_get( attr.project, me  )
     attr = Map.drop( attr, [:project] )
     attr = Map.put(attr, :project_id, project.id )

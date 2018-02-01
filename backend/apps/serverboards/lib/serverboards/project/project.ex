@@ -34,8 +34,8 @@ defmodule Serverboards.Project do
 
       project = %{
         project |
-        inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.inserted_at),
-        updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.updated_at)
+        inserted_at: DateTime.to_iso8601(project.inserted_at),
+        updated_at: DateTime.to_iso8601(project.updated_at)
       }
       Serverboards.Event.emit("project.created", %{ project: project}, ["project.get"])
 
@@ -70,8 +70,8 @@ defmodule Serverboards.Project do
       {:ok, project} = project_get upd, me
       project = %{
         project |
-        inserted_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.inserted_at),
-        updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! project.updated_at)
+        inserted_at: DateTime.to_iso8601(project.inserted_at),
+        updated_at: DateTime.to_iso8601(project.updated_at)
       }
       Serverboards.Event.emit(
         "project.updated",

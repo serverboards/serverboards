@@ -113,7 +113,7 @@ defmodule Serverboards.Plugin.Parser do
         column=where[:column]
         Logger.error("Error loading yaml. Bad formed #{filename}:#{line}:#{column}")
         {:error, :bad_formed}
-      e in FunctionClauseError ->
+      _e in FunctionClauseError ->
         Logger.error("Error loading yaml. Bad formed #{filename}")
         {:error, :bad_formed}
     end

@@ -50,7 +50,6 @@ defmodule Serverboards.Service do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
     if service do
-      service_id = service.id
       #Logger.debug("Operations: #{inspect operations}")
       changes = case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
         nil -> false
@@ -89,20 +88,20 @@ defmodule Serverboards.Service do
     end
   end
 
-  defp service_update_tag(service_id, service, tag_category, tag, me) do
-    fulltag = "#{tag_category}:#{tag}"
-    newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
-    newtags = if tag do
-      [fulltag | newtags ]
-    else
-      newtags
-    end
-    update_tags_real(%{ id: service_id }, newtags)
-    service = %{ service |
-      tags: newtags
-    }
-    {:ok, service}
-  end
+  # defp service_update_tag(service_id, service, tag_category, tag, me) do
+  #   fulltag = "#{tag_category}:#{tag}"
+  #   newtags = Enum.filter(service.tags, &(not String.starts_with?(&1, tag_category)))
+  #   newtags = if tag do
+  #     [fulltag | newtags ]
+  #   else
+  #     newtags
+  #   end
+  #   update_tags_real(%{ id: service_id }, newtags)
+  #   service = %{ service |
+  #     tags: newtags
+  #   }
+  #   {:ok, service}
+  # end
 
   defp update_tags_real(service, tags) do
     import Ecto.Query
@@ -250,7 +249,7 @@ defmodule Serverboards.Service do
         project_obj = Repo.get_by(ProjectModel, shortname: project)
         service_obj = Repo.get_by(ServiceModel, uuid: service)
         if Enum.all?([project_obj, service_obj]) do
-          {:ok, _project_service} = Repo.insert( %ProjectServiceModel{
+          {:ok, _project_service} = Repo.insert( %Serverboards.Project.Model.ProjectService{
             project_id: project_obj.id,
             service_id: service_obj.id
           } )

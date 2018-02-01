@@ -19,8 +19,8 @@ defmodule Serverboards.Issues do
       title: i.title,
       creator: Serverboards.Issues.Issue.decorate_user(i.creator),
       status: i.status,
-      date: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! i.inserted_at),
-      updated_at: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! i.updated_at),
+      date: DateTime.to_iso8601(i.inserted_at),
+      updated_at: DateTime.to_iso8601(i.updated_at),
       labels: Enum.map(i.labels, &Serverboards.Issues.Issue.decorate_label/1 )
     }
   end
@@ -55,7 +55,6 @@ defmodule Serverboards.Issues do
       else
         since
       end
-      #since = Ecto.DateTime.cast!(since)
 
       q |> where([i], i.updated_at > ^since)
     else q end

@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.RuleV2Test do
+defmodule Serverboards.ExEvalTest do
   use ExUnit.Case
   @moduletag :capture_log
 

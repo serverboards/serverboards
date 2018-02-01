@@ -38,7 +38,7 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
 
     success? = for {rule, n} <- Enum.with_index(rules, 1) do
       case start(rule) do
-        {:ok, pid} ->
+        {:ok, _pid} ->
           #Logger.info("#{n}. Rule #{inspect r.uuid} started", rule: r)
           :ok
         {:error, :cant_start_trigger} ->

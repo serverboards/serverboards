@@ -200,7 +200,7 @@ defmodule Serverboards.Project.Widget do
             {:error, error} ->
               {name, %{error: error}}
           end
-        other ->
+        _other ->
           {name, config[name]}
       end
     end |> Map.new

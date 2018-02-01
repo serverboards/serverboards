@@ -62,7 +62,7 @@ defmodule Serverboards.RulesV2.Rules do
     {:ok, es} = EventSourcing.start_link( [name: Serverboards.RulesV2.EventSourcing] ++ options )
     EventSourcing.Model.subscribe es, :rules_v2, Serverboards.Repo
 
-    EventSourcing.subscribe es, :create, fn %{ uuid: uuid, data: data }, me ->
+    EventSourcing.subscribe es, :create, fn %{ uuid: uuid, data: data }, _me ->
       create_real(uuid, data)
       rule = get(uuid)
       Serverboards.Event.emit("rules_v2.created", %{ rule: rule }, ["rules.view"])
@@ -72,7 +72,7 @@ defmodule Serverboards.RulesV2.Rules do
       end
     end
 
-    EventSourcing.subscribe es, :update, fn %{ uuid: uuid, changes: changes }, me ->
+    EventSourcing.subscribe es, :update, fn %{ uuid: uuid, changes: changes }, _me ->
       update_real(uuid, changes)
       rule = get(uuid)
       Serverboards.Event.emit("rules_v2.updated", %{ rule: rule }, ["rules.view"])
@@ -253,7 +253,7 @@ defmodule Serverboards.RulesV2.Rules do
 
   def get(uuid) do
     import Ecto.Query
-    q = (
+    (
       from r in Model.Rule,
       where: r.uuid == ^uuid,
       select: r

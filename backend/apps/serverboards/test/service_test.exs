@@ -141,14 +141,14 @@ defmodule ServerboardTest do
 
   test "Service on_update as event" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    {:ok, uuid } = Test.Client.call(client, "plugin.start", ["serverboards.test.auth/fake"]) # ensure running
+    {:ok, _uuid } = Test.Client.call(client, "plugin.start", ["serverboards.test.auth/fake"]) # ensure running
     :timer.sleep(300)
     {:ok, _ } = Test.Client.call(client, "event.subscribe", ["test.service.updated"] )
 
     {:ok, uuid} = Test.Client.call(client, "service.create", %{ name: "test", type: "serverboards.test.auth/server"})
     assert Test.Client.expect(client, method: "test.service.updated")
 
-    {:ok, uuid} = Test.Client.call(client, "service.update", [uuid, %{ name: "test2" }])
+    {:ok, _uuid} = Test.Client.call(client, "service.update", [uuid, %{ name: "test2" }])
 
     assert Test.Client.expect(client, method: "test.service.updated")
   end

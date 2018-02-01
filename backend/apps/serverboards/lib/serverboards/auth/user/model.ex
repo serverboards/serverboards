@@ -4,9 +4,9 @@ defmodule Serverboards.Auth.User.Model do
 
   	schema "auth_user_password" do
   		field :password, :string
-  		belongs_to :user, User
+  		belongs_to :user, Serverboards.Auth.Model.User
 
-  		timestamps()
+  		timestamps(type: :utc_datetime)
   	end
 
     @required_fields [:password, :user_id]
@@ -31,12 +31,12 @@ defmodule Serverboards.Auth.User.Model do
     use Ecto.Schema
     schema "auth_user_token" do
       field :token, :string
-      field :time_limit, Ecto.DateTime
+      field :time_limit, :utc_datetime
       field :perms, {:array, :string}
 
-      belongs_to :user, User
+      belongs_to :user, Serverboards.Auth.Model.User
 
-      timestamps()
+      timestamps(type: :utc_datetime)
   	end
 
   	@required_fields ~w(user_id token)a
@@ -45,7 +45,6 @@ defmodule Serverboards.Auth.User.Model do
     def changeset(token, params \\ :empty) do
       import Ecto.Changeset
   		time_limit = Timex.shift( DateTime.utc_now(), days: 1 )
-  		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
 
       token
         |> cast(params, @required_fields ++ @optional_fields)

@@ -2,9 +2,9 @@ require Logger
 
 defmodule InitTest do
   use ExUnit.Case, async: false
-  # @moduletag :capture_log
+  @moduletag :capture_log
 
-  alias Test.Client
+  # alias Test.Client
 
   setup do
     # Explicitly get a connection before each test
@@ -21,7 +21,7 @@ defmodule InitTest do
     }
 
     # WARNING may fail as timers are a bit tight
-    {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
+    {:ok, _pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
     assert Serverboards.Plugin.Runner.status(init.command) == :running
     :timer.sleep(1500)
@@ -53,7 +53,7 @@ defmodule InitTest do
       id: "test.reload"
     }
 
-    {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
+    {:ok, _pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
 
     Serverboards.Event.emit("plugins.reloaded", [])

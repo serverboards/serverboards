@@ -40,7 +40,6 @@ defmodule Serverboards.Auth.User.Token do
 	"""
 	def refresh(token, email) do
 		time_limit = Timex.shift( DateTime.utc_now, days: 1 )
-		{:ok, time_limit} = Ecto.DateTime.cast( time_limit )
 
 		[user_id] = Repo.all( from u in User, where: u.email == ^email, select: u.id )
 

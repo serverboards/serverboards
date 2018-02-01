@@ -336,7 +336,7 @@ defmodule Serverboards.RulesV2.Rule do
       "condition" => condition,
       "then" => then_actions,
       "else" => else_actions
-      } = step, state) do
+      }, state) do
 
     eval_res = ExEval.eval(condition, [state])
     #Logger.info("Check condition #{inspect condition}: #{inspect eval_res}.", state: state, rule_uuid: uuid)
@@ -349,7 +349,7 @@ defmodule Serverboards.RulesV2.Rule do
           # Logger.debug("#{inspect condition} -> false")
           { else_actions, state }
         end
-      {:error, {:unknown_var, varname, _context}} ->
+      {:error, {:unknown_var, _varname, _context}} ->
         #Logger.debug("Unknown variable #{inspect varname} at condition #{inspect condition}. Resolving as false.", rule_uuid: uuid)
         { else_actions, state }
       {:error, error} ->
@@ -366,7 +366,7 @@ defmodule Serverboards.RulesV2.Rule do
     case reason do
       :normal ->
         Logger.info("Rule #{inspect state.uuid} stopped.", rule_uuid: state.uuid)
-      other ->
+      _other ->
         Logger.error("Terminate #{inspect reason}", rule_uuid: state.uuid)
     end
 
