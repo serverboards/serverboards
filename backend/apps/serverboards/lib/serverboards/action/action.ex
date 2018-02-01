@@ -110,7 +110,7 @@ defmodule Serverboards.Action do
         action = Plugin.Registry.find(h.type)
         %{
           uuid: h.uuid,
-          date: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! h.inserted_at),
+          date: DateTime.to_iso8601(h.inserted_at),
           elapsed: h.elapsed,
           action: if action do action.name else "Unknown Action" end,
           user: user_email,
@@ -145,7 +145,7 @@ defmodule Serverboards.Action do
 
           %{
             uuid: h.uuid,
-            date: Ecto.DateTime.to_iso8601(Ecto.DateTime.cast! h.inserted_at),
+            date: DateTime.to_iso8601(h.inserted_at),
             params: h.params,
             elapsed: h.elapsed,
             action: action.name,

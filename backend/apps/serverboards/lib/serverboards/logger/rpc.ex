@@ -19,7 +19,7 @@ defmodule Serverboards.Logger.RPC do
         count: history.count,
         lines: Enum.map(history.lines, fn l -> %{
             l |
-            timestamp: Ecto.DateTime.to_iso8601(l.timestamp)
+            timestamp: DateTime.to_iso8601(l.timestamp)
           } end)
       }
 

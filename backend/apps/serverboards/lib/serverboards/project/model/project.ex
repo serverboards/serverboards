@@ -8,7 +8,7 @@ defmodule Serverboards.Project.Model.Project do
     field :priority, :integer
 
     has_many :tags, Serverboards.Project.Model.ProjectTag
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @required_fields ~w(shortname)a

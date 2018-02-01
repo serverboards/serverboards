@@ -7,7 +7,7 @@ defmodule Serverboards.Project.Model.Dashboard do
     field :order, :integer, default: 0
     field :config, :map
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
   @required_fields ~w(project_id uuid name)a
   @optional_fields ~w(config order)a

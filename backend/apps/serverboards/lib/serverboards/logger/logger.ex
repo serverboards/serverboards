@@ -220,10 +220,13 @@ defmodule Serverboards.Logger.Server do
     entries = for {message, timestamp, metadata, level} <- Enum.reverse(state.queue) do
       {ymd, {h,m,s, _}} = timestamp
       timestamp = {ymd, {h,m,s}}
+      timestamp = NaiveDateTime.from_erl!(timestamp)
+      timestamp = DateTime.from_naive!(timestamp, "Etc/UTC")
+
       %{
         message: to_string(message),
         level: to_string(level),
-        timestamp: Ecto.DateTime.from_erl(timestamp),
+        timestamp: timestamp,
         meta: Map.new(metadata, fn {k,v} -> {k, to_json_type v} end)
         }
     end

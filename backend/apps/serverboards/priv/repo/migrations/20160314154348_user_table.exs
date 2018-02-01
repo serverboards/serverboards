@@ -8,14 +8,14 @@ defmodule Serverboards.Repo.Migrations.UserTable do
       add :last_name, :string
       add :is_active, :boolean
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create table(:auth_user_password) do
       add :password, :string
       add :user_id, :id
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create table(:auth_permission) do

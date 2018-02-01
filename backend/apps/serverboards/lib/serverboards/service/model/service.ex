@@ -10,7 +10,7 @@ defmodule Serverboards.Service.Model.Service do
 			field :description, :string
 
 			has_many :tags, Serverboards.Service.Model.ServiceTag
-			timestamps()
+			timestamps(type: :utc_datetime)
 	 end
 
 	 @required_fields ~w(name type config)a

@@ -6,9 +6,9 @@ defmodule Serverboards.Repo.Migrations.UserToken do
       add :user_id, :id
       add :token, :string
       add :perms, {:array, :string}
-      add :time_limit, Ecto.DateTime.type
+      add :time_limit, :utc_datetime
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create unique_index(:auth_user_token, [:token])

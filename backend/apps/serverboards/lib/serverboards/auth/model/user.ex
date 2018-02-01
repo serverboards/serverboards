@@ -4,7 +4,7 @@ defmodule Serverboards.Auth.Model.User do
       field :email, :string
       field :name, :string
       field :is_active, :boolean
-      timestamps()
+      timestamps(type: :utc_datetime)
    end
 
    @required_fields ~w(email)a

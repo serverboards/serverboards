@@ -7,7 +7,7 @@ defmodule Serverboards.Settings.Model do
       field :section, :string
       field :data, :map
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
 		@fields ~w(section data)a
@@ -26,7 +26,7 @@ defmodule Serverboards.Settings.Model do
 			belongs_to :user, Serverboards.Auth.Model.User
       field :data, :map
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
 		@fields ~w(section data user_id)a

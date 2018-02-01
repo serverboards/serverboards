@@ -6,7 +6,7 @@ defmodule Serverboards.Project.Model.Widget do
     field :widget, :string
     field :config, :map
     field :ui, :map
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @required_fields ~w(dashboard_id uuid widget)a

@@ -8,6 +8,6 @@ defmodule Serverboards.Issues.Model.Assignees do
     has_one :issue, Serverboards.Issues.Model.Issue, foreign_key: :creator_id
     has_one :user, Serverboards.Auth.Model.User, foreign_key: :id
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 end

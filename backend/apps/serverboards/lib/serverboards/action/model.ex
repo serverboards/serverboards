@@ -9,7 +9,7 @@ defmodule Serverboards.Action.Model do
       field :result, :map
       field :user_id, :id
       field :elapsed, :integer # in ms.
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     @required_fields ~w(uuid type status params)a

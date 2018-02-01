@@ -15,7 +15,7 @@ defmodule Serverboards.Issues.Model.Issue do
     has_many :assignees, through: [:issue_assignees, :assignee]
     has_many :aliases, Serverboards.Issues.Model.Alias
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @required_fields ~w(title status)a
