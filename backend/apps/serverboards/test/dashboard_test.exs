@@ -1,6 +1,6 @@
 require Logger
 
-defmodule ProjectTest do
+defmodule DashboardTest do
   use ExUnit.Case
   @moduletag :capture_log
 

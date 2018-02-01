@@ -136,16 +136,16 @@ defmodule Serverboards.IssuesTest do
     # assert with placeholders
     {:ok, %{ "count" => 1, "timestamp" => _ }} = res
 
-    {:ok, list} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", project: "TEST" })
+    {:ok, list} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01" })
     Logger.debug(inspect list)
     issue = List.first(list)
 
-    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2050-01-01", project: "TEST" })
-    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
-    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", count: 0, project: "TEST" })
+    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2050-01-01" })
+    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"] })
+    assert {:ok, []} == Test.Client.call(client, "issues.list", %{ project: "TEST", since: "2017-01-01", count: 0 })
 
     {:ok, _issue_id} = Test.Client.call(client, "issues.create", %{ title: "Second one for since test", description: "Test since issue", aliases: ["project/TEST"] })
-    {:ok, [issue2]} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
+    {:ok, [_issue2]} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"] })
     assert Test.Client.expect(client, method: "issue.created")
 
     # update issue1 with a comment, should update updated_at.
@@ -155,7 +155,7 @@ defmodule Serverboards.IssuesTest do
       ]])
     assert Test.Client.expect(client, method: "issue.updated")
 
-    {:ok, since_items} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"], project: "TEST" })
+    {:ok, since_items} = Test.Client.call(client, "issues.list", %{ project: "TEST", since: issue["updated_at"] })
     Logger.info("Got #{Enum.count(since_items)} // #{inspect since_items, pretty: true} from #{inspect issue["updated_at"], pretty: true}")
     # {:ok, res} = Test.Client.call(client, "issues.list", %{ project: "TEST", project: "TEST" })
     Logger.debug("All #{inspect res} from #{inspect issue["updated_at"]}")
