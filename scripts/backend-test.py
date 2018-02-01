@@ -144,7 +144,7 @@ def main_all_at_once():
         printc("RUN TESTS", color="blue")
         try:
             assert os.system("mix run priv/repo/test_seeds.exs") == 0
-            assert os.system("mix test") == 0
+            assert os.system("mix test --trace") == 0
         except Exception:
             import traceback
             traceback.print_exc()
