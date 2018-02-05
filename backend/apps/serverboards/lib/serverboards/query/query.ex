@@ -95,7 +95,7 @@ defmodule Serverboards.Query do
           {:error, any}
       rescue
         e in MatchError ->
-          Logger.error(inspect e)
+          Logger.error(Exception.format(MatchError, e))
           {:error, :invalid_sql}
         e in FunctionClauseError ->
           Logger.error(inspect e)
