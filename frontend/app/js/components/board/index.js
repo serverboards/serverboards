@@ -32,13 +32,14 @@ class Board extends React.Component{
   }
   constructor(props){
     super(props)
-    const configs = this.updateConfigs(props.widgets, false)
+    const {configs, to_extract} = this.updateConfigs(props.widgets, false)
     console.log("Configs %o", configs)
     this.state = {
       layout: this.getLayout(this.props),
       update_now_label_timer_id: undefined,
       update_realtime_timer_id: undefined,
-      configs
+      configs,
+      to_extract
     }
   }
   handleLayoutChange(layout){
@@ -70,11 +71,13 @@ class Board extends React.Component{
     }
     // console.log("New props: ", this.props.widgets, newprops.widgets)
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      const configs = this.updateConfigs(newprops.widgets, true)
+      const {config, to_extract} = this.updateConfigs(newprops.widgets)
+      this.setState({config, to_extract})
+      this.updateExtractedConfigs(to_extract, this.getStatusContext())
     }
   }
   componentDidMount(){
-    const config = this.updateConfigs(this.props.widgets, true)
+    this.updateExtractedConfigs(this.state.to_extract, this.getStatusContext())
 
     let self=this
     Command.add_command_search('add-widget',(Q, context) => [
@@ -90,7 +93,7 @@ class Board extends React.Component{
       this.setState({update_realtime_timer_id})
     }
   }
-  updateConfigs(widgets, update_state){ // update_state==false is use ONLY to get the state first time (constructor)
+  updateConfigs(widgets){
     let configs = {}
     let to_extract = []
     for (const w of widgets){
@@ -108,21 +111,26 @@ class Board extends React.Component{
 
       configs[w.uuid] = config
     }
-    if (!update_state) // no side effects, simple basic config only
-      return configs
-    // console.log("To extract ", to_extract)
-    if (to_extract.length > 0){
-      to_extract = Array.from(new Set(to_extract)) // remove dups
-      to_extract.map( uuid => {
-        rpc.call("dashboard.widget.extract", uuid).then( result => {
-          configs = {...this.state.configs}
-          configs[uuid] = result
-          this.setState({configs})
-        })
-      })
+    to_extract = Array.from(new Set(to_extract)) // remove dups
+
+    return {configs, to_extract}
+  }
+  getStatusContext(){
+    return {
+      start: this.props.time_slice[0].toISOString(),
+      end: this.props.time_slice[1].toISOString(),
     }
-    this.setState({configs})
-    return configs
+  }
+  updateExtractedConfigs(to_extract, context){
+    // console.log("To extract ", to_extract)
+    console.log("Update in range", context)
+    to_extract.map( uuid => {
+      rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
+        let configs = {...this.state.configs}
+        configs[uuid] = result
+        this.setState({configs})
+      })
+    })
   }
   getTemplate(type){
     return this.props.widget_catalog.find( t => t.id == type )
@@ -139,6 +147,11 @@ class Board extends React.Component{
     const end = moment()
     const secs = moment(this.props.time_slice[1]).diff(this.props.time_slice[0], 'seconds')
     const start = moment(end).subtract(secs, "seconds")
+
+    this.updateExtractedConfigs(this.state.to_extract, {
+      start: start.toISOString(),
+      end: end.toISOString()
+    })
     this.props.updateDaterange(start, end)
   }
   getLayout(wid){

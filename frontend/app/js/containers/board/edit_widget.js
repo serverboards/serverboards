@@ -36,6 +36,10 @@ const Controller = connect(
     ),
     widget_id: props.widget.widget,
     project: state.project.current,
+    vars: {
+      start: state.project.daterange.start.toISOString(),
+      end: state.project.daterange.end.toISOString(),
+    }
   }),
   (dispatch, props) => ({
     saveWidget(data){

@@ -72,9 +72,12 @@ defmodule Serverboards.Query do
   end
 
   def query(query, context) do
-    context = Enum.map(context, fn {k,v} ->
-      nv = {Serverboards.Query, v}
-      {k, nv}
+    context = Enum.map(context, fn
+      {"__" <> k, v} ->
+        {"__"<>k, v}
+      {k,v} ->
+        nv = {Serverboards.Query, v}
+        {k, nv}
     end) |> Map.new
 
     # If not starts with SELECT, it is a simple text to use
@@ -92,7 +95,7 @@ defmodule Serverboards.Query do
           {:error, any}
       rescue
         e in MatchError ->
-          Logger.error(inspect e)
+          Logger.error(Exception.format(MatchError, e))
           {:error, :invalid_sql}
         e in FunctionClauseError ->
           Logger.error(inspect e)
