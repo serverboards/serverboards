@@ -164,7 +164,7 @@ defmodule Serverboards.Project.Widget do
   @doc ~S"""
   Extracts data for the widget using the proper extractors.
   """
-  def extract(uuid, me) do
+  def extract(uuid, vars, me) do
     import Ecto.Query
 
     {widget, config} = Repo.one(
@@ -187,6 +187,7 @@ defmodule Serverboards.Project.Widget do
             }}
         end) |> Map.new
     end
+    extractors = Map.put(extractors, "__vars__", vars)
 
     result = for p <- params do
       # Logger.debug("Param #{inspect p}, from #{inspect config}")

@@ -73,11 +73,11 @@ class Board extends React.Component{
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
       const {config, to_extract} = this.updateConfigs(newprops.widgets)
       this.setState({config, to_extract})
-      this.updateExtractedConfigs(to_extract)
+      this.updateExtractedConfigs(to_extract, this.getStatusContext())
     }
   }
   componentDidMount(){
-    this.updateExtractedConfigs(this.state.to_extract)
+    this.updateExtractedConfigs(this.state.to_extract, this.getStatusContext())
 
     let self=this
     Command.add_command_search('add-widget',(Q, context) => [
@@ -115,17 +115,22 @@ class Board extends React.Component{
 
     return {configs, to_extract}
   }
-  updateExtractedConfigs(to_extract){
-    // console.log("To extract ", to_extract)
-    if (to_extract.length > 0){
-      to_extract.map( uuid => {
-        rpc.call("dashboard.widget.extract", uuid).then( result => {
-          let configs = {...this.state.configs}
-          configs[uuid] = result
-          this.setState({configs})
-        })
-      })
+  getStatusContext(){
+    return {
+      start: this.props.time_slice[0].toISOString(),
+      end: this.props.time_slice[1].toISOString(),
     }
+  }
+  updateExtractedConfigs(to_extract, context){
+    // console.log("To extract ", to_extract)
+    console.log("Update in range", context)
+    to_extract.map( uuid => {
+      rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
+        let configs = {...this.state.configs}
+        configs[uuid] = result
+        this.setState({configs})
+      })
+    })
   }
   getTemplate(type){
     return this.props.widget_catalog.find( t => t.id == type )
@@ -143,7 +148,10 @@ class Board extends React.Component{
     const secs = moment(this.props.time_slice[1]).diff(this.props.time_slice[0], 'seconds')
     const start = moment(end).subtract(secs, "seconds")
 
-    this.updateExtractedConfigs(this.state.to_extract)
+    this.updateExtractedConfigs(this.state.to_extract, {
+      start: start.toISOString(),
+      end: end.toISOString()
+    })
     this.props.updateDaterange(start, end)
   }
   getLayout(wid){

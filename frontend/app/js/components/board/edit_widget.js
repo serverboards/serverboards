@@ -56,6 +56,7 @@ class EditWidget extends React.Component{
     for (const ext of this.state.extractors){
       context[ext.id]={ extractor: ext.extractor, service: ext.service, config: ext.config }
     }
+    context["__vars__"] = this.props.vars
     const config = this.state.config
 
     for (const p of map_get(this.props, ["template","params"], [])){
@@ -123,7 +124,7 @@ class EditWidget extends React.Component{
       layout = {...layout, ...widget.ui}
     layout.h = Math.max(Math.min(layout.h, layout.maxH), layout.minH)
     layout.w = Math.max(Math.min(layout.w, layout.maxW), layout.minW)
-    const wwidth = layout.w*283
+    const wwidth = layout.w*130
     const wheight = (layout.h*130)+((layout.h-1)*28)
     // console.log(layout)
 
