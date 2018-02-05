@@ -108,9 +108,10 @@ defmodule Serverboards.Project.RPC do
         Serverboards.Project.Widget.catalog()
     end, [required_perm: "project.get"]
 
-    RPC.MethodCaller.add_method mc, "dashboard.widget.extract", fn uuids, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.extract", fn
+      [uuid, vars], context ->
         me = Context.get(context, :user)
-        Serverboards.Project.Widget.extract(uuids, me)
+        Serverboards.Project.Widget.extract(uuid, vars, me)
     end, [required_perm: "project.get", context: true]
 
 

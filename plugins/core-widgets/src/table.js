@@ -8,7 +8,6 @@ function nameof(c){
 }
 
 function Table(props){
-  console.log(props.config.data)
   const data = props.config.data
 
   if (props.config.loading || (props.config.data && props.config.data.loading))

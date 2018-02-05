@@ -171,7 +171,7 @@ defmodule DashboardTest do
       ui: %{}
     })
 
-    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", widget)
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", [widget, %{}])
     Logger.debug("data #{inspect data}")
 
     %{ "color" => nil, "q" => res} = data
@@ -196,7 +196,7 @@ defmodule DashboardTest do
       ui: %{}
     })
 
-    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", widget)
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", [widget, %{}])
     Logger.debug("data #{inspect data}")
 
     %{ "color" => nil, "q" => res} = data
@@ -220,7 +220,7 @@ defmodule DashboardTest do
       ui: %{}
     })
 
-    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", widget)
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", [widget, %{}])
     Logger.debug("data #{inspect data}")
 
     %{ "color" => nil, "q" => res} = data

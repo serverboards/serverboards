@@ -12,13 +12,16 @@ defmodule Serverboards.Query.RPC do
       me = MOM.RPC.Context.get(context, :user)
       data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"query context")
       data = %{ data |
-        context: Enum.map(data.context, fn {k,ctx} ->
-          {k, %{
-            user: me.email,
-            extractor: ctx["extractor"],
-            service: ctx["service"],
-            config: ctx["config"],
-          }}
+        context: Enum.map(data.context, fn
+          {"__" <> k, ctx} ->
+            {"__" <> k, ctx}
+          {k,ctx} ->
+            {k, %{
+              user: me.email,
+              extractor: ctx["extractor"],
+              service: ctx["service"],
+              config: ctx["config"],
+            }}
         end) |> Map.new }
       %{ query: query, context: context } = data
 
