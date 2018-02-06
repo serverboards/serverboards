@@ -123,7 +123,7 @@ class Board extends React.Component{
   }
   updateExtractedConfigs(to_extract, context){
     // console.log("To extract ", to_extract)
-    console.log("Update in range", context)
+    // console.log("Update in range", context)
     to_extract.map( uuid => {
       rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
         let configs = {...this.state.configs}
@@ -182,8 +182,8 @@ class Board extends React.Component{
           <div className="ui board">
             <ReactGridLayout
               className="ui cards layout"
-              cols={8}
-              rowHeight={130}
+              cols={16}
+              rowHeight={163}
               width={2400}
               margin={[15,0]}
               draggableHandle=".ui.top.mini.menu .ui.header"
