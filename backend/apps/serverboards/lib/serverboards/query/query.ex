@@ -80,9 +80,20 @@ defmodule Serverboards.Query do
         {k, nv}
     end) |> Map.new
 
-    # If not starts with SELECT, it is a simple text to use
+    # If not starts with SELECT, it is a simple text to use (rows at \n, cells at ,)
     if not String.starts_with?(String.upcase(query), "SELECT") do
-      {:ok, %{ columns: "?VALUE?", rows: [[query]]} }
+      res = case query do
+        "" ->
+          %{ columns: "?NONAME?", rows: [[""]]}
+        _ ->
+          rows =
+               String.split(query,"\n")
+            |> Enum.map(&String.split(&1, ","))
+            |> Enum.filter(&(&1 != [""])) # remove empty lines
+          columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
+          %{ columns: columns, rows: rows}
+      end
+      {:ok,  res}
     else
       # Logger.debug("Processed context #{inspect context}")
 
