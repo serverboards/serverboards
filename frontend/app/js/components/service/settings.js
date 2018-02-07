@@ -27,7 +27,7 @@ class SetupComponent extends React.Component{
       //console.log("Ok %o", this.state.values)
       let operations={}
       let values = this.state.values
-      this.get_fields().map( (f) => {
+      this.getFields().map( (f) => {
         let v = values[f.name]
         if (v)
           operations[f.name]=v
