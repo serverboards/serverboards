@@ -13,7 +13,7 @@ components:
     type: cmd
     command: ./serverboards-extractors.py
     strategy: singleton
-    timeout: 10m
+    timeout: 5s
     perms: service.get auth.list rules.view
 
   - id: extractor
@@ -23,3 +23,18 @@ components:
     command: serverboards.core.extractors/daemon
     extractor: serverboards_extractor
     schema: serverboards_schema
+
+  - id: table
+    name: Auxiliary table to pivot data
+    icon: table
+    type: extractor
+    command: serverboards.core.extractors/daemon
+    extractor: table_extractor
+    schema: table_schema
+    params:
+      - name: data
+        type: textarea
+        description:
+          Use `#` to mark new table names, then the data as CSV, first
+          row the headers.
+        label: Data

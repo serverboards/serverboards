@@ -113,6 +113,7 @@ components:
   - name: Table
     type: widget
     description: Table with headers and rows
+    icon: table
     id: table
     hints:
       w: 2
@@ -127,6 +128,7 @@ components:
     type: widget
     description: Bar diagram with legend, resumed value and performance indicator.
     id: bars
+    icon: bar chart
     hints:
       minW: 4
       minH: 2
