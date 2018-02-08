@@ -104,6 +104,10 @@ defmodule Serverboards.Project.RPC do
       Serverboards.Project.Widget.widget_list(shortname)
     end, [required_perm: "project.get"]
 
+    RPC.MethodCaller.add_method mc, "dashboard.widget.get", fn [shortname] ->
+      Serverboards.Project.Widget.widget_get(shortname) |> Serverboards.Utils.clean_struct
+    end, [required_perm: "project.get"]
+
     RPC.MethodCaller.add_method mc, "dashboard.widget.catalog", fn _filter ->
         Serverboards.Project.Widget.catalog()
     end, [required_perm: "project.get"]
