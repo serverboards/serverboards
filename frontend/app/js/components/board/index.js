@@ -48,9 +48,15 @@ class Board extends React.Component{
       if (object_is_equal(prev,l))
         return false
       return l
-    }).filter( Boolean )
-    to_set.map( (w) => {
+    }).filter( Boolean ).map( w => ({
+      i: w.i,
+      x: w.x, y: w.y,
+      h: w.h, w: w.w
+    }) )
+    Promise.all( to_set.map( (w) => {
       rpc.call("dashboard.widget.update", {uuid: w.i, ui: w})
+    }) ).catch( e => {
+      console.log("Could not change layout", e)
     })
     this.setState({layout})
   }
@@ -193,7 +199,7 @@ class Board extends React.Component{
                 {widgets.map( ({widget, template}) => (
                   <div
                     key={widget.uuid}
-                    data-grid={{x:0, y: 0, w: 1, h: 1, ...widget.ui, ...template.hints}}
+                    data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
                     className="ui card"
                     >
                     <Widget
