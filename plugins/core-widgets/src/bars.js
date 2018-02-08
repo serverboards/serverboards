@@ -1,5 +1,6 @@
 const {React} = Serverboards
-// const {colorize} = Serverboards.utils
+const {Loading, Error} = Serverboards.Components
+const {map_get, object_is_equal} = Serverboards.utils
 
 function is_string(txt){
   return typeof(txt) == "string"
@@ -128,11 +129,29 @@ function SVGBars({data, xaxis, maxy, categories}){
 }
 
 class Bars extends React.Component {
+  componentDidMount(){
+    this.props.setTitle(map_get(this.props, ["config","title"]))
+  }
+  componentWillReceiveProps(nextprops){
+    if (map_get(nextprops, ["config","title"]) != map_get(this.props, ["config","title"]))
+      this.props.setTitle(map_get(nextprops, ["config","title"]))
+  }
+  shouldComponentUpdate(nextProps, nextState){
+    return !(object_is_equal( this.props.config, nextProps.config ))
+  }
   render(){
     const props = this.props
-    const config = props.config
+    const config = props.config || {}
 
     // console.log(config)
+    if (config.data.error)
+      return (
+        <Error>{config.data.error}</Error>
+      )
+    if (!config.data.rows)
+      return (
+        <Loading/>
+      )
 
     const performance = get_data(config.performance)
     let performance_color = ""
