@@ -23,7 +23,7 @@ const STOP_POINTS = [ 10000000, 1000000, 100000, 10000, 1000, 500, 100, 50, 10, 
 function next_stop_point(point){
   let prev = point
   for (const sp of STOP_POINTS){
-    console.log("sp", sp, "point", point)
+    // console.log("sp", sp, "point", point)
     if (sp < point)
       return prev
     prev = sp
@@ -69,7 +69,7 @@ function SVGBars({data, xaxis, maxy, categories}){
   const xgap4 = xgap2 / 2
   const xstart = 40 // where starts the  data
   const xstart2 = 40 + xgap2/2 // DELETE old mid line start
-  console.log({xgap, xgap2, xstart, xstart2})
+  // console.log({xgap, xgap2, xstart, xstart2})
 
   // line colors
   const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
@@ -82,7 +82,7 @@ function SVGBars({data, xaxis, maxy, categories}){
     return (v/maxy)*190.0
   }
 
-  console.log(fill)
+  // console.log(fill)
   return (
     <svg height={250} width={400}>
       <g>
@@ -100,16 +100,25 @@ function SVGBars({data, xaxis, maxy, categories}){
         {xaxis.map( (legend,i) =>
           <g>
             {categories.map( (category, j) => {
+              const dy = Math.max(0, rescale(legend, category))
+              if (dy == 0)
+                return null
+
               const x1 = xstart + i*xgap + j*xgap2
               const x2 = x1 + xgap2
-              const y1 = 220
-              const y2 = 220 - Math.max(0, rescale(legend, category) - xgap4)
-              if (y2 == y1)
-                return null
-              return (
-                <path d={`M ${x1} ${y1} L ${x1} ${y2} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
 
-              )
+              const y1 = 220
+              const y2 = 220 - dy
+              if (dy < xgap4)
+                return (
+                  <path d={`M ${x1} ${y1} L ${x1} ${y2} L ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
+                )
+              else{
+                const y2_ = y2 + xgap4
+                return (
+                  <path d={`M ${x1} ${y1} L ${x1} ${y2_} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2_} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
+                )
+              }
             } )}
           </g>
         ) }
@@ -123,7 +132,7 @@ class Bars extends React.Component {
     const props = this.props
     const config = props.config
 
-    console.log(config)
+    // console.log(config)
 
     const performance = get_data(config.performance)
     let performance_color = ""
@@ -137,7 +146,7 @@ class Bars extends React.Component {
     const maxy = next_stop_point(config.data.rows.reduce( (acc, r) => Math.max(acc, Number(r[2])), 0 ))
     const data = config.data.rows.reduce( (acc, r) => {acc[ [r[1], r[0]] ] = Number(r[2]); return acc}, {})
 
-    console.log(categories, xaxis, maxy, data)
+    // console.log(categories, xaxis, maxy, data)
     return (
       <div style={{display: "flex"}} className="ui padding">
         <div style={{flex: 1}}>
