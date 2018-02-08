@@ -125,6 +125,11 @@ const fixed_colors={
   "pink": "pink",
   "brown": "brown",
   "grey": "grey",
+  "facebook": "blue",
+  "instagram": "purple",
+  "sem": "teal",
+  "google": "red",
+  "organic": "olive",
 }
 
 export function colorize(str){

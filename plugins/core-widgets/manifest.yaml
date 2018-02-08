@@ -128,12 +128,12 @@ components:
     description: Bar diagram with legend, resumed value and performance indicator.
     id: bars
     hints:
-      minW: 3
+      minW: 4
       minH: 2
     params:
       - label: Title
         name: title
-        description: Título
+        description: Title
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
@@ -158,4 +158,26 @@ components:
 
           Its possible to force the `Category` and `Xvalue` existence setting
           YValue to `null`.
+        type: query
+
+  - name: Pie 3
+    type: widget
+    description: Pie bar with summary data and three bars
+    id: pie3
+    hints:
+      minW: 3
+      minH: 3
+    params:
+      - label: Title
+        name: title
+      - label: Summary Query
+        name: summary
+        description: |
+          Summary number on the top, and center of pie.
+        type: query
+      - label: Pie data Query
+        name: data
+        description: |
+          Expression to show data. Needs to return:
+          `Category name`, `value`, `change`.
         type: query
