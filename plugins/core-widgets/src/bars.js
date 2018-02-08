@@ -170,8 +170,6 @@ class Bars extends React.Component {
     const data = config.data.rows.reduce( (acc, r) => {
       const k = [r[1], r[0]]
       const prev = acc[ k ] || 0
-      if (prev)
-        console.log("Gotcha", k, prev, r[2], acc[k])
       acc[ k ] = prev + Number(r[2])
       return acc
     }, {})
