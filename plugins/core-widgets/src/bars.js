@@ -19,7 +19,7 @@ function colorize(index){
 }
 
 
-const STOP_POINTS = [ 10000000, 1000000, 100000, 10000, 1000, 500, 100, 50, 10, 0, -1e100]
+const STOP_POINTS = [ 10000000, 1000000, 100000, 10000, 1000, 500, 300, 200, 100, 75, 50, 25, 10, 0, -1e100]
 
 function next_stop_point(point){
   let prev = point
@@ -94,12 +94,12 @@ function SVGBars({data, xaxis, maxy, categories}){
         <text x={30} y={225} textAnchor="end" fill={svg_style.grey}>0</text>
         <line x1={40} y1={220} x2={390} y2={220} style={svg_style.axis_bottom}/>
         {xaxis.map( (legend,i) => (
-          <text x={xstart + i*xgap} y={235} style={svg_style.axis}>{legend}</text>
+          <text key={i} x={xstart + i*xgap} y={235} style={svg_style.axis}>{legend}</text>
         ))}
       </g>
       <g>
         {xaxis.map( (legend,i) =>
-          <g>
+          <g key={i} >
             {categories.map( (category, j) => {
               const dy = Math.max(0, rescale(legend, category))
               if (dy == 0)
@@ -112,12 +112,12 @@ function SVGBars({data, xaxis, maxy, categories}){
               const y2 = 220 - dy
               if (dy < xgap4)
                 return (
-                  <path d={`M ${x1} ${y1} L ${x1} ${y2} L ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
+                  <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2} L ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
                 )
               else{
                 const y2_ = y2 + xgap4
                 return (
-                  <path d={`M ${x1} ${y1} L ${x1} ${y2_} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2_} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
+                  <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2_} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2_} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
                 )
               }
             } )}
@@ -144,6 +144,11 @@ class Bars extends React.Component {
     const config = props.config || {}
 
     // console.log(config)
+    if (!config.data)
+      return (
+        <Loading/>
+      )
+
     if (config.data.error)
       return (
         <Error>{config.data.error}</Error>
@@ -162,8 +167,15 @@ class Bars extends React.Component {
 
     const categories = Array.from(new Set(config.data.rows.map( r => r[0] )))
     const xaxis = Array.from(new Set(config.data.rows.map( r => r[1] ))).sort()
-    const maxy = next_stop_point(config.data.rows.reduce( (acc, r) => Math.max(acc, Number(r[2])), 0 ))
-    const data = config.data.rows.reduce( (acc, r) => {acc[ [r[1], r[0]] ] = Number(r[2]); return acc}, {})
+    const data = config.data.rows.reduce( (acc, r) => {
+      const k = [r[1], r[0]]
+      const prev = acc[ k ] || 0
+      if (prev)
+        console.log("Gotcha", k, prev, r[2], acc[k])
+      acc[ k ] = prev + Number(r[2])
+      return acc
+    }, {})
+    const maxy = next_stop_point(Object.values(data).reduce( (acc, r) => Math.max(acc, r), 0 ))
 
     // console.log(categories, xaxis, maxy, data)
     return (
@@ -177,7 +189,7 @@ class Bars extends React.Component {
           <div style={{flex: 1}}/>
           <div className="" style={{flex: 2, display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
             {categories.map( (c, i) => (
-              <div className="ui bold text">
+              <div className="ui bold text" key={i}>
                 <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
                 {c}
               </div>
