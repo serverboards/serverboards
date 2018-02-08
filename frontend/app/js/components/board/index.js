@@ -196,24 +196,33 @@ class Board extends React.Component{
               layout={this.state.layout}
               onLayoutChange={this.handleLayoutChange.bind(this)}
               >
-                {widgets.map( ({widget, template}) => (
-                  <div
-                    key={widget.uuid}
-                    data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
-                    className="ui card"
-                    >
-                    <Widget
-                      key={widget.uuid}
-                      widget={widget.widget}
-                      config={configs[widget.uuid] || {}}
-                      uuid={widget.uuid}
-                      template={template}
-                      onEdit={() => this.handleEdit(widget.uuid)}
-                      project={this.props.project}
-                      layout={this.getLayout(widget.uuid)}
-                      />
-                  </div>
-                ))}
+                {widgets.map( ({widget, template}) => {
+                  try {
+                    return (
+                      <div
+                        key={widget.uuid}
+                        data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
+                        className="ui card"
+                        >
+                        <Widget
+                          key={widget.uuid}
+                          widget={widget.widget}
+                          config={configs[widget.uuid] || {}}
+                          uuid={widget.uuid}
+                          template={template}
+                          onEdit={() => this.handleEdit(widget.uuid)}
+                          project={this.props.project}
+                          layout={this.getLayout(widget.uuid)}
+                          />
+                      </div>
+                    )
+                  } catch (e) {
+                    console.error("Error displaying widget %o: %o", {widget, template}, e)
+                    return (
+                      <Error>{String(e)}</Error>
+                    )
+                  }
+                })}
             </ReactGridLayout>
           </div>
           )}
