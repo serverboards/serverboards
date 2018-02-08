@@ -28,7 +28,7 @@ function Table(props){
   }
 
   return (
-    <div className="ui expand with scroll">
+    <div className="ui with scroll">
       <table className="ui striped table">
         <thead>
           <tr>
