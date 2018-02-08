@@ -4,7 +4,7 @@ import uglify from 'rollup-plugin-uglify';
 
 const widgets = [
   "mini5", "clock", "mini2", "markdown", "table",
-  "mini3bars"
+  "mini3bars", "bars",
 ]
 
 const configs = widgets.map( w => ({
