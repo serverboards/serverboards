@@ -103,11 +103,11 @@ function SVGBars({data, xaxis, maxy, categories}){
               const x1 = xstart + i*xgap + j*xgap2
               const x2 = x1 + xgap2
               const y1 = 220
-              const y2 = 220 - rescale(legend, category) - xgap4
+              const y2 = 220 - Math.max(0, rescale(legend, category) - xgap4)
+              if (y2 == y1)
+                return null
               return (
-                <g>
-                  <path d={`M ${x1} ${y1} L ${x1} ${y2} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
-                </g>
+                <path d={`M ${x1} ${y1} L ${x1} ${y2} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
 
               )
             } )}
