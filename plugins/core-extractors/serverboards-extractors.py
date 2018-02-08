@@ -126,13 +126,17 @@ def table_schema(config, table):
     tables = table_parse_config(config)
     if not table:
         return list(tables.keys())
-    return {"columns": tables[table]["columns"]}
+    if table in tables:
+        return {"columns": tables[table]["columns"]}
+    raise Exception('unknown-table')
 
 
 @serverboards.rpc_method
 def table_extractor(config, table, _quals, _columns):
     tables = table_parse_config(config)
-    return tables[table]
+    if table in tables:
+        return tables[table]
+    raise Exception('unknown-table')
 
 
 if __name__ == '__main__':
