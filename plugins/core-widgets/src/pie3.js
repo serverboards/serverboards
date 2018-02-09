@@ -1,44 +1,13 @@
+import {get_data, COLORS} from './utils'
 const React = Serverboards.React
 const {colorize, object_is_equal, map_get} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
-
-const COLORS = {
-  purple: "#a333c8",
-  pink: "#e03997",
-  blue: "#2185d0",
-  teal: "#00b5ad",
-  olive: "#b5cc18",
-  green: "#b5cc18",
-}
-
-
-function get_data(expr, path=[0,0]){
-  if (!expr)
-    return ""
-  if (expr.loading){
-    return (
-      <i className="ui loading spinner icon"/>
-    )
-  }
-  if (expr.error){
-    return (
-      <span className="ui centered expand" title={String(expr.error)}>
-        <i className="icon warning sign" style={{color: "yellow"}}/>
-      </span>
-    )
-  }
-  else if (expr.rows){
-    return String(Serverboards.utils.map_get(expr.rows, path))
-  }
-  return String(expr)
-}
 
 const _2PI = Math.PI * 2
 const CX = 75
 const CY = 75
 const R1 = 50
 const R2 = 75
-
 
 function SVGPie({center, rings, colors}){
   console.log(colors, rings)

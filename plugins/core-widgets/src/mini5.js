@@ -1,3 +1,4 @@
+import {get_data} from './utils'
 const {React, rpc, i18n}=Serverboards
 
 class Mini5 extends React.Component{
@@ -16,26 +17,6 @@ class Mini5 extends React.Component{
       this.updateData(newprops)
     }
   }
-  getData(expr){
-    if (!expr)
-      return ""
-    if (expr.loading){
-      return (
-        <i className="ui loading spinner icon"/>
-      )
-    }
-    if (expr.error){
-      return (
-        <span className="ui centered expand" title={String(expr.error)}>
-          <i className="icon warning sign" style={{color: "yellow"}}/>
-        </span>
-      )
-    }
-    else if (expr.rows){
-      return String(expr.rows[0])
-    }
-    return String(expr)
-  }
   shouldComponentUpdate(nextprops, nextstate){
     return !(Serverboards.utils.object_is_equal(this.props.config, nextprops.config))
   }
@@ -51,14 +32,14 @@ class Mini5 extends React.Component{
           <div className="column">
             <div style={{display: "flex", alignItems: "center", height: 25}}>
               <i className={`${config.icon_left} icon`}/>
-              <span className="ui biggier text">{this.getData(config.expr_left)}</span>
+              <span className="ui biggier text">{get_data(config.expr_left)}</span>
             </div>
             <div>{config.text_left}</div>
           </div>
           <div className="column">
             <div style={{display: "flex", alignItems: "center", height: 25}}>
               <i className={`${config.icon_right} icon`}/>
-              <span className="ui biggier text">{this.getData(config.expr_right)}</span>
+              <span className="ui biggier text">{get_data(config.expr_right)}</span>
             </div>
             <div>{config.text_right}</div>
           </div>

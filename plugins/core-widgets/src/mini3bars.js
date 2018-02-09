@@ -1,27 +1,7 @@
+import {get_data} from './utils'
 const {React, i18n} = Serverboards
 const {Loading} = Serverboards.Components
 const {map_get} = Serverboards.utils
-
-function get_data(expr){
-  if (!expr)
-    return ""
-  if (expr.loading){
-    return (
-      <i className="ui loading spinner icon"/>
-    )
-  }
-  if (expr.error){
-    return (
-      <span className="ui centered expand" title={String(expr.error)}>
-        <i className="icon warning sign" style={{color: "yellow"}}/>
-      </span>
-    )
-  }
-  else if (expr.rows){
-    return String(expr.rows[0])
-  }
-  return String(expr)
-}
 
 function prep_bars(bars){
   let ret = []
