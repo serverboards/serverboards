@@ -117,16 +117,16 @@ class EditWidget extends React.Component{
     const state = this.state
 
     let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
-    if (typeof(template.traits) == "object"){
-      layout={...layout, ...template.traits}
+    if (typeof(template.hints) == "object"){
+      layout={...layout, ...template.hints}
     }
     if (widget.ui)
       layout = {...layout, ...widget.ui}
     layout.h = Math.max(Math.min(layout.h, layout.maxH), layout.minH)
     layout.w = Math.max(Math.min(layout.w, layout.maxW), layout.minW)
     const wwidth = layout.w*140
-    const wheight = (layout.h*130)+((layout.h-1)*28)
-    // console.log(layout)
+    const wheight = (layout.h*163)
+    console.log(layout)
 
 
     return (

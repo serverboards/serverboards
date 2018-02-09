@@ -44,8 +44,9 @@ class Mini5 extends React.Component{
     const config = props.config
 
     return (
-      <div className="ui content half padding">
+      <div className="ui content half padding split vertical area">
         <h3 className="ui white header text">{config.title}</h3>
+        <div className="extend"/>
         <div className="ui two column grid">
           <div className="column">
             <div style={{display: "flex", alignItems: "center", height: 25}}>

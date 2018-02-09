@@ -41,9 +41,10 @@
       const config = props.config
 
       return (
-        <div className="ui content half padding">
+        <div className="ui content half padding split vertical area">
           <h3 className="ui white header text">{config.title}</h3>
-          <div className="ui huge text" style={{display: "flex", alignItems: "bottom", height: 35}}>
+          <div className="extend"/>
+          <div className="ui huge text" style={{display: "flex", alignItems: "bottom", height: 35, lineHeight: 0}}>
             {this.getData(config.text)}
           </div>
         </div>
