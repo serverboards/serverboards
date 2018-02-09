@@ -1,7 +1,6 @@
-import {get_data, colorize, is_string} from './utils'
+import {colorize} from './utils'
+import GraphWithData from './graph_with_data'
 const {React} = Serverboards
-const {Loading, Error} = Serverboards.Components
-const {map_get, object_is_equal} = Serverboards.utils
 
 const svg_style = {
   axis_bottom: {
@@ -79,76 +78,11 @@ function SVGBars({data, xaxis, maxy, categories}){
   )
 }
 
-class Bars extends React.Component {
-  componentDidMount(){
-    this.props.setTitle(map_get(this.props, ["config","title"]))
-  }
-  componentWillReceiveProps(nextprops){
-    if (map_get(nextprops, ["config","title"]) != map_get(this.props, ["config","title"]))
-      this.props.setTitle(map_get(nextprops, ["config","title"]))
-  }
-  shouldComponentUpdate(nextProps, nextState){
-    return !(object_is_equal( this.props.config, nextProps.config ))
-  }
-  render(){
-    const props = this.props
-    const config = props.config || {}
 
-    // console.log(config)
-    if (!config.data)
-      return (
-        <Loading/>
-      )
-
-    if (config.data.error)
-      return (
-        <Error>{config.data.error}</Error>
-      )
-    if (!config.data.rows)
-      return (
-        <Loading/>
-      )
-
-    const performance = get_data(config.performance)
-    let performance_color = ""
-    if (is_string(performance) && performance.startsWith('-'))
-      performance_color = 'red'
-    if (is_string(performance) && performance.startsWith('+'))
-      performance_color = 'teal'
-
-    const categories = Array.from(new Set(config.data.rows.map( r => r[0] )))
-    const xaxis = Array.from(new Set(config.data.rows.map( r => r[1] ))).sort()
-    const data = config.data.rows.reduce( (acc, r) => {
-      const k = [r[1], r[0]]
-      const prev = acc[ k ] || 0
-      acc[ k ] = prev + Number(r[2])
-      return acc
-    }, {})
-    const maxy = next_stop_point(Object.values(data).reduce( (acc, r) => Math.max(acc, r), 0 ))
-
-    // console.log(categories, xaxis, maxy, data)
-    return (
-      <div style={{display: "flex"}} className="ui padding">
-        <div style={{flex: 1}}>
-          <SVGBars data={data} xaxis={xaxis} maxy={maxy} categories={categories}/>
-        </div>
-        <div style={{flex: 0, minWidth: "8em", display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
-          <div className="ui biggier bold text padding bottom">{get_data(config.summary)}</div>
-          <div className={`ui ${performance_color} text`}>{performance}</div>
-          <div style={{flex: 1}}/>
-          <div className="" style={{flex: 2, display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
-            {categories.map( (c, i) => (
-              <div className="ui bold text" key={i}>
-                <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
-                {c}
-              </div>
-            ))}
-          </div>
-          <div style={{flex: 2}}/>
-        </div>
-      </div>
-    )
-  }
+function Bars(props){
+  return (
+    <GraphWithData {...props} svgComponent={SVGBars}/>
+  )
 }
 
 Serverboards.add_widget("serverboards.core.widgets/bars", Bars, {react: true})

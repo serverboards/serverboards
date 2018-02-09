@@ -162,6 +162,44 @@ components:
           YValue to `null`.
         type: query
 
+  - name: Lines
+    type: widget
+    description: Lines diagram with legend, resumed value and performance indicator.
+    id: lines
+    icon: line chart
+    hints:
+      minW: 4
+      minH: 2
+    params:
+      - label: Title
+        name: title
+        description: Title
+      - label: Summary Query
+        name: summary
+        description: Summary number on the corner.
+        type: query
+      - label: Performance Query
+        name: performance
+        description: |
+          Performance number on the corner. If starts with `+` will
+          be shown green, if starts with `-` will be shown red.
+        type: query
+      - label: Line Data Query
+        name: data
+        description: |
+          Expression to show data. Needs to return:
+          `Category name`, `Xvalue`, `YValue`.
+
+          `XValue` is sorted and not require to be numeric. `YValue` needs to be
+          numeric.
+
+          It does aggregation on `Category name` and `XValue` summing the
+          values, so repeated values are allowed.
+
+          Its possible to force the `Category` and `Xvalue` existence setting
+          YValue to `null`.
+        type: query
+
   - name: Pie 3
     type: widget
     description: Pie bar with summary data and three bars

@@ -1,3 +1,6 @@
+const React = Serverboards.React
+const {map_get} = Serverboards.utils
+
 export function is_string(txt){
   return typeof(txt) == "string"
 }
@@ -10,23 +13,20 @@ export const COLORS = [
   "#b5cc18"
 ]
 
+export const COLORMAP = {
+  purple: "#a333c8",
+  pink: "#e03997",
+  blue: "#2185d0",
+  teal: "#00b5ad",
+  olive: "#b5cc18",
+  green: "#b5cc18",
+}
+
 export function colorize(index){
   return COLORS[index % COLORS.length]
 }
 
-const STOP_POINTS = [ 10000000, 1000000, 100000, 10000, 1000, 500, 300, 200, 100, 75, 50, 25, 10, 0, -1e100]
-
-export function next_stop_point(point){
-  let prev = point
-  for (const sp of STOP_POINTS){
-    // console.log("sp", sp, "point", point)
-    if (sp < point)
-      return prev
-    prev = sp
-  }
-}
-
-export function get_data(expr){
+export function get_data(expr, path=[0,0]){
   if (!expr)
     return ""
   if (expr.loading){
@@ -42,7 +42,7 @@ export function get_data(expr){
     )
   }
   else if (expr.rows){
-    return String(expr.rows[0])
+    return String(map_get(expr.rows, path))
   }
   return String(expr)
 }

@@ -1,4 +1,4 @@
-import {get_data, COLORS} from './utils'
+import {get_data, COLORMAP} from './utils'
 const React = Serverboards.React
 const {colorize, object_is_equal, map_get} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
@@ -41,7 +41,7 @@ function SVGPie({center, rings, colors}){
       {ringsp.map( (r,i) => (
         <path
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
-          style={{fill: COLORS[colors[i]] || colors[i]}}
+          style={{fill: COLORMAP[colors[i]] || colors[i]}}
           />
       ))}
     </svg>
