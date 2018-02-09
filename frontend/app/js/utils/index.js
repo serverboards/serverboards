@@ -126,7 +126,7 @@ const fixed_colors={
   "brown": "brown",
   "grey": "grey",
   "facebook": "blue",
-  "instagram": "purple",
+  "instagram": "pink",
   "sem": "teal",
   "google": "red",
   "organic": "olive",
