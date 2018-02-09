@@ -47,8 +47,8 @@ function SVGPie({center, rings, colors}){
     return null
   }
   const sc = _2PI / maxs
-  let prev = [`${CX + R1} ${CY}`, `${CX + R2} ${CY}`]
-  let acc = 0
+  let prev = [`${CX} ${CY - R1}`, `${CX} ${CY - R2}`]
+  let acc = -Math.PI/2
   const ringsp = rings.map( ring =>{
     const a = ring * sc
     console.log(acc, a, ring / maxs)
@@ -67,7 +67,7 @@ function SVGPie({center, rings, colors}){
   console.log(ringsp)
 
   return (
-    <svg viewBox="0 0 150 150" className="ui with padding">
+    <svg viewBox="0 0 150 150" style={{padding: 30}}>
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
@@ -106,7 +106,7 @@ class Pie3 extends React.Component{
 
     return (
       <div className="ui with padding vertical split area">
-        <div className="ui huge centered header" style={{fontSize: 48}}>
+        <div className="ui huge centered text" style={{fontSize: 48}}>
           {get_data(config.summary, [0,0])}
         </div>
         <div className="ui expand centered">
@@ -116,15 +116,17 @@ class Pie3 extends React.Component{
             colors={rows.map( r => colorize(r[0]))}/>
         </div>
 
-        <table style={{width: "100%"}}>
+        <table style={{width: "100%", lineHeight: "2.5em"}}>
           {rows.map( r => (
             <tr key={r[0]}>
               <td>
                 <span className={`ui square ${colorize(r[0])}`}/>
                 {r[0]}
               </td>
-              <td className="ui big text">{r[1]} €</td>
-              <td className="ui right aligned text">{r[2]}</td>
+              <td className="ui big bold text">{r[1]} €</td>
+              <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
+                {r[2]}
+              </td>
             </tr>
           ) ) }
         </table>
