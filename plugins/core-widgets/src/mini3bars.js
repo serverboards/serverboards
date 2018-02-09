@@ -1,4 +1,6 @@
 const {React, i18n} = Serverboards
+const {Loading} = Serverboards.Components
+const {map_get} = Serverboards.utils
 
 function get_data(expr){
   if (!expr)
@@ -71,7 +73,13 @@ class Mini3Bars extends React.Component{
     const props = this.props
     const config = props.config
 
-    const bars = prep_bars(config.bars.rows)
+    const rows = map_get(config, ["bars", "rows"])
+    if (!rows)
+      return (
+        <Loading/>
+      )
+
+    const bars = prep_bars(rows)
     console.log(bars)
 
     return (
