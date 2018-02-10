@@ -26,7 +26,7 @@ export function colorize(index){
   return COLORS[index % COLORS.length]
 }
 
-export function get_data(expr, path=[0,0]){
+export function get_data(expr, path=[0,0], defval=""){
   if (!expr)
     return ""
   if (expr.loading){
@@ -42,7 +42,7 @@ export function get_data(expr, path=[0,0]){
     )
   }
   else if (expr.rows){
-    return String(map_get(expr.rows, path))
+    return String(map_get(expr.rows, path, defval))
   }
   return String(expr)
 }
