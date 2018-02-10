@@ -18,6 +18,8 @@ components:
 
   - id: extractor
     name: Serverboards internal data
+    description: |
+      Can extract basic data from Serverboards itself, as service status.
     icon: cube
     type: extractor
     command: serverboards.core.extractors/daemon

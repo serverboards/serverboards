@@ -82,9 +82,14 @@ def serverboards_schema(config, table=None):
         return ["service", "user", "rules"]
     if table == "user":
         return {
+            "description": "User database on Serverboards",
             "columns": [
                 "name", "email",
-                {"name": "is_active", "type": "bool"}
+                {
+                    "name": "is_active",
+                    "type": "bool",
+                    "description": "User is active at Serverboards"
+                }
             ]
         }
     if table == "service":
@@ -105,7 +110,7 @@ def table_parse_config(config):
     current_table = None
     rows = []
     read_headers = False
-    for l in config.get("config").get("data").split('\n'):
+    for l in config.get("config", {}).get("data", "").split('\n'):
         if not l:
             continue
         elif l[0] == '#':
