@@ -17,9 +17,10 @@ defmodule Serverboards.Plugin.Runner do
   def start_link (options \\ []) do
     {:ok, pid} = GenServer.start_link __MODULE__, :ok, options
 
+    method_caller = Serverboards.Plugin.Runner.method_caller()
     MOM.Channel.subscribe(:auth_authenticated, fn msg ->
       %{ user: _user, client: client} = msg.payload
-      MOM.RPC.Client.add_method_caller client, Serverboards.Plugin.Runner.method_caller
+      MOM.RPC.Client.add_method_caller client, method_caller
       :ok
     end)
 
@@ -53,43 +54,18 @@ defmodule Serverboards.Plugin.Runner do
 
   """
   def start(%Serverboards.Plugin.Component{} = component, user) do
-
-    # it may come from partial or full component, just get the id
-    plugin_id = case component.plugin do
-      plugin when is_binary(plugin) -> plugin
-      %{ id: id } -> id
+    plugin_id = cond do
+      is_map(component.plugin) -> component.plugin.id
+      true -> component.plugin
     end
 
-    case get_by_component_id(component.id) do
-      {:ok, uuid} ->
-        #Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
-        ping(uuid)
-        {:ok, uuid}
-      {:error, :not_found} ->
-      case Plugin.Component.run component do
-        {:ok, pid } ->
-          require UUID
-          uuid = UUID.uuid4
-          # Logger.debug("Adding runner #{uuid} #{inspect component.id}")
-          try do
-            client = Serverboards.IO.Cmd.client(pid)
-            MOM.RPC.Client.set(client, :plugin, %{ plugin_id: plugin_id, component_id: component.id })
-            :ok = GenServer.call(Serverboards.Plugin.Runner, {:start, uuid, pid, component, user})
-            {:ok, uuid}
-          catch
-            :exit, _ ->
-              Logger.error("Command exitted unexpectedly: #{component.id}", command: component)
-              {:error, :cant_run}
-          end
-        {:error, {:timeout, _where}} ->
-          Logger.error("Timeout starting plugin component #{inspect component.id}")
-          {:error, :timeout}
-        {:error, e} ->
-          Logger.error("Error starting plugin component #{inspect component.id}: #{inspect e}")
-          {:error, e}
-      end
-    end
+    component = %Serverboards.Plugin.Component{component |
+      plugin: plugin_id
+    }
+    # Logger.info("Start component #{inspect component.id}")
+    GenServer.call(Serverboards.Plugin.Runner, {:start, component, user})
   end
+
   def start(plugin_component_id, user)
   when is_binary(plugin_component_id) do
       case Serverboards.Plugin.Registry.find(plugin_component_id) do
@@ -234,7 +210,8 @@ defmodule Serverboards.Plugin.Runner do
       case start(id, user) do
         {:ok, uuid} ->
           GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
-        other -> other
+        other ->
+          other
       end
     else
       GenServer.call(Serverboards.Plugin.Runner, {:get, id})
@@ -404,6 +381,48 @@ defmodule Serverboards.Plugin.Runner do
     # all systems go
     {:reply, :ok, state}
   end
+  def handle_call({:start, component, user}, from, state) do
+    # it may come from partial or full component, just get the id
+    plugin_id = case component.plugin do
+      plugin when is_binary(plugin) -> plugin
+      %{ id: id } -> id
+    end
+
+    {res, state} = case Map.get(state.by_component_id, component.id, false) do
+      false ->
+        res = Plugin.Component.run(component)
+        case res do
+          {:ok, pid } ->
+            require UUID
+            uuid = UUID.uuid4
+            Logger.debug("Adding runner #{uuid} #{inspect component.id}")
+            try do
+              client = Serverboards.IO.Cmd.client(pid)
+              MOM.RPC.Client.set(client, :plugin, %{ plugin_id: plugin_id, component_id: component.id })
+              # Call the start pt2, which updates the state
+              {:reply, :ok, state} = handle_call({:start, uuid, pid, component, user}, from, state)
+              {{:ok, uuid}, state}
+            catch
+              :exit, _ ->
+                Logger.error("Command exitted unexpectedly: #{component.id}", command: component)
+                {{:error, :cant_run}, state}
+            end
+          {:error, {:timeout, _where}} ->
+            Logger.error("Timeout starting plugin component #{inspect component.id}")
+            {{:error, :timeout}, state}
+          {:error, e} ->
+            Logger.error("Error starting plugin component #{inspect component.id}: #{inspect e}")
+            {{:error, e}, state}
+        end
+      uuid ->
+        # Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
+        GenServer.cast(self(), {:ping, uuid}) # delay this
+        {{:ok, uuid}, state}
+    end
+
+    {:reply, res, state}
+  end
+
   def handle_call({:stop, uuid}, _from, state) do
     entry = state.running[uuid]
     #Logger.debug("Stop plugin #{uuid}: #{inspect entry}")
