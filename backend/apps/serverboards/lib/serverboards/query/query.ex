@@ -73,8 +73,8 @@ defmodule Serverboards.Query do
   def query(query, context) do
     context = Enum.map(context, fn
       {"__" <> k, v} ->
-        {"__"<>k, v}
-      {k,v} ->
+        {"__" <> k, v}
+      {k,v} -> # decorate the extractors
         nv = {Serverboards.Query, v}
         {k, nv}
     end) |> Map.new

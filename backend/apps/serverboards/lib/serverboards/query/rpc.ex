@@ -15,7 +15,7 @@ defmodule Serverboards.Query.RPC do
         context: Enum.map(data.context, fn
           {"__" <> k, ctx} ->
             {"__" <> k, ctx}
-          {k,ctx} ->
+          {k, ctx} ->
             {k, %{
               user: me.email,
               extractor: ctx["extractor"],
