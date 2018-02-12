@@ -20,54 +20,59 @@ defmodule Serverboards.Query do
   """
 
   def execute(config, table, quals, columns) do
-    extractor = config.extractor
+    Serverboards.Query.Cache.get({:execute, config, table, quals, columns}, fn ->
+      extractor = config.extractor
 
-  # Logger.debug("Use extractor #{inspect extractor}")
-    [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
+    # Logger.debug("Use extractor #{inspect extractor}")
+      [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
 
-    case Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
-      {:ok, result} ->
-        {:ok, %{ columns: result["columns"], rows: result["rows"] }}
-      other -> other
-    end
+      case Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
+        {:ok, result} ->
+          {:ok, %{ columns: result["columns"], rows: result["rows"] }}
+        other -> other
+      end
+    end, ttl: 5_000)
   end
 
   @doc ~S"""
   Returns the list of tables on this extractor
   """
   def schema(config) do
-  # Logger.debug("schema #{inspect config}")
-    extractor = config.extractor
-    case Serverboards.Plugin.Registry.filter_component(id: extractor) do
-      [component] ->
-        Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, nil], config.user)
-      _ ->
-        {:error, :unknown_extractor}
-    end
-
+    Serverboards.Query.Cache.get({:schema, config}, fn ->
+    # Logger.debug("schema #{inspect config}")
+      extractor = config.extractor
+      case Serverboards.Plugin.Registry.filter_component(id: extractor) do
+        [component] ->
+          Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, nil], config.user)
+        _ ->
+          {:error, :unknown_extractor}
+      end
+    end, ttl: 60_000)
   end
 
   @doc ~S"""
   Returns the schema of the given table.
   """
   def schema(config, table) do
-    extractor = config.extractor
-    case Serverboards.Plugin.Registry.filter_component(id: extractor) do
-      [component] ->
-        res = Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, table], config.user)
-        case res do
-          {:ok, %{ "columns" => columns}} ->
-            columns = Enum.map(columns, fn
-              %{ "name" => name } -> name
-              other when is_binary(other) -> other
-            end)
-            {:ok, %{ columns: columns }}
+    Serverboards.Query.Cache.get({:schema, table, config}, fn ->
+      extractor = config.extractor
+      case Serverboards.Plugin.Registry.filter_component(id: extractor) do
+        [component] ->
+          res = Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, table], config.user)
+          case res do
+            {:ok, %{ "columns" => columns}} ->
+              columns = Enum.map(columns, fn
+                %{ "name" => name } -> name
+                other when is_binary(other) -> other
+              end)
+              {:ok, %{ columns: columns }}
 
-          other -> other
-        end
-      _ ->
-        {:error, {:unknown_extractor, extractor}}
-    end
+            other -> other
+          end
+        _ ->
+          {:error, {:unknown_extractor, extractor}}
+      end
+    end, ttl: 60_000)
   end
 
   def query(query, context) do
