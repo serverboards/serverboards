@@ -229,8 +229,18 @@ defmodule Serverboards.Plugin.Runner do
     {:ok, "Pong"}
 
   """
-  def call(id, method, params) when (is_binary(id) and is_binary(method)) do
-    case GenServer.call(Serverboards.Plugin.Runner, {:get, id}) do
+  def call(id, method, params, user) when (is_binary(id) and is_binary(method)) do
+    pid = if String.contains?(id, "/") do
+      case start(id, user) do
+        {:ok, uuid} ->
+          GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
+        other -> other
+      end
+    else
+      GenServer.call(Serverboards.Plugin.Runner, {:get, id})
+    end
+
+    case pid do
       :not_found ->
         Logger.error("Could not find plugin id #{inspect id}: :not_found")
         {:error, :unknown_plugin}
@@ -249,16 +259,17 @@ defmodule Serverboards.Plugin.Runner do
             {:error, [:unknown_method, method]}
           other -> other
         end
+      other -> other
     end
   end
   # map version
-  def call(id, %{ "method" => method, "extra" => true }, defparams) when is_binary(id) do
+  def call(id, %{ "method" => method, "extra" => true }, defparams, user) when is_binary(id) do
     # If extra is true means that the method can get any extra parameter that is passed to it
     # This is necesary for example for send_notification where it may get many extra params
     # to fill as template
-    call(id, method, defparams)
+    call(id, method, defparams, user)
   end
-  def call(id, %{ "method" => method } = defcall, defparams) when is_binary(id) do
+  def call(id, %{ "method" => method } = defcall, defparams, user) when is_binary(id) do
     # This version (no extra) filters which parameters to pass to the method.
     #Logger.debug("Call using map version: #{inspect defcall} // #{inspect defparams}")
     defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k,v} -> {to_string(k), v} end))
@@ -274,10 +285,13 @@ defmodule Serverboards.Plugin.Runner do
               end
       {name, value}
     end ) |> Map.new
-    call(id, method, params)
+    call(id, method, params, user)
+  end
+  def call(id, method, params) do
+    call(id, method, params, :system)
   end
   def call(id, method) do
-    call(id, method, %{})
+    call(id, method, %{}, :system)
   end
 
   @doc ~S"""

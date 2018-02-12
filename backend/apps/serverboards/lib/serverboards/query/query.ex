@@ -25,7 +25,7 @@ defmodule Serverboards.Query do
   # Logger.debug("Use extractor #{inspect extractor}")
     [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
 
-    case Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
+    case Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
       {:ok, result} ->
         {:ok, %{ columns: result["columns"], rows: result["rows"] }}
       other -> other
@@ -40,7 +40,7 @@ defmodule Serverboards.Query do
     extractor = config.extractor
     case Serverboards.Plugin.Registry.filter_component(id: extractor) do
       [component] ->
-        Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, nil], config.user)
+        Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, nil], config.user)
       _ ->
         {:error, :unknown_extractor}
     end
@@ -54,7 +54,7 @@ defmodule Serverboards.Query do
     extractor = config.extractor
     case Serverboards.Plugin.Registry.filter_component(id: extractor) do
       [component] ->
-        res = Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, table], config.user)
+        res = Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, table], config.user)
         case res do
           {:ok, %{ "columns" => columns}} ->
             columns = Enum.map(columns, fn
@@ -68,7 +68,6 @@ defmodule Serverboards.Query do
       _ ->
         {:error, {:unknown_extractor, extractor}}
     end
-
   end
 
   def query(query, context) do

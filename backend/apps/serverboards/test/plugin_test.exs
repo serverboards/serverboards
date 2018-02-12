@@ -321,11 +321,11 @@ defmodule Serverboards.PluginTest do
     assert res == {:ok, "pong"}
   end
 
-  test "Start call stop, various scenarios" do
-    assert {:ok, "pong"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "ping", [], "test")
-    assert {:error, :exit} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "abort", [], "test")
-    assert {:error, "Exception requested"} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake", "exception", [], "test")
-    assert {:error, :not_found} == Serverboards.Plugin.Runner.start_call_stop("serverboards.test.auth/fake--XX", "anything", [], "test")
+  test "Call to plugin name, various scenarios" do
+    assert {:ok, "pong"} == Serverboards.Plugin.Runner.call("serverboards.test.auth/fake", "ping", [], "test")
+    assert {:error, :exit} == Serverboards.Plugin.Runner.call("serverboards.test.auth/fake", "abort", [], "test")
+    assert {:error, "Exception requested"} == Serverboards.Plugin.Runner.call("serverboards.test.auth/fake", "exception", [], "test")
+    assert {:error, :not_found} == Serverboards.Plugin.Runner.call("serverboards.test.auth/fake--XX", "anything", [], "test")
   end
 
   test "Plugin postinst" do
@@ -358,7 +358,7 @@ defmodule Serverboards.PluginTest do
     assert "active" in plugin.status
   end
 
-  test "Pluin get items via RPC" do
+  test "Plugin get items via RPC" do
     # there was a bug when changing from JSON to Poison, it does not convert tuples to lists
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
@@ -369,6 +369,15 @@ defmodule Serverboards.PluginTest do
 
     {:ok, items} = Client.call(client, "plugin.data.items", ["serverboards.test.auth/fake", ""])
     Logger.debug(inspect items)
+  end
 
+  test "Can call directly by plugin id" do
+    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, list} = Client.call(client, "plugin.call", ["serverboards.test.auth/fake", "dir"])
+
+    Logger.debug("list #{inspect list}")
+
+    assert Enum.count(list) > 1
   end
 end
