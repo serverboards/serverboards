@@ -195,7 +195,13 @@ defmodule Serverboards.IO.Cmd do
   def handle_call({:call, method, params}, from, state) do
     #Logger.debug("Call #{method}")
     Task.start(fn ->
-      res = RPC.Client.call( state.client, method, params )
+      res = try do
+         RPC.Client.call( state.client, method, params )
+      catch
+        :exit, :timeout ->
+          Logger.error("Timeout when calling #{inspect method}")
+          {:error, :timeout}
+      end
       GenServer.reply(from, res)
     #Logger.debug("Response for #{method}: #{inspect res}")
     end)
