@@ -58,18 +58,35 @@ class GraphWithData extends React.Component {
     if (is_string(performance) && performance.startsWith('+'))
       performance_color = 'teal'
 
-    const categories = Array.from(new Set(config.data.rows.map( r => r[0] )))
+    let categories = Array.from(new Set(config.data.rows.map( r => r[0] )))
     const xaxis = Array.from(new Set(config.data.rows.map( r => r[1] ))).sort()
+
+    if (categories.length > 3){
+      const total_by_category = config.data.rows.reduce( (acc, r) => {
+        const prev = acc[r[0]] || 0
+        acc[r[0]] = prev + r[2]
+        return acc
+      }, {})
+      const top3 = Object.keys(total_by_category)
+          .map( cat => [total_by_category[cat], cat])
+          .sort( (a,b) => b[0]-a[0] )
+          .slice(0,3)
+          .map( poscat => poscat[1] )
+      // console.log(top3)
+      categories = top3.concat("Other")
+    }
+
     const data = config.data.rows.reduce( (acc, r) => {
-      const k = [r[1], r[0]]
+      let cat = (categories.indexOf(r[0])>=0) ? r[0] : "Other"
+      const k = [r[1], cat]
       const prev = acc[ k ] || 0
       acc[ k ] = prev + Number(r[2])
       return acc
     }, {})
-    console.log("Next stop point!", next_stop_point)
+    // console.log("Next stop point!", next_stop_point)
     const maxy = next_stop_point(Object.values(data).reduce( (acc, r) => Math.max(acc, r), 0 ))
 
-    // console.log(categories, xaxis, maxy, data)
+    // console.log(categories)
     return (
       <div style={{display: "flex"}} className="ui padding">
         <div style={{flex: 1}}>

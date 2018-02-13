@@ -38,7 +38,7 @@ function SVGLines({data, xaxis, maxy, categories}){
       return `${x} ${y}`
     })
     const ret = points.join(' ')
-    console.log(`${category} ${ret}`)
+    // console.log(`${category} ${ret}`)
     return ret
   }
 
