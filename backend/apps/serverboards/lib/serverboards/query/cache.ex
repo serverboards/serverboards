@@ -13,7 +13,7 @@ defmodule Serverboards.Query.Cache do
       [{^id, value}] ->
         value
       other ->
-        val = GenServer.call(__MODULE__, {:insert, id, f})
+        val = GenServer.call(__MODULE__, {:insert, id, f}, 60_000)
         case options[:ttl] do
           nil -> :ok
           ttl ->
