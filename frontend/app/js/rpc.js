@@ -30,8 +30,6 @@ var RPC = function(options={}){
     else
       rpc.url="wss://"+servername.slice(8)+"/ws"
   }
-  if (localStorage.ws_url) // Hack to connect to another server at dev.
-    rpc.url=localStorage.ws_url
 
   rpc.set_status = function(newstatus, extra=undefined){
     if (!rpc.store)
