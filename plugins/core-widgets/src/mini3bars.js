@@ -21,7 +21,7 @@ function prep_bars(bars){
     ret = bars.map( b => ({name: b[0], value: Number(b[1])}) )
   }
   const total = ret.reduce( (acc, b) =>  acc + b.value, 0)
-  console.log("ret %o, total %o", ret, total)
+  // console.log("ret %o, total %o", ret, total)
   return ret.map( v => ({
     name: v.name,
     value: (v.value * 100.0) / total

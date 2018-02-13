@@ -1,6 +1,6 @@
+const {React} =  Serverboards
 import {colorize} from './utils'
 import GraphWithData from './graph_with_data'
-const {React} = Serverboards
 
 const svg_style = {
   axis_bottom: {
@@ -12,8 +12,7 @@ const svg_style = {
   grey: "#9b9b9b"
 }
 
-
-function SVGBars({data, xaxis, maxy, categories}){
+function SVGLines({data, xaxis, maxy, categories}){
   const xgap = 370.0 / xaxis.length // each categeory group width
   const xgap2 = ((xgap*3)/4)/categories.length // each category width
   const xgap4 = xgap2 / 2
@@ -32,6 +31,17 @@ function SVGBars({data, xaxis, maxy, categories}){
     return (v/maxy)*190.0
   }
 
+  function get_line(category){
+    const points = xaxis.map( (legend, j) => {
+      const x = xstart + j*xgap + xgap2
+      const y = 220 -  Math.max(0, rescale(legend, category))
+      return `${x} ${y}`
+    })
+    const ret = points.join(' ')
+    console.log(`${category} ${ret}`)
+    return ret
+  }
+
   // console.log(fill)
   return (
     <svg height={250} width={400}>
@@ -47,41 +57,18 @@ function SVGBars({data, xaxis, maxy, categories}){
         ))}
       </g>
       <g>
-        {xaxis.map( (legend,i) =>
-          <g key={i} >
-            {categories.map( (category, j) => {
-              const dy = Math.max(0, rescale(legend, category))
-              if (dy == 0)
-                return null
-
-              const x1 = xstart + i*xgap + j*xgap2
-              const x2 = x1 + xgap2
-
-              const y1 = 220
-              const y2 = 220 - dy
-              if (dy < xgap4)
-                return (
-                  <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2} L ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
-                )
-              else{
-                const y2_ = y2 + xgap4
-                return (
-                  <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2_} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2_} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
-                )
-              }
-            } )}
-          </g>
+        {categories.map( (category,i) =>
+          <polyline key={category} points={get_line(category)} style={{stroke: fill[i], fill: "none", strokeWidth: 2}}/>
         ) }
       </g>
     </svg>
   )
 }
 
-
-function Bars(props){
+function Lines(props){
   return (
-    <GraphWithData {...props} svgComponent={SVGBars}/>
+    <GraphWithData {...props} svgComponent={SVGLines}/>
   )
 }
 
-Serverboards.add_widget("serverboards.core.widgets/bars", Bars, {react: true})
+Serverboards.add_widget("serverboards.core.widgets/lines", Lines, {react: true})
