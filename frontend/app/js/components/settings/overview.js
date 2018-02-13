@@ -1,7 +1,7 @@
 import React from 'react'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
-import {merge} from 'app/utils'
+import {merge, servername} from 'app/utils'
 import i18n from 'app/utils/i18n'
 
 const Default=React.createClass({
@@ -53,7 +53,7 @@ const Default=React.createClass({
             </div>
             <div className="field">
               <label>{i18n("Connected to server:")} </label>
-              <div className="ui meta">{localStorage.servername || window.location.origin}</div>
+              <div className="ui meta">{servername()}</div>
             </div>
           </div>
           <GenericForm fields={state.post}/>

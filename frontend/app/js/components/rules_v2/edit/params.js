@@ -3,15 +3,10 @@ import i18n from 'app/utils/i18n'
 import GenericForm from 'app/components/genericform'
 import cache from 'app/utils/cache'
 import PropTypes from 'prop-types'
-import {map_get} from 'app/utils'
+import {map_get, servername} from 'app/utils'
 import templates from 'app/utils/templates'
 import {MarkdownPreview} from 'react-marked-markdown';
 
-function get_address(){
-  if (localStorage.servername)
-    return localStorage.servername
-  return `${document.location.protocol}//${document.location.host}`
-}
 
 class Params extends React.Component{
   constructor(props){
@@ -33,7 +28,7 @@ class Params extends React.Component{
         this.setState({
           fields,
           description: templates.render(i18n(trigger.description), {
-            BASE_URL: get_address(),
+            BASE_URL: servername(),
             rule: this.props.rule
           }),
         })

@@ -16,7 +16,7 @@ import AddButton from 'app/components/project/addbutton'
 require('sass/board.sass')
 require('sass/gridlayout.sass')
 
-const RT_INTERVAL = 5
+const RT_INTERVAL = localStorage.dashboard_rt_period || 30
 
 class Board extends React.Component{
   handleEdit(uuid){
