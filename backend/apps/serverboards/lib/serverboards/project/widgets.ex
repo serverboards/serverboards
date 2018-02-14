@@ -133,6 +133,14 @@ defmodule Serverboards.Project.Widget do
     end
   end
 
+  def widget_get(uuid) do
+    import Ecto.Query
+    Repo.one(
+      from s in Model.Widget,
+      where: s.uuid == ^uuid
+      )
+  end
+
   def widget_remove(uuid, me) do
     EventSourcing.dispatch(:project, :remove_widget, %{ uuid: uuid }, me.email )
     :ok

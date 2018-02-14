@@ -24,14 +24,12 @@ var RPC = function(options={}){
   }
 
   if (!rpc.url){
-    const servername=localStorage.servername || window.location.origin
+    const servername=require('app/utils').servername()
     if (servername.slice(0,5)=='http:')
       rpc.url="ws://"+servername.slice(7)+"/ws"
     else
       rpc.url="wss://"+servername.slice(8)+"/ws"
   }
-  if (localStorage.ws_url) // Hack to connect to another server at dev.
-    rpc.url=localStorage.ws_url
 
   rpc.set_status = function(newstatus, extra=undefined){
     if (!rpc.store)
@@ -110,8 +108,8 @@ var RPC = function(options={}){
 
   rpc.onerror = function(){
     console.error("Error WS connection. %o", rpc.status)
-    console.warn("You can change the backend server address at the JS console with `localStorage.servername='http://localhost:8080'`")
-
+    if (__DEV__)
+      console.warn("You can change the backend server address at the JS console with `localStorage.servername='http://localhost:8080'`")
   }
   rpc.reconnect = function(){
     rpc.reconnect_max-=1

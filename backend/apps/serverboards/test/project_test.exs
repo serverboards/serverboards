@@ -150,7 +150,7 @@ defmodule ProjectTest do
     {:ok, cl} = Test.Client.call client, "project.get", ["SBDS-TST8"]
     Logger.info("Info from project #{inspect cl}")
     {:ok, json} = Poison.encode(cl)
-    assert not String.contains? json, "__"
+    assert (not String.contains? json, "__"), json
     assert (hd cl["services"])["name"] == "main web"
     assert (hd (tl cl["services"]))["name"] == "blog"
 

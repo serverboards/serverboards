@@ -18,7 +18,7 @@ const Overview = React.createClass({
         </Loading>
       )
     return (
-      <div className="ui central board" id="dashboard">
+      <div className="ui central" id="dashboard">
         <Board location={props.location} project={props.project.shortname}/>
       </div>
     )

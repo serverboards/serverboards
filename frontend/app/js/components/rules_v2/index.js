@@ -4,7 +4,7 @@ import { goto, set_modal } from 'app/utils/store'
 import cache from 'app/utils/cache'
 import Rule from 'app/containers/rules_v2/rule'
 import RuleAdd from 'app/containers/rules_v2/add'
-import { sort_by_name, colorize, map_get } from 'app/utils'
+import { sort_by_name, colorize, map_get, servername } from 'app/utils'
 import Icon from '../iconicon'
 import AddButton from 'app/components/project/addbutton'
 import Selector from 'app/components/selector'
@@ -13,13 +13,6 @@ import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
 import templates from 'app/utils/templates'
 import {MarkdownPreview} from 'react-marked-markdown';
-
-function get_address(){
-  if (localStorage.servername)
-    return localStorage.servername
-  return `${document.location.protocol}//${document.location.host}`
-}
-
 
 function get_services_id(node){
   if (!node){
@@ -109,7 +102,7 @@ class RuleCard extends React.Component{
 
             let description = templates.render(i18n(t.description),{
                 rule: this.props.rule,
-                BASE_URL: get_address()
+                BASE_URL: servername()
               })
 
             if (!this.state.name)

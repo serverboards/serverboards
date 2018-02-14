@@ -620,6 +620,12 @@ class RPC:
         """
         return self.__loop_status
 
+    def method_list(self):
+        """
+        Returns the list of known methods, for `dir` pourposes
+        """
+        return self.__rpc_registry.keys()
+
 
 # RPC singleton
 rpc = RPC(sys.stdin, sys.stdout)
@@ -667,7 +673,7 @@ def __dir():
 
     Normally used by the other endpoint.
     """
-    return list(rpc.rpc_registry.keys())
+    return list(rpc.method_list())
 
 
 def loop():

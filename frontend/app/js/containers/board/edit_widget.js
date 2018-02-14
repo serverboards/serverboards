@@ -15,7 +15,7 @@ function EditWidgetModal(props){
     )
   }
 
-  console.log(props)
+  // console.log(props)
   return (
     <Modal className="wide">
       <div className="ui top serverboards secondary menu">

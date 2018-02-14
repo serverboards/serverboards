@@ -126,19 +126,19 @@ class QueryServiceSelect extends React.Component{
         <div className="ui service selector list" style={{marginBottom: 20}}>
           {(extractors || []).map( s => (
             <a key={s.id}
-              className={`ui square basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
+              className={`ui basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
               onClick={() => this.handleChangeExtractor(s)}>
               {s.id}: {this.getExtractorName(s.extractor)}
               {this.getServiceName(s.service)}
             </a>
           ))}
           {(!state.open_selector || state.selected.id) ? (
-            <a className="ui dashed square basic teal button"
+            <a className="ui dashed basic teal button"
                onClick={this.handleOpenSelector.bind(this)}>
               +
             </a>
           ) : (
-            <a className="ui dashed square teal button">
+            <a className="ui dashed teal button">
               +
             </a>
           )}

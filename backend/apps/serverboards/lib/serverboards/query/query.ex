@@ -20,69 +20,85 @@ defmodule Serverboards.Query do
   """
 
   def execute(config, table, quals, columns) do
-    extractor = config.extractor
+    Serverboards.Query.Cache.get({:execute, config, table, quals, columns}, fn ->
+      extractor = config.extractor
 
-  # Logger.debug("Use extractor #{inspect extractor}")
-    [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
+    # Logger.debug("Use extractor #{inspect extractor}")
+      [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
 
-    case Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
-      {:ok, result} ->
-        {:ok, %{ columns: result["columns"], rows: result["rows"] }}
-      other -> other
-    end
+      case Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
+        {:ok, result} ->
+          {:ok, %{ columns: result["columns"], rows: result["rows"] }}
+        other -> other
+      end
+    end, ttl: 5_000)
   end
 
   @doc ~S"""
   Returns the list of tables on this extractor
   """
   def schema(config) do
-  # Logger.debug("schema #{inspect config}")
-    extractor = config.extractor
-    case Serverboards.Plugin.Registry.filter_component(id: extractor) do
-      [component] ->
-        Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, nil], config.user)
-      _ ->
-        {:error, :unknown_extractor}
-    end
-
+    Serverboards.Query.Cache.get({:schema, config}, fn ->
+      # Logger.debug("schema #{inspect config}")
+      extractor = config.extractor
+      case Serverboards.Plugin.Registry.filter_component(id: extractor) do
+        [component] ->
+          Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, nil], config.user)
+        _ ->
+          {:error, :unknown_extractor}
+      end
+    end, ttl: 60_000)
   end
 
   @doc ~S"""
   Returns the schema of the given table.
   """
   def schema(config, table) do
-    extractor = config.extractor
-    case Serverboards.Plugin.Registry.filter_component(id: extractor) do
-      [component] ->
-        res = Serverboards.Plugin.Runner.start_call_stop(component.extra["command"], component.extra["schema"], [config, table], config.user)
-        case res do
-          {:ok, %{ "columns" => columns}} ->
-            columns = Enum.map(columns, fn
-              %{ "name" => name } -> name
-              other when is_binary(other) -> other
-            end)
-            {:ok, %{ columns: columns }}
+    Serverboards.Query.Cache.get({:schema, table, config}, fn ->
+      # Logger.debug("schema #{inspect config} #{inspect table}")
+      extractor = config.extractor
+      case Serverboards.Plugin.Registry.filter_component(id: extractor) do
+        [component] ->
+          res = Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, table], config.user)
+          case res do
+            {:ok, %{ "columns" => columns}} ->
+              columns = Enum.map(columns, fn
+                %{ "name" => name } -> name
+                other when is_binary(other) -> other
+              end)
+              {:ok, %{ columns: columns }}
 
-          other -> other
-        end
-      _ ->
-        {:error, {:unknown_extractor, extractor}}
-    end
-
+            other -> other
+          end
+        _ ->
+          {:error, {:unknown_extractor, extractor}}
+      end
+    end, ttl: 60_000)
   end
 
   def query(query, context) do
     context = Enum.map(context, fn
       {"__" <> k, v} ->
-        {"__"<>k, v}
-      {k,v} ->
+        {"__" <> k, v}
+      {k,v} -> # decorate the extractors
         nv = {Serverboards.Query, v}
         {k, nv}
     end) |> Map.new
 
-    # If not starts with SELECT, it is a simple text to use
+    # If not starts with SELECT, it is a simple text to use (rows at \n, cells at ,)
     if not String.starts_with?(String.upcase(query), "SELECT") do
-      {:ok, %{ columns: "?VALUE?", rows: [[query]]} }
+      res = case query do
+        "" ->
+          %{ columns: "?NONAME?", rows: [[""]]}
+        _ ->
+          rows =
+               String.split(query,"\n")
+            |> Enum.map(&String.split(&1, ","))
+            |> Enum.filter(&(&1 != [""])) # remove empty lines
+          columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
+          %{ columns: columns, rows: rows}
+      end
+      {:ok,  res}
     else
       # Logger.debug("Processed context #{inspect context}")
 
@@ -91,14 +107,20 @@ defmodule Serverboards.Query do
           {:ok, %{ columns: columns, rows: rows}}
         end
       catch
+        :exit, {:timeout, where} ->
+          Logger.error("Timeout performing query at #{inspect where, pretty: true}")
+          {:error, :timeout}
+        :exit, any ->
+          Logger.error("Error performing query: #{inspect any}")
+          {:error, inspect(any)}
         any ->
-          {:error, any}
+          {:error, inspect(any)}
       rescue
         e in MatchError ->
-          Logger.error(Exception.format(MatchError, e))
+          Logger.error("Error performing query: #{inspect e}")
           {:error, :invalid_sql}
-        e in FunctionClauseError ->
-          Logger.error(inspect e)
+        exception in FunctionClauseError ->
+          Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
           {:error, :invalid_expression}
         exception ->
           Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")

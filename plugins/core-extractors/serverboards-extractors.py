@@ -4,6 +4,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards
+from serverboards import print
 
 
 @serverboards.rpc_method
@@ -81,9 +82,14 @@ def serverboards_schema(config, table=None):
         return ["service", "user", "rules"]
     if table == "user":
         return {
+            "description": "User database on Serverboards",
             "columns": [
                 "name", "email",
-                {"name": "is_active", "type": "bool"}
+                {
+                    "name": "is_active",
+                    "type": "bool",
+                    "description": "User is active at Serverboards"
+                }
             ]
         }
     if table == "service":
@@ -95,6 +101,47 @@ def serverboards_schema(config, table=None):
             "columns": ["uuid", "name", "description", "project", "is_active"]
         }
     raise Exception("unknown-table")
+
+
+# TABLE EXTRACTOR
+
+def table_parse_config(config):
+    ret = {}
+    current_table = None
+    rows = []
+    read_headers = False
+    for l in config.get("config", {}).get("data", "").split('\n'):
+        if not l:
+            continue
+        elif l[0] == '#':
+            rows = []
+            current_table = l[1:].strip()
+            read_headers = True
+        elif read_headers:  # next loop round
+            read_headers = False
+            columns = l.split(',')
+            ret[current_table] = {"columns": columns, "rows": rows}
+        else:
+            rows.append(l.split(','))
+    return ret
+
+
+@serverboards.rpc_method
+def table_schema(config, table):
+    tables = table_parse_config(config)
+    if not table:
+        return list(tables.keys())
+    if table in tables:
+        return {"columns": tables[table]["columns"]}
+    raise Exception('unknown-table')
+
+
+@serverboards.rpc_method
+def table_extractor(config, table, _quals, _columns):
+    tables = table_parse_config(config)
+    if table in tables:
+        return tables[table]
+    raise Exception('unknown-table')
 
 
 if __name__ == '__main__':
