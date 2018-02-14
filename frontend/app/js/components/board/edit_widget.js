@@ -29,7 +29,7 @@ class ExtractorHelp extends React.Component{
       .plugin_component({type: "extractor"})
       .then( exts => exts.find( e => e.id == eid))
       .then( extractor => {
-        console.log("found data: ", extractor)
+        // console.log("found data: ", extractor)
         this.setState({extractor})
         return plugin
           .start_call_stop(extractor.extra.command, extractor.extra.schema, [{config}, null])
@@ -112,7 +112,7 @@ class ExtractorsHelp extends React.Component{
   }
   render(){
     const {extractors} = this.props
-    console.log(extractors)
+    // console.log(extractors)
     return (
       <div>
         <h3>{i18n("Extractors help")}</h3>

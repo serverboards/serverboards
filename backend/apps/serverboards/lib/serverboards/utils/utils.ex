@@ -34,7 +34,10 @@ defmodule Serverboards.Utils do
         k
       end
       cond do
-        String.starts_with? k, "__" -> []
+        k == "__struct__" -> []
+        # Change to only skip __struct__ as other __*__ may be used internally.
+        # This fixes CORE-365, problems when updating widgets; no __extractors__ after modify.
+        # String.starts_with? k, "__" -> []
         String.ends_with? k, "_pw" -> []
         true -> [{k,clean_struct(v)}]
       end
