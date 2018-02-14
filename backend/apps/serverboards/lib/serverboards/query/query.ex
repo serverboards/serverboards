@@ -39,7 +39,7 @@ defmodule Serverboards.Query do
   """
   def schema(config) do
     Serverboards.Query.Cache.get({:schema, config}, fn ->
-    # Logger.debug("schema #{inspect config}")
+      # Logger.debug("schema #{inspect config}")
       extractor = config.extractor
       case Serverboards.Plugin.Registry.filter_component(id: extractor) do
         [component] ->
@@ -55,6 +55,7 @@ defmodule Serverboards.Query do
   """
   def schema(config, table) do
     Serverboards.Query.Cache.get({:schema, table, config}, fn ->
+      # Logger.debug("schema #{inspect config} #{inspect table}")
       extractor = config.extractor
       case Serverboards.Plugin.Registry.filter_component(id: extractor) do
         [component] ->
@@ -118,8 +119,8 @@ defmodule Serverboards.Query do
         e in MatchError ->
           Logger.error("Error performing query: #{inspect e}")
           {:error, :invalid_sql}
-        e in FunctionClauseError ->
-          Logger.error(inspect e)
+        exception in FunctionClauseError ->
+          Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
           {:error, :invalid_expression}
         exception ->
           Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
