@@ -1,6 +1,5 @@
 import React from 'react'
 import Widget from './widget'
-import AddWidget from 'app/containers/board/add_widget'
 import EditWidget from 'app/containers/board/edit_widget'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
