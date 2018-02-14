@@ -22,7 +22,8 @@ defmodule Serverboards.Query.Cache do
   # Make the server ask for the data
   defp get_at_genserver(id, f, options) do
     val = GenServer.call(__MODULE__, {:get, id, f}, 60_000)
-    val = if val == :youdoit do # this marks I must do it, and then send the value for the rest.
+
+    if val == :youdoit do # this marks I must do it, and then send the value for the rest.
       val = try do
         f.()
       catch
@@ -34,16 +35,17 @@ defmodule Serverboards.Query.Cache do
         error ->
           {:error, error}
       end
-      GenServer.cast(__MODULE__, {:insert, id, val})
+      if val != {:error, :exit} do
+        GenServer.cast(__MODULE__, {:insert, id, val})
+
+        case options[:ttl] do
+          nil -> :ok
+          ttl ->
+            Process.send_after(__MODULE__, {:remove, id}, ttl)
+        end
+      end
       val
     else val end
-
-    case options[:ttl] do
-      nil -> :ok
-      ttl ->
-        Process.send_after(__MODULE__, {:remove, id}, ttl)
-    end
-    val
   end
 
   ## impl
