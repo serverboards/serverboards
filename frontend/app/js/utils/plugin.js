@@ -1,4 +1,4 @@
-import {merge} from 'app/utils'
+import {merge, servername} from 'app/utils'
 import rpc from 'app/rpc'
 import cache from 'app/utils/cache'
 
@@ -7,10 +7,7 @@ var widgets = {}
 var already_loaded = {}
 
 export function join_path(url){
-  let full_url=`/static/${url}`
-  if (localStorage.servername)
-    full_url=`${localStorage.servername}${full_url}`
-  return full_url
+  return `${servername()}/static/${url}`
 }
 
 export function load_js(url, options){

@@ -2,7 +2,7 @@
 @import "graphs/colors.sass"
 
 .ui.board
-  padding: 0 15px 15px
+  padding: 0
   height: 100%
   background: rgb(245, 247, 246)
   .react-grid-item.react-grid-placeholder
@@ -43,6 +43,12 @@
     margin: 0
     background: none
     box-shadow: none
+    .card
+      display: flex !important
+      flex-grow: 1
+      width: 100%
+      > *
+        flex: 1
     .ui.top.mini.menu
       .header
         color: $grey
@@ -87,12 +93,14 @@
         border: 1px solid #eaeeed !important
         border-radius: 6px !important
         overflow: hidden
+        display: flex !important
+        flex-direction: column
+        flex-grow: 1
 
         -webkit-user-select: text
         -moz-user-select: text
         -ms-user-select: text
         user-select: text
-
         .content
           height: 100%
         +background-colors-with-text

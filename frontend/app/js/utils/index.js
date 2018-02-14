@@ -125,6 +125,11 @@ const fixed_colors={
   "pink": "pink",
   "brown": "brown",
   "grey": "grey",
+  "facebook": "blue",
+  "instagram": "pink",
+  "sem": "teal",
+  "google": "red",
+  "organic": "olive",
 }
 
 export function colorize(str){
@@ -373,6 +378,13 @@ export function filter_items_str( items, filters, to_str_f = (s) => s){
   return ret
 }
 
+export function servername(){
+  if (__DEV__)
+    return (localStorage.servername || window.location.origin)
+  else
+    return window.location.origin
+}
+
 export default {
   to_map,
   to_list,
@@ -395,6 +407,7 @@ export default {
   unwrap,
   match_traits,
   filter_items_str,
+  servername,
 
   days,
   months,

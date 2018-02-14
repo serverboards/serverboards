@@ -144,7 +144,7 @@ defmodule Serverboards.Event do
     :ok
   """
   def emit(type, data, guards \\ []) do
-    #Logger.debug("Emit event #{type}")
+    # Logger.debug("Emit event #{type} #{inspect data, pretty: true}")
     MOM.Channel.send(:client_events, %MOM.Message{ payload: %{
       type: type, data: data, guards: guards
     } })

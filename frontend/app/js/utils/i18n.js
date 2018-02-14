@@ -82,11 +82,11 @@ export function update(newtrans, options={clean: false}){
 }
 
 export function load(options){
+  const servername = require('app/utils').servername
+
   let url
   if (options.plugin){
-    url = `/static/${options.plugin}/lang/${options.lang}.json`
-    if (localStorage.servername)
-      url=`${localStorage.servername}${url}`
+    url = `${servername()}/static/${options.plugin}/lang/${options.lang}.json`
   }
   else{
     url = `/lang/${options.lang}.json`

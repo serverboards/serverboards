@@ -10,7 +10,7 @@ node_modules/.bin/rollupnode_modules/.bin/rollup: node_modules/
 node_modules/: package.json
 	yarn
 
-compile: static/mini5.js static/mini2.js static/markdown.js static/clock.js
+compile: static/*.js
 
 static/%.js: src/%.js
 	node_modules/.bin/rollup -c

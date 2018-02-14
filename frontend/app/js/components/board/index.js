@@ -1,6 +1,5 @@
 import React from 'react'
 import Widget from './widget'
-import AddWidget from 'app/containers/board/add_widget'
 import EditWidget from 'app/containers/board/edit_widget'
 import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
@@ -16,7 +15,7 @@ import AddButton from 'app/components/project/addbutton'
 require('sass/board.sass')
 require('sass/gridlayout.sass')
 
-const RT_INTERVAL = 5
+const RT_INTERVAL = localStorage.dashboard_rt_period || 30
 
 class Board extends React.Component{
   handleEdit(uuid){
@@ -48,9 +47,15 @@ class Board extends React.Component{
       if (object_is_equal(prev,l))
         return false
       return l
-    }).filter( Boolean )
-    to_set.map( (w) => {
+    }).filter( Boolean ).map( w => ({
+      i: w.i,
+      x: w.x, y: w.y,
+      h: w.h, w: w.w
+    }) )
+    Promise.all( to_set.map( (w) => {
       rpc.call("dashboard.widget.update", {uuid: w.i, ui: w})
+    }) ).catch( e => {
+      console.log("Could not change layout", e)
     })
     this.setState({layout})
   }
@@ -123,7 +128,7 @@ class Board extends React.Component{
   }
   updateExtractedConfigs(to_extract, context){
     // console.log("To extract ", to_extract)
-    console.log("Update in range", context)
+    // console.log("Update in range", context)
     to_extract.map( uuid => {
       rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
         let configs = {...this.state.configs}
@@ -182,32 +187,41 @@ class Board extends React.Component{
           <div className="ui board">
             <ReactGridLayout
               className="ui cards layout"
-              cols={8}
-              rowHeight={130}
+              cols={16}
+              rowHeight={163}
               width={2400}
               margin={[15,0]}
               draggableHandle=".ui.top.mini.menu .ui.header"
               layout={this.state.layout}
               onLayoutChange={this.handleLayoutChange.bind(this)}
               >
-                {widgets.map( ({widget, template}) => (
-                  <div
-                    key={widget.uuid}
-                    data-grid={{x:0, y: 0, w: 1, h: 1, ...widget.ui, ...template.hints}}
-                    className="ui card"
-                    >
-                    <Widget
-                      key={widget.uuid}
-                      widget={widget.widget}
-                      config={configs[widget.uuid] || {}}
-                      uuid={widget.uuid}
-                      template={template}
-                      onEdit={() => this.handleEdit(widget.uuid)}
-                      project={this.props.project}
-                      layout={this.getLayout(widget.uuid)}
-                      />
-                  </div>
-                ))}
+                {widgets.map( ({widget, template}) => {
+                  try {
+                    return (
+                      <div
+                        key={widget.uuid}
+                        data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
+                        className="ui card"
+                        >
+                        <Widget
+                          key={widget.uuid}
+                          widget={widget.widget}
+                          config={configs[widget.uuid] || {}}
+                          uuid={widget.uuid}
+                          template={template}
+                          onEdit={() => this.handleEdit(widget.uuid)}
+                          project={this.props.project}
+                          layout={this.getLayout(widget.uuid)}
+                          />
+                      </div>
+                    )
+                  } catch (e) {
+                    console.error("Error displaying widget %o: %o", {widget, template}, e)
+                    return (
+                      <Error>{String(e)}</Error>
+                    )
+                  }
+                })}
             </ReactGridLayout>
           </div>
           )}

@@ -1,3 +1,4 @@
+import webpack from 'webpack'
 import nodeExternals from 'webpack-node-externals';
 var path = require('path')
 
@@ -59,4 +60,9 @@ export default {
       lang : path.resolve("./lang")
     }
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      __DEV__: JSON.stringify(false),
+    })
+  ]
 };

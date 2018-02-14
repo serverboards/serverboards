@@ -108,10 +108,11 @@ class AddServiceRouter extends React.Component{
     let self = this
     $(this.refs.checkboxes).find('.checkbox').checkbox({
       onChange(ev){
-        console.log("Enable %o", this)
+        // console.log("Enable %o", this)
         self.setState({tab: this.value})
       }
     })
+    cache.services().then( all_services => this.setState({all_services}))
   }
   render(){
     const props = this.props
@@ -157,6 +158,7 @@ class AddServiceRouter extends React.Component{
                 onBack={() => gotoStep(1)}
                 onSelect={(s) => this.handleAttachService(s.uuid)}
                 bottomElement={AddServiceButton}
+                services={this.state.all_services}
                 />
             </div>
           </div>

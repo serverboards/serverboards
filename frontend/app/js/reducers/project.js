@@ -2,15 +2,15 @@ import {merge, map_set, map_get} from 'app/utils'
 import moment from 'moment'
 
 function previous_start(){
-  if (localStorage.dashboard_realtime)
-    return moment().subtract(localStorage.dashboard_realtime, "seconds")
+  if (localStorage.dashboard_realtime == "true")
+    return moment().subtract(localStorage.dashboard_range, "seconds")
   if (localStorage.dashboard_start)
     return moment(localStorage.dashboard_start)
   else
     return moment().subtract(7,"days")
 }
 function previous_end(){
-  if (localStorage.dashboard_realtime)
+  if (localStorage.dashboard_realtime == "true")
     return moment()
   if (localStorage.dashboard_end)
     return moment(localStorage.dashboard_end)
@@ -18,7 +18,7 @@ function previous_end(){
     return moment()
 }
 function previous_realtime(){
-  return localStorage.dashboard_realtime || false
+  return (localStorage.dashboard_realtime == "true")
 }
 
 var default_state={
@@ -138,15 +138,15 @@ function project(state=default_state, action){
       state = merge(state, {daterange})
       localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
       localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
-      if (state.realtime){
-        localStorage.dashboard_realtime=moment(daterange.end).diff(daterange.start,'seconds')
-      }
+      localStorage.dashboard_realtime=state.realtime
+      localStorage.dashboard_range = daterange.end.diff(daterange.start, "seconds")
       return state
     }
     case "UPDATE_EXTERNAL_URL_COMPONENTS":
       return merge(state, {external_urls: action.components})
     case "BOARD_REALTIME":
-      localStorage.dashboard_realtime=moment(state.daterange.end).diff(state.daterange.start,'seconds')
+      localStorage.dashboard_realtime = action.payload
+      localStorage.dashboard_range = localStorage.dashboard_range || 7*24*60*60 // 7 days
       return merge(state, {realtime: action.payload})
     case "BOARD_LIST":
       return map_set(state, ["dashboard", "list"], action.payload)

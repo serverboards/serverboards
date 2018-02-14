@@ -178,7 +178,7 @@ defmodule Serverboards.Auth do
 
 	defp try_login_by_auth(%{ command: command, login: %{ call: call }, id: id } = auth, params) when is_binary(command) and is_binary(call) do
 		#Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
-		 case Serverboards.Plugin.Runner.start_call_stop(command, call, params, "system/auth") do
+		 case Serverboards.Plugin.Runner.call(command, call, params, "system/auth") do
 		  {:ok, email} when is_binary(email) ->
 				case Serverboards.Auth.User.user_info(email) do
 					{:ok, user}  ->

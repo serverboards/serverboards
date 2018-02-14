@@ -8,12 +8,12 @@ defmodule Serverboards.Utils do
   ## Example
 
     iex> import Logger
-    iex> s= %{ :__ignore__ => "to be ignored", "__ignore_too__" => "to be ignored",
+    iex> s= %{ :__struct__ => "to be ignored", "__not_ignored__" => "to be ignored",
     ...>      :user_pw => "same", "user_pw" => "same", "valid" => "valid",
     ...>      :valid2 => :valid }
     iex> {:ok, json} = Poison.encode( clean_struct(s) )
     iex> Logger.info(json)
-    iex> not String.contains? json, "__"
+    iex> not String.contains? json, "__struct__"
     true
     iex> not String.contains? json, "_pw"
     true
@@ -34,7 +34,11 @@ defmodule Serverboards.Utils do
         k
       end
       cond do
-        String.starts_with? k, "__" -> []
+        k == "__struct__" -> []
+        k == "__meta__" -> []
+        # Change to only skip __struct__ as other __*__ may be used internally.
+        # This fixes CORE-365, problems when updating widgets; no __extractors__ after modify.
+        # String.starts_with? k, "__" -> []
         String.ends_with? k, "_pw" -> []
         true -> [{k,clean_struct(v)}]
       end

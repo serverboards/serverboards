@@ -25,8 +25,6 @@ const ExternalScreen = React.createClass({
       console.debug("Plugin did not specify a cleanup function. This may lead to resource leaks.")
   },
   componentDidMount(){
-    const servername=localStorage.servername || window.location.origin
-
     const props=this.props
     let self=this
     //const service=this.props.location.state.service

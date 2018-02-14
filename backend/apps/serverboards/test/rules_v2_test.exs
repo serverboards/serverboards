@@ -311,7 +311,7 @@ defmodule Serverboards.RuleV2Test do
 
     {:ok, uuid} = Test.Client.call(client, "rules_v2.create", rule)
 
-    :timer.sleep(1_000)
+    :timer.sleep(200)
 
     {res1, _} = File.stat("/tmp/rule-webhooks.test")
     if res1 == :ok do
@@ -323,6 +323,10 @@ defmodule Serverboards.RuleV2Test do
     Logger.debug("Response #{inspect response}")
 
     assert response.status_code == 200
+
+    :timer.sleep(200)
+    {:ok, _} = File.stat("/tmp/rule-webhooks.test")
+    File.rm("/tmp/rule-webhooks.test")
 
     if http_pid do
       Process.exit(http_pid, :normal)
