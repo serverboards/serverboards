@@ -13,7 +13,7 @@ components:
     type: cmd
     command: ./serverboards-extractors.py
     strategy: singleton
-    timeout: 5s
+    timeout: 30s
     perms: service.get auth.list rules.view
 
   - id: extractor
