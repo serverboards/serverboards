@@ -180,7 +180,7 @@ class QueryServiceSelect extends React.Component{
               <div>
                 <GenericForm
                   fields={state.extractor.extra.params}
-                  data={state.selected.config}
+                  data={{service_id: selected.service, ...state.selected.config}}
                   updateForm={this.updateExtractorConfig.bind(this)}
                   />
               </div>
