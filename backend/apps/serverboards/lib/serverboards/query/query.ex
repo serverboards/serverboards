@@ -106,11 +106,17 @@ defmodule Serverboards.Query do
           {:ok, %{ columns: columns, rows: rows}}
         end
       catch
+        :exit, {:timeout, where} ->
+          Logger.error("Timeout performing query at #{inspect where, pretty: true}")
+          {:error, :timeout}
+        :exit, any ->
+          Logger.error("Error performing query: #{inspect any}")
+          {:error, inspect(any)}
         any ->
-          {:error, any}
+          {:error, inspect(any)}
       rescue
         e in MatchError ->
-          Logger.error(Exception.format(MatchError, e))
+          Logger.error("Error performing query: #{inspect e}")
           {:error, :invalid_sql}
         e in FunctionClauseError ->
           Logger.error(inspect e)
