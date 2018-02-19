@@ -11,8 +11,8 @@ const SECTIONS = [
   {id: 'dashboard', name: i18n_nop('Dashboard')},
   {id: 'services',  name: i18n_nop('Services'), perm: "service.get"},
   {id: 'rules_v2',  name: i18n_nop('Rules'), perm: "rules.view"},
-  {id: 'settings',  name: i18n_nop('Settings'), perm: "project.update"},
   {id: 'issues',  name: i18n_nop('Issues'), perm: "issues.view"},
+  {id: 'settings',  name: i18n_nop('Settings'), perm: "project.update"},
 ]
 
 var Top=connect({
