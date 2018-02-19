@@ -345,7 +345,7 @@ export function match_traits({has, any, all}){
         return false
     }
   }
-  if (any && any.length>0){
+  if (any){
     for (let a of any){
       if (has.indexOf(a)>=0)
         return true

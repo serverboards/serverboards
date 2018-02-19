@@ -1,4 +1,4 @@
-import {pretty_ago, object_is_equal, map_get} from 'app/utils'
+import {pretty_ago, object_is_equal, map_get, match_traits} from 'app/utils'
 import assert from 'assert'
 
 describe("Pretty print", () => {
@@ -39,5 +39,29 @@ describe("Pretty print", () => {
     assert.equal( map_get({a: 1}, ["a"]), 1 )
     assert.equal( map_get({a: 1}, ["b"]), undefined )
     assert.equal( map_get({a: 1, b: {c: 2}}, ["b", "c"]), 2 )
+  })
+
+  it("Should match traits in several cases", () => {
+    assert.equal( match_traits({has: [], any: []}),  false,
+      "It does not match any, as there is none to match")
+    assert.equal( match_traits({has: ["test"], any: []}), false,
+      "It does not match any, as there is none to match (2)")
+    assert.equal( match_traits({has: ["test"], any: ["one", "two"]}), false,
+      "No match coincidence")
+    assert.equal( match_traits({has: ["test"], any: ["one", "two", "test"]}), true,
+      "Match coincidence")
+    assert.equal( match_traits({has: [], any: ["one", "two", "test"]}), false,
+      "No match coincidence on empty has")
+
+
+    assert.equal( match_traits({has: [], all: []}), true,
+      "Nothing to match at all, matches")
+    assert.equal( match_traits({has: ["test"], all: []}), true,
+      "Nothing to match at all, and have some, matches")
+    assert.equal( match_traits({has: ["one", "test"], all: ["test", "one"]}), true,
+      "Matches all")
+    assert.equal( match_traits({has: ["one", "two", "test"], all: ["test", "one"]}), true,
+      "Matches all, and even has more")
+
   })
 })
