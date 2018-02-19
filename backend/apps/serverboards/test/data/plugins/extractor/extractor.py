@@ -10,7 +10,7 @@ import random
 def schema(config, table=None):
     print("Get table ", config, table)
     if not table:
-        return ["random", "user", "group", "permission"]
+        return ["random"]
 
     if table == "random":
         return {
