@@ -9,10 +9,10 @@ import {match_traits} from 'app/utils'
 
 const SECTIONS = [
   {id: 'dashboard', name: i18n_nop('Dashboard')},
-  {id: 'services',  name: i18n_nop('Services')},
-  {id: 'rules_v2',  name: i18n_nop('Rules')},
-  {id: 'settings',  name: i18n_nop('Settings')},
-  {id: 'issues',  name: i18n_nop('Issues')},
+  {id: 'services',  name: i18n_nop('Services'), perm: "service.get"},
+  {id: 'rules_v2',  name: i18n_nop('Rules'), perm: "rules.view"},
+  {id: 'settings',  name: i18n_nop('Settings'), perm: "project.update"},
+  {id: 'issues',  name: i18n_nop('Issues'), perm: "issues.view"},
 ]
 
 var Top=connect({
@@ -28,10 +28,20 @@ var Top=connect({
     ))
     extra_screens.sort( (a,b) => a.name.localeCompare(b.name) )
     const params = props.params
+    const perms = state.auth.user.perms
+
+    let sections = SECTIONS.filter( s => {
+      if (!s.perm)
+        return true
+      return perms.indexOf(s.perm)>=0
+    })
+
+    if (perms.indexOf("plugin")>=0)
+      sections = sections.concat(extra_screens)
 
     return {
       projects: _.sortBy(state.project.projects || [], 'name'),
-      sections: SECTIONS.concat(extra_screens),
+      sections: sections,
       project_name: current_project.name,
       section: params.section || 'dashboard' ,
       subsection: params.subsection,

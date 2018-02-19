@@ -1,6 +1,7 @@
 import React from 'react'
 import { goto, set_modal } from 'app/utils/store'
 import {i18n, i18n_nop} from 'app/utils/i18n'
+import {Restricted} from 'app/components'
 
 const ServiceMenu = React.createClass({
   componentDidMount(){
@@ -105,11 +106,13 @@ const ProjectMenu = React.createClass({
             key="project_selector_menu"
             ref="project_selector_menu"
             >
-          <a  className="item"
-              onClick={() => goto(`#/project/wizard`, {step: 1})}
-              style={{borderBottom: "1px solid #eee", width: 200}}
-              id="add_project"
-            >{i18n("Add project")}</a>
+          <Restricted perm="project.create">
+            <a  className="item"
+                onClick={() => goto(`#/project/wizard`, {step: 1})}
+                style={{borderBottom: "1px solid #eee", width: 200}}
+                id="add_project"
+              >{i18n("Add project")}</a>
+          </Restricted>
           {(projects || []).map( p => (
             <a key={p.shortname} className={`item ${p.shortname == project_shortname ? "bold teal" : null}`} onClick={() => this.handleChangeProject(p.shortname)}>
               {p.name}
