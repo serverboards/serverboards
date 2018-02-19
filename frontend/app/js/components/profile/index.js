@@ -105,9 +105,10 @@ let Profile = React.createClass({
 
           <div style={{clear:"both"}}/>
 
-          <Notifications user={props.user.email}
-            onUpdate={(data) => this.handleUpdate("notifications", data)}/>
-
+          <Restricted perm="settings.user.view">
+            <Notifications user={props.user.email}
+              onUpdate={(data) => this.handleUpdate("notifications", data)}/>
+          </Restricted>
           <br/>
           <Restricted perm="settings.user.update">
             <button className="ui yellow button" onClick={this.handleSubmit}>{i18n("Update profile")}</button>

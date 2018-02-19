@@ -193,6 +193,8 @@ class Board extends React.Component{
               margin={[15,0]}
               draggableHandle=".ui.top.mini.menu .ui.header"
               layout={this.state.layout}
+              isDraggable={this.props.can_edit}
+              isResizable={this.props.can_edit}
               onLayoutChange={this.handleLayoutChange.bind(this)}
               >
                 {widgets.map( ({widget, template}) => {

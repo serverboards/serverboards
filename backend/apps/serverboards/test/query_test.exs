@@ -18,7 +18,7 @@ defmodule Serverboards.QueryTest do
     {:ok, tables} = Query.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil })
 
     Logger.debug("Got tables #{inspect tables}")
-    assert tables == ["random", "user", "group", "permission"]
+    assert tables == ["random"]
 
     {:ok, random} = Query.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil}, "random")
     Logger.debug("Got random definition #{inspect random}")

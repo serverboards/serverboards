@@ -16,7 +16,8 @@ const Board = store.connect({
     widget_catalog: state.project.widget_catalog,
     realtime: state.project.realtime,
     time_slice: [state.project.daterange.start, state.project.daterange.end],
-    dashboard: map_get(state, ["project","dashboard", "current", "uuid"])
+    dashboard: map_get(state, ["project","dashboard", "current", "uuid"]),
+    can_edit: state.auth.user.perms.indexOf("dashboard.update")>=0,
   }),
   handlers: (dispatch, prop) => ({
     updateDaterangeNow: () => dispatch( board_update_now() ),
