@@ -3,6 +3,7 @@ import {merge} from 'app/utils'
 import {goto} from 'app/utils/store'
 import rpc from 'app/rpc'
 import ScreensMenu from 'app/components/service/screensmenu'
+import {Restricted} from 'app/components'
 import {get_service_data} from 'app/components/service/utils'
 import ServerboardSelector from 'app/containers/project/projectselector'
 import i18n from 'app/utils/i18n'
@@ -106,34 +107,47 @@ const SidebarSections = React.createClass({
         <div>
           <ProjectHeader key={props.project.name} {...props}/>
           <MenuItem section="dashboard">{i18n("Dashboard")}</MenuItem>
-          <MenuItem section="services">{i18n("Services")}</MenuItem>
-          <MenuItem section="rules_v2">{i18n("Rules")}</MenuItem>
-          <MenuItem section="issues" style={{display:"flex"}}><span>{i18n("Issues")}</span>
-            {props.new_issues ? (
-              <span className={`ui micro label circular blue`}/>
-            ) : null }
-          </MenuItem>
+          <Restricted perm="service.get">
+            <MenuItem section="services">{i18n("Services")}</MenuItem>
+          </Restricted>
+          <Restricted perm="rules.view">
+            <MenuItem section="rules_v2">{i18n("Rules")}</MenuItem>
+          </Restricted>
+          <Restricted perm="issues.view">
+            <MenuItem section="issues" style={{display:"flex"}}><span>{i18n("Issues")}</span>
+              {props.new_issues ? (
+                <span className={`ui micro label circular blue`}/>
+              ) : null }
+            </MenuItem>
+          </Restricted>
 
         </div>
-        <ScreensMenu
-          services={props.project.services}
-          screens={props.project.screens}
-          project={props.project}
-          section={`${props.section}/${props.subsection}`}
-          onSectionChange={this.handleSectionChange}
-          />
-        <div>
-          <MenuItem section="settings">{i18n("Settings")}</MenuItem>
-        </div>
+
+        <Restricted perm="plugin">
+          <ScreensMenu
+            services={props.project.services}
+            screens={props.project.screens}
+            project={props.project}
+            section={`${props.section}/${props.subsection}`}
+            onSectionChange={this.handleSectionChange}
+            />
+        </Restricted>
+        <Restricted perm="project.update">
+          <div>
+            <MenuItem section="settings">{i18n("Settings")}</MenuItem>
+          </div>
+        </Restricted>
 
         <a className="item" onClick={this.toggleShowServerboardSelector} style={SPECIAL_ITEM_STYLE}>
           {i18n("View all projects")}
           <i className={`icon folder`}/>
         </a>
-        <a className="item" id="add_project" onClick={() => goto("/project/wizard", {step:1})} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
-          {i18n("Create new project")}
-          <i className={`icon yellow add`}/>
-        </a>
+        <Restricted perm="project.create">
+          <a className="item" id="add_project" onClick={() => goto("/project/wizard", {step:1})} style={merge(SPECIAL_ITEM_STYLE, {borderBottom: "1px solid #aaa"})}>
+            {i18n("Create new project")}
+            <i className={`icon yellow add`}/>
+          </a>
+        </Restricted>
 
         {this.state.show_project_selector ? (
           <ServerboardSelector onClose={this.toggleShowServerboardSelector} className="center"/>

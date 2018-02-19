@@ -13,6 +13,7 @@ import PluginScreen from './plugin/screen'
 import Selector from './selector'
 import Panes from './panes'
 import FutureLabel from './futurelabel'
+import Restricted from 'app/restricted'
 
 const components = {
   Modal,
@@ -28,7 +29,8 @@ const components = {
   PluginScreen,
   Selector,
   Panes,
-  FutureLabel
+  FutureLabel,
+  Restricted,
 }
 
 // Export as default, and as destructuring.
@@ -50,5 +52,6 @@ export {
   PluginScreen,
   Selector,
   Panes,
-  FutureLabel
+  FutureLabel,
+  Restricted,
 }
