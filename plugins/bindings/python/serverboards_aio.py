@@ -22,6 +22,10 @@ class RPC:
         # queues to wait for response of each of the remote calls
         # indexed by method call id
         self.__wait_for_response = {}
+        # subscriptions to events
+        self.__subscriptions = {}
+        self.__subscriptions_by_id = {}
+        self.__subscription_id = 1
 
     def stop(self):
         self.__call_group.join(wait=all)
@@ -105,7 +109,6 @@ class RPC:
         try:
             async for line in self.stdin:
                 line = line.strip()
-                print("<<<", line)
                 if line.startswith('# wait'):  # special command!
                     await curio.sleep(float(line[7:]))
                 else:
@@ -113,6 +116,42 @@ class RPC:
         except curio.CancelledError:
             print("Cancelled file read")
             raise
+
+    async def subscribe(self, eventname, callback):
+        """
+        Subscribes to an event
+
+        If the other side launches the given event, it calls the callback.
+
+        It returns an id that can be used for unsubscription.
+        """
+        # subscribes to the real event, not the filtering
+        event = eventname.split('[', 1)[0]
+        id = self.__subscription_id
+        self.__subscription_id += 1
+        subs = self.__subscriptions.get(event, []).concat(callback)
+        self.__subscriptions[event] = subs
+        self.__subscriptions_by_id[id] = (event, callback)
+
+        await self.call("event.subscribe", eventname)
+
+        return id
+
+    async def unsubscribe(self, id):
+        if id not in self.__subscriptions_ids:
+            return False
+
+        (event, callback) = self.__subscriptions_ids[id]
+        subs = self.__subscriptions[event]
+        subs = [x for x in subs if x != callback]
+        if subs:
+            self.__subscriptions[event] = subs
+        else:
+            del self.__subscriptions[event]
+            await self.call("event.unsubscribe", event)
+
+        del self.__subscriptions_ids[id]
+        return True
 
 
 rpc = RPC()
