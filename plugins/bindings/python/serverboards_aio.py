@@ -106,8 +106,8 @@ class RPC:
             async for line in self.stdin:
                 line = line.strip()
                 print("<<<", line)
-                if line.startswith('#wait'):  # special command!
-                    await curio.sleep(int(line[6:]))
+                if line.startswith('# wait'):  # special command!
+                    await curio.sleep(float(line[7:]))
                 else:
                     await self.__parse_request(json.loads(line))
         except curio.CancelledError:

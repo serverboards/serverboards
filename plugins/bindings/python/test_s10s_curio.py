@@ -1,7 +1,9 @@
 #!/usr/bin/python3
+import sys
 
+sys.stdin = open('test.json')
 import serverboards_aio as serverboards
-from serverboards_aio import curio, rpc_method, info
+from serverboards_aio import curio, rpc_method, info, service, debug
 
 
 @serverboards.rpc_method
@@ -19,6 +21,8 @@ async def wait_(timeout):
 async def ping():
     res = await serverboards.call("pong")
     await info("Pong!")
+    ser = await service.get(uuid="XXX")
+    await debug("Got service?", ser)
     return res
 
 

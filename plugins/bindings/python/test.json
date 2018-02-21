@@ -6,5 +6,7 @@
 {"method": "echo", "params": ["me first than wait 2"], "id": 6}
 {"method": "dir", "params": [], "id": 7}
 {"method": "ping", "params": [], "id": 8}
-#wait 1
+# wait 1
 {"result": "pong", "id": 1}
+# wait 0.1
+{"result": {"uuid": "test", "name": "test"}, "id": 2}
