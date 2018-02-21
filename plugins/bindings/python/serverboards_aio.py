@@ -3,13 +3,18 @@ import os
 import json
 import time
 import io
-from contextlib import contextmanager
-sys.path.append(os.path.join(os.path.dirname(__file__),
-                "env/lib/python3.6/site-packages/"))
 import curio
+from contextlib import contextmanager
 
 
 plugin_id = os.environ.get("PLUGIN_ID")
+
+
+async def maybe_await(res):
+    # if async, wait for response ## cr_running only on async funcs
+    if hasattr(res, "cr_running"):
+        res = await res
+    return res
 
 
 class RPC:
@@ -26,9 +31,11 @@ class RPC:
         self.__subscriptions = {}
         self.__subscriptions_by_id = {}
         self.__subscription_id = 1
+        self.__run_queue = []
 
     def stop(self):
         self.__call_group.join(wait=all)
+        self.__run_queue_task.join()
 
     def register(self, name, function):
         self.__methods[name] = function
@@ -36,6 +43,7 @@ class RPC:
 
     async def __send(self, js):
         await self.stdout.write(json.dumps(js) + "\n")
+        await self.__run_tasks()
 
     async def __parse_request(self, req):
         method = req.get("method")
@@ -65,9 +73,7 @@ class RPC:
             else:
                 res = fn(**params)
 
-            # if async, wait for response ## cr_running only on async funcs
-            if hasattr(res, "cr_running"):
-                res = await res
+            res = maybe_await(res)
 
             if id:
                 await self.__send({"result": res, "id": id})
@@ -106,6 +112,7 @@ class RPC:
         return list(self.__methods.keys())
 
     async def loop(self):
+        await curio.spawn(self.__run_tasks, daemon=True)
         try:
             async for line in self.stdin:
                 line = line.strip()
@@ -113,6 +120,7 @@ class RPC:
                     await curio.sleep(float(line[7:]))
                 else:
                     await self.__parse_request(json.loads(line))
+                await self.__run_tasks()
         except curio.CancelledError:
             print("Cancelled file read")
             raise
@@ -153,6 +161,18 @@ class RPC:
         del self.__subscriptions_ids[id]
         return True
 
+    def run_async(self, method, *args, **kwargs):
+        self.__run_queue.append((method, args, kwargs))
+
+    async def __run_tasks(self):
+        while len(self.__run_queue) > 0:
+            (method, args, kwargs) = self.__run_queue.pop()
+            try:
+                res = method(*args, **kwargs)
+                await maybe_await(res)
+            except Exception as e:
+                log_traceback(e)
+
 
 rpc = RPC()
 sys.stdout = sys.stderr  # all normal prints go to stderr
@@ -177,7 +197,7 @@ async def call(method, *args, **kwargs):
     return await rpc.call(method, *args, **kwargs)
 
 
-async def event(method, *args, **kwargs):
+async def call_event(method, *args, **kwargs):
     return await rpc.event(method, *args, **kwargs)
 
 
@@ -266,6 +286,7 @@ class WriteTo:
         await self.fn(*args, **nextra)
 
     async def write(self, data, *args, **extra):
+        log_traceback()
         if data.endswith('\n'):
             data = data[:-1]
         await self.fn(data, *args, **{**{"level": 1}, **self.extra, **extra})
@@ -306,7 +327,7 @@ def log_(rpc, type):
     async def log_inner(*msg, level=0, file=None, **extra):
         msg = ' '.join(str(x) for x in msg)
         if file is not None:
-            file.write(msg + "\n")
+            await maybe_await(file.write(msg + "\n"))
         if not msg:
             return
         return await rpc.event(
@@ -322,6 +343,44 @@ error = WriteTo(log_(rpc, "error"))
 debug = WriteTo(log_(rpc, "debug"))
 info = WriteTo(log_(rpc, "info"))
 warning = WriteTo(log_(rpc, "warning"))
+
+
+def log_traceback(exc=None):
+    """
+    Logs the given traceback to the error log.
+    """
+    import traceback
+    if exc:
+        run_async(error, "Got exception: %s", exc)
+    traceback.print_exc(file=error)
+
+
+real_print = print
+
+
+def print(*args, file=None, **kwargs):
+    if file:
+        return real_print(*args, file=file, **kwargs)
+    run_async(debug, *args, **kwargs)
+    return None
+
+
+def run_async(method, *args, **kwargs):
+    """
+    Bridge to call async from sync code and a run later facility
+
+    This function allows to run later in the coro loop any required
+    function that may require communication or async behaviour.
+
+    This also allows to call an async function from sync code, for example,
+    it is used in the print wrapper on the Serverboards API to call print
+    as normal code (sync) but send the proper message to log the data on
+    Serveboards CORE.
+
+    The call will not be processed straight away, buut may be delayed until
+    the process gets into some specific points in the serverboards loop.
+    """
+    rpc.run_async(method, *args, **kwargs)
 
 
 class RPCWrapper:
@@ -363,4 +422,3 @@ rules = RPCWrapper("rules")
 rules_v2 = RPCWrapper("rules_v2")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
-file = RPCWrapper("file")
