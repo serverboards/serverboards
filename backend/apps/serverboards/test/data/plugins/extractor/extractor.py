@@ -6,7 +6,6 @@ import random
 sys.path.append(os.path.join(os.path.dirname(__file__),
     '../../../../../../../plugins/bindings/python/'))
 import serverboards_aio as serverboards
-from serverboards import print
 
 
 @serverboards.rpc_method
@@ -45,4 +44,5 @@ def extractor_random(quals, columns):
 
 if __name__ == '__main__':
     # serverboards.set_debug()
+    print("Starting", file=sys.stderr)
     serverboards.loop()

@@ -14,7 +14,6 @@ plugin_id = os.environ.get("PLUGIN_ID")
 
 async def maybe_await(res):
     # if async, wait for response ## cr_running only on async funcs
-    real_print("Maybe await", res, file=sys.stderr)
     if not res:
         return res
     if hasattr(res, "cr_running"):
@@ -142,6 +141,8 @@ class RPC:
                 await self.__run_tasks()
                 if self.__running is False:
                     return
+        except BrokenPipeError:
+            return
         except curio.TaskCancelled:
             print("Task cancelled")
             return
@@ -200,6 +201,8 @@ class RPC:
                 try:
                     res = method(*args, **kwargs)
                     await maybe_await(res)
+                except BrokenPipeError:
+                    return  # finished! Normally write to closed stdout
                 except curio.TaskCancelled as e:
                     continue
                 except Exception as e:
@@ -209,7 +212,6 @@ class RPC:
 
 
 rpc = RPC()
-sys.stdout = sys.stderr  # all normal prints go to stderr
 
 
 def rpc_method(fnname):
@@ -357,7 +359,7 @@ class WriteToSync:
         pass
 
 
-def log_(rpc, type):
+def log_(type):
     def decorate_log(extra, level=2):
         """
         Helper that decorates the given log messages with data of which
@@ -380,6 +382,11 @@ def log_(rpc, type):
 
     async def log_inner(*msg, level=0, file=None, **extra):
         msg = ' '.join(str(x) for x in msg)
+        if not msg.strip():
+            return
+        # print("Inner msg", repr(msg),
+        #       decorate_log(extra, level=level + 2),
+        #       file=sys.stderr)
         if file is not None:
             await maybe_await(file.write(msg + "\n"))
         if not msg:
@@ -391,6 +398,37 @@ def log_(rpc, type):
         )
 
     return log_inner
+
+
+error = WriteTo(log_("error"))
+debug = WriteTo(log_("debug"))
+info = WriteTo(log_("info"))
+warning = WriteTo(log_("warning"))
+error_sync = WriteToSync(log_("error"))
+
+# all normal prints go to debug channel
+sys.stdout = WriteToSync(log_("debug"))
+
+
+def log_traceback(exc=None):
+    """
+    Logs the given traceback to the error log.
+    """
+    import traceback
+    if exc:
+        run_async(error, "Got exception: %s" % exc, level=1)
+    traceback.print_exc(file=error_sync)
+
+
+real_print = print
+
+
+def printx(*args, file=None, **kwargs):
+    if file:
+        return real_print(*args, file=file, **kwargs)
+    real_print("Debug print", args)
+    run_async(debug, *args, **kwargs)
+    return None
 
 
 def test_mode(mock_data={}):
@@ -432,33 +470,6 @@ def test_mode(mock_data={}):
 
     # print(dir(serverboards.rpc))
     rpc._RPC__send = __mock_send
-
-
-error = WriteTo(log_(rpc, "error"))
-debug = WriteTo(log_(rpc, "debug"))
-info = WriteTo(log_(rpc, "info"))
-warning = WriteTo(log_(rpc, "warning"))
-error_sync = WriteToSync(log_(rpc, "error"))
-
-
-def log_traceback(exc=None):
-    """
-    Logs the given traceback to the error log.
-    """
-    import traceback
-    if exc:
-        run_async(error, "Got exception: %s" % exc, level=1)
-    traceback.print_exc(file=error_sync)
-
-
-real_print = print
-
-
-def print(*args, file=None, **kwargs):
-    if file:
-        return real_print(*args, file=file, **kwargs)
-    run_async(debug, *args, **kwargs)
-    return None
 
 
 def run_async(method, *args, **kwargs):
