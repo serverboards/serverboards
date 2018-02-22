@@ -159,7 +159,7 @@ defmodule Serverboards.PluginTest do
     assert Map.get list, "serverboards.test.auth", false
   end
 
-  @tag skip: "There is some race condition that makes this difficult to test. Skipping to do not block progress. FIXME"
+  # @tag skip: "There is some race condition that makes this difficult to test. Skipping to do not block progress. FIXME"
   test "Plugin is active" do
     {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
 
@@ -169,11 +169,19 @@ defmodule Serverboards.PluginTest do
 
     Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", false])
     context = Serverboards.Config.get(:plugins)
-    Logger.debug("At exs: #{inspect context}")
+    Logger.debug("At context: #{inspect context} #{context[:"serverboards.test.auth"]}")
+
+    assert context[:"serverboards.test.auth"] == false
+
+    :timer.sleep(200) # time to reload
 
     {:ok, list} = Client.call(client, "plugin.catalog", [])
+    Logger.debug("#{inspect list}")
+
     assert not "active" in list["serverboards.test.auth"]["status"]
     assert "disabled" in list["serverboards.test.auth"]["status"]
+
+    assert not "serverboards.test.auth" in Serverboards.Plugin.Registry.active_plugins()
 
     Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", true])
     {:ok, list} = Client.call(client, "plugin.catalog", [])

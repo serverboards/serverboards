@@ -175,13 +175,13 @@ defmodule Serverboards.Plugin.Registry do
   end
 
   def get_plugin_status( id, context ) do
-    broken = Keyword.get(context.broken, String.to_atom(id), false)
+    broken = Map.get(context.broken, id, false)
     active = (
       String.starts_with?(id, "serverboards.core") ||
-      Keyword.get(context.active, String.to_atom(id), true)
+      Map.get(context.active, id, true)
       )
 
-    cond do
+    status = cond do
       broken ->
         ["disabled", "broken"]
       active ->
@@ -189,6 +189,8 @@ defmodule Serverboards.Plugin.Registry do
       true ->
         ["disabled"]
     end
+
+    status
   end
 
   def list() do
@@ -219,11 +221,16 @@ defmodule Serverboards.Plugin.Registry do
 
   ## server impl, just stores state
   def init([]) do
+    pid = self()
     MOM.Channel.subscribe(:settings, fn
-      %MOM.Message{ payload: %{ type: :update, section: section }} ->
-        if section in ["plugins", "broken_plugins"] do
-          Logger.debug("Reloading plugins, settings has changed")
-          reload_plugins()
+      %MOM.Message{ payload: %{ type: :update, section: section } = payload} ->
+        if section == "plugins" do
+          Logger.debug("Reloading plugins, active plugins settings has changed")
+          GenServer.cast(pid, {:reload, %{ plugins: payload.data }})
+        end
+        if section == "broken_plugins" do
+          Logger.debug("Reloading plugins, broken plugins settings has changed")
+          GenServer.cast(pid, {:reload, %{ broken_plugins: payload.data }})
         end
       _ -> :ignore
     end)
@@ -250,12 +257,21 @@ defmodule Serverboards.Plugin.Registry do
     {:reply, state.active, state}
   end
 
-  def handle_cast({:reload}, _status) do
+  def handle_cast({:reload}, status), do: handle_cast({:reload, %{}}, status)
+  def handle_cast({:reload, context}, _status) do
+    active = case Map.get(context, :plugins) do
+      nil -> Serverboards.Config.get_map(:plugins)
+      value -> value
+    end
+    broken = case Map.get(context, :broken_plugins) do
+      nil -> Serverboards.Config.get_map(:broken_plugins)
+      value -> value
+    end
+
     context = %{
-      active: Serverboards.Config.get(:plugins),
-      broken: Serverboards.Config.get(:broken_plugins)
+      active: active,
+      broken: broken,
     }
-    Logger.debug("Context: #{inspect context}")
 
     all_plugins = load_plugins()
       |> Enum.map(&decorate_plugin(&1, context))
@@ -264,7 +280,6 @@ defmodule Serverboards.Plugin.Registry do
     st = for i <- all_plugins do
       {i.id, i.status}
     end
-    Logger.debug("Reload plugins done: #{inspect st}")
 
     Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
 
@@ -273,5 +288,4 @@ defmodule Serverboards.Plugin.Registry do
       active: active
       }}
   end
-
 end

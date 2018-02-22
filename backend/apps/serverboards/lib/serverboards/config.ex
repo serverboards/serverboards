@@ -61,6 +61,18 @@ defmodule Serverboards.Config do
   end
 
   @doc ~S"""
+  Returns the config as a string map.
+
+  In some situations we do not want to have atoms as keys, but strings,
+  and not a keyword object, but a map.
+  """
+  def get_map(section) do
+    get(section, [])
+      |> Enum.map(fn {k,v} -> {to_string(k), v} end)
+      |> Map.new()
+  end
+
+  @doc ~S"""
   Returns the configured serverboards path.
 
   This can be set at environment, at .ini or calculated from home
