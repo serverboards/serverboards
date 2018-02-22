@@ -7,11 +7,14 @@ import curio
 from contextlib import contextmanager
 
 
+__debug = False
 plugin_id = os.environ.get("PLUGIN_ID")
 
 
 async def maybe_await(res):
     # if async, wait for response ## cr_running only on async funcs
+    if not res:
+        return res
     if hasattr(res, "cr_running"):
         res = await res
     return res
@@ -32,17 +35,24 @@ class RPC:
         self.__subscriptions_by_id = {}
         self.__subscription_id = 1
         self.__run_queue = []
+        self.__running = False
 
-    def stop(self):
-        self.__call_group.join(wait=all)
-        self.__run_queue_task.join()
+    async def stop(self):
+        self.__running = False
+        await self.__call_group.cancel_remaining()
+        await self.__call_group.join(wait=all)
+        if self.stdin:
+            self.stdin.close()
 
     def register(self, name, function):
         self.__methods[name] = function
         return self
 
     async def __send(self, js):
-        await self.stdout.write(json.dumps(js) + "\n")
+        jss = json.dumps(js)
+        if __debug:
+            real_print(">>> %s" % jss, file=sys.stderr)
+        await self.stdout.write(jss + "\n")
         await self.__run_tasks()
 
     async def __parse_request(self, req):
@@ -86,13 +96,14 @@ class RPC:
     async def call(self, method, *args, **kwargs):
         id = self.__call_id
         self.__call_id += 1
-        res = await self.__send({
+        q = curio.Queue()
+        self.__wait_for_response[id] = q
+
+        await self.__send({
             "method": method,
             "params": args or kwargs,
             "id": id
         })
-        q = curio.Queue()
-        self.__wait_for_response[id] = q
         # await for answer in the answer queue
         res = await q.get()
         del self.__wait_for_response[id]
@@ -112,15 +123,26 @@ class RPC:
         return list(self.__methods.keys())
 
     async def loop(self):
-        await curio.spawn(self.__run_tasks, daemon=True)
+        self.__running = True
+        await self.__run_tasks()
+        real_print(self.stdin)
+        if not self.stdin:
+            return
         try:
             async for line in self.stdin:
                 line = line.strip()
+                if __debug:
+                    real_print("<<< %s" % line, file=sys.stderr)
                 if line.startswith('# wait'):  # special command!
                     await curio.sleep(float(line[7:]))
                 else:
                     await self.__parse_request(json.loads(line))
                 await self.__run_tasks()
+                if self.__running is False:
+                    return
+        except curio.TaskCancelled:
+            print("Task cancelled")
+            return
         except curio.CancelledError:
             print("Cancelled file read")
             raise
@@ -165,13 +187,23 @@ class RPC:
         self.__run_queue.append((method, args, kwargs))
 
     async def __run_tasks(self):
-        while len(self.__run_queue) > 0:
-            (method, args, kwargs) = self.__run_queue.pop()
-            try:
-                res = method(*args, **kwargs)
-                await maybe_await(res)
-            except Exception as e:
-                log_traceback(e)
+        if len(self.__run_queue) == 0:
+            return
+
+        async def task():
+            while len(self.__run_queue) > 0:
+                if not self.__running:
+                    return
+                (method, args, kwargs) = self.__run_queue.pop()
+                try:
+                    res = method(*args, **kwargs)
+                    await maybe_await(res)
+                except curio.TaskCancelled as e:
+                    continue
+                except Exception as e:
+                    log_traceback(e)
+
+        await curio.spawn(task, daemon=True)
 
 
 rpc = RPC()
@@ -201,8 +233,8 @@ async def call_event(method, *args, **kwargs):
     return await rpc.event(method, *args, **kwargs)
 
 
-def loop():
-    curio.run(rpc.loop())
+def loop(**kwargs):
+    curio.run(rpc.loop(), **kwargs)
 
 
 def __simple_hash__(*args, **kwargs):
@@ -260,7 +292,7 @@ def cache_ttl(ttl=10, maxsize=50, hashf=__simple_hash__):
             timeout, value = data.get(hs, (currentt, None))
             if timeout <= currentt or not value:
                 # recalculate
-                value = await f(*args, **kwargs)
+                value = await maybe_await(f(*args, **kwargs))
                 # store
                 data[hs] = (currentt + ttl, value)
             return value
@@ -286,7 +318,6 @@ class WriteTo:
         await self.fn(*args, **nextra)
 
     async def write(self, data, *args, **extra):
-        log_traceback()
         if data.endswith('\n'):
             data = data[:-1]
         await self.fn(data, *args, **{**{"level": 1}, **self.extra, **extra})
@@ -301,6 +332,27 @@ class WriteTo:
         value.seek(0)
         await self.fn(value.read(),
                       **{**{"level": level}, **self.extra, **extra})
+
+
+class WriteToSync:
+    def __init__(self, fn, **extra):
+        self.fn = fn
+        self.extra = extra
+
+    def __call__(self, *args, **extra):
+        nextra = {**{"level": 1}, **self.extra, **extra}
+        if not args:  # if no data, add extras for contexts.
+            return WriteToSync(self.fn, **nextra)
+        run_async(self.fn, *args, **nextra)
+
+    def write(self, data, *args, **extra):
+        if data.endswith('\n'):
+            data = data[:-1]
+        run_async(self.fn, data, *args,
+                  **{**{"level": 1}, **self.extra, **extra})
+
+    def flush(*args, **kwargs):
+        pass
 
 
 def log_(rpc, type):
@@ -339,10 +391,52 @@ def log_(rpc, type):
     return log_inner
 
 
+def test_mode(mock_data={}):
+    """
+    Starts test mode with smock mocking library.
+
+    Once the mock mode starts, there is no way to stop it, but restart the
+    program. Use under some --test flag.
+    """
+    from smock import mock_res
+    print = real_print
+
+    async def __mock_send(req):
+        method = req.get('method')
+        if method:
+            id = req.get('id')
+            params = req["params"]
+            if not id:
+                if method == 'log.error':
+                    print(params[0])
+                    return
+                print(">>>", method, params)
+                return
+            try:
+                res = mock_res(mock_data.get(method, []), params)
+                resp = {
+                    "result": res,
+                    "id": req.get("id")
+                }
+                print(">>>", method, params)
+                print("<<<", res)
+                await rpc._RPC__parse_request(resp)
+            except Exception as e:
+                await error("Error (%s) mocking call: %s" % (e, req))
+                log_traceback()
+
+            return
+        print(">>>", req)
+
+    # print(dir(serverboards.rpc))
+    rpc._RPC__send = __mock_send
+
+
 error = WriteTo(log_(rpc, "error"))
 debug = WriteTo(log_(rpc, "debug"))
 info = WriteTo(log_(rpc, "info"))
 warning = WriteTo(log_(rpc, "warning"))
+error_sync = WriteToSync(log_(rpc, "error"))
 
 
 def log_traceback(exc=None):
@@ -351,8 +445,8 @@ def log_traceback(exc=None):
     """
     import traceback
     if exc:
-        run_async(error, "Got exception: %s", exc)
-    traceback.print_exc(file=error)
+        run_async(error, "Got exception: %s" % exc, level=1)
+    traceback.print_exc(file=error_sync)
 
 
 real_print = print
@@ -381,6 +475,11 @@ def run_async(method, *args, **kwargs):
     the process gets into some specific points in the serverboards loop.
     """
     rpc.run_async(method, *args, **kwargs)
+
+
+def set_debug(on=True):
+    global __debug
+    __debug = on
 
 
 class RPCWrapper:
