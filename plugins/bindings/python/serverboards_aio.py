@@ -6,6 +6,8 @@ import io
 from contextlib import contextmanager
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 'env/lib64/python3.6/site-packages/'))
+sys.path.append(os.path.join(os.path.dirname(__file__),
+                'env/lib64/python3.5/site-packages/'))
 import curio
 
 _debug = False
