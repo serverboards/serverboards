@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.PluginInitTest do
+defmodule Serverboards.PluginDataTest do
   use ExUnit.Case
   @moduletag :capture_log
   @moduletag timeout: 10_000
