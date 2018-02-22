@@ -6,7 +6,7 @@ components:
   - id: daemon
     type: cmd
     command: ./extractor.py
-    type: singleton
+    strategy: singleton
     timeout: 1m
 
   - id: extractor
