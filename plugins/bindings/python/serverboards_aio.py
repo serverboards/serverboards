@@ -52,7 +52,7 @@ class RPC:
     async def __send(self, js):
         jss = json.dumps(js)
         if _debug:
-            real_print(">>> %s" % jss, file=sys.stderr)
+            real_print("\r>>> %s\n" % jss, file=sys.stderr)
         await self.stdout.write(jss + "\n")
         await self.stdout.flush()
         await self.__run_tasks()
@@ -90,10 +90,11 @@ class RPC:
             if id:
                 await self.__send({"result": res, "id": id})
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-            if id:
-                await self.__send({"error": str(e), "id": id})
+            log_traceback(e)
+            # import traceback
+            # traceback.print_exc(file=error_sync)
+            # if id:
+            #     await self.__send({"error": str(e), "id": id})
 
     async def call(self, method, *args, **kwargs):
         id = self.__call_id
@@ -133,7 +134,7 @@ class RPC:
             async for line in self.stdin:
                 line = line.strip()
                 if _debug:
-                    real_print("<<< %s" % line, file=sys.stderr)
+                    real_print("\r<<< %s\n" % line, file=sys.stderr)
                 if line.startswith('# wait'):  # special command!
                     await curio.sleep(float(line[7:]))
                 else:
