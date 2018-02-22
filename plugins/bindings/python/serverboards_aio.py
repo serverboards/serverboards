@@ -330,13 +330,13 @@ class WriteTo:
     def flush(*args, **kwargs):
         pass
 
-    @contextmanager
-    async def context(self, level=2, **extra):
-        value = io.StringIO()
-        yield value
-        value.seek(0)
-        await self.fn(value.read(),
-                      **{**{"level": level}, **self.extra, **extra})
+    # @contextmanager
+    # async def context(self, level=2, **extra):
+    #     value = io.StringIO()
+    #     await value
+    #     value.seek(0)
+    #     await self.fn(value.read(),
+    #                   **{**{"level": level}, **self.extra, **extra})
 
 
 class WriteToSync:
