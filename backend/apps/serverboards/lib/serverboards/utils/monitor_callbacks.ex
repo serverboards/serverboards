@@ -32,6 +32,9 @@ defmodule Serverboards.Utils.MonitorCallbacks do
         func.()
       rescue _ ->
         Logger.error("Error calling the monitor down fn #{inspect func}")
+      catch
+        :exit, e ->
+          Logger.error("Error calling the monitor down fn #{inspect func}: #{inspect e}")
       end
     end
     {:noreply, Map.drop(state, [pid])}
