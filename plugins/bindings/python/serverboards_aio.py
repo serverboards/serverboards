@@ -3,16 +3,18 @@ import os
 import json
 import time
 import io
-import curio
 from contextlib import contextmanager
+sys.path.append(os.path.join(os.path.dirname(__file__),
+                'env/lib64/python3.6/site-packages/'))
+import curio
 
-
-__debug = False
+_debug = False
 plugin_id = os.environ.get("PLUGIN_ID")
 
 
 async def maybe_await(res):
     # if async, wait for response ## cr_running only on async funcs
+    real_print("Maybe await", res, file=sys.stderr)
     if not res:
         return res
     if hasattr(res, "cr_running"):
@@ -50,9 +52,10 @@ class RPC:
 
     async def __send(self, js):
         jss = json.dumps(js)
-        if __debug:
+        if _debug:
             real_print(">>> %s" % jss, file=sys.stderr)
         await self.stdout.write(jss + "\n")
+        await self.stdout.flush()
         await self.__run_tasks()
 
     async def __parse_request(self, req):
@@ -83,7 +86,7 @@ class RPC:
             else:
                 res = fn(**params)
 
-            res = maybe_await(res)
+            res = await maybe_await(res)
 
             if id:
                 await self.__send({"result": res, "id": id})
@@ -125,13 +128,12 @@ class RPC:
     async def loop(self):
         self.__running = True
         await self.__run_tasks()
-        real_print(self.stdin)
         if not self.stdin:
             return
         try:
             async for line in self.stdin:
                 line = line.strip()
-                if __debug:
+                if _debug:
                     real_print("<<< %s" % line, file=sys.stderr)
                 if line.startswith('# wait'):  # special command!
                     await curio.sleep(float(line[7:]))
@@ -478,8 +480,8 @@ def run_async(method, *args, **kwargs):
 
 
 def set_debug(on=True):
-    global __debug
-    __debug = on
+    global _debug
+    _debug = on
 
 
 class RPCWrapper:
