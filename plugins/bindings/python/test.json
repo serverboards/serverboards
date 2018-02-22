@@ -10,3 +10,4 @@
 {"result": "pong", "id": 1}
 # wait 0.1
 {"result": {"uuid": "test", "name": "test"}, "id": 2}
+# quit

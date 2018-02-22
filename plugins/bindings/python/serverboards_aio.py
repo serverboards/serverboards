@@ -43,7 +43,7 @@ class RPC:
         await self.__call_group.cancel_remaining()
         await self.__call_group.join(wait=all)
         if self.stdin:
-            self.stdin.close()
+            await self.stdin.close()
 
     def register(self, name, function):
         self.__methods[name] = function
@@ -137,6 +137,9 @@ class RPC:
                     real_print("\r<<< %s\n" % line, file=sys.stderr)
                 if line.startswith('# wait'):  # special command!
                     await curio.sleep(float(line[7:]))
+                elif line == '# quit':
+                    await self.stop()
+                    return
                 else:
                     await self.__parse_request(json.loads(line))
                 await self.__run_tasks()
