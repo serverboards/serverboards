@@ -58,6 +58,9 @@ def compile(logfile=sys.stdout, MIX_ENV="test"):
     with chdir("backend/apps/serverboards/"), envset(MIX_ENV=MIX_ENV):
         sh.mix("compile", _out=logfile, _err=logfile)
 
+    with chdir("plugins/bindings/python/"):
+        sh.make("setup", _out=logfile, _err=logfile)
+
 
 class chdir:
     """
