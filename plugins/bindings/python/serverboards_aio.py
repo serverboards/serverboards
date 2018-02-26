@@ -37,7 +37,7 @@ class RPC:
         self.__subscriptions = {}
         self.__subscriptions_by_id = {}
         self.__subscription_id = 1
-        self.__run_queue = []
+        self.__run_queue = curio.queue.UniversalQueue()
         self.__running = False
 
     async def stop(self):
@@ -57,7 +57,6 @@ class RPC:
             real_print("\r>>> %s\n" % jss, file=sys.stderr)
         await self.stdout.write(jss + "\n")
         await self.stdout.flush()
-        await self.__run_tasks()
 
     async def __parse_request(self, req):
         method = req.get("method")
@@ -129,7 +128,7 @@ class RPC:
 
     async def loop(self):
         self.__running = True
-        await self.__run_tasks()
+        await curio.spawn(self.__run_tasks)
         if not self.stdin:
             return
         try:
@@ -144,7 +143,6 @@ class RPC:
                     return
                 else:
                     await self.__parse_request(json.loads(line))
-                await self.__run_tasks()
                 if self.__running is False:
                     return
         except BrokenPipeError:
@@ -193,28 +191,33 @@ class RPC:
         return True
 
     def run_async(self, method, *args, **kwargs):
-        self.__run_queue.append((method, args, kwargs))
+        q = None
+        if self.__running:
+            q = curio.queue.UniversalQueue()
+        self.__run_queue.put((method, args, kwargs, q))
+        if q:
+            res = q.get()
+            q.task_done()
+            q.join()
+            return res
+        return None
 
     async def __run_tasks(self):
-        if len(self.__run_queue) == 0:
-            return
-
-        async def task():
-            while len(self.__run_queue) > 0:
-                if not self.__running:
-                    return
-                (method, args, kwargs) = self.__run_queue.pop()
-                try:
-                    res = method(*args, **kwargs)
-                    await maybe_await(res)
-                except BrokenPipeError:
-                    return  # finished! Normally write to closed stdout
-                except curio.TaskCancelled as e:
-                    continue
-                except Exception as e:
-                    log_traceback(e)
-
-        await curio.spawn(task, daemon=True)
+        while True:
+            if not self.__running:
+                return
+            (method, args, kwargs, q) = await self.__run_queue.get()
+            try:
+                res = method(*args, **kwargs)
+                res = await maybe_await(res)
+                if q:
+                    await q.put(res)
+            except BrokenPipeError:
+                return  # finished! Normally write to closed stdout
+            except curio.TaskCancelled as e:
+                continue
+            except Exception as e:
+                log_traceback(e)
 
 
 rpc = RPC()
@@ -244,7 +247,7 @@ async def call_event(method, *args, **kwargs):
 
 
 def loop(**kwargs):
-    curio.run(rpc.loop(), **kwargs)
+    curio.run(rpc.loop, **kwargs)
 
 
 def __simple_hash__(*args, **kwargs):
@@ -459,16 +462,23 @@ def test_mode(mock_data={}):
                 print(">>>", method, params)
                 return
             try:
-                res = mock_res(mock_data.get(method, []), params)
+                if isinstance(params, (list, tuple)):
+                    args = params
+                    kwargs = {}
+                else:
+                    args = []
+                    kwargs = params
+                res = mock_res(method, mock_data, args=args, kwargs=kwargs)
                 resp = {
                     "result": res,
                     "id": req.get("id")
                 }
                 print(">>>", method, params)
-                print("<<<", res)
+                print("<<<", json.dumps(res._MockWrapper__data, indent=2))
                 await rpc._RPC__parse_request(resp)
             except Exception as e:
                 await error("Error (%s) mocking call: %s" % (e, req))
+                import traceback; traceback.print_exc()
                 log_traceback()
 
             return
@@ -540,3 +550,44 @@ rules = RPCWrapper("rules")
 rules_v2 = RPCWrapper("rules_v2")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
+
+
+async def sync(f, *args, **kwargs):
+    """
+    Runs a sync function in an async environment.
+
+    It may generate a new thread, so f must be thread safe.
+
+    Not using curio run_in_thread as it was cancelling threads and
+    not working, maybe due to not finished lib.
+    """
+    import threading
+    q = curio.queue.UniversalQueue()
+
+    def run_in_thread():
+        try:
+            res = f(*args, **kwargs)
+        except Exception as e:
+            res = e
+        q.put(res)
+
+    thread = threading.Thread(target=run_in_thread)
+    thread.start()  # another thread
+    res = await q.get()
+    thread.join()
+    await q.task_done()
+    await q.join()
+    if isinstance(res, Exception):
+        raise res
+    return res
+
+
+def async(f, *args, **kwargs):
+    """
+    Runs an async function in a sync environment.
+
+    Defers the call to the main thread loop, and waits for the response.
+
+    It MUST be called from another thread.
+    """
+    return rpc.run_async(f, *args, **kwargs)
