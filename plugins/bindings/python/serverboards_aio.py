@@ -206,17 +206,22 @@ class RPC:
             if not self.__running:
                 return
             (method, args, kwargs, q) = await self.__run_queue.get()
-            try:
-                res = method(*args, **kwargs)
-                res = await maybe_await(res)
-                if q:
-                    await q.put(res)
-            except BrokenPipeError:
-                return  # finished! Normally write to closed stdout
-            except curio.TaskCancelled as e:
-                continue
-            except Exception as e:
-                log_traceback(e)
+
+            async def run_in_task():
+                try:
+                    res = method(*args, **kwargs)
+                    res = await maybe_await(res)
+                    if q:
+                        await q.put(res)
+                except BrokenPipeError:
+                    return  # finished! Normally write to closed stdout
+                except curio.TaskCancelled as e:
+                    return
+                except Exception as e:
+                    if q:
+                        await q.put(e)
+
+            await curio.spawn(run_in_task)
 
 
 rpc = RPC()
@@ -502,7 +507,7 @@ def run_async(method, *args, **kwargs):
     The call will not be processed straight away, buut may be delayed until
     the process gets into some specific points in the serverboards loop.
     """
-    rpc.run_async(method, *args, **kwargs)
+    return rpc.run_async(method, *args, **kwargs)
 
 
 def set_debug(on=True):
