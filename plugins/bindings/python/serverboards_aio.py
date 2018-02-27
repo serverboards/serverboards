@@ -127,7 +127,7 @@ class RPC:
 
     async def loop(self):
         self.__running = True
-        await curio.spawn(self.__run_tasks)
+        self.__run_tasks_task = await curio.spawn(self.__run_tasks)
         if not self.stdin:
             return
         try:
@@ -189,9 +189,9 @@ class RPC:
         del self.__subscriptions_ids[id]
         return True
 
-    def run_async(self, method, *args, **kwargs):
+    def run_async(self, method, *args, result=True, **kwargs):
         q = None
-        if self.__running:
+        if self.__running and result:
             q = curio.queue.UniversalQueue()
         self.__run_queue.put((method, args, kwargs, q))
         if q:
@@ -221,7 +221,7 @@ class RPC:
                     if q:
                         await q.put(e)
 
-            await curio.spawn(run_in_task)
+            await curio.spawn(run_in_task, daemon=True)  # no join
 
 
 rpc = RPC()
@@ -360,13 +360,13 @@ class WriteToSync:
         nextra = {**{"level": 1}, **self.extra, **extra}
         if not args:  # if no data, add extras for contexts.
             return WriteToSync(self.fn, **nextra)
-        run_async(self.fn, *args, **nextra)
+        run_async(self.fn, *args, result=False, **nextra)
 
     def write(self, data, *args, **extra):
         if data.endswith('\n'):
             data = data[:-1]
         run_async(self.fn, data, *args,
-                  **{**{"level": 1}, **self.extra, **extra})
+                  result=False, **{**{"level": 1}, **self.extra, **extra})
 
     def flush(*args, **kwargs):
         pass
@@ -429,7 +429,7 @@ def log_traceback(exc=None):
     """
     import traceback
     if exc:
-        run_async(error, "Got exception: %s" % exc, level=1)
+        run_async(error, "Got exception: %s" % exc, level=1, result=False)
     traceback.print_exc(file=error_sync)
 
 
@@ -466,6 +466,7 @@ def test_mode(mock_data={}):
                 print(">>>", method, params)
                 return
             try:
+                print(">>>", method, params)
                 if isinstance(params, (list, tuple)):
                     args = params
                     kwargs = {}
@@ -477,13 +478,17 @@ def test_mode(mock_data={}):
                     "result": res,
                     "id": req.get("id")
                 }
-                print(">>>", method, params)
                 print("<<<", json.dumps(res._MockWrapper__data, indent=2))
                 await rpc._RPC__parse_request(resp)
             except Exception as e:
                 await error("Error (%s) mocking call: %s" % (e, req))
                 import traceback; traceback.print_exc()
-                log_traceback()
+                resp = {
+                    "error": str(e),
+                    "id": req.get("id")
+                }
+                print("<<<", json.dumps({"error": str(e)}, indent=2))
+                await rpc._RPC__parse_request(resp)
 
             return
         print(">>>", req)
