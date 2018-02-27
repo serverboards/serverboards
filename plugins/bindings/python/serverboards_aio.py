@@ -642,4 +642,8 @@ def async(f, *args, **kwargs):
 
     It MUST be called from another thread.
     """
-    return rpc.run_async(f, *args, **kwargs)
+    ret = rpc.run_async(f, *args, **kwargs)
+
+    if isinstance(ret, Exception):
+        raise ret
+    return ret
