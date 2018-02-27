@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 import sys
+import os
 
-sys.stdin = open('test.json')
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.stdin = open(os.path.join(os.path.dirname(__file__), 'test.json'))
 import serverboards_aio as serverboards
 from serverboards_aio import curio, rpc_method, info, service, debug
 

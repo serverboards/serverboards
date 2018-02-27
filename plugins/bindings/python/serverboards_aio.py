@@ -2,16 +2,26 @@ import sys
 import os
 import json
 import time
-import io
-from contextlib import contextmanager
+# from contextlib import contextmanager
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 'env/lib64/python3.6/site-packages/'))
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 'env/lib64/python3.5/site-packages/'))
 import curio
 
+
 _debug = False
 plugin_id = os.environ.get("PLUGIN_ID")
+real_print = print
+
+
+def real_debug(*msg):
+    if not _debug:
+        return
+    try:
+        real_print("\r", *msg, file=sys.stderr)
+    except Exception:
+        pass
 
 
 async def maybe_await(res):
@@ -39,11 +49,15 @@ class RPC:
         self.__subscription_id = 1
         self.__run_queue = curio.queue.UniversalQueue()
         self.__running = False
+        self.__running_calls = []
+        self.__waiting_calls = []
+        self.__background_tasks = 0
 
     async def stop(self):
         self.__running = False
         await self.__call_group.cancel_remaining()
         await self.__call_group.join(wait=all)
+        await self.__run_queue.put("QUIT")
         if self.stdin:
             await self.stdin.close()
 
@@ -54,7 +68,7 @@ class RPC:
     async def __send(self, js):
         jss = json.dumps(js)
         if _debug:
-            real_print("\r>>> %s\n" % jss, file=sys.stderr)
+            real_debug(">>> %s" % jss)
         await self.stdout.write(jss + "\n")
         await self.stdout.flush()
 
@@ -69,35 +83,41 @@ class RPC:
             #  got result
             q = self.__wait_for_response.get(id)
             if not q:
+                real_debug("Invalid response id, not waiting for it", q)
                 raise Exception("invalid-response-id")
             await q.put(req)
         else:
+            real_debug("unknown request", req)
             raise Exception("unknown-request")
 
     async def __parse_call(self, id, method, params):
-        fn = self.__methods.get(method)
-        if not fn:
-            if id:
-                await self.__send({"error": "not-found %s" % method, "id": id})
-            return
         try:
+            self.__running_calls.append(method)
+            fn = self.__methods.get(method)
+            if not fn:
+                if id:
+                    await self.__send({
+                        "error": "not-found %s" % method,
+                        "id": id
+                    })
+                return
+
             if isinstance(params, list):
                 res = fn(*params)
             else:
                 res = fn(**params)
 
             res = await maybe_await(res)
-
             if id:
                 await self.__send({"result": res, "id": id})
         except Exception as e:
-            log_traceback(e)
-            # import traceback
-            # traceback.print_exc(file=error_sync)
-            # if id:
-            #     await self.__send({"error": str(e), "id": id})
+            if id:
+                await self.__send({"error": str(e), "id": id})
+        finally:
+            self.__running_calls.remove(method)
 
     async def call(self, method, *args, **kwargs):
+        self.__waiting_calls.append(method)
         id = self.__call_id
         self.__call_id += 1
         q = curio.Queue()
@@ -111,6 +131,8 @@ class RPC:
         # await for answer in the answer queue
         res = await q.get()
         del self.__wait_for_response[id]
+
+        self.__waiting_calls.remove(method)
         error = res.get("error")
         if error:
             raise Exception(error)
@@ -128,14 +150,17 @@ class RPC:
 
     async def loop(self):
         self.__running = True
-        await curio.spawn(self.__run_tasks)
+        self.__run_tasks_task = await curio.spawn(self.__run_tasks)
         if not self.stdin:
             return
         try:
             async for line in self.stdin:
                 line = line.strip()
                 if _debug:
-                    real_print("\r<<< %s\n" % line, file=sys.stderr)
+                    try:
+                        real_debug("\r<<< %s\n" % line)
+                    except Exception:
+                        pass
                 if line.startswith('# wait'):  # special command!
                     await curio.sleep(float(line[7:]))
                 elif line == '# quit':
@@ -148,11 +173,15 @@ class RPC:
         except BrokenPipeError:
             return
         except curio.TaskCancelled:
-            print("Task cancelled")
+            real_debug("Task cancelled")
             return
         except curio.CancelledError:
-            print("Cancelled file read")
+            real_debug("Cancelled file read")
             raise
+        except Exception as e:
+            real_debug("Unexpected exception", e)
+            import traceback
+            traceback.print_exc()
 
     async def subscribe(self, eventname, callback):
         """
@@ -190,9 +219,9 @@ class RPC:
         del self.__subscriptions_ids[id]
         return True
 
-    def run_async(self, method, *args, **kwargs):
+    def run_async(self, method, *args, result=True, **kwargs):
         q = None
-        if self.__running:
+        if self.__running and result:
             q = curio.queue.UniversalQueue()
         self.__run_queue.put((method, args, kwargs, q))
         if q:
@@ -206,18 +235,36 @@ class RPC:
         while True:
             if not self.__running:
                 return
-            (method, args, kwargs, q) = await self.__run_queue.get()
-            try:
-                res = method(*args, **kwargs)
-                res = await maybe_await(res)
-                if q:
-                    await q.put(res)
-            except BrokenPipeError:
-                return  # finished! Normally write to closed stdout
-            except curio.TaskCancelled as e:
-                continue
-            except Exception as e:
-                log_traceback(e)
+            res = await self.__run_queue.get()
+            if res == "QUIT":
+                return
+            (method, args, kwargs, q) = res
+
+            async def run_in_task():
+                self.__background_tasks += 1
+                try:
+                    res = method(*args, **kwargs)
+                    res = await maybe_await(res)
+                    if q:
+                        await q.put(res)
+                except BrokenPipeError:
+                    return  # finished! Normally write to closed stdout
+                except curio.TaskCancelled as e:
+                    return
+                except Exception as e:
+                    if q:
+                        await q.put(e)
+                finally:
+                    self.__background_tasks -= 1
+
+            await curio.spawn(run_in_task, daemon=True)  # no join
+
+    def status(self):
+        return {
+            "running": self.__running_calls,
+            "waiting": self.__waiting_calls,
+            "background": self.__background_tasks,
+        }
 
 
 rpc = RPC()
@@ -236,6 +283,11 @@ def rpc_method(fnname):
 @rpc_method("dir")
 def list_all_methods():
     return rpc.method_list()
+
+
+@rpc_method("status")
+def status():
+    return rpc.status()
 
 
 async def call(method, *args, **kwargs):
@@ -356,13 +408,14 @@ class WriteToSync:
         nextra = {**{"level": 1}, **self.extra, **extra}
         if not args:  # if no data, add extras for contexts.
             return WriteToSync(self.fn, **nextra)
-        run_async(self.fn, *args, **nextra)
+        run_async(self.fn, *args, result=False, **nextra)
 
     def write(self, data, *args, **extra):
+        return
         if data.endswith('\n'):
             data = data[:-1]
         run_async(self.fn, data, *args,
-                  **{**{"level": 1}, **self.extra, **extra})
+                  result=False, **{**{"level": 1}, **self.extra, **extra})
 
     def flush(*args, **kwargs):
         pass
@@ -390,6 +443,10 @@ def log_(type):
     log_method = "log.%s" % type
 
     async def log_inner(*msg, level=0, file=None, **extra):
+        if not msg:
+            return
+        if _debug:
+            real_debug("\r", *msg, "\n\r")
         msg = ' '.join(str(x) for x in msg)
         if not msg.strip():
             return
@@ -416,7 +473,8 @@ warning = WriteTo(log_("warning"))
 error_sync = WriteToSync(log_("error"))
 
 # all normal prints go to debug channel
-sys.stdout = WriteToSync(log_("debug"))
+# sys.stdout = WriteToSync(log_("debug"))
+# sys.stdout = sys.stderr
 
 
 def log_traceback(exc=None):
@@ -425,19 +483,8 @@ def log_traceback(exc=None):
     """
     import traceback
     if exc:
-        run_async(error, "Got exception: %s" % exc, level=1)
+        run_async(error, "Got exception: %s" % exc, level=1, result=False)
     traceback.print_exc(file=error_sync)
-
-
-real_print = print
-
-
-def printx(*args, file=None, **kwargs):
-    if file:
-        return real_print(*args, file=file, **kwargs)
-    real_print("Debug print", args)
-    run_async(debug, *args, **kwargs)
-    return None
 
 
 def test_mode(mock_data={}):
@@ -462,6 +509,7 @@ def test_mode(mock_data={}):
                 print(">>>", method, params)
                 return
             try:
+                print(">>>", method, params)
                 if isinstance(params, (list, tuple)):
                     args = params
                     kwargs = {}
@@ -473,13 +521,17 @@ def test_mode(mock_data={}):
                     "result": res,
                     "id": req.get("id")
                 }
-                print(">>>", method, params)
                 print("<<<", json.dumps(res._MockWrapper__data, indent=2))
                 await rpc._RPC__parse_request(resp)
             except Exception as e:
                 await error("Error (%s) mocking call: %s" % (e, req))
                 import traceback; traceback.print_exc()
-                log_traceback()
+                resp = {
+                    "error": str(e),
+                    "id": req.get("id")
+                }
+                print("<<<", json.dumps({"error": str(e)}, indent=2))
+                await rpc._RPC__parse_request(resp)
 
             return
         print(">>>", req)
@@ -503,7 +555,7 @@ def run_async(method, *args, **kwargs):
     The call will not be processed straight away, buut may be delayed until
     the process gets into some specific points in the serverboards loop.
     """
-    rpc.run_async(method, *args, **kwargs)
+    return rpc.run_async(method, *args, **kwargs)
 
 
 def set_debug(on=True):
@@ -590,4 +642,8 @@ def async(f, *args, **kwargs):
 
     It MUST be called from another thread.
     """
-    return rpc.run_async(f, *args, **kwargs)
+    ret = rpc.run_async(f, *args, **kwargs)
+
+    if isinstance(ret, Exception):
+        raise ret
+    return ret

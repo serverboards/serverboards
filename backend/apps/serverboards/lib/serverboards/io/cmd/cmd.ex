@@ -44,8 +44,6 @@ defmodule Serverboards.IO.Cmd do
 
   @doc ~S"""
   Performs a call into the command.
-
-  This function is used mainly in testing as it has a timeout of 5s.
   """
   def call(cmd, method, params \\ []) do
     # 24h timeout
@@ -210,10 +208,10 @@ defmodule Serverboards.IO.Cmd do
   def handle_call({:client}, _from, state) do
     {:reply, state.client, state}
   end
-  def handle_call({:reply, cont, res}, _from, state) do
-    ret = cont.(res)
-    {:reply, ret, state}
-  end
+  # def handle_call({:reply, cont, res}, _from, state) do
+  #   ret = cont.(res)
+  #   {:reply, ret, state}
+  # end
   def handle_call({:debug, onoff}, _from, state) do
     Logger.debug("Setting debug #{inspect onoff}")
     {:reply, {:ok, :ok}, %{ state | debug: onoff }}

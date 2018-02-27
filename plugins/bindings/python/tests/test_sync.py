@@ -84,7 +84,7 @@ class MockRPC:
         return fr, fw
 
 
-mock = MockRPC("./test_rpc.py")
+mock = MockRPC("./test_sync_rpc.py")
 
 
 def test2():
