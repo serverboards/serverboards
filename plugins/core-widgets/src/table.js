@@ -16,7 +16,7 @@ function Table(props){
     )
 
 
-  if (!data)
+  if (!data || !data.columns)
     return (
       <Error>Need some data to show</Error>
     )
