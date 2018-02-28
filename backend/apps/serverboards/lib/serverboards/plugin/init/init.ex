@@ -90,6 +90,9 @@ defmodule Serverboards.Plugin.Init do
       _other -> -Timex.Duration.diff(started_at, nil, :seconds)
     end
     timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
+    if state.timer do
+      Process.cancel_timer(state.timer)
+    end
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
       state |
@@ -98,7 +101,7 @@ defmodule Serverboards.Plugin.Init do
       started_at: nil,
       task: nil
     }
-    Logger.info("Restart init #{state.init.id} in #{state.timeout} seconds.", state: state)
+    Logger.info("#{inspect self()} Restart init #{state.init.id} in #{state.timeout} seconds.", state: state)
     state
   end
 
@@ -117,6 +120,7 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     {:noreply, state}
   end
   def handle_info({:restart}, state) do
+    Logger.debug("Get restart #{inspect self()}")
     Serverboards.Plugin.Runner.stop(state.cmd)
     handle_cast({:start}, state)
   end
@@ -137,6 +141,9 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     else nil end
 
     timeout = max(1, waits)
+    if state.timer do
+      Process.cancel_timer(state.timer)
+    end
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
       state |
