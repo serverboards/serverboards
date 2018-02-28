@@ -21,6 +21,8 @@ defmodule Serverboards do
   end
 
   def stop(_state) do
+    IO.puts("STOP SERVERBOARDS. TOO MANY SUPERVISOR ERRORS.")
+    :timer.sleep(500)
     System.stop(1) # If serverboards app stops, stop it all. A daemon manager may restart it clean.
     # If already in a System.stop mode, it will exit with the other exit code
   end
