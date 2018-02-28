@@ -111,7 +111,7 @@ defmodule Serverboards.Query do
           Logger.error("Timeout performing query at #{inspect where, pretty: true}")
           {:error, :timeout}
         :exit, any ->
-          Logger.error("Error performing query: #{inspect any}")
+          Logger.error("Error performing query: #{inspect any}: #{Exception.format(:exit, any)}")
           {:error, inspect(any)}
         any ->
           {:error, inspect(any)}

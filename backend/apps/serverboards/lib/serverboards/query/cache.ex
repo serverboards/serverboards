@@ -41,8 +41,10 @@ defmodule Serverboards.Query.Cache do
         case options[:ttl] do
           nil -> :ok
           ttl ->
-            Process.send_after(__MODULE__, {:remove, id}, ttl)
+            Process.send_after(__MODULE__, {:remove, id, :timeout}, ttl)
         end
+      else # reply error, but dont cache it
+        GenServer.cast(__MODULE__, {:remove, id, :exit})
       end
       val
     else val end
@@ -80,8 +82,15 @@ defmodule Serverboards.Query.Cache do
     end
   end
 
-  def handle_info({:remove, id}, status) do
+  def handle_info({:remove, id, error}, status), do: handle_cast({:remove, id, error}, status)
+
+  def handle_cast({:remove, id, error}, status) do
     :ets.delete(__MODULE__, id)
+    # Logger.debug("Got answer for #{inspect id} -> #{inspect value}: #{inspect status[id]}")
+    Enum.map(Map.get(status, id, []), fn from ->
+      GenServer.reply(from, {:error, error})
+    end)
+    status = Map.drop(status, [id])
     {:noreply, status}
   end
   def handle_cast({:insert, id, value}, status) do
