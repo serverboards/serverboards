@@ -17,10 +17,21 @@ defmodule Serverboards.Utils.Cache do
           [{^id, :running}] ->
             get_at_genserver(id, f, options)
           [{^id, value}] ->
+            # Logger.debug("From cache #{inspect {id, value}}")
             value
           other ->
             get_at_genserver(id, f, options)
         end
+    end
+  end
+
+  def remove(id) do
+    Logger.debug("Remove #{inspect id}")
+    case Process.whereis(__MODULE__) do
+      nil ->
+        :ok
+      pid ->
+        GenServer.call(pid, {:remove, id})
     end
   end
 
@@ -51,8 +62,12 @@ defmodule Serverboards.Utils.Cache do
       else # reply error, but dont cache it
         GenServer.cast(__MODULE__, {:remove, id, :exit})
       end
+      # Logger.debug("Calculated value #{inspect {id, val}}")
       val
-    else val end
+    else
+      # Logger.debug("From cache 2  #{inspect {id, val}}")
+      val
+    end
   end
 
   ## impl
@@ -85,6 +100,11 @@ defmodule Serverboards.Utils.Cache do
           {:noreply, status}
         end
     end
+  end
+
+  def handle_call({:remove, id}, _from, status) do
+    {:noreply, status} = handle_cast({:remove, id, :removed}, status)
+    {:reply, :ok, status}
   end
 
   def handle_info({:remove, id, error}, status), do: handle_cast({:remove, id, error}, status)

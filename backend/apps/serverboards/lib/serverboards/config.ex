@@ -50,16 +50,17 @@ defmodule Serverboards.Config do
   def get(section, default \\ []) when is_atom(section) do
     # It merges from more important to least important, so that former is always
     # what stays.
-    Serverboards.Utils.Cache.get({:config, section}, fn ->
+    value = Serverboards.Utils.Cache.get({:config, section}, fn ->
       [
         get_env(section),
         get_db(section),
         get_ini(section),
         get_econfig(section),
-        default,
       ] |> Enum.reduce([], &Keyword.merge/2)
         |> Enum.map(fn {k,v} -> {k, parse_val(v)} end) # use proper vals. Here at the end to allow null values
     end, ttl: 60_000)
+
+    value ++ default
   end
 
   @doc ~S"""
