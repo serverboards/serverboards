@@ -102,7 +102,7 @@ defmodule Serverboards.Plugin.Init do
         started_at: nil,
         task: nil
       }
-      Logger.info("Restart init #{state.init.id} in #{state.timeout} seconds.", state: state)
+      Logger.info("Restart init #{inspect state.init.id} in #{state.timeout} seconds.", state: state)
       state
     else
       state
@@ -124,7 +124,6 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     {:noreply, state}
   end
   def handle_info({:restart}, state) do
-    Logger.debug("Get restart #{inspect self()}")
     Serverboards.Plugin.Runner.stop(state.cmd)
     state = %{
       state |
