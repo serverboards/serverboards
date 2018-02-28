@@ -20,7 +20,22 @@ export const COLORMAP = {
   teal: "#00b5ad",
   olive: "#b5cc18",
   green: "#b5cc18",
+  0: "#a333c8",
+  1: "#e03997",
+  2: "#2185d0",
+  3: "#00b5ad",
+  4: "#b5cc18",
+  5: "#b5cc18",
 }
+
+export const COLORNAMES = [
+  "purple",
+  "pink",
+  "blue",
+  "teal",
+  "olive",
+  "green"
+]
 
 export function colorize(index){
   return COLORS[index % COLORS.length]

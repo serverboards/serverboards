@@ -1,5 +1,5 @@
-import {get_data, COLORMAP} from './utils'
-const React = Serverboards.React
+import {get_data, COLORMAP, COLORNAMES} from './utils'
+const {React, i18n} = Serverboards
 const {colorize, object_is_equal, map_get} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
 
@@ -10,7 +10,7 @@ const R1 = 50
 const R2 = 75
 
 function SVGPie({center, rings, colors}){
-  console.log(colors, rings)
+  // console.log(colors, rings)
   const maxs = rings.reduce( (x,acc) => x + acc, 0)
   if (maxs == 0){
     return null
@@ -36,12 +36,12 @@ function SVGPie({center, rings, colors}){
   console.log(ringsp)
 
   return (
-    <svg viewBox="0 0 150 150" style={{padding: 30}}>
+    <svg viewBox="0 0 150 150" style={{padding: "10px 30px"}}>
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
-          style={{fill: COLORMAP[colors[i]] || colors[i]}}
+          style={{fill: COLORMAP[i] || colors[i]}}
           />
       ))}
     </svg>
@@ -49,17 +49,41 @@ function SVGPie({center, rings, colors}){
 }
 
 class Pie3 extends React.Component{
+  componentDidMount(){
+    this.props.setTitle(this.props.config.title)
+  }
+  componentWillReceiveProps(nextprops){
+    if (map_get(nextprops, ["config","title"]) != map_get(this.props, ["config","title"]))
+      this.props.setTitle(map_get(nextprops, ["config","title"]))
+  }
   shouldComponentUpdate(nextprops){
     return !object_is_equal(nextprops.config, this.props.config)
   }
   render(){
     const config = this.props.config
-    const rows = map_get(config,["data", "rows"])
+    let rows = map_get(config,["data", "rows"])
 
     if (!rows)
       return (
         <Loading/>
       )
+
+    rows = rows.sort( (a,b) => b[1] - a[1])
+
+    if (rows.length>4){
+      // max 4, if more, 3 + others
+      console.log("rows", rows)
+      const rest = rows.slice(3,1000).reduce((acc, row) => Number(row[1]) + acc, 0)
+      console.log("rest", rest)
+      rows=[
+        rows[0],
+        rows[1],
+        rows[2],
+        [i18n("Other"), rest, ""],
+      ]
+
+    }
+
 
     let rings
     try{
@@ -85,14 +109,14 @@ class Pie3 extends React.Component{
             colors={rows.map( r => colorize(r[0]))}/>
         </div>
 
-        <table style={{width: "100%", lineHeight: "2.5em"}}>
-          {rows.map( r => (
+        <table style={{width: "100%", lineHeight: "2.25em"}}>
+          {rows.map( (r,i) => (
             <tr key={r[0]}>
-              <td>
-                <span className={`ui square ${colorize(r[0])}`}/>
+              <td className="ui ellipsis">
+                <span className={`ui square ${COLORNAMES[i]}`}/>
                 {r[0]}
               </td>
-              <td className="ui big bold text">{r[1]} €</td>
+              <td className="ui big bold text right aligned">{r[1]} €</td>
               <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
                 {r[2]}
               </td>

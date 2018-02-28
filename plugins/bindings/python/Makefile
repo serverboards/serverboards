@@ -1,8 +1,9 @@
 all: setup
 
 
-test: setup
-	./test_s10s_curio.py
+test:
+	env/bin/python tests/test_async_json.py
+	env/bin/python tests/test_async_mock.py
 
 setup:
 	python3 -m venv env
