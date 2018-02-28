@@ -16,7 +16,8 @@ dburl="ecto://serverboards:serverboards@localhost/serverboards_test"
 config :serverboards, Serverboards.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: dburl,
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  loggers: [] # no logging of SQL
 
 config :logger, :backends,
   [

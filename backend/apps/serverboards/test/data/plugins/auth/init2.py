@@ -14,6 +14,7 @@ def init():
 
 @serverboards.rpc_method
 def fail():
+    time.sleep(1)
     raise Exception("Fail!")
 
 serverboards.loop()

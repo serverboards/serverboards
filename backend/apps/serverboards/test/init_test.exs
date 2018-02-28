@@ -21,7 +21,7 @@ defmodule InitTest do
     }
 
     # WARNING may fail as timers are a bit tight
-    {:ok, _pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
+    {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
     assert Serverboards.Plugin.Runner.status(init.command) == :running
     :timer.sleep(1500)
@@ -31,6 +31,8 @@ defmodule InitTest do
     # and timeout to recover it (min 1s)
     Logger.debug("Ready? normally was 2s wait")
     assert Serverboards.Plugin.Runner.status(init.command) == :running
+
+    Serverboards.Plugin.Init.stop(pid)
   end
 
   test "Run failing init" do
@@ -39,11 +41,14 @@ defmodule InitTest do
       call: "fail",
       id: "test fail"
     }
-    Serverboards.Plugin.Init.Supervisor.start_init(init)
+    {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
+    Logger.debug("Is \"test fail\" running? (should for 1 sec)")
     assert Serverboards.Plugin.Runner.status(init.command) == :running
     :timer.sleep(1500)
+    Logger.debug("Is \"test fail\" running? (should have failed)")
     assert Serverboards.Plugin.Runner.status(init.command) == :not_running
+    Serverboards.Plugin.Init.stop(pid)
   end
 
   test "Init reloads when plugins are modified" do

@@ -62,7 +62,7 @@ defmodule Serverboards.Plugin.Component do
     case Serverboards.Plugin.Registry.find(plugin_component) do
       nil -> {:error, :not_found}
       c ->
-        Logger.debug("Found component #{inspect c}")
+        # Logger.debug("Found component #{inspect c}")
         run(c)
     end
   end
@@ -79,7 +79,7 @@ defmodule Serverboards.Plugin.Component do
   def get_env(%{ plugin: %{ id: id }}), do: get_env(id)
   def get_env(%{ plugin: id }) when is_binary(id), do: get_env(id)
   def get_env(id) when is_binary(id) do
-    serverboards_path = Serverboards.Config.serverboards_path
+    serverboards_path = Serverboards.Config.serverboards_path()
     home = "#{serverboards_path}/data/#{id}/"
     case File.mkdir_p(home) do
       {:error, err} ->

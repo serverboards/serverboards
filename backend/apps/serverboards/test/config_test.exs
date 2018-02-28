@@ -13,6 +13,8 @@ defmodule Serverboards.ConfigTest do
 
   test "Test simple config" do
     System.put_env("SERVERBOARDS_TEST_ENV", "true")
+    Serverboards.Utils.Cache.remove({:config, :test}) # remove from cache, not automatic on env
+
     assert Serverboards.Config.get(:invalid) == []
     test = Serverboards.Config.get(:test)
     Logger.debug(inspect test)
@@ -21,9 +23,12 @@ defmodule Serverboards.ConfigTest do
     assert test[:config_file]
     assert test[:echo] == "echo"
     System.put_env("SERVERBOARDS_TEST_ENV", "false")
+    Serverboards.Utils.Cache.remove({:config, :test}) # remove from cache, not automatic on env
+
     test = Serverboards.Config.get(:test)
     assert test[:env] == false
     System.delete_env("SERVERBOARDS_TEST_ENV")
+    Serverboards.Utils.Cache.remove({:config, :test}) # remove from cache, not automatic on env
   end
 
   test "Test change database get new values" do
@@ -48,6 +53,8 @@ defmodule Serverboards.ConfigTest do
 
     assert Serverboards.Config.get(:test, [at: :default])[:at] == "env"
     System.delete_env("SERVERBOARDS_TEST_AT")
+    Serverboards.Utils.Cache.remove({:config, :test}) # remove from cache, not automatic on env
+
     assert Serverboards.Config.get(:test, [at: :default])[:at] == "ini"
     assert Serverboards.Config.get(:test, [at2: :default])[:at2] == "db"
     assert Serverboards.Config.get(:test, [at3: :default])[:at3] == :econfig
@@ -56,6 +63,7 @@ defmodule Serverboards.ConfigTest do
 
   test "NULL values and simple get" do
     System.put_env("SERVERBOARDS_TEST_AT", "null")
+    Serverboards.Utils.Cache.remove({:config, :test}) # remove from cache, not automatic on env
     assert Serverboards.Config.get(:test, :at, :default) == nil
     assert Serverboards.Config.get(:test, :atx, :default) == :default  # there was a bug for atom defaults when reached
     System.delete_env("SERVERBOARDS_TEST_AT")

@@ -32,7 +32,7 @@ defmodule Serverboards.Auth.User do
   Creates a new user with the given parameters
   """
   def user_add(user, %{ perms: perms, email: email } = me ) do
-    Logger.debug("Add user by #{inspect me}")
+    Logger.info("Add user #{inspect user.email} by #{inspect me.email}")
 
     if Enum.member? perms, "auth.create_user" do
       EventSourcing.dispatch Serverboards.Auth.EventSourcing, :add_user, user, email

@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.Query.Cache do
+defmodule Serverboards.Utils.Cache do
   use GenServer
 
   def start_link(options \\ []) do
@@ -8,14 +8,30 @@ defmodule Serverboards.Query.Cache do
   end
 
   def get(id, f, options) do
-    # Logger.debug("Get #{inspect id}")
-    case :ets.lookup(__MODULE__, id) do
-      [{^id, :running}] ->
-        get_at_genserver(id, f, options)
-      [{^id, value}] ->
-        value
-      other ->
-        get_at_genserver(id, f, options)
+    case Process.whereis(__MODULE__) do
+      nil ->
+        f.() # not running, just dont cache
+      pid ->
+        # Logger.debug("Get #{inspect id}")
+        case :ets.lookup(__MODULE__, id) do
+          [{^id, :running}] ->
+            get_at_genserver(id, f, options)
+          [{^id, value}] ->
+            # Logger.debug("From cache #{inspect {id, value}}")
+            value
+          other ->
+            get_at_genserver(id, f, options)
+        end
+    end
+  end
+
+  def remove(id) do
+    Logger.debug("Remove #{inspect id}")
+    case Process.whereis(__MODULE__) do
+      nil ->
+        :ok
+      pid ->
+        GenServer.call(pid, {:remove, id})
     end
   end
 
@@ -41,11 +57,17 @@ defmodule Serverboards.Query.Cache do
         case options[:ttl] do
           nil -> :ok
           ttl ->
-            Process.send_after(__MODULE__, {:remove, id}, ttl)
+            Process.send_after(__MODULE__, {:remove, id, :timeout}, ttl)
         end
+      else # reply error, but dont cache it
+        GenServer.cast(__MODULE__, {:remove, id, :exit})
       end
+      # Logger.debug("Calculated value #{inspect {id, val}}")
       val
-    else val end
+    else
+      # Logger.debug("From cache 2  #{inspect {id, val}}")
+      val
+    end
   end
 
   ## impl
@@ -80,8 +102,20 @@ defmodule Serverboards.Query.Cache do
     end
   end
 
-  def handle_info({:remove, id}, status) do
+  def handle_call({:remove, id}, _from, status) do
+    {:noreply, status} = handle_cast({:remove, id, :removed}, status)
+    {:reply, :ok, status}
+  end
+
+  def handle_info({:remove, id, error}, status), do: handle_cast({:remove, id, error}, status)
+
+  def handle_cast({:remove, id, error}, status) do
     :ets.delete(__MODULE__, id)
+    # Logger.debug("Got answer for #{inspect id} -> #{inspect value}: #{inspect status[id]}")
+    Enum.map(Map.get(status, id, []), fn from ->
+      GenServer.reply(from, {:error, error})
+    end)
+    status = Map.drop(status, [id])
     {:noreply, status}
   end
   def handle_cast({:insert, id, value}, status) do
