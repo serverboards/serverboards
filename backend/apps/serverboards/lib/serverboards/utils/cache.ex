@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.Query.Cache do
+defmodule Serverboards.Utils.Cache do
   use GenServer
 
   def start_link(options \\ []) do
@@ -8,14 +8,19 @@ defmodule Serverboards.Query.Cache do
   end
 
   def get(id, f, options) do
-    # Logger.debug("Get #{inspect id}")
-    case :ets.lookup(__MODULE__, id) do
-      [{^id, :running}] ->
-        get_at_genserver(id, f, options)
-      [{^id, value}] ->
-        value
-      other ->
-        get_at_genserver(id, f, options)
+    case Process.whereis(__MODULE__) do
+      nil ->
+        f.() # not running, just dont cache
+      pid ->
+        # Logger.debug("Get #{inspect id}")
+        case :ets.lookup(__MODULE__, id) do
+          [{^id, :running}] ->
+            get_at_genserver(id, f, options)
+          [{^id, value}] ->
+            value
+          other ->
+            get_at_genserver(id, f, options)
+        end
     end
   end
 
