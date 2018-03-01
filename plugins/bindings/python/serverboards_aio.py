@@ -182,6 +182,8 @@ class RPC:
             real_debug("Unexpected exception", e)
             import traceback
             traceback.print_exc()
+        finally:
+            await curio.timeout_after(2, self.stop)
 
     async def subscribe(self, eventname, callback):
         """
