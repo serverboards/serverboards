@@ -74,10 +74,20 @@ class Board extends React.Component{
         this.setState({update_realtime_timer_id: undefined})
       }
     }
+    if (!newprops.realtime && !object_is_equal(newprops.time_slice, this.props.time_slice)){
+      console.log("Changed period! NO RT", newprops)
+      const context = {
+        start: newprops.time_slice[0].toISOString(),
+        end: newprops.time_slice[1].toISOString()
+      }
+      const {configs, to_extract} = this.updateConfigs(newprops.widgets)
+      this.setState({configs, to_extract})
+      this.updateExtractedConfigs(to_extract, context)
+    }
     // console.log("New props: ", this.props.widgets, newprops.widgets)
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      const {config, to_extract} = this.updateConfigs(newprops.widgets)
-      this.setState({config, to_extract})
+      const {configs, to_extract} = this.updateConfigs(newprops.widgets)
+      this.setState({configs, to_extract})
       this.updateExtractedConfigs(to_extract, this.getStatusContext())
     }
   }
