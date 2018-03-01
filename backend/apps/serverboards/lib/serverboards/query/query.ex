@@ -20,7 +20,7 @@ defmodule Serverboards.Query do
   """
 
   def execute(config, table, quals, columns) do
-    # Serverboards.Query.Cache.get({:execute, config, table, quals, columns}, fn ->
+    # Serverboards.Utils.Cache.get({:execute, config, table, quals, columns}, fn ->
       extractor = config.extractor
 
     # Logger.debug("Use extractor #{inspect extractor}")
@@ -40,7 +40,7 @@ defmodule Serverboards.Query do
   Returns the list of tables on this extractor
   """
   def schema(config) do
-    Serverboards.Query.Cache.get({:schema, config}, fn ->
+    Serverboards.Utils.Cache.get({:schema, config}, fn ->
       # Logger.debug("schema #{inspect config}")
       extractor = config.extractor
       case Serverboards.Plugin.Registry.filter_component(id: extractor) do
@@ -56,7 +56,7 @@ defmodule Serverboards.Query do
   Returns the schema of the given table.
   """
   def schema(config, table) do
-    Serverboards.Query.Cache.get({:schema, table, config}, fn ->
+    Serverboards.Utils.Cache.get({:schema, table, config}, fn ->
       # Logger.debug("schema #{inspect config} #{inspect table}")
       extractor = config.extractor
       case Serverboards.Plugin.Registry.filter_component(id: extractor) do
@@ -113,7 +113,7 @@ defmodule Serverboards.Query do
           Logger.error("Timeout performing query at #{inspect where, pretty: true}")
           {:error, :timeout}
         :exit, any ->
-          Logger.error("Error performing query: #{inspect any}")
+          Logger.error("Error performing query: #{inspect any}: #{Exception.format(:exit, any)}")
           {:error, inspect(any)}
         any ->
           {:error, inspect(any)}

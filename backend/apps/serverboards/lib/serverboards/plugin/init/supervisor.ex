@@ -10,24 +10,29 @@ defmodule Serverboards.Plugin.Init.Supervisor do
     {:ok, pid} = Supervisor.start_link(__MODULE__,[], options)
     #Logger.debug("Start init supervisor: #{inspect pid}")
 
-    for c <- Serverboards.Plugin.Registry.filter_component( type: "init" ) do
-      c = Serverboards.Plugin.Init.from_component(c)
-      start_init(c)
-    end
+    start_inits()
 
     MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
       if payload.type == "plugins.reloaded" do
         Logger.info("Reloading init services. #{inspect pid}")
         for {_id, pid, _type, _modules} <- Supervisor.which_children(pid) do
-          Logger.debug("Stop #{inspect pid}")
           Serverboards.Plugin.Init.stop(pid) # Stop all pids, normally
         end
-        Process.exit(pid, :kill) # Force reload of all inits
+        start_inits()
         :unsubscribe
       end
     end)
 
     {:ok, pid}
+  end
+
+  def start_inits() do
+    init_services = Serverboards.Plugin.Registry.filter_component( type: "init" )
+    Logger.info("Starting #{inspect Enum.count(init_services)} init services")
+    for c <- init_services do
+      c = Serverboards.Plugin.Init.from_component(c)
+      start_init(c)
+    end
   end
 
   def init([]) do

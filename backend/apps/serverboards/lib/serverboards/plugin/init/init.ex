@@ -85,21 +85,28 @@ defmodule Serverboards.Plugin.Init do
   end
 
   defp handle_wait_run(%{started_at: started_at, timeout: timeout } = state) do
-    running_for_seconds = case started_at do
-      nil -> 0
-      _other -> -Timex.Duration.diff(started_at, nil, :seconds)
+    if state.timer do # if inside timer, do not retrigger. Wait for real timer.
+      running_for_seconds = case started_at do
+        nil -> 0
+        _other -> -Timex.Duration.diff(started_at, nil, :seconds)
+      end
+      timer = Process.send_after(self(), {:restart}, timeout * 1000)
+
+      # Timeout is for next run
+      timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
+
+      state = %{
+        state |
+        timeout: timeout,
+        timer: timer,
+        started_at: nil,
+        task: nil
+      }
+      Logger.info("Restart init #{inspect state.init.id} in #{state.timeout} seconds.", state: state)
+      state
+    else
+      state
     end
-    timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
-    timer = Process.send_after(self(), {:restart}, timeout * 1000)
-    state = %{
-      state |
-      timeout: timeout,
-      timer: timer,
-      started_at: nil,
-      task: nil
-    }
-    Logger.info("Restart init #{state.init.id} in #{state.timeout} seconds.", state: state)
-    state
   end
 
   def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
@@ -118,6 +125,10 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
   end
   def handle_info({:restart}, state) do
     Serverboards.Plugin.Runner.stop(state.cmd)
+    state = %{
+      state |
+      timer: nil
+    }
     handle_cast({:start}, state)
   end
   def handle_info({_ref, {:error, :unknown_method}}, state) do
@@ -137,6 +148,9 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     else nil end
 
     timeout = max(1, waits)
+    if state.timer do
+      Process.cancel_timer(state.timer)
+    end
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
       state |
@@ -145,7 +159,7 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
       started_at: nil,
       task: nil
     }
-    Logger.info("Init \"#{state.init.id}\" finished properly. Did run for #{inspect running_for_seconds} seconds. Restart in #{state.timeout} seconds.", state: state)
+    Logger.info("Init \"#{state.init.id}\" finished properly. Did run for #{inspect running_for_seconds} seconds. #{inspect timeout} secs")
     {:noreply, state}
   end
   def handle_info({:EXIT, _from, :normal}, state) do
@@ -159,7 +173,7 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     {:stop, :normal, state}
   end
   def handle_info(any, state) do
-    Logger.warn("#{inspect self()} Got info: #{inspect any}")
+    Logger.warn("Got info: #{inspect any}")
     {:noreply, state}
   end
 end

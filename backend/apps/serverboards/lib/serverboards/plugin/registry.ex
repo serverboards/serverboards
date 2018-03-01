@@ -259,6 +259,7 @@ defmodule Serverboards.Plugin.Registry do
 
   def handle_cast({:reload}, status), do: handle_cast({:reload, %{}}, status)
   def handle_cast({:reload, context}, _status) do
+    Logger.debug("Reloading plugin lists.")
     active = case Map.get(context, :plugins) do
       nil -> Serverboards.Config.get_map(:plugins)
       value -> value

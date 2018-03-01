@@ -1,6 +1,7 @@
 defmodule Serverboards.PluginDocTest do
   use ExUnit.Case
   @moduletag :capture_log
+  @moduletag timeout: 10_000
 
   :ok = Application.ensure_started(:serverboards)
 

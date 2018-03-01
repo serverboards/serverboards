@@ -75,6 +75,7 @@ defmodule Serverboards.Settings do
           nil
         end
     end
+    Serverboards.Utils.Cache.remove({:config, String.to_atom(section)})
     :ok
   end
 
