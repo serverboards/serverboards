@@ -7,7 +7,12 @@ defmodule Serverboards.Utils.Cache do
     GenServer.start_link(__MODULE__, nil, options)
   end
 
+  def hash(data) do
+    :crypto.hash(:sha, inspect data) |> Base.encode16
+  end
+
   def get(id, f, options) do
+    id = hash(id)
     case Process.whereis(__MODULE__) do
       nil ->
         f.() # not running, just dont cache
@@ -26,6 +31,7 @@ defmodule Serverboards.Utils.Cache do
   end
 
   def remove(id) do
+    id = hash(id)
     Logger.debug("Remove #{inspect id}")
     case Process.whereis(__MODULE__) do
       nil ->
@@ -37,7 +43,16 @@ defmodule Serverboards.Utils.Cache do
 
   # Make the server ask for the data
   defp get_at_genserver(id, f, options) do
-    val = GenServer.call(__MODULE__, {:get, id, f}, 60_000)
+    val = try do
+      GenServer.call(__MODULE__, {:get, id, f}, Keyword.get(options, :ttl, 5_000))
+    catch
+      :exit, {:timeout, where} ->
+        Logger.error("Timeout getting data for cache. #{inspect id}.")
+        Logger.debug("Somebody else asked for the data, and did not answer in 5 sec.")
+        # If there are more, mark them as timeouted too
+        GenServer.cast(__MODULE__, {:remove, id, :exit})
+        {:error, :exit}
+    end
 
     if val == :youdoit do # this marks I must do it, and then send the value for the rest.
       val = try do
@@ -60,12 +75,10 @@ defmodule Serverboards.Utils.Cache do
             Process.send_after(__MODULE__, {:remove, id, :timeout}, ttl)
         end
       else # reply error, but dont cache it
-        GenServer.cast(__MODULE__, {:remove, id, :exit})
+        GenServer.cast(__MODULE__, {:remove, id, val})
       end
-      # Logger.debug("Calculated value #{inspect {id, val}}")
       val
     else
-      # Logger.debug("From cache 2  #{inspect {id, val}}")
       val
     end
   end
@@ -92,10 +105,10 @@ defmodule Serverboards.Utils.Cache do
         prev_from = Map.get(status,id, nil)
         if prev_from == nil do # the first calculates the value
           status = Map.put(status, id, [] )
-          # Logger.debug("No answer, you do it #{inspect status}")
+          # Logger.debug("No answer, you do it #{inspect id} #{inspect status}")
           {:reply, :youdoit, status}
         else
-          # Logger.debug("No anwser, wait for it #{inspect status}")
+          # Logger.debug("No anwser, wait for it #{inspect status[id]}")
           status = Map.put(status, id, [from | prev_from] )
           {:noreply, status}
         end
@@ -121,7 +134,7 @@ defmodule Serverboards.Utils.Cache do
   def handle_cast({:insert, id, value}, status) do
     :ets.insert(__MODULE__, {id, value})
 
-    # Logger.debug("Got answer for #{inspect id} -> #{inspect value}: #{inspect status[id]}")
+    # Logger.debug("Got answer for #{inspect id}: #{inspect status[id]}")
     Enum.map(status[id], fn from ->
       GenServer.reply(from, value)
     end)
