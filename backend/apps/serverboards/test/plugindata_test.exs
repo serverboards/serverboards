@@ -1,6 +1,6 @@
 require Logger
 
-defmodule Serverboards.PluginInitTest do
+defmodule Serverboards.PluginDataTest do
   use ExUnit.Case
   @moduletag :capture_log
   @moduletag timeout: 10_000
@@ -177,7 +177,7 @@ defmodule Serverboards.PluginInitTest do
 
     File.rm("/tmp/serverboards-test-fail-postinst")
     assert :ok == Serverboards.Plugin.Installer.execute_postinst(path)
-    Serverboards.Plugin.Registry.reload_plugins
+    Serverboards.Plugin.Registry.reload_plugins()
     {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
     assert broken_plugins["serverboards.test.auth"] == nil
     plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
@@ -196,7 +196,7 @@ defmodule Serverboards.PluginInitTest do
     File.rm("/tmp/serverboards-test-fail-postinst")
     assert :ok == Serverboards.Plugin.Installer.execute_postinst(path)
     {:ok, broken_plugins} = Serverboards.Settings.get("broken_plugins")
-    Serverboards.Plugin.Registry.reload_plugins
+    Serverboards.Plugin.Registry.reload_plugins()
     assert broken_plugins["serverboards.test.auth"] == nil
     plugin = Serverboards.Plugin.Registry.find("serverboards.test.auth")
     assert "active" in plugin.status
