@@ -20,20 +20,26 @@ defmodule Serverboards.Query do
   """
 
   def execute(config, table, quals, columns) do
-    # Serverboards.Utils.Cache.get({:execute, config, table, quals, columns}, fn ->
+    Serverboards.Utils.Cache.get({:execute, config, table, quals, columns}, fn ->
       extractor = config.extractor
 
     # Logger.debug("Use extractor #{inspect extractor}")
       [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
 
-      case Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["extractor"], [config, table, quals, columns], config.user) do
+      res = Serverboards.Plugin.Runner.call(
+        component.extra["command"],
+        component.extra["extractor"],
+        [config, table, quals, columns],
+        config.user)
+
+      case res do
         {:ok, result} ->
           {:ok, %{ columns: result["columns"], rows: result["rows"] }}
         {:error, error} ->
           Logger.error("Error geting data from #{inspect extractor} / #{inspect table}")
           {:error, error}
       end
-    # end, ttl: 5_000)
+    end, ttl: 5_000)
   end
 
   @doc ~S"""
@@ -113,14 +119,14 @@ defmodule Serverboards.Query do
           Logger.error("Timeout performing query at #{inspect where, pretty: true}")
           {:error, :timeout}
         :exit, any ->
-          Logger.error("Error performing query: #{inspect any}: #{Exception.format(:exit, any)}")
+          Logger.error("Error performing query: #{inspect any}: #{inspect System.stacktrace(), pretty: true}")
           {:error, inspect(any)}
         any ->
           {:error, inspect(any)}
       rescue
         e in MatchError ->
-          Logger.error("Error performing query: #{inspect e}")
-          {:error, :invalid_sql}
+          Logger.error("Error performing query: #{inspect e}: #{inspect System.stacktrace(), pretty: true}")
+          {:error, {:invalid_sql, e.term}}
         exception in FunctionClauseError ->
           Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
           {:error, :invalid_expression}
