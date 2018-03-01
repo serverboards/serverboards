@@ -3,7 +3,7 @@ import {get_data, colorize, is_string} from './utils'
 const {map_get, object_is_equal} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
 
-const STOP_POINTS = [ 10000000, 1000000, 100000, 10000, 1000, 500, 300, 200, 100, 75, 50, 25, 10, 0, -1e100]
+const STOP_POINTS = [ 10000000, 1000000, 100000, 10000, 1000, 500, 300, 200, 100, 80, 60, 20, 12, 0, -1e100]
 
 function next_stop_point(point){
   let prev = point
