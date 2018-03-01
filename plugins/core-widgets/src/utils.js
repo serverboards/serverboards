@@ -42,7 +42,7 @@ export function colorize(index){
 }
 
 export function get_data(expr, path=[0,0], defval=""){
-  if (!expr)
+  if (expr == undefined || expr == null)
     return ""
   if (expr.loading){
     return (
