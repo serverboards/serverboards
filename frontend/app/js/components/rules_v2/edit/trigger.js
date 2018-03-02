@@ -6,6 +6,12 @@ import {match_traits} from 'app/utils'
 
 const BLACKLIST=["cloud","server"]
 
+function maybe_no_service(traits){
+  if (!traits || traits.length == 0)
+    return ["no-service"]
+  return traits
+}
+
 function get_triggers(service_id){
   return Promise.all([
     cache.trigger_catalog(),
@@ -18,7 +24,7 @@ function get_triggers(service_id){
     else{
       straits = ["no-service"] // Show only those that require no service selected
     }
-    return tc.filter( t => match_traits({has: straits, any: t.traits}) )
+    return tc.filter( t => match_traits({has: straits, any: maybe_no_service(t.traits)}) )
   } )
 }
 
