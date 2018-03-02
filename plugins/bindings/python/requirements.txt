@@ -1,3 +1,4 @@
 curio
 asks
 PyYAML
+smock

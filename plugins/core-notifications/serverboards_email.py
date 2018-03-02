@@ -4,12 +4,12 @@ import os
 import smtplib
 import email
 import markdown
-import json
+import yaml
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
-from serverboards import print
-import serverboards
+from serverboards_aio import print
+import serverboards_aio as serverboards
 
 email_utils = email.utils
 
@@ -38,7 +38,6 @@ def render_template(filename, context):
         return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
 
 
-@serverboards.cache_ttl(300)
 def base_url():
     base_url_ = "http://localhost:8080"
     try:
@@ -52,7 +51,7 @@ def base_url():
 
 
 @serverboards.rpc_method
-def send_email(user=None, config=None, message=None, test=False):
+async def send_email(user=None, config=None, message=None, **extra):
     if not settings:
         serverboards.warning(
             "Email not properly configured. Not sending emails")
@@ -63,11 +62,11 @@ def send_email(user=None, config=None, message=None, test=False):
              if k not in ['email', 'subject', 'body']}
     extra["user"] = user
     # serverboards.debug("email extra data: %s"%(repr(extra)))
-    return send_email_action(_to, message["subject"], message["body"], **extra)
+    return await send_email_action(_to, message["subject"], message["body"], **extra)
 
 
 @serverboards.rpc_method
-def send_email_action(email=None, subject=None, body=None, **extra):
+async def send_email_action(email=None, subject=None, body=None, **extra):
     if not settings:
         serverboards.warning(
             "Email not properly configured. Not sending emails")
@@ -75,15 +74,16 @@ def send_email_action(email=None, subject=None, body=None, **extra):
     msg = MIMEMultipart('alternative')
     # serverboards.debug("email extra data: %s"%(repr(extra)))
 
+    base_url = settings["base_url"]
     context = {
         "email": email,
         "user": extra.get("user"),
         "subject": subject,
         "body": markdown.markdown(body, safe_mode='escape'),
         "settings": settings,
-        "APP_URL": base_url(),
+        "APP_URL": base_url,
         "type": extra.get("type", "MESSAGE"),
-        "url": extra.get("url", base_url())
+        "url": extra.get("url", base_url)
     }
     body_html = render_template(
         os.path.join(os.path.dirname(__file__),
@@ -111,49 +111,76 @@ def send_email_action(email=None, subject=None, body=None, **extra):
 
     port = settings.get("port")
     ssl = settings.get("ssl")
-    if port or ssl:
-        if port == '465' or ssl:
-            port = port or '465'
-            smtp = smtplib.SMTP_SSL(settings["servername"], int(port))
+
+    def send_sync(port):
+        if port or ssl:
+            if port == '465' or ssl:
+                port = port or '465'
+                smtp = smtplib.SMTP_SSL(settings["servername"], int(port))
+            else:
+                smtp = smtplib.SMTP(settings["servername"], int(port))
         else:
-            smtp = smtplib.SMTP(settings["servername"], int(port))
-    else:
-        smtp = smtplib.SMTP(settings["servername"])
-    if settings.get("username"):
-        smtp.login(settings.get("username"), settings.get("password_pw"))
-    smtp.sendmail(settings["from"], email, msg.as_string())
-    smtp.close()
+            smtp = smtplib.SMTP(settings["servername"])
+        if settings.get("username"):
+            smtp.login(settings.get("username"), settings.get("password_pw"))
+        smtp.sendmail(settings["from"], email, msg.as_string())
+        smtp.close()
 
-    serverboards.info(
-        "Sent email to %s, with subject '%s'" % (email, subject))
+    await serverboards.sync(send_sync, port)
 
-    return True
+    await serverboards.info(
+        "Sent email to %s, with subject '%s'" % (email, subject)
+    )
+
+    return {
+        "sent": True
+    }
 
 
-if len(sys.argv) == 2 and sys.argv[1] == "test":
-    base_url_cache = "http://localhost/"
-    settings = json.load(open("config.json"))
-    # {
-    #     "servername" : "mail.serverboards.io",
-    #     "port" : "",
-    #     "from" : "test@serverboards.io",
-    #     "username" : "",
-    #     "password_pw" : ""
-    # }
-    print(send_email_action(
-        "dmoreno@coralbits.com",
-        "This is a test from s10s test",
-        "The body of the test"
-    ))
-    print(send_email(
-        user={"email": "dmoreno@serverboards.io"},
-        config={},
-        message={
-            "subject": "This is a test message",
-            "body": "Body of the test message\n\nAnother line",
-            "extra": {}
-        }, test=True))
-else:
+def test():
+    async def test_async():
+        print("Start debug")
+        global settings
+        settings = yaml.load(open("config.yaml"))
+        # {
+        #     "servername" : "mail.serverboards.io",
+        #     "port" : "",
+        #     "from" : "test@serverboards.io",
+        #     "username" : "",
+        #     "password_pw" : ""
+        # }
+        sea = await send_email_action(
+            "dmoreno@coralbits.com",
+            "This is a test from s10s test",
+            "The body of the test",
+            message_id="s10s_test@serverboards.io",
+        )
+        print("email action", sea)
+        assert sea == {"sent": True}
+
+        se = await send_email(
+            user={"email": "dmoreno@serverboards.io"},
+            config={},
+            message={
+                "subject": "This is a test message",
+                "body": "Body of the test message\n\nAnother line",
+                "extra": {}
+            },
+            test=True,
+            message_id="s10s_test@serverboards.io",
+        )
+        print("email to user", se)
+        assert se
+
+        print("Done")
+        await serverboards.curio.sleep(2)
+        sys.exit(0)
+
+    serverboards.test_mode(test_async)
+
+
+def main():
+    global settings
     try:
         settings = serverboards.rpc.call(
             "settings.get", "serverboards.core.notifications/settings.email")
@@ -166,5 +193,12 @@ else:
             "username": "",
             "password_pw": ""
         }
+    settings["base_url"] = base_url()
 
     serverboards.loop()
+
+
+if len(sys.argv) == 2 and sys.argv[1] == "--test":
+    test()
+else:
+    main()
