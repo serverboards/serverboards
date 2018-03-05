@@ -1,16 +1,20 @@
 #!/usr/bin/python3
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
-import serverboards
-
-import smtplib, email, markdown, json
+import sys
+import os
+import smtplib
+import email
+import markdown
+import yaml
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-email_utils=email.utils
-from serverboards import print
+sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
+from serverboards_aio import print
+import serverboards_aio as serverboards
 
-settings=None
+email_utils = email.utils
+
+settings = None
+
 
 def find_var_rec(context, var):
     if not context:
@@ -19,6 +23,7 @@ def find_var_rec(context, var):
         return context[var]
     return ''
 
+
 def template_var_match(context):
     def replace(match):
         from functools import reduce
@@ -26,62 +31,72 @@ def template_var_match(context):
         return ret
     return replace
 
+
 def render_template(filename, context):
     import re
     with open(filename) as fd:
         return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
 
-base_url_cache=None
+
 def base_url():
-    global base_url_cache
-    if not base_url_cache:
-        base_url_cache="http://localhost:8080"
-        try:
-            base_url_cache=serverboards.rpc.call("settings.get", "serverboards.core.settings/base")["base_url"]
-            if base_url_cache.endswith("/"):
-                base_url_cache=base_url_cache[0:-1]
-        except:
-            pass
-    return base_url_cache
+    base_url_ = "http://localhost:8080"
+    try:
+        base_url_ = serverboards.rpc.call(
+            "settings.get", "serverboards.core.settings/base")["base_url"]
+        if base_url_.endswith("/"):
+            base_url_ = base_url_[0:-1]
+    except Exception:
+        pass
+    return base_url_
+
 
 @serverboards.rpc_method
-def send_email(user=None, config=None, message=None, test=False):
+async def send_email(user=None, config=None, message=None, **extra):
     if not settings:
-        serverboards.warning("Email not properly configured. Not sending emails")
+        serverboards.warning(
+            "Email not properly configured. Not sending emails")
         return False
     _to = config and config.get("email") or user["email"]
-    extra={ k:v for k,v in message["extra"].items() if k not in ['email','subject','body']}
-    extra["user"]=user
-    #serverboards.debug("email extra data: %s"%(repr(extra)))
-    return send_email_action(_to, message["subject"], message["body"], **extra)
+    extra = {k: v
+             for k, v in message["extra"].items()
+             if k not in ['email', 'subject', 'body']}
+    extra["user"] = user
+    # serverboards.debug("email extra data: %s"%(repr(extra)))
+    return await send_email_action(_to, message["subject"], message["body"], **extra)
+
 
 @serverboards.rpc_method
-def send_email_action(email=None, subject=None, body=None, **extra):
+async def send_email_action(email=None, subject=None, body=None, **extra):
     if not settings:
-        serverboards.warning("Email not properly configured. Not sending emails")
+        serverboards.warning(
+            "Email not properly configured. Not sending emails")
         return False
     msg = MIMEMultipart('alternative')
-    #serverboards.debug("email extra data: %s"%(repr(extra)))
+    # serverboards.debug("email extra data: %s"%(repr(extra)))
 
+    base_url = settings["base_url"]
     context = {
         "email": email,
         "user": extra.get("user"),
         "subject": subject,
         "body": markdown.markdown(body, safe_mode='escape'),
         "settings": settings,
-        "APP_URL": base_url(),
+        "APP_URL": base_url,
         "type": extra.get("type", "MESSAGE"),
-        "url": extra.get("url", base_url())
-        }
-    body_html = render_template(os.path.join(os.path.dirname(__file__), "email-template.html"), context)
+        "url": extra.get("url", base_url)
+    }
+    body_html = render_template(
+        os.path.join(os.path.dirname(__file__),
+                     "email-template.html"),
+        context)
 
-    msg.attach(MIMEText(body,"plain",'UTF-8'))
-    msg.attach(MIMEText(body_html,"html",'UTF-8'))
+    msg.attach(MIMEText(body, "plain", 'UTF-8'))
+    msg.attach(MIMEText(body_html, "html", 'UTF-8'))
 
-    msg["From"]="Serverboards <%s>"%settings["from"]
-    msg["To"]=email
-    msg["Subject"]=subject
-    msg["Date"]=email_utils.formatdate()
+    msg["From"] = "Serverboards <%s>" % settings["from"]
+    msg["To"] = email
+    msg["Subject"] = subject
+    msg["Date"] = email_utils.formatdate()
 
     if "message_id" in extra:
         msg["Message-Id"] = extra["message_id"]
@@ -89,65 +104,101 @@ def send_email_action(email=None, subject=None, body=None, **extra):
         msg["In-Reply-To"] = extra["thread_id"]
 
     if extra.get("test"):
-        with open("/tmp/lastmail.html","w") as fd:
+        with open("/tmp/lastmail.html", "w") as fd:
             fd.write(markdown.markdown(body_html, safe_mode='escape'))
-        with open("/tmp/lastmail.md","w") as fd:
+        with open("/tmp/lastmail.md", "w") as fd:
             fd.write(body)
 
-    port=settings.get("port")
-    ssl=settings.get("ssl")
-    if port or ssl:
-        if port == '465' or ssl:
-            port = port or '465'
-            smtp = smtplib.SMTP_SSL(settings["servername"], int(port))
+    port = settings.get("port")
+    ssl = settings.get("ssl")
+
+    def send_sync(port):
+        if port or ssl:
+            if port == '465' or ssl:
+                port = port or '465'
+                smtp = smtplib.SMTP_SSL(settings["servername"], int(port))
+            else:
+                smtp = smtplib.SMTP(settings["servername"], int(port))
         else:
-            smtp = smtplib.SMTP(settings["servername"], int(port))
-    else:
-        smtp = smtplib.SMTP(settings["servername"])
-    if settings.get("username") :
-        smtp.login(settings.get("username"), settings.get("password_pw"))
-    smtp.sendmail(settings["from"], email, msg.as_string())
-    smtp.close()
+            smtp = smtplib.SMTP(settings["servername"])
+        if settings.get("username"):
+            smtp.login(settings.get("username"), settings.get("password_pw"))
+        smtp.sendmail(settings["from"], email, msg.as_string())
+        smtp.close()
 
-    serverboards.info("Sent email to %s, with subject '%s'"%(email, subject))
+    await serverboards.sync(send_sync, port)
 
-    return True
+    await serverboards.info(
+        "Sent email to %s, with subject '%s'" % (email, subject)
+    )
+
+    return {
+        "sent": True
+    }
 
 
-if len(sys.argv)==2 and sys.argv[1]=="test":
-    base_url_cache="http://localhost/"
-    settings=json.load(open("config.json"))
-    # {
-    #     "servername" : "mail.serverboards.io",
-    #     "port" : "",
-    #     "from" : "test@serverboards.io",
-    #     "username" : "",
-    #     "password_pw" : ""
-    # }
-    print(send_email_action(
-        "dmoreno@coralbits.com",
-        "This is a test from s10s test",
-        "The body of the test"
-        ))
-    print(send_email(
-        user={ "email": "dmoreno@serverboards.io" },
-        config={},
-        message={
-            "subject":"This is a test message",
-            "body":"Body of the test message\n\nAnother line",
-            "extra":{}
-        }, test=True))
-else:
+def test():
+    async def test_async():
+        print("Start debug")
+        global settings
+        settings = yaml.load(open("config.yaml"))
+        # {
+        #     "servername" : "mail.serverboards.io",
+        #     "port" : "",
+        #     "from" : "test@serverboards.io",
+        #     "username" : "",
+        #     "password_pw" : ""
+        # }
+        sea = await send_email_action(
+            "dmoreno@coralbits.com",
+            "This is a test from s10s test",
+            "The body of the test",
+            message_id="s10s_test@serverboards.io",
+        )
+        print("email action", sea)
+        assert sea == {"sent": True}
+
+        se = await send_email(
+            user={"email": "dmoreno@serverboards.io"},
+            config={},
+            message={
+                "subject": "This is a test message",
+                "body": "Body of the test message\n\nAnother line",
+                "extra": {}
+            },
+            test=True,
+            message_id="s10s_test@serverboards.io",
+        )
+        print("email to user", se)
+        assert se
+
+        print("Done")
+        await serverboards.curio.sleep(2)
+        sys.exit(0)
+
+    serverboards.test_mode(test_async)
+
+
+def main():
+    global settings
     try:
-        settings=serverboards.rpc.call("settings.get","serverboards.core.notifications/settings.email")
-    except:
-        settings={
-            "servername" : "localhost",
+        settings = serverboards.rpc.call(
+            "settings.get", "serverboards.core.notifications/settings.email")
+    except Exception:
+        settings = {
+            "servername": "localhost",
             "port": "",
             "ssl": False,
-            "from" : "noreply@localhost",
-            "username" : "",
-            "password_pw" : ""
+            "from": "noreply@localhost",
+            "username": "",
+            "password_pw": ""
         }
+    settings["base_url"] = base_url()
 
     serverboards.loop()
+
+
+if len(sys.argv) == 2 and sys.argv[1] == "--test":
+    test()
+else:
+    main()

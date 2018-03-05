@@ -13,6 +13,10 @@ import curio
 _debug = False
 plugin_id = os.environ.get("PLUGIN_ID")
 real_print = print
+RED = "\033[0;31m"
+BLUE = "\033[0;34m"
+GREY = "\033[1;30m"
+RESET = "\033[1;m"
 
 
 def real_debug(*msg):
@@ -55,11 +59,14 @@ class RPC:
 
     async def stop(self):
         self.__running = False
-        await self.__call_group.cancel_remaining()
-        await self.__call_group.join(wait=all)
-        await self.__run_queue.put("QUIT")
-        if self.stdin:
-            await self.stdin.close()
+        try:
+            await self.__call_group.cancel_remaining()
+            await self.__call_group.join(wait=all)
+            await self.__run_queue.put("QUIT")
+            if self.stdin:
+                await self.stdin.close()
+        except curio.errors.TaskTimeout:
+            real_print(RED, "Timeout at serverboards stop.", RESET)
 
     def register(self, name, function):
         self.__methods[name] = function
@@ -173,15 +180,15 @@ class RPC:
         except BrokenPipeError:
             return
         except curio.TaskCancelled:
-            real_debug("Task cancelled")
+            real_debug("EOF main loop. Task cancelled.")
             return
         except curio.CancelledError:
-            real_debug("Cancelled file read")
-            raise
+            real_debug("EOF main loop. Cancelled file read.")
+            return
         except Exception as e:
-            real_debug("Unexpected exception", e)
-            import traceback
-            traceback.print_exc()
+            real_debug("Unexpected exception at main loop.", e)
+            log_traceback()
+            raise
         finally:
             await curio.timeout_after(2, self.stop)
 
@@ -222,6 +229,7 @@ class RPC:
         return True
 
     def run_async(self, method, *args, result=True, **kwargs):
+        # real_debug("Run async", method)
         q = None
         if self.__running and result:
             q = curio.queue.UniversalQueue()
@@ -231,6 +239,7 @@ class RPC:
             q.task_done()
             q.join()
             return res
+        # real_debug("And return", method)
         return None
 
     async def __run_tasks(self):
@@ -243,20 +252,32 @@ class RPC:
             (method, args, kwargs, q) = res
 
             async def run_in_task():
+                # real_debug("Run in task", method)
                 self.__background_tasks += 1
                 try:
                     res = method(*args, **kwargs)
                     res = await maybe_await(res)
                     if q:
                         await q.put(res)
-                except BrokenPipeError:
+                except BrokenPipeError as e:
+                    real_debug(
+                        RED, "Exception at task %s: %s" % (method, e), RESET)
                     return  # finished! Normally write to closed stdout
                 except curio.TaskCancelled as e:
+                    real_debug(
+                        RED, "Exception at task %s: %s" % (method, e), RESET)
                     return
                 except Exception as e:
+                    real_debug(
+                        RED, "Exception at task %s: %s" % (method, e), RESET)
                     if q:
                         await q.put(e)
+                except SystemExit as e:
+                    # real_debug(RED, "exit %s: %s" % (method, e), RESET)
+                    await curio.spawn(self.stop)
+                    raise
                 finally:
+                    # real_debug(GREY, "Finally", method, RESET)
                     self.__background_tasks -= 1
 
             await curio.spawn(run_in_task, daemon=True)  # no join
@@ -413,7 +434,6 @@ class WriteToSync:
         run_async(self.fn, *args, result=False, **nextra)
 
     def write(self, data, *args, **extra):
-        return
         if data.endswith('\n'):
             data = data[:-1]
         run_async(self.fn, data, *args,
@@ -447,8 +467,8 @@ def log_(type):
     async def log_inner(*msg, level=0, file=None, **extra):
         if not msg:
             return
-        if _debug:
-            real_debug("\r", *msg, "\n\r")
+        # if _debug:
+        #     real_debug("\r", *msg, "\n\r")
         msg = ' '.join(str(x) for x in msg)
         if not msg.strip():
             return
@@ -473,6 +493,7 @@ debug = WriteTo(log_("debug"))
 info = WriteTo(log_("info"))
 warning = WriteTo(log_("warning"))
 error_sync = WriteToSync(log_("error"))
+print = WriteToSync(log_("debug"))
 
 # all normal prints go to debug channel
 # sys.stdout = WriteToSync(log_("debug"))
@@ -489,7 +510,7 @@ def log_traceback(exc=None):
     traceback.print_exc(file=error_sync)
 
 
-def test_mode(mock_data={}):
+def test_mode(test_function, mock_data={}):
     """
     Starts test mode with smock mocking library.
 
@@ -506,7 +527,16 @@ def test_mode(mock_data={}):
             params = req["params"]
             if not id:
                 if method == 'log.error':
-                    print(params[0])
+                    real_print(RED, "ERROR: ", params[0], GREY, *params[1:], RESET)
+                    return
+                if method == 'log.info':
+                    real_print(BLUE, "INFO: ", params[0], GREY, *params[1:], RESET)
+                    return
+                if method == 'log.debug':
+                    real_print(BLUE, "DEBUG: ", params[0], GREY, *params[1:], RESET)
+                    return
+                if method == 'log.warning':
+                    real_print(BLUE, "WARNING: ", params[0], GREY, *params[1:], RESET)
                     return
                 print(">>>", method, params)
                 return
@@ -527,7 +557,8 @@ def test_mode(mock_data={}):
                 await rpc._RPC__parse_request(resp)
             except Exception as e:
                 await error("Error (%s) mocking call: %s" % (e, req))
-                import traceback; traceback.print_exc()
+                import traceback
+                traceback.print_exc()
                 resp = {
                     "error": str(e),
                     "id": req.get("id")
@@ -540,6 +571,10 @@ def test_mode(mock_data={}):
 
     # print(dir(serverboards.rpc))
     rpc._RPC__send = __mock_send
+
+    run_async(test_function)
+    set_debug(True)
+    loop()
 
 
 def run_async(method, *args, **kwargs):
