@@ -34,7 +34,7 @@ components:
     id: mini2
     hints:
       minW: 1
-      maxW: 3
+      maxW: 4
       maxH: 1
       nocss: true
     params:
@@ -55,7 +55,7 @@ components:
     id: mini5
     hints:
       minW: 2
-      maxW: 2
+      maxW: 4
       maxH: 1
       nocss: true
     params:

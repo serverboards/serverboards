@@ -28,20 +28,24 @@ class Mini5 extends React.Component{
       <div className="ui content half padding split vertical area">
         <h3 className="ui white header text">{config.title}</h3>
         <div className="extend"/>
-        <div className="ui two column grid">
-          <div className="column">
+        <div className="ui horizontal split area">
+          <div className="expand align bottom" style={{paddingRight: 2}}>
             <div style={{display: "flex", alignItems: "center", height: 25}}>
               <i className={`${config.icon_left} icon`}/>
-              <span className="ui biggier text">{get_data(config.expr_left)}</span>
+              <span className="ui biggier oneline text">
+                {get_data(config.expr_left)}
+              </span>
             </div>
-            <div>{config.text_left}</div>
+            <div style={{paddingLeft: 20}}>{config.text_left}</div>
           </div>
-          <div className="column">
+          <div className="expand align bottom" style={{paddingLeft: 2}}>
             <div style={{display: "flex", alignItems: "center", height: 25}}>
               <i className={`${config.icon_right} icon`}/>
-              <span className="ui biggier text">{get_data(config.expr_right)}</span>
+              <span className="ui biggier oneline text">
+                {get_data(config.expr_right)}
+              </span>
             </div>
-            <div>{config.text_right}</div>
+            <div style={{paddingLeft: 20}}>{config.text_right}</div>
           </div>
         </div>
       </div>

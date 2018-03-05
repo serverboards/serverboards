@@ -24,9 +24,10 @@ class Mini2 extends React.Component{
     return (
       <div className="ui content half padding split vertical area">
         <h3 className="ui white header text">{config.title}</h3>
-        <div className="extend"/>
-        <div className="ui huge text" style={{display: "flex", alignItems: "bottom", height: 35, lineHeight: 0}}>
-          {get_data(config.text)}
+        <div className="expand align bottom">
+          <div className="ui huge text">
+            {get_data(config.text)}
+          </div>
         </div>
       </div>
     )
