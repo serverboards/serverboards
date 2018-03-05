@@ -229,7 +229,6 @@ class RPC:
         return True
 
     def run_async(self, method, *args, result=True, **kwargs):
-        # real_debug("Run async", method)
         q = None
         if self.__running and result:
             q = curio.queue.UniversalQueue()
@@ -249,9 +248,8 @@ class RPC:
             res = await self.__run_queue.get()
             if res == "QUIT":
                 return
-            (method, args, kwargs, q) = res
 
-            async def run_in_task():
+            async def run_in_task(method, args, kwargs, q):
                 # real_debug("Run in task", method)
                 self.__background_tasks += 1
                 try:
@@ -280,7 +278,7 @@ class RPC:
                     # real_debug(GREY, "Finally", method, RESET)
                     self.__background_tasks -= 1
 
-            await curio.spawn(run_in_task, daemon=True)  # no join
+            await curio.spawn(run_in_task, *res, daemon=True)  # no join
 
     def status(self):
         return {
@@ -640,7 +638,6 @@ rules_v2 = RPCWrapper("rules_v2")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
 
-
 async def sync(f, *args, **kwargs):
     """
     Runs a sync function in an async environment.
@@ -658,6 +655,9 @@ async def sync(f, *args, **kwargs):
             res = f(*args, **kwargs)
         except Exception as e:
             res = e
+        except:
+            log_traceback()
+            res = Exception("unknown")
         q.put(res)
 
     thread = threading.Thread(target=run_in_thread)
