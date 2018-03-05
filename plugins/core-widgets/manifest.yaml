@@ -47,6 +47,10 @@ components:
       - label: Text
         name: text
         type: query
+      - label: URL
+        description: Go to URL on click
+        name: url
+        type: text
 
 
   - name: Mini 5

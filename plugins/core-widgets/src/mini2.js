@@ -21,15 +21,26 @@ class Mini2 extends React.Component{
     const props = this.props
     const config = props.config
 
+    function DivOrA(props){
+      if (props.href)
+        return (
+          <a {...props}>{props.children}</a>
+        )
+      return (
+        <div {...props}>{props.children}</div>
+      )
+    }
+
     return (
-      <div className="ui content half padding split vertical area">
+      <DivOrA className="ui content half padding split vertical area"
+           href={config.url} target="_blank" rel="noopener">
         <h3 className="ui white header text">{config.title}</h3>
         <div className="expand align bottom">
-          <div className="ui huge text">
+          <div className="ui huge white text">
             {get_data(config.text)}
           </div>
         </div>
-      </div>
+      </DivOrA>
     )
   }
 }
