@@ -39,7 +39,7 @@ const TimePicker=React.createClass({
     const props=this.props
     const value=props.value
     return (
-      <div className="ui form time">
+      <div className="ui form time" style={{display: "flex"}}>
         <select ref="h" className="ui dropdown" defaultValue={value.format("H")}>
           {this.range(24).map( (h) =>
             <option key={h} value={h}>{h}</option>

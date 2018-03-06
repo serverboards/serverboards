@@ -77,25 +77,30 @@ class HeaderMenu extends React.Component{
             <div className="ui small text">{filter_time ? filter_time : null}</div>
           </div>
         </a>
-        <div className="ui popup" ref="filters">
-          <div className="item">
-            <div className="ui toggle checkbox" ref="rt">
-              <input type="checkbox" name="realtime_update"/>
-              <label>{i18n("Realtime updates")}</label>
-            </div>
+        <div className="ui popup two column grid" style={{minWidth: 660}} ref="filters">
+          <div className="column">
+            <a className={`item ${ filter == 300 ? "active" : ""}`} onClick={() => this.setFilter(300)}>{i18n("5 minutes")}</a>
+            <a className={`item ${ filter == 60*60*2 ? "active" : ""}`} onClick={() => this.setFilter(60*60*2)}>{i18n("2 hours")}</a>
+            <a className={`item ${ filter == 60*60*24 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24)}>{i18n("24 hours")}</a>
+            <a className={`item ${ filter == 60*60*24*7 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*7)}>{i18n("1 week")}</a>
+            <a className={`item ${ filter == 60*60*24*30 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*30)}>{i18n("30 days")}</a>
+            <a className={`item ${ filter == 60*60*24*90 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*90)}>{i18n("3 months")}</a>
+            <a className={`item ${ filter == 60*60*24*182 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*182)}>{i18n("6 months")}</a>
+            <a className={`item ${ filter == 60*60*24*365 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*365)}>{i18n("1 year")}</a>
+
           </div>
+          <div className="column">
+            <div className="item">
+              <div className="ui toggle checkbox" ref="rt">
+                <input type="checkbox" name="realtime_update"/>
+                <label>{i18n("Realtime updates")}</label>
+              </div>
+            </div>
+            <hr className="ui divider"></hr>
 
-          <hr className="ui divider"></hr>
-          <div className="ui item text teal bold">Show last</div>
-          <a className={`item ${ filter == 300 ? "active" : ""}`} onClick={() => this.setFilter(300)}>{i18n("5 minutes")}</a>
-          <a className={`item ${ filter == 60*60*2 ? "active" : ""}`} onClick={() => this.setFilter(60*60*2)}>{i18n("2 hours")}</a>
-          <a className={`item ${ filter == 60*60*24 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24)}>{i18n("24 hours")}</a>
-          <a className={`item ${ filter == 60*60*24*7 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*7)}>{i18n("1 week")}</a>
-          <a className={`item ${ filter == 60*60*24*30 ? "active" : ""}`} onClick={() => this.setFilter(60*60*24*30)}>{i18n("30 days")}</a>
 
-          <hr className="ui divider"></hr>
-
-          <DateRange/>
+            <DateRange/>
+          </div>
         </div>
         <div className="ui item separator"/>
         <a className="item" id="maximize">

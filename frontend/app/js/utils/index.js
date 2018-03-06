@@ -278,7 +278,8 @@ const timeunits_abbr={
   h: 1000 * 60 * 60,
   d: 1000 * 60 * 60 * 24,
   w: 1000 * 60 * 60 * 24 * 7,
-  mo: 1000 * 60 * 60 * 24 * 31
+  mo: 1000 * 60 * 60 * 24 * 30.41,
+  y: 1000 * 60 * 60 * 24 * 365
 }
 
 i18n_nop("ms")
@@ -296,7 +297,7 @@ export function pretty_time(time){
     if (time >= timeunits_abbr[d])
       lastunit=d
   }
-  let units=Math.floor(time / timeunits_abbr[lastunit])
+  let units=Math.round(time / timeunits_abbr[lastunit])
   let expr=i18n("{units}{timeunit}", {units, timeunit: `${i18n(lastunit)}` })
   return expr
 }
