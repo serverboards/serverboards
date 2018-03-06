@@ -32,7 +32,7 @@ class Board extends React.Component{
   constructor(props){
     super(props)
     const {configs, to_extract} = this.updateConfigs(props.widgets, false)
-    console.log("Configs %o", configs)
+    // console.log("Configs %o", configs)
     this.state = {
       layout: this.getLayout(this.props),
       update_now_label_timer_id: undefined,

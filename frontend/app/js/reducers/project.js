@@ -2,12 +2,22 @@ import {merge, map_set, map_get} from 'app/utils'
 import moment from 'moment'
 
 function previous_start(){
+  // Min range 300 s
+  let update_start = false
+  if (localStorage.dashboard_range <= 300){
+    localStorage.dashboard_range=300
+    update_start = true
+  }
   if (localStorage.dashboard_realtime == "true")
     return moment().subtract(localStorage.dashboard_range, "seconds")
-  if (localStorage.dashboard_start)
+  if (localStorage.dashboard_start){
+    if (update_start){ // was too close to end, recalculate a bit farther
+      return previous_end().subtract(300, "seconds")
+    }
     return moment(localStorage.dashboard_start)
+  }
   else
-    return moment().subtract(7,"days")
+    return moment().subtract(28,"days")
 }
 function previous_end(){
   if (localStorage.dashboard_realtime == "true")
@@ -21,7 +31,7 @@ function previous_realtime(){
   return (localStorage.dashboard_realtime == "true")
 }
 
-var default_state={
+const default_state={
   projects: undefined,
   current: undefined,
   project: undefined,
@@ -134,19 +144,25 @@ function project(state=default_state, action){
       return state
     case "UPDATE_DATERANGE":
     {
-      const daterange = merge(state.daterange, action.daterange)
+      let daterange = merge(state.daterange, action.daterange)
+      let range_s = daterange.end.diff(daterange.start, "seconds")
+      if (range_s<300){
+        range_s = 300
+        daterange.start=moment(daterange.end).subtract(300, "seconds")
+      }
+      console.log(daterange)
       state = merge(state, {daterange})
       localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
       localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
       localStorage.dashboard_realtime=state.realtime
-      localStorage.dashboard_range = daterange.end.diff(daterange.start, "seconds")
+      localStorage.dashboard_range = range_s
       return state
     }
     case "UPDATE_EXTERNAL_URL_COMPONENTS":
       return merge(state, {external_urls: action.components})
     case "BOARD_REALTIME":
       localStorage.dashboard_realtime = action.payload
-      localStorage.dashboard_range = localStorage.dashboard_range || 7*24*60*60 // 7 days
+      localStorage.dashboard_range = localStorage.dashboard_range || 28*24*60*60 // 4 weeks
       return merge(state, {realtime: action.payload})
     case "BOARD_LIST":
       return map_set(state, ["dashboard", "list"], action.payload)
