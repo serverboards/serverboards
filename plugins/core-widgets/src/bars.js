@@ -50,9 +50,9 @@ function SVGBars({data, xaxis, maxy, categories}){
         {xaxis.map( (legend,i) =>
           <g key={i} >
             {categories.map( (category, j) => {
-              const dy = Math.max(0, rescale(legend, category))
+              let dy = Math.max(0, rescale(legend, category))
               if (dy == 0)
-                return null
+                dy=1  // Min 1 pix
 
               const x1 = xstart + i*xgap + j*xgap2
               const x2 = x1 + xgap2
