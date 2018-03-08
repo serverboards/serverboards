@@ -9,9 +9,7 @@ const svg_style = {
     vectorEffect: "non-scalling-stroke"
   },
   axis_line: {
-    stroke: "#aaa",
-    strokeWidth: 0.5,
-    vectorEffect: "non-scalling-stroke"
+    fill: "#eee",
   },
   axis: {
     fill: "#9b9b9b"
@@ -66,11 +64,13 @@ function SVGLines({data, xaxis, maxy, categories}){
         <text x={25} y={175} textAnchor="end" fill={svg_style.grey}>{maxy/4}</text>
         <text x={25} y={225} textAnchor="end" fill={svg_style.grey}>0</text>
 
-        <line x1={30} y1={20} x2={390} y2={20} style={svg_style.axis_line}/>
-        <line x1={30} y1={70} x2={390} y2={70} style={svg_style.axis_line}/>
-        <line x1={30} y1={120} x2={390} y2={120} style={svg_style.axis_line}/>
-        <line x1={30} y1={170} x2={390} y2={170} style={svg_style.axis_line}/>
-        <line x1={30} y1={220} x2={390} y2={220} style={svg_style.axis_bottom}/>
+
+        <path d="M 30 20 L 390 20 L 390 19 L 30 19 Z" style={svg_style.axis_line}/>
+        <path d="M 30 70 L 390 70 L 390 69 L 30 69 Z" style={svg_style.axis_line}/>
+        <path d="M 30 120 L 390 120 L 390 119 L 30 119 Z" style={svg_style.axis_line}/>
+        <path d="M 30 170 L 390 170 L 390 169 L 30 169 Z" style={svg_style.axis_line}/>
+        <path d="M 30 220 L 390 220 L 390 219 L 30 219 Z" style={svg_style.axis_line}/>
+
 
         {xaxis.map( (legend,i) => show_category(i) && (
           <text key={i} x={xstart + i*xgap} y={235} style={svg_style.axis}>{legend}</text>
