@@ -2,28 +2,26 @@ import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
 import {merge} from 'app/utils'
+import PropTypes from 'prop-types';
 
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
 
-const ExternalScreen = React.createClass({
-  contextTypes: {
-    router: React.PropTypes.object
-  },
-  getInitialState(){
-    return {
-      cleanupf(){},
+class ExternalScreen extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
+      umount: undefined,
+      component: undefined,
     }
-  },
+  }
   componentWillUnmount(){
-    if (this.state.cleanupf){
+    if (this.state.umount){
       console.debug("Cleanup plugin screen")
-      this.state.cleanupf()
+      this.state.umount()
       $(this.refs.el).html('')
     }
-    else
-      console.debug("Plugin did not specify a cleanup function. This may lead to resource leaks.")
-  },
+  }
   componentDidMount(){
     const props=this.props
     let self=this
@@ -53,8 +51,8 @@ const ExternalScreen = React.createClass({
           {...(props.data || this.props.location.state), ...props, project: props.project},
           context
         )
-      }).then( (cleanupf) => {
-        this.setState({cleanupf})
+      }).then( ({umount, component}) => {
+        this.setState({umount, component})
       }).catch( (e) => {
         console.warn("Could not load JS %o: %o", plugin_js, e)
       })
@@ -77,11 +75,17 @@ const ExternalScreen = React.createClass({
       $(this.refs.el).html('')
       load_js()
     })
-  },
+  }
   render(){
     let props=this.props
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
+
+    const Screen = this.state.component
+    if (Screen)
+      return (
+        <Screen {...props} {...this.state}/>
+      )
 
     return (
       <div ref="el" className="ui central white background expand">
@@ -91,6 +95,10 @@ const ExternalScreen = React.createClass({
       </div>
     )
   }
-})
+}
+
+ExternalScreen.contextTypes = {
+  router: PropTypes.object
+}
 
 export default ExternalScreen

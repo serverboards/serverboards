@@ -87,21 +87,32 @@ function when_screen_added(id){
   })
 }
 
-export function add_screen(id, fn){
-  screens[id]=fn
+export function add_screen(id, fn, options={}){
+  screens[id]={fn, options}
   for (let {accept} of (waiting_for_screen[id] || [])){
-    accept(fn)
+    if (options.react){
+      accept({component: fn})
+    }
+    else{
+      accept({umount: fn(el, data, context)})
+    }
   }
   delete waiting_for_screen[id]
 }
 
 export function do_screen(id, el, data, context){
   if (id in screens){
-    let cleanf=screens[id](el, data, context)
-    return Promise.resolve(cleanf)
+    let screen=screens[id]
+    if (screen.options.react){
+      return Promise.resolve({component: screen.fn})
+    }
+    return Promise.resolve({umount: screen.fn(el, data, context)})
   }
   return when_screen_added(id).then( (screen) => {
-    return screen(el,data)
+    if (screen.options.react){
+      return {component: screen.fn}
+    }
+    return {umount: screen.fn(el, data, context)}
   })
 }
 
