@@ -7,6 +7,14 @@ function nameof(c){
   return c
 }
 
+function to_string(c){
+  if (typeof c === 'string' || c instanceof String)
+    return c
+  if (c instanceof Number)
+    return c
+  return JSON.stringify(c)
+}
+
 function Table(props){
   const data = props.config.data
 
@@ -41,7 +49,7 @@ function Table(props){
           {data.rows.map( (row, j) => (
             <tr key={j}>
               {row.map( (cell, i) => (
-                <td key={i}>{cell}</td>
+                <td key={i}>{to_string(cell)}</td>
               ))}
             </tr>
           ))}

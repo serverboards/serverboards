@@ -193,8 +193,11 @@ def main():
             "username": "",
             "password_pw": ""
         }
-    settings["base_url"] = base_url()
+    async def update_url():
+        global settings
+        settings["base_url"] = await base_url()
 
+    serverboards.async(update_url)
     serverboards.loop()
 
 
