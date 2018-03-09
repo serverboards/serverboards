@@ -9,12 +9,4 @@ function View(props){
   )
 }
 
-function main(el, config){
-  Serverboards.ReactDOM.render(<View/>, el)
-
-  return function(){
-    Serverboards.ReactDOM.unmountComponentAtNode(el)
-  }
-}
-
-Serverboards.add_[component-type](`${plugin_id}/[component-type]`, main)
+Serverboards.add_[component-type](`${plugin_id}/[component-type]`, View, {react: true})
