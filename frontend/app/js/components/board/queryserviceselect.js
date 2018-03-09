@@ -2,6 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import ServiceSelect from 'app/containers/service/select'
 import GenericForm from 'app/components/genericform'
+import {object_is_equal} from 'app/utils'
 
 const ID_LIST="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -32,6 +33,11 @@ class QueryServiceSelect extends React.Component{
       selection_ready: false, // Selected extractor is ready to accept to add or update
 
       extractor: undefined, // current extractor full definition
+    }
+  }
+  componentWillReceiveProps(newprops){
+    if (!object_is_equal(newprops.extractors, this.props.extractors)){
+      this.setState({extractors: newprops.extractors})
     }
   }
   handleOpenSelector(){
