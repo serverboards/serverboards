@@ -129,6 +129,8 @@ class EditWidget extends React.Component{
     layout.w = Math.max(Math.min(layout.w, layout.maxW), layout.minW)
     const wwidth = layout.w*140
     const wheight = (layout.h*163)
+    layout.width = wwidth
+    layout.height = wheight
 
     return (
       <div className="ui expand two column grid grey background" style={{margin: 0}}>

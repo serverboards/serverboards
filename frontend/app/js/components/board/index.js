@@ -25,7 +25,7 @@ class Board extends React.Component{
   handleAddWidget(){
     set_modal('dashboard.widget.create',{project: this.props.project})
   }
-  getLayout(props){
+  getAllLayouts(props){
     const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
     return layout
   }
@@ -34,7 +34,7 @@ class Board extends React.Component{
     const {configs, to_extract} = this.updateConfigs(props.widgets, false)
     // console.log("Configs %o", configs)
     this.state = {
-      layout: this.getLayout(this.props),
+      layout: this.getAllLayouts(this.props),
       update_now_label_timer_id: undefined,
       update_realtime_timer_id: undefined,
       configs,
@@ -170,10 +170,11 @@ class Board extends React.Component{
     this.props.updateDaterange(start, end)
   }
   getLayout(wid){
-    const layout = this.state && (this.state.layout || []).find( l => l.i == wid )
-    if (layout)
-      return {width: layout.w, height: layout.h}
-    return undefined
+    let layout = this.state && (this.state.layout || []).find( l => l.i == wid )
+    if (!layout)
+      layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
+    layout = {...layout, width: layout.w * 140, height: layout.h*163}
+    return layout
   }
   render() {
     const widget_catalog = this.props.widget_catalog
