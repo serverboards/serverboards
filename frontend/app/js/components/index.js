@@ -16,6 +16,7 @@ import QueryServiceSelect from 'app/containers/board/queryserviceselect'
 import ExtractorsHelp from './board/extractorshelp'
 import FutureLabel from './futurelabel'
 import Restricted from 'app/restricted'
+import CodeMirror from './codemirror'
 
 const components = {
   Modal,
@@ -35,6 +36,7 @@ const components = {
   ExtractorsHelp,
   FutureLabel,
   Restricted,
+  CodeMirror,
 }
 
 // Export as default, and as destructuring.

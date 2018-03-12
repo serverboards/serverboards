@@ -36,12 +36,19 @@ module.exports = {
     module: {
         rules: [
             //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
-            { 
-              test: /\.js$/, 
-              exclude: /node_modules/, 
-              use: ["react-hot-loader", "babel-loader"] 
+            {
+              test: /\.js$/,
+              exclude: /node_modules/,
+              use: ["react-hot-loader", "babel-loader"]
             },
-            { test: /\.css$/, use: ["style-loader","css"] },
+            {
+              test: /\.css$/,
+              use: [{
+                loader: 'style-loader'
+              }, {
+                loader: 'css-loader'
+              }
+            ] },
             {
               test: /\.sass$/,
               use: [{
@@ -60,7 +67,7 @@ module.exports = {
                 'file-loader',
                 {
                   loader: 'image-webpack-loader',
-                  query: { 
+                  query: {
                     mozjpeg: {
                       progressive: true,
                     },
