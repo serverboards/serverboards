@@ -150,7 +150,7 @@ function project(state=default_state, action){
         range_s = 300
         daterange.start=moment(daterange.end).subtract(300, "seconds")
       }
-      console.log(daterange)
+      // console.log(daterange)
       state = merge(state, {daterange})
       localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
       localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
