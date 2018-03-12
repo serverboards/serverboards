@@ -93,7 +93,7 @@ class EditWidget extends React.Component{
       return
     return params.map( p => {
       if (p.type=='query'){
-        return {...p, type: "textarea"} // TODO data for autocomplete and so on.
+        return {...p, type: "textarea", mode: "text/x-sql"} // TODO data for autocomplete and so on.
       }
       return p
     })

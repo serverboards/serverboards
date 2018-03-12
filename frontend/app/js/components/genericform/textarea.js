@@ -2,6 +2,7 @@ import React from 'react'
 import RichDescription from './richdescription'
 import i18n from 'app/utils/i18n'
 import plugin from 'app/utils/plugin'
+import CodeMirror from 'app/components/codemirror'
 
 const SEPARATORS=/ \:\n.\[\]\s/
 
@@ -182,16 +183,25 @@ class TextArea extends React.Component{
         <label>{i18n(props.label)}</label>
         <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
         <div style={{position: "relative"}}>
-          <textarea
-            ref="textarea"
-            className={this.props.autocomplete && "ui fixed text"}
-            name={props.name}
-            placeholder={i18n(props.placeholder || props.description)}
-            defaultValue={props.value}
-            onChange={this.handleChange.bind(this)}
-            onKeyDown={this.handleKeyboard.bind(this)}
-            onClick={() => this.setState({autocomplete:[]})}
-            />
+          {props.mode ? (
+            <CodeMirror
+              name={props.name}
+              mode={props.mode}
+              value={props.value}
+              onChange={(value) => props.onChange({target:{value}})}
+              />
+          ) : (
+            <textarea
+              ref="textarea"
+              className={this.props.autocomplete && "ui fixed text"}
+              name={props.name}
+              placeholder={i18n(props.placeholder || props.description)}
+              defaultValue={props.value}
+              onChange={this.handleChange.bind(this)}
+              onKeyDown={this.handleKeyboard.bind(this)}
+              onClick={() => this.setState({autocomplete:[]})}
+              />
+          )}
           {this.is_autocomplete_open() && (
               <div className="ui mini dropdown menu with scroll" ref="popup" style={{maxHeight: "10em", position: "absolute", top: cursor_top(this.refs.textarea), left: cursor_left(this.refs.textarea) }}>
                 {state.autocomplete.map( (i,n) => (
