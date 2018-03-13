@@ -1,7 +1,7 @@
 import {get_data} from './utils'
 const {React, i18n} = Serverboards
 const {Loading} = Serverboards.Components
-const {map_get} = Serverboards.utils
+const {map_get, MiniBar} = Serverboards.utils
 
 function prep_bars(bars){
   let ret = []
@@ -26,23 +26,6 @@ function prep_bars(bars){
     name: v.name,
     value: (v.value * 100.0) / total
   }))
-}
-
-class MiniBar extends React.Component{
-  componentDidMount(){
-    $(this.refs.bar).progress({value: this.props.value})
-  }
-  componentWillReceiveProps(newprops){
-    if (newprops.value != this.props.value)
-      $(this.refs.bar).progress({value: newprops.value})
-  }
-  render(){
-    return (
-      <div className="ui blue tiny progress" ref="bar" style={{margin:0}}>
-        <div className="bar"/>
-      </div>
-    )
-  }
 }
 
 class Mini3Bars extends React.Component{

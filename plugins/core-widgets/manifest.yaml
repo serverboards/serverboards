@@ -225,3 +225,22 @@ components:
           Expression to show data. Needs to return:
           `Category name`, `value`, `change`.
         type: query
+
+  - name: Leaderboard with bars
+    type: widget
+    description: Leaderboard with bars.
+    id: leaderbars
+    hints:
+      minW: 2
+      minH: 1
+    params:
+      - label: Title
+        name: title
+      - label: Data Query
+        name: data
+        description: |
+          Expression to show data. Needs to return:
+          `Name`, `value`.
+
+          `value` will be shown as percentage on the right
+        type: query

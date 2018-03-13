@@ -61,7 +61,7 @@ class GraphWithData extends React.Component {
     let categories = Array.from(new Set(config.data.rows.map( r => r[0] )))
     const xaxis = Array.from(new Set(config.data.rows.map( r => r[1] ))).sort()
 
-    if (categories.length > 3){
+    if (categories.length > 4){
       const total_by_category = config.data.rows.reduce( (acc, r) => {
         const prev = acc[r[0]] || 0
         acc[r[0]] = prev + r[2]
@@ -86,28 +86,70 @@ class GraphWithData extends React.Component {
     // console.log("Next stop point!", next_stop_point)
     const maxy = next_stop_point(Object.values(data).reduce( (acc, r) => Math.max(acc, r), 0 ))
 
-    // console.log(categories)
-    return (
-      <div style={{display: "flex"}} className="ui padding">
-        <div style={{flex: 1}}>
-          <SVGComponent data={data} xaxis={xaxis} maxy={maxy} categories={categories}/>
-        </div>
-        <div style={{flex: 0, minWidth: "8em", display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
-          <div className="ui biggier bold text padding bottom">{get_data(config.summary)}</div>
-          <div className={`ui ${performance_color} text`}>{performance}</div>
-          <div style={{flex: 1}}/>
-          <div className="" style={{flex: 2, display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
-            {categories.map( (c, i) => (
-              <div className="ui bold text" key={i}>
-                <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
-                {c}
-              </div>
-            ))}
+    let width = props.layout.width - 120
+    let height = props.layout.height - 30
+    let legend_width = 140
+
+    const legend_right = (props.layout.w > 2) && (props.layout.h > 1)
+    if (!legend_right){
+      width += 140
+      height -= 40
+    }
+
+    if (props.layout.h > 2)
+      height -= 20
+    if (props.layout.w > 2)
+      width -= 20
+
+    if (!legend_right){
+      return (
+        <div style={{display: "flex", flexDirection: "column"}}>
+          <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
+            <SVGComponent data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories}/>
           </div>
-          <div style={{flex: 2}}/>
+          <div className="ui horizontal split area">
+            <div>
+              <div className="ui biggier bold text">{get_data(config.summary)}</div>
+              <div className={`ui ${performance_color} text`}>{performance}</div>
+            </div>
+            <div className="" style={{flex: 1, display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start", alignSelf: "flex-start"}}>
+              {categories.map( (c, i) => (
+                <div className="ui bold text padding left" key={i}>
+                  <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
+                  {c}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
+    else{
+      return (
+        <div style={{display: "flex"}}>
+          <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
+            <SVGComponent data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories}/>
+          </div>
+
+          <div style={{flex: 0, minWidth: "8em", display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: legend_width, width: legend_width, padding: 20}}>
+            <div className="ui biggier bold text padding bottom">{get_data(config.summary)}</div>
+            <div className={`ui ${performance_color} text`}>{performance}</div>
+            <div style={{flex: 1}}/>
+            <div className="" style={{flex: 2, display: "flex", flexDirection: "column", justifyContent: "space-around", alignSelf: "flex-start"}}>
+              {categories.map( (c, i) => (
+                <div className="ui bold text oneline" key={i}>
+                  <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
+                  {c}
+                </div>
+              ))}
+            </div>
+            <div style={{flex: 2}}/>
+          </div>
+        </div>
+      )
+
+    }
+    // console.log(categories)
   }
 }
 

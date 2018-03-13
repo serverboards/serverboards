@@ -77,6 +77,9 @@ const Widget = React.createClass({
         $(this.refs.el).html('')
         this.do_widget(nextprops)
     }
+    // No need for manual set title
+    if (nextprops.config.title != this.state.title)
+      this.setTitle(nextprops.config.title)
   },
   render(){
     const config = this.props.config || {}

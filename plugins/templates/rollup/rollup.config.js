@@ -1,12 +1,16 @@
 import babel from 'rollup-plugin-babel';
 import nodeResolve from 'rollup-plugin-node-resolve';
+import uglify from 'rollup-plugin-uglify';
 
 export default {
-  entry: 'src/[component-type].js',
-  format: 'umd',
+  input: 'src/[component-type].js',
   plugins: [
     babel(),
-    nodeResolve({})
+    nodeResolve({}),
+    uglify()
    ],
-  dest: 'static/[component-type].js',
+  output: {
+    format: 'umd',
+    file: 'static/[component-type].js'
+  }
 };
