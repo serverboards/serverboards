@@ -282,6 +282,13 @@ defmodule Serverboards.Project do
       (Serverboards.Plugin.Registry.filter_component type: "screen", traits: :none)
 
     screens |> Enum.map( fn s ->
+      hints = case Map.get(s.extra, "hints", "") do
+        str when is_binary(str) ->
+          String.split(str)
+        map when is_map(map) ->
+          map
+      end
+
       %{
         id: s.id,
         name: s.name,
@@ -289,7 +296,7 @@ defmodule Serverboards.Project do
         description: s.description,
         traits: s.traits,
         perms: Map.get(s.extra, "perms", []),
-        hints: ( Map.get(s.extra, "hints", "") |> String.split )
+        hints: hints
       }
     end)
   end
