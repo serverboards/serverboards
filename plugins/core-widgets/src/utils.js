@@ -61,3 +61,20 @@ export function get_data(expr, path=[0,0], defval=""){
   }
   return String(expr)
 }
+
+export class MiniBar extends React.Component{
+  componentDidMount(){
+    $(this.refs.bar).progress({value: this.props.value})
+  }
+  componentWillReceiveProps(newprops){
+    if (newprops.value != this.props.value)
+      $(this.refs.bar).progress({value: newprops.value})
+  }
+  render(){
+    return (
+      <div className="ui blue tiny progress" ref="bar" style={{margin:0}}>
+        <div className="bar"/>
+      </div>
+    )
+  }
+}
