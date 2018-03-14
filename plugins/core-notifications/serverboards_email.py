@@ -13,7 +13,7 @@ import serverboards_aio as serverboards
 
 email_utils = email.utils
 
-settings = None
+settings = {}
 
 
 def find_var_rec(context, var):
@@ -38,10 +38,10 @@ def render_template(filename, context):
         return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
 
 
-def base_url():
+async def base_url():
     base_url_ = "http://localhost:8080"
     try:
-        base_url_ = serverboards.rpc.call(
+        base_url_ = await serverboards.rpc.call(
             "settings.get", "serverboards.core.settings/base")["base_url"]
         if base_url_.endswith("/"):
             base_url_ = base_url_[0:-1]
@@ -62,15 +62,17 @@ async def send_email(user=None, config=None, message=None, **extra):
              if k not in ['email', 'subject', 'body']}
     extra["user"] = user
     # serverboards.debug("email extra data: %s"%(repr(extra)))
-    return await send_email_action(_to, message["subject"], message["body"], **extra)
+    return await send_email_action(
+        _to,
+        message["subject"],
+        message["body"],
+        **extra)
 
 
 @serverboards.rpc_method
 async def send_email_action(email=None, subject=None, body=None, **extra):
     if not settings:
-        serverboards.warning(
-            "Email not properly configured. Not sending emails")
-        return False
+        await update_settings()
     msg = MIMEMultipart('alternative')
     # serverboards.debug("email extra data: %s"%(repr(extra)))
 
@@ -179,11 +181,14 @@ def test():
     serverboards.test_mode(test_async)
 
 
-def main():
+async def update_settings():
     global settings
     try:
-        settings = serverboards.rpc.call(
-            "settings.get", "serverboards.core.notifications/settings.email")
+        settings_ = await serverboards.rpc.call(
+            "settings.get",
+            "serverboards.core.notifications/settings.email")
+        settings.update(settings_)
+        settings["base_url"] = await base_url()
     except Exception:
         settings = {
             "servername": "localhost",
@@ -193,11 +198,10 @@ def main():
             "username": "",
             "password_pw": ""
         }
-    async def update_url():
-        global settings
-        settings["base_url"] = await base_url()
 
-    serverboards.async(update_url)
+
+def main():
+    serverboards.async(update_settings)
     serverboards.loop()
 
 
