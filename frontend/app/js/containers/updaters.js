@@ -1,7 +1,8 @@
 import React from 'react'
 import { unwrap } from 'app/utils'
+import PropTypes from 'prop-types'
 
-class Updaters extends React.createClass{
+class Updaters extends React.Component{
   componentDidMount(){
     const updates = unwrap(this.props.store_enter, this.context.store.getState(), this.props)
     updates.map( (u) => this.context.store.dispatch(u()) )
@@ -17,7 +18,7 @@ class Updaters extends React.createClass{
 }
 
 Updaters.contextTypes = {
-  store: React.PropTypes.object
+  store: PropTypes.object
 }
 
 export default Updaters

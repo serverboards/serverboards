@@ -55,7 +55,7 @@ class TimePicker extends React.Component{
 }
 
 TimePicker.propsTypes = {
-  value: React.PropTypes.object.isRequired
+  value: PropTypes.object.isRequired
 }
 
 
@@ -115,9 +115,9 @@ class DatetimePicker extends React.Component{
 }
 
 DatetimePicker.propTypes = {
-  value: React.PropTypes.object.isRequired,
-  onSelect: React.PropTypes.func.isRequired,
-  onClose: React.PropTypes.func.isRequired,
+  value: PropTypes.object.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 }
 
 
@@ -143,9 +143,9 @@ class DatetimeItem extends React.Component{
 }
 
 DatetimeItem.propTypes = {
-  value: React.PropTypes.object.isRequired,
-  now: React.PropTypes.object.isRequired,
-  onClick: React.PropTypes.func.isRequired,
+  value: PropTypes.object.isRequired,
+  now: PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
 }
 
 

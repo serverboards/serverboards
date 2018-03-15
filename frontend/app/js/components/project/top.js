@@ -3,7 +3,7 @@ import { goto, set_modal } from 'app/utils/store'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import {Restricted} from 'app/components'
 
-class ServiceMenu extends React.createClass{
+class ServiceMenu extends React.Component{
   componentDidMount(){
     $(this.refs.service_selector).popup({
       popup: this.refs.service_selector_menu,
@@ -37,7 +37,7 @@ class ServiceMenu extends React.createClass{
   }
 }
 
-class SectionMenu extends React.createClass{
+class SectionMenu extends React.Component{
   componentDidMount(){
     $(this.refs.section_selector).popup({
       popup: this.refs.section_selector_menu,
@@ -82,7 +82,7 @@ class SectionMenu extends React.createClass{
   }
 }
 
-class ProjectMenu extends React.createClass{
+class ProjectMenu extends React.Component{
   componentDidMount(){
     $(this.refs.project_selector).popup({
       popup: this.refs.project_selector_menu,

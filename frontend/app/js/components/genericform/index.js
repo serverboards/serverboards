@@ -2,6 +2,7 @@ import React from 'react'
 
 import GenericField from './genericfield'
 import {object_is_equal} from 'app/utils'
+import PropTypes from 'prop-types'
 
 class GenericForm extends React.Component{
   constructor(props){
@@ -64,17 +65,17 @@ class GenericForm extends React.Component{
 }
 
 GenericForm.propTypes = {
-  fields: React.PropTypes.arrayOf(
-    React.PropTypes.shape({
-      label: React.PropTypes.string,
-      name: React.PropTypes.string,
-      description: React.PropTypes.string,
-      type: React.PropTypes.string,
-      value: React.PropTypes.string,
-      params: React.PropTypes.string,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      name: PropTypes.string,
+      description: PropTypes.string,
+      type: PropTypes.string,
+      value: PropTypes.string,
+      params: PropTypes.string,
     }).isRequired).isRequired,
-  data: React.PropTypes.object,
-  updateForm: React.PropTypes.func.isRequired
+  data: PropTypes.object,
+  updateForm: PropTypes.func.isRequired
 }
 
 export default GenericForm

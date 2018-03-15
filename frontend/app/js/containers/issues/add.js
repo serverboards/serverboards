@@ -7,7 +7,7 @@ import {map_get} from 'app/utils'
 import store from 'app/utils/store'
 import Flash from 'app/flash'
 
-class Add extends React.createClass{
+class Add extends React.Component{
   handleAdd(title, description){
     let updates = parse_comment(description)
     if (updates.length==0 || updates[0].type!="comment"){

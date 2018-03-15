@@ -1,5 +1,6 @@
 import React from 'react'
 import {map_drop} from 'app/utils'
+import PropTypes from 'prop-types'
 
 require('sass/holdbutton.sass')
 
@@ -16,7 +17,7 @@ let ProgressBar=function(props){
   )
 }
 
-class HoldButton extends React.createClass{
+class HoldButton extends React.Component{
   constructor(props){
     super(props)
     this.state = {
@@ -90,10 +91,10 @@ class HoldButton extends React.createClass{
 }
 
 HoldButton.propTypes ={
-  onHoldClick: React.PropTypes.func.isRequired,
-  className: React.PropTypes.string,
-  children: React.PropTypes.array, // not required when class has `icon`
-  type: React.PropTypes.string
+  onHoldClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.array, // not required when class has `icon`
+  type: PropTypes.string
 }
 
 export default HoldButton

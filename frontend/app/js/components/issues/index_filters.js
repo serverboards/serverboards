@@ -5,7 +5,7 @@ function sorted_projects(projects){
   return projects.sort( (a,b)  => a.name.localeCompare(b.name) )
 }
 
-class IssueTag extends React.createClass{
+class IssueTag extends React.Component{
   componentDidMount(){
     $(this.refs.el).checkbox({
       onChecked: this.props.onEnable,
@@ -28,7 +28,7 @@ class IssueTag extends React.createClass{
 }
 
 
-class Filters extends React.createClass{
+class Filters extends React.Component{
   componentDidMount(){
     $(this.refs.el).find('.search')
     $(this.refs.el).find('.dropdown').dropdown()

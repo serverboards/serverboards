@@ -5,7 +5,7 @@ import Loading from '../loading'
 import HeaderMenu from 'app/containers/board/header'
 
 
-class Overview extends React.createClass{
+class Overview extends React.Component{
   componentDidMount(){
     this.props.setSectionMenu(HeaderMenu)
   }

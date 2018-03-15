@@ -2,7 +2,7 @@ import React from 'react'
 import Modal from 'app/components/modal'
 import i18n from 'app/utils/i18n'
 
-class AddUser extends React.createClass{
+class AddUser extends React.Component{
   handleAddUser(ev){
     ev.preventDefault()
 

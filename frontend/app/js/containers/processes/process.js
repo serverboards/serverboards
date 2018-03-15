@@ -4,7 +4,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import ProcessView from 'app/components/processes/process'
 
-class Process extends React.createClass{
+class Process extends React.Component{
   constructor(props){
     super(props)
     this.state = {

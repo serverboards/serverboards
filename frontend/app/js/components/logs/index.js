@@ -127,7 +127,7 @@ function Details(props){
   )
 }
 
-class Logs extends React.createClass{
+class Logs extends React.Component{
   constructor(props){
     super(props)
     this.state = {

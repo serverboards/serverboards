@@ -9,6 +9,7 @@ import i18n from 'app/utils/i18n'
 import {set_modal, goto} from 'app/utils/store'
 import store from 'app/utils/store'
 import cache from 'app/utils/cache'
+import PropTypes from 'prop-types'
 
 require('sass/cards.sass')
 import PluginCard from './card'
@@ -121,7 +122,7 @@ class Plugins extends React.Component{
 }
 
 Plugins.contextTypes = {
-  router: React.PropTypes.object
+  router: PropTypes.object
 }
 
 

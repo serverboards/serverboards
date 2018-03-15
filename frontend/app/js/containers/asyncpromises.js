@@ -2,7 +2,7 @@ import React from 'react'
 import { unwrap } from 'app/utils'
 import Loading from 'app/components/loading'
 
-class AsyncPromises extends React.createClass{
+class AsyncPromises extends React.Component{
   constructor(props){
     super(props)
     this.state = { loading: ["mounting"] }

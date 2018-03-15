@@ -3,7 +3,7 @@ import {Link} from 'app/router'
 import {is_empty} from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
-class ProcessLine extends React.createClass{
+class ProcessLine extends React.Component{
   componentDidMount(){
     $(this.refs.progress).progress()
   }

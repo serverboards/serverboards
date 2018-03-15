@@ -19,6 +19,7 @@ import TabBar from 'app/components/tabbar'
 import {match_traits} from 'app/utils'
 import { colorize } from 'app/utils'
 import {simple_tag} from '../utils'
+import PropTypes from 'prop-types'
 
 const tab_options={
   details: DetailsTab,
@@ -64,7 +65,7 @@ function get_external_url(id, props){
   return url
 }
 
-class Details extends React.createClass{
+class Details extends React.Component{
   constructor(props){
     super(props)
     this.state = {tab: "details", type: "internal"}
@@ -182,17 +183,17 @@ class Details extends React.createClass{
 }
 
 Details.propTypes = {
-  screens: React.PropTypes.arrayOf(React.PropTypes.object),
-  service: React.PropTypes.shape({
-    uuid: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    description: React.PropTypes.string,
-    config: React.PropTypes.object.isRequired,
+  screens: PropTypes.arrayOf(PropTypes.object),
+  service: PropTypes.shape({
+    uuid: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    config: PropTypes.object.isRequired,
   }).isRequired,
-  service_template: React.PropTypes.shape({
-    name: React.PropTypes.string.isRequired,
-    description: React.PropTypes.string,
-    params: React.PropTypes.string,
+  service_template: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    params: PropTypes.string,
   }).isRequired
 }
 

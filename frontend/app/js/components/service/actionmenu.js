@@ -3,6 +3,7 @@ import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import {trigger_action} from './action'
 import {i18n} from 'app/utils/i18n'
+import PropTypes from 'prop-types'
 
 class ActionMenu extends React.Component{
   constructor(props){ super(props)
@@ -64,7 +65,7 @@ class ActionMenu extends React.Component{
 }
 
 ActionMenu.contextTypes = {
-  router: React.PropTypes.object // Needed for plugin screens
+  router: PropTypes.object // Needed for plugin screens
 }
 
 export default ActionMenu

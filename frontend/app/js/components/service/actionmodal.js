@@ -3,8 +3,9 @@ import Modal from '../modal'
 import GenericForm from '../genericform'
 import rpc from 'app/rpc'
 import {i18n} from 'app/utils/i18n'
+import PropTypes from 'prop-types'
 
-class ActionModal extends React.createClass{
+class ActionModal extends React.Component{
   constructor(props){
     super(props)
     this.state =  {}
@@ -42,7 +43,7 @@ class ActionModal extends React.createClass{
 }
 
 ActionModal.contextTypes = {
-  router: React.PropTypes.object
+  router: PropTypes.object
 }
 
 export default ActionModal

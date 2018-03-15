@@ -2,7 +2,7 @@ import React from 'react'
 import { unwrap } from 'app/utils'
 import event from 'app/utils/event'
 
-class Subscribed extends React.createClass{
+class Subscribed extends React.Component{
   componentDidMount(){
     const subscriptions = unwrap(this.props.subscriptions, this.props)
     for (let k in subscriptions)

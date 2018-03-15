@@ -1,14 +1,15 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
 import ResetPassword from './reset_password'
 import SetPassword from './set_password'
 import rpc from 'app/rpc'
 import 'sass/login.sass'
 import {i18n} from 'app/utils/i18n'
 import {merge} from 'app/utils'
+import PropTypes from 'prop-types'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
-class LoginView extends React.createClass{
+class LoginView extends React.Component{
   constructor(props){
     super(props)
     this.state = {
@@ -115,7 +116,7 @@ LoginView.propTypes = {
 }
 
 LoginView.contextTypes = {
-  router: React.PropTypes.object
+  router: PropTypes.object
 }
 
 

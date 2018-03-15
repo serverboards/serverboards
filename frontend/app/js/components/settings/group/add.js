@@ -2,7 +2,7 @@ import React from 'react'
 import Modal from 'app/components/modal'
 import i18n from 'app/utils/i18n'
 
-class AddGroup extends React.createClass{
+class AddGroup extends React.Component{
   handleAddGroup(ev){
     ev.preventDefault()
 

@@ -1,7 +1,8 @@
 import React from 'react'
 import {has_perm, perms} from 'app/utils/perms'
+import PropTypes from 'prop-types'
 
-class Restricted extends React.createClass{
+class Restricted extends React.Component{
   constructor(props){
     super(props)
     const allowed = has_perm(this.props.perm)
@@ -15,7 +16,7 @@ class Restricted extends React.createClass{
 }
 
 Restricted.propTypes = {
-  perm: React.PropTypes.string.isRequired
+  perm: PropTypes.string.isRequired
 }
 
 function has_perm_guard(perm, F){

@@ -3,7 +3,7 @@ import AllIssues from 'app/containers/issues'
 import { clear_issues_count_at_project } from 'app/actions/issues'
 import store from 'app/utils/store'
 
-class Issues extends React.createClass{
+class Issues extends React.Component{
   componentDidMount(){
     store.dispatch( clear_issues_count_at_project(this.props.project.shortname) )
   }

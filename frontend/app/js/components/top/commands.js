@@ -11,7 +11,7 @@ const skip_nodes={
   BUTTON: true
 }
 
-class CommandSearch extends React.createClass{
+class CommandSearch extends React.Component{
   constructor(props){
     super(props)
     this.state = {

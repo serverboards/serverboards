@@ -3,6 +3,7 @@ import {unwrap, object_is_equal, map_get} from 'app/utils'
 import event from 'app/utils/event'
 import { connect } from 'react-redux'
 import Loading from 'app/components/loading'
+import PropTypes from 'prop-types'
 
 /**
  * Expanded version of redux.connect
@@ -57,7 +58,7 @@ import Loading from 'app/components/loading'
  */
 export function serverboards_connect(options){
   return function(Component){
-    class SubscribedConnect extends React.createClass{
+    class SubscribedConnect extends React.Component{
       constructor(props){
         super(props)
         this.state = { options }
@@ -126,7 +127,7 @@ export function serverboards_connect(options){
       }
     }
     SubscribedConnect.contextTypes = {
-      store: React.PropTypes.object
+      store: PropTypes.object
     }
 
     return connect(options.state, options.handlers)(SubscribedConnect)

@@ -3,7 +3,7 @@ import rpc from 'app/rpc'
 import store from 'app/utils/store'
 import ListView from 'app/components/notifications/list'
 
-class List extends React.createClass{
+class List extends React.Component{
   constructor(props){
     super(props)
     this.state = {

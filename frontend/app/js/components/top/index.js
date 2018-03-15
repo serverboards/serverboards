@@ -18,7 +18,7 @@ function notifications_color(notifications){
   return "blue"
 }
 
-class Top extends React.createClass{
+class Top extends React.Component{
   constructor(props){ super(props)
     this.state = {
       open_time: undefined,

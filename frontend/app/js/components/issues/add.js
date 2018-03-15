@@ -2,7 +2,7 @@ import React from 'react'
 import Modal from 'app/components/modal'
 import i18n from 'app/utils/i18n'
 
-class Add extends React.createClass{
+class Add extends React.Component{
   handleAdd(){
     const title=this.refs.title.value
     const description=this.refs.description.value

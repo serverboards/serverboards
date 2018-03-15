@@ -7,6 +7,7 @@ import Restricted from 'app/restricted'
 import { set_modal } from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import AddButton from './addbutton'
+import PropTypes from 'prop-types'
 
 function service_sort(a,b){
   return a.name.localeCompare( b.name )
@@ -71,7 +72,7 @@ class Services extends React.Component{
 }
 
 Services.contextTypes = {
-  router: React.PropTypes.object
+  router: PropTypes.object
 }
 
 

@@ -34,7 +34,7 @@ function ProjectHeader(props){
   )
 }
 
-class SidebarSections extends React.createClass{
+class SidebarSections extends React.Component{
   constructor(props){
     super(props)
     this.state = {

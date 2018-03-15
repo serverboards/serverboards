@@ -17,7 +17,7 @@ export function service_definition(service_type, service_catalog){
 
 
 
-class ServiceTableLine extends React.createClass{
+class ServiceTableLine extends React.Component{
   handleOpenDetails(){
     goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
   }

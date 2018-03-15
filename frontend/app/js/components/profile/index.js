@@ -7,7 +7,7 @@ import Flash from 'app/flash'
 import rpc from 'app/rpc'
 import {i18n} from 'app/utils/i18n'
 
-class Profile extends React.createClass{
+class Profile extends React.Component{
   constructor(props){
     super(props)
     this.state = {

@@ -4,7 +4,7 @@ import HoldButton from '../holdbutton'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 
-class UserRow extends React.createClass{
+class UserRow extends React.Component{
   componentDidMount(){
     $(this.refs.dropdown).dropdown()
   }
