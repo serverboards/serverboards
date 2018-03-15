@@ -21,15 +21,16 @@ function sorted_by_name(projects){
   return projects.concat().sort( function(a,b){ return a.name.localeCompare(b.name) })
 }
 
-const Selector=React.createClass({
-  getInitialState(){
+class Selector extends React.Component{
+  constructor(props){
+    super(props)
     let projects = this.props.projects
-    return {
+    this.state = {
       search: undefined,
       selected: 0,
       projects: sorted_by_name(projects)
     }
-  },
+  }
   setSearch(search){
     let projects = this.props.projects
     if (search){
@@ -42,7 +43,7 @@ const Selector=React.createClass({
       search,
       projects
     })
-  },
+  }
   componentDidMount(){
     $(this.refs.search)
       .focus()
@@ -67,19 +68,19 @@ const Selector=React.createClass({
             break;
         }
       })
-  },
+  }
   componentWillReceiveProps(newprops){
     this.setState({projects: sorted_by_name(newprops.projects)})
-  },
+  }
   componentDidUpdate(){
     $(this.refs.el).find('.menu').animate({
       scrollTop: Math.max(0, (this.state.selected * 59) - 200)
     },100)
-  },
+  }
   handleSelectServerboard(project){
     this.props.onServiceSelect(project)
     this.props.onClose && this.props.onClose()
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -115,6 +116,6 @@ const Selector=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Selector

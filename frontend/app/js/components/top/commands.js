@@ -11,11 +11,12 @@ const skip_nodes={
   BUTTON: true
 }
 
-const CommandSearch = React.createClass({
-  getInitialState(){
-    return {
+class CommandSearch extends React.createClass{
+  constructor(props){
+    super(props)
+    this.state = {
     }
-  },
+  }
   getContext(){
     const state = store.getState()
     return {
@@ -23,7 +24,7 @@ const CommandSearch = React.createClass({
       state: state,
       goto: (path) => store.dispatch(push(path))
     }
-  },
+  }
   componentDidMount(){
     let $search=$(this.refs.search)
     let self=this
@@ -69,7 +70,7 @@ const CommandSearch = React.createClass({
         return false
       }
     })
-  },
+  }
   render(){
     return (
       <div ref="search" className={`ui search item`}>
@@ -82,6 +83,6 @@ const CommandSearch = React.createClass({
       </div>
     )
   }
-})
+}
 
 export default CommandSearch

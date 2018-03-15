@@ -3,7 +3,7 @@ import Modal from 'app/components/modal'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
 
-let EditPerms=React.createClass({
+class EditPerms extends React.Component{
   handleUpdatePermissions(){
     const new_perms = $.makeArray($(this.refs.form)
       .find('input[type=checkbox]:checked'))
@@ -15,12 +15,12 @@ let EditPerms=React.createClass({
 
     this.props.onUpdatePerms(g.name, to_add_perms, to_remove_perms)
     this.props.setModal(false)
-  },
+  }
   componentDidMount(){
     let $form=$(this.refs.form)
     $form.form()
     $form.find('.ui.checkbox').checkbox()
-  },
+  }
   render(){
     let props=this.props
     let perms=[]
@@ -50,13 +50,13 @@ let EditPerms=React.createClass({
                   {perms}
             </div>
             <div className="field">
-              <div className="ui accept teal button" onClick={this.handleUpdatePermissions}>Accept changes</div>
+              <div className="ui accept teal button" onClick={this.handleUpdatePermissions.bind(this)}>Accept changes</div>
             </div>
           </form>
         </div>
       </Modal>
     )
   }
-})
+}
 
 export default EditPerms

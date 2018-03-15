@@ -32,7 +32,12 @@ const left_pane_style={
   zIndex: 1
 }
 
-const PluginDetails=React.createClass({
+class PluginDetails extends React.Component{
+  constructor(props){
+    super(props)
+
+    this.state = getInitialState(props)
+  }
   getInitialState(props){
     let status
     if (props)
@@ -44,7 +49,7 @@ const PluginDetails=React.createClass({
       is_updatable: status.includes("updatable"),
       tags: status
     }
-  },
+  }
   componentDidMount(){
     let self=this
     $(this.refs.is_active).checkbox({
@@ -54,11 +59,11 @@ const PluginDetails=React.createClass({
         self.setState({is_active})
       }
     })
-    event.on("plugins.reloaded", this.checkUpdates)
-  },
+    event.on("plugins.reloaded", this.checkUpdates.bind(this))
+  }
   componentWillUnmount(){
-    event.off("plugins.reloaded", this.checkUpdates)
-  },
+    event.off("plugins.reloaded", this.checkUpdates.bind(this))
+  }
   checkUpdates(){
     console.log("Maybe some changes, reload the plugin data from cache.")
     const pid = this.props.plugin.id
@@ -67,12 +72,12 @@ const PluginDetails=React.createClass({
       const plugin = pl[pid]
       this.setState( this.getInitialState({plugin}) )
     })
-  },
+  }
   handleSetActive(plugin_id, is_active){
     rpc
       .call("settings.update", ["plugins", plugin_id, is_active])
       .then( () => this.componentDidMount() )
-  },
+  }
   handleUpdate(){
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
@@ -82,7 +87,7 @@ const PluginDetails=React.createClass({
       console.log(e)
       Flash.error("Error updating plugin: "+e)
     })
-  },
+  }
   render(){
     const {plugin} = this.props
     let author=plugin.author
@@ -106,13 +111,13 @@ const PluginDetails=React.createClass({
           <div className="right menu">
             {this.state.is_updatable ? (
               <div className="item">
-                <button className="ui yellow button" onClick={this.handleUpdate}>{i18n("Update now")}</button>
+                <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
               </div>
             ) : (
               <div className="item">
                 <button
                   className="ui teal button"
-                  onClick={this.handleUpdate}
+                  onClick={this.handleUpdate.bind(this)}
                   data-tooltip={i18n("Altough no update has been detected for this plugin, you can force update.")}
                   data-position="bottom right"
                   >
@@ -177,6 +182,6 @@ const PluginDetails=React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default PluginDetails

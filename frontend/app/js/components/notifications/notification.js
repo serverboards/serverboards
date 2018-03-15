@@ -7,15 +7,16 @@ import {colorize} from 'app/utils'
 import {pretty_ago} from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
-const Notification=React.createClass({
-  getInitialState(){
-    return {
+class Notification extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       notification: undefined
     }
-  },
+  }
   componentDidMount(){
     this.load_notification(this.props.params.id)
-  },
+  }
   load_notification(id){
     if (id == undefined)
       return
@@ -27,7 +28,7 @@ const Notification=React.createClass({
         rpc.call("notifications.update", {id: n.id, tags})
       }
     })
-  },
+  }
   render(){
     if (!this.state.notification)
       return (
@@ -68,6 +69,6 @@ const Notification=React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default Notification

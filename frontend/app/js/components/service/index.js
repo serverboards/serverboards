@@ -4,7 +4,7 @@ import ServiceTable from 'app/containers/service/table'
 import Loading from 'app/components/loading'
 import Empty from './empty'
 
-const ServicesView=React.createClass({
+class ServicesView extends React.Component{
   render(){
     const props=this.props
     return (
@@ -21,6 +21,6 @@ const ServicesView=React.createClass({
       )
     )
   }
-})
+}
 
 export default ServicesView

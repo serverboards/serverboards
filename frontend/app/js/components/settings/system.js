@@ -19,10 +19,11 @@ function Section(props){
   )
 }
 
-let System=React.createClass({
-  getInitialState(){
-    return {}
-  },
+class System extends React.Component{
+  constructor(props){
+    super(props)
+    this.setState = {}
+  }
   handleSubmit(){
     //console.log(this.refs)
     var all_updates=[]
@@ -38,10 +39,10 @@ let System=React.createClass({
     Promise.all(all_updates).then(function(){
       Flash.success(i18n("Updated settings!"))
     }).then( () => store.dispatch(settings_all()) )
-  },
+  }
   handleUpdateSection(section, data){
     this.setState({[section]:data})
-  },
+  }
   render(){
     let props=this.props
     if (!props.settings)
@@ -66,7 +67,7 @@ let System=React.createClass({
             <button
                 type="button"
                 className="ui button approve floating right yellow"
-                onClick={this.handleSubmit}
+                onClick={this.handleSubmit.bind(this)}
                 >
               {i18n("Save all changes")}
             </button>
@@ -75,6 +76,6 @@ let System=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default System

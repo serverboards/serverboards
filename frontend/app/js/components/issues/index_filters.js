@@ -5,13 +5,13 @@ function sorted_projects(projects){
   return projects.sort( (a,b)  => a.name.localeCompare(b.name) )
 }
 
-const IssueTag = React.createClass({
+class IssueTag extends React.createClass{
   componentDidMount(){
     $(this.refs.el).checkbox({
       onChecked: this.props.onEnable,
       onUnchecked: this.props.onDisable
     })
-  },
+  }
   render(){
     const props = this.props
     return (
@@ -25,22 +25,22 @@ const IssueTag = React.createClass({
       </span>
     )
   }
-})
+}
 
 
-const Filters = React.createClass({
+class Filters extends React.createClass{
   componentDidMount(){
     $(this.refs.el).find('.search')
     $(this.refs.el).find('.dropdown').dropdown()
-  },
+  }
   handleFilterChange(ev){
     const value=ev.target.value
     this.props.updateFilter(value)
-  },
+  }
   handleProjectChange(ev){
     const value=ev.target.value
     this.props.updateFilter(value)
-  },
+  }
   render(){
     const props = this.props
     const current_project = (props.filter.split(' ').filter( f => f.startsWith("project:") ).map( f => f.slice(8) )  || [""])[0]
@@ -64,7 +64,7 @@ const Filters = React.createClass({
               <h4 className="ui grey header">{i18n("At project")}</h4>
               <select
                   className="ui dropdown search"
-                  onChange={this.handleProjectChange}
+                  onChange={this.handleProjectChange.this()}
                   placeholder={i18n("All projects")}
                   defaultValue={current_project}
                   >
@@ -79,6 +79,6 @@ const Filters = React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Filters

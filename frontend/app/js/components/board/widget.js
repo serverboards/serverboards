@@ -6,19 +6,20 @@ import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import {MarkdownPreview} from 'react-marked-markdown'
 
-const Widget = React.createClass({
-  umount: undefined,
-  getInitialState(){
-    return {
+class Widget extends React.Component{
+  constructor(props){
+    super(props)
+    this.umount = undefined
+    this.state = {
       title: undefined,
       error: false,
       component: undefined,
       context: {}
     }
-  },
+  }
   setTitle(title){
     this.setState({title})
-  },
+  }
   do_widget(props){
     let self=this
     let plugin_component=props.template.id.split('/')
@@ -50,7 +51,7 @@ const Widget = React.createClass({
       if (react)
         this.setState({component, context})
     } )
-  },
+  }
   componentDidMount(){
     Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then( () => {
       if (!this.cancel_widget)
@@ -60,7 +61,7 @@ const Widget = React.createClass({
       this.setState({error: e.name || e.message || i18n("Could not load JS code")})
       $(this.refs.el).html("")
     } )
-  },
+  }
   componentWillUnmount(){
     try{
       this.cancel_widget = true // the widget may be unmounted beore we got the promise of the js
@@ -68,7 +69,7 @@ const Widget = React.createClass({
     } catch(e) {
       console.error("Could not umount widget %o %o", this.props.template.id,  e)
     }
-  },
+  }
   componentWillReceiveProps(nextprops){
     if (!object_is_equal(nextprops.config, this.props.config) ||
         (nextprops.layout && this.props.layout && !object_is_equal(nextprops.layout, this.props.layout))
@@ -80,7 +81,7 @@ const Widget = React.createClass({
     // No need for manual set title
     if (nextprops.config.title != this.state.title)
       this.setTitle(nextprops.config.title)
-  },
+  }
   render(){
     const config = this.props.config || {}
     const widget = this.props.template || {}
@@ -117,7 +118,7 @@ const Widget = React.createClass({
       </div>
     )
   }
-})
+}
 
 
 export default Widget

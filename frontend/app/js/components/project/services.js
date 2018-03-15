@@ -12,33 +12,31 @@ function service_sort(a,b){
   return a.name.localeCompare( b.name )
 }
 
-let Services=React.createClass({
-  getInitialState(){
-    return {
+class Services extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       mode: localStorage.service_view_mode || "grid"
     }
-  },
+  }
   setListMode(mode){
     localStorage.service_view_mode=mode
     this.setState({mode})
-  },
-  contextTypes: {
-    router: React.PropTypes.object
-  },
+  }
   componentDidMount(){
     let self = this
     this.props.setSectionMenu(this.render_menu)
     Command.add_command_search("sbds-services", (Q, context) => ([
         {id: 'add-service', title: i18n("Add Service"), description: i18n("Add a new service"), run: () => self.openAddServiceModal()},
       ]), 2)
-  },
+  }
   componentWillUnmount(){
     Command.remove_command_search("sbds-services")
-  },
+  }
   service_description(tpe){
      const desc=this.props.service_catalog.find((d) => d.type == tpe)
      return desc
-  },
+  }
   render_menu(){
     const state = this.state
     return (
@@ -54,7 +52,7 @@ let Services=React.createClass({
         </div>
       </div>
     )
-  },
+  }
   render(){
     let props=this.props
     let state=this.state
@@ -70,7 +68,12 @@ let Services=React.createClass({
       </div>
     )
   }
-})
+}
+
+Services.contextTypes = {
+  router: React.PropTypes.object
+}
+
 
 function ServicesSection(props){
   if (props.subsection){

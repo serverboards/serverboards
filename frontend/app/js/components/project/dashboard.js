@@ -5,10 +5,10 @@ import Loading from '../loading'
 import HeaderMenu from 'app/containers/board/header'
 
 
-const Overview = React.createClass({
+class Overview extends React.createClass{
   componentDidMount(){
     this.props.setSectionMenu(HeaderMenu)
-  },
+  }
   render(){
     const props = this.props
     if (!props.project)
@@ -23,7 +23,7 @@ const Overview = React.createClass({
       </div>
     )
   }
-})
+}
 
 
 export default Overview

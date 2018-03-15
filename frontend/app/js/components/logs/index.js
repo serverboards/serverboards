@@ -127,19 +127,20 @@ function Details(props){
   )
 }
 
-const Logs = React.createClass({
-  getInitialState(){
-    return {
+class Logs extends React.createClass{
+  constructor(props){
+    super(props)
+    this.state = {
       count: undefined,
       lines: [],
       page: 0,
       q: "",
       modal: undefined
     }
-  },
+  }
   componentDidMount(){
     this.refreshHistory()
-  },
+  }
   refreshHistory(state={}){
     let filter=merge({}, this.props.filter)
     if (state.page)
@@ -163,13 +164,13 @@ const Logs = React.createClass({
       this.setState({loading: false})
       this.setState({lines: [], count: 0, page: state.page || 0 })
     })
-  },
+  }
   showDetails(line){
     this.setState({modal: line})
-  },
+  }
   closeModal(){
     this.setState({modal: undefined})
-  },
+  }
   handleQChange(ev){
     if (this.q_timeout)
       clearTimeout(this.q_timeout)
@@ -179,11 +180,11 @@ const Logs = React.createClass({
       this.refreshHistory({q: value})
       this.q_timeout = undefined
     }, 200)
-  },
+  }
   handlePageChange(page){
     this.setState({page})
     this.refreshHistory({page})
-  },
+  }
   render(){
     if (this.state.count == undefined ){
       return (
@@ -211,7 +212,10 @@ const Logs = React.createClass({
           <div className="item">
             <div className="ui search">
               <div className="ui icon input" style={{width:"100%"}}>
-                <input className="prompt" type="text" placeholder="Search here..." onChange={this.handleQChange} defaultValue={this.state.q}/>
+                <input className="prompt" type="text"
+                  placeholder="Search here..."
+                  onChange={this.handleQChange.bind(this)}
+                  defaultValue={this.state.q}/>
                 {this.state.loading ? (
                   <i className="loading spinner icon"></i>
                 ) : (
@@ -222,7 +226,10 @@ const Logs = React.createClass({
           </div>
           <div className="item stretch"/>
           <div className="item" style={{marginTop:12, marginBottom: 20}}>
-            <Paginator count={Math.ceil(this.state.count/50.0)} current={this.state.page} onChange={this.handlePageChange} max={5}/>
+            <Paginator count={Math.ceil(this.state.count/50.0)}
+              current={this.state.page}
+              onChange={this.handlePageChange.bind(this)}
+              max={5}/>
           </div>
         </div>
 
@@ -242,7 +249,7 @@ const Logs = React.createClass({
               </thead>
               <tbody>
                 {this.state.lines.map((l) => (
-                  <LogLine key={l.id} line={l} showDetails={this.showDetails}/>
+                  <LogLine key={l.id} line={l} showDetails={this.showDetails.bind(this)}/>
                 ))}
               </tbody>
             </table>
@@ -252,6 +259,6 @@ const Logs = React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Logs

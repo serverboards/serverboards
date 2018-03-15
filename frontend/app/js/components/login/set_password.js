@@ -3,7 +3,7 @@ import Flash from 'app/flash'
 import rpc from 'app/rpc'
 import {i18n} from 'app/utils/i18n'
 
-const SetPassword=React.createClass({
+class SetPassword extends React.Component{
   setPassword(){
     const $form=$(this.refs.el)
     if ($(this.refs.el).form('is valid')){
@@ -18,7 +18,7 @@ const SetPassword=React.createClass({
         Flash.error(i18n("There was an error changing password. Check your change password token.\n {e}", {e}))
       })
     }
-  },
+  }
   componentDidMount(){
     $(this.refs.el).form({
       on: 'blur',
@@ -28,7 +28,7 @@ const SetPassword=React.createClass({
         repeat_password: 'match[password]'
       }
     }).submit((ev) => { ev.preventDefault(); this.setPassword})
-  },
+  }
   render(){
     const props=this.props
     return (
@@ -36,7 +36,7 @@ const SetPassword=React.createClass({
         <form ref="el" className="ui form" method="POST">
           <div className="ui small modal active" id="login">
             <div className="header">
-              Set new password
+              {i18n("Set new password")}
             </div>
 
             <div className="content">
@@ -63,10 +63,10 @@ const SetPassword=React.createClass({
             </div>
 
             <div className="ui centered actions">
-              <button type="button" className="ui right button" onClick={props.closeReset}>
+              <button type="button" className="ui right button" onClick={props.closeReset.bind(this)}>
                 {i18n("Cancel")}
               </button>
-              <button type="button" className="ui teal right labeled icon button" onClick={this.setPassword}>
+              <button type="button" className="ui teal right labeled icon button" onClick={this.setPassword.bind(this)}>
                 {i18n("Set new password")}
                 <i className="caret right icon"></i>
               </button>
@@ -76,6 +76,6 @@ const SetPassword=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default SetPassword

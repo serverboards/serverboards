@@ -34,18 +34,19 @@ function ProjectHeader(props){
   )
 }
 
-const SidebarSections = React.createClass({
-  getInitialState(){
-    return {
+class SidebarSections extends React.createClass{
+  constructor(props){
+    super(props)
+    this.state = {
       show_project_selector: false
     }
-  },
+  }
   toggleShowServerboardSelector(){
     this.setState({show_project_selector: !this.state.show_project_selector})
-  },
+  }
   get_screen_data(screen_id){
     return this.props.project.screens.find( (s) => s.id == screen_id )
-  },
+  }
   handleSectionChange(section, data){
     const project = this.props.project.shortname
     if (section.indexOf('/')>=0){
@@ -76,7 +77,7 @@ const SidebarSections = React.createClass({
     else{
       this.props.goto(`/project/${project}/${section}`)
     }
-  },
+  }
   render(){
     const props=this.props
     let self=this
@@ -129,7 +130,7 @@ const SidebarSections = React.createClass({
             screens={props.project.screens}
             project={props.project}
             section={`${props.section}/${props.subsection}`}
-            onSectionChange={this.handleSectionChange}
+            onSectionChange={this.handleSectionChange.bind(this)}
             />
         </Restricted>
         <Restricted perm="project.update">
@@ -138,7 +139,7 @@ const SidebarSections = React.createClass({
           </div>
         </Restricted>
 
-        <a className="item" onClick={this.toggleShowServerboardSelector} style={SPECIAL_ITEM_STYLE}>
+        <a className="item" onClick={this.toggleShowServerboardSelector.bind(this)} style={SPECIAL_ITEM_STYLE}>
           {i18n("View all projects")}
           <i className={`icon folder`}/>
         </a>
@@ -150,13 +151,13 @@ const SidebarSections = React.createClass({
         </Restricted>
 
         {this.state.show_project_selector ? (
-          <ServerboardSelector onClose={this.toggleShowServerboardSelector} className="center"/>
+          <ServerboardSelector onClose={this.toggleShowServerboardSelector.bind(this)} className="center"/>
         ) : null }
       </div>
     )
     //<MenuItem section="permissions">Permissions</MenuItem>
     //<MenuItem section="logs">Logs</MenuItem>
   }
-})
+}
 
 export default SidebarSections

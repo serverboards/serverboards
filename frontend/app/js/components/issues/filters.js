@@ -4,13 +4,13 @@ import rpc from 'app/rpc'
 import i18n from 'app/utils/i18n'
 import {sort_by_name} from 'app/utils'
 
-const RelatedElement=React.createClass({
-  getInitialState(){
-    return {
+class RelatedElement extends React.Component{
+  constructor(props){ super(props)
+    this.state = {
       url: undefined,
       name: undefined
     }
-  },
+  }
   componentDidMount(){
     const al=this.props.alias
     if (al.startsWith("rule/")){
@@ -54,7 +54,7 @@ const RelatedElement=React.createClass({
         type: "Project"
       })
     }
-  },
+  }
   render(){
     const {url, name, type} = this.state
     if (url){
@@ -69,7 +69,7 @@ const RelatedElement=React.createClass({
       <div>{this.props.alias}</div>
     )
   }
-})
+}
 
 function Related({issue}){
   return (

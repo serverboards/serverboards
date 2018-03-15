@@ -3,17 +3,17 @@ import {Link} from 'app/router'
 import {is_empty} from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
-const ProcessLine = React.createClass({
+class ProcessLine extends React.createClass{
   componentDidMount(){
     $(this.refs.progress).progress()
-  },
+  }
   componentWillReceiveProps(newprops){
     if (newprops.progress != this.props.progress){
       if (!this.props.progress)
         this.componentDidMount()
       $(this.refs.progress).progress("set progress", newprops.progress)
     }
-  },
+  }
   render(){
     const p = this.props
     return (
@@ -35,7 +35,7 @@ const ProcessLine = React.createClass({
       </a>
     )
   }
-})
+}
 
 function ProcessesMenu(props){
   return (

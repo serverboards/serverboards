@@ -1,20 +1,22 @@
 import React from 'react'
 import {has_perm, perms} from 'app/utils/perms'
 
-const Restricted = React.createClass({
-  propTypes:{
-    perm: React.PropTypes.string.isRequired
-  },
-  getInitialState(){
+class Restricted extends React.createClass{
+  constructor(props){
+    super(props)
     const allowed = has_perm(this.props.perm)
-    return {allowed}
-  },
+    this.state = {allowed}
+  }
   render(){
     if (this.state.allowed)
       return this.props.children
     return null
   }
-})
+}
+
+Restricted.propTypes = {
+  perm: React.PropTypes.string.isRequired
+}
 
 function has_perm_guard(perm, F){
   return function(props){

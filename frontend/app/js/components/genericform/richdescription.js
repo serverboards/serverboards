@@ -4,13 +4,14 @@ import {render, resolve_form_vars} from './utils'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 
-const RichDescription=React.createClass({
+class RichDescription extends React.Component{
   process_description(vars={}){
     return render(this.props.value, vars)
-  },
-  getInitialState(){
+  }
+  constructor(props){
+    super(props)
     try{
-      return {
+      this.state = {
         content: "",
         extraClass: "",
         loading: true
@@ -18,13 +19,13 @@ const RichDescription=React.createClass({
     }
     catch(e){
       console.error(e)
-      return {
+      this.state = {
         content: "",
         extraClass: "error",
         loading: false
       }
     }
-  },
+  }
   componentDidMount(){
     resolve_form_vars(this.props.vars, this.props.form_data).then( (vars) => { // Then set it into the state, update content
       this.setState({content: this.process_description(vars), loading: false, extraClass: ""})
@@ -33,10 +34,10 @@ const RichDescription=React.createClass({
       this.setError(100)
       Flash.error(i18n("Error loading dynamic data. Contact plugin author."),{error: 100})
     })
-  },
+  }
   setError(code){
     this.setState({content: i18n("Error loading dynamic data. Contact plugin author. [Error #{code}]", {code}), loading: false, extraClass: "error"})
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -46,6 +47,6 @@ const RichDescription=React.createClass({
       <div className={`${props.className} ${state.extraClass || ""}`}><MarkdownPreview value={state.content}/></div>
     )
   }
-})
+}
 
 export default RichDescription

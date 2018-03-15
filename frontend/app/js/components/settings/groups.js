@@ -5,16 +5,16 @@ import HoldButton from '../holdbutton'
 import i18n from 'app/utils/i18n'
 import Restricted from 'app/restricted'
 
-let Groups=React.createClass({
+class Groups extends React.Component{
   handleEditUsers(g){
     this.props.setModal('auth.group.edit_users', { group: g })
-  },
+  }
   handleEditPerms(g){
     this.props.setModal('auth.group.edit_perms', { group: g })
-  },
+  }
   handleAddGroup(name){
     this.props.setModal('auth.group.create')
-  },
+  }
   render(){
     let props=this.props
     if (!props.groups){
@@ -66,7 +66,7 @@ let Groups=React.createClass({
           <h3 className="ui header">{i18n("Groups and permissions")}</h3>
           <div className="right menu">
             <Restricted perm="auth.manage_groups">
-              <a onClick={this.handleAddGroup} className="ui teal button">{i18n("Add group")}</a>
+              <a onClick={this.handleAddGroup.bind(this)} className="ui teal button">{i18n("Add group")}</a>
             </Restricted>
           </div>
         </div>
@@ -78,6 +78,6 @@ let Groups=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Groups

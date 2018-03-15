@@ -57,13 +57,11 @@ import Loading from 'app/components/loading'
  */
 export function serverboards_connect(options){
   return function(Component){
-    let SubscribedConnect = React.createClass({
-      contextTypes: {
-        store: React.PropTypes.object
-      },
-      getInitialState(){
-        return { options }
-      },
+    class SubscribedConnect extends React.createClass{
+      constructor(props){
+        super(props)
+        this.state = { options }
+      }
       _componentDidMount(props){ // Wrapper to allow call with specific props
         const state = this.context.store.getState()
         const subscriptions = unwrap(options.subscriptions, state, props)
@@ -71,7 +69,7 @@ export function serverboards_connect(options){
 
         const updates = unwrap(options.store_enter, state, props)
         updates.map( (u) => this.context.store.dispatch(u()) )
-      },
+      }
       _componentWillUnmount(props){ // Wrapper to allow call with specific props
         const state = this.context.store.getState()
         const subscriptions = unwrap(options.subscriptions, state, props)
@@ -79,7 +77,7 @@ export function serverboards_connect(options){
 
         const store_clean = unwrap(options.store_exit, state, props)
         store_clean.map( (u) => this.context.store.dispatch(u()) )
-      },
+      }
       componentDidMount(){
         this._componentDidMount(this.props)
         const state = this.context.store.getState()
@@ -94,10 +92,10 @@ export function serverboards_connect(options){
             console.error("Error setting promise value", k, e)
           })
         })
-      },
+      }
       componentWillUnmount(){
         this._componentWillUnmount(this.props)
-      },
+      }
       componentWillReceiveProps(newprops){
         if (!options.watch || options.watch == Object.watch)
           return;
@@ -112,7 +110,7 @@ export function serverboards_connect(options){
           this._componentWillUnmount(this.props)
           this._componentDidMount(newprops)
         }
-      },
+      }
       render(){
         if (options.loading){
           const loading = options.loading(this.context.store.getState(), this.props)
@@ -126,7 +124,11 @@ export function serverboards_connect(options){
           <Component {...this.state} {...this.props}/>
         )
       }
-    })
+    }
+    SubscribedConnect.contextTypes = {
+      store: React.PropTypes.object
+    }
+
     return connect(options.state, options.handlers)(SubscribedConnect)
   }
 }

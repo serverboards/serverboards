@@ -13,19 +13,20 @@ import cache from 'app/utils/cache'
 require('sass/cards.sass')
 import PluginCard from './card'
 
-const Plugins=React.createClass({
-  getInitialState(){
-    return {
+class Plugins extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       plugins: [],
       settings: {}
     }
-  },
+  }
   componentDidMount(){
     event.on("plugin.update.required", this.updateRequired)
     event.on("plugin.updated", this.updated)
     event.on("plugins.reloaded", this.reload_plugin_list)
     this.load_plugin_list()
-  },
+  }
   load_plugin_list(){
     cache.plugins().then((pluginsd)=>{
       let plugins=[]
@@ -49,16 +50,16 @@ const Plugins=React.createClass({
         }
         this.setState({settings})
       })
-  },
+  }
   reload_plugin_list(){
     cache.invalidate("plugins") // ensure invalidated. May happen later too. Needed at the cache side too.
     this.load_plugin_list()
-  },
+  }
   componentWillUnmount(){
     event.off("plugin.update.required", this.updateRequired)
     event.off("plugin.updated", this.updateRequired)
     event.off("plugins.reloaded", this.reload_plugin_list)
-  },
+  }
   updateRequired({plugin_id, changelog}){
     console.log("Update required: %o; %o", plugin_id, changelog)
     const plugins = this.state.plugins.map( (pl) => {
@@ -68,7 +69,7 @@ const Plugins=React.createClass({
         return pl
     })
     this.setState({plugins})
-  },
+  }
   updated({plugin_id}){
     cache.invalidate("plugins")
     const plugins = this.state.plugins.map( (pl) => {
@@ -78,10 +79,7 @@ const Plugins=React.createClass({
         return pl
     })
     this.setState({plugins})
-  },
-  contextTypes: {
-    router: React.PropTypes.object
-  },
+  }
   render(){
     const plugins=this.state.plugins
     const settings=this.state.settings
@@ -120,6 +118,11 @@ const Plugins=React.createClass({
       </div>
     )
   }
-})
+}
+
+Plugins.contextTypes = {
+  router: React.PropTypes.object
+}
+
 
 export default Plugins

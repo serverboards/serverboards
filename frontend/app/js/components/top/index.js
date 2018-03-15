@@ -18,13 +18,13 @@ function notifications_color(notifications){
   return "blue"
 }
 
-const Top = React.createClass({
-  getInitialState(){
-    return {
+class Top extends React.createClass{
+  constructor(props){ super(props)
+    this.state = {
       open_time: undefined,
       show_popup: undefined,
     }
-  },
+  }
   componentDidMount(){
     let self = this
     $(this.refs.notifications_item).popup({
@@ -77,11 +77,11 @@ const Top = React.createClass({
       position: 'bottom right',
       lastResort: 'bottom right'
     })
-  },
+  }
   handleGotoProjects(){
     get_last_project()
       .then( project => project ? goto(`/project/${project}/`) : goto(`/`) )
-  },
+  }
   render(){
     const props=this.props
     const section=props.section
@@ -99,7 +99,7 @@ const Top = React.createClass({
 
         <a
             className={`item ${ section == "project" ? "active" : ""}`}
-            onClick={this.handleGotoProjects}
+            onClick={this.handleGotoProjects.bind(this)}
             ref="projects"
             data-content={i18n("Project")}
             data-position="bottom center"
@@ -210,6 +210,6 @@ const Top = React.createClass({
       </nav>
     )
   }
-})
+}
 
 export default Top

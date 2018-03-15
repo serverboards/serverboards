@@ -64,27 +64,14 @@ function get_external_url(id, props){
   return url
 }
 
-const Details = React.createClass({
-  propTypes:{
-    screens: React.PropTypes.arrayOf(React.PropTypes.object),
-    service: React.PropTypes.shape({
-      uuid: React.PropTypes.string.isRequired,
-      name: React.PropTypes.string.isRequired,
-      description: React.PropTypes.string,
-      config: React.PropTypes.object.isRequired,
-    }).isRequired,
-    service_template: React.PropTypes.shape({
-      name: React.PropTypes.string.isRequired,
-      description: React.PropTypes.string,
-      params: React.PropTypes.string,
-    }).isRequired
-  },
-  getInitialState(){
-    return {tab: "details", type: "internal"}
-  },
+class Details extends React.createClass{
+  constructor(props){
+    super(props)
+    this.state = {tab: "details", type: "internal"}
+  }
   setTab({tab, type}){
     this.setState({tab, type})
-  },
+  }
   handleTabChange(id, type){
     if (type=="screen"){
       this.setTab({tab: id, type: "screen"})
@@ -105,10 +92,10 @@ const Details = React.createClass({
     else{
       this.setTab({tab: id})
     }
-  },
+  }
   componentDidMount(){
     this.setTab({tab: "details"})
-  },
+  }
   render(){
     const props = this.props
     const state = this.state
@@ -192,6 +179,21 @@ const Details = React.createClass({
       </div>
     )
   }
-})
+}
+
+Details.propTypes = {
+  screens: React.PropTypes.arrayOf(React.PropTypes.object),
+  service: React.PropTypes.shape({
+    uuid: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired,
+    description: React.PropTypes.string,
+    config: React.PropTypes.object.isRequired,
+  }).isRequired,
+  service_template: React.PropTypes.shape({
+    name: React.PropTypes.string.isRequired,
+    description: React.PropTypes.string,
+    params: React.PropTypes.string,
+  }).isRequired
+}
 
 export default Details

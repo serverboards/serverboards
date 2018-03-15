@@ -8,13 +8,14 @@ import {merge} from 'app/utils'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
-var LoginView = React.createClass({
-  getInitialState(){
-    return {
+class LoginView extends React.createClass{
+  constructor(props){
+    super(props)
+    this.state = {
       modal: undefined,
       email: undefined,
     }
-  },
+  }
   handleSubmit(ev){
     ev && ev.preventDefault()
     let $form = $(this.refs.el)
@@ -25,10 +26,7 @@ var LoginView = React.createClass({
         merge({type: 'basic'}, fields)
       )
     }
-  },
-  contextTypes: {
-    router: React.PropTypes.object
-  },
+  }
   componentDidMount( ){
     let self=this
 
@@ -47,13 +45,13 @@ var LoginView = React.createClass({
       window.location.hash=''
       this.setState({modal: 'set_password', token: token_match[1]})
     }
-  },
+  }
   resetPassword(email){
     this.setState({modal: 'reset_password', email})
-  },
+  }
   setPassword(pw){
     this.setState({modal: 'set_password', pw})
-  },
+  }
   render(){
     if (this.state.modal=='reset_password')
       return(
@@ -109,11 +107,17 @@ var LoginView = React.createClass({
       </form>
       </div>
     )
-  },
-  propTypes: {
-    _onSubmit: PropTypes.func.isRequired
   }
-})
+}
+
+LoginView.propTypes = {
+  _onSubmit: PropTypes.func.isRequired
+}
+
+LoginView.contextTypes = {
+  router: React.PropTypes.object
+}
+
 
 
 export default LoginView

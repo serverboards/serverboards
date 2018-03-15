@@ -3,17 +3,17 @@ import { goto, set_modal } from 'app/utils/store'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import {Restricted} from 'app/components'
 
-const ServiceMenu = React.createClass({
+class ServiceMenu extends React.createClass{
   componentDidMount(){
     $(this.refs.service_selector).popup({
       popup: this.refs.service_selector_menu,
       on: 'click'
     })
-  },
+  }
   handleChangeSection(section, service){
       $(this.refs.service_selector).popup('hide')
       this.props.onChangeSection(section, service)
-  },
+  }
   render(){
     const props = this.props
     const service = props.service
@@ -35,19 +35,19 @@ const ServiceMenu = React.createClass({
       </div>
     )
   }
-})
+}
 
-const SectionMenu = React.createClass({
+class SectionMenu extends React.createClass{
   componentDidMount(){
     $(this.refs.section_selector).popup({
       popup: this.refs.section_selector_menu,
       on: 'click'
     })
-  },
+  }
   handleChangeSection(section, service){
     $(this.refs.section_selector).popup('hide')
     this.props.onChangeSection(section, service)
-  },
+  }
   render(){
     const {sections, section_id} = this.props
     return (
@@ -80,20 +80,20 @@ const SectionMenu = React.createClass({
       </div>
     )
   }
-})
+}
 
-const ProjectMenu = React.createClass({
+class ProjectMenu extends React.createClass{
   componentDidMount(){
     $(this.refs.project_selector).popup({
       popup: this.refs.project_selector_menu,
       on: 'click',
       lastResort: 'bottom left'
     })
-  },
+  }
   handleChangeProject(shortname){
     $(this.refs.project_selector).popup('hide')
     goto(`/project/${shortname}/`)
-  },
+  }
   render(){
     const { project_shortname, project_name, projects } = this.props
     return (
@@ -122,7 +122,7 @@ const ProjectMenu = React.createClass({
       </div>
     )
   }
-})
+}
 
 class Top extends React.Component{
   constructor(props){

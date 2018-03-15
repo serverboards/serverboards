@@ -17,24 +17,24 @@
      }
   }
 
-  const Clock=React.createClass({
-    getInitialState: function(){
+  class Clock extends React.Component{
+    getInitialState(){
       return { time: this.time(), interval_id: undefined }
-    },
-    componentDidMount: function(){
+    }
+    componentDidMount(){
       if (!this.state.interval_id){
         const interval_id = setInterval(this.update_timer, 1000)
         this.setState({interval_id: interval_id})
       }
       this.props.setClass("orange card")
-    },
-    componentWillUnmount: function(){
+    }
+    componentWillUnmount(){
       if (this.state.interval_id){
         clearInterval(this.state.interval_id)
         this.setState({interval_id: undefined})
       }
-    },
-    time: function(){
+    }
+    time(){
       var currentDate=new Date()
       function lpad(n){
         return ("0"+n).slice(-2)
@@ -45,10 +45,10 @@
         second: lpad(currentDate.getSeconds())
       }
     },
-    update_timer: function(){
+    update_timer(){
       this.setState({ time: this.time() })
-    },
-    render: function(){
+    }
+    render(){
       var time=this.state.time
       var hour=time.hour
       var minute=time.minute
@@ -63,7 +63,7 @@
         </div>
       )
     }
-  })
+  }
 
   Serverboards.add_widget("serverboards.core.widgets/clock", Clock, {react: true})
 })()
