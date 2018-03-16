@@ -18,6 +18,7 @@ const Board = store.connect({
     time_slice: [state.project.daterange.start, state.project.daterange.end],
     dashboard: map_get(state, ["project","dashboard", "current", "uuid"]),
     can_edit: state.auth.user.perms.indexOf("dashboard.update")>=0,
+    config: map_get(state, ["project","dashboard", "current", "config"], {}),
   }),
   handlers: (dispatch, prop) => ({
     updateDaterangeNow: () => dispatch( board_update_now() ),

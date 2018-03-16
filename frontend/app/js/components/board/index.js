@@ -190,54 +190,58 @@ class Board extends React.Component{
     }
     //const layout = this.state.layout || widgets.map( (w) => w.ui )
     //console.log(layout)
-    return (
-      <div className={(widgets.length == 0) ? "ui centered container" : ""} style={{padding: 20}}>
-        {(widgets.length == 0) ? (
+    if (widgets.length == 0){
+      return (
+        <div className="ui centered container" style={{padding: 20}}>
           <Empty/>
-        ) : (
-          <div className="ui board">
-            <ReactGridLayout
-              className="ui cards layout"
-              cols={16}
-              rowHeight={163}
-              width={2400}
-              margin={[15,0]}
-              draggableHandle=".ui.top.mini.menu .ui.header"
-              layout={this.state.layout}
-              isDraggable={this.props.can_edit}
-              isResizable={this.props.can_edit}
-              onLayoutChange={this.handleLayoutChange.bind(this)}
-              >
-                {widgets.map( ({widget, template}) => {
-                  try {
-                    return (
-                      <div
+          <AddButton project={this.props.project}/>
+        </div>
+      )
+    }
+    return (
+      <div className={`ui board ${this.props.config.theme || "light"} with scroll`}>
+        <div className="ui padding">
+          <ReactGridLayout
+            className="ui cards layout"
+            cols={16}
+            rowHeight={163}
+            width={2400}
+            margin={[15,0]}
+            draggableHandle=".ui.top.mini.menu .ui.header"
+            layout={this.state.layout}
+            isDraggable={this.props.can_edit}
+            isResizable={this.props.can_edit}
+            onLayoutChange={this.handleLayoutChange.bind(this)}
+            >
+              {widgets.map( ({widget, template}) => {
+                try {
+                  return (
+                    <div
+                      key={widget.uuid}
+                      data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
+                      className="ui card"
+                      >
+                      <Widget
                         key={widget.uuid}
-                        data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
-                        className="ui card"
-                        >
-                        <Widget
-                          key={widget.uuid}
-                          widget={widget.widget}
-                          config={configs[widget.uuid] || {}}
-                          uuid={widget.uuid}
-                          template={template}
-                          onEdit={() => this.handleEdit(widget.uuid)}
-                          project={this.props.project}
-                          layout={this.getLayout(widget.uuid)}
-                          />
-                      </div>
-                    )
-                  } catch (e) {
-                    console.error("Error displaying widget %o: %o", {widget, template}, e)
-                    return (
-                      <Error>{String(e)}</Error>
-                    )
-                  }
-                })}
-            </ReactGridLayout>
-          </div>
-          )}
+                        widget={widget.widget}
+                        config={configs[widget.uuid] || {}}
+                        uuid={widget.uuid}
+                        template={template}
+                        onEdit={() => this.handleEdit(widget.uuid)}
+                        project={this.props.project}
+                        layout={this.getLayout(widget.uuid)}
+                        />
+                    </div>
+                  )
+                } catch (e) {
+                  console.error("Error displaying widget %o: %o", {widget, template}, e)
+                  return (
+                    <Error>{String(e)}</Error>
+                  )
+                }
+              })}
+          </ReactGridLayout>
+        </div>
         <AddButton project={this.props.project}/>
       </div>
     )
