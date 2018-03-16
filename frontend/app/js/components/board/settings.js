@@ -21,6 +21,10 @@ class Settings extends React.Component{
     this.props.onBoardUpdate({uuid, name, config, order})
     this.props.onClose()
   }
+  handleBoardRemove(){
+    this.props.onBoardRemove()
+    this.props.onClose()
+  }
   render(){
     const {onBoardRemove, dashboard} = this.props
     return (
@@ -28,7 +32,7 @@ class Settings extends React.Component{
         <div className="ui top serverboards secondary menu">
           <h3 className="ui header">{i18n("{name} dashboard settings", dashboard)}</h3>
           <div className="right menu">
-            <HoldButton className="item" onHoldClick={onBoardRemove}>
+            <HoldButton className="item" onHoldClick={this.handleBoardRemove.bind(this)}>
               {i18n("Remove dashboard")}
             </HoldButton>
           </div>

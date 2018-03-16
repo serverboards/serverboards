@@ -190,6 +190,11 @@ function project(state=default_state, action){
       })
       return map_set(state, ["dashboard", "list"], list)
     }
+    case "@RPC_EVENT/dashboard.removed":
+    {
+      const list = state.dashboard.list.filter( d => d.uuid != action.uuid)
+      return map_set(state, ["dashboard", "list"], list)
+    }
     case "BOARD_SET":
       return map_set(state, ["dashboard", "current"], action.payload)
     case "ISSUES_COUNT_PROJECT":
