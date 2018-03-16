@@ -95,12 +95,6 @@ module.exports = {
         filename: 'index.html',
         inject: 'body'
       }),
-      __PROD__ && (new webpack.optimize.UglifyJsPlugin({
-        sourceMap: true,
-        compress: true,
-        minimize: true,
-        parallel: true,
-      })),
       new CopyWebpackPlugin([
         {from:'lang/*.json', to:'lang'},
         {from:'app/css', to:'css'},
@@ -127,6 +121,6 @@ module.exports = {
       			chunks: "all"
       		}
       	}
-      }
+      },
     }
   };
