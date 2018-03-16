@@ -29,17 +29,15 @@ class LoginView extends React.Component{
     }
   }
   componentDidMount( ){
-    let self=this
-
     $(this.refs.el).form({
       on: 'blur',
       fields: {
         email: 'minLength[1]',
         password: 'minLength[6]'
       }
-    }).on('submit', self.handleSubmit)
+    }).on('submit', this.handleSubmit.bind(this))
 
-    $(self.refs.el).find('[name=email]').focus()
+    $(this.refs.el).find('[name=email]').focus()
 
     const token_match=window.location.hash.match(/pr=([-0-9a-fA-F]*)/)
     if (token_match){
@@ -95,13 +93,15 @@ class LoginView extends React.Component{
           </div>
 
           <div className="ui centered actions">
-            <button type="button" className={`ui wide login teal right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
-              {i18n("Log In")}
-              {logging ? (
-                <i className="loading spinner icon"></i>
-              ) : (
-                <i className="caret right icon"></i>
-              )}
+            <button type="button"
+              className={`ui wide login teal right labeled icon button ${logging ? "disabled" : ""}`}
+              onClick={this.handleSubmit.bind(this)}>
+                {i18n("Log In")}
+                {logging ? (
+                  <i className="loading spinner icon"></i>
+                ) : (
+                  <i className="caret right icon"></i>
+                )}
             </button>
           </div>
         </div>
