@@ -7,6 +7,19 @@ import PropTypes from 'prop-types';
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
 
+function to_keywordmap(data){
+  if (!data)
+    return {}
+  if (data.length){
+    let d = {}
+    for (let k of data)
+      d[k]=true
+    return d
+  }
+  return data
+}
+
+
 class ExternalScreen extends React.Component{
   constructor(props){
     super(props)
@@ -61,12 +74,12 @@ class ExternalScreen extends React.Component{
       .attr('data-pluginid', plugin)
       .attr('data-screenid', `${plugin}/${component}`)
 
-    const hints = this.props.hints || []
+    const hints = to_keywordmap(this.props.hints)
     const plugin_html = `${plugin}/${component}.html`
     const plugin_css = `${plugin}/${component}.css`
     Promise.all([
-      !hints.includes("nohtml") && plugin_load(plugin_html,  {base_url: plugin}),
-      !hints.includes("nocss") && plugin_load(plugin_css,  {base_url: plugin})
+      !hints["nohtml"] && plugin_load(plugin_html,  {base_url: plugin}),
+      !hints["nocss"] && plugin_load(plugin_css,  {base_url: plugin})
     ]).then( (html) => {
       $(this.refs.el).html(html)
       load_js()

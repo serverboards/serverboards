@@ -26,7 +26,7 @@ class Services extends React.Component{
   }
   componentDidMount(){
     let self = this
-    this.props.setSectionMenu(this.render_menu)
+    this.props.setSectionMenu(this.render_menu.bind(this))
     Command.add_command_search("sbds-services", (Q, context) => ([
         {id: 'add-service', title: i18n("Add Service"), description: i18n("Add a new service"), run: () => self.openAddServiceModal()},
       ]), 2)

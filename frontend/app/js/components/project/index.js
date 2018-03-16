@@ -54,7 +54,7 @@ class Project extends React.Component{
           hints={screen.hints}
           />
       )
-      console.log("Got plugin screen %o", Section)
+      // console.log("Got plugin screen %o", Section)
     }
     else
       Section = require(`app/containers/project/${section}`).default

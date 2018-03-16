@@ -28,7 +28,7 @@ class Modal extends React.Component{
     const ignoreClick = (ev) => ev.stopPropagation()
 
     return (
-      <div className={`ui modal background ${props.className || ""}`} id={props.id} onClick={this.onClose}>
+      <div className={`ui modal background ${props.className || ""}`} id={props.id} onClick={this.onClose.bind(this)}>
         <div className="ui top menu" onClick={ignoreClick}>
           <a href="#/" className="logo">
             <img className="logo" src={logo}/>

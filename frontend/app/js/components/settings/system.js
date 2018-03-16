@@ -13,7 +13,9 @@ function Section(props){
   return (
     <section key={props.id}>
       <h2 className="ui header">{i18n(props.name)}</h2>
-      <div className="ui description"><MarkdownPreview value={i18n(props.description)}/></div>
+      {props.description && (
+        <div className="ui description"><MarkdownPreview value={i18n(props.description)}/></div>
+      )}
       <GenericForm fields={props.fields} onSubmit={(ev) => ev.preventDefault() } updateForm={props.updateSection}/>
     </section>
   )
@@ -22,7 +24,7 @@ function Section(props){
 class System extends React.Component{
   constructor(props){
     super(props)
-    this.setState = {}
+    this.state = {}
   }
   handleSubmit(){
     //console.log(this.refs)

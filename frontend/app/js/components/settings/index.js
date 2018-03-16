@@ -62,7 +62,7 @@ var SidebarSections = function(props){
 function Settings(props){
   let section = props.params.section || 'overview'
   let Section = sections[section]
-  console.log("Section %o", section)
+  // console.log("Section %o", section)
 
   return (
     <div className="ui horizontal split area expand">
