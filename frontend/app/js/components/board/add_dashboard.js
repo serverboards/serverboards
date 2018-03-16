@@ -21,18 +21,20 @@ class CreateDashboard extends React.Component{
     const props = this.props
     return (
       <Modal>
-        <div className="ui secondary top header">
-          <h3>Create new dashboard</h3>
+        <div className="ui top secondary serverboards menu">
+          <h3 className="ui header">Create new dashboard</h3>
         </div>
 
-        <div className="ui form">
-          <div className="ui field">
-            <label>{i18n("Dashboard name")}</label>
-            <input type="text" className="input" ref="name" placeholder={i18n("Monitoring, tools...")}/>
+        <div className="ui text container with padding">
+          <div className="ui form">
+            <div className="ui field">
+              <label>{i18n("Dashboard name")}</label>
+              <input type="text" className="input" ref="name" placeholder={i18n("Monitoring, tools...")}/>
+            </div>
+            <button className="ui button yellow" onClick={this.handleCreateDashboard}>
+              {i18n("Create dashboard")}
+            </button>
           </div>
-          <button className="ui button yellow" onClick={this.handleCreateDashboard.bind(this)}>
-            {i18n("Create dashboard")}
-          </button>
         </div>
 
       </Modal>

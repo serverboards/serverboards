@@ -2,6 +2,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import moment from 'moment'
 import { push } from 'react-router-redux'
+import i18n from 'app/utils/i18n'
 
 function project_update_all(){
   return function(dispatch){
@@ -17,7 +18,7 @@ function project_add(data){
         [ data.shortname, {name: data.name, tags: data.tags, description: data.description}]
       ).then(function(){
         dispatch( push({pathname: `/project/${data.shortname}/`}) )
-        Flash.info(`Added project ${data.name}`)
+        Flash.info(i18n("Added project *{shortname}*", {shortname: data.shortname}))
       })
   }
 }
@@ -25,7 +26,7 @@ function project_add(data){
 function project_delete(shortname){
   return function(dispatch){
     rpc.call("project.delete", [shortname]).then(function(){
-      Flash.info(`Removed project ${shortname}`)
+      Flash.info(i18n("Removed project *{shortname}*", {shortname: data.shortname}))
     })
   }
 }
@@ -33,7 +34,7 @@ function project_delete(shortname){
 function project_update(shortname, changes){
   return function(dispatch){
     rpc.call("project.update", [shortname, changes]).then(function(){
-      Flash.info(`Updated project ${shortname}`)
+      Flash.info(i18n("Updated project *{shortname}*", {shortname: data.shortname}))
     })
   }
 }
@@ -41,7 +42,7 @@ function project_update(shortname, changes){
 function project_attach_service(project_shortname, service_uuid){
   return function(dispatch){
     rpc.call("service.attach",[project_shortname, service_uuid]).then(function(){
-      Flash.info("Added service to project")
+      Flash.info(i18n("Added service to project"))
     })
   }
 }
@@ -118,6 +119,24 @@ function project_get_dashboard(uuid){
   }
 }
 
+function board_update(data){
+  return rpc
+    .call("dashboard.update", data)
+    .then( () => {
+      Flash.info(i18n(`Updated dashboard *{name}*`, data))
+      return {type: "BOARD_UPDATE", payload: data}
+    })
+}
+
+function board_remove({uuid, name}){
+  return rpc
+    .call("dashboard.remove", {uuid})
+    .then( () => {
+      Flash.info(i18n(`Removed dashboard *{name}*`, {name}))
+      return {type: "BOARD_REMOVED", payload: uuid}
+    })
+}
+
 export {
   project_add,
   project_update_all,
@@ -132,5 +151,7 @@ export {
   board_set_daterange_start,
   board_set_daterange_start_and_end,
   board_update_now,
-  board_set_realtime
+  board_set_realtime,
+  board_update,
+  board_remove,
 }

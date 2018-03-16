@@ -25,7 +25,7 @@ function LeaderBars(props){
           <div className="ui small grey text with padding">{i}</div>
           <div style={{flexGrow: 1, marginBottom: 10}}>
             <div className="ui bold text">{row[0]}</div>
-            <MiniBar value={row[1] * p}/>
+            <MiniBar value={row[1] * p} color={row[2]}/>
           </div>
           <div className="ui padding" style={{width: "6em", textAlign: "right"}}>
             {(row[1] * p).toFixed(2)} %

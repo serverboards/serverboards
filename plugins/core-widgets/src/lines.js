@@ -17,13 +17,24 @@ const svg_style = {
   grey: "#9b9b9b"
 }
 
-function SVGLines({data, xaxis, maxy, categories}){
+
+const style_dark = {
+  axis_line: {
+    fill: "#0e262b",
+  },
+}
+
+function SVGLines({data, xaxis, maxy, categories, theme}){
   const xgap = 370.0 / xaxis.length // each categeory group width
   const xgap2 = ((xgap*3)/4)/categories.length // each category width
   const xgap4 = xgap2 / 2
   const xstart = 40 // where starts the  data
   const xstart2 = 40 + xgap2/2 // DELETE old mid line start
   // console.log({xgap, xgap2, xstart, xstart2})
+
+  let style = svg_style
+  if (theme == "dark")
+    style = {...style, ...style_dark}
 
   // line colors
   const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
@@ -58,22 +69,22 @@ function SVGLines({data, xaxis, maxy, categories}){
   return (
     <svg height={250} width={400}>
       <g>
-        <text x={25} y={25} textAnchor="end" fill={svg_style.grey}>{maxy}</text>
-        <text x={25} y={75} textAnchor="end" fill={svg_style.grey}>{maxy*3/4}</text>
-        <text x={25} y={125} textAnchor="end" fill={svg_style.grey}>{maxy*2/4}</text>
-        <text x={25} y={175} textAnchor="end" fill={svg_style.grey}>{maxy/4}</text>
-        <text x={25} y={225} textAnchor="end" fill={svg_style.grey}>0</text>
+        <text x={25} y={25} textAnchor="end" fill={style.grey}>{maxy}</text>
+        <text x={25} y={75} textAnchor="end" fill={style.grey}>{maxy*3/4}</text>
+        <text x={25} y={125} textAnchor="end" fill={style.grey}>{maxy*2/4}</text>
+        <text x={25} y={175} textAnchor="end" fill={style.grey}>{maxy/4}</text>
+        <text x={25} y={225} textAnchor="end" fill={style.grey}>0</text>
 
 
-        <path d="M 30 20 L 390 20 L 390 19 L 30 19 Z" style={svg_style.axis_line}/>
-        <path d="M 30 70 L 390 70 L 390 69 L 30 69 Z" style={svg_style.axis_line}/>
-        <path d="M 30 120 L 390 120 L 390 119 L 30 119 Z" style={svg_style.axis_line}/>
-        <path d="M 30 170 L 390 170 L 390 169 L 30 169 Z" style={svg_style.axis_line}/>
-        <path d="M 30 220 L 390 220 L 390 219 L 30 219 Z" style={svg_style.axis_line}/>
+        <path d="M 30 20 L 390 20 L 390 19 L 30 19 Z" style={style.axis_line}/>
+        <path d="M 30 70 L 390 70 L 390 69 L 30 69 Z" style={style.axis_line}/>
+        <path d="M 30 120 L 390 120 L 390 119 L 30 119 Z" style={style.axis_line}/>
+        <path d="M 30 170 L 390 170 L 390 169 L 30 169 Z" style={style.axis_line}/>
+        <path d="M 30 220 L 390 220 L 390 219 L 30 219 Z" style={style.axis_line}/>
 
 
         {xaxis.map( (legend,i) => show_category(i) && (
-          <text key={i} x={xstart + i*xgap} y={235} style={svg_style.axis}>{legend}</text>
+          <text key={i} x={xstart + i*xgap} y={235} style={style.axis}>{legend}</text>
         ))}
       </g>
       <g>
