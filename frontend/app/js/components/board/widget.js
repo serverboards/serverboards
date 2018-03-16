@@ -24,7 +24,7 @@ class Widget extends React.Component{
     let self=this
     let plugin_component=props.template.id.split('/')
     const context={
-      setTitle: self.setTitle,
+      setTitle: this.setTitle.bind(this),
       setClass(klass){ self.setState({klass}) },
       setError(err){
         console.error(err)
