@@ -49,12 +49,14 @@ defmodule Serverboards.Project.RPC do
     end, [required_perm: "dashboard.create", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.update", fn attr, context ->
       me = Context.get(context, :user)
-      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"uuid name order")
+      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"uuid name order config")
       Serverboards.Project.Dashboard.dashboard_update(attr, me)
+      :ok
     end, [required_perm: "dashboard.update", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.remove", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Project.Dashboard.dashboard_remove( attr["uuid"], me )
+      :ok
     end, [required_perm: "dashboard.remove", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.list", fn attr, context ->
       me = Context.get(context, :user)

@@ -24,6 +24,8 @@ export function get_modal(name){
       return require('app/containers/board/add_widget').default
     case "dashboard.widget.edit":
       return require('app/containers/board/edit_widget').default
+    case "dashboard.settings":
+      return require('app/containers/board/settings').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default
     case "service.create":
