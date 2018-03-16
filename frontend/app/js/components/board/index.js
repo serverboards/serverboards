@@ -114,7 +114,7 @@ class Board extends React.Component{
     for (const w of widgets){
       const template = this.getTemplate(w.widget)
       let config = {}
-      for (const p of (template.params || [])){
+      for (const p of ((template || {}).params || [])){
         let k = p.name
         if (p.type=="query"){
           config[k] = {loading: true}
@@ -198,8 +198,10 @@ class Board extends React.Component{
         </div>
       )
     }
+    const theme = this.props.config.theme || "light"
+
     return (
-      <div className={`ui board ${this.props.config.theme || "light"} with scroll`}>
+      <div className={`ui board ${theme} with scroll`}>
         <div className="ui padding">
           <ReactGridLayout
             className="ui cards layout"
@@ -218,7 +220,7 @@ class Board extends React.Component{
                   return (
                     <div
                       key={widget.uuid}
-                      data-grid={{x:0, y: 0, w: 1, h: 1, ...template.hints, ...widget.ui}}
+                      data-grid={{x:0, y: 0, w: 1, h: 1, ...((template || {}).hints || {}), ...(widget.ui || {} )}}
                       className="ui card"
                       >
                       <Widget
@@ -230,6 +232,7 @@ class Board extends React.Component{
                         onEdit={() => this.handleEdit(widget.uuid)}
                         project={this.props.project}
                         layout={this.getLayout(widget.uuid)}
+                        theme={theme}
                         />
                     </div>
                   )
