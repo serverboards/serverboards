@@ -44,7 +44,7 @@
         minute: lpad(currentDate.getMinutes()),
         second: lpad(currentDate.getSeconds())
       }
-    },
+    }
     update_timer(){
       this.setState({ time: this.time() })
     }

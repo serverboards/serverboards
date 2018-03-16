@@ -110,18 +110,20 @@ class Pie3 extends React.Component{
         </div>
 
         <table style={{width: "100%", lineHeight: "2.25em"}}>
-          {rows.map( (r,i) => (
-            <tr key={r[0]}>
-              <td className="ui ellipsis">
-                <span className={`ui square ${COLORNAMES[i]}`}/>
-                {r[0]}
-              </td>
-              <td className="ui big bold text right aligned">{r[1]} €</td>
-              <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
-                {r[2]}
-              </td>
-            </tr>
-          ) ) }
+          <tbody>
+            {rows.map( (r,i) => (
+              <tr key={r[0]}>
+                <td className="ui ellipsis">
+                  <span className={`ui square ${COLORNAMES[i]}`}/>
+                  {r[0]}
+                </td>
+                <td className="ui big bold text right aligned">{r[1]} €</td>
+                <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
+                  {r[2]}
+                </td>
+              </tr>
+            ) ) }
+          </tbody>
         </table>
       </div>
     )
