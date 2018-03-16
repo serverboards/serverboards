@@ -20,7 +20,7 @@ function SVGPie({center, rings, colors}){
   let acc = -Math.PI/2
   const ringsp = rings.map( ring =>{
     const a = ring * sc
-    console.log(acc, a, ring / maxs)
+    // console.log(acc, a, ring / maxs)
     acc += a
     const next = [
       `${CX + Math.cos(acc) * R1} ${CY + Math.sin(acc) * R1}`,
@@ -33,7 +33,7 @@ function SVGPie({center, rings, colors}){
     return ret
   })
 
-  console.log(ringsp)
+  // console.log(ringsp)
 
   return (
     <svg viewBox="0 0 150 150" style={{padding: "10px 30px"}}>

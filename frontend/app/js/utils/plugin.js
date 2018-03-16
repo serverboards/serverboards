@@ -42,7 +42,7 @@ export function load_css(url, options={}){
   $('<link>')
     .appendTo("head")
     .attr(options)
-  console.log("Loaded CSS %o", url)
+  console.log("Loading CSS %o", url)
   already_loaded[url]=true
 }
 

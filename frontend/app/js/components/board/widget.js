@@ -1,7 +1,7 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import {object_is_equal} from 'app/utils'
-import {merge} from 'app/utils'
+import {merge, map_get} from 'app/utils'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import {MarkdownPreview} from 'react-marked-markdown'
@@ -53,7 +53,10 @@ class Widget extends React.Component{
     } )
   }
   componentDidMount(){
-    Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then( () => {
+    let toload = [plugin.load(`${this.props.widget}.js`)]
+    if (!map_get(this.props.template, ["hints", "nocss"], false))
+      toload.push(plugin.load(`${this.props.widget}.css`))
+    Promise.all(toload).then( () => {
       if (!this.cancel_widget)
         this.do_widget(this.props)
     }).catch( (e) => {
