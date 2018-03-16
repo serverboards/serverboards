@@ -17,6 +17,7 @@ if (__DEV__)
   ]
 
 module.exports = {
+    mode: __DEV__ ? "development" : "production",
     entry: [
       "./app/js/app.js"
     ].concat(entry),
@@ -39,7 +40,7 @@ module.exports = {
             {
               test: /\.js$/,
               exclude: /node_modules/,
-              use: ["react-hot-loader", "babel-loader"]
+              use: ["babel-loader"]
             },
             {
               test: /\.css$/,
@@ -116,16 +117,5 @@ module.exports = {
         filename: '[file].map',
         exclude: /vendor/,
       }),
-      new webpack.optimize.CommonsChunkPlugin({
-        name: "vendor",
-        minChunks: function(module){
-          return module.context && module.context.indexOf("node_modules") !== -1;
-        }
-      }),
-      new webpack.optimize.CommonsChunkPlugin({
-        name: "manifest",
-        minChunks: Infinity
-      }),
-
     ].filter(function(l){ return l }),
   };
