@@ -118,4 +118,15 @@ module.exports = {
         exclude: /vendor/,
       }),
     ].filter(function(l){ return l }),
+    optimization: {
+      splitChunks: {
+      	cacheGroups: {
+      		commons: {
+      			test: /[\\/]node_modules[\\/]/,
+      			name: "vendors",
+      			chunks: "all"
+      		}
+      	}
+      }
+    }
   };
