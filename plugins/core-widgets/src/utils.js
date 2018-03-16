@@ -62,19 +62,36 @@ export function get_data(expr, path=[0,0], defval=""){
   return String(expr)
 }
 
-export class MiniBar extends React.Component{
-  componentDidMount(){
-    $(this.refs.bar).progress({value: this.props.value})
+const style = {
+  bartop: {
+    borderRadius: 100,
+    background: "#d8d8d8",
+    maxHeight: 6,
+    minHeight: 6,
+    position: "relative",
+  },
+  barin: {
+    borderRadius: 100,
+    display: "inline-block",
+    maxHeight: 6,
+    minHeight: 6,
+    position: "absolute",
+    left: 0,
+    top: 0,
+
   }
-  componentWillReceiveProps(newprops){
-    if (newprops.value != this.props.value)
-      $(this.refs.bar).progress({value: newprops.value})
-  }
-  render(){
-    return (
-      <div className="ui blue tiny progress" ref="bar" style={{margin:0}}>
-        <div className="bar"/>
-      </div>
-    )
-  }
+}
+
+export function MiniBar({value, color}){
+  console.log(value)
+  if (!color)
+    color = COLORMAP[color] || COLORMAP["blue"]
+  return (
+    <div style={style.bartop}>
+      <div style={{...style.barin,
+          background: color,
+          minWidth: `${value}%`,
+        }}/>
+    </div>
+  )
 }

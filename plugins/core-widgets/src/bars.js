@@ -9,17 +9,25 @@ const svg_style = {
   axis_line: {
     fill: "#eee",
   },
-
   axis: {
     fill: "#9b9b9b"
   },
   grey: "#9b9b9b"
 }
 
+const style_dark = {
+  axis_line: {
+    fill: "#0e262b",
+  },
+}
 
-function SVGBars({data, xaxis, maxy, categories, width, height}){
+function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
   height = height + 0
   width = width + 0
+
+  let style = svg_style
+  if (theme == "dark")
+    style = {...style, ...style_dark}
 
   const xstart = 40 // where starts the  data
   const xgap = ((width - xstart) / xaxis.length) // each categeory group width
@@ -50,22 +58,22 @@ function SVGBars({data, xaxis, maxy, categories, width, height}){
   ]
 
   // console.log(fill)
-  // <line x1={40} y1={220} x2={390} y2={220} style={svg_style.axis_bottom}/>
+  // <line x1={40} y1={220} x2={390} y2={220} style={style.axis_bottom}/>
   return (
     <svg height={height} width={width}>
       <g>
-        <text x={25} y={gridlines[0] + 5} textAnchor="end" fill={svg_style.grey}>{maxy}</text>
-        <text x={25} y={gridlines[1] + 5} textAnchor="end" fill={svg_style.grey}>{maxy*3/4}</text>
-        <text x={25} y={gridlines[2] + 5} textAnchor="end" fill={svg_style.grey}>{maxy*2/4}</text>
-        <text x={25} y={gridlines[3] + 5} textAnchor="end" fill={svg_style.grey}>{maxy/4}</text>
-        <text x={25} y={gridlines[4] + 5} textAnchor="end" fill={svg_style.grey}>0</text>
+        <text x={25} y={gridlines[0] + 5} textAnchor="end" fill={style.grey}>{maxy}</text>
+        <text x={25} y={gridlines[1] + 5} textAnchor="end" fill={style.grey}>{maxy*3/4}</text>
+        <text x={25} y={gridlines[2] + 5} textAnchor="end" fill={style.grey}>{maxy*2/4}</text>
+        <text x={25} y={gridlines[3] + 5} textAnchor="end" fill={style.grey}>{maxy/4}</text>
+        <text x={25} y={gridlines[4] + 5} textAnchor="end" fill={style.grey}>0</text>
 
         {gridlines.map( y => (
-          <path d={`M 30 ${y} L ${width} ${y} L ${width} ${y-1} L 30 ${y-1} Z`} style={svg_style.axis_line}/>
+          <path d={`M 30 ${y} L ${width} ${y} L ${width} ${y-1} L 30 ${y-1} Z`} style={style.axis_line}/>
         ))}
 
         {xaxis.map( (legend,i) => (
-          <text key={i} x={xstart + i*xgap} y={axisbottom + 15} style={svg_style.axis}>{legend}</text>
+          <text key={i} x={xstart + i*xgap} y={axisbottom + 15} style={style.axis}>{legend}</text>
         ))}
       </g>
       <g>

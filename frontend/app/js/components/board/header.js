@@ -69,6 +69,7 @@ class HeaderMenu extends React.Component{
           </a>
         </div>
         <div className="ui item stretch"/>
+
         <div className="ui item separator"/>
         <a className="item" ref="filter_selector">
           <i className="ui icon filter"/>
@@ -102,6 +103,10 @@ class HeaderMenu extends React.Component{
             <DateRange/>
           </div>
         </div>
+        <div className="ui item separator"/>
+        <a className="item" onClick={() => set_modal("dashboard.settings", {dashboard: current})}>
+          <i className="icon settings"/>
+        </a>
         <div className="ui item separator"/>
         <a className="item" id="maximize">
           <i className="ui icon maximize"/>

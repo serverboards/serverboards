@@ -171,6 +171,30 @@ function project(state=default_state, action){
       let list = map_get(state, ["dashboard", "list"])
       return map_set(state, ["dashboard", "list"], list.concat(action))
     }
+    case "@RPC_EVENT/dashboard.updated":
+    {
+      const payload = {
+        uuid: action.uuid,
+        name: action.name,
+        order: action.order,
+        config: action.config
+      }
+      console.log(action, payload, state.dashboard)
+      if (payload.uuid == state.dashboard.current.uuid){
+        state = map_set(state, ["dashboard","current"], {...state.dashboard.current, ...payload})
+      }
+      const list = state.dashboard.list.map( d => {
+        if (d.uuid == payload.uuid)
+          return {...d, ...payload}
+        return d
+      })
+      return map_set(state, ["dashboard", "list"], list)
+    }
+    case "@RPC_EVENT/dashboard.removed":
+    {
+      const list = state.dashboard.list.filter( d => d.uuid != action.uuid)
+      return map_set(state, ["dashboard", "list"], list)
+    }
     case "BOARD_SET":
       return map_set(state, ["dashboard", "current"], action.payload)
     case "ISSUES_COUNT_PROJECT":
