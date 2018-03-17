@@ -23,7 +23,7 @@ export class ErrorBoundary extends React.Component{
   render(){
     if (this.state.error){
       return (
-        <Error>{String(this.state.error)}</Error>
+        <Error>{this.props.error || String(this.state.error)}</Error>
       )
     }
     return this.props.children

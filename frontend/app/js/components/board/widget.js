@@ -114,7 +114,7 @@ class Widget extends React.Component{
               <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
             </section>
           ) : (Component!=undefined) ? (
-            <ErrorBoundary>
+            <ErrorBoundary error={i18n("Could not render Widget. Contact author.")}>
               <Component {...this.props} {...state} {...this.state.context}/>
             </ErrorBoundary>
           ) : (
