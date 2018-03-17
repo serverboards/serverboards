@@ -18,12 +18,16 @@
   }
 
   class Clock extends React.Component{
-    getInitialState(){
-      return { time: this.time(), interval_id: undefined }
+    constructor(props){
+      super(props)
+      this.state = {
+        time: this.time(),
+        interval_id: undefined
+      }
     }
     componentDidMount(){
       if (!this.state.interval_id){
-        const interval_id = setInterval(this.update_timer, 1000)
+        const interval_id = setInterval(this.update_timer.bind(this), 1000)
         this.setState({interval_id: interval_id})
       }
       this.props.setClass("orange card")

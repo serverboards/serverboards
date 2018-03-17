@@ -5,6 +5,7 @@ import {merge, map_get} from 'app/utils'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import {MarkdownPreview} from 'react-marked-markdown'
+import {ErrorBoundary} from 'app/components/error'
 
 class Widget extends React.Component{
   constructor(props){
@@ -113,7 +114,9 @@ class Widget extends React.Component{
               <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
             </section>
           ) : (Component!=undefined) ? (
-            <Component {...this.props} {...state} {...this.state.context}/>
+            <ErrorBoundary>
+              <Component {...this.props} {...state} {...this.state.context}/>
+            </ErrorBoundary>
           ) : (
             <div ref="el"/>
           )}
