@@ -33,13 +33,12 @@ function SVGPie({center, rings, colors}){
     return ret
   })
 
-  // console.log(ringsp)
-
   return (
     <svg viewBox="0 0 150 150" style={{padding: "10px 30px"}}>
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
+          key={r}
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
           style={{fill: COLORMAP[i] || colors[i]}}
           />
