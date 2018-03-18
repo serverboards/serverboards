@@ -5,6 +5,7 @@ import PluginScreen from 'app/components/plugin/screen'
 import SidebarSections from 'app/containers/project/sidebar'
 import i18n from 'app/utils/i18n'
 import Top from 'app/containers/project/top'
+import {ErrorBoundary} from 'app/components'
 
 require("sass/split-area.sass")
 
@@ -103,13 +104,15 @@ class Project extends React.Component{
             />
           <div className="ui expand vertical split area with scroll" id="centralarea">
             {this.state.handleSetSectionMenu && ( // Hack to prevent redraw of section when top set the handlers.
-              <Section
-                project={props.project}
-                subsection={props.params.subsection}
-                location={props.location}
-                setSectionMenu={this.state.handleSetSectionMenu}
-                setSectionMenuProps={this.state.handleSetSectionMenuProps}
-                />
+              <ErrorBoundary>
+                <Section
+                  project={props.project}
+                  subsection={props.params.subsection}
+                  location={props.location}
+                  setSectionMenu={this.state.handleSetSectionMenu}
+                  setSectionMenuProps={this.state.handleSetSectionMenuProps}
+                  />
+              </ErrorBoundary>
             )}
           </div>
         </div>
