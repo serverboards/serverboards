@@ -97,7 +97,7 @@ defmodule Serverboards.Query do
     if not String.starts_with?(String.upcase(query), "SELECT") do
       res = case query do
         "" ->
-          %{ columns: "?NONAME?", rows: [[""]]}
+          %{ columns: ["?NONAME?"], rows: [[""]]}
         _ ->
           rows =
                String.split(query,"\n")
