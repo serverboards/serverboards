@@ -4,6 +4,7 @@ var path = require('path')
 
 export default {
   target: 'node',
+  mode: "development",
   externals: [nodeExternals()],
   module: {
       rules: [
@@ -11,7 +12,7 @@ export default {
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            use: ["react-hot-loader", "babel-loader"]
+            use: ["babel-loader"]
           },
           { test: /\.css$/, use: ["style-loader","css"] },
           {
