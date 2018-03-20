@@ -30,6 +30,10 @@ setup: node_modules node_modules/gifsicle/vendor/gifscle
 node_modules/gifsicle/vendor/gifscle:
 	cd node_modules/pngquant-bin ; node lib/install.js
 	cd node_modules/gifsicle ; node lib/install.js
+	mkdir -p node_modules/imagemin-pngquant/node_modules/pngquant-bin/vendor/
+	rm -rf node_modules/imagemin-pngquant/node_modules/pngquant-bin/vendor/pngquant
+	ln -s $(shell pwd)/node_modules/.bin/pngquant node_modules/imagemin-pngquant/node_modules/pngquant-bin/vendor/
+
 
 node_modules: yarn.lock package.json
 	yarn --no-progress
