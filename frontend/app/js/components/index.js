@@ -5,7 +5,7 @@ import Modal from './modal'
 import HoldButton from './holdbutton'
 import GenericForm from './genericform'
 import Calendar from './calendar'
-import Error from './error'
+import {Error, ErrorBoundary} from './error'
 import Tip from './tip'
 import Logs from './logs'
 import IconIcon from './iconicon'
@@ -26,6 +26,7 @@ const components = {
   GenericForm,
   Calendar,
   Error,
+  ErrorBoundary,
   Tip,
   Logs,
   IconIcon,
@@ -52,12 +53,16 @@ export {
   GenericForm,
   Calendar,
   Error,
+  ErrorBoundary,
   Tip,
   Logs,
   IconIcon,
   PluginScreen,
   Selector,
   Panes,
+  QueryServiceSelect,
+  ExtractorsHelp,
   FutureLabel,
   Restricted,
+  CodeMirror,
 }

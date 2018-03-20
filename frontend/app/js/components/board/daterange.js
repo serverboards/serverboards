@@ -3,14 +3,12 @@ import Calendar from 'rc-calendar';
 import moment from 'moment'
 import {pretty_ago} from 'app/utils'
 import {i18n, i18n_c} from 'app/utils/i18n'
+import PropTypes from 'prop-types'
 
 require("sass/calendar.sass")
 const DATE_FORMAT="YYYY-MM-DD hh:mm"
 
-const TimePicker=React.createClass({
-  propTypes:{
-    value: React.PropTypes.object.isRequired
-  },
+class TimePicker extends React.Component{
   componentDidMount(){
     let self=this
     $(this.refs.h).dropdown({
@@ -19,22 +17,22 @@ const TimePicker=React.createClass({
     $(this.refs.m).dropdown({
       onChange: self.handleChangeMinute
     })
-  },
+  }
   handleChangeMinute(v){
     let val=this.props.value.minutes(v)
     this.props.onSelect(val)
-  },
+  }
   handleChangeHour(v){
     let val=this.props.value.hours(v)
     this.props.onSelect(val)
-  },
+  }
   range(max){
     var hh=[]
     for (var i=0;i<max;i++){
       hh.push( (""+"0"+i).slice(-2) )
     }
     return hh
-  },
+  }
   render(){
     const props=this.props
     const value=props.value
@@ -54,36 +52,36 @@ const TimePicker=React.createClass({
       </div>
     )
   }
-})
+}
+
+TimePicker.propsTypes = {
+  value: PropTypes.object.isRequired
+}
 
 
-const DatetimePicker=React.createClass({
-  propTypes:{
-    value: React.PropTypes.object.isRequired,
-    onSelect: React.PropTypes.func.isRequired,
-    onClose: React.PropTypes.func.isRequired,
-  },
-  getInitialState(){
-    return ({
+class DatetimePicker extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       now: moment(),
       value: this.props.value
-    })
-  },
+    }
+  }
   isDateDisabled(date){
     if (date)
       return date.diff(this.state.now) > (24*60*60);
-  },
+  }
   handleDateSelect(value){
     this.setState({value})
-  },
+  }
   handleOk(){
     this.props.onSelect(this.state.value)
     this.props.onClose()
-  },
+  }
   setToday(){
     this.props.onSelect(moment())
     this.props.onClose()
-  },
+  }
   render(){
     const props=this.props
     return (
@@ -91,38 +89,39 @@ const DatetimePicker=React.createClass({
         <label>Date:</label>
         <Calendar
           value={this.state.value}
-          onSelect={this.handleDateSelect}
-          onChange={this.handleDateSelect}
+          onSelect={this.handleDateSelect.bind(this)}
+          onChange={this.handleDateSelect.bind(this)}
           disabledDate={this.isDateDisabled}
           showToday={false}
           />
         <label>Time:</label>
         <TimePicker
           value={this.state.value}
-          onSelect={this.handleDateSelect}
+          onSelect={this.handleDateSelect.bind(this)}
           />
         <div className="ui right" style={{marginTop: 10}}>
           <button
             className="ui button"
-            onClick={this.setToday}
+            onClick={this.setToday.bind(this)}
             >{i18n("Set now")}</button>
           <button
             className="ui button yellow"
-            onClick={this.handleOk}
+            onClick={this.handleOk.bind(this)}
             >{i18n("Set selected")}</button>
         </div>
       </div>
     )
   }
-})
+}
+
+DatetimePicker.propTypes = {
+  value: PropTypes.object.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+}
 
 
-const DatetimeItem=React.createClass({
-  propTypes:{
-    value: React.PropTypes.object.isRequired,
-    now: React.PropTypes.object.isRequired,
-    onClick: React.PropTypes.func.isRequired,
-  },
+class DatetimeItem extends React.Component{
   render(){
     const props=this.props
     const pretty=pretty_ago(props.value, props.now, 60 * 1000)
@@ -133,29 +132,39 @@ const DatetimeItem=React.createClass({
           <label style={{alignSelf: "flex-start", fontWeight: "bold", paddingBottom: 10}}>{props.label}</label>
           <div className="value">
             {pretty}<br/>
-            <span className="meta" style={{color: "#bbb", fontWeight: "normal"}}>{i18n.i18n_c("date range", "at")} {props.value.format("HH:mm")}</span>
+            <span className="meta" style={{color: "#bbb", fontWeight: "normal"}}>
+              {i18n.i18n_c("date range", "at")} {props.value.format("HH:mm")}
+            </span>
             </div>
         </a>
       </div>
     )
   }
-})
+}
 
-const DateRange=React.createClass({
-  getInitialState(){
-    return {
+DatetimeItem.propTypes = {
+  value: PropTypes.object.isRequired,
+  now: PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
+}
+
+
+export class DateRange extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       value: null,
       onSelect: null,
       selected: null
     }
-  },
+  }
   handleOpenCalendar(selected, value, onSelect){
     const handleSelect=(value) => {
       this.setState({selected:null, value: null, onSelect: null})
       onSelect(value)
     }
     this.setState({selected, value, onSelect: handleSelect})
-  },
+  }
   render(){
     const props = this.props
     const state = this.state
@@ -187,6 +196,6 @@ const DateRange=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default DateRange

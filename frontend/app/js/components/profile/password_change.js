@@ -4,7 +4,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {i18n} from 'app/utils/i18n'
 
-const PasswordChange=React.createClass({
+class PasswordChange extends React.Component{
   componentDidMount(){
     $(this.refs.form).form({
       on: 'blur',
@@ -14,7 +14,7 @@ const PasswordChange=React.createClass({
         repeat_password:"match[new_password]"
       }
     })
-  },
+  }
   changePassword(){
     console.log("Change password %o", this.refs)
     let $form=$(this.refs.form)
@@ -30,7 +30,7 @@ const PasswordChange=React.createClass({
         Flash.error(i18n("Error changing password: {e}", {e}))
       })
     }
-  },
+  }
   render(){
     const props=this.props
     return (
@@ -54,10 +54,11 @@ const PasswordChange=React.createClass({
           </div>
           <div className="ui error message"></div>
 
-          <button className="ui submit button yellow" onClick={this.changePassword}>{i18n("Change password")}</button>
+          <button className="ui submit button yellow" onClick={this.changePassword.bind(this)}>{i18n("Change password")}</button>
         </div>
       </Modal>
     )
   }
-})
+}
+
 export default PasswordChange

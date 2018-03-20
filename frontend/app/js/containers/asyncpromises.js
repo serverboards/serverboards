@@ -2,10 +2,11 @@ import React from 'react'
 import { unwrap } from 'app/utils'
 import Loading from 'app/components/loading'
 
-const AsyncPromises = React.createClass({
-  getInitialState(){
-    return { loading: ["mounting"] }
-  },
+class AsyncPromises extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = { loading: ["mounting"] }
+  }
   componentDidMount(){
     const promises = unwrap(this.props.promises, this.props)
 
@@ -37,13 +38,13 @@ const AsyncPromises = React.createClass({
     maybe_now.getLoading=() => this.state.loading
 
     this.setState(ret)
-  },
+  }
   render(){
     if (this.state.loading.length>0)
       return <Loading>{this.state.loading.join(', ')}</Loading>
     const View = this.props.component
     return <View {...this.props} {...this.state} promises={undefined} component={undefined} />
   }
-})
+}
 
 export default AsyncPromises

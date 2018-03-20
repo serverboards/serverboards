@@ -2,19 +2,20 @@ import React from 'react'
 import Modal from 'app/components/modal'
 import i18n from 'app/utils/i18n'
 
-let EditPerms=React.createClass({
-  getInitialState:function(){
+class EditPerms extends React.Component{
+  constructor(props){
+    super(props)
     let users = this.props.group.users.map( (u) => ({email: u, is_active: true}) )
     let candidates_to_add = $.makeArray( $(this.props.all_users).not(this.props.group.users) )
 
-    return { users, candidates_to_add }
-  },
+    this.state = { users, candidates_to_add }
+  }
   componentDidMount(){
     let $form=$(this.refs.form)
     $form.form()
     $form.find('.ui.checkbox').checkbox()
     $form.find('.ui.dropdown').dropdown()
-  },
+  }
   handleAddUser(){
     let username=$(this.refs.form).find('select[name=to_add]').val()
     if (!username)
@@ -24,7 +25,7 @@ let EditPerms=React.createClass({
 
     this.setState({ users, candidates_to_add })
 
-  },
+  }
   handleSubmit(){
     const current = $.makeArray(
         $(this.refs.form).find('input[type=checkbox]:checked')
@@ -36,7 +37,7 @@ let EditPerms=React.createClass({
 
     this.props.onUpdateUsers(g.name, to_add, to_remove)
     this.props.setModal(false)
-  },
+  }
   render(){
     let props=this.props
 
@@ -57,7 +58,7 @@ let EditPerms=React.createClass({
                 <option name={u}>{u}</option>
               ))}
               </select> &nbsp;
-              <button type="button" className="ui right labeled icon button" onClick={this.handleAddUser}>
+              <button type="button" className="ui right labeled icon button" onClick={this.handleAddUser.bind(this)}>
                 <i className="ui icon add"/>
                 Add</button>
             </div>
@@ -72,13 +73,13 @@ let EditPerms=React.createClass({
               </div>
             ))}
             <div className="field">
-              <button type="button" className="ui accept teal button" onClick={this.handleSubmit}>Accept changes</button>
+              <button type="button" className="ui accept teal button" onClick={this.handleSubmit.bind(this)}>Accept changes</button>
             </div>
           </form>
         </div>
       </Modal>
     )
   }
-})
+}
 
 export default EditPerms

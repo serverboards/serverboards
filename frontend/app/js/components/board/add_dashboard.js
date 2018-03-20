@@ -4,7 +4,7 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import rpc from 'app/rpc'
 
-const CreateDashboard = React.createClass({
+class CreateDashboard extends React.Component{
   handleCreateDashboard(){
     const props = this.props
     let name = this.refs.name.value
@@ -16,7 +16,7 @@ const CreateDashboard = React.createClass({
       console.error(e)
       Flash.error("Could not create the dashboard. Check the logs.")
     })
-  },
+  }
   render(){
     const props = this.props
     return (
@@ -40,6 +40,6 @@ const CreateDashboard = React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default CreateDashboard

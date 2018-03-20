@@ -19,14 +19,15 @@ const MONTHS=[
   i18n_c("calendar", "December")
 ]
 
-const Calendar = React.createClass({
-  getInitialState(){
+class Calendar extends React.Component{
+  constructor(props){
+    super(props)
     const now = moment()
-    return {
+    this.state = {
       month: (this.props.month != undefined) ? Number(this.props.month) : now.month(),
       year: (this.props.year != undefined) ? Number(this.props.year) : now.year()
     }
-  },
+  }
   addMonth(n){
     let year = this.state.year
     let month = this.state.month + n
@@ -40,13 +41,13 @@ const Calendar = React.createClass({
     }
     console.log("Set state", {year, month})
     this.setState({year, month})
-  },
+  }
   addYear(n){
     this.setState({year: this.state.year + n })
-  },
+  }
   componentWillReceiveProps(newprops){
     this.setState({year: newprops.year, month: newprops.month})
-  },
+  }
   render(){
     const props = this.props
     const state = this.state
@@ -134,6 +135,6 @@ const Calendar = React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Calendar

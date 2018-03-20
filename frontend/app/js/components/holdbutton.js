@@ -1,5 +1,6 @@
 import React from 'react'
 import {map_drop} from 'app/utils'
+import PropTypes from 'prop-types'
 
 require('sass/holdbutton.sass')
 
@@ -16,21 +17,16 @@ let ProgressBar=function(props){
   )
 }
 
-let HoldButton = React.createClass({
-  propTypes:{
-    onHoldClick: React.PropTypes.func.isRequired,
-    className: React.PropTypes.string,
-    children: React.PropTypes.array, // not required when class has `icon`
-    type: React.PropTypes.string
-  },
-  getInitialState(){
-    return {
+class HoldButton extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       count: 0
     }
-  },
+  }
   handleClick(){
     this.props.onHoldClick && this.props.onHoldClick()
-  },
+  }
   componentDidMount(){
     let $button=$(this.refs.button)
     $button
@@ -43,13 +39,13 @@ let HoldButton = React.createClass({
       on: 'click'
     })
 
-  },
-  startHold : function(ev){
+  }
+  startHold(ev){
     if (this.timer)
       return
     if (ev.which==1)
       this.timer=setTimeout(this.countHold, hold_speed)
-  },
+  }
   countHold(){
     if (this.state.count>=100){
       this.stopHold()
@@ -59,12 +55,12 @@ let HoldButton = React.createClass({
       this.setState({count: this.state.count+hold_speed2})
       this.timer=setTimeout(this.countHold, hold_speed)
     }
-  },
+  }
   stopHold(){
     this.setState({count: 0})
     clearTimeout(this.timer)
     this.timer=undefined
-  },
+  }
   render(){
     const className=this.props.className || ""
     if (className.includes("item"))
@@ -92,6 +88,13 @@ let HoldButton = React.createClass({
       </div>
     )
   }
-})
+}
+
+HoldButton.propTypes ={
+  onHoldClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.array, // not required when class has `icon`
+  type: PropTypes.string
+}
 
 export default HoldButton

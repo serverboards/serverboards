@@ -7,7 +7,7 @@ import {map_get} from 'app/utils'
 import store from 'app/utils/store'
 import Flash from 'app/flash'
 
-const Add = React.createClass({
+class Add extends React.Component{
   handleAdd(title, description){
     let updates = parse_comment(description)
     if (updates.length==0 || updates[0].type!="comment"){
@@ -30,12 +30,12 @@ const Add = React.createClass({
           return update_issue_multi(id, updates).then( () => id )
         return id
       }).then( (id) => goto(`/issues/${id}`) )
-  },
+  }
   render(){
     return (
-      <AddView {...this.props} onAdd={this.handleAdd}/>
+      <AddView {...this.props} onAdd={this.handleAdd.bind(this)}/>
     )
   }
-})
+}
 
 export default Add;

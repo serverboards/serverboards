@@ -7,10 +7,10 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import rpc from 'app/rpc'
 
-const GenericButton= React.createClass({
-  getInitialState(){
-    const props=this.props
-    return {
+class GenericButton extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       description: props.description,
       value: props.value,
       className: props.className || "",
@@ -19,14 +19,14 @@ const GenericButton= React.createClass({
       loading: true,
       dependant: []
     }
-  },
+  }
   componentDidMount(){
     this.prepareToUpdate()
-  },
+  }
   prepareToUpdate(){
     const to = setTimeout(() => this.updateVariables(), 1000)
     this.setState({waitforupdate: to, loading: true})
-  },
+  }
   updateVariables(){
     const props=this.props
     resolve_form_vars(props.vars, props.form_data || {}).then( (vars) => { // Then set it into the state, update content
@@ -46,7 +46,7 @@ const GenericButton= React.createClass({
     if (props.depends_on){
       this.setState({dependant: props.form_data[props.depends_on]})
     }
-  },
+  }
   componentWillReceiveProps(newprops){
     const props=this.props
     if (props.depends_on && this.state.dependant != props.form_data[props.depends_on]){
@@ -55,10 +55,10 @@ const GenericButton= React.createClass({
       }
       this.prepareToUpdate()
     }
-  },
+  }
   setError(code){
     this.setState({description: i18n("Error loading dynamic data. Contact plugin author. [Error #{code}]", {code}), extraClass: "error"})
-  },
+  }
   handleClick(ev){
     ev.preventDefault()
     const args = merge(this.props.form_data || {}, this.state.vars)
@@ -83,7 +83,7 @@ const GenericButton= React.createClass({
           Flash.error(e)
         } )
     }
-  },
+  }
   render(){
     const props = this.props
     const state = this.state
@@ -95,12 +95,12 @@ const GenericButton= React.createClass({
         ) : (
           <div>
             <MarkdownPreview className={`ui meta ${state.extraClass}`} value={state.description}/>
-            <button className={`ui button ${state.className}`} onClick={this.handleClick}>{i18n(state.value)}</button>
+            <button className={`ui button ${state.className}`} onClick={this.handleClick.bind(this)}>{i18n(state.value)}</button>
           </div>
         )}
       </div>
     )
   }
-})
+}
 
 export default GenericButton

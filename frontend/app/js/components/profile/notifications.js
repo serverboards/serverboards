@@ -5,18 +5,22 @@ import { to_map } from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {i18n} from 'app/utils/i18n'
 
-let Channel=React.createClass({
-  getInitialState(){
+class Channel extends React.Component{
+  constructor(props){
+    super(props)
     let config = this.props.config || {}
-    return { config: config.config, is_active: config.is_active || false }
-  },
+    this.state = {
+      config: config.config,
+      is_active: config.is_active || false
+    }
+  }
   componentWillReceiveProps(props){
     const config=props.config || {}
     this.setState({
       config: config.config,
       is_active: config.is_active
     })
-  },
+  }
   componentDidMount(){
     $(this.refs.enable).checkbox({
       onChecked: () =>{
@@ -28,11 +32,11 @@ let Channel=React.createClass({
         this.props.onUpdate(this.state.config, false)
       }
     })
-  },
+  }
   handleUpdate(config){
     this.setState( { config  } )
     this.props.onUpdate(config, this.state.is_active)
-  },
+  }
   render(){
     const props=this.props
     return (
@@ -55,17 +59,18 @@ let Channel=React.createClass({
       </div>
     )
   }
-})
+}
 
-const Notifications=React.createClass({
-  getInitialState(){
-    return this.props.config || { config: {}, is_active: false }
-  },
+class Notifications extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = this.props.config || { config: {}, is_active: false }
+  }
   componentWillReceiveProps(props){
     if (props.config != this.props.config){
       this.setState( props.config )
     }
-  },
+  }
   handleConfigUpdate(chan, config, is_active){
     let state=Object.assign({}, this.state)
     state[chan] = { config, is_active }
@@ -78,7 +83,7 @@ const Notifications=React.createClass({
     this.setState( valid_config )
 
     this.props.onUpdate( valid_config )
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -98,6 +103,6 @@ const Notifications=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Notifications

@@ -1,7 +1,8 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 import {MarkdownPreview} from 'react-marked-markdown';
 import ConnectionBanner from 'app/containers/connectionbanner'
 import {i18n, i18n_nop} from 'app/utils/i18n'
+import PropTypes from 'prop-types'
 
 require("sass/messages.sass")
 

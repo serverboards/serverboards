@@ -14,15 +14,16 @@ import {i18n} from 'app/utils/i18n'
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
 
-const ServiceField=React.createClass({
-  getInitialState(){
-    return {service: undefined}
-  },
+class ServiceField extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {service: undefined}
+  }
   componentDidMount(){
     rpc.call("service.get", [this.props.value]).then( (service) => {
       this.setState({service: service.name})
     })
-  },
+  }
   render(){
     if (this.state.service)
       return (
@@ -33,7 +34,7 @@ const ServiceField=React.createClass({
         <span/>
       )
   }
-})
+}
 
 function Field(props){
   if (props.description.type=='service')
@@ -66,10 +67,11 @@ function RealBottomMenu(props){
   )
 }
 
-const VirtualBottomMenu=React.createClass({
-  getInitialState(){
-    return {actions: undefined}
-  },
+class VirtualBottomMenu extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {actions: undefined}
+  }
   loadAvailableActions(){
     if (this.state.actions == undefined){
       rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
@@ -84,15 +86,15 @@ const VirtualBottomMenu=React.createClass({
       })
     }
     return true;
-  },
+  }
   componentDidMount(){
     this.loadAvailableActions()
-  },
+  }
   triggerAction(action_id){
     let action=this.state.actions.filter( (a) => a.id == action_id )[0]
     // Discriminate depending on action type (by shape)
     trigger_action(action, this.props.service)
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -125,9 +127,9 @@ const VirtualBottomMenu=React.createClass({
       </div>
     )
   }
-})
+}
 
-const Card=React.createClass({
+class Card extends React.Component{
   componentDidMount(){
     if (!this.props.service.is_virtual){
       const s = this.props.service
@@ -140,13 +142,13 @@ const Card=React.createClass({
         }
       ],2 )
     }
-  },
+  }
   componentWillUnmount(){
     Command.remove_command_search(`service-${this.props.service.uuid}`)
-  },
+  }
   handleDetach(){
     this.props.onDetach( this.props.project.shortname, this.props.service.uuid )
-  },
+  }
   show_config(k){
     var fields = (this.props.service_description || {}).fields || []
     for(var p of fields){
@@ -155,10 +157,10 @@ const Card=React.createClass({
       }
     }
     return undefined;
-  },
+  }
   handleOpenDetails(){
     goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
-  },
+  }
   get_field(k){
     var fields = (this.props.service_description || {}).fields
     if (!fields)
@@ -169,13 +171,13 @@ const Card=React.createClass({
       }
     }
     return undefined;
-  },
+  }
   show_config(k){
     var field = this.get_field(k)
     if (!field)
       return false
     return field.card ? true : false
-  },
+  }
   render(){
     let props=this.props.service
     let tags = props.tags || []
@@ -183,7 +185,7 @@ const Card=React.createClass({
       tags = tags.concat("NOT-CONFIGURED")
     return (
       <div className="service card">
-        <div className="extra content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
+        <div className="extra content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails.bind(this)}>
           <div className="labels">
             {tags.map( (l) => (
               <span key={l} className="ui text label"><span className={`ui rectangular ${colorize(l)} label`}/> {i18n(l)}</span>
@@ -191,7 +193,7 @@ const Card=React.createClass({
           </div>
         </div>
 
-        <div className="content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
+        <div className="content" style={{cursor: "pointer"}} onClick={this.handleOpenDetails.bind(this)}>
           <div className="right floated">
             {props.icon ? (
               <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
@@ -208,7 +210,7 @@ const Card=React.createClass({
             )}
           </div>
         </div>
-        <div className="extra content config" style={{cursor: "pointer"}} onClick={this.handleOpenDetails}>
+        <div className="extra content config" style={{cursor: "pointer"}} onClick={this.handleOpenDetails.bind(this)}>
           {(Object.keys(props.config || {})).map((k) => this.show_config(k) ? (
             <Field key={k} name={k} value={props.config[k]} description={this.get_field(k)}/>
           ) : [])}
@@ -223,13 +225,13 @@ const Card=React.createClass({
             <RealBottomMenu
               service={props}
               setModal={this.props.setModal}
-              onDetach={this.handleDetach}
+              onDetach={this.handleDetach.bind(this)}
               />
           )}
         </div>
       </div>
     )
   }
-})
+}
 
 export default Card

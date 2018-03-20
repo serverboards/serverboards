@@ -5,12 +5,12 @@ import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
 import Modal from '../modal'
 
-let ProcessView=React.createClass({
+class ProcessView extends React.Component{
   render(){
     let process = this.props.process
     if (!process)
       return (
-        <Loading>Process history</Loading>
+        <Loading>{i18n("Process history")}</Loading>
       )
 
     let label_color=""
@@ -71,6 +71,6 @@ let ProcessView=React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default ProcessView

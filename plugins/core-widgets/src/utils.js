@@ -83,7 +83,6 @@ const style = {
 }
 
 export function MiniBar({value, color}){
-  console.log(value)
   if (!color)
     color = COLORMAP[color] || COLORMAP["blue"]
   return (

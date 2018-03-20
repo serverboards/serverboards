@@ -1,20 +1,22 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
 import ResetPassword from './reset_password'
 import SetPassword from './set_password'
 import rpc from 'app/rpc'
 import 'sass/login.sass'
 import {i18n} from 'app/utils/i18n'
 import {merge} from 'app/utils'
+import PropTypes from 'prop-types'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
-var LoginView = React.createClass({
-  getInitialState(){
-    return {
+class LoginView extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       modal: undefined,
       email: undefined,
     }
-  },
+  }
   handleSubmit(ev){
     ev && ev.preventDefault()
     let $form = $(this.refs.el)
@@ -25,35 +27,30 @@ var LoginView = React.createClass({
         merge({type: 'basic'}, fields)
       )
     }
-  },
-  contextTypes: {
-    router: React.PropTypes.object
-  },
+  }
   componentDidMount( ){
-    let self=this
-
     $(this.refs.el).form({
       on: 'blur',
       fields: {
         email: 'minLength[1]',
         password: 'minLength[6]'
       }
-    }).on('submit', self.handleSubmit)
+    }).on('submit', this.handleSubmit.bind(this))
 
-    $(self.refs.el).find('[name=email]').focus()
+    $(this.refs.el).find('[name=email]').focus()
 
     const token_match=window.location.hash.match(/pr=([-0-9a-fA-F]*)/)
     if (token_match){
       window.location.hash=''
       this.setState({modal: 'set_password', token: token_match[1]})
     }
-  },
+  }
   resetPassword(email){
     this.setState({modal: 'reset_password', email})
-  },
+  }
   setPassword(pw){
     this.setState({modal: 'set_password', pw})
-  },
+  }
   render(){
     if (this.state.modal=='reset_password')
       return(
@@ -96,24 +93,32 @@ var LoginView = React.createClass({
           </div>
 
           <div className="ui centered actions">
-            <button type="button" className={`ui wide login teal right labeled icon button ${logging ? "disabled" : ""}`} onClick={this.handleSubmit}>
-              {i18n("Log In")}
-              {logging ? (
-                <i className="loading spinner icon"></i>
-              ) : (
-                <i className="caret right icon"></i>
-              )}
+            <button type="button"
+              className={`ui wide login teal right labeled icon button ${logging ? "disabled" : ""}`}
+              onClick={this.handleSubmit.bind(this)}>
+                {i18n("Log In")}
+                {logging ? (
+                  <i className="loading spinner icon"></i>
+                ) : (
+                  <i className="caret right icon"></i>
+                )}
             </button>
           </div>
         </div>
       </form>
       </div>
     )
-  },
-  propTypes: {
-    _onSubmit: PropTypes.func.isRequired
   }
-})
+}
+
+LoginView.propTypes = {
+  _onSubmit: PropTypes.func.isRequired
+}
+
+LoginView.contextTypes = {
+  router: PropTypes.object
+}
+
 
 
 export default LoginView

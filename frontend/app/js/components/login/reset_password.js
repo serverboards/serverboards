@@ -3,7 +3,7 @@ import Flash from 'app/flash'
 import rpc from 'app/rpc'
 import {i18n} from 'app/utils/i18n'
 
-const ResetPassword=React.createClass({
+class ResetPassword extends React.Component{
   sendEmail(){
     const email=$(this.refs.el).find('input[name=email]').val()
     let self=this
@@ -15,12 +15,12 @@ const ResetPassword=React.createClass({
     }).catch(function(e){
       Flash.error(i18n("Could not request password reset: {e}", {e}))
     })
-  },
+  }
   setPassword(ev){
     const email=$(this.refs.el).find('input[name=email]').val()
     ev.preventDefault()
     this.props.setPassword(email)
-  },
+  }
   componentDidMount(){
     $(this.refs.el).form({
       on: 'blur',
@@ -28,7 +28,7 @@ const ResetPassword=React.createClass({
         email: 'email',
       }
     }).submit((ev) => { ev.preventDefault(); this.setPassword})
-  },
+  }
   render(){
     const props=this.props
     return (
@@ -45,7 +45,7 @@ const ResetPassword=React.createClass({
                 <input type="email" name="email" placeholder="user@company.com"
                   defaultValue={props.email}
                   />
-                <a href="#" onClick={this.setPassword}>{i18n("I already have a password change token")}</a>
+                <a href="#" onClick={this.setPassword.bind(this)}>{i18n("I already have a password change token")}</a>
               </div>
             </div>
 
@@ -53,7 +53,7 @@ const ResetPassword=React.createClass({
               <button type="button" className="ui right button" onClick={props.closeReset}>
                 {i18n("Cancel")}
               </button>
-              <button type="button" className="ui teal right labeled icon button" onClick={this.sendEmail}>
+              <button type="button" className="ui teal right labeled icon button" onClick={this.sendEmail.bind(this)}>
                 {i18n("Request email")}
                 <i className="caret right icon"></i>
               </button>
@@ -63,6 +63,6 @@ const ResetPassword=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default ResetPassword

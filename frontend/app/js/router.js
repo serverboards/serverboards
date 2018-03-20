@@ -23,7 +23,7 @@ import Wizard from 'app/containers/project/wizard'
 
 const history = syncHistoryWithStore(hashHistory, store)
 
-var ServerboardsRouter = React.createClass({
+class ServerboardsRouter extends React.Component{
   render(){
     //console.log("Router Props: %o", this.props)
     return (
@@ -68,7 +68,7 @@ var ServerboardsRouter = React.createClass({
         </Router>
       )
     }
-})
+}
 
 export { Link }
 export default ServerboardsRouter

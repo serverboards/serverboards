@@ -17,10 +17,10 @@ export function service_definition(service_type, service_catalog){
 
 
 
-const ServiceTableLine = React.createClass({
+class ServiceTableLine extends React.Component{
   handleOpenDetails(){
     goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
-  },
+  }
   render(){
     const props=this.props
     const s=props.service
@@ -35,7 +35,7 @@ const ServiceTableLine = React.createClass({
     })
 
     return (
-      <tr ref="el" onClick={this.handleOpenDetails} style={{cursor: "pointer"}}>
+      <tr ref="el" onClick={this.handleOpenDetails.bind(this)} style={{cursor: "pointer"}}>
         <td>
           {d.icon ? (
             <IconIcon src={icon} icon={d.icon} plugin={d.type.split('/',1)[0]}/>
@@ -61,7 +61,7 @@ const ServiceTableLine = React.createClass({
       </tr>
     )
   }
-})
+}
 
 function Table(props){
   if (!props.catalog)

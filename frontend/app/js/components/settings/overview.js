@@ -4,14 +4,15 @@ import rpc from 'app/rpc'
 import {merge, servername} from 'app/utils'
 import i18n from 'app/utils/i18n'
 
-const Default=React.createClass({
-  getInitialState(){
-    return {
+class Default extends React.Component{
+  constructor(props){
+    super(props) 
+    this.state = {
       pre: [],
       post: [],
       buttons: []
     }
-  },
+  }
   componentDidMount(){
     console.log("Get components.")
     rpc.call("plugin.component.catalog", {type:"settings overview"}).then( (l) => {
@@ -32,7 +33,7 @@ const Default=React.createClass({
       const post = desc.filter( (o) => !o.order || o.order>0 )
       this.setState({pre, post, buttons})
     })
-  },
+  }
   render(){
     const props = this.props
     const state = this.state
@@ -62,6 +63,6 @@ const Default=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Default

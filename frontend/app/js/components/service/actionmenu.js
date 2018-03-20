@@ -3,24 +3,22 @@ import HoldButton from '../holdbutton'
 import rpc from 'app/rpc'
 import {trigger_action} from './action'
 import {i18n} from 'app/utils/i18n'
+import PropTypes from 'prop-types'
 
-const ActionMenu=React.createClass({
-  contextTypes: {
-    router: React.PropTypes.object // Needed for plugin screens
-  },
-  getInitialState(){
+class ActionMenu extends React.Component{
+  constructor(props){ super(props)
     return {
       actions: undefined
     }
-  },
+  }
   handleOpenSettings(){
     this.props.setModal("service.settings", {onAdd: this.handleAddService, onAttach: this.handleAttachService, service: this.props.service})
-  },
+  }
   triggerAction(action_id){
     let action=this.state.actions.filter( (a) => a.id == action_id )[0]
     // Discriminate depending on action type (by shape)
     trigger_action(action, this.props.service)
-  },
+  }
   loadAvailableActions(){
     if (!this.state.actions){
       rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
@@ -33,12 +31,12 @@ const ActionMenu=React.createClass({
       })
     }
     return true;
-  },
+  }
   componentDidMount(){
     $(this.refs.dropdown).dropdown({
       onShow: this.loadAvailableActions,
     })
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -51,7 +49,7 @@ const ActionMenu=React.createClass({
             <HoldButton className="item" onHoldClick={this.props.onDetach}>{i18n("Hold to Detach")}</HoldButton>
           ) : []}
           {props.service.fields ? (
-            <div className="item" onClick={this.handleOpenSettings}><i className="ui icon settings"/> {i18n("Settings")}</div>
+            <div className="item" onClick={this.handleOpenSettings.bind(this)}><i className="ui icon settings"/> {i18n("Settings")}</div>
           ) : []}
           {state.actions ? state.actions.map( (ac) => (
             <div key={ac.id} className="item" onClick={() => this.triggerAction(ac.id)}>{ ac.extra.icon ? (<i className={`ui ${ac.extra.icon} icon`}/>) : []} {ac.name}</div>
@@ -64,6 +62,10 @@ const ActionMenu=React.createClass({
       </div>
     )
   }
-})
+}
+
+ActionMenu.contextTypes = {
+  router: PropTypes.object // Needed for plugin screens
+}
 
 export default ActionMenu

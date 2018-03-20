@@ -7,29 +7,30 @@ import Flash from 'app/flash'
 import rpc from 'app/rpc'
 import {i18n} from 'app/utils/i18n'
 
-let Profile = React.createClass({
-  getInitialState(){
-    return {
+class Profile extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       modal: undefined,
       avatar: this.props.avatar,
       lang: this.props.lang
     }
-  },
+  }
   handleSubmit(){
     console.log("Submit %o",this.state)
     this.props.onSubmit(this.state)
-  },
+  }
   handleUpdate(section, data){
     this.setState({ [section]: data })
-  },
+  }
   openPasswordChange(ev){
     ev.preventDefault()
     this.setState({ modal: "change_password" })
-  },
+  }
   openPersonalData(ev){
     ev.preventDefault()
     this.setState({ modal: "personal_data" })
-  },
+  }
   componentDidMount(){
     const self=this
     $(this.refs.lang).dropdown({
@@ -39,7 +40,7 @@ let Profile = React.createClass({
         self.props.onSetLanguage(lang)
       }
     })
-  },
+  }
   uploadAvatar(ev){
     let fr = new FileReader()
     fr.onload = (ev) => {
@@ -50,7 +51,7 @@ let Profile = React.createClass({
       })
     }
     fr.readAsDataURL(ev.target.files[0])
-  },
+  }
   render(){
     let popup=[]
     switch(this.state.modal){
@@ -75,14 +76,14 @@ let Profile = React.createClass({
       <div className="ui central area white background" style={{flexDirection: "column"}}>
         <div className="ui top secondary menu">
          <div className="right menu">
-            <a className="item" href="#" onClick={this.openPersonalData}><i className="ui icon user"/>{i18n("Personal data")}</a>
-            <a className="item" href="#" onClick={this.openPasswordChange}><i className="ui icon lock"/>{i18n("Change password")}</a>
+            <a className="item" href="#" onClick={this.openPersonalData.bind(this)}><i className="ui icon user"/>{i18n("Personal data")}</a>
+            <a className="item" href="#" onClick={this.openPasswordChange.bind(this)}><i className="ui icon lock"/>{i18n("Change password")}</a>
           </div>
         </div>
         <div className="ui text container">
           <div style={{float:"left", margin: "0px 30px 30px 0"}}>
             <img src={state.avatar} className="ui bordered image medium" style={{width: 300, height: 300}}/>
-            <div className="ui meta blue text"><label style={{cursor:"pointer"}}>{i18n("Upload new image")}<input onChange={this.uploadAvatar} style={{display:"none"}} type="file"/></label>.</div>
+            <div className="ui meta blue text"><label style={{cursor:"pointer"}}>{i18n("Upload new image")}<input onChange={this.uploadAvatar.bind(this)} style={{display:"none"}} type="file"/></label>.</div>
           </div>
           <h1 className="ui header">{props.user.name}</h1>
           <h2 className="ui header">{i18n("Basic user data")}</h2>
@@ -111,13 +112,13 @@ let Profile = React.createClass({
           </Restricted>
           <br/>
           <Restricted perm="settings.user.update">
-            <button className="ui yellow button" onClick={this.handleSubmit}>{i18n("Update profile")}</button>
+            <button className="ui yellow button" onClick={this.handleSubmit.bind(this)}>{i18n("Update profile")}</button>
           </Restricted>
         </div>
         {popup}
       </div>
     )
   }
-})
+}
 
 export default Profile

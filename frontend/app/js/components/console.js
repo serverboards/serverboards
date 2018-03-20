@@ -10,18 +10,22 @@ function ConsoleLine(props){
   )
 }
 
-var Console=React.createClass({
-  getInitialState:function(){
-    return { stick_to_bottom: true }
-  },
-  handleSubmit: function(ev){
+class Console extends React.Component{
+  constructor(props){
+    super(props)
+
+    this.state = {
+      stick_to_bottom: true
+    }
+  }
+  handleSubmit(ev){
     ev.preventDefault()
 
     var inpt=$(ev.target).find('input')
     this.props.onSubmit(inpt.val())
     inpt.val('')
-  },
-  onToggle: function(ev){
+  }
+  onToggle(ev){
     if (ev.keyCode==186){
       console.debug("Toggle RPC console")
       ev.preventDefault()
@@ -33,15 +37,15 @@ var Console=React.createClass({
         $('.top.console input').focus()
       }
     }
-  },
+  }
   componentDidMount(){
     $(window).on('keypress', this.onToggle)
 
     return {}
-  },
+  }
   componentWillUnmount(){
     $(window).off('keypress', this.onToggle)
-  },
+  }
   componentWillUpdate(){
     if (this.state.stick_to_bottom){
       let history=$('.top.console .history')
@@ -52,7 +56,7 @@ var Console=React.createClass({
         }, 200)
       }
     }
-  },
+  }
   render(){
     var props=this.props
     //console.log(props)
@@ -73,7 +77,7 @@ var Console=React.createClass({
         </div>
         <hr/>
         <div className="prompt">
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.handleSubmit.bind(this)}>
             <span>&gt;&gt;&gt; </span>
             <input type="text"/>
           </form>
@@ -81,6 +85,6 @@ var Console=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Console

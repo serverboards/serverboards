@@ -2,8 +2,8 @@ import React from 'react'
 import Modal from 'app/components/modal'
 import i18n from 'app/utils/i18n'
 
-let AddUser = React.createClass({
-  handleAddUser : function(ev){
+class AddUser extends React.Component{
+  handleAddUser(ev){
     ev.preventDefault()
 
     let $form = $(this.refs.form)
@@ -13,7 +13,7 @@ let AddUser = React.createClass({
       is_active: true,
     } )
     this.props.setModal(false)
-  },
+  }
   componentDidMount(){
     $(this.refs.form).form({
       on:'blur',
@@ -21,7 +21,7 @@ let AddUser = React.createClass({
         email: 'email'
       }
     })
-  },
+  }
   render(){
     let props=this.props
 
@@ -31,7 +31,7 @@ let AddUser = React.createClass({
           <h3>{i18n("Add a new user")}</h3>
         </div>
         <div className="ui content with padding and scroll">
-          <form ref="form" className="ui form" onSubmit={this.handleAddUser}>
+          <form ref="form" className="ui form" onSubmit={this.handleAddUser.bind(this)}>
             <div className="field">
               <label>{i18n("Email")}</label>
               <input type="email" name="email" placeholder={i18n("This will be used as the user identifier")}/>
@@ -41,13 +41,13 @@ let AddUser = React.createClass({
               <input type="text" name="name"/>
             </div>
             <div className="field">
-              <div className="ui accept teal button" onClick={this.handleAddUser}>{i18n("Add user")}</div>
+              <div className="ui accept teal button" onClick={this.handleAddUser.bind(this)}>{i18n("Add user")}</div>
             </div>
           </form>
         </div>
       </Modal>
     )
   }
-})
+}
 
 export default AddUser

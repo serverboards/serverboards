@@ -8,12 +8,13 @@ import i18n from 'app/utils/i18n'
 
 const icon = require("../../../imgs/services.svg")
 
-let AddService=React.createClass({
-  getInitialState(){
-    return {
+class AddService extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       tab: "new"
     }
-  },
+  }
   componentDidMount(){
     if (!this.props.catalog){
       this.props.updateServiceCatalog()
@@ -21,7 +22,7 @@ let AddService=React.createClass({
     if (!this.props.all_services){
       this.props.updateAllServiceCatalog()
     }
-  },
+  }
   handleAdd(ev, service){
     ev.preventDefault(ev)
 
@@ -51,10 +52,10 @@ let AddService=React.createClass({
         goto(`/services/${uuid}`)
       })
     }
-  },
+  }
   setTab(tab){
     this.setState({tab})
-  },
+  }
   render(){
     let props=this.props
     if (!this.props.catalog || !this.props.all_services){
@@ -132,6 +133,6 @@ let AddService=React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default AddService

@@ -11,14 +11,15 @@ import ScreensMenu from 'app/components/service/screensmenu'
 import event from 'app/utils/event'
 import {i18n} from 'app/utils/i18n'
 
-const VirtualServices=React.createClass({
-  getInitialState(){
-    return {
+class VirtualServices extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       services: undefined,
       traits:[],
       screens:[]
     }
-  },
+  }
   update_services(event){
     let service=event.service
     //console.log("Service change %o", service)
@@ -34,7 +35,7 @@ const VirtualServices=React.createClass({
       services.push(service)
     this.setState({services})
     this.update_screens(services)
-  },
+  }
   update_screens(services){
     const traits=dedup(services.reduce( (acc, s) => acc.concat(s.traits), [] ))
     if (!this.props.screens && traits!=this.state.traits){
@@ -53,7 +54,7 @@ const VirtualServices=React.createClass({
         this.setState({screens})
       })
     }
-  },
+  }
   componentDidMount(){
     const parent=this.props.parent
     let command=parent.virtual.command
@@ -82,7 +83,7 @@ const VirtualServices=React.createClass({
         Flash.error(i18n("Error loading virtual services\n\nPlease check it is correctly configured.", {e}))
         store.dispatch( goBack() )
       })
-  },
+  }
   componentWillUnmount(){
     const parent=this.props.parent
     let unsubscribe=parent.virtual.unsubscribe
@@ -90,7 +91,7 @@ const VirtualServices=React.createClass({
       rpc.call(`${this.connection}.${unsubscribe}`, [this.subscribe_id])
     event.off("service.updated", self.update_services)
     this.subscribe_id=undefined
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -122,6 +123,6 @@ const VirtualServices=React.createClass({
       </Modal>
     )
   }
-})
+}
 
 export default VirtualServices

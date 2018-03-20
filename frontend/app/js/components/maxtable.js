@@ -2,18 +2,19 @@ import React from 'react'
 import HoldButton from './holdbutton'
 import i18n from 'app/utils/i18n'
 
-let MaxTable=React.createClass({
-  getInitialState(){
-    return {
+class MaxTable extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       max: 3
     }
-  },
+  }
   handleShowAll(){
     this.setState({max: this.props.data.length})
-  },
+  }
   handleShowLess(){
     this.setState({max: 3})
-  },
+  }
   render(){
     let props=this.props
     let max=this.state.max
@@ -60,6 +61,6 @@ let MaxTable=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default MaxTable

@@ -1,29 +1,31 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import {object_is_equal} from 'app/utils'
-import {merge} from 'app/utils'
+import {merge, map_get} from 'app/utils'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import {MarkdownPreview} from 'react-marked-markdown'
+import {ErrorBoundary} from 'app/components/error'
 
-const Widget = React.createClass({
-  umount: undefined,
-  getInitialState(){
-    return {
+class Widget extends React.Component{
+  constructor(props){
+    super(props)
+    this.umount = undefined
+    this.state = {
       title: undefined,
       error: false,
       component: undefined,
       context: {}
     }
-  },
+  }
   setTitle(title){
     this.setState({title})
-  },
+  }
   do_widget(props){
     let self=this
     let plugin_component=props.template.id.split('/')
     const context={
-      setTitle: self.setTitle,
+      setTitle: this.setTitle.bind(this),
       setClass(klass){ self.setState({klass}) },
       setError(err){
         console.error(err)
@@ -50,9 +52,12 @@ const Widget = React.createClass({
       if (react)
         this.setState({component, context})
     } )
-  },
+  }
   componentDidMount(){
-    Promise.all([plugin.load(`${this.props.widget}.js`),plugin.load(`${this.props.widget}.css`)]).then( () => {
+    let toload = [plugin.load(`${this.props.widget}.js`)]
+    if (!map_get(this.props.template, ["hints", "nocss"], false))
+      toload.push(plugin.load(`${this.props.widget}.css`))
+    Promise.all(toload).then( () => {
       if (!this.cancel_widget)
         this.do_widget(this.props)
     }).catch( (e) => {
@@ -60,7 +65,7 @@ const Widget = React.createClass({
       this.setState({error: e.name || e.message || i18n("Could not load JS code")})
       $(this.refs.el).html("")
     } )
-  },
+  }
   componentWillUnmount(){
     try{
       this.cancel_widget = true // the widget may be unmounted beore we got the promise of the js
@@ -68,7 +73,7 @@ const Widget = React.createClass({
     } catch(e) {
       console.error("Could not umount widget %o %o", this.props.template.id,  e)
     }
-  },
+  }
   componentWillReceiveProps(nextprops){
     if (!object_is_equal(nextprops.config, this.props.config) ||
         (nextprops.layout && this.props.layout && !object_is_equal(nextprops.layout, this.props.layout))
@@ -80,7 +85,7 @@ const Widget = React.createClass({
     // No need for manual set title
     if (nextprops.config.title != this.state.title)
       this.setTitle(nextprops.config.title)
-  },
+  }
   render(){
     const config = this.props.config || {}
     const widget = this.props.template || {}
@@ -109,7 +114,9 @@ const Widget = React.createClass({
               <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
             </section>
           ) : (Component!=undefined) ? (
-            <Component {...this.props} {...state} {...this.state.context}/>
+            <ErrorBoundary error={i18n("Could not render Widget. Contact author.")}>
+              <Component {...this.props} {...state} {...this.state.context}/>
+            </ErrorBoundary>
           ) : (
             <div ref="el"/>
           )}
@@ -117,7 +124,7 @@ const Widget = React.createClass({
       </div>
     )
   }
-})
+}
 
 
 export default Widget

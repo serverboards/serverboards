@@ -69,7 +69,7 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
         <text x={25} y={gridlines[4] + 5} textAnchor="end" fill={style.grey}>0</text>
 
         {gridlines.map( y => (
-          <path d={`M 30 ${y} L ${width} ${y} L ${width} ${y-1} L 30 ${y-1} Z`} style={style.axis_line}/>
+          <path key={y} d={`M 30 ${y} L ${width} ${y} L ${width} ${y-1} L 30 ${y-1} Z`} style={style.axis_line}/>
         ))}
 
         {xaxis.map( (legend,i) => (

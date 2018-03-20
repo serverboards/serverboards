@@ -4,14 +4,15 @@ import GenericForm from '../genericform'
 import HoldButton from '../holdbutton'
 import i18n from 'app/utils/i18n'
 
-let SetupComponent=React.createClass({
-  getInitialState(){
+class SetupComponent extends React.Component{
+  constructor(props){
+    super(props)
     let r={}
     this.props.service.fields.map( (f) =>{
       r[f.name]=f.value || ''
     })
     return r
-  },
+  }
   handleAccept(ev){
     ev && ev.preventDefault()
 
@@ -25,10 +26,10 @@ let SetupComponent=React.createClass({
       })
       this.props.onUpdate( service )
     }
-  },
+  }
   handleUpdateForm(data){
     this.setState(data)
-  },
+  }
   render(){
     let props=this.props
     return (
@@ -37,17 +38,20 @@ let SetupComponent=React.createClass({
           Update settings for {props.service.name}
         </div>
         <div className="content">
-          <GenericForm ref="form" fields={props.service.fields} updateForm={this.handleUpdateForm} onSubmit={this.handleAccept}/>
+          <GenericForm ref="form"
+            fields={props.service.fields}
+            updateForm={this.handleUpdateForm.bind(this)}
+            onSubmit={this.handleAccept.bind(this)}/>
         </div>
         <div className="actions">
-          <button className="ui ok yellow button" onClick={this.handleAccept}>{i18n("Accept")}</button>
+          <button className="ui ok yellow button" onClick={this.handleAccept.bind(this)}>{i18n("Accept")}</button>
           <HoldButton className="ui red button" onHoldClick={props.onDelete}>{i18n("Delete")}</HoldButton>
           <button className="ui cancel button" onClick={props.onClose}>{i18n("Cancel")}</button>
         </div>
       </Modal>
     )
   }
-})
+}
 
 
 export default SetupComponent

@@ -2,10 +2,11 @@ import React from 'react'
 import Link from 'app/router'
 import i18n from 'app/utils/i18n'
 
-var Settings=React.createClass({
-  getInitialState(){
-    return { shortname: "" }
-  },
+class Settings extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = { shortname: "" }
+  }
   updateShortname(){
     if (this.props.shortname)
       return;
@@ -17,7 +18,7 @@ var Settings=React.createClass({
       shortname=shortname.slice(0,2) + shortname.slice( shortname.length - 3)
     shortname=shortname.toUpperCase()
     this.setState({shortname})
-  },
+  }
   handleSubmit(ev){
     ev.preventDefault()
 
@@ -34,7 +35,7 @@ var Settings=React.createClass({
       }
       this.props.onSubmit( project )
     }
-  },
+  }
   componentDidMount(){
     $(this.refs.form).form({
       on: 'blur',
@@ -44,7 +45,7 @@ var Settings=React.createClass({
       }
     }).on('submit', this.handleSubmit)
     $(this.refs.form).find('input[name=shortname]').attr('maxlength',5)
-  },
+  }
   render(){
     let props=this.props
 
@@ -59,7 +60,7 @@ var Settings=React.createClass({
               <label>{i18n("Project Name")}</label>
               <input type="text" name="name" ref="name"
                 defaultValue={project.name}
-                onKeyUp={this.updateShortname}
+                onKeyUp={this.updateShortname.bind(this)}
                 placeholder={i18n("Ex. My company name, web projects, external projects...")}/>
             </div>
             <div className="field">
@@ -79,6 +80,6 @@ var Settings=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Settings

@@ -20,7 +20,7 @@ function SVGPie({center, rings, colors}){
   let acc = -Math.PI/2
   const ringsp = rings.map( ring =>{
     const a = ring * sc
-    console.log(acc, a, ring / maxs)
+    // console.log(acc, a, ring / maxs)
     acc += a
     const next = [
       `${CX + Math.cos(acc) * R1} ${CY + Math.sin(acc) * R1}`,
@@ -33,13 +33,12 @@ function SVGPie({center, rings, colors}){
     return ret
   })
 
-  console.log(ringsp)
-
   return (
     <svg viewBox="0 0 150 150" style={{padding: "10px 30px"}}>
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
+          key={r}
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
           style={{fill: COLORMAP[i] || colors[i]}}
           />
@@ -110,18 +109,20 @@ class Pie3 extends React.Component{
         </div>
 
         <table style={{width: "100%", lineHeight: "2.25em"}}>
-          {rows.map( (r,i) => (
-            <tr key={r[0]}>
-              <td className="ui ellipsis">
-                <span className={`ui square ${COLORNAMES[i]}`}/>
-                {r[0]}
-              </td>
-              <td className="ui big bold text right aligned">{r[1]} €</td>
-              <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
-                {r[2]}
-              </td>
-            </tr>
-          ) ) }
+          <tbody>
+            {rows.map( (r,i) => (
+              <tr key={r[0]}>
+                <td className="ui ellipsis">
+                  <span className={`ui square ${COLORNAMES[i]}`}/>
+                  {r[0]}
+                </td>
+                <td className="ui big bold text right aligned">{r[1]} €</td>
+                <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
+                  {r[2]}
+                </td>
+              </tr>
+            ) ) }
+          </tbody>
         </table>
       </div>
     )

@@ -42,7 +42,7 @@ export function load_css(url, options={}){
   $('<link>')
     .appendTo("head")
     .attr(options)
-  console.log("Loaded CSS %o", url)
+  console.log("Loading CSS %o", url)
   already_loaded[url]=true
 }
 
@@ -122,7 +122,8 @@ let waiting_for_widgets={}
 export function add_widget(id, fn, options = {}){
   widgets[id]={fn, options}
   if (id in waiting_for_widgets)
-    for (let {accept, el, data, context} of waiting_for_widgets[id]){
+    for (let {accept, el, data, context, to} of waiting_for_widgets[id]){
+      clearTimeout(to)
       if (options.react){
         accept({component: fn})
       }
@@ -137,12 +138,12 @@ export function do_widget(id, el, data, context){
   let widget = widgets[id]
   if (!widget){
     let p = new Promise(function(accept, reject){
-      waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data, context})
-      setTimeout(function(){
+      let to = setTimeout(function(){
         console.error("timeout waiting for widget %o", id)
         if (id in waiting_for_widgets)
           reject("Timeout")
       }, 1000)
+      waiting_for_widgets[id]=(waiting_for_widgets[id] || []).concat({accept, reject, el, data, context, to})
     })
     return p
   }

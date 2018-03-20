@@ -136,6 +136,8 @@ components:
     hints:
       minW: 4
       minH: 2
+      nocss: true
+      nohtml: true
     params:
       - label: Title
         name: title
@@ -211,6 +213,7 @@ components:
     hints:
       minW: 2
       minH: 2
+      nocss: true
     params:
       - label: Title
         name: title

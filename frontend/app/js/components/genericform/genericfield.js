@@ -16,19 +16,20 @@ function class_sbds_to_sui(klass){
   }
 }
 
-const GenericField=React.createClass({
-  getInitialState(){
-    return {
+class GenericField extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       items: [],
       show: this.check_if_show(this.props)
     }
-  },
-  handleChange: function(ev){
+  }
+  handleChange(ev){
     this.props.setValue(this.props.name, ev.target.value)
-  },
-  handleChecked: function(ev){
+  }
+  handleChecked(ev){
     this.props.setValue(this.props.name, ev.target.checked)
-  },
+  }
   componentDidMount(){
     // Some may need post initialization
     switch (this.props.type){
@@ -39,12 +40,12 @@ const GenericField=React.createClass({
         ;;
       break;
     }
-  },
+  }
   componentWillReceiveProps(newprops){
     const should_show=this.check_if_show(newprops)
     if (this.state.show!=should_show)
       this.setState({show:should_show})
-  },
+  }
   check_if_show(props){
     if (props.show_if){
       const value = props.form_data[props.show_if]
@@ -52,7 +53,7 @@ const GenericField=React.createClass({
         return false
     }
     return true;
-  },
+  }
   render(){
     if (!this.state.show)
       return null;
@@ -69,7 +70,7 @@ const GenericField=React.createClass({
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value || props.default}
-              onChange={this.handleChange}/>
+              onChange={this.handleChange.bind(this)}/>
           </div>
         )
       case 'url':
@@ -81,12 +82,12 @@ const GenericField=React.createClass({
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
-              onChange={this.handleChange}/>
+              onChange={this.handleChange.bind(this)}/>
           </div>
         )
       case 'textarea':
         return (
-          <TextArea {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
+          <TextArea {...props} onChange={this.handleChange.bind(this)} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'password':
         return (
@@ -97,14 +98,14 @@ const GenericField=React.createClass({
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
-              onChange={this.handleChange}/>
+              onChange={this.handleChange.bind(this)}/>
           </div>
         )
       case "checkbox":
         return (
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <div className="ui checkbox">
-              <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked}/>
+              <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked.bind(this)}/>
               <label htmlFor={props.name} className="ui pointer">{props.label}</label>
               <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             </div>
@@ -130,7 +131,7 @@ const GenericField=React.createClass({
                 name={props.name}
                 defaultValue={props.value}
                 className={`ui fluid ${props.search ? "search" : ""} dropdown`}
-                onChange={this.handleChange}
+                onChange={this.handleChange.bind(this)}
                 dynamic={props.dynamic}
                 form_data={props.form_data}
                 >
@@ -148,11 +149,11 @@ const GenericField=React.createClass({
         )
       case 'select call':
         return (
-          <SelectCall {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
+          <SelectCall {...props} onChange={this.handleChange.bind(this)} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'service':
         return (
-          <SelectService {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
+          <SelectService {...props} onChange={this.handleChange.bind(this)} className={class_sbds_to_sui(props["class"])}/>
         )
       default:
         return (
@@ -160,6 +161,6 @@ const GenericField=React.createClass({
         )
     }
   }
-})
+}
 
 export default GenericField

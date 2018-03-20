@@ -1,7 +1,7 @@
-import {get_data} from './utils'
+import {get_data, MiniBar} from './utils'
 const {React, i18n} = Serverboards
 const {Loading} = Serverboards.Components
-const {map_get, MiniBar} = Serverboards.utils
+const {map_get} = Serverboards.utils
 
 function prep_bars(bars){
   let ret = []
@@ -37,13 +37,14 @@ class Mini3Bars extends React.Component{
     const config = props.config
 
     const rows = map_get(config, ["bars", "rows"])
-    if (!rows)
+    if (!rows){
       return (
         <Loading/>
       )
+    }
 
     const bars = prep_bars(rows)
-    console.log(bars)
+    console.log(MiniBar)
 
     return (
       <div className="ui extends" style={{display: "flex", width: "100%"}}>

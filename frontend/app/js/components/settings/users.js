@@ -4,10 +4,10 @@ import HoldButton from '../holdbutton'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 
-const UserRow = React.createClass({
+class UserRow extends React.Component{
   componentDidMount(){
     $(this.refs.dropdown).dropdown()
-  },
+  }
   render(){
     const u = this.props.user
     return (
@@ -58,24 +58,24 @@ const UserRow = React.createClass({
       </tr>
     )
   }
-})
+}
 
-const Users=React.createClass({
+class Users extends React.Component{
   handleOpenAddUser(){
     this.props.setModal('auth.user.add')
-  },
-  handleOpenEditUser : function(user){
+  }
+  handleOpenEditUser(user){
     this.props.setModal('auth.user.edit', {user})
-  },
+  }
   handleDisableUser(user){
     this.props.onUpdateUser(user.email, {is_active: false})
-  },
+  }
   handleEnableUser(user){
     this.props.onUpdateUser(user.email, {is_active: true})
-  },
-  handleOpenSendNotification : function(user){
+  }
+  handleOpenSendNotification(user){
     this.props.setModal('notification.send', {user})
-  },
+  }
   render(){
     if (!this.props.users)
       return (
@@ -88,7 +88,7 @@ const Users=React.createClass({
           <h3 className="ui header">{i18n("Users")}</h3>
           <div className="right menu">
             <Restricted perm="auth.create_user">
-              <a onClick={this.handleOpenAddUser} className="ui teal button">{i18n("Add user")}</a>
+              <a onClick={this.handleOpenAddUser.bind(this)} className="ui teal button">{i18n("Add user")}</a>
             </Restricted>
           </div>
         </div>
@@ -120,6 +120,6 @@ const Users=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default Users

@@ -57,13 +57,14 @@ function MenuItem(props){
   }
 }
 
-const ScreensMenu=React.createClass({
-  getInitialState(){
-    return {
+class ScreensMenu extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       open_screen: undefined,
       service_id: undefined
     }
-  },
+  }
   toggleScreen(id){
     if (id == this.state.open_screen){
       this.setState({open_screen: undefined, service_id: undefined})
@@ -71,7 +72,7 @@ const ScreensMenu=React.createClass({
     else{
       this.setState({open_screen: id, service_id: undefined})
     }
-  },
+  }
   handleSectionChange(screen_id, data){
     this.setState({open_screen: screen_id, service_id: data.service && data.service.uuid})
     if (this.props.onSectionChange){
@@ -83,7 +84,7 @@ const ScreensMenu=React.createClass({
       const component=screen_idl[1]
       set_modal("plugin.screen", {plugin: plugin, component: component, data:{service: data.service}})
     }
-  },
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -97,7 +98,7 @@ const ScreensMenu=React.createClass({
             screen={s}
             data={{serverboard}}
             candidates={props.services.filter((c) => match_traits({any: c.traits, has: s.traits}))}
-            onSectionChange={this.handleSectionChange}
+            onSectionChange={this.handleSectionChange.bind(this)}
             onOpen={ () => this.toggleScreen(s.id) }
             active={ s.id == props.section }
             is_open={  (s.id == state.open_screen) }
@@ -108,6 +109,6 @@ const ScreensMenu=React.createClass({
       </div>
     )
   }
-})
+}
 
 export default ScreensMenu
