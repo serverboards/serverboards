@@ -20,7 +20,9 @@ import i18n from 'app/utils/i18n'
 import {set_lang} from 'app/actions/i18n'
 import lodash from 'lodash'
 import utils from 'app/utils'
+import createClass from 'create-react-class'
 
+React.createClass = createClass
 const moment = extendMoment(Moment);
 
 require('moment-range');
