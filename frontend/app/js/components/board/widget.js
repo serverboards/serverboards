@@ -34,7 +34,8 @@ class Widget extends React.Component{
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
       widget_id: props.template.id,
-      layout: props.layout
+      layout: props.layout,
+      project: props.project,
     }
     $(this.refs.el)
       .attr('data-pluginid', props.widget.split('/')[0])
