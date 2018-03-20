@@ -134,8 +134,10 @@ class QueryServiceSelect extends React.Component{
             <a key={s.id}
               className={`ui basic button ${ (selected && (selected.id == s.id)) ? "teal" : ""}`}
               onClick={() => this.handleChangeExtractor(s)}>
-              {s.id}: {this.getExtractorName(s.extractor)}
-              {this.getServiceName(s.service)}
+              {s.id} | {this.getExtractorName(s.extractor)}
+              {s.service && (
+                <span> | {this.getServiceName(s.service)}</span>
+              )}
             </a>
           ))}
           {(!state.open_selector || state.selected.id) ? (
