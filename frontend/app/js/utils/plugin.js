@@ -2,8 +2,8 @@ import {merge, servername} from 'app/utils'
 import rpc from 'app/rpc'
 import cache from 'app/utils/cache'
 
-var screens = {}
-var widgets = {}
+export var screens = {}
+export var widgets = {}
 var already_loaded = {}
 
 export function join_path(url){
@@ -223,5 +223,6 @@ export function install(giturl){
 export default {
   load, add_screen, do_screen, add_widget, do_widget, join_path,
   start, start_call_stop,
-  install, PluginCaller
+  install, PluginCaller,
+  screens, widgets,
 }
