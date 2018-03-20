@@ -37,7 +37,7 @@ function Table(props){
 
   return (
     <div className="ui with scroll">
-      <table className="ui striped table">
+      <table className={`ui striped table ${ props.theme == "dark" ? "inverted" : ""}`}>
         <thead>
           <tr>
             {data.columns.map( (c, i) => (
