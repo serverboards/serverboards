@@ -30,9 +30,9 @@ class HoldButton extends React.Component{
   componentDidMount(){
     let $button=$(this.refs.button)
     $button
-      .on('mousedown', this.startHold)
-      .on('mouseup', this.stopHold)
-      .on('mouseleave', this.stopHold)
+      .on('mousedown', this.startHold.bind(this))
+      .on('mouseup', this.stopHold.bind(this))
+      .on('mouseleave', this.stopHold.bind(this))
 
     $button.find('.trash.icon').popup({
       position: "bottom left",
@@ -44,7 +44,7 @@ class HoldButton extends React.Component{
     if (this.timer)
       return
     if (ev.which==1)
-      this.timer=setTimeout(this.countHold, hold_speed)
+      this.timer=setTimeout(this.countHold.bind(this), hold_speed)
   }
   countHold(){
     if (this.state.count>=100){
@@ -53,7 +53,7 @@ class HoldButton extends React.Component{
     }
     else{
       this.setState({count: this.state.count+hold_speed2})
-      this.timer=setTimeout(this.countHold, hold_speed)
+      this.timer=setTimeout(this.countHold.bind(this), hold_speed)
     }
   }
   stopHold(){
