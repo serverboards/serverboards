@@ -128,7 +128,7 @@ class QueryServiceSelect extends React.Component{
     const extractors = this.state.extractors
     return (
       <div>
-        <label className="ui bold text">{i18n("Add extractors to apply Service Queries on this widget")}</label>
+        <label className="ui bold text">{i18n("Add extractors to apply Universal Service Queries.")}</label>
         <div className="ui service selector list" style={{marginBottom: 20}}>
           {(extractors || []).map( s => (
             <a key={s.id}

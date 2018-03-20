@@ -111,7 +111,7 @@ class ExtractorsHelp extends React.Component{
         <h3>{i18n("Extractors help")}</h3>
         {extractors.length==0 ? (
           <div>
-          {i18n("You can add extractors to generate USQ queries on the right side. Help on each extractor will be shown here.")}
+          {i18n("You can add extractors to access remote data using USQ queries. Help on each extractor will be shown here.")}
           </div>
         ) : undefined}
         {extractors.map( (e,i) => (
