@@ -7,6 +7,7 @@ import FlashMessageList from 'app/containers/flashmessages.js'
 import Router from 'app/router'
 import get_modal from './modalfactory'
 import Piwik from 'app/containers/piwik.js'
+import {ErrorBoundary} from 'app/components/error'
 
 function Main(props){
   //console.log("Main component props %o", props.location)
@@ -19,7 +20,9 @@ function Main(props){
       const dispatch = require('app/utils/store').default.dispatch
       const goBack = require('react-router-redux').goBack
       modal=(
-        <Modal {...mod.data} onClose={ () => dispatch( goBack() ) }/>
+        <ErrorBoundary>
+          <Modal {...mod.data} onClose={ () => dispatch( goBack() ) }/>
+        </ErrorBoundary>
       )
     }
     else{
@@ -32,10 +35,12 @@ function Main(props){
     contents=(
       <div>
         <Top onLogout={props.onLogout}/>
-        <div className="ui main area">
-          <Router/>
-          {modal}
-        </div>
+        <ErrorBoundary>
+          <div className="ui main area">
+            <Router/>
+            {modal}
+          </div>
+        </ErrorBoundary>
       </div>
     )
   else

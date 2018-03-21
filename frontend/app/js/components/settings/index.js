@@ -8,6 +8,7 @@ import System from 'app/containers/settings/system'
 import Logs from 'app/containers/logs'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
+import {ErrorBoundary} from 'app/components/error'
 
 const sections={
   overview: Overview,
@@ -68,7 +69,9 @@ function Settings(props){
     <div className="ui horizontal split area expand">
       <SidebarSections section={props.params.section} service={props.service} onSectionChange={props.handleSectionChange}/>
       <div className="ui expand vertical expand split area with scroll">
-        <Section {...props} location={props.location}/>
+        <ErrorBoundary>
+          <Section {...props} location={props.location}/>
+        </ErrorBoundary>
       </div>
     </div>
   )
