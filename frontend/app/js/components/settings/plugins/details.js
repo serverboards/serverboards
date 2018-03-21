@@ -36,7 +36,7 @@ class PluginDetails extends React.Component{
   constructor(props){
     super(props)
 
-    this.state = getInitialState(props)
+    this.state = this.getInitialState(props)
   }
   getInitialState(props){
     let status
