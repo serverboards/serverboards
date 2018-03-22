@@ -13,13 +13,14 @@ class Widget extends React.Component{
     this.umount = undefined
     this.state = {
       title: undefined,
+      default_title: true,
       error: false,
       component: undefined,
       context: {}
     }
   }
   setTitle(title){
-    this.setState({title})
+    this.setState({title, default_title: false})
   }
   do_widget(props){
     let self=this
@@ -84,8 +85,8 @@ class Widget extends React.Component{
         this.do_widget(nextprops)
     }
     // No need for manual set title
-    if (nextprops.config.title != this.state.title)
-      this.setTitle(nextprops.config.title)
+    if (nextprops.config.title != this.state.title && this.state.default_title)
+      this.setState({title: nextprops.config.title})
   }
   render(){
     const config = this.props.config || {}
