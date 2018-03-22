@@ -4,6 +4,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
+import store from 'app/utils/store'
 import plugin from 'app/utils/plugin'
 import Widget from 'app/containers/board/widget'
 import EditWidget from './edit_widget'
@@ -12,13 +13,20 @@ function SetupWidget(props){
   const widget = {
     widget: props.widget.id,
     ui: props.widget.hints || {},
-    config: {}
+    config: {},
   }
+  const daterange = store.getState().project.daterange
+  const vars = {
+    start: daterange.start.format(),
+    end: daterange.end.format()
+  }
+
   return (
     <EditWidget
       template={props.widget}
       project={props.project}
       widget={widget}
+      vars={vars}
       saveWidget={(w) => props.addWidget(props.widget.id, props.dashboard_uuid, w.config) }
       />
   )
