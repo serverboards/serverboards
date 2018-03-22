@@ -1,6 +1,6 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
-import {object_is_equal} from 'app/utils'
+import {object_is_equal, to_keywordmap} from 'app/utils'
 import {merge, map_get} from 'app/utils'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
@@ -23,7 +23,8 @@ class Widget extends React.Component{
   }
   do_widget(props){
     let self=this
-    let plugin_component=props.template.id.split('/')
+    const template = props.template || {}
+    let plugin_component=(template.id || "/").split('/')
     const context={
       setTitle: this.setTitle.bind(this),
       setClass(klass){ self.setState({klass}) },
@@ -33,7 +34,7 @@ class Widget extends React.Component{
       },
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
-      widget_id: props.template.id,
+      widget_id: template.id,
       layout: props.layout,
       project: props.project,
     }
@@ -56,7 +57,7 @@ class Widget extends React.Component{
   }
   componentDidMount(){
     let toload = [plugin.load(`${this.props.widget}.js`)]
-    if (!map_get(this.props.template, ["hints", "nocss"], false))
+    if (!to_keywordmap((this.props.template || {}).hints)["nocss"])
       toload.push(plugin.load(`${this.props.widget}.css`))
     Promise.all(toload).then( () => {
       if (!this.cancel_widget)
@@ -72,7 +73,7 @@ class Widget extends React.Component{
       this.cancel_widget = true // the widget may be unmounted beore we got the promise of the js
       this.umount && this.umount()
     } catch(e) {
-      console.error("Could not umount widget %o %o", this.props.template.id,  e)
+      console.error("Could not umount widget %o %o", (this.props.template || {}).id,  e)
     }
   }
   componentWillReceiveProps(nextprops){
@@ -106,21 +107,21 @@ class Widget extends React.Component{
           </Restricted>
         </div>
         <div className={state.klass || "white card"}>
-          {this.state.error ? (
-            <section ref="error" className="plugin error">
-              <div><i className="ui huge warning sign red icon"/></div>
-              <div className="ui text red bold">{i18n("Error loading widget")}</div>
-              <div className="ui meta">{widget.name}</div>
-              <div className="ui meta">{this.props.widget}</div>
-              <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
-            </section>
-          ) : (Component!=undefined) ? (
-            <ErrorBoundary error={i18n("Could not render Widget. Contact author.")}>
-              <Component {...this.props} {...state} {...this.state.context}/>
-            </ErrorBoundary>
-          ) : (
-            <div ref="el"/>
-          )}
+          <ErrorBoundary error={i18n("Error rendering widget. {type}. Contact author.", {type: widget.name})}>
+            {this.state.error ? (
+              <section ref="error" className="plugin error">
+                <div><i className="ui huge warning sign red icon"/></div>
+                <div className="ui text red bold">{i18n("Error loading widget")}</div>
+                <div className="ui meta">{widget.name}</div>
+                <div className="ui meta">{this.props.widget}</div>
+                <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
+              </section>
+            ) : (Component!=undefined) ? (
+                <Component {...this.props} {...state} {...this.state.context}/>
+            ) : (
+              <div ref="el"/>
+            )}
+          </ErrorBoundary>
         </div>
       </div>
     )

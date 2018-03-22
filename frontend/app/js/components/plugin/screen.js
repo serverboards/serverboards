@@ -1,24 +1,11 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
-import {merge} from 'app/utils'
+import {merge, to_keywordmap} from 'app/utils'
 import PropTypes from 'prop-types';
 
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
-
-function to_keywordmap(data){
-  if (!data)
-    return {}
-  if (data.length){
-    let d = {}
-    for (let k of data)
-      d[k]=true
-    return d
-  }
-  return data
-}
-
 
 class ExternalScreen extends React.Component{
   constructor(props){

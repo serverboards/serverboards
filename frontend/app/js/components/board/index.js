@@ -11,6 +11,8 @@ import rpc from 'app/rpc'
 import Empty from './empty'
 import moment from 'moment'
 import AddButton from 'app/components/project/addbutton'
+import {ErrorBoundary, Error} from 'app/components/error'
+import i18n from 'app/utils/i18n'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
@@ -216,32 +218,27 @@ class Board extends React.Component{
             onLayoutChange={this.handleLayoutChange.bind(this)}
             >
               {widgets.map( ({widget, template}) => {
-                try {
-                  return (
+                return (
                     <div
                       key={widget.uuid}
                       data-grid={{x:0, y: 0, w: 1, h: 1, ...((template || {}).hints || {}), ...(widget.ui || {} )}}
                       className="ui card"
                       >
-                      <Widget
-                        key={widget.uuid}
-                        widget={widget.widget}
-                        config={configs[widget.uuid] || {}}
-                        uuid={widget.uuid}
-                        template={template}
-                        onEdit={() => this.handleEdit(widget.uuid)}
-                        project={this.props.project}
-                        layout={this.getLayout(widget.uuid)}
-                        theme={theme}
-                        />
+                      <ErrorBoundary key={widget.uuid} error={i18n("Fatal error rendering widget {type}", {type: widget.widget})}>
+                        <Widget
+                          key={widget.uuid}
+                          widget={widget.widget}
+                          config={configs[widget.uuid] || {}}
+                          uuid={widget.uuid}
+                          template={template}
+                          onEdit={() => this.handleEdit(widget.uuid)}
+                          project={this.props.project}
+                          layout={this.getLayout(widget.uuid)}
+                          theme={theme}
+                          />
+                      </ErrorBoundary>
                     </div>
-                  )
-                } catch (e) {
-                  console.error("Error displaying widget %o: %o", {widget, template}, e)
-                  return (
-                    <Error>{String(e)}</Error>
-                  )
-                }
+                )
               })}
           </ReactGridLayout>
         </div>

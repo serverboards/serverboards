@@ -20,6 +20,21 @@ export function to_list(d){
   return l
 }
 
+/// Convert a list to dict of keys to true, and a object to itself.
+/// This unifies a list of items as ['nocss'] to be equal to {nocss: true}
+export function to_keywordmap(data){
+  if (!data)
+    return {}
+  if (data.length){
+    let d = {}
+    for (let k of data)
+      d[k]=true
+    return d
+  }
+  return data
+}
+
+
 export function dedup(l){
   let ret=[]
   for (let i of l){
