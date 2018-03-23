@@ -58,6 +58,7 @@ components:
   - id: daemon.email
     type: cmd
     traits: email
+    name: Email sender
     perms:
       - settings.view[serverboards.core.notifications/settings.email]
       - settings.view[serverboards.core.settings/base]

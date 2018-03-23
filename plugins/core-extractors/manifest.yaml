@@ -11,6 +11,7 @@ url: https://serverboards.io
 components:
   - id: daemon
     type: cmd
+    name: Core extractor
     command: ./serverboards-extractors.py
     strategy: singleton
     timeout: 30s
