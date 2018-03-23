@@ -37,13 +37,15 @@
         font-weight: bold
         font-size: 16px
 
-  .ui.cards > .card
+  .ui.cards > .card, .ui.cards > .ui.card
     box-shadow: none !important
     color: #596770
     margin: 0
     background: none
     box-shadow: none
-    .card
+    .card, .ui.card
+      margin: 0
+      box-shadow: none !important
       display: flex !important
       flex-grow: 1
       width: 100%
@@ -172,7 +174,7 @@
 
 .ui.board.dark
   background: #041b1e
-  .ui.cards > .card
+  .ui.cards > .card, .ui.cards > .card
     .card
       border: 1px solid #444 !important
       .ui.header
