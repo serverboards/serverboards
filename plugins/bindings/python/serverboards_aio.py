@@ -576,9 +576,20 @@ def test_mode(test_function, mock_data={}):
     # print(dir(serverboards.rpc))
     rpc._RPC__send = __mock_send
 
-    run_async(test_function)
+    async def exit_wrapped():
+        exit_code = 1
+        try:
+            await test_function()
+            print("OK!")
+            exit_code = 0
+        except Exception:
+            print("Exception!")
+            traceback.print_exc(file=sys.stderr)
+        sys.exit(exit_code)
+
+    run_async(exit_wrapped)
     set_debug(True)
-    loop()
+    loop(with_monitor=True)
 
 
 def run_async(method, *args, **kwargs):
@@ -655,6 +666,7 @@ rules_v2 = RPCWrapper("rules_v2")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
 
+
 async def sync(f, *args, **kwargs):
     """
     Runs a sync function in an async environment.
@@ -672,7 +684,7 @@ async def sync(f, *args, **kwargs):
             res = f(*args, **kwargs)
         except Exception as e:
             res = e
-        except:
+        except Exception:
             log_traceback()
             res = Exception("unknown")
         q.put(res)
