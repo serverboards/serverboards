@@ -242,6 +242,15 @@ components:
     params:
       - label: Title
         name: title
+      - label: Show
+        description: Data shown should be percentual value or total value
+        name: show
+        type: select
+        options:
+          - value: total
+            label: Total values
+          - value: percent
+            label: Percentual value
       - label: Data Query
         name: data
         description: |
