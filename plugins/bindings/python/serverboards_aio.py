@@ -588,7 +588,7 @@ def test_mode(test_function, mock_data={}):
         sys.exit(exit_code)
 
     run_async(exit_wrapped)
-    set_debug(True)
+    set_debug(True, True)
     loop(with_monitor=True)
 
 

@@ -97,7 +97,7 @@ components:
     traits: ssh server
     icon: terminal
     call:
-      method: ssh_exec
+      method: run
       params:
         - name: service
           type: service
