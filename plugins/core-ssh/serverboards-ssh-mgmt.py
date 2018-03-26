@@ -1,17 +1,20 @@
 #!/usr/bin/python3
 import sys
 import os
-import subprocess
+import yaml
 import urllib.parse as urlparse
 from common import ensure_ID_RSA, ID_RSA_PUB, KNOWN_HOSTS_FILE
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
-import serverboards
-from serverboards import print
+import serverboards_aio as serverboards
+from serverboards_aio import print
+from pcolor import printc
+import curio
+from curio import subprocess
 
 
 @serverboards.rpc_method
-def ssh_public_key(**kwargs):
-    ensure_ID_RSA()
+async def ssh_public_key(**kwargs):
+    await ensure_ID_RSA()
     with open(ID_RSA_PUB, 'r') as fd:
         return fd.read()
 
@@ -25,18 +28,20 @@ def ssh_urlparse(url):
     return (u.hostname, str(port))
 
 
-def get_fingerprint(url, *args, **kwargs):
+async def get_fingerprint(url, *args, **kwargs):
     if not url:
         return None
     (hostname, port) = ssh_urlparse(url)
     try:
-        output = str(subprocess.check_output(
-            ["ssh-keyscan", "-p", port, hostname], timeout=5), 'utf8')
-        output = output.strip().split('\n')
-        output.sort()
-        # serverboards.debug(repr(output))
-        return '\n'.join(output)
-    except subprocess.TimeoutExpired:
+        async with curio.timeout_after(5):
+            output = str(await subprocess.check_output(
+                ["ssh-keyscan", "-p", port, hostname]), 'utf8')
+            output = output.strip().split('\n')
+            output.sort()
+            # serverboards.debug(repr(output))
+            return '\n'.join(output)
+    except curio.TaskTimeout:
+        print("Timeout get fingerprint from: %s" % url)
         return None
     except Exception:
         import traceback
@@ -45,9 +50,9 @@ def get_fingerprint(url, *args, **kwargs):
 
 
 @serverboards.rpc_method
-def remote_fingerprint(url="", options="", **kwargs):
+async def remote_fingerprint(url="", options="", **kwargs):
     # print(url, options, repr(kwargs))
-    fingerprint = get_fingerprint(url, options)
+    fingerprint = await get_fingerprint(url, options)
     if not fingerprint:
         return {
             "fingerprint":
@@ -59,20 +64,20 @@ def remote_fingerprint(url="", options="", **kwargs):
         }
     fingerprintb = bytes(fingerprint, 'utf8')
 
-    sp = subprocess.Popen(["ssh-keygen", "-lf", "/dev/stdin",
-                           "-E", "md5"], stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE)
-    fingerprint_md5, error = sp.communicate(fingerprintb)
+    sp = subprocess.Popen(
+        ["ssh-keygen", "-lf", "/dev/stdin", "-E", "md5"],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    fingerprint_md5, error = await sp.communicate(fingerprintb)
 
-    sp = subprocess.Popen(["ssh-keygen", "-lf", "/dev/stdin", "-E",
-                           "sha1"], stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE)
-    fingerprint_sha1, error = sp.communicate(fingerprintb)
+    sp = subprocess.Popen(
+        ["ssh-keygen", "-lf", "/dev/stdin", "-E", "sha1"],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    fingerprint_sha1, error = await sp.communicate(fingerprintb)
 
-    sp = subprocess.Popen(["ssh-keygen", "-lf", "/dev/stdin", "-E",
-                           "sha256"], stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE)
-    fingerprint_sha256, error = sp.communicate(fingerprintb)
+    sp = subprocess.Popen(
+        ["ssh-keygen", "-lf", "/dev/stdin", "-E", "sha256"],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    fingerprint_sha256, error = await sp.communicate(fingerprintb)
 
     fingerprint_text = ''.join([str(fingerprint_md5, 'utf8'), "\n", str(
         fingerprint_sha1, 'utf8'), "\n", str(fingerprint_sha256, 'utf8')])
@@ -92,8 +97,8 @@ def remote_fingerprint(url="", options="", **kwargs):
 
 
 @serverboards.rpc_method
-def toggle_remote_fingerprint(url=None, status=None, options="", **args):
-    fingerprint = get_fingerprint(url, options)
+async def toggle_remote_fingerprint(url=None, status=None, options="", **args):
+    fingerprint = await get_fingerprint(url, options)
 
     enabled = False
 
@@ -119,7 +124,7 @@ def toggle_remote_fingerprint(url=None, status=None, options="", **args):
                         else:
                             done = True
             os.rename(KNOWN_HOSTS_FILE + ".bak", KNOWN_HOSTS_FILE)
-            serverboards.info(
+            await serverboards.info(
                 "Removed SSH known_host fingerprint for url %s" % (url))
             if done:
                 return "Fingerprint removed"
@@ -131,7 +136,7 @@ def toggle_remote_fingerprint(url=None, status=None, options="", **args):
             with open(KNOWN_HOSTS_FILE, "a") as fd:
                 fd.write(fingerprint)
                 fd.write('\n')
-            serverboards.info(
+            await serverboards.info(
                 "Added SSH known_host fingerprint for url %s" % (url))
             return "Fingerprint added"
     print("Orig: ", status["fingerprint_orig"])
@@ -139,15 +144,34 @@ def toggle_remote_fingerprint(url=None, status=None, options="", **args):
     raise Exception("Fingerprint has changed")
 
 
-def test():
-    print(get_fingerprint(
-        "ssh://testurl",
-        "User dmoreno\nProxyCommand ssh 192.168.1.200 -W 10.0.3.92:22 -q"
-    ))
+async def test():
+    sys.stdout = sys.stderr
+    import json
+    from smock import mock_method
+    printc("Start tests")
+
+    ret = await ssh_public_key()
+    printc("SSH public key", ret)
+
+    status = await remote_fingerprint("ssh://localhost")
+    printc("Fingerprints", json.dumps(status, indent=2), color="green")
+
+    # Double toggle, let as was
+    ret = await toggle_remote_fingerprint("ssh://localhost", status)
+    printc(ret)
+
+    ret = await toggle_remote_fingerprint("ssh://localhost", status)
+    printc(ret)
+
+    # print(get_fingerprint(
+    #     "ssh://testurl",
+    #     "User dmoreno\nProxyCommand ssh 192.168.1.200 -W 10.0.3.92:22 -q"
+    # ))
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "test":
-        test()
+        mock_data = yaml.load(open("mock.yaml"))
+        serverboards.test_mode(test, mock_data=mock_data)
 
     serverboards.loop()
