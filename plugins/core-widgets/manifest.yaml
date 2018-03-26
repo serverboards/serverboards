@@ -142,6 +142,10 @@ components:
       - label: Title
         name: title
         description: Title
+      - label: Show performance and legend
+        type: checkbox
+        default: true
+        name: show_legend
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
@@ -167,7 +171,6 @@ components:
           Its possible to force the `Category` and `Xvalue` existence setting
           YValue to `null`.
         type: query
-
   - name: Lines
     type: widget
     description: Lines diagram with legend, resumed value and performance indicator.

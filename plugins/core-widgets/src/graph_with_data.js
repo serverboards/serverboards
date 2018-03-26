@@ -101,6 +101,16 @@ class GraphWithData extends React.Component {
     if (props.layout.w > 2)
       width -= 20
 
+    if (!config.show_legend){
+      width = Math.max(props.layout.width - 40, 280)
+      height = Math.max(props.layout.height - 60, 130)
+      return (
+        <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column"}}>
+          <SVGComponent data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories}/>
+        </div>
+      )
+    }
+
     if (!legend_right){
       return (
         <div style={{display: "flex", flexDirection: "column"}}>
