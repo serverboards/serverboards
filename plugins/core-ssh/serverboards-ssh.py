@@ -131,6 +131,8 @@ async def run(command=None, service=None,
             stdout = stdout.decode('utf8')
             stderr = stderr.decode('utf8')
         exit_code = await ssh.wait()
+    except curio.errors.TaskCancelled:
+        raise
     except Exception as e:
         serverboards.log_traceback(e)
         stderr = str(e)
@@ -195,8 +197,8 @@ async def _open(url, uidesc=None, options=""):
     ]
     opts += ['-t', '-t']  # ,"--", "/bin/bash"
     (ptymaster, ptyslave) = pty.openpty()
-    ptymaster = curio.io.FileStream(os.fdopen(ptymaster, 'bw'))
-    # ptyslave = curio.io.FileStream(os.fdopen(ptyslave, 'br'))
+    ptymaster = os.fdopen(ptymaster, 'bw')
+    ptymaster = curio.file.AsyncFile(ptymaster)
 
     ssh_cmd = ["/usr/bin/ssh"] + opts
     print("SSH Terminal: '%s'" % ("' '".join(ssh_cmd)))
@@ -241,15 +243,15 @@ async def send(uuid, data=None, data64=None):
     data64 is needed as control charaters as Crtl+L are not utf8 encodable and
     can not be transmited via json.
     """
-    printc("Send ", uuid, data, data64)
     sp = sessions[uuid]
     if not data:
         data = base64.decodestring(bytes(data64, 'utf8'))
     else:
         data = bytes(data, 'utf8')
     # ret = sp.send(data)
-    ret = await sp["ptymaster"].write(data)
-    printc(ret)
+    ptymaster = sp["ptymaster"]
+    ret = await ptymaster.write(data)
+    await ptymaster.flush()
     return ret
 
 
@@ -299,9 +301,10 @@ async def data_event_waitread(uuid):
                 {"data64": data, "end": sp["end"]}
             )
     finally:
-        printc(sp)
-        sp["process"].terminate()
-        sp["process"].kill()
+        # printc(sp)
+        if "process" in sp:
+            sp["process"].terminate()
+            sp["process"].kill()
 
 
 @serverboards.rpc_method
@@ -623,12 +626,12 @@ async def ssh_is_up(service):
         else:
             return "nok"
     except Exception as e:
-        printc(e)
+        # printc(e)
         import traceback
         i = StringIO()
         traceback.print_exc(file=i)
         i.seek(0)
-        printc(i.read())
+        # printc(i.read())
         await serverboards.error(
             "Error checking the state of service",
             error=str(e), service_id=service.get("uuid"))
@@ -697,11 +700,16 @@ async def test():
     uuid = await _open("ssh://localhost")
     printc("UUID", uuid)
 
-    ret = await sendline(uuid, "ls")
+    ret = await sendline(uuid, "cat /etc/hostname")
     printc(ret)
+    await curio.sleep(1)
 
     ret = recv(uuid)
-    printc(ret)
+    hostname = open("/etc/hostname").read().strip()
+    printc("--------------------------------------", color="yellow")
+    printc(ret["data"], color="yellow")
+    printc("--------------------------------------", color="yellow")
+    assert hostname in ret["data"], hostname
 
     await close(uuid)
 
