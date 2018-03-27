@@ -64,7 +64,14 @@ def url_to_opts(url):
 
 @serverboards.rpc_method
 async def run(command=None, service=None,
-              outfile=None, infile=None, debug=True, context={}):
+              outfile=None, infile=None, stdin=None,
+              debug=False, context={}):
+    """
+    Runs a remote command at a remote SSH
+
+    can pass a communication `outfile` and `infile` (at /tmp/)
+    and also a `stdin` string to be used as script to execute.
+    """
     # serverboards.debug(repr(dict(url=url, command=command, options=options,
     #                    service=service)))
     await ensure_ID_RSA()
@@ -76,7 +83,7 @@ async def run(command=None, service=None,
     args = ['ssh', *args, '--', *precmd, *command]
     if debug:
         await serverboards.debug(
-            "Executing SSH command: [ssh '%s'] // Command %s" %
+            "Executing SSH command: ['%s'] // Command %s" %
             ("' '".join(str(x) for x in args), command), **context)
     # Each argument is an element in the list, so the command, even if it
     # contains ';' goes all in an argument to the SSH side
@@ -92,7 +99,8 @@ async def run(command=None, service=None,
         kwargs["stdin"] = open(infile, "rb")
     kwargs["stderr"] = subprocess.PIPE
     # Real call to SSH
-    stdout = None
+    stdout = ""
+    stderr = ""
     try:
         # printc(
         #     "ssh ", ' '.join(args),
@@ -100,7 +108,16 @@ async def run(command=None, service=None,
         #         "--%s=%s" % (k,v) for (k,v)
         #         in kwargs.items() if not k.startswith('_')
         #     ))
-        ssh = subprocess.Popen(args, shell=False, **kwargs)
+        ssh = subprocess.Popen(
+            args,
+            shell=False,
+            stdin=subprocess.PIPE if stdin else None,
+            **kwargs
+        )
+        if stdin:
+            stdout, stderr = await ssh.communicate(stdin.encode('utf8'))
+            stdout = stdout.decode('utf8')
+            stderr = stderr.decode('utf8')
         exit_code = await ssh.wait()
     except Exception as e:
         serverboards.log_traceback(e)
@@ -111,8 +128,8 @@ async def run(command=None, service=None,
     if outfile:
         kwargs["stdout"].close()
     elif ssh:
-        stdout = (await ssh.stdout.read()).decode('utf8')
-        stderr = (await ssh.stderr.read()).decode('utf8')
+        stdout += (await ssh.stdout.read()).decode('utf8')
+        stderr += (await ssh.stderr.read()).decode('utf8')
     if infile:
         kwargs["stdin"].close()
 
@@ -169,15 +186,16 @@ async def _open(url, uidesc=None, options=""):
     ptymaster = curio.file.AsyncFile(os.fdopen(ptymaster, 'bw'))
     ptyslave = curio.file.AsyncFile(os.fdopen(ptyslave, 'br'))
 
-    print("SSH Terminal: '%s'" % ("' '".join(["/usr/bin/ssh"] + opts)))
-    sp = subprocess.Popen(["ssh"] + opts,
+    ssh_cmd = ["/usr/bin/ssh"] + opts
+    print("SSH Terminal: '%s'" % ("' '".join(ssh_cmd)))
+    sp = subprocess.Popen(ssh_cmd,
                           stdin=ptyslave, stdout=subprocess.PIPE, shell=False,
                           stderr=subprocess.STDOUT, env={"TERM": "linux"})
     _uuid = str(uuid.uuid4())
     sessions[_uuid] = dict(process=sp, buffer=b"", end=0,
                            uidesc=uidesc, ptymaster=ptymaster)
 
-    await curio.spawn(lambda: data_event_waitread(_uuid))
+    await curio.spawn(lambda: data_event_waitread(_uuid), daemon=True)
 
     return _uuid
 
@@ -395,7 +413,9 @@ async def open_port(service=None, hostname=None,
             raise Exception("need hostname:port or unix socket")
         await serverboards.debug("Open port with: [ssh '%s']" % "' '".join(
             mopts), service_id=service, **context)
-        sp = subprocess.Popen(["ssh", *mopts], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sp = subprocess.Popen(
+            ["ssh", *mopts],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         port_to_process[localport] = sp
         async with curio.ignore_after(5):
             data = await sp.stdout.read()
@@ -428,64 +448,46 @@ async def close_port(port):
     return True
 
 
-@serverboards.rpc_method
-def watch_start(id=None, period=None, service_id=None, script=None, **kwargs):
-    period_s = time_description_to_seconds(period or "5m")
-
-    class Check:
-
-        def __init__(self):
-            self.state = None
-
-        def check_ok(self):
-            stdout = None
-            stderr = None
-            exit_code = 0
-            try:
-                p = run(service=service_id, command=script)
-                stdout = p["stdout"]
-                stderr = p["stderr"]
-                exit_code = p["exit"]
-                # serverboards.info(
-                #     "SSH remote check script: %s: %s"%(script, p),
-                #     extra=dict(
-                #         rule=id,
-                #         service=service_id,
-                #         script=script,
-                #         stdout=stdout,
-                #         exit_code=p)
-                #     )
-            except Exception as e:
-                serverboards.error(
-                    "Error on SSH script: %s" % script,
-                    rule=id, script=script, service=service_id)
-                exit_code = -256
-                stdout = str(e)
-            nstate = "ok" if (exit_code == 0) else "nok"
-            if self.state != nstate:
-                serverboards.rpc.event("trigger", {
-                    "id": id,
-                    "state": nstate,
-                    "success": (exit_code == 0),
-                    "exit": exit_code,
-                    "stdout": stdout,
-                    "stderr": stderr
-                })
-                self.state = nstate
-            return True
-    check = Check()
-    check.check_ok()
-    timer_id = serverboards.rpc.add_timer(period_s, check.check_ok, rearm=True)
-    serverboards.info("Start SSH script watch %s" % timer_id)
-    return timer_id
+watches = {}
 
 
 @serverboards.rpc_method
-def watch_stop(id, **kwargs):
-    print(kwargs)
-    serverboards.info("Stop SSH script watch %s" % (id))
-    serverboards.rpc.remove_timer(id)
-    return "ok"
+async def watch_start(id=None, period=None, service_id=None,
+                      script=None, **kwargs):
+    assert id
+    assert period
+    assert service_id
+    assert script
+    period_s = max(1, time_description_to_seconds(period or "5m"))
+
+    async def watch_task():
+        await serverboards.debug("Watch start, wait time is", period_s)
+        while True:
+            res = await run(
+                service=service_id,
+                command="sh",
+                stdin=script
+            )
+            await serverboards.rpc.event("trigger", {
+                "id": id,
+                "state": "ok" if res["success"] else "nok",
+                **res
+            })
+            await curio.sleep(period_s)
+
+    watches[id] = await curio.spawn(watch_task, daemon=True)
+    return id
+
+
+@serverboards.rpc_method
+async def watch_stop(id, **kwargs):
+    await serverboards.info("Stop SSH script watch %s" % (id))
+    task = watches.get(id)
+    if task:
+        await task.cancel()
+        del watches[id]
+        return "ok"
+    return "nok"
 
 
 @cache_ttl(ttl=10)
@@ -522,7 +524,7 @@ async def __get_global_options():
 
 @serverboards.rpc_method
 async def scp(fromservice=None, fromfile=None,
-        toservice=None, tofile=None, context={}):
+              toservice=None, tofile=None, context={}):
     """
     Copies a file from a service to a service.
 
@@ -578,166 +580,6 @@ async def scp(fromservice=None, fromfile=None,
 
 
 @serverboards.rpc_method
-def popen(service_uuid, command, stdin=None, stdout=None):
-    """
-    Creates a popen to a command on a remote SSH service.
-
-    It requires the command to execute and returns the write and read pipe
-    descriptors.
-
-    It might get the stdin and stdout descriptors to directly connect to for
-    example another pipe. In this case it will return None as the pipe to
-    write/read as it is the other end who knows where to write/read.
-
-    The caller writes to stdin and reads from stdout.
-    """
-    url, opts, precmd = __get_service_url_and_opts(service_uuid)
-    opts = opts + ["--", precmd] + command
-    opts = [item for sublist in opts for item in sublist]
-    ssh = subprocess.Popen(
-        ["ssh"] + opts, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    # adapter from pipe at the ssh to the s10s pipes, one for each stdin/out
-
-    if stdin:
-        write_in_fd, write_out_fd = None, stdin
-    else:
-        write_in_fd, write_out_fd = file.pipe(async=True)
-    if stdout:
-        read_in_fd, read_out_fd = stdout, None
-    else:
-        read_in_fd, read_out_fd = file.pipe(async=True)
-
-    print("Write fds: ", write_in_fd, write_out_fd, command[0])
-    print("Read fds: ", read_in_fd, read_out_fd, command[0])
-    print("Starting SSH popen:", command[0])
-    # store all subscriptions, to unsubscribe at closed
-    subscriptions = []
-    write_count = 0
-    read_count = 0
-
-    def write_to_ssh():
-        nonlocal write_count
-        block = file.read(write_out_fd, {"nonblock": True})
-        closed = False
-        if block == -1:
-            closed = True
-        while block and block != -1:
-            write_count += len(block)
-            decoded = base64.b64decode(block.encode('ascii'))
-            ssh.stdin.write(decoded)
-            ssh.stdin.flush()
-            block = file.read(write_out_fd, {"nonblock": True})
-            # print("cont Write to %s %d bytes, read from %s %s"%(command[0],
-            # len(block), write_out_fd, decoded[0:5]))
-
-        # now it might close
-        if closed:
-            print("Closed reading. Close all. ", command[0])
-            close_all()
-
-    MAX_SIZE = 24 * 1024
-
-    def read_from_ssh():
-        # print("Data ready?")
-        block = ssh.stdout.read(MAX_SIZE)
-        nonlocal read_count
-        closed = False
-        if not block:  # if nothing to read on first call, the fd is closed
-            closed = True
-        while block:
-            # print("Read from %s %d bytes, write to %s"%(command[0],
-            #       len(block), read_in_fd))
-            read_count += len(block)
-            wres = file.write(
-                read_in_fd, base64.b64encode(block).decode('ascii'))
-            if not wres:
-                closed = True
-                block = None
-            else:
-                block = ssh.stdout.read(MAX_SIZE)
-        if closed:
-            print("Closed writing. Close all.", command[0])
-            close_all()
-
-    closedone = 0
-
-    def close_all():
-        nonlocal closedone
-        if closedone:
-            return
-        closedone += 1
-
-        print("Close all", command[0])
-        # I close all input
-        file.close(write_in_fd)
-        file.close(write_out_fd)
-        # will not write more to output
-        file.close(read_in_fd)
-        # remove the ssh data ready event
-        rpc.remove_event(ssh.stdout)
-        # remove all subscriptions
-        for s in subscriptions:
-            if s:
-                rpc.unsubscribe(s)
-        # ensure all written into stdin is flushed
-        print("Flush and terminate")
-        ssh.stdin.flush()
-        print("Try to terminate")
-        # if still alive, terminate it
-        if ssh.poll() is None:
-            # print("Terminate", command[0])
-            try:
-                # force write pending, will not recurse because of closedone
-                write_to_ssh()
-                ssh.terminate()
-                # time.sleep(1)
-                # ssh.kill()
-            except Exception:
-                pass
-        else:
-            # print("Cant terminate (already terminated?)", ssh.poll(),
-            #       command[0])
-            pass
-        print("SSH command %s terminated (%d in/%d out)" %
-              (command[0], write_count, read_count))
-
-    close_count = 0
-
-    def close_one():
-        """
-        Closed one of the remote ends. If both are closed, nobody will read, no
-        point in having it open.
-        """
-        print("Close one", command[0])
-        nonlocal close_count
-        close_count += 1
-        if close_count >= 2:
-            close_all()
-
-    def call_if_fd(check_fd, f):
-        def call_if_fd_inner(fd=None):
-            if fd == check_fd:
-                print("Run %s(%s)" % (f.__name__, fd))
-                return f()
-        return call_if_fd_inner
-
-    r_id = rpc.subscribe(
-        "file.ready[%s]" % write_out_fd, call_if_fd(write_out_fd, write_to_ssh)
-    )
-    subscriptions = [r_id]
-    for i in [write_in_fd, write_out_fd, read_in_fd, read_out_fd]:
-        if i:
-            sid = rpc.subscribe(
-                "file.closed[%s]" % i, call_if_fd(i, close_one)
-            )
-            subscriptions.append(sid)
-
-    rpc.add_event(ssh.stdout, read_from_ssh)
-
-    return [write_in_fd, read_out_fd]
-
-
-@serverboards.rpc_method
 async def ssh_is_up(service):
     try:
         result = await run(service=service, command=["true"])
@@ -774,6 +616,18 @@ async def test():
     sys.stdout = sys.stderr
     printc("Start tests")
 
+    try:
+        os.unlink("/tmp/watchresult")
+    except Exception:
+        pass
+
+    printc("WATCHER")
+    watch_id = await watch_start(
+        id="YYY", script="true\ndate\necho 'watch'\ndate >> /tmp/watchresult",
+        service_id="XXX", period="1s")
+    printc("watchid", watch_id)
+
+    printc("SSH UP", color="green")
     ret = await ssh_is_up({
         "config": {"url": "ssh://localhost"},
         "type": "serverboards.core.ssh/ssh",
@@ -782,17 +636,22 @@ async def test():
     printc("SSH IS UP?", ret, color="green")
     assert ret
 
+    printc("RUN", color="green")
     ret = await run(service="XXX", command=["date", "%s"])
-    printc("date -- ", ret, color="green")
+    printc("date -- ", ret, color="yellow")
     assert ret["stdout"] == ""
     assert ret["stderr"] != ""
     assert not ret["success"]
 
     ret = await run(service="XXX", command=["date", "+%s"])
-    printc("date -- ", ret, color="green")
+    printc("date -- ", ret, color="yellow")
     assert ret["stdout"] != ""
     # assert ret["stderr"] == ""
     assert ret["success"]
+
+    await run(service="XXX", command="touch /tmp/watchresult")
+
+    printc("TERMINAL", color="green")
 
     uuid = await _open("ssh://localhost")
     printc("UUID", uuid)
@@ -805,14 +664,25 @@ async def test():
 
     await close(uuid)
 
+    printc("SCP", color="green")
     # scp
     ret = await scp("XXX", "/etc/hostname", None, "/tmp/")
     printc(ret)
 
+    printc("OPEN_PORT", color="green")
     # openport
     ret = await open_port("XXX", "localhost", 25)
     printc("Got port", ret)
     await close_port(ret)
+
+    printc("WATCH STOP. CHECK FILE", color="green")
+    res = await watch_stop(watch_id)
+    assert res == "ok"
+
+    res = await watch_stop(watch_id)
+    assert res == "nok"
+
+    assert os.stat("/tmp/watchresult")
 
 
 if __name__ == '__main__':
