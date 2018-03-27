@@ -4,7 +4,6 @@ import sys
 import os
 import pty
 import shlex
-import pexpect
 import uuid
 import re
 import random
@@ -12,8 +11,8 @@ import urllib.parse as urlparse
 import base64
 from io import StringIO
 from common import ID_RSA, ensure_ID_RSA, CONFIG_FILE
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 from pcolor import printc
+sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards_aio as serverboards
 from serverboards_aio import print, rpc, cache_ttl
 from curio import subprocess
@@ -97,6 +96,8 @@ async def run(command=None, service=None,
     if infile:
         assert infile.startswith("/tmp/") and '..' not in infile
         kwargs["stdin"] = open(infile, "rb")
+    else:
+        kwargs["stdin"] = subprocess.PIPE if stdin else None
     kwargs["stderr"] = subprocess.PIPE
     # Real call to SSH
     stdout = ""
@@ -108,10 +109,10 @@ async def run(command=None, service=None,
         #         "--%s=%s" % (k,v) for (k,v)
         #         in kwargs.items() if not k.startswith('_')
         #     ))
+
         ssh = subprocess.Popen(
             args,
             shell=False,
-            stdin=subprocess.PIPE if stdin else None,
             **kwargs
         )
         if stdin:
@@ -650,6 +651,24 @@ async def test():
     assert ret["success"]
 
     await run(service="XXX", command="touch /tmp/watchresult")
+
+    printc("SSH to file and SSH from file")
+    res = await run(
+        service="XXX", command="cat", outfile="/tmp/test", stdin="testing")
+    printc(res)
+    assert res["success"]
+
+    res = await run(service="XXX", command="cat", infile="/tmp/test")
+    printc(res)
+    assert res["success"]
+    assert res["stdout"] == "testing"
+
+    res = await run(
+        service="XXX", command="cat", infile="/tmp/test", outfile="/tmp/test2")
+    printc(res)
+    assert res["success"]
+    with open("/tmp/test2") as fd:
+        assert fd.read() == "testing"
 
     printc("TERMINAL", color="green")
 
