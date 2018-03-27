@@ -106,16 +106,22 @@ def mock_res(name, data, args=[], kwargs={}):
     data = data.get(name)
     if not data:
         raise Exception(
-            "unknown method for mocking: %s(%s, %s)" % (
+            "unknown method for mocking: \n%s:\n  - args: %s\n    kwargs: %s\n    response: ...\n" % (
                 name, json.dumps(args), json.dumps(kwargs)
             )
         )
     for res in data:
         if (mock_match(args, res.get("args")) and
                 mock_match(kwargs, res.get("kwargs", {}))):
-            return MockWrapper(res["response"])
+            if 'error' in res:
+                raise Exception(res["error"])
+
+            response = res["response"]
+            if isinstance(response, (int, str)):
+                return response
+            return MockWrapper(response)
     raise Exception(
-        "unknown data for mocking: %s(%s, %s)" % (
+        "unknown data for mocking: \n%s:\n  - args: %s\n    kwargs: %s\n    response: ...\n" % (
             name, json.dumps(args), json.dumps(kwargs)
         )
     )
