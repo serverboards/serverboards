@@ -1,0 +1,44 @@
+plugin.call:
+  - args: [null, "run", {"service": "XXX", "command": ["tar", "cz", "."], "outfile": "/tmp/fifofile", "context": {}}]
+    kwargs: {}
+    error: exit
+  - args: ["PLUGIN_ID", "run", {"service": "XXX", "command": ["tar", "cz", "."], "outfile": "/tmp/fifofile", "context": {}}]
+    kwargs: {}
+    response:
+      success: True
+      exit_code: 0
+      stdout: ""
+      stderr: ""
+  - args: ["PLUGIN_ID", "run", {"service": "XXX", "command": ["du", "-sb", "."], "context": {}}]
+    kwargs: {}
+    response:
+      stdout: "10000 ."
+  - args: ["PLUGIN_ID", "run", {"service": "XXX", "command": ["cat", ">", "/tmp/testbackup.tgz"], "infile": "/tmp/fifofile", "context": {}}]
+    kwargs: {}
+    response:
+      success: True
+      stdout: ""
+  - args: ["PLUGIN_ID", "run", {"service": "XXX", "command": ["du", "-sb", "/tmp/testbackup.tgz"], "context": {}}]
+    kwargs: {}
+    response:
+      success: True
+      stdout: "10000 /tmp/testbackup.tgz"
+  - args: ["PLUGIN_ID", "run", {"service": "XXX", "command": ["cat", "/etc/hostname"], "outfile": "/tmp/fifofile", "context": {}}]
+    kwargs: {}
+    response:
+      success: True
+      stdout: ""
+  - args: ["PLUGIN_ID", "run", {"service": "XXX", "command": ["du", "-sb", "/etc/hostname"], "context": {}}]
+    kwargs: {}
+    response:
+      success: True
+      stdout: "10000 /etc/hostname"
+
+plugin.start:
+  - args: ["serverboards.core.ssh/sshcmd"]
+    kwargs: {}
+    response: PLUGIN_ID
+plugin.stop:
+  - args: ["PLUGIN_ID"]
+    kwargs: {}
+    response: "ok"
