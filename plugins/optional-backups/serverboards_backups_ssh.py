@@ -1,11 +1,16 @@
 #!/usr/bin/python3
 
-import sys, os, sys, uuid, re, datetime
-sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
+import sys
+import os
+import re
+import datetime
+sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards
 from serverboards import Plugin, print
 
-TEMPLATE_RE=re.compile(r"{{([\w.]*)}}")
+TEMPLATE_RE = re.compile(r"{{([\w.]*)}}")
+
+
 def render_template_with_dates(template):
     def replace(data):
         var = data.group(1)
@@ -22,45 +27,60 @@ def render_template_with_dates(template):
         return data[0]
     return TEMPLATE_RE.sub(replace, template)
 
+
 @serverboards.rpc_method
 def read_source(fifofile, config, context={}):
-    print("Read from %s to %s"%(config, fifofile))
+    print("Read from %s to %s" % (config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
-        ssh.run(service=config["service"], command=["cat", config["path"]], outfile=fifofile, context=context)
-        size = int(ssh.run(service=config["service"], command=["du","-sb",config["path"]], context=context)["stdout"].split()[0])
-        serverboards.info("Done, read %s"%size, **context)
+        ssh.run(service=config["service"], command=[
+                "cat", config["path"]], outfile=fifofile, context=context)
+        size = int(ssh.run(
+            service=config["service"],
+            command=["du", "-sb", config["path"]],
+            context=context)["stdout"].split()[0])
+        serverboards.info("Done, read %s" % size, **context)
         return size
+
 
 @serverboards.rpc_method
 def read_source_tar(fifofile, config, context={}):
-    print("Read from %s to %s"%(config, fifofile))
+    print("Read from %s to %s" % (config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
-        ssh.run(service=config["service"], command=["tar", "cz", config["path"]], outfile=fifofile, context=context)
-        output = ssh.run(service=config["service"], command=["du","-sb",config["path"]],context=context)
+        ssh.run(
+            service=config["service"],
+            command=["tar", "cz", config["path"]],
+            outfile=fifofile, context=context)
+        output = ssh.run(
+            service=config["service"],
+            command=["du", "-sb", config["path"]],
+            context=context)
         stdout = output["stdout"]
         if not stdout:
             raise Exception("file not exists")
         size = int(stdout.split()[0])
-        serverboards.info("Done, read %s"%size, **context)
+        serverboards.info("Done, read %s" % size, **context)
         return size
 
 
 @serverboards.rpc_method
 def write_destination(fifofile, config, context={}):
-    print("Write to %s from %s"%(config, fifofile))
+    print("Write to %s from %s" % (config, fifofile))
     with Plugin("serverboards.core.ssh/sshcmd") as ssh:
         copyto = config["path"]
         if '{{' in copyto:
             copyto = render_template_with_dates(copyto)
-        ssh.run(service=config["service"], command=["cat", ">", copyto], infile=fifofile, context=context)
-        stdout = ssh.run(service=config["service"], command=["du","-sb",copyto], context=context)["stdout"]
+        ssh.run(service=config["service"], command=[
+                "cat", ">", copyto], infile=fifofile, context=context)
+        stdout = ssh.run(service=config["service"], command=[
+                         "du", "-sb", copyto], context=context)["stdout"]
         if not stdout:
             raise Exception("file not created")
         size = int(stdout.split()[0])
-        serverboards.info("Done, write %s"%size, **context)
+        serverboards.info("Done, write %s" % size, **context)
         return size
 
+
 if 'test' in sys.argv:
-    print( render_template_with_dates("/tmp/test-{{date}}.tgz") )
+    print(render_template_with_dates("/tmp/test-{{date}}.tgz"))
 else:
     serverboards.loop()
