@@ -735,8 +735,8 @@ async def test():
 
 
 if __name__ == '__main__':
-    import yaml
     if len(sys.argv) > 1 and sys.argv[1] == "test":
+        import yaml
         printc("Test")
         mock_data = yaml.load(open("mock.yaml"))
         serverboards.test_mode(test, mock_data=mock_data)
