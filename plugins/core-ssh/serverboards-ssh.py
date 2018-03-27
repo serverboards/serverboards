@@ -12,11 +12,21 @@ import base64
 from io import StringIO
 from common import ID_RSA, ensure_ID_RSA, CONFIG_FILE
 from pcolor import printc
+import signal
+import ctypes
+libc = ctypes.CDLL("libc.so.6")
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards_aio as serverboards
 from serverboards_aio import print, rpc, cache_ttl
 from curio import subprocess
 import curio
+
+
+def set_pdeathsig(sig=signal.SIGTERM):
+    def callable():
+        return libc.prctl(1, sig)
+    return callable
+
 
 td_to_s_multiplier = [
     ("ms", 0.001),
@@ -113,6 +123,7 @@ async def run(command=None, service=None,
         ssh = subprocess.Popen(
             args,
             shell=False,
+            preexec_fn=set_pdeathsig(signal.SIGTERM),
             **kwargs
         )
         if stdin:
@@ -182,16 +193,18 @@ async def _open(url, uidesc=None, options=""):
         for option in options
         for arg in ['-o', option]
     ]
-    opts += ['-t', '-t', '--', '/bin/bash']
+    opts += ['-t', '-t']  # ,"--", "/bin/bash"
     (ptymaster, ptyslave) = pty.openpty()
-    ptymaster = curio.file.AsyncFile(os.fdopen(ptymaster, 'bw'))
-    ptyslave = curio.file.AsyncFile(os.fdopen(ptyslave, 'br'))
+    ptymaster = curio.io.FileStream(os.fdopen(ptymaster, 'bw'))
+    # ptyslave = curio.io.FileStream(os.fdopen(ptyslave, 'br'))
 
     ssh_cmd = ["/usr/bin/ssh"] + opts
     print("SSH Terminal: '%s'" % ("' '".join(ssh_cmd)))
     sp = subprocess.Popen(ssh_cmd,
                           stdin=ptyslave, stdout=subprocess.PIPE, shell=False,
-                          stderr=subprocess.STDOUT, env={"TERM": "linux"})
+                          stderr=subprocess.STDOUT, env={"TERM": "linux"},
+                          preexec_fn=set_pdeathsig(signal.SIGTERM),
+                          )
     _uuid = str(uuid.uuid4())
     sessions[_uuid] = dict(process=sp, buffer=b"", end=0,
                            uidesc=uidesc, ptymaster=ptymaster)
@@ -228,6 +241,7 @@ async def send(uuid, data=None, data64=None):
     data64 is needed as control charaters as Crtl+L are not utf8 encodable and
     can not be transmited via json.
     """
+    printc("Send ", uuid, data, data64)
     sp = sessions[uuid]
     if not data:
         data = base64.decodestring(bytes(data64, 'utf8'))
@@ -235,6 +249,7 @@ async def send(uuid, data=None, data64=None):
         data = bytes(data, 'utf8')
     # ret = sp.send(data)
     ret = await sp["ptymaster"].write(data)
+    printc(ret)
     return ret
 
 
@@ -264,24 +279,29 @@ async def sendline(uuid, data):
 
 
 async def data_event_waitread(uuid):
-    while True:
-        sp = sessions[uuid]
-        raw_data = await sp["process"].stdout.read(4096)
-        if not raw_data:
+    sp = sessions[uuid]
+    try:
+        while True:
+            raw_data = await sp["process"].stdout.read(4096)
+            if not raw_data:
+                await serverboards.rpc.event(
+                    "event.emit", "terminal.data.received.%s" % uuid,
+                    {"eof": True, "end": sp["end"]})
+                # wait a little bit, normally will be already exited
+                await sp['process'].wait()
+                return
+            sp['buffer'] = (sp['buffer'] + raw_data)[-4096:]  # keep last 4k
+            sp['end'] += len(raw_data)
+
+            data = str(base64.encodestring(raw_data), 'utf8')
             await serverboards.rpc.event(
                 "event.emit", "terminal.data.received.%s" % uuid,
-                {"eof": True, "end": sp["end"]})
-            # wait a little bit, normally will be already exited
-            await sp['process'].wait()
-            return
-        sp['buffer'] = (sp['buffer'] + raw_data)[-4096:]  # keep last 4k
-        sp['end'] += len(raw_data)
-
-        data = str(base64.encodestring(raw_data), 'utf8')
-        await serverboards.rpc.event(
-            "event.emit", "terminal.data.received.%s" % uuid,
-            {"data64": data, "end": sp["end"]}
-        )
+                {"data64": data, "end": sp["end"]}
+            )
+    finally:
+        printc(sp)
+        sp["process"].terminate()
+        sp["process"].kill()
 
 
 @serverboards.rpc_method
@@ -416,7 +436,9 @@ async def open_port(service=None, hostname=None,
             mopts), service_id=service, **context)
         sp = subprocess.Popen(
             ["ssh", *mopts],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            preexec_fn=set_pdeathsig(signal.SIGTERM),
+            )
         port_to_process[localport] = sp
         async with curio.ignore_after(5):
             data = await sp.stdout.read()
