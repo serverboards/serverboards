@@ -729,7 +729,6 @@ class Plugin:
     """
     class Method:
         def __init__(self, plugin, method):
-            real_print("Bake method", method)
             self.plugin = plugin
             self.method = method
 
