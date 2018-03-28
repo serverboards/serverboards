@@ -92,7 +92,7 @@
         position: relative
       > div.card
         background: white
-        border: 1px solid #eaeeed !important
+        border: 1px solid #eaeeed
         border-radius: 6px !important
         overflow: hidden
         display: flex !important
@@ -174,11 +174,18 @@
 
 .ui.board.dark
   background: #041b1e
-  .ui.cards > .card, .ui.cards > .card
-    .card
+  .ui.cards > .card
+    > div > div.card
       border: 1px solid #444 !important
+      background: #2b444a
+      color: #ddd
+
       .ui.header
         color: white
+
+      h1, h2, h3, h4, h5
+        color: white
+
     .cards
       > .card
         background: #2b444a

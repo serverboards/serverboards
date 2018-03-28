@@ -107,7 +107,7 @@ class Widget extends React.Component{
             </a>
           </Restricted>
         </div>
-        <div className={state.klass || "white card"}>
+        <div className={state.klass || "card"}>
           <ErrorBoundary error={i18n("Error rendering widget. {type}. Contact author.", {type: widget.name})}>
             {this.state.error ? (
               <section ref="error" className="plugin error">
