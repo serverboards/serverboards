@@ -12,7 +12,7 @@ import curio
 
 
 _debug = False
-_log_errors = False
+_log_errors = True
 plugin_id = os.environ.get("PLUGIN_ID")
 real_print = print
 RED = "\033[0;31m"
