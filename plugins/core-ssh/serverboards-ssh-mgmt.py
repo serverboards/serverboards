@@ -3,8 +3,8 @@ import sys
 import os
 import yaml
 import urllib.parse as urlparse
-from common import ensure_ID_RSA, ID_RSA_PUB, KNOWN_HOSTS_FILE
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
+from common import ensure_ID_RSA, ID_RSA_PUB, KNOWN_HOSTS_FILE
 import serverboards_aio as serverboards
 from serverboards_aio import print
 from pcolor import printc
