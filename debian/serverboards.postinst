@@ -187,7 +187,7 @@ EOF
         --webroot-path=/opt/serverboards/share/serverboards/frontend/ \
         -d $SERVERNAME \
         --agree-tos \
-        --email $EMAIL_USER
+        --email $EMAIL
       if [ "$?" = 0 ]; then
         rm /etc/nginx/ssl/$SERVERNAME
         ln -s /etc/letsencrypt/live/$SERVERNAME /etc/nginx/ssl/
