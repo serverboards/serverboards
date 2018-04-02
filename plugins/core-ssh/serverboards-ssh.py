@@ -13,7 +13,6 @@ import urllib.parse as urlparse
 import base64
 import time
 from common import ID_RSA, ensure_ID_RSA, CONFIG_FILE
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards
 from serverboards import file, print, rpc, cache_ttl, sh
 sys.stderr = serverboards.error
