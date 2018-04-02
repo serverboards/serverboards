@@ -78,10 +78,7 @@ class Board extends React.Component{
     }
     if (!newprops.realtime && !object_is_equal(newprops.time_slice, this.props.time_slice)){
       console.log("Changed period! NO RT", newprops)
-      const context = {
-        start: newprops.time_slice[0].toISOString(),
-        end: newprops.time_slice[1].toISOString()
-      }
+      const context = this.getStatusContext(newprops.time_slice)
       const {configs, to_extract} = this.updateConfigs(newprops.widgets)
       this.setState({configs, to_extract})
       this.updateExtractedConfigs(to_extract, context)
@@ -132,15 +129,23 @@ class Board extends React.Component{
 
     return {configs, to_extract}
   }
-  getStatusContext(){
+  getStatusContext(time_slice){
+    if (!time_slice)
+      time_slice = this.props.time_slice
+    const start = time_slice[0]
+    const end = time_slice[1]
+    const secs = moment(end).diff(start, 'seconds')
+    const prev = moment(start).subtract(secs, "seconds")
+
     return {
-      start: this.props.time_slice[0].toISOString(),
-      end: this.props.time_slice[1].toISOString(),
+      start: start.toISOString(),
+      end: end.toISOString(),
+      prev: prev.toISOString()
     }
   }
   updateExtractedConfigs(to_extract, context){
     // console.log("To extract ", to_extract)
-    // console.log("Update in range", context)
+    console.log("Update in range", context)
     to_extract.map( uuid => {
       rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
         let configs = {...this.state.configs}
@@ -164,10 +169,12 @@ class Board extends React.Component{
     const end = moment()
     const secs = moment(this.props.time_slice[1]).diff(this.props.time_slice[0], 'seconds')
     const start = moment(end).subtract(secs, "seconds")
+    const prev = moment(start).subtract(secs, "seconds")
 
     this.updateExtractedConfigs(this.state.to_extract, {
       start: start.toISOString(),
-      end: end.toISOString()
+      end: end.toISOString(),
+      prev: prev.toISOString()
     })
     this.props.updateDaterange(start, end)
   }
