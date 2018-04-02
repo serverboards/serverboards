@@ -147,7 +147,6 @@ async def toggle_remote_fingerprint(url=None, status=None, options="", **args):
 async def test():
     sys.stdout = sys.stderr
     import json
-    from smock import mock_method
     printc("Start tests")
 
     ret = await ssh_public_key()

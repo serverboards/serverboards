@@ -150,8 +150,8 @@ class Top extends React.Component{
   handleSetSectionMenu(section_menu, section_menu_props={}){
     this.setState({section_menu, section_menu_props})
   }
-  handleSetSectionMenuProps(section_menu_props){
-    this.setState({section_menu_props})
+  handleSetSectionMenuProps(newprops){
+    this.setState({section_menu_props: {...this.state.section_menu_props, ...newprops}})
   }
   handleChangeSection(shortname, uuid){
     if (uuid){

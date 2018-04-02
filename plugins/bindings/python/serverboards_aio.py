@@ -558,7 +558,10 @@ def test_mode(test_function, mock_data={}):
                     "result": res,
                     "id": req.get("id")
                 }
-                print("<<<", json.dumps(res._MockWrapper__data, indent=2))
+                if isinstance(res, (int, str)):
+                    print("<<<", json.dumps(res, indent=2))
+                else:
+                    print("<<<", json.dumps(res._MockWrapper__data, indent=2))
                 await rpc._RPC__parse_request(resp)
             except Exception as e:
                 await error("Error (%s) mocking call: %s" % (e, req))
@@ -588,7 +591,7 @@ def test_mode(test_function, mock_data={}):
         sys.exit(exit_code)
 
     run_async(exit_wrapped)
-    set_debug(True)
+    set_debug(True, True)
     loop(with_monitor=True)
 
 
@@ -713,3 +716,90 @@ def async(f, *args, **kwargs):
     if isinstance(ret, Exception):
         raise ret
     return ret
+
+
+class Plugin:
+    """
+    Wraps a plugin to easily call the methods in it.
+
+    It has no recovery in it.
+
+    Can specify to ensure it is dead (kill_and_restart=True) before use. This
+    is only useful at tests.
+    """
+    class Method:
+        def __init__(self, plugin, method):
+            self.plugin = plugin
+            self.method = method
+
+        async def __call__(self, *args, **kwargs):
+            return await self.plugin.call(self.method, *args, **kwargs)
+
+    def __init__(self, plugin_id, restart=True):
+        self.plugin_id = plugin_id
+        self.restart = restart
+        self.uuid = None
+
+    def __getattr__(self, method):
+        return Plugin.Method(self, method)
+
+    async def start(self):
+        self.uuid = await rpc.call("plugin.start", self.plugin_id)
+        return self
+
+    async def stop(self):
+        """
+        Stops the plugin.
+        """
+        if not self.uuid:  # not running
+            return self
+        await rpc.call("plugin.stop", self.uuid)
+        self.uuid = None
+        return self
+
+    RETRY_EVENTS = ["exit", "unknown_plugin at plugin.call", "unknown_plugin"]
+
+    async def call(self, method, *args, **kwargs):
+        """
+        Call a method by name.
+
+        This is also a workaround calling methods called `call` and `stop`.
+        """
+        if not self.uuid:
+            await self.call_retry(method, *args, **kwargs)
+        try:
+            return await rpc.call(
+                "plugin.call",
+                self.uuid,
+                method,
+                args or kwargs,
+            )
+        except Exception as e:
+            # if exited or plugin call returns unknown method (refered to the
+            # method to call at the plugin), restart and try again.
+            if (str(e) in Plugin.RETRY_EVENTS) and self.restart:
+                await self.call_retry(method, *args, **kwargs)
+            else:
+                raise
+
+    async def call_retry(self, method, *args, **kwargs):
+        # if error because exitted, and may restart,
+        # restart and try again (no loop)
+        await debug("Restarting plugin", self.plugin_id)
+        await self.start()
+        return await rpc.call(
+            "plugin.call",
+            self.uuid,
+            method,
+            args or kwargs
+        )
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, _type, _value, _traceback):
+        try:
+            await self.stop()
+        except Exception as ex:
+            if str(ex) != "cant_stop at plugin.stop":
+                raise

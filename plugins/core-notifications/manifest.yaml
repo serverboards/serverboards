@@ -63,7 +63,7 @@ components:
       - settings.view[serverboards.core.notifications/settings.email]
       - settings.view[serverboards.core.settings/base]
     command: serverboards_email.py
-    type: singleton
+    strategy: singleton
     timeout: 1m
 
   - name: Send Email

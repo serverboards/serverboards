@@ -34,6 +34,7 @@ components:
 
   - id: backup.ssh
     type: cmd
+    strategy: singleton
     command: serverboards_backups_ssh.py
     timeout: 1d
     name: SSH Backup Service

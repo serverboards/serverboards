@@ -80,7 +80,7 @@ class HoldButton extends React.Component{
       )
 
     return (
-      <div className="hold button">
+      <div className={`hold button ${className.indexOf("disabled")>=0 ? "disabled" : ""}`}>
         <button ref="button" className={className} type={this.props.type}>
           {this.props.children}
         </button>

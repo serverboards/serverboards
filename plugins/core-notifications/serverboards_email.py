@@ -53,7 +53,7 @@ async def base_url():
 @serverboards.rpc_method
 async def send_email(user=None, config=None, message=None, **extra):
     if not settings:
-        serverboards.warning(
+        await serverboards.warning(
             "Email not properly configured. Not sending emails")
         return False
     _to = config and config.get("email") or user["email"]

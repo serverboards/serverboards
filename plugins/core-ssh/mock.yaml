@@ -1,1 +1,14 @@
-{}
+settings.get:
+  - args:
+      - "serverboards.core.ssh/ssh.settings"
+      - {}
+    response:
+      options: ""
+service.get:
+  - args:
+    - XXX
+    response:
+      config:
+        url: ssh://localhost
+      type: serverboards.core.ssh/ssh
+      uuid: XXX
