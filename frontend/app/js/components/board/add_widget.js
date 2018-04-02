@@ -8,6 +8,7 @@ import store from 'app/utils/store'
 import plugin from 'app/utils/plugin'
 import Widget from 'app/containers/board/widget'
 import EditWidget from './edit_widget'
+import moment from 'moment'
 
 function SetupWidget(props){
   const widget = {
@@ -15,10 +16,14 @@ function SetupWidget(props){
     ui: props.widget.hints || {},
     config: {},
   }
-  const daterange = store.getState().project.daterange
+  const {start, end} = store.getState().project.daterange
+  const secs = end.diff(start, "seconds")
+  const prev = moment(start).subtract(secs, "seconds")
+
   const vars = {
-    start: daterange.start.format(),
-    end: daterange.end.format()
+    start: start.toISOString(),
+    end: end.toISOString(),
+    prev: prev.toISOString()
   }
 
   return (

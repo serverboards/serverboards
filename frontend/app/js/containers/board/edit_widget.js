@@ -7,6 +7,7 @@ import React from 'react'
 import HoldButton from 'app/components/holdbutton'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
+import moment from 'moment'
 
 function EditWidgetModal(props){
   if (!props.template){
@@ -39,6 +40,10 @@ const Controller = connect(
     vars: {
       start: state.project.daterange.start.toISOString(),
       end: state.project.daterange.end.toISOString(),
+      prev: moment(state.project.daterange.start).subtract(
+              state.project.daterange.end.diff(state.project.daterange.start, "seconds")
+              , "seconds"
+            ).toISOString()
     }
   }),
   (dispatch, props) => ({

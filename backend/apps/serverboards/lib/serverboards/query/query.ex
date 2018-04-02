@@ -126,6 +126,11 @@ defmodule Serverboards.Query do
       rescue
         e in MatchError ->
           Logger.error("Error performing query: #{inspect e}: #{inspect System.stacktrace(), pretty: true}")
+          # plan = with {:ok, parsed} <- ExoSQL.parse(query, context),
+          #             {:ok, plan} <- ExoSQL.plan(parsed, context) do
+          #               plan
+          #             end
+          # Logger.debug("Query plan is #{inspect plan, pretty: true}\n  #{inspect context["__vars__"], pretty: true}")
           {:error, {:invalid_sql, e.term}}
         exception in FunctionClauseError ->
           Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
