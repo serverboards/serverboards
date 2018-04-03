@@ -31,13 +31,36 @@ defmodule Serverboards.Utils.Template do
   def render_map(orig, context) when is_binary(orig), do: render( orig, context )
   def render_map(orig, _context), do: {:ok, orig}
 
+  def parse_varname(var) do
+    vars = String.split(var, ".")
+      |> Enum.map(&({:var, &1}))
+    if String.contains?(var, "|") do
+      [{:var, piped} | rvars] = Enum.reverse(vars)
+
+      [lvar, func] = String.split(piped, "|")
+
+      [{:fn, func} | [{:var, lvar} | rvars]]
+        |> Enum.reverse
+    else
+      vars
+    end
+  end
+
+  defp builtin_func("json", data) do
+    Poison.encode!(data)
+  end
+
   def re_find_and_replace("", context) do # nice for debugging: {{}}
     inspect context
   end
   def re_find_and_replace(var, context) do
-    res = String.split(var, ".")
-      |> Enum.reduce(context, fn var, context ->
-        re_find_and_replace_leaf(var, context)
+    res = parse_varname(var)
+    res = res
+      |> Enum.reduce(context, fn
+        {:var, var}, context ->
+          re_find_and_replace_leaf(var, context)
+        {:fn, func}, context ->
+          builtin_func(func, context)
       end)
     case res do
       txt when is_binary(txt) -> txt

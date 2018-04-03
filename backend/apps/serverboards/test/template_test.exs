@@ -60,4 +60,13 @@ defmodule Serverboards.TemplateTest do
         }
       })
   end
+
+  test "Initial filter support" do
+    {:ok, txt} = render "name: {{A.data.name|json}}", A: [data: [name: "David Moreno; DROP TABLE pas\""]]
+    assert txt == "name: \"David Moreno; DROP TABLE pas\\\"\""
+
+
+    {:ok, txt} = render "name: {{A.data|json}}", A: %{data: %{ name: "David Moreno"}}
+    assert txt == "name: {\"name\":\"David Moreno\"}"
+  end
 end
