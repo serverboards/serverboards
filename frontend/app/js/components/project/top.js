@@ -107,8 +107,8 @@ class ProjectMenu extends React.Component{
             ref="project_selector_menu"
             >
           <Restricted perm="project.create">
-            <a  className="item"
-                onClick={() => goto(`#/project/wizard`, {step: 1})}
+            <a className="item"
+                onClick={() => goto(`/project/wizard`, {step: 1})}
                 style={{borderBottom: "1px solid #eee", width: 200}}
                 id="add_project"
               >{i18n("Add project")}</a>
