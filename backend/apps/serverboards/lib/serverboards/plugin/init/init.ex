@@ -49,7 +49,8 @@ defmodule Serverboards.Plugin.Init do
       timeout: 1,
       timer: nil,
       started_at: nil,
-      cmd: nil
+      cmd: nil,
+      ignore_down: false # ignore one down, do not dup timeout
     }
 
     GenServer.cast(self(),{:start})
@@ -84,7 +85,7 @@ defmodule Serverboards.Plugin.Init do
     {:noreply, state}
   end
 
-  defp handle_wait_run(%{started_at: started_at, timeout: timeout } = state) do
+  defp handle_wait_run(%{started_at: started_at, timeout: timeout, ignore_down: ignore_down } = state) do
     if state.timer do # if inside timer, do not retrigger. Wait for real timer.
       running_for_seconds = case started_at do
         nil -> 0
@@ -93,14 +94,18 @@ defmodule Serverboards.Plugin.Init do
       timer = Process.send_after(self(), {:restart}, timeout * 1000)
 
       # Timeout is for next run
-      timeout = max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
-
+      timeout = if ignore_down do
+        timeout
+      else
+        max(1, min((timeout - running_for_seconds) * 2, @max_timeout)) # 2h
+      end
       state = %{
         state |
         timeout: timeout,
         timer: timer,
         started_at: nil,
-        task: nil
+        task: nil,
+        ignore_down: false,
       }
       Logger.info("Restart init #{inspect state.init.id} in #{state.timeout} seconds.", state: state)
       state
@@ -154,7 +159,8 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
       state |
-      timeout: timeout / 2.0, # compensate for future * 2
+      ignore_down: true,
+      timeout: timeout,
       timer: timer,
       started_at: nil,
       task: nil
