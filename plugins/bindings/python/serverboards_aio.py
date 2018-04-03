@@ -121,7 +121,7 @@ class RPC:
                 await self.__send({"result": res, "id": id})
         except Exception as e:
             if _debug or _log_errors:
-                traceback.print_exc(file=sys.stderr)
+                log_traceback(e)
             if id:
                 await self.__send({"error": str(e), "id": id})
         finally:
