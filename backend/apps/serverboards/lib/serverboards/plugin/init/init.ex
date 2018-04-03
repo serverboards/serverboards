@@ -154,7 +154,7 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     timer = Process.send_after(self(), {:restart}, timeout * 1000)
     state = %{
       state |
-      timeout: timeout,
+      timeout: timeout / 2.0, # compensate for future * 2
       timer: timer,
       started_at: nil,
       task: nil
