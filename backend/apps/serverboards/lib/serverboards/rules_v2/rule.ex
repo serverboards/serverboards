@@ -297,7 +297,7 @@ defmodule Serverboards.RulesV2.Rule do
   end
   def handle_call({:trigger, params}, from, state) do
     if state.signal_end_of_trigger do
-      {:error, :already_running}
+      {:reply, {:error, :already_running}, state}
     else
       GenServer.cast(self(), {:trigger, params})
       {:noreply, %{ state | signal_end_of_trigger: from }}
