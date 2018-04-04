@@ -42,7 +42,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
   def do_webhook_call(uuid, qsvals) do
     case filter_query(uuid, qsvals) do
       {:ok, qsvals, params} ->
-        Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect qsvals}", rule_uuid: uuid)
+        Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect Map.keys(qsvals)}", rule_uuid: uuid)
         wait = empty?(params["redirect_ok"]) or empty?(params["redirect_nok"])
         res = if wait do
           Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
@@ -51,25 +51,61 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         end
         {:ok, %{status: :ok, data: res}, params}
       {:error, e, params} ->
-        Logger.error("Webhook call is missing some keys #{inspect uuid}", rule_uuid: uuid)
+        required = (params["required"] || "" ) |> String.split(~r"[,\s]", trim: true)
+        Logger.error(
+          "Webhook call is missing some keys #{inspect uuid}. Required #{inspect required}, has #{inspect Map.keys(qsvals)}.",
+          rule_uuid: uuid)
         {:error, %{ status: :error, data: e}, params}
     end
+  end
+
+  defp get_multipart_params(req, params \\ []) do
+    case :cowboy_req.part(req) do
+      {:ok, headers, req2} ->
+        case :cow_multipart.form_data(headers) do
+          {:data, name} ->
+            {:ok, body, req3} = :cowboy_req.part_body(req2)
+
+            get_multipart_params(req3, [{name, body} | params])
+          other ->
+            Logger.debug("Dont know how to parse multipart type #{inspect other}")
+            get_multipart_params(req2, params)
+        end
+      {:done, _} ->
+        params
+      other ->
+        Logger.debug("Dont know how to parse multipart part #{inspect other}")
+        params
+    end
+  end
+
+  defp get_params(req) do
+    {:ok, {content, type, _}, _} = :cowboy_req.parse_header("content-type", req)
+    content_type = {content, type}
+    # Logger.debug("Got data: #{inspect content_type}")
+    params = cond do
+      content_type == {"multipart", "form-data"} ->
+        get_multipart_params(req)
+
+      content_type == {"application", "x-www-form-urlencoded"} ->
+        {:ok, params, _} = :cowboy_req.body_qs(req)
+        # Logger.debug("url encoded")
+        params
+
+      true ->
+        # Logger.debug("other")
+        {params, _} = :cowboy_req.qs_vals(req)
+        params
+    end
+
+    Map.new(params)
   end
 
   def handle(req, state) do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
-    {qsvals, _} = :cowboy_req.qs_vals(req)
-    # Logger.debug(inspect {qsvals})
-    qsvals = if qsvals == [] do
-      # Logger.debug("No qvals?")
-      {:ok, qsvals, _} = :cowboy_req.body_qs(req)
-      qsvals
-    else
-      qsvals
-    end
-    # Logger.debug(inspect {qsvals})
-    qsvals = Map.new(qsvals)
+
+    qsvals = get_params(req)
 
     trigger_data = try do
       Serverboards.RulesV2.Rule.trigger_type(uuid)

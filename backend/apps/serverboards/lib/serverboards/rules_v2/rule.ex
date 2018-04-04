@@ -43,7 +43,7 @@ defmodule Serverboards.RulesV2.Rule do
     trigger_wait(via(uuid), params)
   end
   def trigger_wait(pid, params) when is_pid(pid) or is_tuple(pid) do
-    Logger.debug("trigger wait #{inspect {pid, params}, pretty: true}")
+    Logger.debug("trigger wait #{inspect {pid, Map.keys(params)}, pretty: true}")
     res = GenServer.call(pid, {:trigger, params})
     Logger.debug("Response #{inspect res}")
     res
