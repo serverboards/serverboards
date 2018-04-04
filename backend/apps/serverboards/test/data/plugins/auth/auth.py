@@ -131,6 +131,7 @@ def stop_trigger_at_start(id):
 @serverboards.rpc_method
 def touchfile(filename="/tmp/auth-py-touched", **_kwargs):
     import datetime
+    serverboards.print("Touch file ", filename)
     with open(filename, "w") as fd:
         fd.write(str(datetime.datetime.now()))
     return True

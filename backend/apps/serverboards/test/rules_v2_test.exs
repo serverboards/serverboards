@@ -296,13 +296,17 @@ defmodule Serverboards.RuleV2Test do
       "description" => "description",
       "rule" => %{
         "when" => %{
-          "trigger" => "serverboards.test.auth/webhook"
+          "id" => "A",
+          "trigger" => "serverboards.test.auth/webhook",
+          "params" => %{
+            "required" => "ext"
+          }
         },
         "actions" => [%{
           "type" => "action",
           "action" => "serverboards.test.auth/touchfile",
           "params" => %{
-            "filename" => "/tmp/rule-webhooks.test"
+            "filename" => "/tmp/rule-webhooks.{{A.data.ext}}"
           }
         }]
       },
@@ -318,15 +322,48 @@ defmodule Serverboards.RuleV2Test do
       File.rm("/tmp/rule-webhooks.test")
     end
 
-    response = HTTPoison.get!("http://localhost:8080/webhook/#{uuid}")
-
+    response = HTTPoison.get!("http://localhost:8080/webhook/#{uuid}?ext=test")
     Logger.debug("Response #{inspect response}")
-
     assert response.status_code == 200
-
     :timer.sleep(200)
     {:ok, _} = File.stat("/tmp/rule-webhooks.test")
     File.rm("/tmp/rule-webhooks.test")
+
+    response = HTTPoison.post!(
+      "http://localhost:8080/webhook/#{uuid}",
+      Poison.encode!(%{ "ext" => "test" }),
+      [{"Content-Type", "application/json"}]
+    )
+    Logger.debug("Response #{inspect response}")
+    assert response.status_code == 200
+    :timer.sleep(200)
+    {:ok, _} = File.stat("/tmp/rule-webhooks.test")
+    File.rm("/tmp/rule-webhooks.test")
+
+
+    response = HTTPoison.post!(
+      "http://localhost:8080/webhook/#{uuid}",
+      "ext=test",
+      [{"Content-Type", "application/x-www-form-urlencoded"}]
+    )
+    Logger.debug("Response #{inspect response}")
+    assert response.status_code == 200
+    :timer.sleep(200)
+    {:ok, _} = File.stat("/tmp/rule-webhooks.test")
+    File.rm("/tmp/rule-webhooks.test")
+
+    # boundary needs -- at begining.
+    response = HTTPoison.post!(
+      "http://localhost:8080/webhook/#{uuid}",
+      "-----TEST\r\nContent-Disposition: form-data; name=\"ext\"\r\n\r\ntest\r\n-----TEST--\r\n",
+      [{"Content-Type", "multipart/form-data; boundary=---TEST"}]
+    )
+    Logger.debug("Response #{inspect response}")
+    assert response.status_code == 200
+    :timer.sleep(200)
+    {:ok, _} = File.stat("/tmp/rule-webhooks.test")
+    File.rm("/tmp/rule-webhooks.test")
+
 
     if http_pid do
       Process.exit(http_pid, :normal)

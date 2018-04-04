@@ -80,12 +80,20 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
   end
 
   defp get_params(req) do
-    {:ok, {content, type, _}, _} = :cowboy_req.parse_header("content-type", req)
-    content_type = {content, type}
+    # Logger.debug(inspect req, pretty: true)
+    content_type = case :cowboy_req.parse_header("content-type", req) do
+       {:ok, {content, type, _}, _} ->
+         {content, type}
+       other ->
+         :unknown
+    end
     # Logger.debug("Got data: #{inspect content_type}")
     params = cond do
       content_type == {"multipart", "form-data"} ->
         get_multipart_params(req)
+      content_type == {"application", "json"} ->
+        {:ok, body, _} = :cowboy_req.body(req)
+        Poison.decode!(body)
 
       content_type == {"application", "x-www-form-urlencoded"} ->
         {:ok, params, _} = :cowboy_req.body_qs(req)
