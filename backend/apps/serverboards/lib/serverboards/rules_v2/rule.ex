@@ -79,8 +79,9 @@ defmodule Serverboards.RulesV2.Rule do
           running: false,
           state: Serverboards.RulesV2.Rules.get_state(uuid) || %{},
           last_wakeup: DateTime.utc_now(),
-          signal_end_of_trigger: nil
-          }}
+          signal_end_of_trigger: nil,
+          trigger_queue: []
+        }}
       {:error, error} ->
         Logger.error("Error starting trigger: #{inspect error}.", rule: rule.rule)
         {:stop, :cant_start_trigger}
@@ -235,7 +236,7 @@ defmodule Serverboards.RulesV2.Rule do
         }
       GenServer.cast(self(), :continue) # yields execution of actions.
 
-      #Logger.info("Trigger! #{inspect params} #{inspect state}")
+      # Logger.info("Trigger! #{inspect params} #{inspect state}")
       #{:ok, rule_final_state} = execute_actions(uuid, state.rule.rule["actions"], trigger_state)
       #Logger.info("Final state: #{inspect rule_final_state}")
 
@@ -247,7 +248,7 @@ defmodule Serverboards.RulesV2.Rule do
   end
 
   def handle_cast(:continue, %{ running: [] } = state) do
-    # Logger.debug("Action chain finished. Final state is #{inspect state.state, pretty: true}")
+    # Logger.debug("Action chain finished.")
 
     # Store the state in the DB
     set_state(state.uuid, state.state)
@@ -260,6 +261,19 @@ defmodule Serverboards.RulesV2.Rule do
       running: false,
       signal_end_of_trigger: nil
     }
+
+    # Run next in queue if any
+    state = case state.trigger_queue do
+      [] ->
+        state
+      [ {from, params} | rest ] ->
+        GenServer.cast(self(), {:trigger, params})
+        state = %{ state |
+          trigger_queue: rest,
+          signal_end_of_trigger: from
+        }
+        state
+    end
 
     {:noreply, state}
   end
@@ -297,7 +311,13 @@ defmodule Serverboards.RulesV2.Rule do
   end
   def handle_call({:trigger, params}, from, state) do
     if state.signal_end_of_trigger do
-      {:reply, {:error, :already_running}, state}
+      # queue
+      # {:reply, {:error, :already_running}, state}
+
+      {:noreply, %{
+        state |
+        trigger_queue: state.trigger_queue ++ [{from, params}]
+      }}
     else
       GenServer.cast(self(), {:trigger, params})
       {:noreply, %{ state | signal_end_of_trigger: from }}
@@ -316,9 +336,10 @@ defmodule Serverboards.RulesV2.Rule do
       Logger.debug("Run action #{inspect action} #{inspect params}\n #{inspect state, pretty: true}")
     end
 
+    # Logger.debug("Do trigger wait")
     result = Serverboards.Action.trigger_wait(action, params, "rule/#{uuid}")
 
-    Logger.info("Executed action #{inspect action}", rule_uuid: uuid, params: params)
+    # Logger.info("Executed action #{inspect action}", rule_uuid: uuid, params: params)
 
     result = if Enum.count(result)==1 and Map.has_key?(result, :result) do
       result[:result] else result end
