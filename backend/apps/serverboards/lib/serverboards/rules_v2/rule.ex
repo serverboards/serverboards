@@ -38,14 +38,26 @@ defmodule Serverboards.RulesV2.Rule do
     # Logger.debug("trigger #{inspect {pid, params}, pretty: true}")
     GenServer.cast(pid, {:trigger, params})
   end
+  def trigger_queue(uuid, params) when is_binary(uuid) do
+    trigger(via(uuid), params)
+  end
+  def trigger_queue(pid, params) when is_pid(pid) or is_tuple(pid) do
+    # Logger.debug("trigger #{inspect {pid, params}, pretty: true}")
+    GenServer.cast(pid, {:trigger_queue, params})
+  end
 
   def trigger_wait(uuid, params) when is_binary(uuid) do
     trigger_wait(via(uuid), params)
   end
   def trigger_wait(pid, params) when is_pid(pid) or is_tuple(pid) do
-    Logger.debug("trigger wait #{inspect {pid, Map.keys(params)}, pretty: true}")
     res = GenServer.call(pid, {:trigger, params})
-    Logger.debug("Response #{inspect res}")
+    res
+  end
+  def trigger_wait_queue(uuid, params) when is_binary(uuid) do
+    trigger_wait_queue(via(uuid), params)
+  end
+  def trigger_wait_queue(pid, params) when is_pid(pid) or is_tuple(pid) do
+    res = GenServer.call(pid, {:trigger_queue, params})
     res
   end
 
@@ -294,6 +306,18 @@ defmodule Serverboards.RulesV2.Rule do
     {:noreply, state}
   end
 
+  def handle_cast({:trigger_queue, params}, state) do
+    if state.running do
+      # queue
+      {:noreply, %{
+        state |
+        trigger_queue: state.trigger_queue ++ [{nil, params}]
+      }}
+    else
+      handle_cast({:trigger, params}, state)
+    end
+  end
+
   def handle_call(:status, _from, state) do
     {:reply, state, state}
   end
@@ -309,11 +333,19 @@ defmodule Serverboards.RulesV2.Rule do
     end
     {:reply, res, state}
   end
+  # This version do not enqueue, do not allow retriggers
   def handle_call({:trigger, params}, from, state) do
-    if state.signal_end_of_trigger do
+    if state.running do
+      {:reply, {:error, :already_running}, state}
+    else
+      GenServer.cast(self(), {:trigger, params})
+      {:noreply, %{ state | signal_end_of_trigger: from }}
+    end
+  end
+  # This version DO enqueues, allows retriggers
+  def handle_call({:trigger_queue, params}, from, state) do
+    if state.running do
       # queue
-      # {:reply, {:error, :already_running}, state}
-
       {:noreply, %{
         state |
         trigger_queue: state.trigger_queue ++ [{from, params}]

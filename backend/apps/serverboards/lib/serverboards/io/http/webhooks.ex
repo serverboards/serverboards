@@ -45,9 +45,9 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
         Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect Map.keys(qsvals)}", rule_uuid: uuid)
         wait = empty?(params["redirect_ok"]) or empty?(params["redirect_nok"])
         res = if wait do
-          Serverboards.RulesV2.Rule.trigger_wait(uuid, qsvals)
+          Serverboards.RulesV2.Rule.trigger_wait_queue(uuid, qsvals)
         else
-          Serverboards.RulesV2.Rule.trigger(uuid, qsvals)
+          Serverboards.RulesV2.Rule.trigger_queue(uuid, qsvals)
         end
         {:ok, %{status: :ok, data: res}, params}
       {:error, e, params} ->
