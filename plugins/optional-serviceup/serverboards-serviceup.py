@@ -18,20 +18,20 @@ def service_uuid(service):
 
 
 @serverboards.cache_ttl(30)
-def recheck_service_by_uuid(service_uuid):
-    service = serverboards.service.get(service_uuid)
-    return recheck_service(service)
+async def recheck_service_by_uuid(service_uuid):
+    service = await serverboards.service.get(service_uuid)
+    return await recheck_service(service)
 
 
 # Use a cache to avoid checking more than one every 30 seconds
 # this also avoid that changing the status retriggers the check
 @serverboards.cache_ttl(30, hashf=service_uuid)
 async def recheck_service(service, *args, **kwargs):
+    # print("service is", repr(service))
     status = await get_status_checker(service["type"])
     if not status:
         return
     try:
-        printc(repr(service))
         tag = await status["plugin"].call(status["call"], service)
     except Exception:
         tag = "plugin-error"
@@ -66,18 +66,19 @@ async def inserted_service(service, *args, **kwargs):
     if status and status.get("frequency"):
         seconds = time_description_to_seconds(status["frequency"])
         uuid = service["uuid"]
-        task_id = curio.spawn(poll_serviceup, seconds, uuid)
+        task_id = await curio.spawn(poll_serviceup, seconds, uuid)
         tasks[uuid] = task_id
         return True
     return False
 
 
 async def remove_service(service, *args, **kwargs):
-    print("Remove service from periodic checks", service["uuid"])
-    tid = timers.get(service["uuid"])
+    uuid = service["uuid"]
+    print("Remove service from periodic checks", uuid)
+    tid = tasks.get(uuid)
     if tid:
-        await curio.cancel(tid)
-        del timers[service["uuid"]]
+        await tid.cancel()
+        del tasks[uuid]
 
 
 @serverboards.rpc_method
@@ -121,7 +122,7 @@ async def get_status_checker(type):
 
 
 async def open_service_issue(service, status):
-    print("open issue for ", service)
+    print("Open issue for ", service)
     issue_id = "service_down/%s" % service["uuid"]
     issue = await serverboards.issues.get(issue_id)
     if issue:
@@ -144,6 +145,8 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
         BASE_URL=base_url)
     title = _("%(service)s is %(status)s") % dict(
         service=service["name"], status=status)
+
+    # print(description, title)
 
     await serverboards.issues.create(
         title=title,
@@ -204,6 +207,13 @@ async def subscribe_to_services():
 async def test():
     printc("Testing")
     await init()
+    await curio.sleep(3)
+    printc("Remove service A", color="green")
+    await remove_service({"uuid": "A"})
+    await curio.sleep(3)
+    printc("Add again service A", color="green")
+    await inserted_service({"uuid": "A", "type": "http", "tags": ["status:ok"], "name": "Service A"})
+    await curio.sleep(3)
     sys.exit(0)
 
 

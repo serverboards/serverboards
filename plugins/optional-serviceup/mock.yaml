@@ -1,4 +1,20 @@
-service.get: []
+service.get:
+  - args: ["B"]
+    kwargs: {}
+    response:
+      uuid: B
+      tags: ["status:ok"]
+      type: http
+      name: Service B
+  - args: ["A"]
+    kwargs: {}
+    response:
+      type: http
+      uuid: A
+      tags: ["status:ok"]
+      name: Service A
+
+
 event.subscribe:
   - args: ["service.updated"]
     kwargs: {}
@@ -48,12 +64,19 @@ plugin.call:
     kwargs: {}
     response:
       ok
+  - args: ["PLUGINA", "check_http", [{"type": "http", "uuid": "B", "tags": ["status:ok"], "name": "Service B"}]]
+    kwargs: {}
+    response:
+      nok
 
 service.update:
   - args: ["B", {"tags": ["status:ok"]}]
     kwargs: {}
     response: ok
   - args: ["A", {"tags": ["status:nok"]}]
+    kwargs: {}
+    response: ok
+  - args: ["B", {"tags": ["status:nok"]}]
     kwargs: {}
     response: ok
 
