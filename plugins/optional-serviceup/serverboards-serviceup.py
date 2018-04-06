@@ -4,12 +4,12 @@ import sys
 import os
 import gettext
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
-import serverboards
-from serverboards import print
+import serverboards_aio as serverboards
+from serverboards_aio import print, curio
+from pcolor import printc
 
 
 _ = gettext.gettext
-sys.stderr = serverboards.error
 OK_TAGS = ["ok", "up"]
 
 
@@ -26,83 +26,90 @@ def recheck_service_by_uuid(service_uuid):
 # Use a cache to avoid checking more than one every 30 seconds
 # this also avoid that changing the status retriggers the check
 @serverboards.cache_ttl(30, hashf=service_uuid)
-def recheck_service(service, *args, **kwargs):
-    status = get_status_checker(service["type"])
+async def recheck_service(service, *args, **kwargs):
+    status = await get_status_checker(service["type"])
     if not status:
         return
     try:
-        tag = status["plugin"].call(status["call"], service)
+        printc(repr(service))
+        tag = await status["plugin"].call(status["call"], service)
     except Exception:
         tag = "plugin-error"
     fulltag = "status:" + tag
     if fulltag in service["tags"]:
         return
     else:
-        serverboards.info(
+        await serverboards.info(
             "Service %s changed state to %s"
             % (service["uuid"], tag), service_id=service["uuid"])
         newtags = [x for x in service["tags"] if not x.startswith("status:")]
         newtags.append(fulltag)
-        serverboards.service.update(service["uuid"], {"tags": newtags})
+        await serverboards.service.update(service["uuid"], {"tags": newtags})
         if tag in OK_TAGS:
-            close_service_issue(service, tag)
+            await close_service_issue(service, tag)
         else:
-            open_service_issue(service, tag)
+            await open_service_issue(service, tag)
 
 
-timers = {}
+tasks = {}
 
 
-def inserted_service(service, *args, **kwargs):
-    recheck_service(service)
-    status = get_status_checker(service["type"])
+async def poll_serviceup(seconds, uuid):
+    while True:
+        await curio.sleep(seconds)
+        await recheck_service_by_uuid(uuid)
+
+
+async def inserted_service(service, *args, **kwargs):
+    await recheck_service(service)
+    status = await get_status_checker(service["type"])
     if status and status.get("frequency"):
         seconds = time_description_to_seconds(status["frequency"])
-        timer_id = serverboards.rpc.add_timer(
-            seconds,
-            lambda: recheck_service_by_uuid(service["uuid"]),
-            rearm=True)
-        timers[service["uuid"]] = timer_id
+        uuid = service["uuid"]
+        task_id = curio.spawn(poll_serviceup, seconds, uuid)
+        tasks[uuid] = task_id
         return True
     return False
 
 
-def remove_service(service, *args, **kwargs):
+async def remove_service(service, *args, **kwargs):
     print("Remove service from periodic checks", service["uuid"])
     tid = timers.get(service["uuid"])
     if tid:
-        serverboards.rpc.remove_timer(tid)
+        await curio.cancel(tid)
         del timers[service["uuid"]]
 
 
 @serverboards.rpc_method
-def init(*args, **kwargs):
-    if timers:
+async def init(*args, **kwargs):
+    if tasks:
         return
-    for t in timers.values():
-        serverboards.rpc.remove_timer(t)
-    timers.clear()
+
     n = e = t = 0
-    for service in serverboards.service.list():
+    list = await serverboards.maybe_await(serverboards.service.list())
+    for service in list:
         t += 1
         try:
-            ok = inserted_service(service)
+            ok = await inserted_service(service)
             if ok:
                 n += 1
-        except Exception:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
+            serverboards.log_traceback(exc)
             e += 1
-    serverboards.info("Checked %d+%d/%d services for is up" % (n, e, t))
+    await serverboards.info("Checked %d+%d/%d services for is up" % (n, e, t))
     if e:
-        serverboards.error("There were errors on %d up service checkers" % e)
+        await serverboards.error(
+            "There were errors on %d up service checkers" % e)
 
     return 30 * 60  # call init every 30min, just in case it went down
 
 
 @serverboards.cache_ttl(60)
-def get_status_checker(type):
-    catalog = serverboards.plugin.component.catalog(type="service", id=type)
+async def get_status_checker(type):
+    catalog = await serverboards.plugin.component.catalog(
+        type="service", id=type)
     if not catalog:
         return None
     status = catalog[0].get("extra", {}).get("status")
@@ -113,16 +120,16 @@ def get_status_checker(type):
     return status
 
 
-def open_service_issue(service, status):
+async def open_service_issue(service, status):
     print("open issue for ", service)
     issue_id = "service_down/%s" % service["uuid"]
-    issue = serverboards.issues.get(issue_id)
+    issue = await serverboards.issues.get(issue_id)
     if issue:
         print("Issue already open, not opening again.")
         return
 
     issue_id2 = "service/%s" % service["uuid"]
-    base_url = get_base_url()
+    base_url = await get_base_url()
     url = "%s/#/services/%s" % (base_url, service["uuid"])
     description = _("""
 Service [%(service)s](%(service_url)s) is %(status)s.
@@ -138,21 +145,22 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
     title = _("%(service)s is %(status)s") % dict(
         service=service["name"], status=status)
 
-    serverboards.issues.create(
+    await serverboards.issues.create(
         title=title,
         description=description,
         aliases=[issue_id, issue_id2]
     )
 
 
-def close_service_issue(service, status):
+async def close_service_issue(service, status):
     print("close issue for ", service)
     issue_id = "service_down/%s" % service["uuid"]
-    issue = serverboards.issues.get(issue_id)
+    issue = await serverboards.issues.get(issue_id)
     if not issue or issue["status"] == "closed":
         return None
-    url = "%s/#/services/%s" % (get_base_url(), service["uuid"])
-    serverboards.issues.update(issue_id, [
+    base_url = await get_base_url()
+    url = "%s/#/services/%s" % (base_url, service["uuid"])
+    await serverboards.issues.update(issue_id, [
         {
             "type": "comment",
             "data": _("[%(name)s](%(url)s) is back to %(status)s") % dict(
@@ -162,9 +170,9 @@ def close_service_issue(service, status):
 
 
 @serverboards.cache_ttl(hashf=lambda: True)
-def get_base_url():
-    return serverboards.settings.get(
-        "serverboards.core.settings/base", {}).get("base_url")
+async def get_base_url():
+    return (await serverboards.settings.get(
+        "serverboards.core.settings/base", {})).get("base_url")
 
 
 td_to_s_multiplier = [
@@ -185,10 +193,26 @@ def time_description_to_seconds(td):
     return float(td)
 
 
-serverboards.rpc.subscribe("service.updated", recheck_service)
-serverboards.rpc.subscribe("service.inserted", inserted_service)
-serverboards.rpc.subscribe("service.deleted", remove_service)
+async def subscribe_to_services():
+    printc("Subscribe to services")
+    await serverboards.rpc.subscribe("service.updated", recheck_service)
+    await serverboards.rpc.subscribe("service.inserted", inserted_service)
+    await serverboards.rpc.subscribe("service.deleted", remove_service)
+    printc("Subscribe to services")
+
+
+async def test():
+    printc("Testing")
+    await init()
+    sys.exit(0)
 
 
 if __name__ == '__main__':
+    serverboards.run_async(subscribe_to_services, result=False)
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        import yaml
+        printc("test mode")
+        data = yaml.load(open("mock.yaml"))
+        serverboards.test_mode(test, mock_data=data)
+        sys.exit(1)
     serverboards.loop()

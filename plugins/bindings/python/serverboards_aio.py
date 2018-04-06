@@ -208,7 +208,7 @@ class RPC:
         event = eventname.split('[', 1)[0]
         id = self.__subscription_id
         self.__subscription_id += 1
-        subs = self.__subscriptions.get(event, []).concat(callback)
+        subs = self.__subscriptions.get(event, []) + [callback]
         self.__subscriptions[event] = subs
         self.__subscriptions_by_id[id] = (event, callback)
 
@@ -234,6 +234,8 @@ class RPC:
 
     def run_async(self, method, *args, result=True, **kwargs):
         q = None
+        if not self.__running and result:
+            raise Exception("not-running")
         if self.__running and result:
             q = curio.queue.UniversalQueue()
         self.__run_queue.put((method, args, kwargs, q))
@@ -264,16 +266,19 @@ class RPC:
                 except BrokenPipeError as e:
                     real_debug(
                         RED, "Exception at task %s: %s" % (method, e), RESET)
+                    log_traceback(e)
                     return  # finished! Normally write to closed stdout
                 except curio.TaskCancelled as e:
                     real_debug(
                         RED, "Exception at task %s: %s" % (method, e), RESET)
+                    log_traceback(e)
                     return
                 except Exception as e:
                     real_debug(
                         RED, "Exception at task %s: %s" % (method, e), RESET)
                     if q:
                         await q.put(e)
+                    log_traceback(e)
                 except SystemExit as e:
                     # real_debug(RED, "exit %s: %s" % (method, e), RESET)
                     await curio.spawn(self.stop)
@@ -564,7 +569,7 @@ def test_mode(test_function, mock_data={}):
                     print("<<<", json.dumps(res._MockWrapper__data, indent=2))
                 await rpc._RPC__parse_request(resp)
             except Exception as e:
-                await error("Error (%s) mocking call: %s" % (e, req))
+                await error("Error (%s) mocking call: %s" % (e, repr(req)))
                 traceback.print_exc()
                 resp = {
                     "error": str(e),
@@ -590,7 +595,7 @@ def test_mode(test_function, mock_data={}):
             traceback.print_exc(file=sys.stderr)
         sys.exit(exit_code)
 
-    run_async(exit_wrapped)
+    run_async(exit_wrapped, result=False)
     set_debug(True, True)
     loop(with_monitor=True)
 
