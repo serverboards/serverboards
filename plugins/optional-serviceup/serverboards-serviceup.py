@@ -33,6 +33,8 @@ async def recheck_service(service, *args, **kwargs):
         return
     try:
         tag = await status["plugin"].call(status["call"], service)
+        if not tag:
+            tag = "plugin-error"
     except Exception:
         tag = "plugin-error"
     fulltag = "status:" + tag
@@ -89,6 +91,8 @@ async def init(*args, **kwargs):
     n = e = t = 0
     list = await serverboards.maybe_await(serverboards.service.list())
 
+    print("Checking %d service status" % len(list))
+
     # Launch all in parallel
     mtasks = [
         (await curio.spawn(inserted_service, service))
@@ -106,7 +110,9 @@ async def init(*args, **kwargs):
             traceback.print_exc()
             serverboards.log_traceback(exc)
             e += 1
-    await serverboards.info("Checked %d+%d/%d services for is up" % (n, e, t))
+    await serverboards.info(
+        "Service up stats -- UP: %d DOWN: %s NO INFO: %d TOTAL: %d" %
+        (n, e, t - (n + e), t))
     if e:
         await serverboards.error(
             "There were errors on %d up service checkers" % e)
