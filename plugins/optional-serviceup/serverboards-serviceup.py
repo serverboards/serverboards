@@ -88,10 +88,17 @@ async def init(*args, **kwargs):
 
     n = e = t = 0
     list = await serverboards.maybe_await(serverboards.service.list())
-    for service in list:
+
+    # Launch all in parallel
+    mtasks = [
+        (await curio.spawn(inserted_service, service))
+        for service in list
+    ]
+
+    for task in mtasks:
         t += 1
         try:
-            ok = await inserted_service(service)
+            ok = await task.join()
             if ok:
                 n += 1
         except Exception as exc:
