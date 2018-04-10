@@ -338,14 +338,14 @@ def __simple_hash__(*args, **kwargs):
     return hash(hs)
 
 
-def cache_ttl(ttl=10, maxsize=50, hashf=__simple_hash__):
+def cache_ttl(ttl=10, max_size=50, hashf=__simple_hash__):
     """
     Simple decorator, not very efficient, for a time based cache.
 
     Params:
         ttl -- seconds this entry may live. After this time, next use is
                evicted.
-        maxsize -- If trying to add more than maxsize elements, older will be
+        max_size -- If trying to add more than max_size elements, older will be
                    evicted.
         hashf -- Hash function for the arguments. Defaults to same data as
                  keys, but may require customization.
@@ -356,14 +356,14 @@ def cache_ttl(ttl=10, maxsize=50, hashf=__simple_hash__):
         async def wrapped(*args, **kwargs):
             nonlocal data
             currentt = time.time()
-            if len(data) >= maxsize:
+            if len(data) >= max_size:
                 # first take out all expired
                 data = {
                     k: (timeout, v)
                     for k, (timeout, v) in data.items()
                     if timeout > currentt
                 }
-                if len(data) >= maxsize:
+                while len(data) >= max_size:
                     # not enough, expire oldest
                     oldest_k = None
                     oldest_t = currentt + ttl
@@ -373,7 +373,7 @@ def cache_ttl(ttl=10, maxsize=50, hashf=__simple_hash__):
                             oldest_t = timeout
 
                     del data[oldest_k]
-            assert len(data) < maxsize
+            assert len(data) < max_size
 
             if not args and not kwargs:
                 hs = None
