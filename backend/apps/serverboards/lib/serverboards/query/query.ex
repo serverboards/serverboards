@@ -111,8 +111,9 @@ defmodule Serverboards.Query do
       # Logger.debug("Processed context #{inspect context}")
 
       try do
-        with {:ok, %{ columns: columns, rows: rows}} <- ExoSQL.query(query, context) do
-          {:ok, %{ columns: columns, rows: rows}}
+        {time, result} = :timer.tc(ExoSQL, :query, [query, context])
+        with {:ok, %{ columns: columns, rows: rows}} <- result do
+          {:ok, %{ columns: columns, rows: rows, count: Enum.count(rows), time: time / 1_000_000.0}}
         end
       catch
         :exit, {:timeout, where} ->
