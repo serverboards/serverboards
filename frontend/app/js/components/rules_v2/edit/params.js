@@ -48,7 +48,13 @@ class Params extends React.Component{
         </h2>
         <div className="description"><MarkdownPreview value={this.state.description || ""}/></div>
         <div className="separator" style={{height: 40}}/>
-        <GenericForm fields={this.state.fields} data={this.state.data} updateForm={this.updateForm}/>
+        <div className="ui scroll">
+          <GenericForm
+            fields={this.state.fields}
+            data={this.state.data}
+            updateForm={this.updateForm}
+          />
+        </div>
         <div className="separator" style={{height: 40}}/>
         <div className="ui right aligned">
           <div className="ui buttons">

@@ -445,7 +445,7 @@ async def open_port(service=None, hostname=None,
         port_to_process[localport] = sp
         async with curio.ignore_after(5):
             data = await sp.stdout.read()
-            if 'Address already in use' in data:
+            if 'Address already in use' in str(data):
                 keep_trying = True
                 await sp.close()
             break
