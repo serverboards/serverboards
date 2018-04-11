@@ -415,6 +415,7 @@ async def open_port(service=None, hostname=None,
     Returns:
      localport -- Port id on Serverboards side to connect to.
     """
+    await serverboards.debug("Start open port %s:%s" % (hostname, port))
     await ensure_ID_RSA()
     assert service
     (url, opts, _precmd) = await __get_service_url_and_opts(service)
@@ -608,23 +609,26 @@ async def scp(fromservice=None, fromfile=None,
 @serverboards.rpc_method
 async def ssh_is_up(service):
     try:
-        result = await run(service=service, command=["true"])
-        config = service["config"]
-        if result["exit"] == 0:
-            return "ok"
-        elif "No route to host" in result["stderr"]:
-            await serverboards.error(
-                "Cant connect host: ",
-                config["url"], stderr=result["stderr"],
-                url=config["url"], service_id=service["uuid"])
-            return "error"
-        elif "unauthorized" in result["stderr"]:
-            await serverboards.error(
-                "Not authorized. Did you share the public SSH RSA key?",
-                url=config["url"], service_id=service["uuid"])
-            return "not-authorized"
-        else:
-            return "nok"
+        async with curio.timeout_after(10):
+            result = await run(service=service, command=["true"])
+            config = service["config"]
+            if result["exit"] == 0:
+                return "ok"
+            elif "No route to host" in result["stderr"]:
+                await serverboards.error(
+                    "Cant connect host: ",
+                    config["url"], stderr=result["stderr"],
+                    url=config["url"], service_id=service["uuid"])
+                return "error"
+            elif "unauthorized" in result["stderr"]:
+                await serverboards.error(
+                    "Not authorized. Did you share the public SSH RSA key?",
+                    url=config["url"], service_id=service["uuid"])
+                return "not-authorized"
+            else:
+                return "nok"
+    except curio.TaskTimeout:
+        return "timeout"
     except Exception as e:
         # printc(e)
         import traceback

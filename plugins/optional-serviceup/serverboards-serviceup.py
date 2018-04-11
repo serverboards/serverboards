@@ -135,7 +135,7 @@ async def get_status_checker(type):
 
 
 async def open_service_issue(service, status):
-    print("Open issue for ", service)
+    print("Open issue for ", service["uuid"])
     issue_id = "service_down/%s" % service["uuid"]
     issue = await serverboards.issues.get(issue_id)
     if issue:
@@ -169,7 +169,7 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
 
 
 async def close_service_issue(service, status):
-    print("close issue for ", service)
+    print("Close issue for ", service["uuid"])
     issue_id = "service_down/%s" % service["uuid"]
     issue = await serverboards.issues.get(issue_id)
     if not issue or issue["status"] == "closed":
@@ -214,7 +214,7 @@ async def subscribe_to_services():
     await serverboards.rpc.subscribe("service.updated", recheck_service)
     await serverboards.rpc.subscribe("service.inserted", inserted_service)
     await serverboards.rpc.subscribe("service.deleted", remove_service)
-    printc("Subscribe to services")
+    printc("Subscribe to services done")
 
 
 async def test():
