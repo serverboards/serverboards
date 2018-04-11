@@ -169,9 +169,26 @@ components:
           label: Redirect to this URL after trigger success
         - name: redirect_nok
           label: Redirect to this URL after trigger failure
+        - name: response
+          label: If no redirect, YAML style response. Will be converted to JSON.
+          description: 'If empty, will just return `{"status": "success"}` or `{"status": "error"}`'
+          placeholder: "ok: {{B.success}}\ndata: {{B|json}}"
+          type: textarea
+        - name: allowed_origins
+          label: List of allowed origins.
+          description: |
+            One origin per line. Will be used for both allow execute the webhook
+            and set the `Access-Control-Allow-Origin`.
+
+            Only protocol and domain supported.
+
+            Special `direct` can be used for direct traffic (CURL).
+          placeholder: https://example.com
+          type: textarea
 
     result:
       data: Object with data as sent by GET or POST query, for example `{{A.data.subject}}`
+      peer: "Object with data identifying the peer: `origin`, `ip` and `port`."
 
   - name: Server socket is up
     description: |

@@ -9,7 +9,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     {:ok, req, :no_state}
   end
 
-  def filter_query(uuid, vals) do
+  def filter_query(uuid, vals, peer) do
     alias Serverboards.Utils
 
     # Logger.debug("Get rule #{inspect uuid}")
@@ -23,15 +23,29 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
 
     has_all = required |> Enum.all?(&(Map.has_key?(vals, &1)))
 
-    if has_all do
-      qsvals = %{
-        "id" => uuid,
-        "data" => vals |> Map.take(optional ++ required)
-      }
+    my_origin = peer["origin"]
+    allowed = case params["origin"] do
+      "" -> true
+      nil -> true
+      origins ->
+        String.split(origins, "\n") |> Enum.any?(fn origin ->
+          origin == my_origin
+        end)
+    end
 
-      {:ok, qsvals, params}
-    else
-      {:error, :required_keys_not_present, params}
+    cond do
+      not allowed ->
+        {:error, :origin_not_allowed}
+      has_all ->
+        qsvals = %{
+          "id" => uuid,
+          "data" => vals |> Map.take(optional ++ required),
+          "peer" => peer
+        }
+
+        {:ok, qsvals, params}
+      true ->
+        {:error, :required_keys_not_present, params}
     end
   end
 
@@ -39,8 +53,8 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
   defp empty?(""), do: true
   defp empty?(_), do: false
 
-  def do_webhook_call(uuid, qsvals) do
-    case filter_query(uuid, qsvals) do
+  def do_webhook_call(uuid, qsvals, peer) do
+    case filter_query(uuid, qsvals, peer) do
       {:ok, qsvals, params} ->
         Logger.info("Webhook trigger #{inspect uuid} #{inspect @allowed_trigger_type} #{inspect Map.keys(qsvals)}", rule_uuid: uuid)
         wait = empty?(params["redirect_ok"]) or empty?(params["redirect_nok"])
@@ -109,11 +123,23 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     Map.new(params)
   end
 
+  def get_peer_data(req) do
+    {:undefined, origin, _} = :cowboy_req.parse_header("origin", req, "direct")
+    {{ip, port}, _} = :cowboy_req.peer(req)
+
+    %{
+      "origin" => origin,
+      "ip" => ip,
+      "port" => port
+    }
+  end
+
   def handle(req, state) do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
 
     qsvals = get_params(req)
+    peer = get_peer_data(req)
 
     trigger_data = try do
       Serverboards.RulesV2.Rule.trigger_type(uuid)
@@ -124,9 +150,9 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
 
     reply = case trigger_data do
       {:ok, @allowed_trigger_type} ->
-        do_webhook_call(uuid, qsvals)
+        do_webhook_call(uuid, qsvals, peer)
       {:ok, @allowed_trigger_type_test} ->
-        do_webhook_call(uuid, qsvals)
+        do_webhook_call(uuid, qsvals, peer)
       {:ok, other_trigger} ->
         Logger.error("Try to trigger bad trigger type #{inspect uuid} / #{inspect other_trigger}", rule_uuid: uuid)
         {:error, %{status: :not_found, data: %{}}, %{}}
@@ -144,11 +170,16 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
               {"location", redirect_ok}
             ],"",req)
         else
-          res = res.data
-            |> Map.drop(["changes", "prev", "rule"])
-            |> Map.put("status", res.status)
+          res = case params["response"] do
+            "" -> %{ status: res.status }
+            nil -> %{ status: res.status }
+            response ->
+              {:ok, rendered} = Serverboards.Utils.Template.render(response, res.data)
+              YamlElixir.read_from_string(rendered)
+          end
           {:ok, json_reply} = Poison.encode(res)
           :cowboy_req.reply(200, [
+              {"access-control-allow-origin", peer["origin"]},
               {"content-type", "application/json"}
             ],
             (json_reply),
