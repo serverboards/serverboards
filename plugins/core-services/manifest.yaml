@@ -91,5 +91,5 @@ components:
     name: Serverboards core services minimal daemon
     type: cmd
     command: ./serverboards-services.py
-    timeout: 24h
+    timeout: 1m
     strategy: singleton

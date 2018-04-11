@@ -78,8 +78,12 @@ class RPC:
         jss = json.dumps(js)
         if _debug:
             real_debug(">>> %s" % jss)
-        await self.stdout.write(jss + "\n")
-        await self.stdout.flush()
+        try:
+            await self.stdout.write(jss + "\n")
+            await self.stdout.flush()
+        except BrokenPipeError as e:
+            real_print("Broken pipe: ", e)
+            await self.stop()
 
     async def __parse_request(self, req):
         method = req.get("method")
@@ -100,6 +104,15 @@ class RPC:
             raise Exception("unknown-request")
 
     async def __parse_call(self, id, method, params):
+        # looks more like an event, try call callbacks
+        if not id and method in self.__subscriptions:
+            for f in self.__subscriptions[method]:
+                if isinstance(params, list):
+                    self.run_async(f, *params, result=False)
+                else:
+                    self.run_async(f, **params, result=False)
+            return
+
         try:
             self.__running_calls.append(method)
             fn = self.__methods.get(method)

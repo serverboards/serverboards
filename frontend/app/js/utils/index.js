@@ -121,6 +121,7 @@ const fixed_colors={
   "warning" : "orange",
   "up" : "green",
   "down" : "red",
+  "timeout" : "red",
   "important" : "red",
   "new" : "green",
   "unread" : "yellow",

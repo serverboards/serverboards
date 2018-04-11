@@ -19,6 +19,7 @@ def service_uuid(service):
 
 @serverboards.cache_ttl(30)
 async def recheck_service_by_uuid(service_uuid):
+    await serverboards.debug("Service updated", service_uuid)
     service = await serverboards.service.get(service_uuid)
     return await recheck_service(service)
 
@@ -85,6 +86,14 @@ async def remove_service(service, *args, **kwargs):
 
 @serverboards.rpc_method
 async def init(*args, **kwargs):
+    serverboards.run_async(real_init, result=False)
+    return 30 * 60  # call init every 30min, just in case it went down
+
+
+async def real_init():
+    """
+    Runs async to avoid timeouts
+    """
     if tasks:
         return
 
@@ -116,8 +125,6 @@ async def init(*args, **kwargs):
     if e:
         await serverboards.error(
             "There were errors on %d up service checkers" % e)
-
-    return 30 * 60  # call init every 30min, just in case it went down
 
 
 @serverboards.cache_ttl(60)
@@ -225,7 +232,12 @@ async def test():
     await remove_service({"uuid": "A"})
     await curio.sleep(3)
     printc("Add again service A", color="green")
-    await inserted_service({"uuid": "A", "type": "http", "tags": ["status:ok"], "name": "Service A"})
+    await inserted_service({
+        "uuid": "A",
+        "type": "http",
+        "tags": ["status:ok"],
+        "name": "Service A"
+    })
     await curio.sleep(3)
     sys.exit(0)
 
