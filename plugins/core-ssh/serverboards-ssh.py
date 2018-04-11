@@ -131,6 +131,12 @@ async def run(command=None, service=None,
             stdout = stdout.decode('utf8')
             stderr = stderr.decode('utf8')
         exit_code = await ssh.wait()
+    except curio.errors.TaskTimeout as e:
+        await serverboards.error("ssh %s:'%s' timeout: %s" %
+                                 (service, command, e))
+        stderr = "timeout"
+        exit_code = 1
+        ssh = None
     except curio.errors.TaskCancelled:
         raise
     except Exception as e:
@@ -421,12 +427,14 @@ async def open_port(service=None, hostname=None,
     (url, opts, _precmd) = await __get_service_url_and_opts(service)
 
     port_key = (url.netloc, port)
-    maybe = open_ports.get(port_key)
-    if maybe:
-        return maybe
 
     keep_trying = True
     while keep_trying:
+        # this check in the buffer as it may happen in another async task
+        maybe = open_ports.get(port_key)
+        if maybe:
+            return maybe
+
         keep_trying = False
         localport = random.randint(20000, 60000)
         if hostname and port:
@@ -442,11 +450,12 @@ async def open_port(service=None, hostname=None,
             ["ssh", *mopts],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             preexec_fn=set_pdeathsig(signal.SIGTERM),
-            )
+        )
         port_to_process[localport] = sp
         async with curio.ignore_after(5):
             data = await sp.stdout.read()
             if 'Address already in use' in data:
+                await serverboards.warning("Port already in use, try another port.")
                 keep_trying = True
                 await sp.close()
             break

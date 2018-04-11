@@ -81,8 +81,8 @@ class RPC:
         try:
             await self.stdout.write(jss + "\n")
             await self.stdout.flush()
-        except BrokenPipeError as e:
-            real_print("Broken pipe: ", e)
+        except Exception as e:
+            real_print(RED, "Broken pipe: ", e, RESET)
             await self.stop()
 
     async def __parse_request(self, req):
@@ -796,6 +796,7 @@ class Plugin:
             # if exited or plugin call returns unknown method (refered to the
             # method to call at the plugin), restart and try again.
             if (str(e) in Plugin.RETRY_EVENTS) and self.restart:
+                await debug("Restarting plugin", self.plugin_id)
                 await self.call_retry(method, *args, **kwargs)
             else:
                 raise
@@ -803,7 +804,6 @@ class Plugin:
     async def call_retry(self, method, *args, **kwargs):
         # if error because exitted, and may restart,
         # restart and try again (no loop)
-        await debug("Restarting plugin", self.plugin_id)
         await self.start()
         return await rpc.call(
             "plugin.call",
