@@ -4,6 +4,7 @@ import GenericForm from '../genericform'
 import rpc from 'app/rpc'
 import {i18n} from 'app/utils/i18n'
 import PropTypes from 'prop-types'
+import store from 'app/utils/store'
 
 class ActionModal extends React.Component{
   constructor(props){
@@ -17,9 +18,7 @@ class ActionModal extends React.Component{
     console.log(params)
     rpc.call("action.trigger",
       [action_id, params]).then((uuid) => {
-        this.context.router.push({
-          pathname: `/process/${uuid}`
-        })
+        store.goto(`/process/${uuid}`)
       })
   }
   setMissingParams(params){
@@ -31,11 +30,13 @@ class ActionModal extends React.Component{
 
     return (
       <Modal>
-        <h2 className="ui header">{i18n(props.action.name)}</h2>
-        <div className="ui meta">{i18n(props.action.description)}</div>
-        <GenericForm fields={props.missing_params} updateForm={this.setMissingParams.bind(this)}/>
-        <div className="actions">
-          <button className="ui yellow button" onClick={this.triggerAction.bind(this)}>{i18n("Trigger action")}</button>
+        <div className="ui content with padding and scroll">
+          <h2 className="ui header">{i18n(props.action.name)}</h2>
+          <div className="ui meta">{i18n(props.action.description)}</div>
+          <GenericForm fields={props.missing_params} updateForm={this.setMissingParams.bind(this)}/>
+          <div className="actions">
+            <button className="ui yellow button" onClick={this.triggerAction.bind(this)}>{i18n("Trigger action")}</button>
+          </div>
         </div>
       </Modal>
     )

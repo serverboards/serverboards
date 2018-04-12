@@ -6,8 +6,9 @@ import {i18n} from 'app/utils/i18n'
 import PropTypes from 'prop-types'
 
 class ActionMenu extends React.Component{
-  constructor(props){ super(props)
-    return {
+  constructor(props){
+    super(props)
+    this.state = {
       actions: undefined
     }
   }
@@ -20,8 +21,10 @@ class ActionMenu extends React.Component{
     trigger_action(action, this.props.service)
   }
   loadAvailableActions(){
+    console.log("Load actions")
     if (!this.state.actions){
       rpc.call("action.catalog", {traits: this.props.service.traits}).then((actions) => {
+        console.log(this.props.service.traits, {actions})
         this.setState({ actions })
       }).catch(() => {
         Flash.error(i18n("Could not load actions for this service"))
@@ -34,7 +37,7 @@ class ActionMenu extends React.Component{
   }
   componentDidMount(){
     $(this.refs.dropdown).dropdown({
-      onShow: this.loadAvailableActions,
+      onShow: this.loadAvailableActions.bind(this),
     })
   }
   render(){

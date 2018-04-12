@@ -106,7 +106,7 @@ defmodule Serverboards.Plugin.Registry do
                   if v == :none do
                     Map.get(c, :traits) == []
                   else
-                    any? v, &(&1 in Map.get(c, :traits))
+                    all? v, &(&1 in Map.get(c, :traits))
                   end
                 :type ->
                   Map.get(c, :type) == v
