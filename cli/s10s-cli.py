@@ -508,6 +508,10 @@ class CliClient(IOClient):
             assert a is not None
             if a == 'nil' or a == 'null':
                 return None
+            elif a == '{}':
+                return {}
+            elif a == '[]':
+                return []
             elif a.isdigit():
                 return int(a)
             elif a.startswith('$'):
@@ -531,8 +535,6 @@ class CliClient(IOClient):
                     return {k.strip(): vv}
 
                 return {k.strip(): parse_arg(v.strip())}
-            elif a == '{}':
-                return {}
             # literal
             return a
 
@@ -562,11 +564,15 @@ class CliClient(IOClient):
             if not sep in line:
                 return []
             line = line[line.index(sep):].strip()
+            if line == '{}':
+                return {}
+            if line == '[]':
+                return []
             if line.startswith('{'):
                 return json.loads(line)
 
             params = shlex.split(line)
-            list_or_dict([parse_arg(x) for x in params])
+            return list_or_dict([parse_arg(x) for x in params])
 
 
         if line.startswith('#'):
