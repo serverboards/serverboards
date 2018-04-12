@@ -75,7 +75,8 @@ defmodule Serverboards.Plugin.Registry do
     iex> [auth] = filter_component trait: "auth"
     iex> auth.id
     "serverboards.test.auth/fake"
-    iex> [auth] = filter_component traits: ["anything", "auth"]
+    iex> [auth] = filter_component traits_any: ["anything", "auth"]
+    iex> [] = filter_component traits: ["anything", "auth"]
     iex> auth.id
     "serverboards.test.auth/fake"
     iex> [auth] = filter_component trait: "auth", id: "fake"
