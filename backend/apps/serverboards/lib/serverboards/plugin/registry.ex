@@ -108,6 +108,8 @@ defmodule Serverboards.Plugin.Registry do
                   else
                     all? v, &(&1 in Map.get(c, :traits))
                   end
+                :traits_any -> # any of the traits fit
+                  any? v, &(&1 in Map.get(c, :traits))
                 :type ->
                   Map.get(c, :type) == v
               end

@@ -277,7 +277,7 @@ defmodule Serverboards.Project do
 
     Logger.debug("Looking for screens with traits: #{inspect traits}")
     screens =
-      (Serverboards.Plugin.Registry.filter_component type: "screen", traits: traits)
+      (Serverboards.Plugin.Registry.filter_component type: "screen", traits_any: traits)
       ++
       (Serverboards.Plugin.Registry.filter_component type: "screen", traits: :none)
 
