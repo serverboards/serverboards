@@ -19,6 +19,7 @@ def service_uuid(service):
 
 @serverboards.cache_ttl(30)
 async def recheck_service_by_uuid(service_uuid):
+    await serverboards.debug("Service updated", service_uuid)
     service = await serverboards.service.get(service_uuid)
     return await recheck_service(service)
 
@@ -32,10 +33,14 @@ async def recheck_service(service, *args, **kwargs):
     if not status:
         return
     try:
-        tag = await status["plugin"].call(status["call"], service)
+        tag = await serverboards.plugin.call(
+            status["command"], status["call"], [service])
         if not tag:
             tag = "plugin-error"
-    except Exception:
+    except Exception as e:
+        await serverboards.error(
+            "Error checking service %s: %s" % (service["uuid"], str(e)))
+        # serverboards.log_traceback(e)
         tag = "plugin-error"
     fulltag = "status:" + tag
     if fulltag in service["tags"]:
@@ -85,6 +90,14 @@ async def remove_service(service, *args, **kwargs):
 
 @serverboards.rpc_method
 async def init(*args, **kwargs):
+    serverboards.run_async(real_init, result=False)
+    return 30 * 60  # call init every 30min, just in case it went down
+
+
+async def real_init():
+    """
+    Runs async to avoid timeouts
+    """
     if tasks:
         return
 
@@ -117,25 +130,26 @@ async def init(*args, **kwargs):
         await serverboards.error(
             "There were errors on %d up service checkers" % e)
 
-    return 30 * 60  # call init every 30min, just in case it went down
+
+@serverboards.cache_ttl(60)
+async def get_catalog(type):
+    return (await serverboards.plugin.component.catalog(
+        type="service", id=type))
 
 
 @serverboards.cache_ttl(60)
 async def get_status_checker(type):
-    catalog = await serverboards.plugin.component.catalog(
-        type="service", id=type)
+    catalog = await get_catalog(type)
     if not catalog:
         return None
     status = catalog[0].get("extra", {}).get("status")
     if not status:
         return None
-    # decorate to keep at cache and reuse as required.
-    status["plugin"] = serverboards.Plugin(status["command"])
     return status
 
 
 async def open_service_issue(service, status):
-    print("Open issue for ", service)
+    print("Open issue for ", service["uuid"])
     issue_id = "service_down/%s" % service["uuid"]
     issue = await serverboards.issues.get(issue_id)
     if issue:
@@ -169,7 +183,7 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
 
 
 async def close_service_issue(service, status):
-    print("close issue for ", service)
+    print("Close issue for ", service["uuid"])
     issue_id = "service_down/%s" % service["uuid"]
     issue = await serverboards.issues.get(issue_id)
     if not issue or issue["status"] == "closed":
@@ -214,7 +228,7 @@ async def subscribe_to_services():
     await serverboards.rpc.subscribe("service.updated", recheck_service)
     await serverboards.rpc.subscribe("service.inserted", inserted_service)
     await serverboards.rpc.subscribe("service.deleted", remove_service)
-    printc("Subscribe to services")
+    printc("Subscribe to services done")
 
 
 async def test():
@@ -225,7 +239,12 @@ async def test():
     await remove_service({"uuid": "A"})
     await curio.sleep(3)
     printc("Add again service A", color="green")
-    await inserted_service({"uuid": "A", "type": "http", "tags": ["status:ok"], "name": "Service A"})
+    await inserted_service({
+        "uuid": "A",
+        "type": "http",
+        "tags": ["status:ok"],
+        "name": "Service A"
+    })
     await curio.sleep(3)
     sys.exit(0)
 
@@ -238,4 +257,5 @@ if __name__ == '__main__':
         data = yaml.load(open("mock.yaml"))
         serverboards.test_mode(test, mock_data=data)
         sys.exit(1)
+    serverboards.set_debug("/tmp/serviceup.log")
     serverboards.loop()

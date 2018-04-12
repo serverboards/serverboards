@@ -3,6 +3,7 @@ import os
 import json
 import time
 import traceback
+import datetime
 # from contextlib import contextmanager
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 'env/lib64/python3.6/site-packages/'))
@@ -12,7 +13,6 @@ import curio
 
 
 _debug = False
-_log_errors = True
 plugin_id = os.environ.get("PLUGIN_ID")
 real_print = print
 RED = "\033[0;31m"
@@ -25,7 +25,8 @@ def real_debug(*msg):
     if not _debug:
         return
     try:
-        real_print("\r", *msg, file=sys.stderr)
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ")
+        real_print("\r", now, *msg, file=_debug)
     except Exception:
         pass
 
@@ -78,8 +79,12 @@ class RPC:
         jss = json.dumps(js)
         if _debug:
             real_debug(">>> %s" % jss)
-        await self.stdout.write(jss + "\n")
-        await self.stdout.flush()
+        try:
+            await self.stdout.write(jss + "\n")
+            await self.stdout.flush()
+        except Exception as e:
+            real_print(RED, "Broken pipe: ", e, RESET)
+            await self.stop()
 
     async def __parse_request(self, req):
         method = req.get("method")
@@ -100,6 +105,15 @@ class RPC:
             raise Exception("unknown-request")
 
     async def __parse_call(self, id, method, params):
+        # looks more like an event, try call callbacks
+        if not id and method in self.__subscriptions:
+            for f in self.__subscriptions[method]:
+                if isinstance(params, list):
+                    self.run_async(f, *params, result=False)
+                else:
+                    self.run_async(f, **params, result=False)
+            return
+
         try:
             self.__running_calls.append(method)
             fn = self.__methods.get(method)
@@ -120,8 +134,7 @@ class RPC:
             if id:
                 await self.__send({"result": res, "id": id})
         except Exception as e:
-            if _debug or _log_errors:
-                log_traceback(e)
+            log_traceback(e)
             if id:
                 await self.__send({"error": str(e), "id": id})
         finally:
@@ -169,7 +182,7 @@ class RPC:
                 line = line.strip()
                 if _debug:
                     try:
-                        real_debug("\r<<< %s\n" % line)
+                        real_debug("<<< %s\n" % line)
                     except Exception:
                         pass
                 if line.startswith('# wait'):  # special command!
@@ -596,7 +609,7 @@ def test_mode(test_function, mock_data={}):
         sys.exit(exit_code)
 
     run_async(exit_wrapped, result=False)
-    set_debug(True, True)
+    set_debug(True)
     loop(with_monitor=True)
 
 
@@ -618,20 +631,18 @@ def run_async(method, *args, **kwargs):
     return rpc.run_async(method, *args, **kwargs)
 
 
-def set_debug(on=None, log_errors=None):
+def set_debug(on=True):
     """
     Set debug mode.
 
-    If no args are given, it enables debug mode. It can also receive
-    `log_errors = True` to only log tracebacks of failing functions.
+    If no args are given, it enables debug mode.
     """
-    global _debug, _log_errors
-    if on is None and log_errors is None:
-        _debug = True
-    if on is not None:
-        _debug = on
-    if log_errors is not None:
-        _log_errors = log_errors
+    global _debug
+    if isinstance(on, str):
+        real_print("\r\n", GREY, "Debug ", plugin_id, "to", on, RESET, "\r\n", file=sys.stderr)
+        _debug = open(on, 'wt')
+    else:
+        _debug = sys.stderr
 
 
 class RPCWrapper:
@@ -783,6 +794,7 @@ class Plugin:
             # if exited or plugin call returns unknown method (refered to the
             # method to call at the plugin), restart and try again.
             if (str(e) in Plugin.RETRY_EVENTS) and self.restart:
+                await debug("Restarting plugin", self.plugin_id)
                 await self.call_retry(method, *args, **kwargs)
             else:
                 raise
@@ -790,7 +802,6 @@ class Plugin:
     async def call_retry(self, method, *args, **kwargs):
         # if error because exitted, and may restart,
         # restart and try again (no loop)
-        await debug("Restarting plugin", self.plugin_id)
         await self.start()
         return await rpc.call(
             "plugin.call",

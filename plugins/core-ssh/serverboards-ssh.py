@@ -131,6 +131,15 @@ async def run(command=None, service=None,
             stdout = stdout.decode('utf8')
             stderr = stderr.decode('utf8')
         exit_code = await ssh.wait()
+    except curio.errors.TaskTimeout as e:
+        await serverboards.error(
+            "ssh %s:'%s' timeout: %s" %
+            (service if isinstance(service, str) else service["uuid"],
+             command, e)
+        )
+        stderr = "timeout"
+        exit_code = 1
+        ssh = None
     except curio.errors.TaskCancelled:
         raise
     except Exception as e:
@@ -415,17 +424,20 @@ async def open_port(service=None, hostname=None,
     Returns:
      localport -- Port id on Serverboards side to connect to.
     """
+    await serverboards.debug("Start open port %s:%s" % (hostname, port))
     await ensure_ID_RSA()
     assert service
     (url, opts, _precmd) = await __get_service_url_and_opts(service)
 
     port_key = (url.netloc, port)
-    maybe = open_ports.get(port_key)
-    if maybe:
-        return maybe
 
     keep_trying = True
     while keep_trying:
+        # this check in the buffer as it may happen in another async task
+        maybe = open_ports.get(port_key)
+        if maybe:
+            return maybe
+
         keep_trying = False
         localport = random.randint(20000, 60000)
         if hostname and port:
@@ -441,11 +453,12 @@ async def open_port(service=None, hostname=None,
             ["ssh", *mopts],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             preexec_fn=set_pdeathsig(signal.SIGTERM),
-            )
+        )
         port_to_process[localport] = sp
         async with curio.ignore_after(5):
             data = await sp.stdout.read()
-            if 'Address already in use' in str(data):
+            if 'Address already in use' in data:
+                await serverboards.warning("Port already in use, try another port.")
                 keep_trying = True
                 await sp.close()
             break
@@ -608,33 +621,28 @@ async def scp(fromservice=None, fromfile=None,
 @serverboards.rpc_method
 async def ssh_is_up(service):
     try:
-        result = await run(service=service, command=["true"])
-        config = service["config"]
-        if result["exit"] == 0:
-            return "ok"
-        elif "No route to host" in result["stderr"]:
-            await serverboards.error(
-                "Cant connect host: ",
-                config["url"], stderr=result["stderr"],
-                url=config["url"], service_id=service["uuid"])
-            return "error"
-        elif "unauthorized" in result["stderr"]:
-            await serverboards.error(
-                "Not authorized. Did you share the public SSH RSA key?",
-                url=config["url"], service_id=service["uuid"])
-            return "not-authorized"
-        else:
-            return "nok"
+        async with curio.timeout_after(10):
+            result = await run(service=service, command=["true"])
+            config = service["config"]
+            if result["exit"] == 0:
+                return "ok"
+            elif "No route to host" in result["stderr"]:
+                await serverboards.error(
+                    "Cant connect host: ",
+                    config["url"], stderr=result["stderr"],
+                    url=config["url"], service_id=service["uuid"])
+                return "error"
+            elif "unauthorized" in result["stderr"]:
+                await serverboards.error(
+                    "Not authorized. Did you share the public SSH RSA key?",
+                    url=config["url"], service_id=service["uuid"])
+                return "not-authorized"
+            else:
+                return "nok"
+    except curio.TaskTimeout:
+        return "timeout"
     except Exception as e:
-        # printc(e)
-        import traceback
-        i = StringIO()
-        traceback.print_exc(file=i)
-        i.seek(0)
-        # printc(i.read())
-        await serverboards.error(
-            "Error checking the state of service",
-            error=str(e), service_id=service.get("uuid"))
+        serverboards.log_traceback(e)
         return "error"
 
 
@@ -742,4 +750,5 @@ if __name__ == '__main__':
         serverboards.test_mode(test, mock_data=mock_data)
         printc("DONE")
     else:
+        # serverboards.set_debug("/tmp/sshlog.log")
         serverboards.loop()
