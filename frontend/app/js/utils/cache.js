@@ -3,7 +3,6 @@ import event from './event'
 import rpc from 'app/rpc'
 
 let cache_data = {}
-let first_time_plugins = true;
 
 /**
  * @short Uses the store for caching some data.
@@ -71,11 +70,6 @@ const cache={
   plugins(){
     var data = cache_data["plugins"]
     if (!data){
-      if (first_time_plugins){
-        event.on("plugins.reloaded", () => cache.invalidate("plugins"))
-        first_time_plugins=false
-      }
-
       return rpc
         .call("plugin.catalog",[])
         .then( data => {
@@ -115,6 +109,16 @@ const cache={
       delete cache_data[name]
   }
 }
+
+event.on("plugins.reloaded", () => {
+  console.log("Invalidate all plugins data.")
+  delete cache["plugins"]
+  for (let k of Object.keys(cache)){
+    if (k.startsWith("plugin_component_")){
+      delete cache[k]
+    }
+  }
+})
 
 
 // Generic cache get builder from redux actions and using the store
