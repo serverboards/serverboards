@@ -83,7 +83,7 @@ defmodule Serverboards.Plugin.Runner do
         #Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
         {:error, :cant_stop}
       {:error, e} ->
-        Logger.error("Error stopping component #{inspect e}")
+        Logger.error("Error stopping component #{inspect uuid}: #{inspect e}")
         {:error, e}
       {:ok, cmd} ->
         #Logger.debug("Stop plugin #{inspect uuid}")
