@@ -132,8 +132,11 @@ async def run(command=None, service=None,
             stderr = stderr.decode('utf8')
         exit_code = await ssh.wait()
     except curio.errors.TaskTimeout as e:
-        await serverboards.error("ssh %s:'%s' timeout: %s" %
-                                 (service, command, e))
+        await serverboards.error(
+            "ssh %s:'%s' timeout: %s" %
+            (service if isinstance(service, str) else service["uuid"],
+             command, e)
+        )
         stderr = "timeout"
         exit_code = 1
         ssh = None
@@ -639,15 +642,7 @@ async def ssh_is_up(service):
     except curio.TaskTimeout:
         return "timeout"
     except Exception as e:
-        # printc(e)
-        import traceback
-        i = StringIO()
-        traceback.print_exc(file=i)
-        i.seek(0)
-        # printc(i.read())
-        await serverboards.error(
-            "Error checking the state of service",
-            error=str(e), service_id=service.get("uuid"))
+        serverboards.log_traceback(e)
         return "error"
 
 
@@ -755,4 +750,5 @@ if __name__ == '__main__':
         serverboards.test_mode(test, mock_data=mock_data)
         printc("DONE")
     else:
+        # serverboards.set_debug("/tmp/sshlog.log")
         serverboards.loop()
