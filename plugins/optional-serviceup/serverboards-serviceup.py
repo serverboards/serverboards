@@ -33,10 +33,14 @@ async def recheck_service(service, *args, **kwargs):
     if not status:
         return
     try:
-        tag = await status["plugin"].call(status["call"], service)
+        tag = await serverboards.plugin.call(
+            status["command"], status["call"], [service])
         if not tag:
             tag = "plugin-error"
-    except Exception:
+    except Exception as e:
+        await serverboards.error(
+            "Error checking service %s: %s" % (service["uuid"], str(e)))
+        # serverboards.log_traceback(e)
         tag = "plugin-error"
     fulltag = "status:" + tag
     if fulltag in service["tags"]:
@@ -128,16 +132,19 @@ async def real_init():
 
 
 @serverboards.cache_ttl(60)
+async def get_catalog(type):
+    return (await serverboards.plugin.component.catalog(
+        type="service", id=type))
+
+
+@serverboards.cache_ttl(60)
 async def get_status_checker(type):
-    catalog = await serverboards.plugin.component.catalog(
-        type="service", id=type)
+    catalog = await get_catalog(type)
     if not catalog:
         return None
     status = catalog[0].get("extra", {}).get("status")
     if not status:
         return None
-    # decorate to keep at cache and reuse as required.
-    status["plugin"] = serverboards.Plugin(status["command"])
     return status
 
 
@@ -250,4 +257,5 @@ if __name__ == '__main__':
         data = yaml.load(open("mock.yaml"))
         serverboards.test_mode(test, mock_data=data)
         sys.exit(1)
+    serverboards.set_debug("/tmp/serviceup.log")
     serverboards.loop()
