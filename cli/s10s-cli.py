@@ -558,21 +558,33 @@ class CliClient(IOClient):
                 expr = int(expr)
             return vars[expr]
 
+        def parse_params(line, sep):
+            if not sep in line:
+                return []
+            line = line[line.index(sep):].strip()
+            if line.startswith('{'):
+                return json.loads(line)
+
+            params = shlex.split(line)
+            list_or_dict([parse_arg(x) for x in params])
+
+
         if line.startswith('#'):
             return None
         cmd = shlex.split(line)
         if not cmd:
             return None
         if len(cmd) >= 3 and cmd[1] == '=':
+            params = parse_params(line, '=')
             return {
                 'method': parse_arg(cmd[2]),
-                'params': list_or_dict([parse_arg(x) for x in cmd[3:]]),
+                'params': params,
                 'assign_to': cmd[0]
             }
 
         return {
             'method': parse_arg(cmd[0]),
-            'params': list_or_dict([parse_arg(x) for x in cmd[1:]])
+            'params': parse_params(line, ' ')
         }
 
     def internal_log(self, color, **kwargs):
