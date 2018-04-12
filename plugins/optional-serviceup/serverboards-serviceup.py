@@ -257,5 +257,5 @@ if __name__ == '__main__':
         data = yaml.load(open("mock.yaml"))
         serverboards.test_mode(test, mock_data=data)
         sys.exit(1)
-    serverboards.set_debug("/tmp/serviceup.log")
+    # serverboards.set_debug("/tmp/serviceup.log")
     serverboards.loop()
