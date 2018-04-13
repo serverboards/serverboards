@@ -34,7 +34,7 @@ def template_var_match(context):
 
 def render_template(filename, context):
     import re
-    with open(filename) as fd:
+    with open(filename, 'rt') as fd:
         return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
 
 
@@ -73,6 +73,13 @@ async def send_email(user=None, config=None, message=None, **extra):
 async def send_email_action(email=None, subject=None, body=None, **extra):
     if not settings:
         await update_settings()
+
+    if not settings.get("servername"):
+        await serverboards.warning(
+            "No email server configured. Not sending emails.")
+        return {
+            "sent": False
+        }
     msg = MIMEMultipart('alternative')
     # serverboards.debug("email extra data: %s"%(repr(extra)))
 
