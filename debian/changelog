@@ -1,3 +1,9 @@
+serverboards (18.4.0-rc0) unstable; urgency=medium
+
+
+
+ -- David Moreno Montero <dmoreno@coralbits.com>  Mon, 16 Apr 2018 14:18:09 +0200
+
 serverboards (18.4.0-beta448) unstable; urgency=medium
 
   * Do not send emails if server not configured

@@ -2,8 +2,8 @@
 
 set -ex
 
-VERSIONBASE="18.4.0-beta"
-BASEREVISION="a65aa0fc62500961675278fb96ad9d61f85c28af"
+VERSIONBASE="18.4.0-rc"
+BASEREVISION="ac67ba76febd431cf0dd2b0e00c686e730e0cd38"
 NPATCHES=$( git rev-list --count $BASEREVISION...HEAD )
 AUTHOR="$( git config --get user.name ) <$( git config --get user.email )>"
 
