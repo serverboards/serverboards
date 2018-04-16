@@ -14,7 +14,7 @@ components:
     name: Core extractor
     command: ./serverboards-extractors.py
     strategy: singleton
-    timeout: 30s
+    timeout: 30m
     perms: service.get auth.list rules.view
 
   - id: extractor
