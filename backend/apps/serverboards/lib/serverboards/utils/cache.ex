@@ -16,7 +16,7 @@ defmodule Serverboards.Utils.Cache do
     case Process.whereis(__MODULE__) do
       nil ->
         f.() # not running, just dont cache
-      pid ->
+      _pid ->
         # Logger.debug("Get #{inspect id}")
         case :ets.lookup(__MODULE__, id) do
           [{^id, :running}] ->
@@ -24,7 +24,7 @@ defmodule Serverboards.Utils.Cache do
           [{^id, value}] ->
             # Logger.debug("From cache #{inspect {id, value}}")
             value
-          other ->
+          _other ->
             get_at_genserver(id, f, options)
         end
     end
@@ -46,7 +46,7 @@ defmodule Serverboards.Utils.Cache do
     val = try do
       GenServer.call(__MODULE__, {:get, id, f}, Keyword.get(options, :ttl, 5_000))
     catch
-      :exit, {:timeout, where} ->
+      :exit, {:timeout, _where} ->
         Logger.error("Timeout getting data for cache. #{inspect id}.")
         Logger.debug("Somebody else asked for the data, and did not answer in 5 sec.")
         # If there are more, mark them as timeouted too
@@ -90,10 +90,6 @@ defmodule Serverboards.Utils.Cache do
 
     # status is a map of {id, f} to queue of requesters
     {:ok, %{}}
-  end
-
-  def calculate_and_add(id, f) do
-    value = f.()
   end
 
   def handle_call({:get, id, f}, from, status) do

@@ -281,9 +281,9 @@ defmodule Serverboards.Plugin.Registry do
       |> Enum.map(&decorate_plugin(&1, context))
     active = Enum.filter(all_plugins, &(&1.status))
 
-    st = for i <- all_plugins do
-      {i.id, i.status}
-    end
+    # st = for i <- all_plugins do
+    #   {i.id, i.status}
+    # end
 
     Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
 

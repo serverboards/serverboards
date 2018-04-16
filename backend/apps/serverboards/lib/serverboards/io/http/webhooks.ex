@@ -98,7 +98,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     content_type = case :cowboy_req.parse_header("content-type", req) do
        {:ok, {content, type, _}, _} ->
          {content, type}
-       other ->
+       _other ->
          :unknown
     end
     # Logger.debug("Got data: #{inspect content_type}")
