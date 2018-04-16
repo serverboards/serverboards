@@ -75,7 +75,6 @@ async def send_email(user=None, config=None, message=None, **extra):
 async def send_email_action(email=None, subject=None, body=None, **extra):
     if not settings:
         await update_settings()
-
     if not settings.get("servername"):
         await serverboards.warning(
             "No email server configured. Not sending emails.")
@@ -199,18 +198,11 @@ async def update_settings():
         settings_ = await serverboards.rpc.call(
             "settings.get",
             "serverboards.core.notifications/settings.email")
-        await serverboards.debug(str(settings_))
+        settings.update(settings_)
         settings["base_url"] = await base_url()
     except Exception as e:
         serverboards.log_traceback(e)
-        settings = {
-            "servername": "localhost",
-            "port": "",
-            "ssl": False,
-            "from": "noreply@localhost",
-            "username": "",
-            "password_pw": ""
-        }
+        settings = {}
 
 
 def main():
