@@ -1,3 +1,394 @@
+serverboards (18.4.0-beta448) unstable; urgency=medium
+
+  * Do not send emails if server not configured
+  * Fix test for traits and tratis_any
+  * Fix returns screens by traits
+  * Fix some param conditions as []
+  * Properly working invalidate plugin cache
+  * Fixed actionmodal and menu
+  * Can pass json dct as param at cli
+  * PEP8
+  * No log all at serviceup
+  * Use direct plugin call (by component). Caches.
+  * Improved log
+  * Improved logging, can log to external file
+  * Improved logging for cant stop processes
+  * Improved logging on SSH and BrokenPipe
+  * Executes subscription funcitons
+  * Improved check web connectivity
+  * Improved webhooks with custom response and origin check
+  * Returns column count and time statistics
+  * Improvements to cache_ttl
+  * Fix to timeout at ssh open port
+  * Improved reporting
+  * Email working on latest python async
+  * Do all status checks at once (async)
+  * Async add and remove service from serviceup
+  * Updated smock
+  * Initial service up async version
+  * Updated npm locks
+  * Fix border on dark theme sub card
+  * Added trigger_queue triggers
+  * Triggers are be queued
+  * Improved error reporting for retriggers
+  * Added tests for webhooks with data
+  * Fix multipart forms for webhooks
+  * Fixed properly start after init sleep time
+  * Fix restart too late proper finished init
+  * Use default log_traceback to log reports
+  * Fix add project from top menu
+  * Template has function decorator `|json`
+  * Fix install initial letsencrypt certificate
+  * Improvements to holdbutton and top menus props
+  * Log errors by default at aio python
+  * Pass `$prev` to queries for previous range
+  * Improved error reporting for SQL errors
+  * Fix to SSH use aio python
+  * Fix SSH management with aio mode
+  * Fixes to calendar on dark theme
+  * Fix dark theme cards
+  * Send emails now in singleton
+  * Backup SSH can be a singleton now that it is async
+  * Fix protocol problem
+  * Async backup ssh
+  * Moved import to if branch where its only used
+  * Added Plugin wrapper to async python bindings
+  * PEP8
+  * Working terminal
+  * Improved exit for SSH daemon kill ssh commands
+  * Fixes to infile/outfile SSH
+  * Working SSH watch trigger
+  * Improved test
+  * PEP8
+  * Added some SSH async testing
+  * PEP8
+  * PEP8
+  * Updated exosql
+  * Leader bars can show number instead of percent
+  * Improvements to leader bars layout
+  * Optional legend on Bar graph
+  * Use s10s SQL variant for codemirror
+  * Updated exosql
+  * Improved board cards when has the `ui` class
+  * Added some command names
+  * PEP8
+  * Added log errors mode
+  * Pass `$start` and `$end` vars to add widgets
+  * Fixes to behave better on bad formed widgets
+  * Fixes to setTitle and default title by prop
+  * Added more error boundaries
+  * Fix enter into plugin settings
+  * Improved onapp help for USQ
+  * Improved extractor selector
+  * PAss the project to widgets
+  * White cells also visible
+  * Export known screens and widgets, for debugging
+  * Monkey patch React with createClass
+  * Fixes to holdbutton
+  * Updated dark mode widget tables
+  * Fixes to pngquant use with webpack 4
+  * Updated exosql
+  * Fix test webpack
+  * Fix columns on table query
+  * Use an error boundary at project sections
+  * Fixes to mini3bar and widget errors
+  * Added R16 Error Boundary to Widget
+  * Added missing keys
+  * Fixes to loading CSS at widgets and hints
+  * Fixes on core widgets: compilation and warning
+  * Fix Timout on widget load
+  * Fixed login
+  * Updated to React 16 and react-router 3.2
+  * Removed not valid optimization for production
+  * Added split groups
+  * Fix bind for react class widget setTitle
+  * Updated webpack 4
+  * Fixes to createClass -> React.Component
+  * Fix extends React.createClass and Proptypes
+  * Dark theem on core widgets
+  * Working dark theme
+  * Added support to remove dashboards
+  * Support for board settings + update
+  * Improved add dashboard modal
+  * Fix send emails
+  * Fix screen hints may be map, not list
+  * Added missing babelrc
+  * Bar graph adapts legend placing from layout
+  * Autoresize bar graphs
+  * Widget title is automatic if label is `title`
+  * Added leader bars widget
+  * Can set widget width on cards on widget
+  * Added support for fake multi cards
+  * Use codemirror for Widget SQL edition
+  * Added CodeMirror component
+  * Cleanup logging
+  * Fixes to size hints to widgets
+  * Updated rollup plugin example
+  * Update extractors if property change
+  * Moved ExtractorsHelp to proper component file
+  * Export query service select to plugins
+  * Improve react screens support
+  * Fixes to table and email core widgets
+  * Improved back grid lines on bars and lines
+  * Added y grid lines to bar graphs
+  * Bar widgets with 0 value, show 1 pixel
+  * Fixes to timerange selector
+  * No ranges < 5m
+  * Added optional URL to mini2 to open on click
+  * Fix async calls return data
+  * Improvements to mini5/mini2 design
+  * Updated exosql
+  * Ignore config.json for email action tests
+  * Improvements to email send.
+  * PEP 8 compilant
+  * Fix not showing trigger without related service
+  * Refresh data when daterange changes at board
+  * Improved stop points for Y at widget graphs
+  * Show integers for bars graph
+  * Properly navigate on js maps when result is `0`
+  * Updated ExoSQL
+  * Updated ExoSQL
+  * Updated exosql
+  * Updated ExoSQL
+  * Improved error reporting
+  * Cache using hash of the string value of the key
+  * Timeout stop serverboards aio
+  * Plugindata module name fixed
+  * Improved init tests.
+  * Fix init timeouts and reloads
+  * Clenaup add user data
+  * Remove pending timer for restart init if any
+  * Fixes to cache use on settings and tests
+  * Moved query cache to general cache, use at config
+  * Improved messaging on serverboards error
+  * Fixes to table when no data receied.
+  * Properly send error when using cache
+  * Improvemetns to pie chart
+  * Disabled cache for query extractions
+  * Cleanup cmd
+  * Python async bindings raise exceptions when crossing
+  * Updated python bindings.
+  * Improved async tests
+  * Run async tasks each in a task.
+  * Moved tests to tests directory
+  * Added smock lib for testing
+  * Python async bindings sync/async world change improvements
+  * Added path to python3.5 installed packages
+  * Fixes to setup of python bindings
+  * Download required env for python aio bindings
+  * Commented log context manager at aio python bindings
+  * Updated debug mode line feed
+  * Fix extractor test singleton strategy
+  * Improvements to aio python bindings
+  * Use serverboards_aio at the extractor test
+  * Load dependant modules, and flush at send
+  * Added testmode to async python bindings
+  * Fix test name
+  * Init reload does not kill the init supervisor
+  * Split plugin tsts into several sections
+  * Catch monitor callback fn :exit
+  * Fix disable plugins
+  * Aded basic run async functionality
+  * Added support for event subscription
+  * Increased time for init test
+  * Fix table test with less tables
+  * Fix extractor test
+  * Fix match_traits on empty has
+  * Restricted view of user settings
+  * Can not resize/move widgets if no permissions
+  * Reorder project dropdown menu
+  * Do not show restricted sections on top menu
+  * Added permissions to the sidebar
+  * Updated exosql
+  * Pass service to extractor to allow dyn params
+  * Fixed clean_struct to also block __meta__
+  * Define __DEV__ for frontend tests
+  * Fix CORE-365 no extractors when updating widgets
+  * See properly add widget extractor cards
+  * manifest timeout and typo fixes
+  * Updated exosql
+  * Improved error reporting on query failures
+  * Improved timeout detection at queries
+  * Do not store exits at cache
+  * Fix RT localStorage use. Added dashboard_range
+  * Removed old localStorage use
+  * Improved localStorage doc and servername use
+  * Fix select existing services
+  * Adde background lines to line graphs
+  * Added support to aggregate into "Other" at graphs
+  * Perform value calculations on original process
+  * Can perform several cache queries at the same time
+  * Compile widgets on any change on JS
+  * Increased timeout for cache get value
+  * Added lines graph
+  * Added cache for queries
+  * Cleanup minor code style changes
+  * Improved doc for timeout at plugin call
+  * Avoid double run singletons.
+  * Can call a method using the plugin name
+  * Updated exosql
+  * Do not return undefined on get_data at core widgets
+  * Added minimal help on each extractor at widget edit
+  * Cleanup dev logging
+  * Refacoring widget data fixes
+  * Use common utils at widgets
+  * Olive and green has default white text
+  * Improvements to widget visualization at edit
+  * Pie improvements
+  * Improved widget sizes
+  * mini3bars fix for loading data
+  * Instagram color is pink
+  * Pie graph visible
+  * Updated exosql
+  * Improved uknown table detection at pivot tables
+  * Render each widget in a safe enviroment for errors
+  * Added pivot table extractor
+  * Updated exosql
+  * Cleanup dev logging
+  * Fixed problems settings widgets sizes
+  * Can get data from an individual widget
+  * Improved bars resilency to errors
+  * Scroll on tables on Chrome
+  * No square buttons
+  * Fix load bars with bad query
+  * Small improvement to rules v2 test fiability
+  * Initial PIE widget
+  * Show also small values as no round cap
+  * If bar size is zero, do not show
+  * Initial version of bars diagram
+  * Fix update service settings
+  * Can select inside widgets.
+  * Updated exosql version
+  * Added mini3bars widget
+  * Adapted to new size
+  * Allow fake tables for data
+  * Overflow hidden on cards, allows scroll
+  * Improved error reporting on query.
+  * Updated exosql
+  * Fixes to dashboard tests.
+  * Pass variables to queries: date range
+  * Initial RT update of USQ widgets
+  * Updated ExoSQL
+  * Trace backend test execution
+  * Use plain os.system to watch the output at tests
+  * Show backend test results
+  * Backend tests, do all at once
+  * Fixed python warning at backend test
+  * Updated setup ci script
+  * Updated README images
+  * Removed kipple file
+  * Removed test warnings
+  * Use proper conversion at database datetimes
+  * Fix use of :utc_datetime at ecto and Timex shifts
+  * Initial table widget version
+  * Fixes plugin tests
+  * Moved many models to individual source files
+  * Cleanup warning unused param
+  * Commented unused function
+  * Models use :utc_datetime
+  * Updated logger to erlang :gen_event
+  * Clean unused variables warnings
+  * Renamed publish task
+  * Cleanup Moved frontend project/board to board
+  * Fixed dir method at python bindings
+  * Updated plugins test bindings
+  * Do not log empty messages
+  * Fix replies out of main loop mode
+  * Fix when result is a falsy value
+  * Cleanup comment
+  * Run init services last at supervisor tree
+  * Use async SH on SSH plugin
+  * Fixes to python bindings after refactoring
+  * Can set stdin on `rpc` for debugging
+  * Refactores python bindings, more readable
+  * Fixes to log tracebacks at python bindings
+  * PEP8 compilant
+  * Removed wrong use of self.debug at python bindings
+  * Moved logging out of RPC class
+  * Updated main README file
+  * Fixes to releases with exosql.
+  * Updated gitignore
+  * Fixed dashboard tests
+  * Cleanup debug logging
+  * Updated ExoSQL
+  * Capture log at query test
+  * Updated USQ schema to latest ExoSQL
+  * Widget extract get only one widget data
+  * Fix interval id at clock widget
+  * Updated to exosql 0.2
+  * Queries can be not SELECT
+  * More resilient widget extractor
+  * Use EditWidget component for adding widgets too
+  * Show loading spinner when data is loading
+  * Improved fronend error reporting
+  * Cleanup EditWidget name + some logic up to controller
+  * Cleanup saving edit widgets
+  * Porper key to extractor list
+  * No CSS on mini2
+  * Fixed how to get data for mini2
+  * Fixes to core widgets compilation
+  * Log what triggered the sql error at query
+  * Bug when shoing configuration
+  * SQL query error refactor
+  * Uglify core-widgets
+  * Updated gitignore for core-widget
+  * Converted core-widgets to react components
+  * Back compatibility of widget width and height
+  * More proper min markdown widget size
+  * Cleanup some dev logging
+  * Fixed recomended size of widgets at widget add
+  * Fix plugin tests with new tet plugin
+  * Added dashboard widget extractor tests
+  * Added delayed config test for widget preview.
+  * Preview widgets also at widget add (if has config).
+  * Show preview of widgets at widget edition
+  * Updated mini2 to use USQ
+  * Renamed services to extractors at widget config
+  * Converted to React 16 class
+  * Fixed CI after v18.01 merge
+  * Fixed plugin updater test
+  * Fix start plugin monitor in tests
+  * Moved Init supervisor to Plugin to avoid full crashdown
+  * Really stops the app when there is no hope of recovering
+  * Plugin monitor as supervised worker
+  * Properly reload plugin data at deactivate
+  * Event plugin_reloaded renamed to plugins.reloaded
+  * Can force invalidate a cache (plugins)
+  * Properly reload plugin data at deactivate
+  * Event plugin_reloaded renamed to plugins.reloaded
+  * Can force invalidate a cache (plugins)
+  * Select existing service has proper scrollbars
+  * Select existing service has proper scrollbars
+  * Response for query "columns" not "headers"
+  * Initial query RPC `query.query`.
+  * Updated login screen design. Added Lato light.
+  * Updated master vertion to 18.4.0-beta*
+  * Cleanup python updater test. Fixed tests.
+  * Improved updated python styling
+  * Improved error reporting for status up
+  * ssh: Improved logs for exec by full service definition
+  * Show properly the state at the service table
+  * Colorize text is always red if text contains error
+  * Service status checker as a plugin
+  * Updates the status at service add
+  * Reworked how service change status at update
+  * Added web status checker
+  * Status tags can have a prefix: to avoid duplicates
+  * Generate release at v18.01
+  * Added SL to Serverboards.
+  * Can release directly from gitlab
+  * Fix seconds on clock.
+  * Added mini2 widget
+  * Added initial mini5 widget
+  * Fix pass widget props to react widgets
+  * Fix new widget with hints was failing
+  * Added hints to widget sizes
+  * Initial support for react-native widgets
+  * Smaller widget, new style widget titles
+  * 18.01 Release.
+
+ -- David Moreno Montero <dmoreno@coralbits.com>  Mon, 16 Apr 2018 14:16:38 +0200
+
 serverboards (18.4.0-beta1) unstable; urgency=medium
 
   * 18.01 Release.

@@ -21,6 +21,7 @@ from serverboards_aio import print, rpc, cache_ttl
 from curio import subprocess
 import curio
 
+sys.stdout = sys.stderr
 
 def set_pdeathsig(sig=signal.SIGTERM):
     def callable():
@@ -143,6 +144,11 @@ async def run(command=None, service=None,
     except curio.errors.TaskCancelled:
         raise
     except Exception as e:
+        await serverboards.error(
+            "ssh %s:'%s' %s" %
+            (service if isinstance(service, str) else service["uuid"],
+             command, e)
+        )
         serverboards.log_traceback(e)
         stderr = str(e)
         exit_code = 1
@@ -457,7 +463,7 @@ async def open_port(service=None, hostname=None,
         port_to_process[localport] = sp
         async with curio.ignore_after(5):
             data = await sp.stdout.read()
-            if 'Address already in use' in data:
+            if b'Address already in use' in data:
                 await serverboards.warning("Port already in use, try another port.")
                 keep_trying = True
                 await sp.close()

@@ -245,7 +245,7 @@ defmodule Serverboards.IO.Cmd do
 
     case RPC.Client.parse_line(state.client, line) do
       {:error, e} ->
-        Logger.error("Error parsing line: #{inspect e}")
+        Logger.error("Error parsing line at #{inspect state[:cmd]}: #{inspect e}")
         Logger.debug("Offending line is: #{line}")
       _ -> nil
     end
