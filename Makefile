@@ -67,7 +67,7 @@ serverboards.tar.gz: prepare-release
 	cd rel && tar cfz ../serverboards.tar.gz serverboards
 
 .PHONY: prepare-release
-prepare-release: compile-frontend compile-backend
+prepare-release: compile-frontend compile-backend compile-plugins
 	cp backend/apps/serverboards/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
 
