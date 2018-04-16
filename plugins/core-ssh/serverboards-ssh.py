@@ -365,6 +365,7 @@ def recv(uuid, start=None, encoding='utf8'):
 
 port_to_process = {}
 open_ports = {}
+opening_ports = {}
 envvar_re = re.compile(r'^[A-Z_]*=.*')
 
 
@@ -430,50 +431,68 @@ async def open_port(service=None, hostname=None,
     Returns:
      localport -- Port id on Serverboards side to connect to.
     """
-    await serverboards.debug("Start open port %s:%s" % (hostname, port))
     await ensure_ID_RSA()
     assert service
     (url, opts, _precmd) = await __get_service_url_and_opts(service)
 
     port_key = (url.netloc, port)
 
-    keep_trying = True
-    while keep_trying:
-        # this check in the buffer as it may happen in another async task
-        maybe = open_ports.get(port_key)
-        if maybe:
-            return maybe
+    try:
+        await serverboards.debug("Open port %s:%s" % (hostname, port))
+        while True:
+            # this check in the buffer as it may happen in another async task
+            maybe = open_ports.get(port_key)
+            if maybe:
+                await serverboards.debug(
+                    "Port is open %s:%s -> %s" % (hostname, port, maybe))
+                return maybe
 
-        keep_trying = False
-        localport = random.randint(20000, 60000)
-        if hostname and port:
-            mopts = opts + ["-nNT", "-L", "%s:%s:%s" %
-                            (localport, hostname, port)]
-        elif unix:
-            mopts = opts + ["-nNT", "-L", "%s:%s" % (localport, unix)]
-        else:
-            raise Exception("need hostname:port or unix socket")
-        await serverboards.debug("Open port with: [ssh '%s']" % "' '".join(
-            mopts), service_id=service, **context)
-        sp = subprocess.Popen(
-            ["ssh", *mopts],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            preexec_fn=set_pdeathsig(signal.SIGTERM),
-        )
-        port_to_process[localport] = sp
-        async with curio.ignore_after(5):
-            data = await sp.stdout.read()
+            opening = opening_ports.get(port_key)
+            if opening:
+                await serverboards.debug(
+                    "Already opening %s:%s, wait for master." %
+                    (hostname, port))
+                await opening.wait()
+                continue  # keep trying
+
+            opening_ports[port_key] = curio.Event()
+
+            localport = random.randint(20000, 60000)
+            await serverboards.debug(
+                "Open port %s:%s -> %s?" % (hostname, port, localport))
+
+            if hostname and port:
+                mopts = opts + ["-nNT", "-L", "%s:%s:%s" %
+                                (localport, hostname, port)]
+            elif unix:
+                mopts = opts + ["-nNT", "-L", "%s:%s" % (localport, unix)]
+            else:
+                raise Exception("need hostname:port or unix socket")
+            await serverboards.debug("Open port with: [ssh '%s']" % "' '".join(
+                mopts), service_id=service, **context)
+            sp = subprocess.Popen(
+                ["ssh", *mopts],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                preexec_fn=set_pdeathsig(signal.SIGTERM),
+            )
+            port_to_process[localport] = sp
+            data = b""
+            async with curio.ignore_after(5):
+                data = await sp.stdout.read()
             if b'Address already in use' in data:
-                await serverboards.warning("Port already in use, try another port.")
-                keep_trying = True
+                await serverboards.warning(
+                    "Port already in use, try another port.")
                 await sp.close()
-            break
-
-    open_ports[port_key] = localport
-    await serverboards.debug(
-        "Port redirect localhost:%s -> %s:%s" %
-        (localport, hostname, port), **context)
-    return localport
+            else:
+                open_ports[port_key] = localport
+                await serverboards.debug(
+                    "Port redirect localhost:%s -> %s:%s" %
+                    (localport, hostname, port), **context)
+                return localport
+    finally:  # if exception also free the event waiters,
+        if port_key in opening_ports:
+            await opening_ports[port_key].set()
+            del opening_ports[port_key]
 
 
 @serverboards.rpc_method

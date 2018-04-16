@@ -10,6 +10,7 @@ KNOWN_HOSTS_FILE = os.path.expanduser("~/known_hosts")
 ID_RSA_PUB = ID_RSA + '.pub'
 
 
+@serverboards.cache_ttl(300)
 async def ensure_ID_RSA():
     if not os.path.exists(ID_RSA):
         await serverboards.info("Generating new SSH key pair")
