@@ -11,7 +11,11 @@ defmodule Serverboards.Issues.EventSourcing do
 
       url= Serverboards.Config.get(:"serverboards.core.settings/base","base_url", "http://localhost:8000/")
       url = "#{url}#/issues/#{id}"
-      data = Map.merge(attributes, %{ "url" => url, "message_id" => "serverboards-issue-#{id}", "type" => "ISSUE_OPEN" })
+      data = Map.merge(attributes, %{
+        "url" => url,
+        "message_id" => "serverboards-issue-#{id}-1",
+        "type" => "ISSUE_OPEN"
+      })
 
       Serverboards.Notifications.notify "@user", "New Issue ##{id}: #{attributes.title}", attributes.description, data, %{ email: me }
       id
@@ -43,7 +47,17 @@ defmodule Serverboards.Issues.EventSourcing do
         "comment" -> "MESSAGE"
         o -> o
       end
-      data = Map.merge(data, %{ "url" => url, "thread_id" => "serverboards-issue-#{id}", :type => type })
+
+      {:ok, issue} = Serverboards.Issues.Issue.get(id)
+      event_count = Enum.count(issue.events)
+
+      data = Map.merge(data, %{
+        "url" => url,
+        "thread_id" => "serverboards-issue-#{id}-1",
+        "message_id" => "serverboards-issue-#{id}-#{event_count}",
+        "reply_to" => "serverboards-issue-#{id}-#{event_count-1}",
+        :type => type
+      })
 
       Serverboards.Notifications.notify "@user", "Issue ##{id} updated: #{data.type}", text, data, %{ email: me, thread_id: "serverboards-issue-#{id}" }
     end

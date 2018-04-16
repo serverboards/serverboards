@@ -53,8 +53,10 @@ async def base_url():
 @serverboards.rpc_method
 async def send_email(user=None, config=None, message=None, **extra):
     if not settings:
+        await update_settings()
+    if not settings:
         await serverboards.warning(
-            "Email not properly configured. Not sending emails")
+            "Email not properly configured. Not sending emails: ", message["subject"])
         return False
     _to = config and config.get("email") or user["email"]
     extra = {k: v
@@ -108,9 +110,11 @@ async def send_email_action(email=None, subject=None, body=None, **extra):
     msg["Date"] = email_utils.formatdate()
 
     if "message_id" in extra:
-        msg["Message-Id"] = extra["message_id"]
+        msg["Message-Id"] = "<%s>" % extra["message_id"]
+    if "reply_to" in extra:
+        msg["In-Reply-To"] = "<%s>" % extra["reply_to"]
     if "thread_id" in extra:
-        msg["In-Reply-To"] = extra["thread_id"]
+        msg["References"] = "<%s>" % extra["thread_id"]
 
     if extra.get("test"):
         with open("/tmp/lastmail.html", "w") as fd:
@@ -189,14 +193,16 @@ def test():
 
 
 async def update_settings():
+    await serverboards.debug("Get email settings.")
     global settings
     try:
         settings_ = await serverboards.rpc.call(
             "settings.get",
             "serverboards.core.notifications/settings.email")
-        settings.update(settings_)
+        await serverboards.debug(str(settings_))
         settings["base_url"] = await base_url()
-    except Exception:
+    except Exception as e:
+        serverboards.log_traceback(e)
         settings = {
             "servername": "localhost",
             "port": "",
