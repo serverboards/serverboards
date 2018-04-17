@@ -35,26 +35,30 @@ class PasswordChange extends React.Component{
     const props=this.props
     return (
       <Modal onClose={props.onClose}>
-        <h2 className="ui header">{i18n("Change password")}</h2>
-        <div ref="form" className="ui form">
-          <div className="field">
-            <label>{i18n("Current password")}</label>
-            {i18n("Enter here you current password")}
-            <input className="ui field" type="password" name="current"/>
-          </div>
-          <div className="field">
-            <label>{i18n("New password")}</label>
-            {i18n("Enter here the new password")}
-            <input className="ui field" type="password" name="new_password"/>
-          </div>
-          <div className="field">
-            <label>{i18n("Repeat password")}</label>
-            {i18n("Repeat the password for verification")}
-            <input className="ui field" type="password" name="repeat_password"/>
-          </div>
-          <div className="ui error message"></div>
+        <div className="ui top secondary menu">
+          <h2 className="ui header">{i18n("Change password")}</h2>
+        </div>
+        <div className="ui container">
+          <div ref="form" className="ui form">
+            <div className="field">
+              <label>{i18n("Current password")}</label>
+              {i18n("Enter here you current password")}
+              <input className="ui field" type="password" name="current"/>
+            </div>
+            <div className="field">
+              <label>{i18n("New password")}</label>
+              {i18n("Enter here the new password")}
+              <input className="ui field" type="password" name="new_password"/>
+            </div>
+            <div className="field">
+              <label>{i18n("Repeat password")}</label>
+              {i18n("Repeat the password for verification")}
+              <input className="ui field" type="password" name="repeat_password"/>
+            </div>
+            <div className="ui error message"></div>
 
-          <button className="ui submit button yellow" onClick={this.changePassword.bind(this)}>{i18n("Change password")}</button>
+            <button className="ui submit button yellow" onClick={this.changePassword.bind(this)}>{i18n("Change password")}</button>
+          </div>
         </div>
       </Modal>
     )

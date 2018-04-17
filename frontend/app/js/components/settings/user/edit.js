@@ -39,7 +39,7 @@ class EditUser extends React.Component{
     return (
       <Modal onClose={props.onClose}>
         <div className="ui top secondary menu">
-          <h3 className="header">Edit {props.user.name}</h3>
+          <h2 className="ui header">Edit {props.user.name}</h2>
           <div className="right menu" style={{alignItems: "center"}}>
             {show_is_active ? (
               <div className="field">
