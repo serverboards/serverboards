@@ -5,6 +5,7 @@ import smtplib
 import email
 import markdown
 import yaml
+import jinja2
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
@@ -12,30 +13,18 @@ from serverboards_aio import print
 import serverboards_aio as serverboards
 
 email_utils = email.utils
-
 settings = {}
 
 
-def find_var_rec(context, var):
-    if not context:
-        return ''
-    if var in context:
-        return context[var]
-    return ''
-
-
-def template_var_match(context):
-    def replace(match):
-        from functools import reduce
-        ret = reduce(find_var_rec, match.group(1).split('.'), context)
-        return ret
-    return replace
-
-
-def render_template(filename, context):
-    import re
+@serverboards.cache_ttl(600)
+def get_template(filename):
     with open(filename, 'rt') as fd:
-        return re.sub(r'{{(.*?)}}', template_var_match(context), fd.read())
+        return jinja2.Template(fd.read())
+
+
+async def render_template(filename, context):
+    template = await get_template(filename)
+    return template.render(context)
 
 
 async def base_url():
@@ -95,7 +84,7 @@ async def send_email_action(email=None, subject=None, body=None, **extra):
         "type": extra.get("type", "MESSAGE"),
         "url": extra.get("url", base_url)
     }
-    body_html = render_template(
+    body_html = await render_template(
         os.path.join(os.path.dirname(__file__),
                      "email-template.html"),
         context)

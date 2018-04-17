@@ -32,12 +32,23 @@
             </td>
           </tr>
         </table>
+				{% if url %}
         <table width="580" border="0" cellspacing="0" cellpadding="0">
         	<tr>
               <td align="center"><a href="{{url}}" style="display:block; background-color:#f6c43d; color:#4C4C4C; text-decoration:none; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight:bold;height:45px; line-height:45px;">OPEN IN SERVERBOARDS</a></td>
             </tr>
         </table>
-        <p style="margin:0px; padding:0px; font-family: Arial, Helvetica, sans-serif; font-size:10px; color:#666; margin-top:50px; margin-bottom:20px;">You are receiving communication emails. <a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">Unsubscribe</a>. This email was sent to {{user.name}} &lt;{{user.email}}&gt;. <a href="" style="text-decoration:none; color:#154fbe">Terms of use</a> | <a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">Privacy Policy</a>. (c) 2016-2018, Serverboards. </p>
+				{% endif %}
+        <p style="margin:0px; padding:0px; font-family: Arial, Helvetica, sans-serif; font-size:10px; color:#666; margin-top:50px; margin-bottom:20px;">
+					{% if user %}
+						You are receiving communication emails.
+						<a href="{{APP_URL}}" style="text-decoration:none; color:#154fbe">
+							Log in to unsubscribe
+						</a>. This email was sent to {{user.name}} &lt;{{user.email}}&gt;. |
+					{% endif %}
+					<a href="https://serverboards.io/docs/legal/privacy-policy" style="text-decoration:none; color:#154fbe">Privacy Policy</a>.
+					(c) 2016-2018, Serverboards SL.
+				</p>
     </td>
   </tr>
 </table>
