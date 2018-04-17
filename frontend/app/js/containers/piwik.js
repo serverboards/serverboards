@@ -7,6 +7,8 @@ const sanitize=[
   ]
 
 function PiwikView(props){
+  if (!props.tracking)
+    return null
   let sane_url=props.url
   for (let r of sanitize){
     sane_url=sane_url.replace(r[0], r[1])
@@ -27,6 +29,7 @@ function PiwikView(props){
 
 const Piwik = connect(
   (state) => ({
+    tracking: state.auth.tracking,
     url: `${window.location.protocol}//${window.location.host}${state.routing.locationBeforeTransitions && state.routing.locationBeforeTransitions.pathname}`
   }),
   (dispatch) => ({})

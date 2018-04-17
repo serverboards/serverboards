@@ -42,6 +42,9 @@ export function logged_in_as(user){
           set_lang(lang)(dispatch)
         }
       })
+      rpc.call("settings.user.get", ["tracking"]).then( (props) => {
+        dispatch(set_tracking(props.tracking))
+      })
 
     }
     else{
@@ -176,5 +179,20 @@ export function user_settings_set_language(lang){
       Flash.info(i18n("Set language to {lang}", {lang: i18n( LANG_LIST[lang] )}))
       set_lang(lang)(dispatch)
     })
+  }
+}
+
+export function user_settings_set_tracking(tracking){
+  return function(dispatch){
+    rpc.call("settings.user.set", ["tracking", {tracking}]).then( () => {
+      dispatch(set_tracking(tracking))
+    })
+  }
+}
+
+export function set_tracking(tracking){
+  return {
+    type: "AUTH_SET_TRACKING",
+    payload: tracking,
   }
 }

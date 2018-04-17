@@ -41,7 +41,9 @@ export function notifications_update(data){
 
     for(let k in data.notifications){
       let v = data.notifications[k]
-      //console.log(v)
+      console.log(v)
+      if (!v)
+        continue
       promises.push(
         rpc.call("notifications.config.update", {
           email: email,
