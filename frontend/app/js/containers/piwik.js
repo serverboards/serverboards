@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 const sanitize=[
-  [/^(.*serverboard\/).*(\/.*)$/, "$1*$2"],
+  [/^(.*project\/)[^/]*(.*)$/, "$1*$2"],
   [/^(.*notifications\/)[0-9]*$/, "$1*"]
   ]
 
