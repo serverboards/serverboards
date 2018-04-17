@@ -50,3 +50,16 @@ Description: Initial user email for Serverboards
   .
   Any user in the system that is on the wheel group can also access Serverboards
   with admin priviledges with his/her user and password.
+
+Template: serverboards/newsletter
+Type: boolean
+Description: Do you want to receive Serverboards Newsletter?
+  From time to time, maximum once per month, we send a newsletter with
+  information about how Serverboards is evolving.
+  .
+  If you prefer you can also visit our comunity forum at
+  https://forum.serverboards.io and leave your comments and suggestions
+  so we can evolve Serverboards all together.
+  .
+  If you click yes we will add you to the newsletter, and that's all. We will
+  not send you spam nor other undesired emails.

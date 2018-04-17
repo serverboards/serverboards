@@ -41,12 +41,14 @@ get_user_data(){
   db_input high serverboards/mail.server
   db_input high serverboards/email
   db_input high serverboards/nginx
+  db_input high serverboards/newsletter
   db_go
 
   BASE_URL=$( get serverboards/url )
   MAIL_SERVER=$( get serverboards/mail.server )
   EMAIL=$( get serverboards/email )
   NGINX=$( get serverboards/nginx )
+  NEWSLETTER=$( get serverboards/newsletter )
 
   if [ "$NGINX" = true ]; then
     db_input high serverboards/letsencrypt
@@ -229,6 +231,11 @@ EOF
     else
       log "User $EMAIL already exists"
     fi
+  fi
+
+  if [ "$NEWSLETTER" ]; then
+    echo "Telling Serverboards you are interested in the Newsletter. Thanks!"
+    curl "https://coralbits.serverboards.io/webhook/acf332d1-b2a8-4dab-a09d-0ca85383fd74?email=$EMAIL" > /dev/null || true
   fi
 }
 
