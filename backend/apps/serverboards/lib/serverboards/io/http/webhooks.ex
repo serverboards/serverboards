@@ -24,7 +24,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     has_all = required |> Enum.all?(&(Map.has_key?(vals, &1)))
 
     my_origin = peer["origin"]
-    allowed = case params["origin"] do
+    allowed = case params["allowed_origins"] do
       "" -> true
       nil -> true
       origins ->
