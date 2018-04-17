@@ -1,0 +1,5 @@
+serverboards/
+files
+*.debhelper
+*.substvars
+*.log
