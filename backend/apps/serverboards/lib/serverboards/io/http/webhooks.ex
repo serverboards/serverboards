@@ -11,6 +11,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
 
   def filter_query(uuid, vals, peer) do
     alias Serverboards.Utils
+    # Logger.debug("Filter query #{inspect {uuid, vals, peer}}")
 
     # Logger.debug("Get rule #{inspect uuid}")
     rule = Serverboards.RulesV2.Rules.get(uuid)
@@ -29,7 +30,8 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
       nil -> true
       origins ->
         String.split(origins, "\n") |> Enum.any?(fn origin ->
-          origin == my_origin
+          # Logger.debug("Check origin #{inspect origin} ==? #{inspect my_origin}")
+          (origin != "") and (origin == my_origin)
         end)
     end
 
@@ -144,7 +146,8 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     trigger_data = try do
       Serverboards.RulesV2.Rule.trigger_type(uuid)
     catch
-      :exit, _ -> # not existing
+      :exit, e -> # not existing
+        Logger.error("Exit when running rule: #{inspect e}")
         {:error, :not_enabled}
     end
 
