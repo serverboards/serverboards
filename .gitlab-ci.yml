@@ -14,7 +14,7 @@ cache:
 
 backend-test:
   stage: test
-  retry: 5 # many retries, but until can be fixed too many eisenbugs
+  retry: 2 # many retries, but until can be fixed too many eisenbugs
   script:
     - cd $CI_PROJECT_DIR
     - scripts/backend-test.py
