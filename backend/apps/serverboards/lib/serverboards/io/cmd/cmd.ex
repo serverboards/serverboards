@@ -252,7 +252,7 @@ defmodule Serverboards.IO.Cmd do
     {:noreply, %{ state | line: [] }}
   end
   def handle_info({ _, {:data, {:noeol, line}}}, state) do
-    state = rate_limit_wait(state)
+    # state = rate_limit_wait(state)
 
     line = [state.line, line]
     if list_line_length(line) > (1024*8) do # 8kb line.. long one indeed.
