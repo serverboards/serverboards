@@ -46,7 +46,7 @@ frontend-test:
     when: always
 
 integration-test:
-  stage: test-skip
+  stage: test
   script:
     - cd $CI_PROJECT_DIR
     - scripts/integration-test.py
@@ -63,6 +63,8 @@ integration-test:
     expire_in: 1 week
     when: always
   allow_failure: true
+  only:
+    - skip
 
 plugins-test:
   stage: test
