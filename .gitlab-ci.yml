@@ -46,7 +46,7 @@ frontend-test:
     when: always
 
 integration-test:
-  stage: test
+  stage: test-skip
   script:
     - cd $CI_PROJECT_DIR
     - scripts/integration-test.py
