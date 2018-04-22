@@ -48,6 +48,7 @@ defmodule Serverboards.Settings do
 
   def update_real(section, data) do
     #Logger.info("Update settings, #{section}: #{inspect data}")
+    Serverboards.Utils.Cache.remove({:config, section})
     case Repo.get_by(Model.Settings, section: section) do
       nil ->
         Repo.insert( %Model.Settings{section: section, data: data} )

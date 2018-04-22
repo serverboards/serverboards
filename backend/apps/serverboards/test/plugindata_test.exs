@@ -9,11 +9,9 @@ defmodule Serverboards.PluginDataTest do
 
   alias Test.Client
 
-  setup do
+  setup_all do
     # Explicitly get a connection before each test
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
-    # Setting the shared mode must be done only after checkout
-    Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
+    Test.Ecto.setup()
   end
 
   test "List plugin components using RPC" do
@@ -150,13 +148,15 @@ defmodule Serverboards.PluginDataTest do
     assert "active" in list["serverboards.test.auth"]["status"]
     assert not "disabled" in list["serverboards.test.auth"]["status"]
 
-    Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", false])
+    {:ok, :ok} = Client.call(client, "settings.update", ["plugins", "serverboards.test.auth", false])
+    Logger.debug("Settings updated")
     context = Serverboards.Config.get(:plugins)
-    Logger.debug("At context: #{inspect context} #{context[:"serverboards.test.auth"]}")
-
-    assert context[:"serverboards.test.auth"] == false
+    Logger.debug("At context: #{inspect context} #{inspect context[:"serverboards.test.auth"]}")
 
     :timer.sleep(200) # time to reload
+    context = Serverboards.Config.get(:plugins)
+    Logger.debug("At context: #{inspect context} #{inspect context[:"serverboards.test.auth"]}")
+    assert context[:"serverboards.test.auth"] == false
 
     {:ok, list} = Client.call(client, "plugin.catalog", [])
     Logger.debug("#{inspect list}")
