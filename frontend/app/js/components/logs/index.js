@@ -236,7 +236,7 @@ class Logs extends React.Component{
 
         <div className="expand with scroll and padding">
           <div className="ui container">
-            <table className="ui selectable table">
+            <table className={`ui selectable table ${this.state.loading ? "grey" : "green"}`}>
               <thead>
                 <tr>
                   <th>{i18n("Id")}</th>
