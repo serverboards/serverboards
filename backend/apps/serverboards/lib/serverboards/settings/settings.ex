@@ -53,8 +53,8 @@ defmodule Serverboards.Settings do
       nil ->
         Repo.insert( %Model.Settings{section: section, data: data} )
         MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
-        Serverboards.Event.emit("settings_updated", %{ section: section, data: data}, ["settings.view"])
-        Serverboards.Event.emit("settings_updated[#{section}]", %{ section: section, data: data}, ["settings.view[#{section}]"])
+        Serverboards.Event.emit("settings.updated", %{ section: section, data: data}, ["settings.view"])
+        Serverboards.Event.emit("settings.updated[#{section}]", %{ section: section, data: data}, ["settings.view[#{section}]"])
       sec ->
         #Logger.debug("#{inspect sec}")
         if data != sec.data do
