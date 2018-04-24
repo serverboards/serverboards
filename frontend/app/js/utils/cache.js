@@ -112,7 +112,7 @@ const cache={
 
 event.on("plugins.reloaded", () => {
   console.log("Invalidate all plugins data.")
-  delete cache["plugins"]
+  delete cache_data["plugins"]
   for (let k of Object.keys(cache)){
     if (k.startsWith("plugin_component_")){
       delete cache[k]

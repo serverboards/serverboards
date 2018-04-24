@@ -68,7 +68,7 @@ class PluginDetails extends React.Component{
     console.log("Maybe some changes, reload the plugin data from cache.")
     const pid = this.props.plugin.id
     cache.plugins().then( pl => {
-      console.log(pl)
+      console.log(pl[pid])
       const plugin = pl[pid]
       this.setState( this.getInitialState({plugin}) )
     })
