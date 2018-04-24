@@ -21,6 +21,9 @@ class Plugins extends React.Component{
       plugins: [],
       settings: {}
     }
+    this.reload_plugin_list = this.reload_plugin_list.bind(this)
+    this.updated = this.updated.bind(this)
+    this.updateRequired = this.updateRequired.bind(this)
   }
   componentDidMount(){
     event.on("plugin.update.required", this.updateRequired)

@@ -119,15 +119,16 @@ def update_plugin(action_id=None, plugin_id=None):
                                  "/.local/serverboards/") + "/plugins/"
     for pl in os.listdir(PLUGIN_PATH):
         pl = PLUGIN_PATH + pl
-        current_plugin_id = yaml.load(open('%s/manifest.yaml' % pl))["id"]
-        if current_plugin_id == plugin_id:
-            update_at(pl)
-            serverboards.rpc.event("event.emit", "plugin.updated",
-                                   {"plugin_id": plugin_id},
-                                   ["plugin.install"])
-            global plugins_state_timestamp
-            plugins_state_timestamp = 0
-            return "ok"
+        if os.path.exists('%s/manifest.yaml' % pl):
+            current_plugin_id = yaml.load(open('%s/manifest.yaml' % pl))["id"]
+            if current_plugin_id == plugin_id:
+                update_at(pl)
+                serverboards.rpc.event("event.emit", "plugin.updated",
+                                       {"plugin_id": plugin_id},
+                                       ["plugin.install"])
+                global plugins_state_timestamp
+                plugins_state_timestamp = 0
+                return "ok"
     raise Exception("not-found")
 
 

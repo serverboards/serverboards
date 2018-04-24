@@ -3,6 +3,7 @@ import event from './event'
 import rpc from 'app/rpc'
 
 let cache_data = {}
+let wait_list = {}
 
 /**
  * @short Uses the store for caching some data.
@@ -70,12 +71,24 @@ const cache={
   plugins(){
     var data = cache_data["plugins"]
     if (!data){
-      return rpc
-        .call("plugin.catalog",[])
-        .then( data => {
-          cache_data["plugins"] = data
-          return data
-        })
+      const waiting = wait_list["plugins"]
+      if (!waiting){
+        wait_list["plugins"] = []
+        return rpc
+          .call("plugin.catalog",[])
+          .then( data => {
+            cache_data["plugins"] = data
+            for (const  accept of wait_list["plugins"]){
+              accept(data)
+            }
+            delete wait_list["plugins"]
+            return data
+          })
+      }
+      const  p = new Promise( (accept, reject) => {
+        wait_list["plugins"] = waiting.concat(accept)
+      })
+      return p
     }
     return Promise.resolve(data)
   },
