@@ -109,8 +109,8 @@ async def real_init():
     # Launch all in parallel
     mtasks = []
     for service in list:
-        t = await curio.spawn(inserted_service, service)
-        mtasks.append(t)
+        task = await curio.spawn(inserted_service, service)
+        mtasks.append(task)
 
     for task in mtasks:
         t += 1
