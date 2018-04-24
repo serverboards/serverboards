@@ -775,10 +775,12 @@ def print(*args, file=None, **kwargs):
         real_print(*args, file=file, **kwargs)
 
 
-def log_traceback():
+def log_traceback(e=None):
     """
-    Logs teh given traceback to the error log.
+    Logs the given traceback to the error log.
     """
+    if e:
+        error(str(e))
     import traceback
     traceback.print_exc(file=error)
 
