@@ -124,7 +124,7 @@ export const auth = (state = default_state , action) => {
         state.groups.filter( (g) => g.name != action.group )
       )
     break;
-    case '@RPC_EVENT/user.added':
+    case '@RPC_EVENT/user.created':
       state.users = sort_users( state.users.concat( action.user ) )
     break;
     case '@RPC_EVENT/user.updated':
