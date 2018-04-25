@@ -143,8 +143,14 @@ components:
         name: title
         description: Title
       - label: Show performance and legend
-        type: checkbox
-        default: true
+        type: select
+        options:
+          - label: "Right"
+            value: right
+          - label: "Bottom"
+            value: bottom
+          - label: Hide
+            value: hide
         name: show_legend
       - label: Summary Query
         name: summary
@@ -186,12 +192,24 @@ components:
       - label: Fill
         name: fill
         description: Fill line area mode
+        class: half column
         type: select
         options:
           - label: "No fill"
             value: false
           - label: Fill
             value: true
+      - label: Show performance and legend
+        type: select
+        options:
+          - label: "Right"
+            value: right
+          - label: "Bottom"
+            value: bottom
+          - label: Hide
+            value: hide
+        class: half column
+        name: show_legend
       - label: Summary Query
         name: summary
         description: Summary number on the corner.

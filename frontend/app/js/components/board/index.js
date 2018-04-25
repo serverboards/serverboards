@@ -182,7 +182,7 @@ class Board extends React.Component{
     let layout = this.state && (this.state.layout || []).find( l => l.i == wid )
     if (!layout)
       layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
-    layout = {...layout, width: layout.w * 140, height: layout.h*163}
+    layout = {...layout, width: layout.w * 140, height: layout.h*163 - 28}
     return layout
   }
   render() {
