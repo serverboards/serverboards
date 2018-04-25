@@ -59,6 +59,8 @@ def url_to_opts(url):
     Url must be an `ssh://username:password@hostname:port/` with all optional
     except hostname. It can be just `username@hostname`, or even `hostname`
     """
+    if not url:
+        raise Exception("SSH needs an url to connect to")
     if '//' not in url:
         url = "ssh://" + url
     u = urlparse.urlparse(url)
@@ -107,20 +109,19 @@ async def run(command=None, service=None,
     if infile:
         assert infile.startswith("/tmp/") and '..' not in infile
         kwargs["stdin"] = open(infile, "rb")
-    else:
-        kwargs["stdin"] = subprocess.PIPE if stdin else None
+    elif stdin:
+        kwargs["stdin"] = subprocess.PIPE
     kwargs["stderr"] = subprocess.PIPE
     # Real call to SSH
     stdout = ""
     stderr = ""
     try:
         # printc(
-        #     "ssh ", ' '.join(args),
+        #     ' '.join(str(x) for x in args), " || ",
         #     ' '.join(
-        #         "--%s=%s" % (k,v) for (k,v)
-        #         in kwargs.items() if not k.startswith('_')
+        #         "%s=%s" % (str(k),str(v)) for (k,v)
+        #         in kwargs.items()
         #     ))
-
         ssh = subprocess.Popen(
             args,
             shell=False,
@@ -144,8 +145,15 @@ async def run(command=None, service=None,
     except curio.errors.TaskCancelled:
         raise
     except Exception as e:
+        printc(     args,
+                    False,
+                    set_pdeathsig(signal.SIGTERM),
+                    kwargs,
+                    color="red"
+        )
+
         await serverboards.error(
-            "ssh %s:'%s' %s" %
+            "SSH exception, ssh %s:'%s' %s" %
             (service if isinstance(service, str) else service["uuid"],
              command, e)
         )
