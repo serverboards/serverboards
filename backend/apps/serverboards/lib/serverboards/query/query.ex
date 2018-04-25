@@ -93,16 +93,21 @@ defmodule Serverboards.Query do
         {k, nv}
     end) |> Map.new
 
+    query = String.trim(query)
     # If not starts with SELECT, it is a simple text to use (rows at \n, cells at ,)
     if not String.starts_with?(String.upcase(query), "SELECT") do
       res = case query do
         "" ->
           %{ columns: ["?NONAME?"], rows: [[""]]}
         _ ->
-          rows =
-               String.split(query,"\n")
-            |> Enum.map(&String.split(&1, ","))
-            |> Enum.filter(&(&1 != [""])) # remove empty lines
+          {:ok, stream} = StringIO.open(query)
+          stream = IO.binstream(stream, :line)
+          rows = CSV.decode(stream)
+            |> Enum.map(fn
+              {:ok, line} -> line
+              other -> []
+            end)
+            |> Enum.filter(&(&1 != [])) # remove empty lines
           columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
           %{ columns: columns, rows: rows}
       end
