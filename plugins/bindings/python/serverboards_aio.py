@@ -72,7 +72,7 @@ class RPC:
             if self.stdin:
                 await self.stdin.close()
         except curio.errors.TaskTimeout:
-            real_print(RED, "Timeout at serverboards stop.", RESET)
+            real_print(RED, "Timeout at serverboards stop.", plugin_id, RESET, end="\n\r")
 
     def register(self, name, function):
         self.__methods[name] = function
