@@ -106,7 +106,7 @@ class GraphWithData extends React.Component {
       height = Math.max(props.layout.height - 60, 130)
       return (
         <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column"}}>
-          <SVGComponent data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories}/>
+          <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme}/>
         </div>
       )
     }
@@ -115,7 +115,7 @@ class GraphWithData extends React.Component {
       return (
         <div style={{display: "flex", flexDirection: "column"}}>
           <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
-            <SVGComponent data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories}/>
+            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme}/>
           </div>
           <div className="ui horizontal split area">
             <div>
@@ -138,7 +138,7 @@ class GraphWithData extends React.Component {
       return (
         <div style={{display: "flex"}}>
           <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
-            <SVGComponent data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme}/>
+            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme}/>
           </div>
 
           <div style={{flex: 0, minWidth: "8em", display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: legend_width, width: legend_width, padding: 20}}>

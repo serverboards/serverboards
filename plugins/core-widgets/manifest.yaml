@@ -183,6 +183,15 @@ components:
       - label: Title
         name: title
         description: Title
+      - label: Fill
+        name: fill
+        description: Fill line area mode
+        type: select
+        options:
+          - label: "No fill"
+            value: false
+          - label: Fill
+            value: true
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
