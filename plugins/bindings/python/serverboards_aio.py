@@ -59,13 +59,16 @@ class RPC:
         self.__running_calls = []
         self.__waiting_calls = []
         self.__background_tasks = 0
+        self.__run_tasks_task = None
 
     async def stop(self):
         self.__running = False
         try:
+            await self.__run_queue.put("QUIT")
             await self.__call_group.cancel_remaining()
             await self.__call_group.join(wait=all)
-            await self.__run_queue.put("QUIT")
+            if self.__run_tasks_task:
+                await self.__run_tasks_task.join()
             if self.stdin:
                 await self.stdin.close()
         except curio.errors.TaskTimeout:
