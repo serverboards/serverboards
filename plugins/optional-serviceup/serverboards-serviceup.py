@@ -19,8 +19,11 @@ def service_uuid(service):
 
 @serverboards.cache_ttl(30)
 async def recheck_service_by_uuid(service_uuid):
-    await serverboards.debug("Service updated", service_uuid)
     service = await serverboards.service.get(service_uuid)
+    if 'fields' in service:
+        del service['fields']
+    await serverboards.debug("Check service up", service_uuid, service)
+
     return await recheck_service(service)
 
 
