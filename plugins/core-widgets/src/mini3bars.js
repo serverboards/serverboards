@@ -36,6 +36,9 @@ function prep_bars(bars){
 }
 
 class Mini3Bars extends React.Component{
+  componentDidMount(){
+    this.props.setTitle(' ')
+  }
   shouldComponentUpdate(nextprops){
     return !Serverboards.utils.object_is_equal( nextprops.config, this.props.config )
   }
@@ -56,7 +59,7 @@ class Mini3Bars extends React.Component{
     return (
       <div className="ui extends" style={{display: "flex", width: "100%"}}>
         <div style={{display: "flex", flexDirection: "column", flex: 0, padding: 10, marginRight: 30}}>
-          <h3 className="ui header" style={{flex: 1}}>{config.title}</h3>
+          <h3 className="ui oneline header" style={{flex: 1}}>{config.title}</h3>
           <div className="ui big text" style={{fontSize: 36, letterSpacing: -2, paddingBottom: 15, whiteSpace: "nowrap"}}>
             {get_data(config.big_label)}
           </div>
