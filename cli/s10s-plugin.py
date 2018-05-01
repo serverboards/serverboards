@@ -6,6 +6,7 @@ import yaml
 import json
 import subprocess
 import re
+import shlex
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -29,11 +30,25 @@ format = "text"
 
 
 def output_data(data):
-    if not data:
-        return
     if format == "json":
         print(json.dumps(data))
         return
+
+    if not data:
+        return
+
+    def colorize(txt):
+        txt = str(txt)
+        color = None
+        if txt.startswith("None"):
+            color = 30
+        if txt.startswith("False"):
+            color = 31
+        if txt.startswith("True"):
+            color = 32
+        if color:
+            return "\033[0;%dm%s\033[1;m" % (color, txt)
+        return txt
 
     def pad(st, pad, padchar=" "):
         s = str(st)
@@ -45,7 +60,7 @@ def output_data(data):
     w = {k: len(k) for k in keys}
     for d in data:
         for k in keys:
-            dlen = len(str(d[k]))
+            dlen = len(str(d[k]).split('\n')[0])
             if dlen > w[k]:
                 w[k] = dlen
 
@@ -58,11 +73,19 @@ def output_data(data):
     for d in data:
         print("\n| ", end="")
         for k in keys:
-            print(" %s |" % pad(d[k], w[k]), end="")
+            v = str(d[k]).split('\n')[0]
+            print(" %s |" % colorize(pad(v, w[k])), end="")
     print()
 
 
+all_plugins_cache = None
+
+
 def all_plugins():
+    global all_plugins_cache
+    if all_plugins_cache:
+        return all_plugins_cache
+    all_plugins_cache = []
     for p in paths:
         for ppath in os.listdir(p):
             path = os.path.join(p, ppath)
@@ -89,44 +112,130 @@ def all_plugins():
                     data["source"] = "git"
 
                 data["path"] = path
-                yield data
+                all_plugins_cache.append(data)
+    return all_plugins_cache
 
 
-def check_upgrades():
+def clean_plugin_cache():
+    global all_plugins_cache
+    all_plugins_cache = None
+
+
+def get_plugin(id):
+    for pl in all_plugins():
+        if pl.get("id") == id or pl.get("path") == id:
+            return pl
+    return {}
+
+
+def check_updates(ids):
     """
     Checks every installed plugin for new upgrades.
     """
-    AHEAD_RE = re.compile(b".*\[behind (\d*)\].*")
+    ids = set(ids)
     ret = []
     for pl in all_plugins():
-        if pl.get("source") != "git":
-            continue
+        if not ids or pl.get("id") in ids or pl.get("path") in ids:
+            res = check_update(pl)
+            if res:
+                ret.append(res)
+    output_data(ret)
 
-        os.chdir(pl["path"])
-        os.system("git fetch --quiet")
-        output = subprocess.run(
-            ["git", "status", "--porcelain", "--branch"],
-            stdout=subprocess.PIPE
+
+AHEAD_RE = re.compile(b".*\[behind (\d*)\].*")
+
+
+def check_update(pl):
+    if pl.get("source") != "git":
+        return
+
+    os.chdir(pl["path"])
+    os.system("git fetch --quiet")
+    output = subprocess.run(
+        ["git", "status", "--porcelain", "--branch"],
+        stdout=subprocess.PIPE
+    )
+    m = AHEAD_RE.match(output.stdout)
+    up_to_date = True
+    if m:
+        up_to_date = "Behind %s" % m.groups(1)[0].decode('utf8')
+
+    if up_to_date != pl.get("up_to_date"):
+        extrafile = os.path.join(pl["path"], ".extra.yaml")
+        if os.path.exists(extrafile):
+            with open(extrafile) as rd:
+                extra = yaml.load(rd)
+        else:
+            extra = {}
+        extra["up_to_date"] = up_to_date
+        with open(extrafile, "w") as wd:
+            yaml.dump(extra, wd)
+
+    return {"id": pl.get("id"), "up_to_date": up_to_date}
+
+
+def update(path):
+    if not os.path.isdir(path):
+        path = os.path.dirname(path)
+
+    os.chdir(path)
+    res = subprocess.run(
+        ["git", "fetch", "--quiet"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    if res.returncode != 0:
+        return (False, res.stdout.decode("utf8"))
+
+    res = subprocess.run(
+        ["git", "merge", "-q"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    if res.returncode != 0:
+        return (False, res.stdout.decode("utf8"))
+
+    plugin = get_plugin(path)
+    check_update(plugin)
+    clean_plugin_cache()
+
+    if plugin.get("postinst"):
+        res = subprocess.run(
+            shlex.split(
+                os.path.join(plugin.get("path"), plugin.get("postinst"))),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
         )
-        m = AHEAD_RE.match(output.stdout)
-        if m:
-            extrafile = os.path.join(pl["path"], ".extra.yaml")
-            if os.path.exists(extrafile):
-                with open(extrafile) as rd:
-                    extra = yaml.load(rd)
-            else:
-                extra = {}
-            extra["outdated"] = m.groups(1)
-            with open(extrafile, "w") as wd:
-                yaml.dump(extra, wd)
 
-            ret.append({"id": pl.get("id"), "outdated": True})
+    return (res.returncode == 0, res.stdout.decode("utf8"))
+
+
+def update_all(ids):
+    ret = []
+    if not ids:
+        ids = []
+        for pl in all_plugins():
+            if pl.get("up_to_date") not in (True, None):
+                ids.append(pl.get("path"))
+
+    for id in ids:
+        if not id.startswith("/"):
+            path = get_plugin(id)["path"]
+        else:
+            path = id
+        (res, stdout) = update(path)
+        ret.append({
+            "id": get_plugin(id).get("id", path),
+            "updated": res,
+            "stdout": stdout,
+        })
+
     output_data(ret)
 
 
 def list_(what=[]):
     if not what:
-        what = ["id", "status", "version", "upgradable"]
+        what = ["id", "status", "version", "up_to_date"]
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
@@ -151,7 +260,9 @@ def main(argv):
     if argv[0] == 'list':
         list_(argv[1:])
     if argv[0] == 'check':
-        check_upgrades()
+        check_updates(argv[1:])
+    if argv[0] == 'update':
+        update_all(argv[1:])
 
 
 if __name__ == "__main__":
