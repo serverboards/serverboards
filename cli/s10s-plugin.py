@@ -7,6 +7,7 @@ import json
 import subprocess
 import re
 import shlex
+import shutil
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -129,9 +130,9 @@ def clean_plugin_cache():
 
 
 def get_plugin(id):
+    if id.startswith("/"):
+        return read_plugin(id)
     for pl in all_plugins():
-        if id.startswith(id):
-            return read_plugin(id)
         if pl.get("id") == id or pl.get("path") == id:
             return pl
     return {}
@@ -280,6 +281,29 @@ def install(git):
     }
 
 
+def remove_all(ids):
+    ret = []
+    for id in ids:
+        res = remove(id)
+        ret.append(res)
+    output_data(ret)
+
+
+def remove(id):
+    plugin = get_plugin(id)
+    if not plugin:
+        if id.startswith("/"):
+            return {"id": None, "path": id, "removed": False}
+        return {"id": id, "path": None, "removed": False}
+    try:
+        shutil.rmtree(plugin["path"])
+        return {"id": plugin["id"], "path": plugin["path"], "removed": True}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"id": plugin["id"], "path": plugin["path"], "removed": False}
+
+
 def list_(what=[]):
     if not what:
         what = ["id", "status", "version", "up_to_date"]
@@ -312,6 +336,8 @@ def main(argv):
         update_all(argv[1:])
     if argv[0] == 'install':
         install_all(argv[1:])
+    if argv[0] == 'remove':
+        remove_all(argv[1:])
 
 
 if __name__ == "__main__":
