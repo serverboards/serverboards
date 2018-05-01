@@ -415,6 +415,7 @@ const RE_ISO = /^\d*(\.\d+|)/
 export function to_number(n){
   if (typeof(n) == 'number')
     return n
+  n = n.trim()
   if (n.match){
     let m = n.match(RE_DOTCOMA)
     if (m)
