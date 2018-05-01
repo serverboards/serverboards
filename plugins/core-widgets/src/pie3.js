@@ -1,6 +1,6 @@
 import {get_data, COLORMAP, COLORNAMES} from './utils'
 const {React, i18n} = Serverboards
-const {colorize, object_is_equal, map_get} = Serverboards.utils
+const {colorize, object_is_equal, map_get, to_number} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
 
 const _2PI = Math.PI * 2
@@ -34,7 +34,7 @@ function SVGPie({center, rings, colors}){
   })
 
   return (
-    <svg viewBox="0 0 150 150" style={{padding: "10px 30px"}}>
+    <svg viewBox="0 0 150 150">
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
@@ -71,9 +71,9 @@ class Pie3 extends React.Component{
 
     if (rows.length>4){
       // max 4, if more, 3 + others
-      console.log("rows", rows)
-      const rest = rows.slice(3,1000).reduce((acc, row) => Number(row[1]) + acc, 0)
-      console.log("rest", rest)
+      // console.log("rows", rows)
+      const rest = rows.slice(3,1000).reduce((acc, row) => to_number(row[1]) + acc, 0)
+      // console.log("rest", rest)
       rows=[
         rows[0],
         rows[1],
@@ -86,8 +86,9 @@ class Pie3 extends React.Component{
 
     let rings
     try{
-      rings = rows.map( r => Number(r[1]))
+      rings = rows.map( r => to_number(r[1]))
     } catch (e) {
+      console.log(e)
       return (
         <Error>
           {i18n("Invalid data for pie chard. Second column must be numbers")}
@@ -97,11 +98,11 @@ class Pie3 extends React.Component{
 
 
     return (
-      <div className="ui with padding vertical split area">
+      <div className="ui with padding vertical split area" style={{justifyContent: "space-evenly"}}>
         <div className="ui huge centered text" style={{fontSize: 48}}>
           {get_data(config.summary, [0,0])}
         </div>
-        <div className="ui expand centered">
+        <div className="ui centered">
           <SVGPie
             center={get_data(config.summary, [0,1])}
             rings={rings}
@@ -113,11 +114,11 @@ class Pie3 extends React.Component{
             {rows.map( (r,i) => (
               <tr key={r[0]}>
                 <td className="ui ellipsis">
-                  <span className={`ui square ${COLORNAMES[i]}`}/>
+                  <span className={`ui square ${COLORNAMES[i]}`} style={{marginRight: 5}}/>
                   {r[0]}
                 </td>
-                <td className="ui big bold text right aligned">{r[1]} €</td>
-                <td className={`ui right aligned text ${r[2] < 0 ? "red" : "teal"}`}>
+                <td className="ui big bold text right aligned">{r[1]}</td>
+                <td className={`ui right aligned small text ${r[2] < 0 ? "red" : "teal"}`}>
                   {r[2]}
                 </td>
               </tr>
