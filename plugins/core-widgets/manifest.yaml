@@ -171,6 +171,9 @@ components:
           `XValue` is sorted and not require to be numeric. `YValue` needs to be
           numeric.
 
+          `XValue` can be in the form of `order|label` to force ordeing with
+          specific labels, as `01|January`.
+
           It does aggregation on `Category name` and `XValue` summing the
           values, so repeated values are allowed.
 
@@ -228,6 +231,9 @@ components:
 
           `XValue` is sorted and not require to be numeric. `YValue` needs to be
           numeric.
+
+          `XValue` can be in the form of `order|label` to force ordeing with
+          specific labels, as `01|January`.
 
           It does aggregation on `Category name` and `XValue` summing the
           values, so repeated values are allowed.

@@ -1,5 +1,5 @@
 const {React} =  Serverboards
-import {colorize} from './utils'
+import {colorize, get_legend} from './utils'
 import GraphWithData from './graph_with_data'
 
 const svg_style = {
@@ -103,7 +103,7 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
             y={ystart+15+4*ygap}
             style={style.axis}
             textAnchor={(i==0) ? "start" : (i==lastx) ? "end" : "middle"}
-          >{legend}</text>
+          >{get_legend(legend)}</text>
         ))}
       </g>
       <g>

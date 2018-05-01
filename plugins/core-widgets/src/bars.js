@@ -1,4 +1,4 @@
-import {colorize} from './utils'
+import {colorize, get_legend} from './utils'
 import GraphWithData from './graph_with_data'
 const {React} = Serverboards
 
@@ -76,7 +76,7 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
         ))}
 
         {xaxis.map( (legend,i) => ( ((i % show_one_in) == 0) &&
-          <text key={i} x={xstart + i*xgap + xgap2} y={axisbottom + 15} textAnchor="middle" style={style.axis}>{legend}</text>
+          <text key={i} x={xstart + i*xgap + xgap2} y={axisbottom + 15} textAnchor="middle" style={style.axis}>{get_legend(legend)}</text>
         ))}
       </g>
       <g>
