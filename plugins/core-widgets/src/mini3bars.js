@@ -56,6 +56,13 @@ class Mini3Bars extends React.Component{
     const bars = prep_bars(rows)
     const count = rows.length
 
+    const split_style = {
+      justifyContent: count == 1 ? "flex-end" : "space-evenly",
+      alignSelf: count == 1 ? "flex-end" : "space-evenly",
+      flex: 1,
+      padding: "15px 5px"
+    }
+
     return (
       <div className="ui extends" style={{display: "flex", width: "100%"}}>
         <div style={{display: "flex", flexDirection: "column", flex: 0, padding: 10, marginRight: 30}}>
@@ -65,7 +72,7 @@ class Mini3Bars extends React.Component{
           </div>
         </div>
         <div className="ui vertical split area"
-             style={{justifyContent: count == 1 ? "flex-end" : "space-evenly", flex: 1, padding: "15px 5px"}}>
+             style={split_style}>
           {bars.map( (b, i) => (
             <div key={b.name} style={{lineHeight: "15px"}}>
               {b.name}
