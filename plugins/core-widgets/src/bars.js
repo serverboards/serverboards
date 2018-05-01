@@ -54,9 +54,9 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
   const p = (axisbottom - 10)
   const gridlines = [
     10,
-    10 + 0.25 * p,
-    10 + 0.5 * p,
-    10 + 0.75 * p,
+    Math.floor(10 + 0.25 * p),
+    Math.floor(10 + 0.50 * p),
+    Math.floor(10 + 0.75 * p),
     axisbottom,
   ]
 

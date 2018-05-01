@@ -33,8 +33,8 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
   const xgap = (xend - xstart) / (xaxis.length-1) // each categeory group width
   const xgap2 = ((xgap*3)/4)/categories.length // each category width
   const xgap4 = xgap2 / 2
-  const ygap = (height / 5)
-  const ystart = (ygap / 2) - 5
+  const ygap = Math.floor( height / 5 )
+  const ystart = Math.ceil( (ygap / 2) - 5 )
   const yend = ystart + 4*ygap
   const yscale = (yend - ystart)
   const lastx = xaxis.length - 1
