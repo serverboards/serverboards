@@ -9,18 +9,18 @@ const svg_style = {
     vectorEffect: "non-scalling-stroke"
   },
   axis_line: {
-    fill: "#eee",
+    fill: "rgba(155,155,155,0.5)",
   },
   axis: {
     fill: "#9b9b9b"
   },
-  grey: "#9b9b9b"
+  grey: "rgba(155,155,155,0.5)"
 }
 
 
 const style_dark = {
   axis_line: {
-    fill: "#0e262b",
+    fill: "rgba(15,38,43,0.5)",
   },
 }
 
@@ -37,6 +37,7 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
   const ystart = (ygap / 2) - 5
   const yend = ystart + 4*ygap
   const yscale = (yend - ystart)
+  const lastx = xaxis.length - 1
   // console.log({xgap, xgap2, xstart, xstart2})
 
   let style = svg_style
@@ -96,7 +97,13 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
 
 
         {xaxis.map( (legend,i) => show_category(i) && (
-          <text key={i} x={xstart + i*xgap - 8} y={ystart+15+4*ygap} style={style.axis}>{legend}</text>
+          <text
+            key={i}
+            x={xstart + i*xgap}
+            y={ystart+15+4*ygap}
+            style={style.axis}
+            textAnchor={(i==0) ? "start" : (i==lastx) ? "end" : "middle"}
+          >{legend}</text>
         ))}
       </g>
       <g>

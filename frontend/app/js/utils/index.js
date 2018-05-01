@@ -417,7 +417,6 @@ export function to_number(n){
     return n
   if (n.match){
     let m = n.match(RE_DOTCOMA)
-    console.log("to number ", m)
     if (m)
       return Number(m[0].replace('.','').replace(',','.'))
 

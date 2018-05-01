@@ -7,17 +7,17 @@ const svg_style = {
     fill: "#000"
   },
   axis_line: {
-    fill: "#eee",
+    fill: "rgba(155,155,155,0.5)",
   },
   axis: {
     fill: "#9b9b9b"
   },
-  grey: "#9b9b9b"
+  grey: "rgba(155,155,155,0.5)"
 }
 
 const style_dark = {
   axis_line: {
-    fill: "#0e262b",
+    fill: "rgba(15,38,43,0.5)",
   },
 }
 
@@ -29,23 +29,25 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
   if (theme == "dark")
     style = {...style, ...style_dark}
 
-  const xstart = 40 // where starts the  data
+  const ylabelwidth = (Math.log10(maxy) * 10)
+  const xstart = ylabelwidth + 10 // where starts the  data
   const xgap = ((width - xstart) / xaxis.length) // each categeory group width
   const xgap2 = (xgap*0.8) / categories.length // each bar width. A bit smaller than just divide the space
   const xgap4 = xgap2 / 2
   const xstart2 = 40 + xgap2/2 // DELETE old mid line start
   // console.log({xgap, xgap2, xstart, xstart2})
   const axisbottom = height - 20
+  const imaxy = 1.0 / maxy
 
   // line colors
   const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
 
   function rescale(legend, category){
     const v = data[ [legend, category] ]
-    // console.log("Rescale [%o,%o] %o => %o", legend, category, v, (v/maxy)*190.0)
+    // console.log("Rescale [%o,%o] %o => %o", legend, category, v, (v*imaxy))
     if (!v)
       return 0
-    return (v/maxy)*(height-40)
+    return (v*imaxy)*(height-30)
   }
 
   const p = (axisbottom - 10)
@@ -62,14 +64,14 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
   return (
     <svg height={height} width={width}>
       <g>
-        <text x={25} y={gridlines[0] + 5} textAnchor="end" fill={style.grey}>{maxy}</text>
-        <text x={25} y={gridlines[1] + 5} textAnchor="end" fill={style.grey}>{maxy*3/4}</text>
-        <text x={25} y={gridlines[2] + 5} textAnchor="end" fill={style.grey}>{maxy*2/4}</text>
-        <text x={25} y={gridlines[3] + 5} textAnchor="end" fill={style.grey}>{maxy/4}</text>
-        <text x={25} y={gridlines[4] + 5} textAnchor="end" fill={style.grey}>0</text>
+        <text x={ylabelwidth} y={gridlines[0] + 5} textAnchor="end" fill={style.grey}>{(maxy).toFixed(0)}</text>
+        <text x={ylabelwidth} y={gridlines[1] + 5} textAnchor="end" fill={style.grey}>{(maxy*3/4).toFixed(0)}</text>
+        <text x={ylabelwidth} y={gridlines[2] + 5} textAnchor="end" fill={style.grey}>{(maxy*2/4).toFixed(0)}</text>
+        <text x={ylabelwidth} y={gridlines[3] + 5} textAnchor="end" fill={style.grey}>{(maxy/4).toFixed(0)}</text>
+        <text x={ylabelwidth} y={gridlines[4] + 5} textAnchor="end" fill={style.grey}>0</text>
 
         {gridlines.map( y => (
-          <path key={y} d={`M 30 ${y} L ${width} ${y} L ${width} ${y-1} L 30 ${y-1} Z`} style={style.axis_line}/>
+          <path key={y} d={`M ${ylabelwidth + 5} ${y} L ${width} ${y} L ${width} ${y-1} L ${ylabelwidth + 5} ${y-1} Z`} style={style.axis_line}/>
         ))}
 
         {xaxis.map( (legend,i) => (
