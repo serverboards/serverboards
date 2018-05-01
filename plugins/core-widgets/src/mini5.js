@@ -24,28 +24,32 @@ class Mini5 extends React.Component{
     const props = this.props
     const config = props.config
 
+    const nL = get_data(config.expr_left)
+    const nR = get_data(config.expr_right)
+    let ml = (props.layout.w == 1) ? 1 : 3
+    const nrsize = ((nL.length <= ml) && (nR.length <= ml)) ? "huge" : "biggier"
+
     return (
-      <div className="ui content half padding split vertical area">
+      <div className="ui content half padding split vertical area" style={{justifyContent: "space-around"}}>
         <h3 className="ui white header text">{config.title}</h3>
-        <div className="extend"/>
         <div className="ui horizontal split area">
           <div className="expand align bottom" style={{paddingRight: 2}}>
-            <div style={{display: "flex", alignItems: "center", height: 25}}>
-              <i className={`${config.icon_left} icon`}/>
-              <span className="ui biggier oneline text">
-                {get_data(config.expr_left)}
+            <div style={{display: "flex", alignItems: "center"}}>
+              {config.icon_left && <i className={`${config.icon_left} icon`}/>}
+              <span className={`ui ${nrsize} oneline text`}>
+                {nL}
               </span>
             </div>
-            <div style={{paddingLeft: 20}}>{config.text_left}</div>
+            <div style={{paddingLeft: config.icon_left ? 20 : 0, opacity: 0.75}}>{config.text_left}</div>
           </div>
           <div className="expand align bottom" style={{paddingLeft: 2}}>
-            <div style={{display: "flex", alignItems: "center", height: 25}}>
-              <i className={`${config.icon_right} icon`}/>
-              <span className="ui biggier oneline text">
-                {get_data(config.expr_right)}
+            <div style={{display: "flex", alignItems: "center"}}>
+              {config.icon_right && <i className={`${config.icon_right} icon`}/>}
+              <span className={`ui ${nrsize} oneline text`}>
+                {nR}
               </span>
             </div>
-            <div style={{paddingLeft: 20}}>{config.text_right}</div>
+            <div style={{paddingLeft: config.icon_right ? 20 : 0, opacity: 0.75}}>{config.text_right}</div>
           </div>
         </div>
       </div>
