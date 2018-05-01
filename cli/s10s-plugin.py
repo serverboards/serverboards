@@ -25,6 +25,7 @@ paths = [
     "/home/dmoreno/.local/serverboards/plugins/",
     "/home/dmoreno/src/serverboards/plugins/"
 ]
+install_path = "/home/dmoreno/.local/serverboards/plugins/"
 
 format = "text"
 
@@ -89,31 +90,37 @@ def all_plugins():
     for p in paths:
         for ppath in os.listdir(p):
             path = os.path.join(p, ppath)
-            manifest = os.path.join(path, "manifest.yaml")
-            if os.path.exists(manifest):
-                try:
-                    with open(manifest) as fd:
-                        data = yaml.load(fd)
-                        data["status"] = "ok"
-                except yaml.scanner.ScannerError as e:
-                    data = {
-                        "id": manifest,
-                        "status": "manifest-broken",
-                        "message": str(e)
-                    }
-                extra = os.path.join(path, ".extra.yaml")
-                if os.path.exists(extra):
-                    with open(extra) as fd:
-                        data.update(yaml.load(fd))
-
-                # TODO: Will work on other sources later
-                gitdir = os.path.join(path, ".git")
-                if os.path.exists(gitdir):
-                    data["source"] = "git"
-
-                data["path"] = path
+            data = read_plugin(path)
+            if data:
                 all_plugins_cache.append(data)
     return all_plugins_cache
+
+
+def read_plugin(path):
+    manifest = os.path.join(path, "manifest.yaml")
+    if os.path.exists(manifest):
+        try:
+            with open(manifest) as fd:
+                data = yaml.load(fd)
+                data["status"] = "ok"
+        except yaml.scanner.ScannerError as e:
+            data = {
+                "id": manifest,
+                "status": "manifest-broken",
+                "message": str(e)
+            }
+        extra = os.path.join(path, ".extra.yaml")
+        if os.path.exists(extra):
+            with open(extra) as fd:
+                data.update(yaml.load(fd))
+
+        # TODO: Will work on other sources later
+        gitdir = os.path.join(path, ".git")
+        if os.path.exists(gitdir):
+            data["source"] = "git"
+
+        data["path"] = path
+        return data
 
 
 def clean_plugin_cache():
@@ -123,6 +130,8 @@ def clean_plugin_cache():
 
 def get_plugin(id):
     for pl in all_plugins():
+        if id.startswith(id):
+            return read_plugin(id)
         if pl.get("id") == id or pl.get("path") == id:
             return pl
     return {}
@@ -233,6 +242,44 @@ def update_all(ids):
     output_data(ret)
 
 
+def install_all(gits):
+    ret = []
+    for git in gits:
+        res = install(git)
+        ret.append(res)
+    output_data(ret)
+
+
+def install(git):
+    os.chdir(install_path)
+    res = subprocess.run(
+        ["git", "clone", git],
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    stdout = res.stdout.decode('utf8')
+
+    path = os.path.join(install_path, os.path.basename(git))
+    if path.endswith(".git"):
+        path = path[:-4]
+    plugin = get_plugin(path)
+
+    if res.returncode == 0 and plugin.get("postinst"):
+        os.chdir(plugin["path"])
+        res = subprocess.run(
+            shlex.split(
+                os.path.join(plugin.get("path"), plugin.get("postinst"))),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        stdout += "\n\n" + res.stdout.decode('utf8')
+
+    return {
+        "id": plugin.get("id"),
+        "success": res.returncode == 0,
+        "version": plugin.get("version"),
+        "stdout": stdout
+    }
+
+
 def list_(what=[]):
     if not what:
         what = ["id", "status", "version", "up_to_date"]
@@ -263,6 +310,8 @@ def main(argv):
         check_updates(argv[1:])
     if argv[0] == 'update':
         update_all(argv[1:])
+    if argv[0] == 'install':
+        install_all(argv[1:])
 
 
 if __name__ == "__main__":
