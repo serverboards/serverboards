@@ -7,6 +7,13 @@ function prep_bars(bars){
   let ret = []
   if (!bars) {
     return []
+  } else if (bars.length == 1){
+    const bar = bars[0]
+    console.log(bar)
+    return [{
+      name: bar[0],
+      value: Number(bar[1])
+    }]
   } else if (bars.length>3){
     ret = bars.map( b => ({name: b[0], value: Number(b[1])}) )
     console.log("Numbered", ret)
@@ -29,6 +36,9 @@ function prep_bars(bars){
 }
 
 class Mini3Bars extends React.Component{
+  componentDidMount(){
+    this.props.setTitle(' ')
+  }
   shouldComponentUpdate(nextprops){
     return !Serverboards.utils.object_is_equal( nextprops.config, this.props.config )
   }
@@ -44,17 +54,25 @@ class Mini3Bars extends React.Component{
     }
 
     const bars = prep_bars(rows)
-    console.log(MiniBar)
+    const count = rows.length
+
+    const split_style = {
+      justifyContent: count == 1 ? "flex-end" : "space-evenly",
+      alignSelf: count == 1 ? "flex-end" : "space-evenly",
+      flex: 1,
+      padding: "15px 5px"
+    }
 
     return (
       <div className="ui extends" style={{display: "flex", width: "100%"}}>
-        <div style={{display: "flex", flexDirection: "column", flex: 10, padding: 10}}>
-          <h3 className="ui header" style={{flex: 1}}>{config.title}</h3>
-          <div className="ui big bold text" style={{fontSize: 40, letterSpacing: -2, paddingBottom: 15}}>
+        <div style={{display: "flex", flexDirection: "column", flex: 0, padding: 10, marginRight: 30}}>
+          <h3 className="ui oneline header" style={{flex: 1}}>{config.title}</h3>
+          <div className="ui big text" style={{fontSize: 36, letterSpacing: -2, paddingBottom: 15, whiteSpace: "nowrap"}}>
             {get_data(config.big_label)}
           </div>
         </div>
-        <div style={{display: "flex", flexDirection: "column", justifyContent: "space-evenly", flex: 8}}>
+        <div className="ui vertical split area"
+             style={split_style}>
           {bars.map( (b, i) => (
             <div key={b.name} style={{lineHeight: "15px"}}>
               {b.name}

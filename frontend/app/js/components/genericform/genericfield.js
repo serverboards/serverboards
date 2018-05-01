@@ -135,10 +135,10 @@ class GenericField extends React.Component{
                 dynamic={props.dynamic}
                 form_data={props.form_data}
                 >
-              {props.options.map((o) => ( o.value ? (
-                <option key={o.value} value={o.value}>{o.label || o.name}</option>
+              {props.options.map((o) => ( (o.value != undefined) ? (
+                <option key={o.value} value={o.value}>{String(o.label || o.name)}</option>
               ) : (
-                <option key={o} value={o}>{o}</option>
+                <option key={o} value={o}>{String(o)}</option>
               ) ) ) }
             </select>
           </div>

@@ -402,6 +402,33 @@ export function servername(){
     return window.location.origin
 }
 
+const RE_DOTCOMA = /^\d{1,3}(|\.\d{3})*(,\d+|)(?=$|[^\d\.,])/
+const RE_ISO = /^\d*(\.\d+|)/
+/**
+ * @short Transforms from several string regex to a proper number
+ *
+ * Data from DB can come in spanish dotcoma format, just a number, just with a
+ * dot, with trailing symbols..
+ *
+ * This tries hard to transform properly a string to a number
+ */
+export function to_number(n){
+  if (typeof(n) == 'number')
+    return n
+  n = n.trim()
+  if (n.match){
+    let m = n.match(RE_DOTCOMA)
+    if (m)
+      return Number(m[0].replace('.','').replace(',','.'))
+
+    m = n.match(RE_ISO)
+    if (m)
+      return Number(m[0])
+  }
+  console.error(`${n} is not a number`)
+  throw "Not a number"
+}
+
 export default {
   to_map,
   to_list,
@@ -425,6 +452,7 @@ export default {
   match_traits,
   filter_items_str,
   servername,
+  to_number,
 
   days,
   months,

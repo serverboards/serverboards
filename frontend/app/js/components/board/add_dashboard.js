@@ -31,7 +31,7 @@ class CreateDashboard extends React.Component{
               <label>{i18n("Dashboard name")}</label>
               <input type="text" className="input" ref="name" placeholder={i18n("Monitoring, tools...")}/>
             </div>
-            <button className="ui button yellow" onClick={this.handleCreateDashboard}>
+            <button className="ui button yellow" onClick={this.handleCreateDashboard.bind(this)}>
               {i18n("Create dashboard")}
             </button>
           </div>

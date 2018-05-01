@@ -36,7 +36,7 @@ class Mini2 extends React.Component{
            href={config.url} target="_blank" rel="noopener">
         <h3 className="ui white header text">{config.title}</h3>
         <div className="expand align bottom">
-          <div className="ui huge white text">
+          <div className="ui huge white text" style={{fontSize: 36}}>
             {get_data(config.text)}
           </div>
         </div>

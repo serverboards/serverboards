@@ -94,3 +94,10 @@ export function MiniBar({value, color}){
     </div>
   )
 }
+
+export function get_legend(legend){
+  const pipe = legend.indexOf('|')
+  if (pipe < 0)
+    return legend
+  return legend.split('|')[1]
+}

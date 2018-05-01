@@ -143,8 +143,14 @@ components:
         name: title
         description: Title
       - label: Show performance and legend
-        type: checkbox
-        default: true
+        type: select
+        options:
+          - label: "Right"
+            value: right
+          - label: "Bottom"
+            value: bottom
+          - label: Hide
+            value: hide
         name: show_legend
       - label: Summary Query
         name: summary
@@ -165,6 +171,9 @@ components:
           `XValue` is sorted and not require to be numeric. `YValue` needs to be
           numeric.
 
+          `XValue` can be in the form of `order|label` to force ordeing with
+          specific labels, as `01|January`.
+
           It does aggregation on `Category name` and `XValue` summing the
           values, so repeated values are allowed.
 
@@ -183,6 +192,27 @@ components:
       - label: Title
         name: title
         description: Title
+      - label: Fill
+        name: fill
+        description: Fill line area mode
+        class: half column
+        type: select
+        options:
+          - label: "No fill"
+            value: false
+          - label: Fill
+            value: true
+      - label: Show performance and legend
+        type: select
+        options:
+          - label: "Right"
+            value: right
+          - label: "Bottom"
+            value: bottom
+          - label: Hide
+            value: hide
+        class: half column
+        name: show_legend
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
@@ -201,6 +231,9 @@ components:
 
           `XValue` is sorted and not require to be numeric. `YValue` needs to be
           numeric.
+
+          `XValue` can be in the form of `order|label` to force ordeing with
+          specific labels, as `01|January`.
 
           It does aggregation on `Category name` and `XValue` summing the
           values, so repeated values are allowed.
