@@ -71,7 +71,7 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
     return ret
   }
 
-  const show_one_in = Math.ceil(xaxis.length / 10.0)
+  const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / 40))
   function show_category(i){
     // console.log("Show %d? %d", i, (i % show_one_in) == 0)
     return (i % show_one_in) == 0

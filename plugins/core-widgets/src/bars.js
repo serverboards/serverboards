@@ -33,11 +33,12 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
   const xstart = ylabelwidth + 10 // where starts the  data
   const xgap = ((width - xstart) / xaxis.length) // each categeory group width
   const xgap2 = (xgap*0.8) / categories.length // each bar width. A bit smaller than just divide the space
-  const xgap4 = xgap2 / 2
-  const xstart2 = 40 + xgap2/2 // DELETE old mid line start
-  // console.log({xgap, xgap2, xstart, xstart2})
   const axisbottom = height - 20
   const imaxy = 1.0 / maxy
+  const barw = Math.min(xgap2, 15)
+  const barw2 = barw / 2
+  const xstart2 = xstart +  (xgap2 - barw)/2
+  const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / 40))
 
   // line colors
   const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
@@ -74,8 +75,8 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
           <path key={y} d={`M ${ylabelwidth + 5} ${y} L ${width} ${y} L ${width} ${y-1} L ${ylabelwidth + 5} ${y-1} Z`} style={style.axis_line}/>
         ))}
 
-        {xaxis.map( (legend,i) => (
-          <text key={i} x={xstart + i*xgap} y={axisbottom + 15} style={style.axis}>{legend}</text>
+        {xaxis.map( (legend,i) => ( ((i % show_one_in) == 0) &&
+          <text key={i} x={xstart + i*xgap + xgap2} y={axisbottom + 15} textAnchor="middle" style={style.axis}>{legend}</text>
         ))}
       </g>
       <g>
@@ -86,19 +87,19 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
               if (dy == 0)
                 dy=1  // Min 1 pix
 
-              const x1 = xstart + i*xgap + j*xgap2
-              const x2 = x1 + xgap2
+              const x1 = xstart2 + i*xgap + j*xgap2
+              const x2 = x1 + barw
 
               const y1 = axisbottom
               const y2 = axisbottom - dy
-              if (dy < xgap4)
+              if (dy < barw2)
                 return (
                   <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2} L ${x2} ${y2} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
                 )
               else{
-                const y2_ = y2 + xgap4
+                const y2_ = y2 + barw2
                 return (
-                  <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2_} A ${xgap4} ${xgap4} 0 0 1 ${x2} ${y2_} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
+                  <path key={j} d={`M ${x1} ${y1} L ${x1} ${y2_} A ${barw2} ${barw2} 0 0 1 ${x2} ${y2_} L ${x2} ${y1} Z`} style={{fill: fill[j]}}/>
                 )
               }
             } )}
