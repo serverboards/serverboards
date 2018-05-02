@@ -8,6 +8,8 @@ import subprocess
 import re
 import shlex
 import shutil
+import glob
+import configparser
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -22,13 +24,49 @@ Plugin management:
     s10s plugin update <path|plugin_id>  -- Updates a plugin
 """
 
-paths = [
-    "/home/dmoreno/.local/serverboards/plugins/",
-    "/home/dmoreno/src/serverboards/plugins/"
-]
-install_path = "/home/dmoreno/.local/serverboards/plugins/"
-
+paths = []
+install_path = None
 format = "text"
+
+
+def get_settings():
+    inis = [
+        os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
+        os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
+        *glob.glob("/etc/serverboards/*.ini"),
+        "/etc/serverboards.ini",
+        os.environ.get("SERVERBOARDS_INI", "")
+    ]
+    settings = {}
+    for ini in inis:
+        if os.path.exists(ini):
+            try:
+                config = configparser.ConfigParser(allow_no_value=True)
+                config.read(ini)
+                for section in config.sections():
+                    prev = settings.get(section, {})
+                    prev.update({k: v for k, v in config.items(section)})
+                    settings[section] = prev
+            except Exception:
+                pass
+    return settings
+
+
+def update_plugin_settings():
+    global paths, install_path
+    settings = get_settings()
+
+    paths = (
+        os.environ.get("SERVERBOARDS_PLUGINS_PATH") or
+        settings.get("plugins", {}).get('path') or
+        os.path.expandvars(
+            "${HOME}/.local/serverboards/plugins;"
+            "${SERVERBPARDS_PATH}/plugins;"
+            "/opt/serverboards/share/serverboards/plugins/;"
+            "../plugins/")
+    ).split(';')
+    paths = [os.path.abspath(x) for x in paths if os.path.isdir(x)]
+    install_path = paths[0]
 
 
 def output_data(data):
@@ -340,5 +378,6 @@ def main(argv):
         remove_all(argv[1:])
 
 
+update_plugin_settings()
 if __name__ == "__main__":
     main(sys.argv[1:])
