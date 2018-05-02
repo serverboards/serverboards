@@ -61,7 +61,8 @@ def update_plugin_settings():
         settings.get("plugins", {}).get('path') or
         os.path.expandvars(
             "${HOME}/.local/serverboards/plugins;"
-            "${SERVERBPARDS_PATH}/plugins;"
+            "${SERVERBOARDS_PATH}/plugins;"
+            "/opt/serverboards/local/plugins/;"
             "/opt/serverboards/share/serverboards/plugins/;"
             "../plugins/")
     ).split(';')
@@ -160,6 +161,7 @@ def read_plugin(path):
 
         data["path"] = path
         return data
+    return {}
 
 
 def clean_plugin_cache():
