@@ -26,8 +26,7 @@ class Mini5 extends React.Component{
 
     const nL = get_data(config.expr_left)
     const nR = get_data(config.expr_right)
-    let ml = (props.layout.w == 1) ? 1 : 3
-    const nrsize = ((nL.length <= ml) && (nR.length <= ml)) ? "huge" : "biggier"
+    const nrsize = "bigger"
 
     return (
       <div className="ui content half padding split vertical area" style={{justifyContent: "space-around"}}>

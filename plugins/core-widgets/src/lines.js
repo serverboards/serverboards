@@ -4,24 +4,20 @@ import GraphWithData from './graph_with_data'
 
 const svg_style = {
   axis_bottom: {
-    stroke: "#333",
-    strokeWidth: 1,
-    vectorEffect: "non-scalling-stroke"
+    fill: "#000"
   },
   axis_line: {
-    fill: "rgba(155,155,155,0.5)",
+    fill: "rgba(155,155,155,0.1)",
   },
   axis: {
-    fill: "#9b9b9b"
+    fill: "#9b9b9b",
+    fontSize: 12
+  },
+  axisy: {
+    fill: "rgba(155,155,155,0.5)",
+    fontSize: 12
   },
   grey: "rgba(155,155,155,0.5)"
-}
-
-
-const style_dark = {
-  axis_line: {
-    fill: "rgba(15,38,43,0.5)",
-  },
 }
 
 function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
@@ -41,8 +37,6 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
   // console.log({xgap, xgap2, xstart, xstart2})
 
   let style = svg_style
-  if (theme == "dark")
-    style = {...style, ...style_dark}
 
   // line colors
   const fill_color = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
@@ -82,11 +76,11 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
   return (
     <svg height={height} width={width}>
       <g>
-        <text x={25} y={ystart+5} textAnchor="end" fill={style.grey}>{maxy}</text>
-        <text x={25} y={ystart+5+ygap} textAnchor="end" fill={style.grey}>{maxy*3/4}</text>
-        <text x={25} y={ystart+5+2*ygap} textAnchor="end" fill={style.grey}>{maxy*2/4}</text>
-        <text x={25} y={ystart+5+3*ygap} textAnchor="end" fill={style.grey}>{maxy/4}</text>
-        <text x={25} y={ystart+5+4*ygap-5} textAnchor="end" fill={style.grey}>0</text>
+        <text x={25} y={ystart+5} textAnchor="end" style={style.axisy}>{(maxy).toFixed(0)}</text>
+        <text x={25} y={ystart+5+ygap} textAnchor="end" style={style.axisy}>{(maxy*3/4).toFixed(0)}</text>
+        <text x={25} y={ystart+5+2*ygap} textAnchor="end" style={style.axisy}>{(maxy*2/4).toFixed(0)}</text>
+        <text x={25} y={ystart+5+3*ygap} textAnchor="end" style={style.axisy}>{(maxy/4).toFixed(0)}</text>
+        <text x={25} y={ystart+5+4*ygap-5} textAnchor="end" style={style.axisy}>0</text>
 
 
         <path d={`M 30 ${ystart}        L ${width - 10} ${ystart}        L ${width - 10} ${ystart-1}        L 30 ${ystart-1}        Z`} style={style.axis_line}/>
