@@ -64,7 +64,7 @@ class Pie3 extends React.Component{
 
     if (!rows)
       return (
-        <Loading/>
+        <Loading.Widget/>
       )
 
     rows = rows.sort( (a,b) => b[1] - a[1])

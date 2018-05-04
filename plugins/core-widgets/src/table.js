@@ -20,7 +20,7 @@ function Table(props){
 
   if (props.config.loading || (props.config.data && props.config.data.loading))
     return (
-      <Loading>Data</Loading>
+      <Loading.Widget>Data</Loading.Widget>
     )
 
 

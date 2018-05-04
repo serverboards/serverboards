@@ -7,7 +7,7 @@ function LeaderBars(props){
   const config = props.config
   if (!config || !config.data || config.data.loading)
     return (
-      <Loading/>
+      <Loading.Widget/>
     )
   if (config.data.error){
     return (

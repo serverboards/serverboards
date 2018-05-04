@@ -49,7 +49,7 @@ class Mini3Bars extends React.Component{
     const rows = map_get(config, ["bars", "rows"])
     if (!rows){
       return (
-        <Loading/>
+        <Loading.Widget/>
       )
     }
 

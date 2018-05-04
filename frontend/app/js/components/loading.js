@@ -15,4 +15,16 @@ function Loading(props){
   )
 }
 
+Loading.Widget = function(props){
+  return (
+    <div className="ui extends" style={{overflow:"hidden", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column"}}>
+      <i className="ui spinner loading icon huge"/>
+      <div className="ui text" style={{marginTop: 10}}>
+        <h1>{i18n("Loading data")}</h1>
+        {props.children}
+      </div>
+    </div>
+  )
+}
+
 export default Loading

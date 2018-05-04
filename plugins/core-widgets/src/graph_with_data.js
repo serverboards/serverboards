@@ -36,7 +36,7 @@ class GraphWithData extends React.Component {
     // console.log(config)
     if (!config.data)
       return (
-        <Loading/>
+        <Loading.Widget/>
       )
 
     if (config.data.error)
@@ -45,7 +45,7 @@ class GraphWithData extends React.Component {
       )
     if (!config.data.rows)
       return (
-        <Loading/>
+        <Loading.Widget/>
       )
 
     const performance = get_data(config.performance)
