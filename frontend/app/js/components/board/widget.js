@@ -1,6 +1,6 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
-import {object_is_equal, to_keywordmap} from 'app/utils'
+import {object_is_equal, to_keywordmap, colorize} from 'app/utils'
 import {merge, map_get} from 'app/utils'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
@@ -95,11 +95,20 @@ class Widget extends React.Component{
     const state = this.state
     const Component = this.state.component
 
+    const parts = (state.title || config.name || widget.name).split('|')
+    const title = parts[0].trim()
+    const titleColor = parts[2] || "grey"
+    const titleColorClass = (
+      (titleColor.startsWith("#") || titleColor.startsWith("rgb(") || titleColor.startsWith("rgba(")) ?
+      "" : colorize(titleColor))
+    const titleClass = `${parts[1] || ""} ${titleColorClass} ${title != "" ? "" : "no background"}`
+    const titleStyle = (titleColorClass ? {} : {background: titleColor})
+
     return (
       <div>
-        <div className="ui top mini menu">
+        <div className={`ui top mini menu ${titleClass}`} style={titleStyle}>
           <span className="ui header oneline">
-            {state.title || config.name || widget.name}
+            {title}
           </span>
           <Restricted perm="dashboard.widget.update">
             <a className="item right" onClick={this.props.onEdit}>

@@ -53,7 +53,7 @@
         flex: 1
     .ui.top.mini.menu
       .header
-        color: $grey
+        color: white
     > div
       display: flex
       flex-direction: column
@@ -61,15 +61,27 @@
       height: 100%
       overflow: hidden
       > .ui.top.menu
+        position: relative
         border: 0
         box-shadow: none
         background: none
-        min-height: 28px
-        max-height: 28px
+        min-height: 20px
+        max-height: 20px
         cursor: move
         margin: 0
         display: flex
-        > .item
+        background: grey
+        margin-top: 7px
+        margin-bottom: 2px
+        &.no.background
+          background: none
+        +background-colors-with-text
+        &.center, &.centered
+          text-align: center
+        > .item.right
+          position: absolute
+          top: -3px
+          right: 0
           color: #02a7a1
           padding: 5px 10px
           height: 25px
@@ -82,11 +94,11 @@
         > .ui.header
           text-transform: uppercase
           vertical-align: middle
-          padding: 8px 0px 8px 15px
+          padding: 8px 0px 8px 8px
           font-weight: normal
           font-size: 12px
-          margin: 4px 0 0 0
-          min-width: calc( 100% - 60px )
+          margin: -5px 0 0 0
+          min-width: 100%
       > div:nth-child(2)
         flex-grow: 1
         position: relative
