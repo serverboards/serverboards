@@ -21,7 +21,10 @@ class GraphWithData extends React.Component {
       this.props.setTitle(map_get(nextprops, ["config","title"]))
   }
   shouldComponentUpdate(nextProps, nextState){
-    return !(object_is_equal( this.props.config, nextProps.config ))
+    return (
+      !(object_is_equal(this.props.config, nextProps.config)) ||
+      !(object_is_equal(this.props.layout, nextProps.layout))
+    )
   }
   render(){
     const props = this.props

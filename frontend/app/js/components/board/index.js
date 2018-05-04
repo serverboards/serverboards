@@ -19,7 +19,7 @@ require('sass/board.sass')
 require('sass/gridlayout.sass')
 
 const RT_INTERVAL = localStorage.dashboard_rt_period || 30
-const WIDGET_WIDTH = 162
+const WIDGET_WIDTH = 160
 const WIDGET_GAP = 13.5
 
 function clamp(v, min, max){
@@ -48,7 +48,8 @@ class Board extends React.Component{
       configs,
       to_extract,
       board_width: 2400,
-      board_cols: 16
+      board_cols: 16,
+      widget_width: WIDGET_WIDTH
     }
   }
   handleEdit(uuid){
@@ -58,7 +59,8 @@ class Board extends React.Component{
   handleAddWidget(){
     set_modal('dashboard.widget.create',{project: this.props.project})
   }
-  getAllLayouts(props){
+  getAllLayouts(props, widget_width){
+    widget_width = widget_width || (this.state || {}).widget_width || WIDGET_WIDTH
     const layout = this.props.widgets && this.props.widgets.map( (w) => {
       const template_layout = to_keywordmap((this.getTemplate(w.widget) || {}).hints)
 
@@ -75,9 +77,9 @@ class Board extends React.Component{
       ui.h = clamp(ui.h, ui.minH, ui.maxH)
 
       // Width is the number of w + the gaps - 2 for border
-      ui.width = (ui.w * (WIDGET_WIDTH + WIDGET_GAP)) - 17
+      ui.width = (ui.w * (widget_width + WIDGET_GAP)) - 17
 
-      ui.height = ui.h * WIDGET_WIDTH - 30
+      ui.height = ui.h * widget_width - 30
 
       return ui
     })
@@ -109,15 +111,12 @@ class Board extends React.Component{
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      console.log("Props change", this.props, newprops)
       lo.debounce(() => {
-        console.log("Calculate new layout")
-        const layout = this.getAllLayouts(newprops)
-        this.setState({ layout })
+        this.setState({ layout: this.getAllLayouts(newprops) })
       })()
     }
     if (this.props.show_sidebar != newprops.show_sidebar){
-      this.calculateBoardSize()
+      lo.debounce(this.calculateBoardSize, 200)()
     }
     if (newprops.realtime != this.props.realtime){
       if (newprops.realtime){
@@ -160,24 +159,30 @@ class Board extends React.Component{
       this.setState({update_realtime_timer_id})
     }
     this.calculateBoardSize()
-    window.addEventListener("resize", this.calculateBoardSize)
+    window.addEventListener("resize", lo.debounce(this.calculateBoardSize, 200))
   }
   calculateBoardSize(){
     // console.log(this.state.layout)
     // console.log(this.refs.board)
     const maxy = Math.max.apply(Math, this.state.layout.map( l => (l.w + l.x) || 0 ))
-    const width = $(this.refs.board).width() - 50 // Some margin too
+    const width = $(this.refs.board).width() - 25 // Some margin too
     let ncols = Math.floor(width / (WIDGET_WIDTH+15))
     // console.log("Max Y is ", maxy, " ncols ", ncols)
     if (ncols < maxy){
       ncols = maxy
     }
     let nwidth = ncols * (WIDGET_WIDTH + 15)
-    console.log("Final ", ncols, nwidth)
+    const widget_width = Math.max(WIDGET_WIDTH, Math.floor((width - ((ncols-1) * 15))  / ncols))
+    console.log("Final ", ncols, width, widget_width)
     this.setState({
       board_cols: ncols,
-      board_width: nwidth
+      board_width: Math.max(width, nwidth),
+      widget_width
     })
+    lo.debounce(() => {
+      this.setState({ layout: this.getAllLayouts(this.props, widget_width) })
+    }, 200)()
+
   }
   updateConfigs(widgets){
     let configs = {}
@@ -280,15 +285,15 @@ class Board extends React.Component{
     }
     const theme = this.props.config.theme || "light"
 
-    const {board_width, board_cols} = this.state
+    const {board_width, board_cols, widget_width} = this.state
 
     return (
       <div ref="board" className={`ui board ${theme} with scroll`}>
-        <div className="ui padding">
+        <div className="ui padding" style={{width: board_width}}>
           <ReactGridLayout
             className="ui cards layout"
             cols={board_cols}
-            rowHeight={WIDGET_WIDTH}
+            rowHeight={widget_width}
             width={board_width}
             margin={[15,0]}
             draggableHandle=".ui.top.mini.menu .ui.header"
