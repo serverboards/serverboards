@@ -5,7 +5,7 @@ import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import Restricted from 'app/restricted'
 import ReactGridLayout from 'react-grid-layout'
-import {object_is_equal} from 'app/utils'
+import {object_is_equal, to_keywordmap} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
 import Empty from './empty'
@@ -13,13 +13,44 @@ import moment from 'moment'
 import AddButton from 'app/components/project/addbutton'
 import {ErrorBoundary, Error} from 'app/components/error'
 import i18n from 'app/utils/i18n'
+import lo from 'lodash'
 
 require('sass/board.sass')
 require('sass/gridlayout.sass')
 
 const RT_INTERVAL = localStorage.dashboard_rt_period || 30
+const WIDGET_WIDTH = 162
+const WIDGET_GAP = 13.5
+
+function clamp(v, min, max){
+  if (v){
+    if (v > max)
+      v = max
+    if (v < min)
+      v = min
+  }
+  else{
+    v = min
+  }
+  return v
+}
 
 class Board extends React.Component{
+  constructor(props){
+    super(props)
+    const {configs, to_extract} = this.updateConfigs(props.widgets, false)
+    this.calculateBoardSize = this.calculateBoardSize.bind(this)
+    // console.log("Configs %o", configs)
+    this.state = {
+      layout: this.getAllLayouts(this.props),
+      update_now_label_timer_id: undefined,
+      update_realtime_timer_id: undefined,
+      configs,
+      to_extract,
+      board_width: 2400,
+      board_cols: 16
+    }
+  }
   handleEdit(uuid){
     const widget=this.props.widgets.find( (w) => w.uuid == uuid )
     set_modal("dashboard.widget.edit", {uuid, widget})
@@ -28,25 +59,40 @@ class Board extends React.Component{
     set_modal('dashboard.widget.create',{project: this.props.project})
   }
   getAllLayouts(props){
-    const layout = this.props.widgets && this.props.widgets.map( (w) => w.ui ).filter( Boolean )
+    const layout = this.props.widgets && this.props.widgets.map( (w) => {
+      const template_layout = to_keywordmap((this.getTemplate(w.widget) || {}).hints)
+
+      const ui = {...w.ui, ...template_layout}
+      ui.i = w.uuid
+      if (!ui)
+        return {w: 1, h: 1}
+
+      ui.minW = ui.minW || 1
+      ui.maxW = ui.maxW || 24
+      ui.minH = ui.minH || 1
+      ui.maxH = ui.maxH || 8
+      ui.w = clamp(ui.w, ui.minW, ui.maxW)
+      ui.h = clamp(ui.h, ui.minH, ui.maxH)
+
+      // Width is the number of w + the gaps - 2 for border
+      ui.width = (ui.w * (WIDGET_WIDTH + WIDGET_GAP)) - 17
+
+      ui.height = ui.h * WIDGET_WIDTH - 30
+
+      return ui
+    })
+    console.log("Layout is", layout)
     return layout
   }
-  constructor(props){
-    super(props)
-    const {configs, to_extract} = this.updateConfigs(props.widgets, false)
-    // console.log("Configs %o", configs)
-    this.state = {
-      layout: this.getAllLayouts(this.props),
-      update_now_label_timer_id: undefined,
-      update_realtime_timer_id: undefined,
-      configs,
-      to_extract
-    }
-  }
   handleLayoutChange(layout){
+    function layout_data(l){
+      return {x: l.x, y: l.y, w: l.w, h: l.h, i: l.i}
+    }
+
     const to_set=layout.map( (l) => {
-      const prev = (this.state.layout || []).find( (w) => w.i == l.i ) || {}
-      if (object_is_equal(prev,l))
+      l = layout_data(l)
+      const prev = layout_data((this.state.layout || []).find( (w) => w.i == l.i ) || {})
+      if (object_is_equal(prev, l))
         return false
       return l
     }).filter( Boolean ).map( w => ({
@@ -59,12 +105,19 @@ class Board extends React.Component{
     }) ).catch( e => {
       console.log("Could not change layout", e)
     })
-    this.setState({layout})
+    // this.setState({layout})
   }
   componentWillReceiveProps(newprops){
-    if (!object_is_equal){
-      const layout = this.getLayout(newprops)
-      this.setState({ layout })
+    if (!object_is_equal(this.props.widgets, newprops.widgets)){
+      console.log("Props change", this.props, newprops)
+      lo.debounce(() => {
+        console.log("Calculate new layout")
+        const layout = this.getAllLayouts(newprops)
+        this.setState({ layout })
+      })()
+    }
+    if (this.props.show_sidebar != newprops.show_sidebar){
+      this.calculateBoardSize()
     }
     if (newprops.realtime != this.props.realtime){
       if (newprops.realtime){
@@ -106,6 +159,25 @@ class Board extends React.Component{
       const update_realtime_timer_id = setInterval(this.updateRealtime.bind(this), RT_INTERVAL * 1000)
       this.setState({update_realtime_timer_id})
     }
+    this.calculateBoardSize()
+    window.addEventListener("resize", this.calculateBoardSize)
+  }
+  calculateBoardSize(){
+    // console.log(this.state.layout)
+    // console.log(this.refs.board)
+    const maxy = Math.max.apply(Math, this.state.layout.map( l => (l.w + l.x) || 0 ))
+    const width = $(this.refs.board).width() - 50 // Some margin too
+    let ncols = Math.floor(width / (WIDGET_WIDTH+15))
+    // console.log("Max Y is ", maxy, " ncols ", ncols)
+    if (ncols < maxy){
+      ncols = maxy
+    }
+    let nwidth = ncols * (WIDGET_WIDTH + 15)
+    console.log("Final ", ncols, nwidth)
+    this.setState({
+      board_cols: ncols,
+      board_width: nwidth
+    })
   }
   updateConfigs(widgets){
     let configs = {}
@@ -164,6 +236,7 @@ class Board extends React.Component{
       clearInterval(this.state.update_realtime_timer_id)
     // jquery hack, may be better using some property at redux
     $('#centralarea').removeClass("grey").removeClass("background")
+    window.removeEventListener("window", this.calculateBoardSize)
   }
   updateRealtime(){
     const end = moment()
@@ -180,9 +253,7 @@ class Board extends React.Component{
   }
   getLayout(wid){
     let layout = this.state && (this.state.layout || []).find( l => l.i == wid )
-    if (!layout)
-      layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
-    layout = {...layout, width: layout.w * 132 + (layout.w - 1) * 17, height: layout.h*163 - 28}
+    // console.log(this.state.layout, layout)
     return layout
   }
   render() {
@@ -209,14 +280,16 @@ class Board extends React.Component{
     }
     const theme = this.props.config.theme || "light"
 
+    const {board_width, board_cols} = this.state
+
     return (
-      <div className={`ui board ${theme} with scroll`}>
+      <div ref="board" className={`ui board ${theme} with scroll`}>
         <div className="ui padding">
           <ReactGridLayout
             className="ui cards layout"
-            cols={16}
-            rowHeight={163}
-            width={2400}
+            cols={board_cols}
+            rowHeight={WIDGET_WIDTH}
+            width={board_width}
             margin={[15,0]}
             draggableHandle=".ui.top.mini.menu .ui.header"
             layout={this.state.layout}

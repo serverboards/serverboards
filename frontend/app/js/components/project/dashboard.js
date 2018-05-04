@@ -19,7 +19,7 @@ class Overview extends React.Component{
       )
     return (
       <div className="ui central" id="dashboard">
-        <Board location={props.location} project={props.project.shortname}/>
+        <Board location={props.location} project={props.project.shortname} show_sidebar={props.show_sidebar}/>
       </div>
     )
   }

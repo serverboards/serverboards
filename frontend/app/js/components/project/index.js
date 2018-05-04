@@ -81,10 +81,11 @@ class Project extends React.Component{
       )
 
     const Section = this.selectSection()
+    const state = this.state
 
     return (
       <div className="ui horizontal split area">
-        {this.state.show_sidebar ? (
+        {state.show_sidebar ? (
           <SidebarSections
             key={props.project.name}
             section={props.params.section}
@@ -98,19 +99,20 @@ class Project extends React.Component{
         <div className="ui vertical expand split area">
           <Top
             onShowSidebar={this.handleShowSidebar.bind(this)}
-            show_sidebar={this.state.show_sidebar}
+            show_sidebar={state.show_sidebar}
             params={props.params}
             setHandlers={this.handleSetTopMenuHandlers.bind(this)}
             />
           <div className="ui expand vertical split area with scroll" id="centralarea">
-            {this.state.handleSetSectionMenu && ( // Hack to prevent redraw of section when top set the handlers.
+            {state.handleSetSectionMenu && ( // Hack to prevent redraw of section when top set the handlers.
               <ErrorBoundary>
                 <Section
                   project={props.project}
                   subsection={props.params.subsection}
                   location={props.location}
-                  setSectionMenu={this.state.handleSetSectionMenu}
-                  setSectionMenuProps={this.state.handleSetSectionMenuProps}
+                  setSectionMenu={state.handleSetSectionMenu}
+                  setSectionMenuProps={state.handleSetSectionMenuProps}
+                  show_sidebar={state.show_sidebar}
                   />
               </ErrorBoundary>
             )}

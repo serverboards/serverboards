@@ -58,7 +58,7 @@ components:
     description: Small widget with name, two columns of data with number, name and icon.
     id: mini5
     hints:
-      minW: 2
+      minW: 1
       maxW: 4
       maxH: 1
       nocss: true
@@ -134,8 +134,8 @@ components:
     id: bars
     icon: bar chart
     hints:
-      minW: 4
-      minH: 2
+      minW: 2
+      minH: 1
       nocss: true
       nohtml: true
     params:
@@ -186,8 +186,8 @@ components:
     id: lines
     icon: line chart
     hints:
-      minW: 4
-      minH: 2
+      minW: 2
+      minH: 1
     params:
       - label: Title
         name: title
