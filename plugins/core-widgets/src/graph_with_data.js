@@ -9,7 +9,7 @@ function next_stop_point(point){
   const scale = Math.floor(Math.log10(point)) - 1
   const next_multof = MULTOF * (10 ** scale)
 
-  return next_multof * Math.ceil( point / next_multof )
+  return next_multof * Math.ceil( point / next_multof ) * 1.2
 }
 
 class GraphWithData extends React.Component {
