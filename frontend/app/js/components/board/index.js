@@ -48,6 +48,7 @@ class Board extends React.Component{
       configs,
       to_extract,
       board_width: 2400,
+      board_height: 1080,
       board_cols: 16,
       widget_width: WIDGET_WIDTH
     }
@@ -173,11 +174,15 @@ class Board extends React.Component{
     }
     let nwidth = ncols * (WIDGET_WIDTH + 15)
     const widget_width = Math.max(WIDGET_WIDTH, Math.floor((width - ((ncols-1) * 15))  / ncols))
-    console.log("Final ", ncols, width, widget_width)
+
+    const board_height = Math.max.apply(Math, this.state.layout.map( l => (l.h + l.y) || 0 )) * widget_width + 60
+
+    console.log("Final ", ncols, width, widget_width, board_height)
     this.setState({
       board_cols: ncols,
       board_width: Math.max(width, nwidth),
-      widget_width
+      widget_width,
+      board_height
     })
     lo.debounce(() => {
       this.setState({ layout: this.getAllLayouts(this.props, widget_width) })
@@ -262,33 +267,36 @@ class Board extends React.Component{
     return layout
   }
   render() {
-    const widget_catalog = this.props.widget_catalog
-    const widgets=this.props.widgets.map( w => ({
+    const state = this.state
+    const props = this.props
+
+    const widget_catalog = props.widget_catalog
+    const widgets=props.widgets.map( w => ({
       widget: w,
       template: this.getTemplate(w.widget)
     }))
-    const configs = this.state.configs
+    const configs = state.configs
     if (widgets == undefined){
       return (
         <Loading>Serverboard widget data</Loading>
       )
     }
-    //const layout = this.state.layout || widgets.map( (w) => w.ui )
+    //const layout = state.layout || widgets.map( (w) => w.ui )
     //console.log(layout)
     if (widgets.length == 0){
       return (
         <div className="ui centered container" style={{padding: 20}}>
           <Empty/>
-          <AddButton project={this.props.project}/>
+          <AddButton project={props.project}/>
         </div>
       )
     }
-    const theme = this.props.config.theme || "light"
+    const theme = props.config.theme || "light"
 
-    const {board_width, board_cols, widget_width} = this.state
+    const {board_width, board_cols, widget_width} = state
 
     return (
-      <div ref="board" className={`ui board ${theme} with scroll`}>
+      <div ref="board" className={`ui board ${theme} with scroll`} style={{minHeight: state.board_height}}>
         <div className="ui padding" style={{width: board_width}}>
           <ReactGridLayout
             className="ui cards layout"
@@ -297,9 +305,9 @@ class Board extends React.Component{
             width={board_width}
             margin={[15,0]}
             draggableHandle=".ui.top.mini.menu .ui.header"
-            layout={this.state.layout}
-            isDraggable={this.props.can_edit}
-            isResizable={this.props.can_edit}
+            layout={state.layout}
+            isDraggable={props.can_edit}
+            isResizable={props.can_edit}
             onLayoutChange={this.handleLayoutChange.bind(this)}
             >
               {widgets.map( ({widget, template}) => {
@@ -317,7 +325,7 @@ class Board extends React.Component{
                           uuid={widget.uuid}
                           template={template}
                           onEdit={() => this.handleEdit(widget.uuid)}
-                          project={this.props.project}
+                          project={props.project}
                           layout={this.getLayout(widget.uuid)}
                           theme={theme}
                           />
@@ -327,7 +335,7 @@ class Board extends React.Component{
               })}
           </ReactGridLayout>
         </div>
-        <AddButton project={this.props.project}/>
+        <AddButton project={props.project}/>
       </div>
     )
   }

@@ -92,10 +92,8 @@ class GraphWithData extends React.Component {
 
     const show_legend = config.show_legend || "hide"
 
-    if (props.layout.h > 2)
-      height -= 20
-    if (props.layout.w > 2)
-      width -= 20
+    height -= 10
+    width -= 10
 
     if (show_legend == "hide"){
       return (
@@ -113,16 +111,16 @@ class GraphWithData extends React.Component {
     }
     else if (show_legend == "bottom"){
       return (
-        <div style={{display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
+        <div style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
           <div style={{position: "absolute", top: 10, right: 10}}>
             <div className="ui biggier bold text">{get_data(config.summary)}</div>
             <div className={`ui ${performance_color} text`}>{performance}</div>
           </div>
 
-          <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
+          <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
             <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height - ((props.layout.h > 1) ? 55 : 35)} categories={categories} theme={props.theme}/>
           </div>
-          <div style={{flex: 0, padding: "0 0 10px 20px"}}>
+          <div style={{padding: "5px 0 0 20px"}}>
             <div className="" style={{flex: 1, display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start", alignSelf: "flex-start"}}>
               {categories.map( (c, i) => (
                 <div className="ui bold text padding left" key={i}>
