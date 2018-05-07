@@ -53,6 +53,31 @@ components:
         type: text
 
 
+  - name: Mini N
+    type: widget
+    description: Horizontal widget with a name and a list of texts and values.
+    id: minin
+    hints:
+      minW: 1
+      maxW: 24
+      maxH: 1
+      nocss: true
+    params:
+      - label: Title
+        class: half column
+        name: title
+      - label: Color
+        class: half column
+        name: color
+      - label: Data
+        name: data
+        type: query
+        description: |
+          Query with `name`, `value`.
+
+          Will show them all as space allows, same width each.
+
+
   - name: Mini 5
     type: widget
     description: Small widget with name, two columns of data with number, name and icon.
