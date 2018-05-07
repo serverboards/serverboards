@@ -98,7 +98,7 @@ class GraphWithData extends React.Component {
     if (show_legend == "hide"){
       return (
         <div style={{display: "relative"}}>
-          <div style={{position: "absolute", top: 10, right: 10}}>
+          <div style={{position: "absolute", top: 10, right: 10, textAlign: "right"}}>
             <div className="ui biggier bold text">{get_data(config.summary)}</div>
             <div className={`ui ${performance_color} text`}>{performance}</div>
           </div>
@@ -112,7 +112,7 @@ class GraphWithData extends React.Component {
     else if (show_legend == "bottom"){
       return (
         <div style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
-          <div style={{position: "absolute", top: 10, right: 10}}>
+          <div style={{position: "absolute", top: 10, right: 10, textAlign: "right"}}>
             <div className="ui biggier bold text">{get_data(config.summary)}</div>
             <div className={`ui ${performance_color} text`}>{performance}</div>
           </div>
