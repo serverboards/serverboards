@@ -150,6 +150,10 @@ function project(state=default_state, action){
         range_s = 300
         daterange.start=moment(daterange.end).subtract(300, "seconds")
       }
+      if (range_s > (2 * 24 * 60 * 60)){ // More than 2 days, use full days
+        daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0})
+        daterange.end = moment(daterange.end).set({hour: 23, minute: 59, second: 59, millisecond: 999})
+      }
       // console.log(daterange)
       state = merge(state, {daterange})
       localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
