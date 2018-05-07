@@ -135,7 +135,7 @@ class EditWidget extends React.Component{
     return (
       <div className="ui expand two column grid grey background" style={{margin: 0}}>
         <div className="ui column with scroll with padding">
-          <div className="ui board with scroll">
+          <div className="ui board with scroll" style={{flexDirection: "column"}}>
             <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
               <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
                 <Widget
