@@ -67,7 +67,7 @@ class Board extends React.Component{
     const layout = this.props.widgets && this.props.widgets.map( (w) => {
       const template_layout = to_keywordmap((this.getTemplate(w.widget) || {}).hints)
 
-      const ui = {...w.ui, ...template_layout}
+      const ui = {...template_layout, ...w.ui}
       ui.i = w.uuid
       if (!ui)
         return {w: 1, h: 1}
