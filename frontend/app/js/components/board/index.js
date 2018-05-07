@@ -311,7 +311,7 @@ class Board extends React.Component{
 
     return (
       <div ref="board" className={`ui board ${theme} with scroll`} style={board_style}>
-        <div className="ui padding" style={{width: board_width}}>
+        <div className="ui padding" style={{width: board_width, maxHeight: "100%"}}>
           <ReactGridLayout
             className="ui cards layout"
             cols={board_cols}
