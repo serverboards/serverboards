@@ -8,6 +8,7 @@ import HoldButton from 'app/components/holdbutton'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
 import moment from 'moment'
+import Flash from 'app/flash'
 
 function EditWidgetModal(props){
   if (!props.template){

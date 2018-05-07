@@ -40,6 +40,7 @@ class Board extends React.Component{
     super(props)
     const {configs, to_extract} = this.updateConfigs(props.widgets, false)
     this.calculateBoardSize = this.calculateBoardSize.bind(this)
+    this.updateLayout = this.updateLayout.bind(this)
     // console.log("Configs %o", configs)
     this.state = {
       layout: this.getAllLayouts(this.props),
@@ -50,6 +51,7 @@ class Board extends React.Component{
       board_width: 2400,
       board_height: 1080,
       board_cols: 16,
+      board_rows: 5,
       widget_width: WIDGET_WIDTH
     }
   }
@@ -81,6 +83,7 @@ class Board extends React.Component{
       ui.width = (ui.w * (widget_width + WIDGET_GAP)) - 17
 
       ui.height = ui.h * widget_width - 30
+      ui.widget_width = widget_width
 
       return ui
     })
@@ -112,9 +115,7 @@ class Board extends React.Component{
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      lo.debounce(() => {
-        this.setState({ layout: this.getAllLayouts(newprops) })
-      })()
+      lo.debounce(this.updateLayout)
     }
     if (this.props.show_sidebar != newprops.show_sidebar){
       lo.debounce(this.calculateBoardSize, 200)()
@@ -172,22 +173,31 @@ class Board extends React.Component{
     if (ncols < maxy){
       ncols = maxy
     }
-    let nwidth = ncols * (WIDGET_WIDTH + 15)
+    let board_width = Math.max(
+      ncols * (WIDGET_WIDTH + 15),
+      width
+    )
     const widget_width = Math.max(WIDGET_WIDTH, Math.floor((width - ((ncols-1) * 15))  / ncols))
 
-    const board_height = Math.max.apply(Math, this.state.layout.map( l => (l.h + l.y) || 0 )) * widget_width + 60
+    const height = $(this.refs.board).height() - 25 // Some margin too
+    const nrows = Math.max.apply(Math, this.state.layout.map( l => (l.h + l.y) || 0 ))
+    const board_height = Math.max(
+      nrows * widget_width + 60,
+      height
+    )
 
-    console.log("Final ", ncols, width, widget_width, board_height)
+    // console.log("Final ", ncols, width, widget_width, board_height)
     this.setState({
       board_cols: ncols,
-      board_width: Math.max(width, nwidth),
+      board_rows: nrows,
+      board_width,
       widget_width,
       board_height
     })
-    lo.debounce(() => {
-      this.setState({ layout: this.getAllLayouts(this.props, widget_width) })
-    }, 200)()
-
+    lo.debounce(this.updateLayout, 400)()
+  }
+  updateLayout(){
+    this.setState({ layout: this.getAllLayouts(this.props) })
   }
   updateConfigs(widgets){
     let configs = {}
@@ -293,10 +303,14 @@ class Board extends React.Component{
     }
     const theme = props.config.theme || "light"
 
-    const {board_width, board_cols, widget_width} = state
+    const {board_width, board_height, board_cols, board_rows, widget_width} = state
+
+    const board_style = {
+      alignItems: (board_rows >= 4) ? "center" : "flex-start"
+    }
 
     return (
-      <div ref="board" className={`ui board ${theme} with scroll`} style={{minHeight: state.board_height}}>
+      <div ref="board" className={`ui board ${theme} with scroll`} style={board_style}>
         <div className="ui padding" style={{width: board_width}}>
           <ReactGridLayout
             className="ui cards layout"
