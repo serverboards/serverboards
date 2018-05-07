@@ -237,7 +237,7 @@ class Board extends React.Component{
   }
   updateExtractedConfigs(to_extract, context){
     // console.log("To extract ", to_extract)
-    console.log("Update in range", context)
+    // console.log("Update in range", context)
     to_extract.map( uuid => {
       rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
         let configs = {...this.state.configs}

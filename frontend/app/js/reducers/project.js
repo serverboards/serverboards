@@ -156,8 +156,8 @@ function project(state=default_state, action){
       }
       // console.log(daterange)
       state = merge(state, {daterange})
-      localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
-      localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
+      localStorage.dashboard_start=daterange.start.format()
+      localStorage.dashboard_end=daterange.end.format()
       localStorage.dashboard_realtime=state.realtime
       localStorage.dashboard_range = range_s
       return state
