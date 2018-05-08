@@ -105,7 +105,6 @@ class Pie3 extends React.Component{
     }
 
     const layout = this.props.layout
-    console.log(layout)
     let main_style
     if (layout.w == layout.h) {
       main_style = {
