@@ -9,7 +9,7 @@ const CY = 75
 const R1 = 50
 const R2 = 75
 
-function SVGPie({center, rings, colors}){
+function SVGPie({center, rings, colors, theme}){
   // console.log(colors, rings)
   const maxs = rings.reduce( (x,acc) => x + acc, 0)
   if (maxs == 0){
@@ -32,6 +32,7 @@ function SVGPie({center, rings, colors}){
     prev = next
     return ret
   })
+  const bgcolor = theme == "dark" ? "#2b444a" : "white"
 
   return (
     <svg viewBox="0 0 150 150">
@@ -41,6 +42,13 @@ function SVGPie({center, rings, colors}){
           key={r}
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
           style={{fill: COLORMAP[i] || colors[i]}}
+          />
+      ))}
+      {ringsp.map( (r,i) => (
+        <path
+          key={r}
+          d={`M ${r[0]} L ${r[3]} Z`}
+          style={{stroke: bgcolor, strokeWidth: "2"}}
           />
       ))}
     </svg>
@@ -139,7 +147,9 @@ class Pie3 extends React.Component{
           <SVGPie
             center={get_data(config.summary, [0,1])}
             rings={rings}
-            colors={rows.map( r => colorize(r[0]))}/>
+            colors={rows.map( r => colorize(r[0]))}
+            theme={this.props.theme}
+            />
         </div>
         <div style={{gridArea: "data", alignSelf: "center"}}>
           <table style={{width: "100%"}}>
