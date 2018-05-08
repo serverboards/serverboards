@@ -142,7 +142,7 @@ class Pie3 extends React.Component{
         <div className="ui biggier bold centered text" style={{gridArea: "summary", alignSelf: "center"}}>
           {get_data(config.summary, [0,0])}
         </div>
-        <div className="ui centered" style={{gridArea: "pie", maxWidth: maxhw, maxHeight: maxhw, alignSelf: "center", justifySelf: "center"}}>
+        <div className="ui centered" style={{gridArea: "pie", maxWidth: maxhw, maxHeight: maxhw, width: "100%", height: "100%", alignSelf: "center", justifySelf: "center"}}>
           <SVGPie
             center={get_data(config.summary, [0,1])}
             rings={rings}
