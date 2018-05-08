@@ -91,7 +91,7 @@ class DatetimePicker extends React.Component{
           value={this.state.value}
           onSelect={this.handleDateSelect.bind(this)}
           onChange={this.handleDateSelect.bind(this)}
-          disabledDate={this.isDateDisabled}
+          disabledDate={this.isDateDisabled.bind(this)}
           showToday={false}
           />
         <label>Time:</label>
@@ -189,7 +189,6 @@ export class DateRange extends React.Component{
         {state.value ? (
           <DatetimePicker
             value={state.value}
-            onClose={state.onToggleCalendar}
             onSelect={(value) => state.onSelect(moment(value))}
             />
         ) : null}
