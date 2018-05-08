@@ -144,22 +144,24 @@ function project(state=default_state, action){
       return state
     case "UPDATE_DATERANGE":
     {
-      let daterange = merge(state.daterange, action.daterange)
-      let range_s = daterange.end.diff(daterange.start, "seconds")
-      if (range_s<300){
-        range_s = 300
-        daterange.start=moment(daterange.end).subtract(300, "seconds")
+      if (action.daterange.start || action.daterange.end){
+        let daterange = merge(state.daterange, action.daterange)
+        let range_s = daterange.end.diff(daterange.start, "seconds")
+        if (range_s<300){
+          range_s = 300
+          daterange.start=moment(daterange.end).subtract(300, "seconds")
+        }
+        if (range_s > (2 * 24 * 60 * 60)){ // More than 2 days, use full days
+          daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0}).add(1, "day")
+          daterange.end = moment(daterange.end).set({hour: 23, minute: 59, second: 59, millisecond: 999})
+        }
+        // console.log(daterange)
+        state = merge(state, {daterange})
+        localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
+        localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
+        localStorage.dashboard_realtime=state.realtime
+        localStorage.dashboard_range = range_s
       }
-      if (range_s > (2 * 24 * 60 * 60)){ // More than 2 days, use full days
-        daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0}).add(1, "day")
-        daterange.end = moment(daterange.end).set({hour: 23, minute: 59, second: 59, millisecond: 999})
-      }
-      // console.log(daterange)
-      state = merge(state, {daterange})
-      localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
-      localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
-      localStorage.dashboard_realtime=state.realtime
-      localStorage.dashboard_range = range_s
       return state
     }
     case "UPDATE_EXTERNAL_URL_COMPONENTS":
@@ -183,7 +185,7 @@ function project(state=default_state, action){
         order: action.order,
         config: action.config
       }
-      console.log(action, payload, state.dashboard)
+      // console.log(action, payload, state.dashboard)
       if (payload.uuid == state.dashboard.current.uuid){
         state = map_set(state, ["dashboard","current"], {...state.dashboard.current, ...payload})
       }

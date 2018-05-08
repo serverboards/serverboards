@@ -152,7 +152,7 @@ class Board extends React.Component{
       {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: this.handleAddWidget }
     ], 2)
     this.setState({
-      update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), 60 * 1000)
+      update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), RT_INTERVAL * 1000)
     })
     // jquery hack, may be better using some property at redux
     $('#centralarea').addClass("grey background")
