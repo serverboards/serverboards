@@ -67,7 +67,7 @@ class Board extends React.Component{
     const layout = this.props.widgets && this.props.widgets.map( (w) => {
       const template_layout = to_keywordmap((this.getTemplate(w.widget) || {}).hints)
 
-      const ui = {...w.ui, ...template_layout}
+      const ui = {...template_layout, ...w.ui}
       ui.i = w.uuid
       if (!ui)
         return {w: 1, h: 1}
@@ -237,7 +237,7 @@ class Board extends React.Component{
   }
   updateExtractedConfigs(to_extract, context){
     // console.log("To extract ", to_extract)
-    console.log("Update in range", context)
+    // console.log("Update in range", context)
     to_extract.map( uuid => {
       rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
         let configs = {...this.state.configs}

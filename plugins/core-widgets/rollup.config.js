@@ -3,7 +3,7 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import uglify from 'rollup-plugin-uglify';
 
 const widgets = [
-  "mini5", "clock", "mini2", "markdown", "table",
+  "mini5", "clock", "mini2", "minin", "markdown", "table",
   "mini3bars", "bars", "pie3", "lines",
   "leaderbars"
 ]
