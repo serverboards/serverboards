@@ -96,35 +96,69 @@ class Pie3 extends React.Component{
       )
     }
 
+    const layout = this.props.layout
+    console.log(layout)
+    let main_style
+    if (layout.w == layout.h) {
+      main_style = {
+        display: "grid",
+        gridTemplateAreas: '"summary pie" "data data"',
+        gridTemplateColumns: "1fr 1fr",
+        gridTemplateRows: "1fr 0fr",
+        maxHeight: "100%",
+        maxWidth: "100%",
+      }
+    } else if (layout.w > layout.h) {
+      main_style = {
+        display: "grid",
+        gridTemplateAreas: '"pie summary" "pie data"',
+        gridGap: "30px",
+        gridTemplateColumns: "1fr 1fr",
+        gridTemplateRows: "1fr 3fr",
+        maxHeight: "100%",
+        maxWidth: "100%",
+      }
+    } else {
+      main_style = {
+        display: "grid",
+        gridTemplateAreas: '"summary" "pie" "data"',
+        gridTemplateRows: "1fr 2fr 2fr",
+        maxHeight: "100%",
+        maxWidth: "100%",
+      }
+    }
+
+    const maxhw = Math.min(layout.width, layout.height) - 30
 
     return (
-      <div className="ui with padding vertical split area" style={{justifyContent: "space-evenly"}}>
-        <div className="ui huge centered text" style={{fontSize: 48}}>
+      <div className="ui with padding" style={main_style}>
+        <div className="ui biggier bold centered text" style={{gridArea: "summary", alignSelf: "center"}}>
           {get_data(config.summary, [0,0])}
         </div>
-        <div className="ui centered">
+        <div className="ui centered" style={{gridArea: "pie", maxWidth: maxhw, maxHeight: maxhw, alignSelf: "center", justifySelf: "center"}}>
           <SVGPie
             center={get_data(config.summary, [0,1])}
             rings={rings}
             colors={rows.map( r => colorize(r[0]))}/>
         </div>
-
-        <table style={{width: "100%", lineHeight: "2.25em"}}>
-          <tbody>
-            {rows.map( (r,i) => (
-              <tr key={r[0]}>
-                <td className="ui ellipsis">
-                  <span className={`ui square ${COLORNAMES[i]}`} style={{marginRight: 5}}/>
-                  {r[0]}
-                </td>
-                <td className="ui big bold text right aligned">{r[1]}</td>
-                <td className={`ui right aligned small text ${r[2] < 0 ? "red" : "teal"}`}>
-                  {r[2]}
-                </td>
-              </tr>
-            ) ) }
-          </tbody>
-        </table>
+        <div style={{gridArea: "data", alignSelf: "center"}}>
+          <table style={{width: "100%"}}>
+            <tbody>
+              {rows.map( (r,i) => (
+                <tr key={r[0]} style={{height: "3em"}}>
+                  <td className="ui ellipsis">
+                    <span className={`ui square ${COLORNAMES[i]}`} style={{marginRight: 5}}/>
+                    {r[0]}
+                  </td>
+                  <td className="ui big bold text right aligned">{r[1]}</td>
+                  <td className={`ui right aligned small text ${r[2] < 0 ? "red" : "teal"}`}>
+                    {r[2]}
+                  </td>
+                </tr>
+              ) ) }
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }
