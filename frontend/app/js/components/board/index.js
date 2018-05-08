@@ -18,7 +18,6 @@ import lo from 'lodash'
 require('sass/board.sass')
 require('sass/gridlayout.sass')
 
-const RT_INTERVAL = localStorage.dashboard_rt_period || 30
 const WIDGET_WIDTH = 160
 const WIDGET_GAP = 13.5
 
@@ -45,7 +44,6 @@ class Board extends React.Component{
     this.state = {
       layout: this.getAllLayouts(this.props),
       update_now_label_timer_id: undefined,
-      update_realtime_timer_id: undefined,
       configs,
       to_extract,
       board_width: 2400,
@@ -120,18 +118,16 @@ class Board extends React.Component{
     if (this.props.show_sidebar != newprops.show_sidebar){
       lo.debounce(this.calculateBoardSize, 200)()
     }
-    if (newprops.realtime != this.props.realtime){
-      if (newprops.realtime){
-        const update_realtime_timer_id = setInterval(this.updateRealtime.bind(this), RT_INTERVAL * 1000)
-        this.setState({update_realtime_timer_id})
-      }
-      else{
-        clearInterval(this.state.update_realtime_timer_id)
-        this.setState({update_realtime_timer_id: undefined})
-      }
+
+    if (newprops.datetime && newprops.datetime.range_s != this.props.datetime.range_s){
+      if (this.state.update_now_label_timer_id)
+        clearInterval(this.state.update_now_label_timer_id)
+      const update_now_label_timer_id = setInterval(this.props.updateDaterangeNow, this.getInterval() * 1000)
+      this.setState({update_now_label_timer_id})
     }
-    if (!newprops.realtime && !object_is_equal(newprops.time_slice, this.props.time_slice)){
-      console.log("Changed period! NO RT", newprops)
+
+    if ((newprops.realtime != this.props.realtime) || !object_is_equal(newprops.time_slice, this.props.time_slice)){
+      console.log("Changed period or RT", newprops)
       const context = this.getStatusContext(newprops.time_slice)
       const {configs, to_extract} = this.updateConfigs(newprops.widgets)
       this.setState({configs, to_extract})
@@ -152,16 +148,31 @@ class Board extends React.Component{
       {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: this.handleAddWidget }
     ], 2)
     this.setState({
-      update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), RT_INTERVAL * 1000)
+      update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), this.getInterval() * 1000)
     })
     // jquery hack, may be better using some property at redux
     $('#centralarea').addClass("grey background")
-    if (this.props.realtime){
-      const update_realtime_timer_id = setInterval(this.updateRealtime.bind(this), RT_INTERVAL * 1000)
-      this.setState({update_realtime_timer_id})
-    }
     this.calculateBoardSize()
     window.addEventListener("resize", lo.debounce(this.calculateBoardSize, 200))
+  }
+  getInterval(props){
+    return 5
+
+    const seconds = 60
+    const minutes = 60 * seconds
+    const hours = 60 * minutes
+    const days = 24 * hours
+    const tr = (props || this.props).time_range
+
+    if (tr < (2*hours))
+      return 30 * seconds
+    if (tr < (12 * hours))
+      return 1 * minutes
+    if (tr < (2 * days))
+      return 30 * minutes
+    if (tr < (7 * days))
+      return 1 * hours
+    return 6 * hours
   }
   calculateBoardSize(){
     // console.log(this.state.layout)
@@ -252,24 +263,9 @@ class Board extends React.Component{
   componentWillUnmount(){
     Command.remove_command_search('add-widget')
     clearInterval(this.state.update_now_label_timer_id)
-    if (this.state.update_realtime_timer_id)
-      clearInterval(this.state.update_realtime_timer_id)
     // jquery hack, may be better using some property at redux
     $('#centralarea').removeClass("grey").removeClass("background")
     window.removeEventListener("window", this.calculateBoardSize)
-  }
-  updateRealtime(){
-    const end = moment()
-    const secs = moment(this.props.time_slice[1]).diff(this.props.time_slice[0], 'seconds')
-    const start = moment(end).subtract(secs, "seconds")
-    const prev = moment(start).subtract(secs, "seconds")
-
-    this.updateExtractedConfigs(this.state.to_extract, {
-      start: start.toISOString(),
-      end: end.toISOString(),
-      prev: prev.toISOString()
-    })
-    this.props.updateDaterange(start, end)
   }
   getLayout(wid){
     let layout = this.state && (this.state.layout || []).find( l => l.i == wid )

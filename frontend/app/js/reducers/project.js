@@ -1,35 +1,53 @@
 import {merge, map_set, map_get} from 'app/utils'
 import moment from 'moment'
 
-function previous_start(){
-  // Min range 300 s
-  let update_start = false
-  if (localStorage.dashboard_range <= 300){
-    localStorage.dashboard_range=300
-    update_start = true
+const DEFAULT_RANGE = 28 * 24 * 60 * 60 // 4W
+
+function previous_daterange(){
+  let dr = {}
+  const drl = localStorage.daterange
+  if (drl)
+    dr = JSON.parse(drl)
+
+  const range_s = dr.range_s || DEFAULT_RANGE
+  const start = dr.start ? moment(dr.start) : moment().subtract(range_s, "seconds")
+  dr = {
+    start,
+    end: dr.end ? moment(dr.end) : moment(),
+    prev: moment(dr.start).subtract(range_s, "seconds"),
+    now: moment(),
+    range_s,
+    rt: +new Date()
   }
-  if (localStorage.dashboard_realtime == "true")
-    return moment().subtract(localStorage.dashboard_range, "seconds")
-  if (localStorage.dashboard_start){
-    if (update_start){ // was too close to end, recalculate a bit farther
-      return previous_end().subtract(300, "seconds")
-    }
-    return moment(localStorage.dashboard_start)
+
+  return dr
+}
+
+
+function fix_daterange_constraints(daterange){
+  let range_s = daterange.range_s
+  if (range_s<300){
+    range_s = 300
+    daterange.start=moment(daterange.end).subtract(300, "seconds")
   }
-  else
-    return moment().subtract(28,"days")
+  if (range_s > (2 * 24 * 60 * 60)){ // More than 2 days, use full days
+    daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0}).add(1, "day")
+    daterange.end = moment(daterange.end).set({hour: 23, minute: 59, second: 59, millisecond: 999})
+  }
+  daterange.range_s = daterange.end.diff(daterange.start, "seconds")
+  daterange.prev = moment(daterange.start).subtract(range_s, "seconds")
+  daterange.now = moment()
+  daterange.rt = daterange.rt && (+new Date())
+  localStorage.daterange = JSON.stringify({
+      start: daterange.start.format(),
+      end: daterange.end.format(),
+      rt: daterange.rt,
+      range_s
+  })
+  console.log("Final daterange", daterange)
+  return daterange
 }
-function previous_end(){
-  if (localStorage.dashboard_realtime == "true")
-    return moment()
-  if (localStorage.dashboard_end)
-    return moment(localStorage.dashboard_end)
-  else
-    return moment()
-}
-function previous_realtime(){
-  return (localStorage.dashboard_realtime == "true")
-}
+
 
 const default_state={
   projects: undefined,
@@ -38,12 +56,7 @@ const default_state={
   catalog: undefined,
   widget_catalog: undefined,
   external_urls: undefined,
-  realtime: previous_realtime(),
-  daterange: {
-    start: previous_start(),
-    end: previous_end(),
-    now: moment()
-  },
+  daterange: previous_daterange(),
   dashboard:{
     list: [],
     current: undefined
@@ -146,30 +159,46 @@ function project(state=default_state, action){
     {
       if (action.daterange.start || action.daterange.end){
         let daterange = merge(state.daterange, action.daterange)
-        let range_s = daterange.end.diff(daterange.start, "seconds")
-        if (range_s<300){
-          range_s = 300
-          daterange.start=moment(daterange.end).subtract(300, "seconds")
-        }
-        if (range_s > (2 * 24 * 60 * 60)){ // More than 2 days, use full days
-          daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0}).add(1, "day")
-          daterange.end = moment(daterange.end).set({hour: 23, minute: 59, second: 59, millisecond: 999})
-        }
+        daterange.range_s = daterange.end.diff(daterange.start, "seconds")
+
+        fix_daterange_constraints(daterange)
         // console.log(daterange)
+        let rt = false
+        if (daterange.rt)
+          rt = (+ new Date())
         state = merge(state, {daterange})
-        localStorage.dashboard_start=daterange.start.format("Y-MM-D H:m:s")
-        localStorage.dashboard_end=daterange.end.format("Y-MM-D H:m:s")
-        localStorage.dashboard_realtime=state.realtime
-        localStorage.dashboard_range = range_s
+      }
+
+      if (action.daterange.rt != undefined){
+        let daterange = {...daterange}
+        daterange.rt = action.daterange.rt && (+new Date())
+        state = merge(state, {daterange})
+      }
+
+      if (action.daterange.now){
+        console.log("Update now", state.daterange)
+        state = merge(state, {...state.daterange, now: action.daterange.now})
+        if (state.daterange.rt){
+          let end = moment()
+          const secs = state.daterange.range_s
+          let start = moment(end).subtract(secs, "seconds")
+          let prev = moment(start).subtract(secs, "seconds")
+
+          const daterange = {
+            rt: action.daterange.rt,
+            ...state.daterange,
+            start: start.format(),
+            end: end.format(),
+          }
+
+          fix_daterange_constraints(daterange)
+          state = merge(state, {daterange})
+        }
       }
       return state
     }
     case "UPDATE_EXTERNAL_URL_COMPONENTS":
       return merge(state, {external_urls: action.components})
-    case "BOARD_REALTIME":
-      localStorage.dashboard_realtime = action.payload
-      localStorage.dashboard_range = localStorage.dashboard_range || 28*24*60*60 // 4 weeks
-      return merge(state, {realtime: action.payload})
     case "BOARD_LIST":
       return map_set(state, ["dashboard", "list"], action.payload)
     case "@RPC_EVENT/dashboard.created":
