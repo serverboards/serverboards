@@ -170,7 +170,7 @@ function project(state=default_state, action){
       }
 
       if (action.daterange.rt != undefined){
-        let daterange = {...daterange}
+        let daterange = {...state.daterange}
         daterange.rt = action.daterange.rt && (+new Date())
         state = merge(state, {daterange})
       }
@@ -187,8 +187,8 @@ function project(state=default_state, action){
           const daterange = {
             rt: action.daterange.rt,
             ...state.daterange,
-            start: start.format(),
-            end: end.format(),
+            start: start,
+            end: end,
           }
 
           fix_daterange_constraints(daterange)

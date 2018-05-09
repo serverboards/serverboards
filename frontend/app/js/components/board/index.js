@@ -119,15 +119,13 @@ class Board extends React.Component{
       lo.debounce(this.calculateBoardSize, 200)()
     }
 
-    if (newprops.datetime && newprops.datetime.range_s != this.props.datetime.range_s){
-      if (this.state.update_now_label_timer_id)
-        clearInterval(this.state.update_now_label_timer_id)
-      const update_now_label_timer_id = setInterval(this.props.updateDaterangeNow, this.getInterval() * 1000)
-      this.setState({update_now_label_timer_id})
+    if (newprops.time_range != this.props.time_range){
+      this.updateDaterangeInterval(newprops)
     }
 
+    // console.log("new tr", newprops, "old tr", this.props)
     if ((newprops.realtime != this.props.realtime) || !object_is_equal(newprops.time_slice, this.props.time_slice)){
-      console.log("Changed period or RT", newprops)
+      // console.log("Changed period or RT", newprops)
       const context = this.getStatusContext(newprops.time_slice)
       const {configs, to_extract} = this.updateConfigs(newprops.widgets)
       this.setState({configs, to_extract})
@@ -147,22 +145,28 @@ class Board extends React.Component{
     Command.add_command_search('add-widget',(Q, context) => [
       {id: 'add-widget', title: 'Add Widget', description: 'Add a widget to this board', run: this.handleAddWidget }
     ], 2)
-    this.setState({
-      update_now_label_timer_id: setInterval(() => this.props.updateDaterangeNow(), this.getInterval() * 1000)
-    })
+    this.updateDaterangeInterval()
     // jquery hack, may be better using some property at redux
     $('#centralarea').addClass("grey background")
     this.calculateBoardSize()
     window.addEventListener("resize", lo.debounce(this.calculateBoardSize, 200))
   }
-  getInterval(props){
-    return 5
+  updateDaterangeInterval(props){
+    if (this.state.update_now_label_timer_id)
+      clearInterval(this.state.update_now_label_timer_id)
 
-    const seconds = 60
+    const tr = (props || this.props).time_range
+    const interval = this.getInterval(tr)
+    console.log("Will reload dashboard in ", interval, " seconds")
+
+    const update_now_label_timer_id = setInterval(this.props.updateDaterangeNow, interval * 1000)
+    this.setState({update_now_label_timer_id})
+  }
+  getInterval(tr){
+    const seconds = 1
     const minutes = 60 * seconds
     const hours = 60 * minutes
     const days = 24 * hours
-    const tr = (props || this.props).time_range
 
     if (tr < (2*hours))
       return 30 * seconds
