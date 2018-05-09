@@ -199,27 +199,6 @@ defmodule Serverboards.Action do
   end
 
   @doc ~S"""
-  Performs the trigger executing the plugin and calling the method, but nothing else
-
-  Called by the server
-  """
-  def trigger_real(command_id, method, params, user) do
-    {:ok, plugin} = Plugin.Runner.start( command_id, user )
-    #Logger.debug("Call method #{inspect method} (#{inspect params})")
-    ret = try do
-      ret = Plugin.Runner.call(plugin, method, params)
-      Plugin.Runner.stop(plugin)
-      ret
-    catch
-      :exit, _ ->
-        {:error, :abort}
-    end
-
-    #Logger.debug("Call method #{method} -> #{inspect ret}")
-    ret
-  end
-
-  @doc ~S"""
   Returns a list of currently running actions
 
     iex> require Logger
@@ -295,7 +274,7 @@ defmodule Serverboards.Action do
         # time and run
         #Logger.debug("Action start #{inspect uuid}: #{inspect command_id}")
         params = Map.put(params, "action_id", uuid)
-        {ok, ret} = trigger_real(command_id, method, params, user)
+        {ok, ret} = Plugin.Runner.call(command_id, method, params)
         GenServer.call(server, {:trigger_stop, {uuid, ok, ret}})
       end
       Process.monitor(task)
