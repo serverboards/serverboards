@@ -14,8 +14,9 @@ const Board = store.connect({
   state: (state) => ({
     widgets: map_get(state, ["project", "dashboard", "current", "widgets"]),
     widget_catalog: state.project.widget_catalog,
-    realtime: state.project.realtime,
+    realtime: state.project.daterange.rt,
     time_slice: [state.project.daterange.start, state.project.daterange.end],
+    time_range: state.project.daterange.range_s,
     dashboard: map_get(state, ["project","dashboard", "current", "uuid"]),
     can_edit: state.auth.user.perms.indexOf("dashboard.update")>=0,
     config: map_get(state, ["project","dashboard", "current", "config"], {}),
