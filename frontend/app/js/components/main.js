@@ -8,6 +8,7 @@ import Router from 'app/router'
 import get_modal from './modalfactory'
 import Piwik from 'app/containers/piwik.js'
 import {ErrorBoundary} from 'app/components/error'
+import Legal from 'app/components/login/legal'
 
 function Main(props){
   //console.log("Main component props %o", props.location)
@@ -31,7 +32,15 @@ function Main(props){
   }
 
   var contents=[]
-  if (props.logged_in)
+  if (!props.logged_in) {
+    contents=(
+      <Login onLogin={props.onLogin}/>
+    )
+  } else if (!props.legal_ok) {
+    contents = (
+      <Legal onLogout={props.onLogout}/>
+    )
+  } else {
     contents=(
       <div>
         <Top onLogout={props.onLogout}/>
@@ -43,10 +52,7 @@ function Main(props){
         </ErrorBoundary>
       </div>
     )
-  else
-    contents=(
-      <Login onLogin={props.onLogin}/>
-    )
+  }
 
   return (
     <div>
