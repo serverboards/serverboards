@@ -36,9 +36,12 @@ function Main(props){
     contents=(
       <Login onLogin={props.onLogin}/>
     )
-  } else if (!props.legal_ok) {
+  } else if (props.legal != 1) {
     contents = (
-      <Legal onLogout={props.onLogout}/>
+      <Legal
+        onLogout={props.onLogout}
+        onAcceptLegal={props.onAcceptLegal}
+        />
     )
   } else {
     contents=(

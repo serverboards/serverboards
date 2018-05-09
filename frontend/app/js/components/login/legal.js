@@ -9,7 +9,7 @@ class Legal extends React.Component{
   render(){
     return (
       <div className="ui login serverboards background diagonal">
-        <form ref="el" className="ui form" method="POST">
+        <div className="ui form">
           <img src={white_logo} className="ui serverboards logo"/>
 
           <div className="ui small modal active" id="login" style={{background: "rgba(255,255,255,0.85)"}}>
@@ -20,10 +20,10 @@ class Legal extends React.Component{
             </div>
             <div className="ui centered actions">
               <button className="ui basic teal button" onClick={this.props.onLogout}>{i18n("I don't accept")}</button>
-              <button className="ui teal button">{i18n("I accept")}</button>
+              <button className="ui teal button" onClick={this.props.onAcceptLegal}>{i18n("I accept")}</button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     )
   }
