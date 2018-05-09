@@ -2,6 +2,7 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 
 const invisible_rpc_errors_re = /(cant_stop)/
+const MAX_RECONNECTS = 10
 
 /**
  * @short Starts a new RPC connection, with the given options
@@ -19,7 +20,7 @@ var RPC = function(options={}){
     store: options.store,
     url: options.url,
     debug: false,
-    reconnect_max: 10, // max count of reconnects, if more reload page.
+    reconnect_max: MAX_RECONNECTS, // max count of reconnects, if more reload page.
     reconnection_message_queue: [], // messages to send when reconnected.
   }
 
@@ -92,7 +93,8 @@ var RPC = function(options={}){
       rpc.reconnection_message_queue=[]
     }
 
-    rpc.reconnect_time=1000
+    rpc.reconnect_time = 1000
+    rpc.reconnect_max = MAX_RECONNECTS
   }
   rpc.onclose=function(ev){
     if (rpc.status=="RECONNECTING") // already reconnecting
