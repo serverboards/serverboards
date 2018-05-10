@@ -45,7 +45,7 @@ function SVGPie({center, rings, colors, theme}){
   const bgcolor = theme == "dark" ? "#2b444a" : "white"
   const fgcolor = theme == "dark" ? "#ddd" : "black"
 
-  console.log(ringsp)
+  // console.log(ringsp)
   return (
     <svg viewBox="0 0 150 150">
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold", fill: fgcolor}}>{center}</text>

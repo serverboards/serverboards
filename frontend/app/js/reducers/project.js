@@ -44,7 +44,7 @@ function fix_daterange_constraints(daterange){
       rt: daterange.rt,
       range_s
   })
-  console.log("Final daterange", daterange)
+  // console.log("Final daterange", daterange)
   return daterange
 }
 

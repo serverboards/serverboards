@@ -5,7 +5,7 @@ import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import Restricted from 'app/restricted'
 import ReactGridLayout from 'react-grid-layout'
-import {object_is_equal, to_keywordmap} from 'app/utils'
+import {object_is_equal, to_keywordmap, map_get} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
 import Empty from './empty'
@@ -221,11 +221,16 @@ class Board extends React.Component{
     let to_extract = []
     for (const w of widgets){
       const template = this.getTemplate(w.widget)
-      let config = {}
+      let config = {...map_get(this, ["state", "configs", w.uuid], {})}
       for (const p of ((template || {}).params || [])){
         let k = p.name
         if (p.type=="query"){
-          config[k] = {loading: true}
+          // if no prev config, set loading
+          if (!config[k])
+            config[k] = {loading: true}
+          else{
+            config[k].stale = true
+          }
           to_extract.push(w.uuid)
         }
         else
