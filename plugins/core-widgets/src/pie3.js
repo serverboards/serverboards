@@ -15,28 +15,40 @@ function SVGPie({center, rings, colors, theme}){
   if (maxs == 0){
     return null
   }
-  const sc = _2PI / maxs
-  let prev = [`${CX} ${CY - R1}`, `${CX} ${CY - R2}`]
-  let acc = -Math.PI/2
-  const ringsp = rings.map( ring =>{
-    const a = ring * sc
-    // console.log(acc, a, ring / maxs)
-    acc += a
-    const next = [
-      `${CX + Math.cos(acc) * R1} ${CY + Math.sin(acc) * R1}`,
-      `${CX + Math.cos(acc) * R2} ${CY + Math.sin(acc) * R2}`,
-    ]
-    const ret = [
-      prev[0], next[0], next[1], prev[1], ((a>3.14) ? 1 : 0),
-    ]
-    prev = next
-    return ret
-  })
-  const bgcolor = theme == "dark" ? "#2b444a" : "white"
+  let ringsp
 
+  if (rings.length <=1){
+    ringsp = [
+      ["75 25", "74.99688067929823 25.000000097301616", "74.99532101894735 1.459524270330803e-7", "75 0", 1]
+      // ["75 125", "75 25", "75 0", "75 150", 1]
+    ]
+  } else {
+    const sc = _2PI / maxs
+    let prev = [`${CX} ${CY - R1}`, `${CX} ${CY - R2}`]
+    let acc = -Math.PI/2
+
+    ringsp = rings.map( ring =>{
+      const a = ring * sc
+      // console.log(acc, a, ring / maxs)
+      acc += a
+      const next = [
+        `${CX + Math.cos(acc) * R1} ${CY + Math.sin(acc) * R1}`,
+        `${CX + Math.cos(acc) * R2} ${CY + Math.sin(acc) * R2}`,
+      ]
+      const ret = [
+        prev[0], next[0], next[1], prev[1], ((a>3.14) ? 1 : 0),
+      ]
+      prev = next
+      return ret
+    })
+  }
+  const bgcolor = theme == "dark" ? "#2b444a" : "white"
+  const fgcolor = theme == "dark" ? "#ddd" : "black"
+
+  console.log(ringsp)
   return (
     <svg viewBox="0 0 150 150">
-      <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
+      <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold", fill: fgcolor}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
           key={r}
