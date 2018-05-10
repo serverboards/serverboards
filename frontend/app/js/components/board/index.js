@@ -85,7 +85,7 @@ class Board extends React.Component{
 
       return ui
     })
-    console.log("Layout is", layout)
+    // console.log("Layout is", layout)
     return layout
   }
   handleLayoutChange(layout){
@@ -109,11 +109,13 @@ class Board extends React.Component{
     }) ).catch( e => {
       console.log("Could not change layout", e)
     })
+
+    //lo.debounce(this.updateLayout, 200)
     // this.setState({layout})
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      lo.debounce(this.updateLayout)
+      lo.debounce(this.updateLayout, 200)()
     }
     if (this.props.show_sidebar != newprops.show_sidebar){
       lo.debounce(this.calculateBoardSize, 200)()

@@ -123,9 +123,9 @@ class Pie3 extends React.Component{
         display: "grid",
         gridTemplateAreas: '"summary pie" "data data"',
         gridTemplateColumns: "1fr 1fr",
-        gridTemplateRows: "1fr 0fr",
-        maxHeight: "100%",
-        maxWidth: "100%",
+        gridTemplateRows: "1fr 1fr",
+        maxHeight: layout.height,
+        maxWidth: layout.width,
       }
     } else if (layout.w > layout.h) {
       main_style = {
@@ -134,16 +134,16 @@ class Pie3 extends React.Component{
         gridGap: "30px",
         gridTemplateColumns: "1fr 1fr",
         gridTemplateRows: "1fr 3fr",
-        maxHeight: "100%",
-        maxWidth: "100%",
+        maxHeight: layout.height,
+        maxWidth: layout.width,
       }
     } else {
       main_style = {
         display: "grid",
         gridTemplateAreas: '"summary" "pie" "data"',
         gridTemplateRows: "1fr 2fr 2fr",
-        maxHeight: "100%",
-        maxWidth: "100%",
+        maxHeight: layout.height,
+        maxWidth: layout.width,
       }
     }
 
