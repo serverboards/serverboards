@@ -187,7 +187,8 @@ class Board extends React.Component{
     const width = $(this.refs.board).width() - 25 // Some margin too
     let ncols = Math.floor(width / (WIDGET_WIDTH+15))
     // console.log("Max Y is ", maxy, " ncols ", ncols)
-    if (ncols < maxy){
+    const fullscreen = (window.innerHeight == screen.height)
+    if (fullscreen || (ncols < maxy)){
       ncols = maxy
     }
     let board_width = Math.max(
@@ -313,7 +314,8 @@ class Board extends React.Component{
     const {board_width, board_height, board_cols, board_rows, widget_width} = state
 
     const board_style = {
-      alignItems: (board_rows >= 4) ? "center" : "flex-start"
+      alignItems: (board_rows >= 4) ? "center" : "flex-start",
+      justifyItems: "center"
     }
 
     return (
