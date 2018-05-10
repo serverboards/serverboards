@@ -9,16 +9,16 @@ import i18n from 'app/utils/i18n'
 
 const Controller = connect({
   state: (state) => ({
-    realtime: state.project.realtime,
+    realtime: state.project.daterange.rt,
     dashboard_list: state.project.dashboard.list,
     dashboard_current: state.project.dashboard.current,
     project: state.project.current,
     filter: (state.project.daterange.end - state.project.daterange.start)/1000,
   }),
   handlers: (dispatch, prop) => ({
-    onDateRangeChange: (start, end) => {
+    onDateRangeChange: (start, end, rt) => {
       dispatch(
-        board_set_daterange_start_and_end(start, end)
+        board_set_daterange_start_and_end(start, end, rt)
       )
     },
     setRealtime: (enabled) => dispatch( board_set_realtime(enabled) ),

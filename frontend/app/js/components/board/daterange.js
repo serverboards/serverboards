@@ -73,14 +73,13 @@ class DatetimePicker extends React.Component{
   }
   handleDateSelect(value){
     this.setState({value})
+    this.props.onSelect(this.state.value)
   }
   handleOk(){
     this.props.onSelect(this.state.value)
-    this.props.onClose()
   }
   setToday(){
     this.props.onSelect(moment())
-    this.props.onClose()
   }
   render(){
     const props=this.props
@@ -91,7 +90,7 @@ class DatetimePicker extends React.Component{
           value={this.state.value}
           onSelect={this.handleDateSelect.bind(this)}
           onChange={this.handleDateSelect.bind(this)}
-          disabledDate={this.isDateDisabled}
+          disabledDate={this.isDateDisabled.bind(this)}
           showToday={false}
           />
         <label>Time:</label>
@@ -117,7 +116,6 @@ class DatetimePicker extends React.Component{
 DatetimePicker.propTypes = {
   value: PropTypes.object.isRequired,
   onSelect: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
 }
 
 
@@ -158,12 +156,23 @@ export class DateRange extends React.Component{
       selected: null
     }
   }
-  handleOpenCalendar(selected, value, onSelect){
-    const handleSelect=(value) => {
-      this.setState({selected:null, value: null, onSelect: null})
-      onSelect(value)
+  handleOpenCalendar(selected){
+    this.setState({selected, value: this.props[selected]})
+  }
+  handleSelectedDate(value){
+    const selected = this.state.selected
+    if (selected == "start"){
+      this.props.onStartChange(value)
+      // this.handleOpenCalendar("end")
     }
-    this.setState({selected, value, onSelect: handleSelect})
+    if (selected == "end"){
+      this.props.onEndChange(value)
+      // this.handleHideCalendar()
+    }
+  }
+  handleHideCalendar(){
+    console.log("Hide calendar!")
+    this.setState({selected:null, value: null})
   }
   render(){
     const props = this.props
@@ -175,22 +184,23 @@ export class DateRange extends React.Component{
             label={i18n_c("date range","From")}
             value={props.start}
             now={props.now}
-            onClick={() => this.handleOpenCalendar( 'start', props.start, props.onStartChange )}
+            onClick={() => this.handleOpenCalendar( 'start' )}
             className={state.selected == 'start' ? "active" : null}
             />
           <DatetimeItem
             label={i18n_c("date range", "to")}
             value={props.end}
             now={props.now}
-            onClick={() => this.handleOpenCalendar( 'end', props.end, props.onEndChange )}
+            onClick={() => this.handleOpenCalendar( 'end' )}
             className={state.selected == 'end' ? "active" : null}
             />
         </div>
         {state.value ? (
           <DatetimePicker
+            key={state.selected}
             value={state.value}
-            onClose={state.onToggleCalendar}
-            onSelect={(value) => state.onSelect(moment(value))}
+            onSelect={(value) => this.handleSelectedDate(moment(value))}
+            onClose={this.handleHideCalendar.bind(this)}
             />
         ) : null}
       </div>

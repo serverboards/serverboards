@@ -84,18 +84,18 @@ function board_set_daterange_start(start){
 function board_set_daterange_end(end){
   return {
     type: "UPDATE_DATERANGE",
-    daterange: { end: end }
+    daterange: { end }
   }
 }
 
-function board_set_daterange_start_and_end(start, end){
+function board_set_daterange_start_and_end(start, end, rt){
   return {
     type: "UPDATE_DATERANGE",
-    daterange: { start: start, end: end }
+    daterange: { start, end, rt }
   }
 }
 
-function board_update_now(end){
+function board_update_now(){
   return {
     type: "UPDATE_DATERANGE",
     daterange: { now: moment() }
@@ -104,8 +104,8 @@ function board_update_now(end){
 
 function board_set_realtime(enabled){
   return {
-    type: "BOARD_REALTIME",
-    payload: enabled
+    type: "UPDATE_DATERANGE",
+    daterange: { rt: enabled }
   }
 }
 
