@@ -124,7 +124,7 @@ class GraphWithData extends React.Component {
             <div className="" style={{flex: 1, display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start", alignSelf: "flex-start"}}>
               {categories.map( (c, i) => (
                 <div className="ui bold text padding left" key={i}>
-                  <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
+                  <span className={`ui square`} style={{background: colorize(i, config.palette)}}/>&nbsp;
                   {c}
                 </div>
               ))}
@@ -147,7 +147,7 @@ class GraphWithData extends React.Component {
             <div className="" style={{flex: 2, display: "flex", flexDirection: "column", justifyContent: "space-around", alignSelf: "flex-start"}}>
               {categories.map( (c, i) => (
                 <div className="ui bold text oneline" key={i}>
-                  <span className={`ui square`} style={{background: colorize(i)}}/>&nbsp;
+                  <span className={`ui square`} style={{background: colorize(i, config.palette)}}/>&nbsp;
                   {c}
                 </div>
               ))}

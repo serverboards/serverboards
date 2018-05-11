@@ -47,8 +47,8 @@ export const PALETTES = {
     "#0A294D",
   ],
   purple:[
-    "#EF8BAC",
     "#9013FE",
+    "#EF8BAC",
     "#DD248C",
     "#D394E0",
     "#420269",
