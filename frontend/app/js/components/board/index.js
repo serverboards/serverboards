@@ -50,7 +50,8 @@ class Board extends React.Component{
       board_height: 1080,
       board_cols: 16,
       board_rows: 5,
-      widget_width: WIDGET_WIDTH
+      widget_width: WIDGET_WIDTH,
+      fullscreen: false
     }
   }
   handleEdit(uuid){
@@ -210,7 +211,8 @@ class Board extends React.Component{
       board_rows: nrows,
       board_width,
       widget_width,
-      board_height
+      board_height,
+      fullscreen
     })
     lo.debounce(this.updateLayout, 400)()
   }
@@ -314,7 +316,7 @@ class Board extends React.Component{
     const {board_width, board_height, board_cols, board_rows, widget_width} = state
 
     const board_style = {
-      alignItems: (board_rows >= 4) ? "center" : "flex-start",
+      alignItems: (state.fullscreen || (board_rows >= 4)) ? "center" : "flex-start",
       justifyItems: "center"
     }
 
