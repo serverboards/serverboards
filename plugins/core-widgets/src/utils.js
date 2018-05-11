@@ -47,11 +47,11 @@ export const PALETTES = {
     "#0A294D",
   ],
   purple:[
-    "#EF8BAC",
     "#9013FE",
     "#DD248C",
-    "#D394E0",
+    "#EF8BAC",
     "#420269",
+    "#D394E0",
   ],
   green: [
     "#57814E",
@@ -70,14 +70,11 @@ export const PALETTES = {
     "#3D1F04",
   ],
   mix: [
-    "#012D96",
-    "#EF8BAC",
-    "#57814E",
-    "#DB9C63",
-    "#22ABBE",
-    "#9013FE",
-    "#1E8A6A",
-    "#753D3D",
+    "#a333c8",
+    "#e03997",
+    "#2185d0",
+    "#00b5ad",
+    "#b5cc18"
   ]
 }
 

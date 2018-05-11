@@ -183,6 +183,8 @@ components:
         type: select
         name: palette
         options:
+          - label: Mix
+            value: mix
           - label: Purple
             value: purple
           - label: Blue
@@ -191,8 +193,6 @@ components:
             value: green
           - label: Brown
             value: brown
-          - label: Mix
-            value: mix
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
@@ -258,6 +258,8 @@ components:
         type: select
         name: palette
         options:
+          - label: Mix
+            value: mix
           - label: Purple
             value: purple
           - label: Blue
@@ -266,8 +268,6 @@ components:
             value: green
           - label: Brown
             value: brown
-          - label: Mix
-            value: mix
       - label: Summary Query
         name: summary
         description: Summary number on the corner.

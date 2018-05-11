@@ -26,7 +26,7 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme, palette})
 
   let style = svg_style
 
-  const ylabelwidth = (Math.log10(maxy) * 10)
+  const ylabelwidth = (Math.ceil(Math.log10(maxy)) * 10)
   const xstart = ylabelwidth + 10 // where starts the  data
   const xgap = ((width - xstart) / xaxis.length) // each categeory group width
   const xgap2 = (xgap*0.8) / categories.length // each bar width. A bit smaller than just divide the space
@@ -57,16 +57,24 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme, palette})
     axisbottom,
   ]
 
+  let to_fixed
+  if (maxy<5){
+    to_fixed = (n) => n.toFixed(1)
+  }
+  else{
+    to_fixed = (n) => n.toFixed(0)
+  }
+
   // console.log(fill)
   // <line x1={40} y1={220} x2={390} y2={220} style={style.axis_bottom}/>
   return (
     <svg height={height} width={width}>
       <g>
-        <text x={ylabelwidth} y={gridlines[0] + 5} textAnchor="end" style={style.axisy}>{(maxy).toFixed(0)}</text>
-        <text x={ylabelwidth} y={gridlines[1] + 5} textAnchor="end" style={style.axisy}>{(maxy*3/4).toFixed(0)}</text>
-        <text x={ylabelwidth} y={gridlines[2] + 5} textAnchor="end" style={style.axisy}>{(maxy*2/4).toFixed(0)}</text>
-        <text x={ylabelwidth} y={gridlines[3] + 5} textAnchor="end" style={style.axisy}>{(maxy/4).toFixed(0)}</text>
-        <text x={ylabelwidth} y={gridlines[4] + 5} textAnchor="end" style={style.axisy}>0</text>
+        <text x={ylabelwidth} y={gridlines[0] + 5} textAnchor="end" style={style.axisy}>{to_fixed(maxy)}</text>
+        <text x={ylabelwidth} y={gridlines[1] + 5} textAnchor="end" style={style.axisy}>{to_fixed(maxy*3/4)}</text>
+        <text x={ylabelwidth} y={gridlines[2] + 5} textAnchor="end" style={style.axisy}>{to_fixed(maxy*2/4)}</text>
+        <text x={ylabelwidth} y={gridlines[3] + 5} textAnchor="end" style={style.axisy}>{to_fixed(maxy/4)}</text>
+        <text x={ylabelwidth} y={gridlines[4] + 5} textAnchor="end" style={style.axisy}>{to_fixed(0)}</text>
 
         {gridlines.map( y => (
           <path key={y} d={`M ${ylabelwidth + 5} ${y} L ${width} ${y} L ${width} ${y-1} L ${ylabelwidth + 5} ${y-1} Z`} style={style.axis_line}/>
