@@ -74,7 +74,7 @@ class EditWidget extends React.Component{
           // console.error("Error getting postconfig: ", value, e)
           let postconfig = {...this.state.postconfig}
           postconfig[p.name] = {error: e}
-          let errors = this.state.errors.concat(e)
+          let errors = [...this.state.errors, e]
           this.setState({postconfig, errors})
         })
         postconfig[p.name] = {loading: true}
@@ -149,7 +149,7 @@ class EditWidget extends React.Component{
               </div>
             </div>
             {state.errors.map( e => (
-              <MarkdownPreview key={e} className="ui red bold text" value={String(e)}/>
+              <SQLError key={e} error={e}/>
             ))}
             <hr className="ui separator"/>
             <ExtractorsHelp extractors={state.extractors}/>
@@ -190,6 +190,42 @@ class EditWidget extends React.Component{
       </div>
     )
   }
+}
+
+function dotnot(col){
+  if (typeof(col) == 'string')
+    return col
+  return col.join('.')
+}
+
+function SQLError({error}){
+  switch(error[0]){
+    case "not_found":
+      return (
+        <div className="ui text red">
+          <span className="ui text bold">{dotnot(error[1])}</span>
+          &nbsp;{i18n("not found in")}&nbsp;
+          <ul>
+            {error[3].map( col => (
+              <li key={col}>{dotnot(col)}</li>
+            ))}
+          </ul>
+        </div>
+      )
+      break;
+      case "syntax":
+        console.log("syntax error")
+        return (
+          <div className="ui text red">
+            {i18n("Syntax error at line {line}: {error}", {line: error[1][1], error: error[1][0]})}
+          </div>
+        )
+        break;
+  }
+  console.log("Original SQL error: ", error)
+  return (
+    <div className="ui text red bold">JSON.stringify(error)</div>
+  )
 }
 
 export default EditWidget
