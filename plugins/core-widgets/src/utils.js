@@ -37,8 +37,53 @@ export const COLORNAMES = [
   "green"
 ]
 
-export function colorize(index){
-  return COLORS[index % COLORS.length]
+export const PALETTES = {
+  blue: [
+    "#012D96",
+    "#22ABBE",
+    "#A4C6ED",
+    "#008CD9",
+    "#66A3E5",
+    "#0A294D",
+  ],
+  purple:[
+    "#EF8BAC",
+    "#9013FE",
+    "#DD248C",
+    "#D394E0",
+    "#420269",
+  ],
+  green: [
+    "#57814E",
+    "#1E8A6A",
+    "#00C25E",
+    "#50E3C2",
+    "#A3F18B",
+    "#173337",
+  ],
+  brown:[
+    "#DB9C63",
+    "#753D3D",
+    "#ED9445",
+    "#B8703F",
+    "#725B5B",
+    "#3D1F04",
+  ],
+  mix: [
+    "#012D96",
+    "#EF8BAC",
+    "#57814E",
+    "#DB9C63",
+    "#22ABBE",
+    "#9013FE",
+    "#1E8A6A",
+    "#753D3D",
+  ]
+}
+
+export function colorize(index, palette){
+  const colors = PALETTES[palette] || PALETTES["purple"]
+  return colors[index % colors.length]
 }
 
 export function get_data(expr, path=[0,0], defval=""){

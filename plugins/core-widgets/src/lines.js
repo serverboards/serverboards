@@ -20,7 +20,7 @@ const svg_style = {
   grey: "rgba(155,155,155,0.5)"
 }
 
-function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
+function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, palette}){
   height = height + 0
   width = width + 0
 
@@ -39,7 +39,7 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill}){
   let style = svg_style
 
   // line colors
-  const fill_color = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
+  const fill_color = categories.reduce( (acc, cat, i) => acc.concat(colorize(i, palette)), [])
 
   function rescale(legend, category){
     const v = data[ [legend, category] ]

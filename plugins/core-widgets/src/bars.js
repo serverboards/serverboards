@@ -20,7 +20,7 @@ const svg_style = {
   grey: "rgba(155,155,155,0.5)"
 }
 
-function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
+function SVGBars({data, xaxis, maxy, categories, width, height, theme, palette}){
   height = height + 0
   width = width + 0
 
@@ -38,7 +38,7 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme}){
   const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / 40))
 
   // line colors
-  const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i)), [])
+  const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i, palette)), [])
 
   function rescale(legend, category){
     const v = data[ [legend, category] ]

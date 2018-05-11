@@ -104,7 +104,7 @@ class GraphWithData extends React.Component {
           </div>
 
           <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column"}}>
-            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme}/>
+            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme} palette={config.palette}/>
           </div>
         </div>
       )
@@ -118,7 +118,7 @@ class GraphWithData extends React.Component {
           </div>
 
           <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
-            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height - ((props.layout.h > 1) ? 55 : 35)} categories={categories} theme={props.theme}/>
+            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height - ((props.layout.h > 1) ? 55 : 35)} categories={categories} theme={props.theme} palette={config.palette}/>
           </div>
           <div style={{padding: "5px 0 0 20px"}}>
             <div className="" style={{flex: 1, display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start", alignSelf: "flex-start"}}>
@@ -137,7 +137,7 @@ class GraphWithData extends React.Component {
       return (
         <div style={{display: "flex"}}>
           <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
-            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width - 130} height={height} categories={categories} theme={props.theme}/>
+            <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width - 130} height={height} categories={categories} theme={props.theme} palette={config.palette}/>
           </div>
 
           <div style={{flex: 0, minWidth: "8em", display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: legend_width, width: legend_width, padding: 20}}>
