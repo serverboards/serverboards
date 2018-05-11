@@ -228,7 +228,7 @@ function SQLError({error}){
   }
   console.log("Original SQL error: ", error)
   return (
-    <div className="ui text red bold">JSON.stringify(error)</div>
+    <pre className="ui text red bold">{JSON.stringify(error,undefined,2)}</pre>
   )
 }
 
