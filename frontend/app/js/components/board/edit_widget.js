@@ -12,6 +12,7 @@ import Widget from 'app/containers/board/widget'
 import {map_get, object_is_equal} from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown'
 import ExtractorsHelp from './extractorshelp'
+import {ErrorBoundary} from 'app/components/error'
 
 class EditWidget extends React.Component{
   constructor(props){
@@ -150,11 +151,14 @@ class EditWidget extends React.Component{
                 </div>
               </div>
             </div>
-            {state.errors.map( e => (
-              <SQLError key={e} error={e}/>
-            ))}
             <hr className="ui separator"/>
             <div className="ui round pane white background scroll with padding" style={{flex: 1, maxHeight: "calc(50vh - 115px)", minHeight: "calc(50vh - 115px)"}}>
+              <ErrorBoundary>
+                {state.errors.map( e => (
+                  <SQLError key={e} error={e}/>
+                ))}
+              </ErrorBoundary>
+
               <ExtractorsHelp extractors={state.extractors}/>
             </div>
           </div>
@@ -208,12 +212,18 @@ function SQLError({error}){
       return (
         <div className="ui text red">
           <span className="ui text bold">{dotnot(error[1])}</span>
-          &nbsp;{i18n("not found in")}&nbsp;
-          <ul>
-            {error[3].map( col => (
-              <li key={col}>{dotnot(col)}</li>
-            ))}
-          </ul>
+          {(error.length == 4) ? (
+            <React.Fragment>
+              &nbsp;{i18n("not found in")}&nbsp;
+              <ul>
+                {error[3].map( col => (
+                  <li key={col}>{dotnot(col)}</li>
+                ))}
+              </ul>
+            </React.Fragment>
+          ) : (
+            " " + i18n("not found")
+          )}
         </div>
       )
       break;
@@ -228,7 +238,7 @@ function SQLError({error}){
   }
   console.log("Original SQL error: ", error)
   return (
-    <pre className="ui text red bold">{JSON.stringify(error,undefined,2)}</pre>
+    <pre className="ui text red bold" style={{overflow: "unset"}}>{JSON.stringify(error,undefined,2)}</pre>
   )
 }
 
