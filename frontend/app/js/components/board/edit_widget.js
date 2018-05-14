@@ -1,7 +1,7 @@
 import React from 'react'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
-import Error from 'app/components/error'
+import {Error, FormatError, ErrorBoundary} from 'app/components/error'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
 import cache from 'app/utils/cache'
@@ -12,7 +12,6 @@ import Widget from 'app/containers/board/widget'
 import {map_get, object_is_equal} from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown'
 import ExtractorsHelp from './extractorshelp'
-import {ErrorBoundary} from 'app/components/error'
 
 class EditWidget extends React.Component{
   constructor(props){
@@ -154,8 +153,8 @@ class EditWidget extends React.Component{
             <hr className="ui separator"/>
             <div className="ui round pane white background scroll with padding" style={{flex: 1, maxHeight: "calc(50vh - 115px)", minHeight: "calc(50vh - 115px)"}}>
               <ErrorBoundary>
-                {state.errors.map( e => (
-                  <SQLError key={e} error={e}/>
+                {state.errors.map( (e, i) => (
+                  <FormatError key={[e, i]} error={e}/>
                 ))}
               </ErrorBoundary>
 
@@ -204,42 +203,6 @@ function dotnot(col){
   if (typeof(col) == 'string')
     return col
   return col.join('.')
-}
-
-function SQLError({error}){
-  switch(error[0]){
-    case "not_found":
-      return (
-        <div className="ui text red">
-          <span className="ui text bold">{dotnot(error[1])}</span>
-          {(error.length == 4) ? (
-            <React.Fragment>
-              &nbsp;{i18n("not found in")}&nbsp;
-              <ul>
-                {error[3].map( col => (
-                  <li key={col}>{dotnot(col)}</li>
-                ))}
-              </ul>
-            </React.Fragment>
-          ) : (
-            " " + i18n("not found")
-          )}
-        </div>
-      )
-      break;
-      case "syntax":
-        console.log("syntax error")
-        return (
-          <div className="ui text red">
-            {i18n("Syntax error at line {line}: {error}", {line: error[1][1], error: error[1][0]})}
-          </div>
-        )
-        break;
-  }
-  console.log("Original SQL error: ", error)
-  return (
-    <pre className="ui text red bold" style={{overflow: "unset"}}>{JSON.stringify(error,undefined,2)}</pre>
-  )
 }
 
 export default EditWidget
