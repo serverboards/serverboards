@@ -235,7 +235,7 @@ EOF
 
   if [ "$NEWSLETTER" ]; then
     echo "Telling Serverboards you are interested in the Newsletter. Thanks!"
-    curl "https://coralbits.serverboards.io/webhook/acf332d1-b2a8-4dab-a09d-0ca85383fd74?email=$EMAIL" > /dev/null || true
+    curl -s "https://coralbits.serverboards.io/webhook/acf332d1-b2a8-4dab-a09d-0ca85383fd74?email=$EMAIL" > /dev/null || true
   fi
 }
 
