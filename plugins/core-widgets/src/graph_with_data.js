@@ -90,7 +90,7 @@ class GraphWithData extends React.Component {
     let height = props.layout.height
     let legend_width = 140
 
-    const show_legend = config.show_legend || "hide"
+    const show_legend = config.show_legend || "right" // default
 
     height -= 10
     width -= 10

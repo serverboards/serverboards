@@ -98,7 +98,7 @@ class Pie3 extends React.Component{
         rows[0],
         rows[1],
         rows[2],
-        [i18n("Other"), rest, ""],
+        [i18n("Other"), rest.toFixed(2), ""],
       ]
 
     }

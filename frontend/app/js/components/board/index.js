@@ -129,17 +129,20 @@ class Board extends React.Component{
     // console.log("new tr", newprops, "old tr", this.props)
     if ((newprops.realtime != this.props.realtime) || !object_is_equal(newprops.time_slice, this.props.time_slice)){
       // console.log("Changed period or RT", newprops)
-      const context = this.getStatusContext(newprops.time_slice)
-      const {configs, to_extract} = this.updateConfigs(newprops.widgets)
-      this.setState({configs, to_extract})
-      this.updateExtractedConfigs(to_extract, context)
+      this.refreshWidgets(newprops)
     }
     // console.log("New props: ", this.props.widgets, newprops.widgets)
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      const {configs, to_extract} = this.updateConfigs(newprops.widgets)
-      this.setState({configs, to_extract})
-      this.updateExtractedConfigs(to_extract, this.getStatusContext())
+      this.refreshWidgets(newprops)
     }
+  }
+  refreshWidgets(newprops){
+    // If range change, its a full refresh. Else its not. There will be failires, but okish.
+    const is_refresh = (newprops.time_range != this.props.time_range)
+    console.log("Is a refresh?", is_refresh)
+    const {configs, to_extract} = this.updateConfigs(newprops.widgets, is_refresh)
+    this.setState({configs, to_extract})
+    this.updateExtractedConfigs(to_extract, this.getStatusContext())
   }
   componentDidMount(){
     this.updateExtractedConfigs(this.state.to_extract, this.getStatusContext())
@@ -219,12 +222,14 @@ class Board extends React.Component{
   updateLayout(){
     this.setState({ layout: this.getAllLayouts(this.props) })
   }
-  updateConfigs(widgets){
+  updateConfigs(widgets, is_refresh){
     let configs = {}
     let to_extract = []
+    const all_configs = is_refresh ? {} : map_get(this, ["state", "configs"], {})
+
     for (const w of widgets){
       const template = this.getTemplate(w.widget)
-      let config = {...map_get(this, ["state", "configs", w.uuid], {})}
+      let config = {...map_get(all_configs, [w.uuid], {})}
       for (const p of ((template || {}).params || [])){
         let k = p.name
         if (p.type=="query"){

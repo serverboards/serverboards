@@ -1,4 +1,5 @@
 $modal-top-menu-height: 70px
+$modal-top-menu-height2: 140px
 
 .ui.modal:not(.small)
   &.background
@@ -92,7 +93,9 @@ $modal-top-menu-height: 70px
         flex-grow: 1
         display: flex
         flex-direction: column
-
+    > .expand
+      max-height: calc( 100vh - $modal-top-menu-height2 )
+      overflow: hidden
 
     @media screen and (max-width: 1150px)
       > .content
