@@ -308,6 +308,20 @@ components:
     params:
       - label: Title
         name: title
+      - label: Color Palette
+        type: select
+        name: palette
+        options:
+          - label: Mix
+            value: mix
+          - label: Purple
+            value: purple
+          - label: Blue
+            value: blue
+          - label: Green
+            value: green
+          - label: Brown
+            value: brown
       - label: Summary Query
         name: summary
         description: |

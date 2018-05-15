@@ -1,6 +1,6 @@
-import {get_data, COLORMAP, COLORNAMES} from './utils'
+import {get_data} from './utils'
 const {React, i18n} = Serverboards
-const {colorize, object_is_equal, map_get, to_number} = Serverboards.utils
+const {object_is_equal, map_get, to_number, colorize_hex} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
 
 const _2PI = Math.PI * 2
@@ -53,7 +53,7 @@ function SVGPie({center, rings, colors, theme}){
         <path
           key={r}
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
-          style={{fill: COLORMAP[i] || colors[i]}}
+          style={{fill: colors[i]}}
           />
       ))}
       {ringsp.map( (r,i) => (
@@ -79,7 +79,8 @@ class Pie3 extends React.Component{
     return !object_is_equal(nextprops.config, this.props.config)
   }
   render(){
-    const config = this.props.config
+    const props = this.props
+    const config = props.config
     let rows = map_get(config,["data", "rows"])
 
     if (!rows)
@@ -116,7 +117,7 @@ class Pie3 extends React.Component{
       )
     }
 
-    const layout = this.props.layout
+    const layout = props.layout
     let main_style
     if (layout.w == layout.h) {
       main_style = {
@@ -149,6 +150,9 @@ class Pie3 extends React.Component{
 
     const maxhw = Math.min(layout.width, layout.height) - 30
 
+    const palette = props.config.palette
+    console.log(palette)
+
     return (
       <div className="ui with padding" style={main_style}>
         <div className="ui biggier bold centered text" style={{gridArea: "summary", alignSelf: "center"}}>
@@ -158,8 +162,8 @@ class Pie3 extends React.Component{
           <SVGPie
             center={get_data(config.summary, [0,1])}
             rings={rings}
-            colors={rows.map( r => colorize(r[0]))}
-            theme={this.props.theme}
+            colors={rows.map( r => colorize_hex(r[0], palette))}
+            theme={props.theme}
             />
         </div>
         <div style={{gridArea: "data", alignSelf: "center"}}>
@@ -168,7 +172,7 @@ class Pie3 extends React.Component{
               {rows.map( (r,i) => (
                 <tr key={r[0]} style={{height: "3em"}}>
                   <td className="ui ellipsis">
-                    <span className={`ui square ${COLORNAMES[i]}`} style={{marginRight: 5}}/>
+                    <span className="ui square" style={{marginRight: 5, background: colorize_hex(r[0], palette)}}/>
                     {r[0]}
                   </td>
                   <td className="ui big bold text right aligned">{r[1]}</td>

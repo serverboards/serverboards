@@ -1,6 +1,7 @@
-import {colorize, get_legend} from './utils'
+import {get_legend} from './utils'
 import GraphWithData from './graph_with_data'
 const {React} = Serverboards
+const {colorize_hex} = Serverboards.utils
 
 const svg_style = {
   axis_bottom: {
@@ -38,7 +39,7 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme, palette})
   const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / 40))
 
   // line colors
-  const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize(i, palette)), [])
+  const fill = categories.reduce( (acc, cat, i) => acc.concat(colorize_hex(cat, palette)), [])
 
   function rescale(legend, category){
     const v = data[ [legend, category] ]
