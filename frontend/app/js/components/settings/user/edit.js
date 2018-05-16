@@ -3,6 +3,7 @@ import Modal from 'app/components/modal'
 import store from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import PropTypes from 'prop-types'
+import {has_perm} from 'app/utils/perms'
 
 class EditUser extends React.Component{
   handleEditUser(ev){
@@ -14,10 +15,14 @@ class EditUser extends React.Component{
       is_active = $(this.refs.is_active).find('input').is(':checked')  ? true : false
 
     let $form = $(this.refs.form)
-    props.onUpdateUser( props.user.email, {
+    let changes = {
       name: $form.find('[name=name]').val(),
       is_active,
-    } )
+    }
+    if (has_perm("auth.modify_any"))
+      changes.email = $form.find('[name=email]').val()
+
+    props.onUpdateUser( props.user.email, changes )
     props.onClose()
   }
   componentDidMount(){
@@ -55,7 +60,7 @@ class EditUser extends React.Component{
           <div ref="form" className="ui form" onSubmit={this.handleEditUser.bind(this)}>
             <div className="field">
               <label>{i18n("Email")}</label>
-              <input disabled="true" type="email" name="email" defaultValue={props.user.email} placeholder={i18n("This will be used as the user identifier")}/>
+              <input disabled={!has_perm("auth.modify_any")} type="email" name="email" defaultValue={props.user.email} placeholder={i18n("This will be used as the user identifier")}/>
             </div>
             <div className="field">
               <label>{i18n("First Name")}</label>
