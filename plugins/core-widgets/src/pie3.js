@@ -9,7 +9,7 @@ const CY = 75
 const R1 = 50
 const R2 = 75
 
-function SVGPie({center, rings, colors, theme}){
+function SVGPie({center, rings, colors, theme, style}){
   // console.log(colors, rings)
   const maxs = rings.reduce( (x,acc) => x + acc, 0)
   if (maxs == 0){
@@ -47,7 +47,7 @@ function SVGPie({center, rings, colors, theme}){
 
   // console.log(ringsp)
   return (
-    <svg viewBox="0 0 150 150">
+    <svg viewBox="0 0 150 150" style={{style}}>
       <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold", fill: fgcolor}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
@@ -147,19 +147,38 @@ class Pie3 extends React.Component{
         maxWidth: layout.width,
       }
     }
+    const bottom_size = rows.length * 42
 
-    const maxhw = Math.min(layout.width, layout.height) - 30
+    let maxhw = Math.min(layout.width, layout.height) - 30
+    if (layout.h > layout.w){
+      maxhw = Math.min(maxhw, layout.height - bottom_size - 80)
+    }
+
+    let svg_area_style = {
+      gridArea: "pie",
+      maxWidth: maxhw,
+      maxHeight: maxhw,
+      width: "100%",
+      height: "100%",
+      alignSelf: "center",
+      justifySelf: "center",
+      textAlign: "center",
+    }
+    let svg_style = {
+      maxHeight: maxhw
+    }
 
     const palette = props.config.palette
-    console.log(palette)
+    console.log("maxhw", maxhw)
 
     return (
       <div className="ui with padding" style={main_style}>
         <div className="ui biggier bold centered text" style={{gridArea: "summary", alignSelf: "center"}}>
           {get_data(config.summary, [0,0])}
         </div>
-        <div className="ui centered" style={{gridArea: "pie", maxWidth: maxhw, maxHeight: maxhw, width: "100%", height: "100%", alignSelf: "center", justifySelf: "center"}}>
+        <div className="ui centered" style={svg_area_style}>
           <SVGPie
+            style={svg_style}
             center={get_data(config.summary, [0,1])}
             rings={rings}
             colors={rows.map( r => colorize_hex(r[0], palette))}
