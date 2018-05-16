@@ -1,5 +1,5 @@
 const React = Serverboards.React
-const {map_get} = Serverboards.utils
+const {map_get, colorize_hex} = Serverboards.utils
 
 export function is_string(txt){
   return typeof(txt) == "string"
@@ -47,8 +47,7 @@ const style = {
 }
 
 export function MiniBar({value, color}){
-  if (!color)
-    color = COLORMAP[color] || COLORMAP["blue"]
+  color = colorize_hex(color || "blue")
   return (
     <div style={style.bartop}>
       <div style={{...style.barin,
