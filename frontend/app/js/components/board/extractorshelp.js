@@ -46,7 +46,7 @@ class ExtractorHelp extends React.Component{
   render(){
     const {open_table, extractor, tables} = this.state
     if (!tables){
-      console.log(this.props)
+      // console.log(this.props)
       return (
         <div>
           <i className="spinner loading icon"/>
