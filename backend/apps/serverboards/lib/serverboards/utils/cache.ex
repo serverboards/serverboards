@@ -11,7 +11,7 @@ defmodule Serverboards.Utils.Cache do
     :crypto.hash(:sha, inspect data) |> Base.encode16
   end
 
-  def get(id, f, options) do
+  def get(id, f, options \\ []) do
     id = hash(id)
     case Process.whereis(__MODULE__) do
       nil ->
@@ -43,12 +43,14 @@ defmodule Serverboards.Utils.Cache do
 
   # Make the server ask for the data
   defp get_at_genserver(id, f, options) do
+    ttl = Keyword.get(options, :ttl, 5_000)
+    timeout = Keyword.get(options, :timeout, ttl)
     val = try do
-      GenServer.call(__MODULE__, {:get, id, f}, Keyword.get(options, :ttl, 5_000))
+      GenServer.call(__MODULE__, {:get, id, f}, timeout)
     catch
       :exit, {:timeout, _where} ->
-        Logger.error("Timeout getting data for cache. #{inspect id}.")
-        Logger.debug("Somebody else asked for the data, and did not answer in 5 sec.")
+        Logger.error("Timeout (#{inspect ttl / 1_000}s) getting data for cache. #{inspect id}.")
+        Logger.debug("Somebody else asked for the data, and did not answer in #{inspect ttl / 1_000} sec.")
         # If there are more, mark them as timeouted too
         GenServer.cast(__MODULE__, {:remove, id, :exit})
         {:error, :exit}
@@ -131,7 +133,7 @@ defmodule Serverboards.Utils.Cache do
     :ets.insert(__MODULE__, {id, value})
 
     # Logger.debug("Got answer for #{inspect id}: #{inspect status[id]}")
-    Enum.map(status[id], fn from ->
+    Enum.map(Map.get(status, id, []), fn from ->
       GenServer.reply(from, value)
     end)
     status = Map.drop(status, [id])
