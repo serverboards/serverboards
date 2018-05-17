@@ -13,16 +13,8 @@ we get information on the current use, errors and future areas of improvements.
 This information is of huge value for us, but you can disable it at your user
 preferences.
 
-This information is accesible by Serverboards SL.
+This information is only accesible by Serverboards SL.
 
 This information is never shared with third parties, and only includes
 information of location of errors and navigational information. It never
 includes personal information.
-
-------
-
-By accepting these conditions you acknowledge that you have read the mentioned
-use clasues.
-
-If you don't accept its not possible to give you the service so you will be
-logged out.
