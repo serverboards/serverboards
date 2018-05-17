@@ -25,7 +25,8 @@ var Top=connect({
       actions: state.action.actions,
       notifications: state.notifications.unread,
       section,
-      new_issues: state.issues.new_issues
+      new_issues: state.issues.new_issues,
+      lang: state.auth.lang,
     }
   },
   handlers: (dispatch) => ({

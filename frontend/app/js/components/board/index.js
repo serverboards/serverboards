@@ -5,7 +5,7 @@ import Loading from 'app/components/loading'
 import Command from 'app/utils/command'
 import Restricted from 'app/restricted'
 import ReactGridLayout from 'react-grid-layout'
-import {object_is_equal, to_keywordmap} from 'app/utils'
+import {object_is_equal, to_keywordmap, map_get} from 'app/utils'
 import {set_modal} from 'app/utils/store'
 import rpc from 'app/rpc'
 import Empty from './empty'
@@ -50,7 +50,8 @@ class Board extends React.Component{
       board_height: 1080,
       board_cols: 16,
       board_rows: 5,
-      widget_width: WIDGET_WIDTH
+      widget_width: WIDGET_WIDTH,
+      fullscreen: false
     }
   }
   handleEdit(uuid){
@@ -85,7 +86,7 @@ class Board extends React.Component{
 
       return ui
     })
-    console.log("Layout is", layout)
+    // console.log("Layout is", layout)
     return layout
   }
   handleLayoutChange(layout){
@@ -109,11 +110,13 @@ class Board extends React.Component{
     }) ).catch( e => {
       console.log("Could not change layout", e)
     })
+
+    //lo.debounce(this.updateLayout, 200)
     // this.setState({layout})
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      lo.debounce(this.updateLayout)
+      lo.debounce(this.updateLayout, 200)()
     }
     if (this.props.show_sidebar != newprops.show_sidebar){
       lo.debounce(this.calculateBoardSize, 200)()
@@ -126,17 +129,20 @@ class Board extends React.Component{
     // console.log("new tr", newprops, "old tr", this.props)
     if ((newprops.realtime != this.props.realtime) || !object_is_equal(newprops.time_slice, this.props.time_slice)){
       // console.log("Changed period or RT", newprops)
-      const context = this.getStatusContext(newprops.time_slice)
-      const {configs, to_extract} = this.updateConfigs(newprops.widgets)
-      this.setState({configs, to_extract})
-      this.updateExtractedConfigs(to_extract, context)
+      this.refreshWidgets(newprops)
     }
     // console.log("New props: ", this.props.widgets, newprops.widgets)
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      const {configs, to_extract} = this.updateConfigs(newprops.widgets)
-      this.setState({configs, to_extract})
-      this.updateExtractedConfigs(to_extract, this.getStatusContext())
+      this.refreshWidgets(newprops)
     }
+  }
+  refreshWidgets(newprops){
+    // If range change, its a full refresh. Else its not. There will be failires, but okish.
+    const is_refresh = (newprops.time_range != this.props.time_range)
+    console.log("Is a refresh?", is_refresh)
+    const {configs, to_extract} = this.updateConfigs(newprops.widgets, is_refresh)
+    this.setState({configs, to_extract})
+    this.updateExtractedConfigs(to_extract, this.getStatusContext())
   }
   componentDidMount(){
     this.updateExtractedConfigs(this.state.to_extract, this.getStatusContext())
@@ -208,23 +214,31 @@ class Board extends React.Component{
       board_rows: nrows,
       board_width,
       widget_width,
-      board_height
+      board_height,
+      fullscreen
     })
     lo.debounce(this.updateLayout, 400)()
   }
   updateLayout(){
     this.setState({ layout: this.getAllLayouts(this.props) })
   }
-  updateConfigs(widgets){
+  updateConfigs(widgets, is_refresh){
     let configs = {}
     let to_extract = []
+    const all_configs = is_refresh ? {} : map_get(this, ["state", "configs"], {})
+
     for (const w of widgets){
       const template = this.getTemplate(w.widget)
-      let config = {}
+      let config = {...map_get(all_configs, [w.uuid], {})}
       for (const p of ((template || {}).params || [])){
         let k = p.name
         if (p.type=="query"){
-          config[k] = {loading: true}
+          // if no prev config, set loading
+          if (!config[k])
+            config[k] = {loading: true}
+          else{
+            config[k].stale = true
+          }
           to_extract.push(w.uuid)
         }
         else
@@ -307,7 +321,7 @@ class Board extends React.Component{
     const {board_width, board_height, board_cols, board_rows, widget_width} = state
 
     const board_style = {
-      alignItems: (board_rows >= 4) ? "center" : "flex-start",
+      alignItems: (state.fullscreen || (board_rows >= 4)) ? "center" : "flex-start",
       justifyItems: "center"
     }
 

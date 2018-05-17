@@ -87,7 +87,7 @@ class Top extends React.Component{
     const section=props.section
     let logo=require("../../../imgs/favicon.png")
     return (
-      <nav className="ui serverboards top menu" id="top-menu" ref="el">
+      <nav key={props.lang} className="ui serverboards top menu" id="top-menu" ref="el">
         <div className="item logo">
           <a href="#/">
             <img src={logo}/>

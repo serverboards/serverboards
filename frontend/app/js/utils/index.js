@@ -110,7 +110,48 @@ export function sort_by_name(list){
   return list.slice().sort( (a,b) => (a.name || "").localeCompare(b.name || "") )
 }
 
-const color_set=["red","orange","yellow","olive","green","teal","blue","violet","purple","pink","brown","grey"]
+export const PALETTES = {
+  blue: [
+    "#22ABBE",
+    "#A4C6ED",
+    "#66A3E5",
+    "#0A294D",
+    "#008CD9",
+    "#012D96",
+  ],
+  purple:[
+    "#DD248C",
+    "#EF8BAC",
+    "#9013FE",
+    "#EF8BAC",
+    "#420269",
+    "#D394E0",
+  ],
+  green: [
+    "#1E8A6A",
+    "#00C25E",
+    "#50E3C2",
+    "#57814E",
+    "#A3F18B",
+    "#173337",
+  ],
+  brown:[
+    "#ED9445",
+    "#B8703F",
+    "#DB9C63",
+    "#753D3D",
+    "#725B5B",
+    "#3D1F04",
+  ],
+  mix: [
+    "#2185d0",
+    "#b5cc18",
+    "#e03997",
+    "#a333c8",
+    "#00b5ad",
+  ]
+}
+
 const fixed_colors={
   "": "white",
   "stopped" : "lightgrey",
@@ -148,33 +189,63 @@ const fixed_colors={
   "organic": "olive",
 }
 
-export function colorize(str){
-  if (str.indexOf("error")>=0)
-    return "red"
-  if (!str)
-    return "white"
-  str=str.toLowerCase()
-  if (fixed_colors[str])
-    return fixed_colors[str]
-  return random_color(str)
+const COLOR_TO_HEX = {
+  "red": "#db2828",
+  "blue": "#2185d0",
+  "teal": "#00b5ad",
+  "olive": "#b5cc18",
+  "green": "#21ba45",
+  "purple": "#a333c8",
+  "pink": "#e03997",
+  "orange": "#f2711c",
+  "yellow": "#fbbd08",
+  "brown": "#a5673f",
+  "grey": "#aaa",
+  "black": "#000",
+  "lightgrey": "#ddd",
+  "white": "#fff",
 }
 
+export function colorize_hex(str, palette){
+  const color = colorize(str, palette)
+  if (!color.startsWith("#"))
+    return COLOR_TO_HEX[color]
+  return color
+}
+
+export function colorize(str, palette){
+  if (typeof(str) == 'string'){
+    if (str.indexOf("error")>=0)
+      return "red"
+    if (!str)
+      return "white"
+    str=str.toLowerCase()
+    if (fixed_colors[str])
+      return fixed_colors[str]
+  }
+  return random_color(str, palette)
+}
+
+function hash(str) {
+  var hash = 0, i, chr, len;
+  if (str.length === 0) return hash;
+  for (i = 0, len = str.length; i < len; i++) {
+    chr   = str.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+};
+
 /// Returns a random nice color for the logo icon
-export function random_color(str){
+export function random_color(str, palette){
   // From http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
   // http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-  function hash(str) {
-    var hash = 0, i, chr, len;
-    if (str.length === 0) return hash;
-    for (i = 0, len = str.length; i < len; i++) {
-      chr   = str.charCodeAt(i);
-      hash  = ((hash << 5) - hash) + chr;
-      hash |= 0; // Convert to 32bit integer
-    }
-    return Math.abs(hash);
-  };
-
-  return color_set[hash(str)%color_set.length]
+  const color_set=PALETTES[palette || 'mix']
+  if (typeof(str) == 'string')
+    return color_set[hash(str)%color_set.length]
+  else
+    return color_set[str%color_set.length]
 }
 
 // http://stackoverflow.com/questions/1026069/how-do-i-make-the-first-letter-of-a-string-uppercase-in-javascript
@@ -441,6 +512,7 @@ export default {
   concat,
   sort_by_name,
   colorize,
+  colorize_hex,
   random_color,
   capitalize,
   merge,

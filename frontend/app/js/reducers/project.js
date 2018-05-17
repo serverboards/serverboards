@@ -44,7 +44,7 @@ function fix_daterange_constraints(daterange){
       rt: daterange.rt,
       range_s
   })
-  console.log("Final daterange", daterange)
+  // console.log("Final daterange", daterange)
   return daterange
 }
 
@@ -134,10 +134,10 @@ function project(state=default_state, action){
       widgets = widgets.map( (w) => {
         if (w.uuid==action.uuid){
           if (action.config)
-            return merge(w, {config: action.config, ui: action.ui})
-          else
-            return merge(w, {ui: action.ui})
-          }
+            w = merge(w, {config: action.config})
+          if (action.ui)
+            w = merge(w, {ui: action.ui})
+        }
         return w
       })
       return map_set(state, ["dashboard","current","widgets"], widgets)

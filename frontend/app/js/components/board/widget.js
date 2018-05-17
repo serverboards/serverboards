@@ -36,7 +36,6 @@ class Widget extends React.Component{
       plugin_id: plugin_component[0],
       component_id: plugin_component[1],
       widget_id: template.id,
-      layout: props.layout,
       project: props.project,
     }
     $(this.refs.el)
@@ -48,7 +47,7 @@ class Widget extends React.Component{
       props.widget,
       this.refs.el,
       props.config,
-      context
+      {...context, layout: props.layout}
     ).then( ({umount, component}) => {
       if (umount)
         this.umount=umount
@@ -78,9 +77,10 @@ class Widget extends React.Component{
     }
   }
   componentWillReceiveProps(nextprops){
-    if (!object_is_equal(nextprops.config, this.props.config) ||
-        (nextprops.layout && this.props.layout && !object_is_equal(nextprops.layout, this.props.layout))
-      ){
+    if ((this.state.component == undefined) &&
+        ( !object_is_equal(nextprops.config, this.props.config) ||
+          (nextprops.layout && this.props.layout && !object_is_equal(nextprops.layout, this.props.layout))
+        )){
         this.umount && this.umount()
         $(this.refs.el).html('')
         this.do_widget(nextprops)
@@ -90,10 +90,11 @@ class Widget extends React.Component{
       this.setState({title: nextprops.config.title})
   }
   render(){
-    const config = this.props.config || {}
-    const widget = this.props.template || {}
     const state = this.state
-    const Component = this.state.component
+    const props = this.props
+    const config = props.config || {}
+    const widget = props.template || {}
+    const Component = state.component
 
     const parts = (state.title || config.name || widget.name).split('|')
     const title = parts[0].trim()
@@ -104,6 +105,8 @@ class Widget extends React.Component{
     const titleClass = `${parts[1] || ""} ${titleColorClass} ${title != "" ? "" : "no background"}`
     const titleStyle = (titleColorClass ? {} : {background: titleColor})
 
+    const finalprops = {...props, ...state, ...state.context}
+
     return (
       <div>
         <div className={`ui top mini menu ${titleClass}`} style={titleStyle}>
@@ -111,23 +114,23 @@ class Widget extends React.Component{
             {title}
           </span>
           <Restricted perm="dashboard.widget.update">
-            <a className="item right" onClick={this.props.onEdit}>
+            <a className="item right" onClick={props.onEdit}>
               <i className="icon configure"/>
             </a>
           </Restricted>
         </div>
         <div className={state.klass || "card"}>
           <ErrorBoundary error={i18n("Error rendering widget. {type}. Contact author.", {type: widget.name})}>
-            {this.state.error ? (
+            {state.error ? (
               <section ref="error" className="plugin error">
                 <div><i className="ui huge warning sign red icon"/></div>
                 <div className="ui text red bold">{i18n("Error loading widget")}</div>
                 <div className="ui meta">{widget.name}</div>
-                <div className="ui meta">{this.props.widget}</div>
-                <div style={{paddingTop:10}}><MarkdownPreview value={this.state.error}/></div>
+                <div className="ui meta">{props.widget}</div>
+                <div style={{paddingTop:10}}><MarkdownPreview value={state.error}/></div>
               </section>
             ) : (Component!=undefined) ? (
-                <Component {...this.props} {...state} {...this.state.context}/>
+                <Component {...finalprops}/>
             ) : (
               <div ref="el"/>
             )}

@@ -95,7 +95,7 @@ defmodule Serverboards.Query do
 
     query = String.trim(query)
     # If not starts with SELECT, it is a simple text to use (rows at \n, cells at ,)
-    if not String.starts_with?(String.upcase(query), "SELECT") do
+    if not is_sql(query) do
       res = case query do
         "" ->
           %{ columns: ["?NONAME?"], rows: [[""]]}
@@ -146,5 +146,10 @@ defmodule Serverboards.Query do
           {:error, "Meditation code: `#{inspect exception}`. Ask for help at the forums."}
       end
     end
+  end
+
+  def is_sql(query) do
+    query = String.upcase(query)
+    String.starts_with?(query, "SELECT") || String.starts_with?(query, "WITH")
   end
 end

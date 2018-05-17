@@ -446,58 +446,67 @@ async def open_port(service=None, hostname=None,
     port_key = (url.netloc, port)
 
     try:
-        # await serverboards.debug("Open port %s:%s" % (hostname, port))
-        while True:
-            # this check in the buffer as it may happen in another async task
-            maybe = open_ports.get(port_key)
-            if maybe:
+        await serverboards.debug("Open port %s:%s" % (hostname, port))
+        async with curio.ignore_after(30):
+            while True:
+                # this check in the buffer as it may happen in another async task
+                maybe = open_ports.get(port_key)
+                if maybe:
+                    # await serverboards.debug(
+                    #     "Port is open %s:%s -> %s" % (hostname, port, maybe))
+                    # await serverboards.debug("Open port was READY %s:%s" % (hostname, port))
+                    return maybe
+
+                opening = opening_ports.get(port_key)
+                if opening:
+                    # await serverboards.debug(
+                    #     "Already opening %s:%s, wait for master." %
+                    #     (hostname, port))
+                    await opening.wait()
+                    continue  # keep trying
+
+                opening_ports[port_key] = curio.Event()
+
+                localport = random.randint(20000, 60000)
                 # await serverboards.debug(
-                #     "Port is open %s:%s -> %s" % (hostname, port, maybe))
-                return maybe
+                #      "Open port %s:%s -> %s?" % (hostname, port, localport))
 
-            opening = opening_ports.get(port_key)
-            if opening:
-                # await serverboards.debug(
-                #     "Already opening %s:%s, wait for master." %
-                #     (hostname, port))
-                await opening.wait()
-                continue  # keep trying
-
-            opening_ports[port_key] = curio.Event()
-
-            localport = random.randint(20000, 60000)
-            # await serverboards.debug(
-            #     "Open port %s:%s -> %s?" % (hostname, port, localport))
-
-            if hostname and port:
-                mopts = opts + ["-nNT", "-L", "%s:%s:%s" %
-                                (localport, hostname, port)]
-            elif unix:
-                mopts = opts + ["-nNT", "-L", "%s:%s" % (localport, unix)]
-            else:
-                raise Exception("need hostname:port or unix socket")
-            # await serverboards.debug("Open port with: [ssh '%s']" % "' '".join(
-            #     mopts), service_id=service, **context)
-            sp = subprocess.Popen(
-                ["ssh", *mopts],
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                preexec_fn=set_pdeathsig(signal.SIGTERM),
-            )
-            port_to_process[localport] = sp
-            data = b""
-            async with curio.ignore_after(5):
-                data = await sp.stdout.read()
-            if b'Address already in use' in data:
-                # await serverboards.warning(
-                #     "Port already in use, try another port.")
-                await sp.close()
-            else:
-                open_ports[port_key] = localport
-                await serverboards.debug(
-                    "Port redirect localhost:%s -> %s:%s" %
-                    (localport, hostname, port), **context)
-                return localport
+                if hostname and port:
+                    mopts = opts + ["-nNT", "-L", "%s:%s:%s" %
+                                    (localport, hostname, port)]
+                elif unix:
+                    mopts = opts + ["-nNT", "-L", "%s:%s" % (localport, unix)]
+                else:
+                    raise Exception("need hostname:port or unix socket")
+                # await serverboards.debug("Open port with: [ssh '%s']" % "' '".join(
+                #      mopts), service_id=service, **context)
+                sp = subprocess.Popen(
+                    ["ssh", *mopts],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    preexec_fn=set_pdeathsig(signal.SIGTERM),
+                )
+                # await serverboards.debug("Popen for %s:%s: %s" % (hostname, port, repr(sp)))
+                port_to_process[localport] = sp
+                data = b""
+                async with curio.ignore_after(5):
+                    data = await sp.stdout.read()
+                # await serverboards.debug("Answer for %s:%s: %s" % (hostname, port, repr(data)))
+                if b'Address already in use' in data:
+                    # await serverboards.warning(
+                    #     "Port already in use, try another port.")
+                    await sp.close()
+                else:
+                    open_ports[port_key] = localport
+                    # await serverboards.debug(
+                    #     "Port redirect localhost:%s -> %s:%s" %
+                    #     (localport, hostname, port), **context)
+                    # await serverboards.debug("Open port READY %s:%s" % (hostname, port))
+                    return localport
+    except Exception as e:
+        await serverboards.error("Error opening port %s:%s: %s" % (hostname, port, e))
+        raise
     finally:  # if exception also free the event waiters,
+        # await serverboards.debug("Open port %s:%s mark as maybe ready / or retry" % (hostname, port))
         if port_key in opening_ports:
             await opening_ports[port_key].set()
             del opening_ports[port_key]
@@ -783,5 +792,5 @@ if __name__ == '__main__':
         serverboards.test_mode(test, mock_data=mock_data)
         printc("DONE")
     else:
-        # serverboards.set_debug("/tmp/sshlog.log")
+        serverboards.set_debug("/tmp/sshlog-%s.log" % os.getpid())
         serverboards.loop()

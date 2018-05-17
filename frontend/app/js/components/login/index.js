@@ -54,7 +54,7 @@ class LoginView extends React.Component{
   render(){
     if (this.state.modal=='reset_password')
       return(
-        <ResetPassword closeReset={() => this.setState({modal:undefined})} setPassword={this.setPassword} email={this.state.email}/>
+        <ResetPassword closeReset={() => this.setState({modal:undefined})} setPassword={this.setPassword.bind(this)} email={this.state.email}/>
       )
     if (this.state.modal=='set_password')
       return(

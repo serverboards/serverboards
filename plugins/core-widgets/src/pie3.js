@@ -1,6 +1,6 @@
-import {get_data, COLORMAP, COLORNAMES} from './utils'
+import {get_data} from './utils'
 const {React, i18n} = Serverboards
-const {colorize, object_is_equal, map_get, to_number} = Serverboards.utils
+const {object_is_equal, map_get, to_number, colorize_hex} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
 
 const _2PI = Math.PI * 2
@@ -9,39 +9,51 @@ const CY = 75
 const R1 = 50
 const R2 = 75
 
-function SVGPie({center, rings, colors, theme}){
+function SVGPie({center, rings, colors, theme, style}){
   // console.log(colors, rings)
   const maxs = rings.reduce( (x,acc) => x + acc, 0)
   if (maxs == 0){
     return null
   }
-  const sc = _2PI / maxs
-  let prev = [`${CX} ${CY - R1}`, `${CX} ${CY - R2}`]
-  let acc = -Math.PI/2
-  const ringsp = rings.map( ring =>{
-    const a = ring * sc
-    // console.log(acc, a, ring / maxs)
-    acc += a
-    const next = [
-      `${CX + Math.cos(acc) * R1} ${CY + Math.sin(acc) * R1}`,
-      `${CX + Math.cos(acc) * R2} ${CY + Math.sin(acc) * R2}`,
-    ]
-    const ret = [
-      prev[0], next[0], next[1], prev[1], ((a>3.14) ? 1 : 0),
-    ]
-    prev = next
-    return ret
-  })
-  const bgcolor = theme == "dark" ? "#2b444a" : "white"
+  let ringsp
 
+  if (rings.length <=1){
+    ringsp = [
+      ["75 25", "74.99688067929823 25.000000097301616", "74.99532101894735 1.459524270330803e-7", "75 0", 1]
+      // ["75 125", "75 25", "75 0", "75 150", 1]
+    ]
+  } else {
+    const sc = _2PI / maxs
+    let prev = [`${CX} ${CY - R1}`, `${CX} ${CY - R2}`]
+    let acc = -Math.PI/2
+
+    ringsp = rings.map( ring =>{
+      const a = ring * sc
+      // console.log(acc, a, ring / maxs)
+      acc += a
+      const next = [
+        `${CX + Math.cos(acc) * R1} ${CY + Math.sin(acc) * R1}`,
+        `${CX + Math.cos(acc) * R2} ${CY + Math.sin(acc) * R2}`,
+      ]
+      const ret = [
+        prev[0], next[0], next[1], prev[1], ((a>3.14) ? 1 : 0),
+      ]
+      prev = next
+      return ret
+    })
+  }
+  const bgcolor = theme == "dark" ? "#2b444a" : "white"
+  const fgcolor = theme == "dark" ? "#ddd" : "black"
+
+  // console.log(ringsp)
   return (
-    <svg viewBox="0 0 150 150">
-      <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold"}}>{center}</text>
+    <svg viewBox="0 0 150 150" style={{style}}>
+      <text x={CX} y={CY + 11} textAnchor="middle" style={{fontSize: 22, fontWeight: "bold", fill: fgcolor}}>{center}</text>
       {ringsp.map( (r,i) => (
         <path
           key={r}
           d={`M ${r[0]} A ${R1} ${R1} 0 ${r[4]} 1 ${r[1]} L ${r[2]} A ${R2} ${R2} 0 ${r[4]} 0 ${r[3]} Z`}
-          style={{fill: COLORMAP[i] || colors[i]}}
+          style={{fill: colors[i]}}
           />
       ))}
       {ringsp.map( (r,i) => (
@@ -67,7 +79,8 @@ class Pie3 extends React.Component{
     return !object_is_equal(nextprops.config, this.props.config)
   }
   render(){
-    const config = this.props.config
+    const props = this.props
+    const config = props.config
     let rows = map_get(config,["data", "rows"])
 
     if (!rows)
@@ -86,7 +99,7 @@ class Pie3 extends React.Component{
         rows[0],
         rows[1],
         rows[2],
-        [i18n("Other"), rest, ""],
+        [i18n("Other"), rest.toFixed(2), ""],
       ]
 
     }
@@ -104,16 +117,16 @@ class Pie3 extends React.Component{
       )
     }
 
-    const layout = this.props.layout
+    const layout = props.layout
     let main_style
     if (layout.w == layout.h) {
       main_style = {
         display: "grid",
         gridTemplateAreas: '"summary pie" "data data"',
         gridTemplateColumns: "1fr 1fr",
-        gridTemplateRows: "1fr 0fr",
-        maxHeight: "100%",
-        maxWidth: "100%",
+        gridTemplateRows: "1fr 1fr",
+        maxHeight: layout.height,
+        maxWidth: layout.width,
       }
     } else if (layout.w > layout.h) {
       main_style = {
@@ -122,32 +135,54 @@ class Pie3 extends React.Component{
         gridGap: "30px",
         gridTemplateColumns: "1fr 1fr",
         gridTemplateRows: "1fr 3fr",
-        maxHeight: "100%",
-        maxWidth: "100%",
+        maxHeight: layout.height,
+        maxWidth: layout.width,
       }
     } else {
       main_style = {
         display: "grid",
         gridTemplateAreas: '"summary" "pie" "data"',
         gridTemplateRows: "1fr 2fr 2fr",
-        maxHeight: "100%",
-        maxWidth: "100%",
+        maxHeight: layout.height,
+        maxWidth: layout.width,
       }
     }
+    const bottom_size = rows.length * 42
 
-    const maxhw = Math.min(layout.width, layout.height) - 30
+    let maxhw = Math.min(layout.width, layout.height) - 30
+    if (layout.h > layout.w){
+      maxhw = Math.min(maxhw, layout.height - bottom_size - 80)
+    }
+
+    let svg_area_style = {
+      gridArea: "pie",
+      maxWidth: maxhw,
+      maxHeight: maxhw,
+      width: "100%",
+      height: "100%",
+      alignSelf: "center",
+      justifySelf: "center",
+      textAlign: "center",
+    }
+    let svg_style = {
+      maxHeight: maxhw
+    }
+
+    const palette = props.config.palette
+    console.log("maxhw", maxhw)
 
     return (
       <div className="ui with padding" style={main_style}>
         <div className="ui biggier bold centered text" style={{gridArea: "summary", alignSelf: "center"}}>
           {get_data(config.summary, [0,0])}
         </div>
-        <div className="ui centered" style={{gridArea: "pie", maxWidth: maxhw, maxHeight: maxhw, width: "100%", height: "100%", alignSelf: "center", justifySelf: "center"}}>
+        <div className="ui centered" style={svg_area_style}>
           <SVGPie
+            style={svg_style}
             center={get_data(config.summary, [0,1])}
             rings={rings}
-            colors={rows.map( r => colorize(r[0]))}
-            theme={this.props.theme}
+            colors={rows.map( r => colorize_hex(r[0], palette))}
+            theme={props.theme}
             />
         </div>
         <div style={{gridArea: "data", alignSelf: "center"}}>
@@ -156,7 +191,7 @@ class Pie3 extends React.Component{
               {rows.map( (r,i) => (
                 <tr key={r[0]} style={{height: "3em"}}>
                   <td className="ui ellipsis">
-                    <span className={`ui square ${COLORNAMES[i]}`} style={{marginRight: 5}}/>
+                    <span className="ui square" style={{marginRight: 5, background: colorize_hex(r[0], palette)}}/>
                     {r[0]}
                   </td>
                   <td className="ui big bold text right aligned">{r[1]}</td>

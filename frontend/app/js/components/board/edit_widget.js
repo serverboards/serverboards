@@ -1,7 +1,7 @@
 import React from 'react'
 import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
-import Error from 'app/components/error'
+import {Error, FormatError, ErrorBoundary} from 'app/components/error'
 import Flash from 'app/flash'
 import {set_modal} from 'app/utils/store'
 import cache from 'app/utils/cache'
@@ -74,7 +74,7 @@ class EditWidget extends React.Component{
           // console.error("Error getting postconfig: ", value, e)
           let postconfig = {...this.state.postconfig}
           postconfig[p.name] = {error: e}
-          let errors = this.state.errors.concat(e)
+          let errors = [...this.state.errors, e]
           this.setState({postconfig, errors})
         })
         postconfig[p.name] = {loading: true}
@@ -130,29 +130,36 @@ class EditWidget extends React.Component{
     const wwidth = layout.w*140
     const wheight = (layout.h*163)
     layout.width = wwidth
-    layout.height = wheight
+    layout.height = wheight - 60
 
     return (
       <div className="ui expand two column grid grey background" style={{margin: 0}}>
-        <div className="ui column with scroll with padding">
-          <div className="ui board with scroll" style={{flexDirection: "column"}}>
-            <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center"}}>
-              <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
-                <Widget
-                  key={widget.uuid}
-                  widget={widget.widget}
-                  config={state.postconfig}
-                  uuid={widget.uuid}
-                  project={this.props.project}
-                  layout={layout}
-                  />
+        <div className="ui column with padding">
+          <div className="ui vertical split" style={{maxHeight: "calc(100vh - 140px)", overflow: "hidden"}}>
+            <div className="ui board with scroll" style={{flexDirection: "column", flex: 1, maxHeight: "calc(50vh - 70px)", minHeight: "calc(50vh - 70px)"}}>
+              <div className="ui cards" style={{margin: 0, padding: "1em", justifyContent: "center", minWidth: wwidth+50, minHeight: 50}}>
+                <div className="ui card" style={{maxHeight: wheight, minHeight: wheight, maxWidth: wwidth, minWidth: wwidth }}>
+                  <Widget
+                    key={widget.uuid}
+                    widget={widget.widget}
+                    config={state.postconfig}
+                    uuid={widget.uuid}
+                    project={this.props.project}
+                    layout={layout}
+                    />
+                </div>
               </div>
             </div>
-            {state.errors.map( e => (
-              <MarkdownPreview key={e} className="ui red bold text" value={String(e)}/>
-            ))}
             <hr className="ui separator"/>
-            <ExtractorsHelp extractors={state.extractors}/>
+            <div className="ui round pane white background scroll with padding" style={{flex: 1, maxHeight: "calc(50vh - 115px)", minHeight: "calc(50vh - 115px)"}}>
+              <ErrorBoundary>
+                {state.errors.map( (e, i) => (
+                  <FormatError key={[e, i]} error={e}/>
+                ))}
+              </ErrorBoundary>
+
+              <ExtractorsHelp extractors={state.extractors}/>
+            </div>
           </div>
         </div>
         <div className="ui column">
@@ -190,6 +197,12 @@ class EditWidget extends React.Component{
       </div>
     )
   }
+}
+
+function dotnot(col){
+  if (typeof(col) == 'string')
+    return col
+  return col.join('.')
 }
 
 export default EditWidget

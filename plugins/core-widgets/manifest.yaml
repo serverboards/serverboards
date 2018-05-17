@@ -168,6 +168,7 @@ components:
         name: title
         description: Title
       - label: Show performance and legend
+        class: half column
         type: select
         options:
           - label: "Right"
@@ -177,6 +178,21 @@ components:
           - label: Hide
             value: hide
         name: show_legend
+      - label: Color Palette
+        class: half column
+        type: select
+        name: palette
+        options:
+          - label: Mix
+            value: mix
+          - label: Purple
+            value: purple
+          - label: Blue
+            value: blue
+          - label: Green
+            value: green
+          - label: Brown
+            value: brown
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
@@ -238,6 +254,20 @@ components:
             value: hide
         class: half column
         name: show_legend
+      - label: Color Palette
+        type: select
+        name: palette
+        options:
+          - label: Mix
+            value: mix
+          - label: Purple
+            value: purple
+          - label: Blue
+            value: blue
+          - label: Green
+            value: green
+          - label: Brown
+            value: brown
       - label: Summary Query
         name: summary
         description: Summary number on the corner.
@@ -278,6 +308,20 @@ components:
     params:
       - label: Title
         name: title
+      - label: Color Palette
+        type: select
+        name: palette
+        options:
+          - label: Mix
+            value: mix
+          - label: Purple
+            value: purple
+          - label: Blue
+            value: blue
+          - label: Green
+            value: green
+          - label: Brown
+            value: brown
       - label: Summary Query
         name: summary
         description: |

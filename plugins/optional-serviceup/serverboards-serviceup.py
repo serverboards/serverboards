@@ -31,6 +31,11 @@ async def recheck_service_by_uuid(service_uuid):
 # this also avoid that changing the status retriggers the check
 @serverboards.cache_ttl(30, hashf=service_uuid)
 async def recheck_service(service, *args, **kwargs):
+    """
+    Checks if the given service has changed status
+
+    May return a number indicating when to check again
+    """
     # print("service is", repr(service))
     status = await get_status_checker(service["type"])
     if not status:
@@ -56,18 +61,22 @@ async def recheck_service(service, *args, **kwargs):
         newtags.append(fulltag)
         await serverboards.service.update(service["uuid"], {"tags": newtags})
         if tag in OK_TAGS:
-            await close_service_issue(service, tag)
+            return (await close_service_issue(service, tag))
         else:
-            await open_service_issue(service, tag)
+            return (await open_service_issue(service, tag))
 
 
 tasks = {}
 
 
 async def poll_serviceup(seconds, uuid):
+    secs = seconds
     while True:
-        await curio.sleep(seconds)
-        await recheck_service_by_uuid(uuid)
+        await curio.sleep(secs)
+        secs = seconds
+        maybe_secs = await recheck_service_by_uuid(uuid)
+        if maybe_secs:  # marked to change next loop, for check two times in a row
+            secs = maybe_secs
 
 
 async def inserted_service(service, *args, **kwargs):
@@ -151,17 +160,25 @@ async def get_status_checker(type):
     return status
 
 
+failure_count = set()  # will not open issues, until 2 failures are detected.
+
+
 async def open_service_issue(service, status):
-    print("Open issue for ", service["uuid"])
-    issue_id = "service_down/%s" % service["uuid"]
+    service_uuid = service["uuid"]
+    if service_uuid not in failure_count:
+        print("Delay open issue for ", service_uuid)
+        failure_count.add(service_uuid)
+        return 30 # try again in 30 seconds
+    print("Open issue for ", service_uuid)
+    issue_id = "service_down/%s" % service_uuid
     issue = await serverboards.issues.get(issue_id)
     if issue:
         print("Issue already open, not opening again.")
         return
 
-    issue_id2 = "service/%s" % service["uuid"]
+    issue_id2 = "service/%s" % service_uuid
     base_url = await get_base_url()
-    url = "%s/#/services/%s" % (base_url, service["uuid"])
+    url = "%s/#/services/%s" % (base_url, service_uuid)
     description = _("""
 Service [%(service)s](%(service_url)s) is %(status)s.
 
@@ -186,13 +203,16 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
 
 
 async def close_service_issue(service, status):
-    print("Close issue for ", service["uuid"])
-    issue_id = "service_down/%s" % service["uuid"]
+    service_uuid = service["uuid"]
+    print("Close issue for ", service_uuid)
+    if service_uuid in failure_count:
+        failure_count.remove(service_uuid)
+    issue_id = "service_down/%s" % service_uuid
     issue = await serverboards.issues.get(issue_id)
     if not issue or issue["status"] == "closed":
         return None
     base_url = await get_base_url()
-    url = "%s/#/services/%s" % (base_url, service["uuid"])
+    url = "%s/#/services/%s" % (base_url, service_uuid)
     await serverboards.issues.update(issue_id, [
         {
             "type": "comment",

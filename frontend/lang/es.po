@@ -3572,7 +3572,7 @@ msgstr "Añadir un widget, servicio, regla, incidencia..."
 
 #: frontend/app/js/components/project/board/header.js:84
 msgid "Realtime updates"
-msgstr "Acutalizaciones en Timepo Real"
+msgstr "Acutalizaciones en Tiempo Real"
 
 #: frontend/app/js/components/project/board/header.js:90
 msgid "5 minutes"

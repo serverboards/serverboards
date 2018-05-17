@@ -2,7 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import ServiceSelect from 'app/containers/service/select'
 import GenericForm from 'app/components/genericform'
-import {object_is_equal} from 'app/utils'
+import {object_is_equal, to_map} from 'app/utils'
 
 const ID_LIST="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -10,11 +10,15 @@ const STEP_EXTRACTOR = Symbol('extractor')
 const STEP_SERVICE = Symbol('service')
 const STEP_PARAMS = Symbol('params')
 
+function fix_extractors(props){
+  return Object.values(to_map(props.map( ext => [ext.id, ext])))
+}
+
 class QueryServiceSelect extends React.Component{
   constructor(props){
     super(props)
 
-    const extractors = (props.extractors || []) // format is [{id, extractor, service}] // service is uuid
+    const extractors = fix_extractors(props.extractors || []) // format is [{id, extractor, service}] // service is uuid
 
     let max_service_id = 0
     for (let e of extractors){
@@ -37,7 +41,7 @@ class QueryServiceSelect extends React.Component{
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(newprops.extractors, this.props.extractors)){
-      this.setState({extractors: newprops.extractors})
+      this.setState({extractors: fix_extractors(newprops.extractors)})
     }
   }
   handleOpenSelector(){

@@ -60,6 +60,8 @@ class Calendar extends React.Component{
     // moment js months, are 0 based
     {
       current_date=moment({year: year, month: month, day: 1})
+      if (!current_date.isValid())
+        current_date = moment()
       while (current_date.day()!=WEEKSTART){
         current_date.subtract(1,"d")
       }
@@ -68,6 +70,8 @@ class Calendar extends React.Component{
     let last_date
     {
       current_date=moment({year: year, month: month, day: 1}).endOf('month')
+      if (!current_date.isValid())
+        current_date = moment().endOf('month')
       while (current_date.day()!=WEEKEND){
         current_date.add(1,"d")
       }
