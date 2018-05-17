@@ -199,10 +199,4 @@ class EditWidget extends React.Component{
   }
 }
 
-function dotnot(col){
-  if (typeof(col) == 'string')
-    return col
-  return col.join('.')
-}
-
 export default EditWidget

@@ -2,6 +2,12 @@ import React from 'react'
 import {MarkdownPreview} from 'react-marked-markdown'
 import i18n from 'app/utils/i18n'
 
+function dotnot(col){
+  if (typeof(col) == 'string')
+    return col
+  return col.join('.')
+}
+
 export function Error(props){
   return (
     <div className="ui centered fill error padding">
