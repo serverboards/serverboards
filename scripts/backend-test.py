@@ -146,21 +146,21 @@ def main_all_at_once():
     except FileExistsError:
         pass
 
-    # with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
-    #     start = time.time()
-    #     printc("RUN TESTS", color="blue")
-    #     try:
-    #         assert os.system("mix run priv/repo/test_seeds.exs") == 0
-    #         assert os.system("mix test --trace | tee %s/backend.txt" % logpath) == 0
-    #     except Exception:
-    #         import traceback
-    #         traceback.print_exc()
-    #         fail = True
-    #     except sh.ErrorReturnCode_1:
-    #         fail = True
-    #     end = time.time()
-    #     accumulated_time += (end - start)
-    # printc("Done", color="grey", hl=True)
+    with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
+        start = time.time()
+        printc("RUN TESTS", color="blue")
+        try:
+            assert os.system("mix run priv/repo/test_seeds.exs") == 0
+            assert os.system("mix test --trace | tee %s/backend.txt" % logpath) == 0
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            fail = True
+        except sh.ErrorReturnCode_1:
+            fail = True
+        end = time.time()
+        accumulated_time += (end - start)
+    printc("Done", color="grey", hl=True)
 
     fail = True
 
