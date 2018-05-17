@@ -43,7 +43,12 @@ export function logged_in_as(user){
         }
       })
       rpc.call("settings.user.get", ["tracking"]).then( (props) => {
-        dispatch(set_tracking(props.tracking))
+        dispatch(set_tracking(props ? props.tracking : true))
+      })
+      console.log("Get legal ok")
+      rpc.call("settings.user.get", ["legal"]).then( (props) => {
+        console.log("Get legal ok: ", props)
+        dispatch(set_legal(props ? props.legal_id : false))
       })
 
     }
@@ -187,6 +192,23 @@ export function user_settings_set_tracking(tracking){
     rpc.call("settings.user.set", ["tracking", {tracking}]).then( () => {
       dispatch(set_tracking(tracking))
     })
+  }
+}
+
+export function user_settings_set_legal(legal_id){
+  console.log("Accept legal", legal_id)
+  return function(dispatch){
+    rpc.call("settings.user.set", ["legal", {legal_id}]).then( () => {
+      dispatch(set_legal(legal_id))
+    })
+  }
+}
+
+
+export function set_legal(ok){
+  return {
+    type: "AUTH_SET_LEGAL",
+    payload: ok,
   }
 }
 

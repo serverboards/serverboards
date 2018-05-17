@@ -77,6 +77,9 @@ export const auth = (state = default_state , action) => {
     case 'AUTH_SET_TRACKING':
       state.tracking=action.payload;
       break;
+    case 'AUTH_SET_LEGAL':
+      state.legal=action.payload;
+      break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {
         if (g.name == action.group){

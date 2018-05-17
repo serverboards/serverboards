@@ -41,6 +41,7 @@
     "moment-range": "^3.0.3",
     "node-sass": "^4.5.3",
     "plotly.js": "^1.29.3",
+    "raw-loader": "^0.5.1",
     "rc-calendar": "^9.0.1",
     "rc-time-picker": "^2.4.1",
     "react": "^16.2.0",
