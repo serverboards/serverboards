@@ -10,6 +10,7 @@ import sh
 import os
 import sys
 import time
+import re
 from multiprocessing import Pool
 from tests_common import random_dbname, printc, copytmpdb, chdir, envset
 from tests_common import tmpdb, compile
@@ -139,21 +140,53 @@ def main_all_at_once():
         )
     )
 
-    with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
-        start = time.time()
-        printc("RUN TESTS", color="blue")
-        try:
-            assert os.system("mix run priv/repo/test_seeds.exs") == 0
-            assert os.system("mix test --trace") == 0
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            fail = True
-        except sh.ErrorReturnCode_1:
-            fail = True
-        end = time.time()
-        accumulated_time += (end - start)
-    printc("Done", color="grey", hl=True)
+    logpath = os.getcwd() + "/log/"
+    try:
+        os.makedirs(logpath)
+    except FileExistsError:
+        pass
+
+    # with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
+    #     start = time.time()
+    #     printc("RUN TESTS", color="blue")
+    #     try:
+    #         assert os.system("mix run priv/repo/test_seeds.exs") == 0
+    #         assert os.system("mix test --trace | tee %s/backend.txt" % logpath) == 0
+    #     except Exception:
+    #         import traceback
+    #         traceback.print_exc()
+    #         fail = True
+    #     except sh.ErrorReturnCode_1:
+    #         fail = True
+    #     end = time.time()
+    #     accumulated_time += (end - start)
+    # printc("Done", color="grey", hl=True)
+
+    fail = True
+
+    if fail:
+        files = []
+        for l in open('%s/backend.txt' % logpath):
+            if 'test/' in l:
+                if l.startswith('     \x1b[1m\x1b[30mtest') and ':' in l:
+                    filename = re.findall(r'test/.*\.ex.*?\d+', l)[0]
+                    files.append(filename)
+        files = set(files)
+        printc("Run specific tests: ", files)
+
+        fail = False
+        with envset(**envs), tmpdb(dbname), chdir("backend/apps/serverboards/"):
+            for file in files:
+                start = time.time()
+                try:
+                    assert os.system("mix test --trace %s" % (file)) == 0
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    fail = True
+                end = time.time()
+                printc("Repeated test %s: %s s / %s" % (file, (end - start), fail))
+                accumulated_time += (end - start)
 
     printc("Elapsed time: %d:%02d" %
            (accumulated_time / 60, accumulated_time % 60),

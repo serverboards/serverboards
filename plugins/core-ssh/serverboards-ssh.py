@@ -84,8 +84,6 @@ async def run(command=None, service=None,
     can pass a communication `outfile` and `infile` (at /tmp/)
     and also a `stdin` string to be used as script to execute.
     """
-    # serverboards.debug(repr(dict(url=url, command=command, options=options,
-    #                    service=service)))
     await ensure_ID_RSA()
     if not command:
         raise Exception("Need a command to run")
@@ -783,6 +781,11 @@ async def test():
 
     assert os.stat("/tmp/watchresult")
 
+async def status_info():
+    while True:
+        await curio.sleep(5)
+        printc(serverboards.status())
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "test":
@@ -792,5 +795,6 @@ if __name__ == '__main__':
         serverboards.test_mode(test, mock_data=mock_data)
         printc("DONE")
     else:
-        serverboards.set_debug("/tmp/sshlog-%s.log" % os.getpid())
+        serverboards.set_debug()
+        serverboards.run_async(status_info, result=False)
         serverboards.loop()
