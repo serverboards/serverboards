@@ -26,6 +26,12 @@ class Top extends React.Component{
     }
   }
   componentDidMount(){
+    this.updateSemanticUIBehaviours()
+  }
+  componentDidUpdate(){
+    this.updateSemanticUIBehaviours()
+  }
+  updateSemanticUIBehaviours(){
     let self = this
     $(this.refs.notifications_item).popup({
       popup: this.refs.notifications_menu,
