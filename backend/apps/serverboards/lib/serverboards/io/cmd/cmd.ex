@@ -199,6 +199,12 @@ defmodule Serverboards.IO.Cmd do
         :exit, :timeout ->
           Logger.error("Timeout when calling #{inspect method}")
           {:error, :timeout}
+        :exit, {:timeout, _what} ->
+          Logger.error("Timeout when calling #{inspect method}")
+          {:error, :timeout}
+        :exit, other ->
+          Logger.error("Error calling #{inspect method}: #{inspect other}")
+          {:error, other}
       end
       GenServer.reply(from, res)
     #Logger.debug("Response for #{method}: #{inspect res}")

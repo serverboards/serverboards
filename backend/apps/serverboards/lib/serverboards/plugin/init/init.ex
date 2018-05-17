@@ -134,7 +134,9 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
       state |
       timer: nil
     }
-    handle_cast({:start}, state)
+    # FIXED on restart may timeout, cast should never timeout
+    GenServer.cast(self(),{:start})
+    {:noreply, state}
   end
   def handle_info({_ref, {:error, :unknown_method}}, state) do
     Logger.error("Cant run init, unknown method #{inspect state.init.call}")
