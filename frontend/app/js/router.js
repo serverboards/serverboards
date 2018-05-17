@@ -28,6 +28,7 @@ class ServerboardsRouter extends React.Component{
     //console.log("Router Props: %o", this.props)
     return (
         <Router history={history}>
+          <Route path="/!" component={DashBoard}/>
           <Route path="/" component={DashBoard}/>
           <Route path="/user/profile" component={Profile}/>
           <Route path="/project/">
