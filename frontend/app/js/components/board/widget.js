@@ -38,16 +38,17 @@ class Widget extends React.Component{
       widget_id: template.id,
       project: props.project,
     }
+    const layout = props.layout || {}
     $(this.refs.el)
       .attr('data-pluginid', props.widget.split('/')[0])
       .attr('data-widgetid', props.widget)
-      .attr('data-height', props.layout.height)
-      .attr('data-width', props.layout.width)
+      .attr('data-height', layout.height)
+      .attr('data-width', layout.width)
     return plugin.do_widget(
       props.widget,
       this.refs.el,
       props.config,
-      {...context, layout: props.layout}
+      {...context, layout}
     ).then( ({umount, component}) => {
       if (umount)
         this.umount=umount
