@@ -23,7 +23,8 @@ module.exports = {
     ].concat(entry),
     output: {
         path: path.resolve('dist/'),
-        filename: "js/[name]-[hash].js"
+        filename: "js/[name]-[hash].js",
+        sourceMapFilename: 'js/[file].map'
     },
     resolve: {
       alias:{
@@ -33,7 +34,7 @@ module.exports = {
         lang : path.resolve("./lang")
       }
     },
-    //devtool: __DEV__ ? "cheap-eval-source-map" : "cheap-module-source-map",
+    devtool: "cheap-module-source-map",
     module: {
         rules: [
             //{ test: /\.jsx$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
@@ -111,10 +112,10 @@ module.exports = {
         SERVERBOARDS_VERSION: JSON.stringify(require("./package.json").version),
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
       }),
-      new webpack.SourceMapDevToolPlugin({
-        filename: '[file].map',
-        exclude: /vendor/,
-      }),
+      // new webpack.SourceMapDevToolPlugin({
+      //   filename: '[file].map',
+      //   exclude: /vendor/,
+      // }),
     ].filter(function(l){ return l }),
     optimization: {
       splitChunks: {
