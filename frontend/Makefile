@@ -40,7 +40,8 @@ node_modules: yarn.lock package.json
 	touch node_modules
 
 .PHONY: test
-test: all
+test: setup
+	npm test
 
 clean:
 	rm -rf dist

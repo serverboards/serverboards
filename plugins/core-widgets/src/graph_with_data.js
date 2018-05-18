@@ -2,7 +2,7 @@ const {React} = Serverboards
 import {get_data, is_string} from './utils'
 const {map_get, object_is_equal, to_number} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
-const {colorize_hex} = Serverboards.utils
+const {colorize_list_hex} = Serverboards.utils
 
 const MULTOF = 4
 
@@ -93,6 +93,8 @@ class GraphWithData extends React.Component {
 
     const show_legend = config.show_legend || "right" // default
 
+    const fill_colors = colorize_list_hex(categories, config.palette)
+
     height -= 10
     width -= 10
 
@@ -125,7 +127,7 @@ class GraphWithData extends React.Component {
             <div className="" style={{flex: 1, display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start", alignSelf: "flex-start"}}>
               {categories.map( (c, i) => (
                 <div className="ui bold text padding left" key={i}>
-                  <span className={`ui square`} style={{background: colorize_hex(c, config.palette)}}/>&nbsp;
+                  <span className={`ui square`} style={{background: fill_colors[i]}}/>&nbsp;
                   {c}
                 </div>
               ))}

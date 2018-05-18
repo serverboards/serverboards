@@ -1,6 +1,6 @@
 import {get_data} from './utils'
 const {React, i18n} = Serverboards
-const {object_is_equal, map_get, to_number, colorize_hex} = Serverboards.utils
+const {object_is_equal, map_get, to_number, colorize_list_hex} = Serverboards.utils
 const {Loading, Error} = Serverboards.Components
 
 const _2PI = Math.PI * 2
@@ -168,7 +168,7 @@ class Pie3 extends React.Component{
       maxHeight: maxhw
     }
 
-    const palette = props.config.palette
+    const fill = colorize_list_hex(rows.map( r => r[0]), props.config.palette)
     console.log("maxhw", maxhw)
 
     return (
@@ -181,7 +181,7 @@ class Pie3 extends React.Component{
             style={svg_style}
             center={get_data(config.summary, [0,1])}
             rings={rings}
-            colors={rows.map( r => colorize_hex(r[0], palette))}
+            colors={fill}
             theme={props.theme}
             />
         </div>
@@ -191,7 +191,7 @@ class Pie3 extends React.Component{
               {rows.map( (r,i) => (
                 <tr key={r[0]} style={{height: "3em"}}>
                   <td className="ui ellipsis">
-                    <span className="ui square" style={{marginRight: 5, background: colorize_hex(r[0], palette)}}/>
+                    <span className="ui square" style={{marginRight: 5, background: fill[i]}}/>
                     {r[0]}
                   </td>
                   <td className="ui big bold text right aligned">{r[1]}</td>

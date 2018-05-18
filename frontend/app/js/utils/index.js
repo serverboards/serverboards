@@ -215,6 +215,12 @@ export function colorize_hex(str, palette){
 
 export function colorize(str, palette){
   if (typeof(str) == 'string'){
+    if (str.startsWith('#'))
+      return str
+    if (str.startsWith('rgb('))
+      return str
+    if (str.startsWith('rgba('))
+      return str
     if (str.indexOf("error")>=0)
       return "red"
     if (!str)
@@ -224,6 +230,37 @@ export function colorize(str, palette){
       return fixed_colors[str]
   }
   return random_color(str, palette)
+}
+
+export function colorize_list(list, palette, colorizef = colorize){
+  let ret = []
+  let used_colors = {}
+  let i = 0
+  const palette_size = (PALETTES[palette] || PALETTES.mix).length
+  for (let l of list){
+    l = `${l}` // to string
+    if (Object.keys(used_colors).length == palette_size){
+      used_colors = {}
+      // console.log("Reset used_colors")
+    }
+    let nc = colorizef(l, palette)
+    // console.log("try", nc)
+    while (used_colors[nc]){
+      nc = random_color(`${l} ${i}`, palette)
+      // console.log("color collission, try:", used_colors, nc)
+      i+=1
+
+      if (i>1000)
+        throw Error("Could not colorize list. Could not find acceptable color combination")
+    }
+    used_colors[nc] = true
+    ret.push(nc)
+  }
+  return ret
+}
+
+export function colorize_list_hex(list, palette){
+  return colorize_list(list, palette, colorize_hex)
 }
 
 function hash(str) {
@@ -513,6 +550,8 @@ export default {
   sort_by_name,
   colorize,
   colorize_hex,
+  colorize_list,
+  colorize_list_hex,
   random_color,
   capitalize,
   merge,
