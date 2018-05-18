@@ -143,11 +143,12 @@ async def run(command=None, service=None,
     except curio.errors.TaskCancelled:
         raise
     except Exception as e:
-        printc(     args,
-                    False,
-                    set_pdeathsig(signal.SIGTERM),
-                    kwargs,
-                    color="red"
+        printc(
+            args,
+            False,
+            set_pdeathsig(signal.SIGTERM),
+            kwargs,
+            color="red"
         )
 
         await serverboards.error(
