@@ -782,6 +782,7 @@ async def test():
 
     assert os.stat("/tmp/watchresult")
 
+
 async def status_info():
     while True:
         await curio.sleep(5)
@@ -796,6 +797,6 @@ if __name__ == '__main__':
         serverboards.test_mode(test, mock_data=mock_data)
         printc("DONE")
     else:
-        serverboards.set_debug()
-        serverboards.run_async(status_info, result=False)
+        # serverboards.set_debug()
+        # serverboards.run_async(status_info, result=False)
         serverboards.loop()
