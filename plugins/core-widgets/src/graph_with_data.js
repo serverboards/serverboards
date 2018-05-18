@@ -106,7 +106,7 @@ class GraphWithData extends React.Component {
             <div className={`ui ${performance_color} text`}>{performance}</div>
           </div>
 
-          <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column"}}>
+          <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", maxHeight: height}}>
             <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height} categories={categories} theme={props.theme} palette={config.palette}/>
           </div>
         </div>
@@ -120,7 +120,7 @@ class GraphWithData extends React.Component {
             <div className={`ui ${performance_color} text`}>{performance}</div>
           </div>
 
-          <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
+          <div style={{justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly", maxHeight: height}}>
             <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width} height={height - ((props.layout.h > 1) ? 55 : 35)} categories={categories} theme={props.theme} palette={config.palette}/>
           </div>
           <div style={{padding: "5px 0 0 20px"}}>
@@ -139,7 +139,7 @@ class GraphWithData extends React.Component {
     else {
       return (
         <div style={{display: "flex"}}>
-          <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly"}}>
+          <div style={{flex: 1, justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "space-evenly", maxHeight: height}}>
             <SVGComponent {...config} data={data} xaxis={xaxis} maxy={maxy} width={width - 130} height={height} categories={categories} theme={props.theme} palette={config.palette}/>
           </div>
 
@@ -150,7 +150,7 @@ class GraphWithData extends React.Component {
             <div className="" style={{flex: 2, display: "flex", flexDirection: "column", justifyContent: "space-around", alignSelf: "flex-start"}}>
               {categories.map( (c, i) => (
                 <div className="ui bold text oneline" key={i}>
-                  <span className={`ui square`} style={{background: colorize_hex(c, config.palette)}}/>&nbsp;
+                  <span className={`ui square`} style={{background: fill_colors[i]}}/>&nbsp;
                   {c}
                 </div>
               ))}

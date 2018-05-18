@@ -39,7 +39,7 @@ function SVGBars({data, xaxis, maxy, categories, width, height, theme, palette})
   const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / 40))
 
   // line colors
-  const fill = colorize_list_hex(categories)
+  const fill = colorize_list_hex(categories, palette)
   // categories.reduce( (acc, cat, i) => acc.concat(colorize_hex(cat, palette)), [])
 
   function rescale(legend, category){
