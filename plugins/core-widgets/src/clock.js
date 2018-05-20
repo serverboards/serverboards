@@ -5,9 +5,8 @@
 
   const styles = {
     clock: {
-      fontFamily:"fixed",
+      fontFamily: "lato",
       lineHeight: "75px",
-      fontSize: "65px",
       paddingTop:"0px",
       display: "flex",
       flexDirection: "row",
@@ -31,6 +30,7 @@
         this.setState({interval_id: interval_id})
       }
       this.props.setClass("orange card")
+      this.props.setTitle(" ")
     }
     componentWillUnmount(){
       if (this.state.interval_id){
@@ -57,9 +57,12 @@
       var hour=time.hour
       var minute=time.minute
       var second=time.second
+
+      const fontSize = Math.min(this.props.layout.height/2, this.props.layout.width/5)
+
       return (
         <div className="content">
-          <div className="content" style={styles.clock}>
+          <div className="content" style={{...styles.clock, height: this.props.layout.height, fontSize}}>
             <span className="hour">{hour}</span> :
             <span className="minute">{minute}</span> :
             <span className="second">{second}</span>
