@@ -28,7 +28,7 @@ var Main = connect({
     }
   },
   loading(state, props){
-    console.log(state, props)
+    // console.log(state, props)
     if (state.auth.logged_in && (props.legal == undefined))
       return i18n("User data")
     return false

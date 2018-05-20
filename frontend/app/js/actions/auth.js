@@ -45,9 +45,9 @@ export function logged_in_as(user){
       rpc.call("settings.user.get", ["tracking"]).then( (props) => {
         dispatch(set_tracking(props ? props.tracking : true))
       })
-      console.log("Get legal ok")
+      // console.log("Get legal ok")
       rpc.call("settings.user.get", ["legal"]).then( (props) => {
-        console.log("Get legal ok: ", props)
+        // console.log("Get legal ok: ", props)
         dispatch(set_legal(props ? props.legal_id : false))
       })
 

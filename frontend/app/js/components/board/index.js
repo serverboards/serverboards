@@ -116,13 +116,13 @@ class Board extends React.Component{
     // this.setState({layout})
   }
   componentWillReceiveProps(newprops){
-    console.log("Got new props", this.props, newprops)
+    // console.log("Got new props", this.props, newprops)
     if (!object_is_equal(this.props.widgets, newprops.widgets)){
-      console.log("update layout")
+      // console.log("update layout")
       lo.debounce(this.updateLayout, 200)()
     }
     if (this.props.show_sidebar != newprops.show_sidebar){
-      console.log("calculate board size")
+      // console.log("calculate board size")
       lo.debounce(this.calculateBoardSize, 200)()
     }
 
@@ -146,7 +146,7 @@ class Board extends React.Component{
     props = props || this.props
     // If range change, its a full refresh. Else its not. There will be failires, but okish.
     const is_refresh = (props.time_range != this.props.time_range)
-    console.log("Is a refresh?", is_refresh)
+    // console.log("Is a refresh?", is_refresh)
     const {configs, to_extract} = this.updateConfigs(props.widgets, is_refresh)
     this.setState({configs, to_extract})
     this.updateExtractedConfigs(to_extract, this.getStatusContext())
