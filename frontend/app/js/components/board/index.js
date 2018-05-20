@@ -195,7 +195,7 @@ class Board extends React.Component{
     // console.log(this.state.layout)
     // console.log(this.refs.board)
     const maxy = Math.max.apply(Math, this.state.layout.map( l => (l.w + l.x) || 0 ))
-    const width = $(this.refs.board).width() - 25 // Some margin too
+    const width = Math.max(500, $(this.refs.board).width() - 25) // Some margin too
     let ncols = Math.floor(width / (WIDGET_WIDTH+15))
     // console.log("Max Y is ", maxy, " ncols ", ncols)
     const fullscreen = (window.innerHeight == screen.height)
