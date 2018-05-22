@@ -49,8 +49,8 @@ clean:
 
 i18n-update:
 	@echo -n "Updating po files..."
-	../cli/serverboards-i18n-update.sh lang/es.po app ../plugins/
+	../cli/s10s-i18n-update.sh lang/es.po app ../plugins/
 	@echo " Done"
 
 i18n-compile:
-	../cli/serverboards-i18n-compile.py lang/es.po lang/es.json
+	../cli/s10s-i18n-compile.py lang/es.po lang/es.json

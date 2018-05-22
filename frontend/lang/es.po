@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-21 20:06+0200\n"
-"PO-Revision-Date: 2018-05-21 20:15+0200\n"
+"POT-Creation-Date: 2018-05-22 09:41+0200\n"
+"PO-Revision-Date: 2018-05-22 11:30+0200\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"X-Generator: Poedit 2.0.7\n"
+"X-Generator: Poedit 2.0.4\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107 app/js/components/top/index.js:105
@@ -880,6 +880,7 @@ msgstr "Servidor SMTP"
 
 #: ../plugins/core-notifications/manifest.yaml
 #: plugins/optional-cloud/src/components/ssh.js:135
+#: ../plugins/optional-cloud/src/components/ssh.js:135
 msgid "Port"
 msgstr "Puerto"
 
@@ -889,6 +890,7 @@ msgstr "Dirección email de origen"
 
 #: ../plugins/core-notifications/manifest.yaml
 #: plugins/optional-cloud/src/components/ssh.js:127
+#: ../plugins/optional-cloud/src/components/ssh.js:127
 msgid "Username"
 msgstr "Nombre de usuario"
 
@@ -1675,6 +1677,8 @@ msgstr "Detalles del servicio"
 #: app/js/components/rules_v2/index.js:176
 #: app/js/components/service/cards.js:33
 #: app/js/components/service/details/index.js:111
+#: ../plugins/optional-backups/src/components/detailstab.js:44
+#: ../plugins/optional-cloud/src/components/detailstab.js:41
 msgid "Details"
 msgstr "Detalles"
 
@@ -2172,6 +2176,7 @@ msgstr "Búscar y ejecutar comandos..."
 #: app/js/components/rules_v2/index.js:180 app/js/components/logs/index.js:191
 #: app/js/components/logs/index.js:208
 #: app/js/components/service/details/index.js:113
+#: ../plugins/optional-backups/src/components/detailstab.js:58
 msgid "Logs"
 msgstr "Logs"
 
@@ -3260,6 +3265,7 @@ msgstr ""
 #: frontend/app/js/components/service/card.js:61
 #: plugins/optional-cloud/src/components/ssh.js:139
 #: app/js/components/service/card.js:62 app/js/components/service/table.js:58
+#: ../plugins/optional-cloud/src/components/ssh.js:139
 msgid "Options"
 msgstr "Opciones"
 
@@ -3496,6 +3502,7 @@ msgid "Cloud"
 msgstr "Cloud"
 
 #: frontend/app/js/components/selector.js:97 app/js/components/selector.js:97
+#: ../plugins/core-widgets/src/pie3.js:102
 msgid "Other"
 msgstr "Otros"
 
@@ -3522,6 +3529,8 @@ msgstr ""
 #: app/js/components/rules_v2/edit/serviceselector.js:67
 #: app/js/components/service/add.js:225 app/js/components/service/cards.js:111
 #: app/js/components/selector.js:148
+#: ../plugins/optional-backups/src/components/list.js:98
+#: ../plugins/optional-cloud/src/components/list.js:110
 msgid "Filter..."
 msgstr "Filtro..."
 
@@ -3727,6 +3736,7 @@ msgstr "O añade uno manualmente de un repositorio git:"
 #: frontend/app/js/components/settings/plugins/add.js:69
 #: plugins/optional-backups/src/components/menu.js:10
 #: app/js/components/settings/plugins/add.js:69
+#: ../plugins/optional-backups/src/components/menu.js:10
 msgid "Back to list"
 msgstr "Volver a la lista"
 
@@ -4389,6 +4399,7 @@ msgstr "Añadir incidencia"
 #: frontend/app/js/components/issues/index.js:208
 #: plugins/optional-cloud/src/components/list.js:118
 #: app/js/components/issues/index.js:208
+#: ../plugins/optional-cloud/src/components/list.js:118
 msgid "Filters"
 msgstr "Filtros"
 
@@ -4590,69 +4601,85 @@ msgstr "{units}{timeunit}"
 #: frontend/app/js/utils/index.js:314 frontend/app/js/utils/index.js:321
 #: plugins/optional-backups/src/components/edit.js:213
 #: app/js/utils/index.js:446 app/js/utils/index.js:453
+#: ../plugins/optional-backups/src/components/edit.js:213
 msgid "Sunday"
 msgstr "Domingo"
 
 #: frontend/app/js/utils/index.js:315
 #: plugins/optional-backups/src/components/edit.js:207
 #: app/js/utils/index.js:447
+#: ../plugins/optional-backups/src/components/edit.js:207
 msgid "Monday"
 msgstr "Lunes"
 
 #: frontend/app/js/utils/index.js:316
 #: plugins/optional-backups/src/components/edit.js:208
 #: app/js/utils/index.js:448
+#: ../plugins/optional-backups/src/components/edit.js:208
 msgid "Tuesday"
 msgstr "Martes"
 
 #: frontend/app/js/utils/index.js:317
 #: plugins/optional-backups/src/components/edit.js:209
 #: app/js/utils/index.js:449
+#: ../plugins/optional-backups/src/components/edit.js:209
 msgid "Wednesday"
 msgstr "Miercoles"
 
 #: frontend/app/js/utils/index.js:318
 #: plugins/optional-backups/src/components/edit.js:210
 #: app/js/utils/index.js:450
+#: ../plugins/optional-backups/src/components/edit.js:210
 msgid "Thursday"
 msgstr "Jueves"
 
 #: frontend/app/js/utils/index.js:319
 #: plugins/optional-backups/src/components/edit.js:211
 #: app/js/utils/index.js:451
+#: ../plugins/optional-backups/src/components/edit.js:211
 msgid "Friday"
 msgstr "Viernes"
 
 #: frontend/app/js/utils/index.js:320
 #: plugins/optional-backups/src/components/edit.js:212
 #: app/js/utils/index.js:452
+#: ../plugins/optional-backups/src/components/edit.js:212
 msgid "Saturday"
 msgstr "Sabado"
 
 #: plugins/optional-backups/src/components/list.js:50
+#: ../plugins/optional-backups/src/components/list.js:50
 msgid "Completed on:"
 msgstr "Completado el:"
 
 #: plugins/optional-backups/src/components/list.js:55
+#: ../plugins/optional-backups/src/components/list.js:55
 msgid "Backup pending"
 msgstr "Backup pendiente"
 
 #: plugins/optional-backups/src/components/list.js:63
+#: ../plugins/optional-backups/src/components/list.js:63
 msgid "Backup error"
 msgstr "Error de backup"
 
 #: plugins/optional-backups/src/components/list.js:66
 #: plugins/optional-backups/src/components/details.js:62
+#: ../plugins/optional-backups/src/components/list.js:66
+#: ../plugins/optional-backups/src/components/details.js:62
 msgid "Backup in progress..."
 msgstr "Backup en progreso..."
 
 #: plugins/optional-backups/src/components/list.js:127
 #: plugins/optional-backups/src/components/add.js:13
+#: ../plugins/optional-backups/src/components/list.js:127
+#: ../plugins/optional-backups/src/components/add.js:13
 msgid "A project without backups is a disaster waiting to happen."
 msgstr "Un proyecto sin backups es un desastre esperando suceder"
 
 #: plugins/optional-backups/src/components/list.js:128
 #: plugins/optional-backups/src/components/add.js:14
+#: ../plugins/optional-backups/src/components/list.js:128
+#: ../plugins/optional-backups/src/components/add.js:14
 msgid ""
 "Add and plan your backups selecting a source of the data, and where are you "
 "going to store it.\n"
@@ -4673,129 +4700,163 @@ msgstr ""
 "incidencia, de modo que se puedan tomar acciones para arreglar el backup."
 
 #: plugins/optional-backups/src/components/menu.js:14
+#: ../plugins/optional-backups/src/components/menu.js:14
 msgid "Add backup job"
 msgstr "Añadir trabajo de backup"
 
 #: plugins/optional-backups/src/components/edit.js:81
+#: ../plugins/optional-backups/src/components/edit.js:81
 msgid "Invalid time. Must be HH:MM format"
 msgstr "Hora invalida. Debe ser en el formato HH:MM"
 
 #: plugins/optional-backups/src/components/edit.js:146
+#: ../plugins/optional-backups/src/components/edit.js:146
 msgid "Create a new backup."
 msgstr "Crear nuevo backup."
 
 #: plugins/optional-backups/src/components/edit.js:149
+#: ../plugins/optional-backups/src/components/edit.js:149
 msgid "Name of this backup"
 msgstr "Nombre del backup"
 
 #: plugins/optional-backups/src/components/edit.js:152
+#: ../plugins/optional-backups/src/components/edit.js:152
 msgid "Memorable backup name"
 msgstr "Nombre memorable del backup"
 
 #: plugins/optional-backups/src/components/edit.js:159
 #: plugins/optional-backups/src/components/details.js:99
+#: ../plugins/optional-backups/src/components/edit.js:159
+#: ../plugins/optional-backups/src/components/details.js:99
 msgid "Source"
 msgstr "Fuente"
 
 #: plugins/optional-backups/src/components/edit.js:161
+#: ../plugins/optional-backups/src/components/edit.js:161
 msgid "Select a source type"
 msgstr "Selecciona el tipo de fuente"
 
 #: plugins/optional-backups/src/components/edit.js:182
 #: plugins/optional-backups/src/components/details.js:108
+#: ../plugins/optional-backups/src/components/edit.js:182
+#: ../plugins/optional-backups/src/components/details.js:108
 msgid "Destination"
 msgstr "Destino"
 
 #: plugins/optional-backups/src/components/edit.js:184
+#: ../plugins/optional-backups/src/components/edit.js:184
 msgid "Select destination type"
 msgstr "Selecciona el tipo de destino"
 
 #: plugins/optional-backups/src/components/edit.js:205
+#: ../plugins/optional-backups/src/components/edit.js:205
 msgid "Schedule"
 msgstr "Programación"
 
 #: plugins/optional-backups/src/components/edit.js:215
 #: plugins/optional-backups/src/components/details.js:125
+#: ../plugins/optional-backups/src/components/edit.js:215
+#: ../plugins/optional-backups/src/components/details.js:125
 msgid "Time"
 msgstr "Hora"
 
 #: plugins/optional-backups/src/components/edit.js:227
+#: ../plugins/optional-backups/src/components/edit.js:227
 msgid "Description and comments"
 msgstr "Descripción y comentarios"
 
 #: plugins/optional-backups/src/components/edit.js:230
+#: ../plugins/optional-backups/src/components/edit.js:230
 msgid "Description and random notes about the backup and its history."
 msgstr "Descripción y notas varias sobre el backup y su historia"
 
 #: plugins/optional-backups/src/components/edit.js:237
+#: ../plugins/optional-backups/src/components/edit.js:237
 msgid "Create backup"
 msgstr "Crear backup"
 
 #: plugins/optional-backups/src/components/edit.js:239
+#: ../plugins/optional-backups/src/components/edit.js:239
 msgid "Update backup"
 msgstr "Actualizar backup"
 
 #: plugins/optional-backups/src/components/details.js:57
+#: ../plugins/optional-backups/src/components/details.js:57
 msgid "Backup succesfully done"
 msgstr "Backup realizado correctamente"
 
 #: plugins/optional-backups/src/components/details.js:70
+#: ../plugins/optional-backups/src/components/details.js:70
 msgid "Pending"
 msgstr "Pendiente"
 
 #: plugins/optional-backups/src/components/details.js:76
+#: ../plugins/optional-backups/src/components/details.js:76
 msgid "Error on backup"
 msgstr "Error en el backup"
 
 #: plugins/optional-backups/src/components/details.js:94
+#: ../plugins/optional-backups/src/components/details.js:94
 msgid "Completed on: "
 msgstr "Completado el:"
 
 #: plugins/optional-backups/src/components/details.js:117
+#: ../plugins/optional-backups/src/components/details.js:117
 msgid "Scheduled days"
 msgstr "Días programados"
 
 #: plugins/optional-backups/src/components/details.js:119
+#: ../plugins/optional-backups/src/components/details.js:119
 msgid "No days scheduled for this backup!"
 msgstr "¡No hay días programados para este backup!"
 
 #: plugins/optional-backups/src/components/detailstab.js:51
+#: ../plugins/optional-backups/src/components/detailstab.js:51
 msgid "Edit"
 msgstr "Editar"
 
 #: plugins/optional-backups/src/containers/list.js:50
+#: ../plugins/optional-backups/src/containers/list.js:50
 msgid "Starting *{name}* backup"
 msgstr "Comenzando el backup *{name}*"
 
 #: plugins/optional-backups/src/containers/list.js:51
+#: ../plugins/optional-backups/src/containers/list.js:51
 msgid "Error starting backup *{name}*: {e}"
 msgstr "Error comenzando el backup *{name}*: {e}"
 
 #: plugins/optional-backups/src/containers/list.js:56
+#: ../plugins/optional-backups/src/containers/list.js:56
 msgid "Stopping *{name}* backup"
 msgstr "Parando el backup *{name}*"
 
 #: plugins/optional-backups/src/containers/list.js:57
+#: ../plugins/optional-backups/src/containers/list.js:57
 msgid "Error stopping backup *{name}*: {e}"
 msgstr "Error parando el backup *{name}*: {e}"
 
 #: plugins/optional-backups/src/containers/list.js:66
+#: ../plugins/optional-backups/src/containers/list.js:66
 msgid "Backup updated"
 msgstr "Backup actualizado"
 
 #: plugins/optional-backups/src/containers/list.js:67
+#: ../plugins/optional-backups/src/containers/list.js:67
 msgid "Could not update backup: {e}"
 msgstr "No se puede actualizar el backup: {e}"
 
 #: plugins/optional-backups/src/containers/list.js:75
+#: ../plugins/optional-backups/src/containers/list.js:75
 msgid "Backups"
 msgstr "Backups"
 
 #: plugins/optional-backups/src/containers/list.js:95
+#: ../plugins/optional-backups/src/containers/list.js:95
 msgid "Unknown view"
 msgstr "Vista desconocida"
 
 #: plugins/optional-backups/src/containers/edit.js:28
+#: ../plugins/optional-backups/src/containers/edit.js:28
 msgid ""
 "Update *{name}* backup, but as it has not any day enabled it is effectively "
 "disabled"
@@ -4804,14 +4865,17 @@ msgstr ""
 "efectivamente desactivado"
 
 #: plugins/optional-backups/src/containers/edit.js:31
+#: ../plugins/optional-backups/src/containers/edit.js:31
 msgid "Backup *{name}* updated."
 msgstr "Backup *{name}* acutalizado"
 
 #: plugins/optional-backups/src/containers/edit.js:39
+#: ../plugins/optional-backups/src/containers/edit.js:39
 msgid "Available destinations and sources"
 msgstr "destinos y origenes disponibles"
 
 #: plugins/optional-backups/src/containers/add.js:35
+#: ../plugins/optional-backups/src/containers/add.js:35
 msgid ""
 "Added *{name}* backup, but as it has not any day enabled it is effectively "
 "disabled"
@@ -4820,10 +4884,12 @@ msgstr ""
 "efectivamente desactivado."
 
 #: plugins/optional-backups/src/containers/add.js:38
+#: ../plugins/optional-backups/src/containers/add.js:38
 msgid "Backup *{name}* created."
 msgstr "Backup *{name}* creado."
 
 #: plugins/optional-backups/src/containers/add.js:44
+#: ../plugins/optional-backups/src/containers/add.js:44
 msgid ""
 "Error creating backup:\n"
 "\n"
@@ -4831,10 +4897,12 @@ msgid ""
 msgstr "Error creando el backup: {e}"
 
 #: plugins/optional-cloud/src/components/list.js:97
+#: ../plugins/optional-cloud/src/components/list.js:97
 msgid "Direct access to your Virtual Machines and Containers."
 msgstr "Acceso directo a tus Máquinas Virtuales y Contenedores."
 
 #: plugins/optional-cloud/src/components/list.js:98
+#: ../plugins/optional-cloud/src/components/list.js:98
 msgid ""
 "Add access to your Virtual Machine and Containers and access directly from "
 "the UI via a SSH Terminal or Remote Desktop."
@@ -4843,113 +4911,143 @@ msgstr ""
 "desde el interfáz de usuario via escritorio remoto o terminal SSH."
 
 #: plugins/optional-cloud/src/components/list.js:131
+#: ../plugins/optional-cloud/src/components/list.js:131
 msgid "Group by provider"
 msgstr "Agrupar por proveedor"
 
 #: plugins/optional-cloud/src/components/ssh.js:27
 #: plugins/optional-cloud/src/components/ssh.js:72
+#: ../plugins/optional-cloud/src/components/ssh.js:27
+#: ../plugins/optional-cloud/src/components/ssh.js:72
 msgid "Loading..."
 msgstr "Cargando..."
 
 #: plugins/optional-cloud/src/components/ssh.js:81
+#: ../plugins/optional-cloud/src/components/ssh.js:81
 msgid "Error: {e}"
 msgstr "Error: {e}"
 
 #: plugins/optional-cloud/src/components/ssh.js:117
+#: ../plugins/optional-cloud/src/components/ssh.js:117
 msgid "SSH Connection data"
 msgstr "Datos de conexion SSH"
 
 #: plugins/optional-cloud/src/components/ssh.js:123
+#: ../plugins/optional-cloud/src/components/ssh.js:123
 msgid "Connect via SSH"
 msgstr "Conectar por SSH"
 
 #: plugins/optional-cloud/src/components/ssh.js:128
+#: ../plugins/optional-cloud/src/components/ssh.js:128
 msgid "root"
 msgstr "root"
 
 #: plugins/optional-cloud/src/components/ssh.js:131
+#: ../plugins/optional-cloud/src/components/ssh.js:131
 msgid "Address"
 msgstr "Dirección"
 
 #: plugins/optional-cloud/src/components/ssh.js:136
+#: ../plugins/optional-cloud/src/components/ssh.js:136
 msgid "22"
 msgstr "22"
 
 #: plugins/optional-cloud/src/components/ssh.js:143
+#: ../plugins/optional-cloud/src/components/ssh.js:143
 msgid "Remember to add this public SSH key to the remote server"
 msgstr "Recuerda añadir esta clave SSH publica al servidor remoto"
 
 #: plugins/optional-cloud/src/components/ssh.js:149
+#: ../plugins/optional-cloud/src/components/ssh.js:149
 msgid "The remote fingerprint is"
 msgstr "El fngerprint remoto es"
 
 #: plugins/optional-cloud/src/components/ssh.js:154
+#: ../plugins/optional-cloud/src/components/ssh.js:154
 msgid "You have never connected to this SSH server"
 msgstr "Nunca te has conectado a este servidor SSH"
 
 #: plugins/optional-cloud/src/components/ssh.js:156
+#: ../plugins/optional-cloud/src/components/ssh.js:156
 msgid "You have already connected to this SSH server"
 msgstr "Ya te has conectado antes a este servidor SSH"
 
 #: plugins/optional-cloud/src/components/ssh.js:162
+#: ../plugins/optional-cloud/src/components/ssh.js:162
 msgid "Connect"
 msgstr "Conectar"
 
 #: plugins/optional-cloud/src/components/card.js:27
+#: ../plugins/optional-cloud/src/components/card.js:27
 msgid "Node information..."
 msgstr "Información del nodo..."
 
 #: plugins/optional-cloud/src/components/details.js:135
+#: ../plugins/optional-cloud/src/components/details.js:135
 msgid "MEM TOTAL"
 msgstr "MEM TOTAL"
 
 #: plugins/optional-cloud/src/components/details.js:138
 #: plugins/optional-cloud/src/components/details.js:147
+#: ../plugins/optional-cloud/src/components/details.js:138
+#: ../plugins/optional-cloud/src/components/details.js:147
 msgid "{size} {unit} free"
 msgstr "{size} {unit} libres"
 
 #: plugins/optional-cloud/src/components/details.js:144
+#: ../plugins/optional-cloud/src/components/details.js:144
 msgid "DISK TOTAL"
 msgstr "DISCO TOTAL"
 
 #: plugins/optional-cloud/src/components/details.js:153
+#: ../plugins/optional-cloud/src/components/details.js:153
 msgid "CPU USAGE"
 msgstr "USO CPU"
 
 #: plugins/optional-cloud/src/components/details.js:162
+#: ../plugins/optional-cloud/src/components/details.js:162
 msgid "IP Address"
 msgstr "Direción IP"
 
 #: plugins/optional-cloud/src/components/details.js:170
+#: ../plugins/optional-cloud/src/components/details.js:170
 msgid "IPv6 Address"
 msgstr "Dirección IPv6"
 
 #: plugins/optional-cloud/src/components/details.js:178
+#: ../plugins/optional-cloud/src/components/details.js:178
 msgid "DNS"
 msgstr "DNS"
 
 #: plugins/optional-cloud/src/components/details.js:186
+#: ../plugins/optional-cloud/src/components/details.js:186
 msgid "Other Data"
 msgstr "Otros datos"
 
 #: plugins/optional-cloud/src/components/detailstab.js:49
+#: ../plugins/optional-cloud/src/components/detailstab.js:49
 msgid "SSH Remote Terminal"
 msgstr "Terminal Remoto SSH"
 
 #: plugins/optional-cloud/src/components/detailstab.js:58
+#: ../plugins/optional-cloud/src/components/detailstab.js:58
 msgid "Remote Desktop"
 msgstr "Escritorio Remoto"
 
 #: plugins/optional-cloud/src/containers/list.js:88
+#: ../plugins/optional-cloud/src/containers/list.js:88
 msgid "Cloud nodes"
 msgstr "Nodos Cloud"
 
 #: plugins/optional-cloud/src/containers/list.js:93
+#: ../plugins/optional-cloud/src/containers/list.js:93
 msgid "Could not load cloud nodes list. Try again. {e}"
 msgstr "No se pudo cargar la lista de nodos Cloud. Intentelo de nuevo. {e}"
 
 #: plugins/optional-cloud/src/containers/card.js:10
 #: plugins/optional-cloud/src/containers/detailstab.js:18
+#: ../plugins/optional-cloud/src/containers/card.js:10
+#: ../plugins/optional-cloud/src/containers/detailstab.js:18
 msgid ""
 "Could not perform action. Check logs.\n"
 "{error}"
@@ -4957,21 +5055,29 @@ msgstr "No se pudo realizar la acción. Compruebe los logs. {error}"
 
 #: plugins/optional-cloud/src/containers/card.js:14
 #: plugins/optional-cloud/src/containers/detailstab.js:22
+#: ../plugins/optional-cloud/src/containers/card.js:14
+#: ../plugins/optional-cloud/src/containers/detailstab.js:22
 msgid "Started *{name}*"
 msgstr "Arrancado *{name}*"
 
 #: plugins/optional-cloud/src/containers/card.js:19
 #: plugins/optional-cloud/src/containers/detailstab.js:27
+#: ../plugins/optional-cloud/src/containers/card.js:19
+#: ../plugins/optional-cloud/src/containers/detailstab.js:27
 msgid "Paused *{name}*"
 msgstr "Pausando *{name}*"
 
 #: plugins/optional-cloud/src/containers/card.js:24
 #: plugins/optional-cloud/src/containers/detailstab.js:32
+#: ../plugins/optional-cloud/src/containers/card.js:24
+#: ../plugins/optional-cloud/src/containers/detailstab.js:32
 msgid "Stopped *{name}*"
 msgstr "Parado *{name}*"
 
 #: plugins/optional-quickactions/src/views/topmenu.js:7
 #: plugins/optional-quickactions/static/editor.js:236
+#: ../plugins/optional-quickactions/src/views/topmenu.js:7
+#: ../plugins/optional-quickactions/static/editor.js:236
 msgid "Add quick action"
 msgstr "Añadir acción rápida"
 
@@ -5811,3 +5917,454 @@ msgstr "Actualizado proyecto *{shortname}*"
 #: app/js/actions/project.js:45
 msgid "Added service to project"
 msgstr "Añadido servicio al proyecto"
+
+#: ../plugins/core-widgets/src/pie3.js:115
+msgid "Invalid data for pie chard. Second column must be numbers"
+msgstr ""
+"Datos invalidos en diagrama de tarta. La segunda columna deben ser números"
+
+#: ../plugins/core-widgets/src/graph_with_data.js:37
+#: ../plugins/core-widgets/static/lines.js:1
+#: ../plugins/core-widgets/static/bars.js:1
+msgid "Bad formed graph component"
+msgstr "Componente gráfico mal formado"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Email sender"
+msgstr "Originario de email"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Mini 2"
+msgstr "Mini 2"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Small widget with name, and a value."
+msgstr "Widget pequeño con nombre y un valor"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Color"
+msgstr "Color"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Text"
+msgstr "Texto"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Go to URL on click"
+msgstr "Ir a esta URL al pulsar"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Mini N"
+msgstr "Mini N"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Horizontal widget with a name and a list of texts and values."
+msgstr "Widget horizontal con un nombre y una lista de textos y valores."
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Data"
+msgstr "Datos"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid ""
+"Query with `name`, `value`.\n"
+"\n"
+"Will show them all as space allows, same width each.\n"
+msgstr ""
+"Consulta con `nombre`, `valor`.\n"
+"\n"
+"Mostrará tantos como permita el espacio, con la misma anchura cada uno.\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Mini 5"
+msgstr "Mni 5"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Small widget with name, two columns of data with number, name and icon."
+msgstr ""
+"Widget pequeño con nombre, dos columnas de datos para cada dato con numero, "
+"nombre e icono."
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Left Icon"
+msgstr "Icono izquierdo"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Left Text"
+msgstr "Texto izquierdo"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Left Expression"
+msgstr "Expresión izquierda"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Right Icon"
+msgstr "Icono derecho"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Right Text"
+msgstr "Texto derecho"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Right Expression"
+msgstr "Expresión derecha"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Mini 3 Bars"
+msgstr "Mini 3 Bars"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Big data and three bars"
+msgstr "Dato en grande con tres barras"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Big label query"
+msgstr "Consulta para la etiqueta grande"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Bars query"
+msgstr "Consulta para las barras"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid ""
+"Only first three elements will be shown, or if more, the third becomes\n"
+"an aggregation of the rest.\n"
+"\n"
+"First column is the label, the second is the value.\n"
+msgstr ""
+"Solo los tres primeros elementos se mostrarán, o si hay más, la tercera será "
+"una agregación de las demás.\n"
+"\n"
+"El orden de las columnas es `etiqueta`, `valor`.\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Table"
+msgstr "Tabla"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Table with headers and rows"
+msgstr "Tabla con cabeceras y filas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Expression"
+msgstr "Expresión"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Bars"
+msgstr "Barras"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Bar diagram with legend, resumed value and performance indicator."
+msgstr ""
+"Diagrama de barras con leyenda, valor resumen, e indicador de rendimiento."
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Show performance and legend"
+msgstr "Mostrar rendimiento y leyenda"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Right"
+msgstr "Derecha"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Bottom"
+msgstr "Abajo"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Hide"
+msgstr "Ocultar"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Color Palette"
+msgstr "Paleta de colores"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Mix"
+msgstr "Mezcla"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Purple"
+msgstr "Púrpura"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Blue"
+msgstr "Azúl"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Green"
+msgstr "Verde"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Brown"
+msgstr "Marrón"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Summary Query"
+msgstr "Consulta resumen"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Summary number on the corner."
+msgstr "La consulta de resumen de la esquina"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Performance Query"
+msgstr "Consulta de rendimiento"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid ""
+"Performance number on the corner. If starts with `+` will\n"
+"be shown green, if starts with `-` will be shown red.\n"
+msgstr ""
+"Numero de rendimiento de la esquina. Si empieza con `+` se mostrará en "
+"verde,\n"
+"si empieza por `-` se mostrará en rojo.\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Bar Data Query"
+msgstr "Consulta de datos para las barras"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid ""
+"Expression to show data. Needs to return:\n"
+"`Category name`, `Xvalue`, `YValue`.\n"
+"\n"
+"`XValue` is sorted and not require to be numeric. `YValue` needs to be\n"
+"numeric.\n"
+"\n"
+"`XValue` can be in the form of `order|label` to force ordeing with\n"
+"specific labels, as `01|January`.\n"
+"\n"
+"It does aggregation on `Category name` and `XValue` summing the\n"
+"values, so repeated values are allowed.\n"
+"\n"
+"Its possible to force the `Category` and `Xvalue` existence setting\n"
+"YValue to `null`.\n"
+msgstr ""
+"Expresión para los datos a mostrar. Necesita devolver: `nombre de "
+"categoría`, `valor X`, `valor Y`.\n"
+"\n"
+"El `valor X` se ordenará pero no requiere ser numérico. El `valor Y` debe "
+"ser numérico.\n"
+"\n"
+"El `valor X` puede tener la forma `orden|etiqueta` de tal forma que se "
+"fuerza un orden\n"
+"con una etiqueta específica, por ejemplo `01|Enero`.\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Lines"
+msgstr "Líneas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Lines diagram with legend, resumed value and performance indicator."
+msgstr ""
+"Diagrama de líneas con leyenda, valor resumen e indicador de rendimiento."
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Fill"
+msgstr "Rellenar"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Fill line area mode"
+msgstr "Modo de relleno de las líneas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "No fill"
+msgstr "No rellenar"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Line Data Query"
+msgstr "Consulta de datos para líneas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Pie 3"
+msgstr "Tarta 3"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Pie bar with summary data and three bars"
+msgstr "Diagrama de tarta con valor de sumario y tres áreas"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Summary number on the top, and center of pie.\n"
+msgstr "Valor de sumario arriba y centro de la tarta.\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Pie data Query"
+msgstr "Consulta de datos de tarta"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid ""
+"Expression to show data. Needs to return:\n"
+"`Category name`, `value`, `change`.\n"
+msgstr ""
+"Expresión para los datos a mostrar. Debe devolver: `categoría`, `valor`, "
+"`cambio`.\n"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Leaderboard with bars"
+msgstr "Leaderboard con barras"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Leaderboard with bars."
+msgstr "Leaderboard con barras."
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Show"
+msgstr "Mostrar"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Data shown should be percentual value or total value"
+msgstr "El dato mostrador debe ser un valor porcentual o valor total"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Total values"
+msgstr "Valor total"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Percentual value"
+msgstr "Valor percentual"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid "Data Query"
+msgstr "Consulta de datos"
+
+#: ../plugins/core-widgets/manifest.yaml
+msgid ""
+"Expression to show data. Needs to return:\n"
+"`Name`, `value`.\n"
+"\n"
+"`value` will be shown as percentage on the right\n"
+msgstr ""
+"Expresión de datos a mostrar. Necesita devolver: `nombre`, `valor`.\n"
+"\n"
+"`valor` se mostrará como porcentaje a la derecha.\n"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "If no redirect, YAML style response. Will be converted to JSON."
+msgstr "Si no redirige, la respuesta en formato YAML. Será convertida a JSON."
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"If empty, will just return `{\"status\": \"success\"}` or `{\"status\": "
+"\"error\"}`"
+msgstr ""
+"Si es vacío, devolverá `{\"status\": \"success\"}` o `{\"status\": \"error\"}"
+"`"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "List of allowed origins."
+msgstr "Lista de origenes permitidos"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid ""
+"One origin per line. Will be used for both allow execute the webhook\n"
+"and set the `Access-Control-Allow-Origin`.\n"
+"\n"
+"Only protocol and domain supported.\n"
+"\n"
+"Special `direct` can be used for direct traffic (CURL).\n"
+msgstr ""
+"Un origen por linea. Será usado para permitir ejecutar el webhook y poner el "
+"`Access-Control-Allow-Origin`.\n"
+"\n"
+"Solo se permite protocolo y dominio.\n"
+"\n"
+"El valor especial `direct` puede usarse para permitir sólo trafico directo "
+"(CURL).\n"
+
+#: ../plugins/core-triggers/manifest.yaml
+msgid "Object with data identifying the peer: `origin`, `ip` and `port`."
+msgstr "Objecto con datos identificando al peer: `origin`, `ip` y `port`."
+
+#: ../plugins/optional-serviceup/mock.yaml
+msgid "Service B"
+msgstr "Servicio B"
+
+#: ../plugins/optional-serviceup/mock.yaml
+msgid "Service A"
+msgstr "Servicio A"
+
+#: ../plugins/optional-serviceup/manifest.yaml
+msgid "Check services stay up"
+msgstr "Comprobar que los servicios siguen en funcionamiento"
+
+#: ../plugins/optional-serviceup/manifest.yaml
+msgid ""
+"Performs service is up checks at any service update and periodically,\n"
+"changing status label and sending/closing issues as required.\n"
+"\n"
+"This is very similar to what a rule can do, but specialized and integrated\n"
+"so that every service can use without any need for external rules.\n"
+msgstr ""
+"Realiza comprobaciones de que el servicio sigue funcionando tras cualquier "
+"actualización y periódicamente,\n"
+"cambiando las etiquetas de estado y abriendo/cerrando incidencias según "
+"corresponda.\n"
+"\n"
+"Esto es muy similar a lo que una regla puede hacer, pero especializado e "
+"integrado\n"
+"de modo que cada servicio puede usarlo sin necesidad de reglas especiales.\n"
+"\n"
+
+#: ../plugins/optional-serviceup/manifest.yaml
+msgid "Service Up Init service"
+msgstr "Servicio Init de Service Up"
+
+#: ../plugins/optional-serviceup/manifest.yaml
+msgid "Service up daemon"
+msgstr "Demonio de Service UP"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Remote CSV File"
+msgstr "Archivo CSV remoto"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Access to a CSV file stored in an SSH accessible server"
+msgstr "Accede a un archivo CSV almacenado en un servidor accesible por SSH"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "Path to CSV files"
+msgstr "Ruta al archivo CSV"
+
+#: ../plugins/core-ssh/manifest.yaml
+msgid "SSH extractor"
+msgstr "Extractor SSH"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Serverboards core services minimal daemon"
+msgstr "Demonio mínimo de servicios core"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid "Core extractors"
+msgstr "Extractores core"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid ""
+"Extract data from Serverboards itself, as services, status, users\n"
+"and builtin pivot tables.\n"
+msgstr ""
+"Extra datos del propio Serverboards, como servicios, estados, usuarios y "
+"algunas tablas pivot internas.\n"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid "Core extractor"
+msgstr "Extractor Core"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid "Serverboards internal data"
+msgstr "Datos internos de Serverboards"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid "Can extract basic data from Serverboards itself, as service status.\n"
+msgstr ""
+"Puede extraer datos del propio Serverboards, como estado del servicio.\n"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid "Auxiliary table to pivot data"
+msgstr "Tabla auxiliar de datos pivot"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid ""
+"Use `#` to mark new table names, then the data as CSV, first row the headers."
+msgstr ""
+"Use `#` para marcar el nombre de nuevas tablas, y a continuación los datos "
+"separados por comas (CSV), la primera fila serán las cabeceras."
