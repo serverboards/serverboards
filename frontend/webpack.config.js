@@ -90,6 +90,10 @@ module.exports = {
             {
               test: /\.txt$/,
               use: 'raw-loader'
+            },
+            {
+              test: /\.ya?ml$/,
+              use: 'yaml-import-loader'
             }
         ]
     },
