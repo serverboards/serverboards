@@ -5,9 +5,7 @@ var default_state={
   catalog: undefined,
   current: {
     service: undefined,
-    screens: undefined,
     template: undefined,
-    external_urls: undefined
   }
 }
 
@@ -61,10 +59,6 @@ function services(state=default_state, action){
           service: action.payload,
           template: get_template(state.catalog, action.payload && action.payload.type)
         } )})
-    case "SERVICE_SET_CURRENT_SCREENS":
-      return merge(state, {current: merge( state.current, {screens: action.payload} )})
-    case "SERVICE_SET_EXTERNAL_URL_COMPONENTS":
-      return merge(state, {current: merge( state.current, {external_urls: action.payload} )})
     case "CACHE_CLEAN_ALL":
       return {...state, services: undefined, catalog: undefined}
   }

@@ -76,19 +76,6 @@ export function clear_external_url_components(){
   }
 }
 
-export function service_load_external_url_components(traits=[]){
-  return function(dispatch){
-    rpc.call("plugin.component.catalog",{type:"external url", traits})
-       .then( (components) => dispatch({type:"SERVICE_SET_EXTERNAL_URL_COMPONENTS", payload: components}))
-  }
-}
-export function service_clear_external_url_components(){
-  return {
-    type: "SERVICE_SET_EXTERNAL_URL_COMPONENTS",
-    payload: undefined
-  }
-}
-
 
 export function service_load_current(uuid){
   if (!uuid){
