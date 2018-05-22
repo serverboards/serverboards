@@ -37,6 +37,8 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, pa
   const lastx = xaxis.length - 1
   // console.log({xgap, xgap2, xstart, xstart2})
 
+  fill = fill == true || fill == "true"
+
   let style = svg_style
 
   // line colors
