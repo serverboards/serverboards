@@ -170,9 +170,9 @@ var RPC = function(options={}){
   var pending_calls={}
 
   rpc.onmessage = function(msg){
-    if (rpc.debug)
-      console.debug("Got: %o", msg.data)
     var jmsg = JSON.parse(msg.data)
+    if (rpc.debug)
+      console.debug("Got: %o", jmsg)
     var id = jmsg['id']
     if (id){
       var pc = pending_calls[id]
@@ -202,15 +202,16 @@ var RPC = function(options={}){
     var promise = new Promise(function(resolve, reject){
       pending_calls[id]=[resolve, reject, method]
     })
-    var msg = JSON.stringify({
+    const obj = {
       method: method,
       id: id,
       params: params || []
-    } )
+    }
+    var msg = JSON.stringify( obj )
+    if (this.debug)
+      console.debug("Send: %o", obj)
     //console.log(msg)
     try{
-      if (this.debug)
-        console.debug("Send: %o", msg)
       if (this.status=="CONNECTED")
         rpc.rpc.send( msg )
       else{
