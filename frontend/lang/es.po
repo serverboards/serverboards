@@ -3,19 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-22 09:41+0200\n"
-"PO-Revision-Date: 2018-05-22 11:30+0200\n"
-"Language: es\n"
+"POT-Creation-Date: 2018-05-22 21:25+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"X-Generator: Poedit 2.0.4\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107 app/js/components/top/index.js:105
@@ -1665,6 +1665,8 @@ msgstr "Actualizar la configuración del servicio"
 #: frontend/app/js/containers/service/details.js:79
 #: app/js/components/service/details/index.js:105
 #: app/js/containers/service/details.js:79
+#: app/js/containers/service/details.js:39
+#: app/js/containers/service/details.js:81
 msgid "Service details"
 msgstr "Detalles del servicio"
 
@@ -5866,15 +5868,15 @@ msgstr "Reiniciar su contraseña"
 msgid "Log In"
 msgstr "Entrar"
 
-#: app/js/components/login/legal.js:16
+#: app/js/components/login/legal.js:16 app/js/components/login/legal.js:31
 msgid "Serverboards terms of use"
 msgstr "Terminos de uso de Serverboards"
 
-#: app/js/components/login/legal.js:30
+#: app/js/components/login/legal.js:30 app/js/components/login/legal.js:45
 msgid "I don't accept"
 msgstr "No acepto"
 
-#: app/js/components/login/legal.js:31
+#: app/js/components/login/legal.js:31 app/js/components/login/legal.js:46
 msgid "I accept"
 msgstr "Acepto"
 
@@ -6368,3 +6370,26 @@ msgid ""
 msgstr ""
 "Use `#` para marcar el nombre de nuevas tablas, y a continuación los datos "
 "separados por comas (CSV), la primera fila serán las cabeceras."
+
+#: app/js/components/login/legal.js:36
+msgid ""
+"By accepting these conditions you acknowledge that you have read the "
+"mentioneduse clasues.\n"
+"\n"
+"If you don't accept its not possible to give you the service so you will "
+"belogged out.              "
+msgstr ""
+
+#: app/js/components/login/legal.js:36
+msgid ""
+"By accepting these conditions you acknowledge that you have read and agree "
+"the mentioned use clasues.\n"
+"\n"
+"If you don't accept it is not possible to provide you the service so you "
+"will be logged out.              "
+msgstr ""
+"Si acepta estas condiciones estará reconociendo que ha leído y acepta las "
+"mencionadas clausulas de uso.\n"
+"\n"
+"Si no acepta no será posible proveerle del servicio, por lo que se cerrará "
+"su sesión."
