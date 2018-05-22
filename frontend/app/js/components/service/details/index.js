@@ -165,7 +165,7 @@ class Details extends React.Component{
             active: (s.id == current_tab),
             description: s.title
           }) ) } />
-          <div className="ui aligned right" style={{position: "absolute", top: 0, right: 0, margin: 0}}>
+          <div className="ui aligned right" style={{position: "absolute", top: 10, right: 5, margin: 0}}>
             {(props.service.tags || []).map( s => simple_tag(s)).map( s => (
               <span key={s} className="ui text label">
                 {s}&nbsp;
