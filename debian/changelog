@@ -1,3 +1,176 @@
+serverboards (18.4.0-rc179) unstable; urgency=medium
+
+  * Fix extra sections per service
+  * Fix placement of service tag at details
+  * Loading from minin at data line
+  * On RPC debug, debug object, not string
+  * i18n select labels and proper fill stacked lines
+  * Updated ES translation
+  * Fix copy translation to proper directory
+  * multio needs version 0.20 to use python 3.5
+  * Updated es translation
+  * Updated exosql
+  * Updated ExoSQL
+  * Small fixes to clock widget
+  * Fix add widgets to empty board
+  * Cleanup debugging logs
+  * Fix pngquant on latest versions. Upgrade webpack.
+  * Cleanup debug info at core ssh
+  * Fix color assignments on graphs
+  * Fix new widgets dont have layout
+  * Fix source map files.
+  * Fixed repeated colors at bars, lines and pie
+  * PEP8
+  * Fix sometimes shows nothing
+  * Fix show login modal
+  * Fix tests
+  * Repeat tests that have failed only once
+  * Improvements to timeouts at cmds
+  * Do not crash if invalid insert into cache
+  * Fix popups at top menu
+  * Updated legal terms of use
+  * Fix dotnot error messages
+  * Updted exosql
+  * Fix lang on top menu
+  * Can modify users email
+  * Fix leaderbars and mini3bars
+  * Fix pie size on vertical mode
+  * Fix reset password screen steps
+  * Fix show repeated extractors
+  * Calendar fix
+  * `colorize` with palettes now is in core
+  * Widget errors also show proper formatted error info
+  * Improved error reporting at widget editor
+  * Silent curl to serverboards
+  * Show refresh indicators when the date range really changes
+  * Maximum number of decimals on other pie data
+  * Show properly unknown errors
+  * Fix layout of widgets after edit
+  * Improvements to edit widget screen
+  * Style fixes for bar graphs
+  * Retry failed services in 30 seconds
+  * All open port should be resolved in 30 seconds, or abort it all
+  * Updated graph legend palette
+  * Added palette support for bars / lines
+  * Improved fullscreen
+  * When fullscreen resize widgets to use all width
+  * Improved error messages at widget editor
+  * Updated ExoSQL with WITH support
+  * Do not do full reload of widgets at update
+  * Improvements to widget layout changes
+  * Can show donut with 1 element
+  * When fullscreen resize widgets to use all width
+  * Updated exosql
+  * Working datetime with new simpler logic
+  * Fix pie chart
+  * Cleanup comments
+  * Separator for pie areas
+  * Several layouts for pies
+  * Simplified daterange selection code
+  * Fix daterange selection
+  * Working initial legal data
+  * Initial legal screen
+  * Simplified run actions
+  * Improved reconnect after failure
+  * Separator for pie areas
+  * Several layouts for pies
+  * Simplified daterange selection code
+  * Fix daterange selection
+  * Fix advance days at fixed intervals
+  * Added MiniN widget
+  * Fixed daterange store in invalid format
+  * Fix forced sizes of widgets becouse of bad hints
+  * Fix to show properly widget edit extra data
+  * Fix date range do not match (+1 day error)
+  * Align right summary
+  * If > 2 days, clamp to start/end of days' ranges
+  * Center board horizontally
+  * Improved markdown widget
+  * Improvements to new dynamic widgets board
+  * Horizontal center boards
+  * Widget change size acording to available space
+  * Board max size depends on the on-screen size
+  * New Loading.Widget for specific widget loading.
+  * Widget style fixes
+  * Added color bar to widgets
+  * Some margin up at bar graphs for legend
+  * Fix access to project settings
+  * Fixed s10s plugin not finding proper local installed plugin dir
+  * Install s10s-plugin
+  * Use system config to check for plugins
+  * Can remove plugins
+  * Can install plugins
+  * Can update plugins
+  * CLI Can check if plugins require update
+  * to_number transformation allows heading spaces
+  * Crisp lines atbar/lines graph
+  * Closer widget title to widget
+  * Can force label on bar and line graphs
+  * Improved leaderboard representation
+  * Improved width of line and bar graphs
+  * Dynamic font size for mini5
+  * Improvements to lines and bars
+  * Pie3 improvements: can use localized numbers style
+  * Added to_number that understands localizations
+  * Fix mini3bar alignment on Chrome
+  * Updated ExoSQL
+  * Fix create dashboard not working
+  * Fixes to minibar3: notitle + oneline
+  * Improved queries on CSV values
+  * Select where legend is at bars/lines
+  * Lines can be filled
+  * Generic select fix value falsy
+  * Variable size lines
+  * Added 3 bars version with 1 bar
+  * Fix font size mini2
+  * Fix color selection on any card, not jsut direct cards
+  * Do not pass fields to service is_up
+  * Improved timeout message at aio
+  * Join run_tasks
+  * Fix SSH bad configured service and no stdin
+  * Initial version for `plugin list`
+  * Update fixes
+  * Fix error starting serviceup
+  * Fix sending wrong signal name on add settings
+  * Fix invalid log_tracebacks at serverboards updater
+  * Fix clean plugins cache at plugins enable
+  * Improved visual marker of loading new log data
+  * Fix know when new users are added
+  * Updated ExoSQL
+  * Updated ExoSQL
+  * Use reset eco repo technique on more tests
+  * Fix plugindata test was using other ecto connection
+  * Fix gitlabci for skip integration
+  * Skip integration tests as been broken for a while
+  * Updated ExoSQL
+  * Updated ExoSQL
+  * Removed rate limiting on every message from cmd
+  * Fix use on python3.5
+  * Updated exosql
+  * Max 2 retries
+  * Retry backend test up to 5 times
+  * Updated ExoSQL version
+  * Fix proper use origin header
+  * Fix allowed_origins at webhooks
+  * Style fixes to edit user/password
+  * Updated debian gitignore
+  * Added newsletter question at deb install
+  * Improved get sections on projects for piwik
+  * Working do not track checkbox at user settings
+  * Scroll on edit quick action
+  * Emails use jinja templates, optional sections
+  * Removed warnings
+  * Improved compilation
+  * Improved gitignore for debian directory
+  * Cleanup port debugging info
+  * No default email settings to localhost
+  * Improved open_port
+  * Fix issue email threads
+  * Increased core extractor timeout
+  * Release candidate 0.
+
+ -- David Moreno <dmoreno@coralbits.com>  Tue, 22 May 2018 19:10:28 +0200
+
 serverboards (18.4.0-rc0) unstable; urgency=medium
 
 
