@@ -34,18 +34,13 @@ class Mini5 extends React.Component{
       )
     }
 
-    if (!data){
-      return (
-        <Loading.Widget/>
-      )
-    }
-
-
     return (
       <div className="ui content half padding split vertical area" style={{justifyContent: "space-around"}}>
         <h3 className="ui white header text">{config.title}</h3>
         <div className="ui horizontal split area">
-          {data.map( datum => (
+          {!data ? (
+            <Loading.Widget/>
+          ) : data.map( datum => (
             <div key={datum} className="expand align bottom" style={{paddingRight: 2}}>
               <div style={{display: "flex", alignItems: "center"}}>
                 <span className={`ui bigger oneline text`}>
