@@ -42,7 +42,7 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, pa
   let style = svg_style
 
   // line colors
-  const fill_color = colorize_list_hex(categories)
+  const fill_color = colorize_list_hex(categories, palette)
 
   function rescale(legend, category){
     const v = data[ [legend, category] ]
