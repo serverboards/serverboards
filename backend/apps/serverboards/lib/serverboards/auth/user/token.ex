@@ -15,6 +15,7 @@ defmodule Serverboards.Auth.User.Token do
   def create(user, perms \\ nil) do
     require UUID
     token = UUID.uuid4
+		perms = perms || user.perms
 		Logger.info("Create token for user #{user.email}", user: user, perms: perms)
     {:ok, _tokenv} = Repo.insert(Model.Token.changeset(%Model.Token{}, %{
       :user_id => user.id,
