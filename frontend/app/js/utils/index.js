@@ -19,6 +19,12 @@ export function to_list(d){
   }
   return l
 }
+/// If passed a list, returns a list, if any other thing a list with that item
+export function maybe_list(l){
+  if (l.constructor === Array)
+    return l
+  return [l]
+}
 
 /// Convert a list to dict of keys to true, and a object to itself.
 /// This unifies a list of items as ['nocss'] to be equal to {nocss: true}

@@ -63,7 +63,7 @@ class SectionMenu extends React.Component{
               <div key={p.id} className={`ui simple left pointing dropdown item ${ p.id == section_id ? "bold teal" : ""}`}>
                 <div className="menu" style={{marginTop: -40, marginLeft: -5}}>
                   {p.candidates.map( s => (
-                    <a key={s.uuid} className="item"  onClick={() => this.handleChangeSection(p.id, s.uuid)}>{s.name}</a>
+                    <a key={s.uuid} className="item" onClick={() => this.handleChangeSection(p.id, s.uuid)}>{s.name}</a>
                   ))}
                 </div>
                 {p.name}
