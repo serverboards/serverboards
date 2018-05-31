@@ -180,7 +180,7 @@ defmodule Serverboards.Plugin.Registry do
   def get_plugin_status( id, context ) do
     broken = Map.get(context.broken, id, false)
     active = (
-      String.starts_with?(id, "serverboards.core") ||
+      String.starts_with?(id || "", "serverboards.core") ||
       Map.get(context.active, id, true)
       )
 
