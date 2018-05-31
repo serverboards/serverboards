@@ -8,8 +8,7 @@ defmodule Serverboards.Setup do
   alias Serverboards.Auth.Model
   alias Serverboards.Auth
 
-  defp all_perms do
-    [
+  @admin_perms [
     "http.port_to_websocket",
     "auth.modify_self", "auth.modify_any",
     "auth.create_user", "auth.token.create",
@@ -34,8 +33,16 @@ defmodule Serverboards.Setup do
     "logs.view",
     "issues.view", "issues.create", "issues.update",
     "query.query"
-    ]
-  end
+  ]
+
+  @user_perms [
+    "auth.token.create",
+    "auth.modify_self", "project.get", "service.get",
+    "settings.user.view", "settings.user.update",
+    "notifications.list",
+    "issues.view", "issues.create", "issues.update",
+  ]
+
 
   def start do
     {:ok, _} = Application.ensure_all_started(:ecto)
@@ -84,8 +91,8 @@ defmodule Serverboards.Setup do
       perms: Repo.all( from p in Model.Permission, select: {p.code, p.id} ) |> Map.new
     }
 
-    import_group(status, %{ name: "user", perms: []} )
-    import_group(status, %{ name: "admin", perms: all_perms()} )
+    import_group(status, %{ name: "user", perms: @user_perms} )
+    import_group(status, %{ name: "admin", perms: @admin_perms} )
     Logger.debug("Done")
   end
 
