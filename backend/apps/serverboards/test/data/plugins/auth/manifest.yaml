@@ -292,4 +292,18 @@ components:
   - name: Webhook
     id: webhook
     type: trigger
-    
+
+
+  - name: custom.perm
+    id: custom.perm
+    type: cmd
+    command: ./auth.py
+    user_perms: auth_ping
+
+  - name: custom.perm2
+    id: custom.perm2
+    type: cmd
+    command: ./auth.py
+    user_perms:
+      - auth_ping
+      - auth_pong

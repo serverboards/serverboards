@@ -158,4 +158,34 @@ defmodule Serverboards.PluginTest do
 
     assert Enum.count(list) > 1
   end
+
+  test "Call directly with custom permission" do
+    # create user without permissions, to avoid `plugin` perm
+    :ok = Serverboards.Auth.User.user_add(%{
+      email: "noperms@serverboards.io",
+      name: "No permissions",
+      is_active: true,
+      }, Test.User.system)
+
+    # Log in as that user
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: []
+    user = MOM.RPC.Client.get(client, :user)
+    assert user.perms == []
+    assert {:error, :unknown_method} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm", "ping", []])
+    Client.stop(client)
+
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping"]
+    assert {:ok, "pong"} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm", "ping", []])
+    Client.stop(client)
+
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping"]
+    assert {:error, :unknown_method} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm2", "ping", []])
+    Client.stop(client)
+
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping", "auth_pong"]
+    assert {:ok, "pong"} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm2", "ping", []])
+    Client.stop(client)
+
+    flunk 1
+  end
 end

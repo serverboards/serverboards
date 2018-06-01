@@ -4,15 +4,29 @@ defmodule Serverboards.Plugin.RPC do
   alias MOM.RPC
   alias Serverboards.Plugin
 
-  TODO get the plugin definition (if id is a plugin) and the user_perms to be checked too
+  @component_id_re ~r/(\w*|\.)+\/(\w*|\.)+/
 
   def has_perm_for_plugin(context, plugin) do
     perms = RPC.Context.get(context, :user).perms
+    # Logger.debug("Check has perm for plugin #{inspect perms} #{inspect plugin} #{inspect Regex.match?(@component_id_re, plugin)}")
     cond do
       plugin == :any -> Enum.any?(perms, &(String.starts_with?(&1, "plugin[") or &1 == "plugin"))
       "plugin" in perms -> true
       "plugin[#{plugin}]" in perms -> true
-      true -> false
+      Regex.match?(@component_id_re, plugin) ->
+        component = Serverboards.Plugin.Registry.find(plugin)
+        # Logger.debug("Check permissions at #{inspect perms} #{inspect component.extra["user_perms"], pretty: true}")
+        case component.extra["user_perms"] do
+          nil ->
+            false
+          user_perms when is_list(user_perms) ->
+            Enum.all?(user_perms, fn user_perm -> Enum.any?(perms, &(&1 == user_perm)) end)
+          user_perm ->
+            Enum.any?(perms, &(&1 == user_perm))
+        end
+      true ->
+        # get the plugin definition (if id is a plugin) and the user_perms to be checked too
+        false
     end
   end
   def check_perm_for_plugin_data(context) do
@@ -90,9 +104,9 @@ defmodule Serverboards.Plugin.RPC do
     end, context: true
 
     RPC.MethodCaller.add_method method_caller, "plugin.call", fn
-      [id, method, params] ->
+      [id, method, params], context ->
         call_plugin(context, id, method, params)
-      [id, method] ->
+      [id, method], context ->
         call_plugin(context, id, method, [])
     end, [context: true]
 
