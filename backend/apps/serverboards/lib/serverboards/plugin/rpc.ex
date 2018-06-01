@@ -4,6 +4,8 @@ defmodule Serverboards.Plugin.RPC do
   alias MOM.RPC
   alias Serverboards.Plugin
 
+  TODO get the plugin definition (if id is a plugin) and the user_perms to be checked too
+
   def has_perm_for_plugin(context, plugin) do
     perms = RPC.Context.get(context, :user).perms
     cond do
@@ -89,10 +91,10 @@ defmodule Serverboards.Plugin.RPC do
 
     RPC.MethodCaller.add_method method_caller, "plugin.call", fn
       [id, method, params] ->
-        Plugin.Runner.call id, method, params
+        call_plugin(context, id, method, params)
       [id, method] ->
-        Plugin.Runner.call id, method, []
-    end, [required_perm: "plugin"]
+        call_plugin(context, id, method, [])
+    end, [context: true]
 
     RPC.MethodCaller.add_method method_caller, "plugin.is_running", fn
       [id], context ->
@@ -220,5 +222,13 @@ defmodule Serverboards.Plugin.RPC do
     end
 
     {:ok, method_caller}
+  end
+
+  def call_plugin(context, id, method, params) do
+    if has_perm_for_plugin(context, id) do
+      Plugin.Runner.call id, method, params
+    else
+      {:error, :unknown_method}
+    end
   end
 end
