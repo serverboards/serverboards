@@ -53,11 +53,11 @@ defmodule Serverboards.Project.RPC do
       Serverboards.Project.Dashboard.dashboard_update(attr, me)
       :ok
     end, [required_perm: "dashboard.update", context: true]
-    RPC.MethodCaller.add_method mc, "dashboard.remove", fn attr, context ->
+    RPC.MethodCaller.add_method mc, "dashboard.delete", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Project.Dashboard.dashboard_remove( attr["uuid"], me )
       :ok
-    end, [required_perm: "dashboard.remove", context: true]
+    end, [required_perm: "dashboard.delete", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.list", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Project.Dashboard.dashboard_list(%{ project: attr["project"] }, me)

@@ -225,7 +225,7 @@ function project(state=default_state, action){
       })
       return map_set(state, ["dashboard", "list"], list)
     }
-    case "@RPC_EVENT/dashboard.removed":
+    case "@RPC_EVENT/dashboard.deleted":
     {
       const list = state.dashboard.list.filter( d => d.uuid != action.uuid)
       return map_set(state, ["dashboard", "list"], list)

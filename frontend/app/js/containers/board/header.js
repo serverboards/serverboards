@@ -30,7 +30,7 @@ const Controller = connect({
     return [
       `dashboard.created[${project}]`,
       `dashboard.updated[${project}]`,
-      `dashboard.removed[${project}]`,
+      `dashboard.deleted[${project}]`,
     ]
   },
   store_enter(state, props){

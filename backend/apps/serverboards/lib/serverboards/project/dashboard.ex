@@ -127,8 +127,8 @@ defmodule Serverboards.Project.Dashboard do
       from d in Model.Dashboard,
       where: d.uuid == ^uuid
     )
-    Serverboards.Event.emit("dashboard.removed[#{uuid}]", %{ uuid: uuid }, ["project.get"])
-    Serverboards.Event.emit("dashboard.removed[#{project_shortname}]", %{ uuid: uuid }, ["project.get"])
+    Serverboards.Event.emit("dashboard.deleted[#{uuid}]", %{ uuid: uuid }, ["project.get"])
+    Serverboards.Event.emit("dashboard.deleted[#{project_shortname}]", %{ uuid: uuid }, ["project.get"])
   end
 
 end

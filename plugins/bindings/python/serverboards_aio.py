@@ -687,6 +687,8 @@ rules = RPCWrapper("rules")
 rules_v2 = RPCWrapper("rules_v2")
 service = RPCWrapper("service")
 settings = RPCWrapper("settings")
+dashboards = RPCWrapper("dashboards")
+dashboards.widget = RPCWrapper("dashboards.widget")
 
 
 async def sync(f, *args, **kwargs):

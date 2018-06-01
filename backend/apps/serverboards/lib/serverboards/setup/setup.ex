@@ -18,7 +18,7 @@ defmodule Serverboards.Setup do
     "project.create", "project.update",
     "project.delete", "project.get",
     "dashboard.widget.create", "dashboard.widget.update",
-    "dashboard.create", "dashboard.update", "dashboard.remove",
+    "dashboard.create", "dashboard.update", "dashboard.delete",
     "service.create", "service.update",
     "service.delete", "service.get",
     "service.attach",
