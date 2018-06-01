@@ -185,7 +185,5 @@ defmodule Serverboards.PluginTest do
     {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping", "auth_pong"]
     assert {:ok, "pong"} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm2", "ping", []])
     Client.stop(client)
-
-    flunk 1
   end
 end
