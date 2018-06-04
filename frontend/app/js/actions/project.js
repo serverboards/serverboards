@@ -3,6 +3,7 @@ import Flash from 'app/flash'
 import moment from 'moment'
 import { push } from 'react-router-redux'
 import i18n from 'app/utils/i18n'
+import {map_get} from 'app/utils'
 
 function project_update_all(){
   return function(dispatch){
@@ -60,7 +61,7 @@ function projects_update_info(project){
     if (project){
       rpc.call("project.get", [project]).then( (info) => {
         dispatch({type:"UPDATE_PROJECT_INFO", project, info})
-        dispatch( project_get_dashboard(info.dashboards[0].uuid) )
+        dispatch( project_get_dashboard(map_get(info.dashboards, [0, "uuid"])))
       })
     }
   }
