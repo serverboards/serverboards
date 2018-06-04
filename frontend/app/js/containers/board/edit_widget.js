@@ -9,6 +9,7 @@ import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
 import moment from 'moment'
 import Flash from 'app/flash'
+import {map_get} from 'app/utils'
 
 function EditWidgetModal(props){
   if (!props.template){
@@ -38,6 +39,7 @@ const Controller = connect(
     ),
     widget_id: props.widget.widget,
     project: state.project.current,
+    board_extractors: map_get(state.project.dashboard, ["current", "config", "extractors"], []),
     vars: {
       start: state.project.daterange.start.toISOString(),
       end: state.project.daterange.end.toISOString(),

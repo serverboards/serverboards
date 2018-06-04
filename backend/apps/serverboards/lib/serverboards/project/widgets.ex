@@ -178,14 +178,18 @@ defmodule Serverboards.Project.Widget do
   def extract(uuid, vars, me) do
     import Ecto.Query
 
-    {widget, config} = Repo.one(
+    {widget, config, db_config} = Repo.one(
       from w in Model.Widget,
       where: w.uuid == ^uuid,
-      select: {w.widget, w.config}
+      join: db in Model.Dashboard, on: db.id == w.dashboard_id,
+      select: {w.widget, w.config, db.config}
     )
+
+    extractors = db_config && Map.get(db_config, "extractors") || config["__extractors__"]
+
     # Logger.debug("Widget and config: #{inspect {widget, config}}")
     params = get_widget_params(widget)
-    extractors = case config["__extractors__"] do
+    extractors = case extractors do
       nil -> %{}
       other ->
         Enum.map(other, fn

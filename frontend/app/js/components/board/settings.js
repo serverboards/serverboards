@@ -3,6 +3,7 @@ import i18n from 'app/utils/i18n'
 import Modal from 'app/components/modal'
 import HoldButton from 'app/components/holdbutton'
 import {map_get} from 'app/utils'
+import QueryServiceSelect from 'app/containers/board/queryserviceselect'
 
 class Settings extends React.Component{
   constructor(props){
@@ -66,6 +67,10 @@ class Settings extends React.Component{
                 </div>
               </div>
             </div>
+            <QueryServiceSelect
+              extractors={map_get(this.state, ["config", "extractors"])}
+              onSetExtractors={(extractors) => this.setConfig("extractors", extractors)}
+              />
             <div className="ui field">
               <button className="ui teal button" onClick={this.handleBoardUpdate.bind(this)}>
                 {i18n("Accept changes")}
