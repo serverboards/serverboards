@@ -123,6 +123,17 @@ function project(state=default_state, action){
     case 'UPDATE_WIDGET_CATALOG':
       const widget_catalog=action.payload
       return merge(state, {widget_catalog})
+    case 'DASHBOARD_LIST':
+      console.log("New dashboard list", action.payload.project == state.current)
+      if (action.payload.project == state.current){
+        return merge(state, {
+          dashboard: {
+            list: action.payload.list || [],
+            current: state.dashboard.current || map_get(action.payload, ['list', 0, 'uuid'])
+          }
+        })
+      }
+      return state
     case "@RPC_EVENT/dashboard.widget.created":
     {
       let widgets = map_get(state,["dashboard","current","widgets"])

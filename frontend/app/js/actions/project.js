@@ -138,6 +138,16 @@ function board_remove({uuid, name}){
     })
 }
 
+function dashboard_list(project){
+  console.log("Get dashboard list ", project)
+  return rpc
+    .call("dashboard.list", {project})
+    .then( list => ({
+      type: "DASHBOARD_LIST",
+      payload: {list, project}
+    }))
+}
+
 export {
   project_add,
   project_update_all,
@@ -155,4 +165,5 @@ export {
   board_set_realtime,
   board_update,
   board_remove,
+  dashboard_list,
 }
