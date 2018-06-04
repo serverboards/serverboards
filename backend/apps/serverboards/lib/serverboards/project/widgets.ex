@@ -90,7 +90,7 @@ defmodule Serverboards.Project.Widget do
     {:ok, data.uuid}
   end
   def widget_add_real_v2(dashboard, data) when is_binary(dashboard) do
-    Logger.debug("Got event :add_widget_v2 #{inspect dashboard} #{inspect data}")
+    # Logger.debug("Got event :add_widget_v2 #{inspect dashboard} #{inspect data}")
 
     import Ecto.Query
     dashboard_id = Repo.one(
