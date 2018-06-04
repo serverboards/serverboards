@@ -142,7 +142,7 @@ function project(state=default_state, action){
       })
       return map_set(state, ["dashboard","current","widgets"], widgets)
     }
-    case "@RPC_EVENT/dashboard.widget.removed":
+    case "@RPC_EVENT/dashboard.widget.deleted":
     {
       let widgets = map_get(state,["dashboard","current","widgets"])
       widgets = widgets.filter( w => w.uuid != action.uuid )

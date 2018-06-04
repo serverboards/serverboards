@@ -54,7 +54,7 @@ const Controller = connect(
       })
     },
     removeWidget(){
-      rpc.call("dashboard.widget.remove", [props.widget.uuid]).then(() => {
+      rpc.call("dashboard.widget.delete", [props.widget.uuid]).then(() => {
         set_modal(null)
         Flash.success("Widet removed")
       }).catch( e => {

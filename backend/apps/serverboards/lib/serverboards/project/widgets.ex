@@ -85,10 +85,13 @@ defmodule Serverboards.Project.Widget do
   def widget_add_v2(dashboard, data, me) do
     uuid = data[:uuid] || UUID.uuid4
     data = Map.merge(data, %{ dashboard: dashboard, uuid: uuid })
+    # Logger.debug("Send event :add_widget_v2 #{inspect dashboard} #{inspect data}")
     EventSourcing.dispatch(:project, :add_widget_v2, data, me.email )
     {:ok, data.uuid}
   end
   def widget_add_real_v2(dashboard, data) when is_binary(dashboard) do
+    Logger.debug("Got event :add_widget_v2 #{inspect dashboard} #{inspect data}")
+
     import Ecto.Query
     dashboard_id = Repo.one(
       from s in Model.Dashboard,
@@ -158,9 +161,9 @@ defmodule Serverboards.Project.Widget do
       from s in Model.Widget,
       where: s.uuid == ^uuid
       )
-    Serverboards.Event.emit("dashboard.widget.removed", %{uuid: uuid}, ["project.get"])
-    Serverboards.Event.emit("dashboard.widget.removed[#{project}]", %{uuid: uuid}, ["project.get"])
-    Serverboards.Event.emit("dashboard.widget.removed[#{dashboard}]", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.deleted", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.deleted[#{project}]", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.deleted[#{dashboard}]", %{uuid: uuid}, ["project.get"])
     :ok
   end
 

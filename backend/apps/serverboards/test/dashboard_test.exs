@@ -70,7 +70,7 @@ defmodule DashboardTest do
     # just dont fail
     {:ok, _catalog} = Test.Client.call(client, "dashboard.widget.catalog", ["SBDS-TST13"])
 
-    {:ok, _} = Test.Client.call(client, "dashboard.widget.remove", [uuid])
+    {:ok, _} = Test.Client.call(client, "dashboard.widget.delete", [uuid])
     {:ok, []} = Test.Client.call(client, "dashboard.widget.list", [sbds])
   end
 

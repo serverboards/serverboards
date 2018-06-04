@@ -32,7 +32,7 @@ const Board = store.connect({
       return []
     return [
       `dashboard.widget.created[${dashboard}]`,
-      `dashboard.widget.removed[${dashboard}]`,
+      `dashboard.widget.deleted[${dashboard}]`,
       `dashboard.widget.updated[${dashboard}]`
     ]
   },
