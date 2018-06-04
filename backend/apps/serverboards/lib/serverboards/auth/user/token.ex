@@ -15,7 +15,8 @@ defmodule Serverboards.Auth.User.Token do
   def create(user, perms \\ nil) do
     require UUID
     token = UUID.uuid4
-		Logger.info("Create token for user #{user.email}", user: user, perms: perms)
+		perms = perms || user.perms
+		Logger.info("Create token for user #{user.email} // #{inspect perms}", user: user, perms: perms)
     {:ok, _tokenv} = Repo.insert(Model.Token.changeset(%Model.Token{}, %{
       :user_id => user.id,
       :token => token,
@@ -58,6 +59,7 @@ defmodule Serverboards.Auth.User.Token do
 			where: t.token == ^token_uuid and t.time_limit > ^DateTime.utc_now,
 			select: %{ user: u, perms: t.perms }
 		)
+		# Logger.debug("Got token #{inspect token}")
 		case token do
 			nil -> false
 				Logger.error("Try to use invalid token #{token_uuid}")
@@ -68,10 +70,8 @@ defmodule Serverboards.Auth.User.Token do
 				case token.perms do
 					nil ->
 						user
-					[] ->
-						user
 					perms ->
-						Logger.debug("Set custom perms: #{inspect perms}")
+						# Logger.debug("Set custom perms: #{inspect perms}")
 						%{ user | perms: perms }
 				end
 		end

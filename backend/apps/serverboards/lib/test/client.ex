@@ -32,8 +32,8 @@ defmodule Test.Client do
       Client.expect( client, method: "auth.required" )
       case Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] } do
         {:ok, user} ->
-          token = Serverboards.Auth.User.Token.create(user)
-          _user = Client.call( client, "auth.auth", %{ "type" => "token", "token" => token })
+          token = Serverboards.Auth.User.Token.create(user, options[:perms])
+          _user = Client.call(client, "auth.auth", %{ "type" => "token", "token" => token })
           :ok
         {:error, _} ->
           Logger.warn("Test client cant log as user #{inspect maybe_user}")

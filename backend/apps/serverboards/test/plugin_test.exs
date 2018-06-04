@@ -76,25 +76,6 @@ defmodule Serverboards.PluginTest do
     assert Client.call(client, "plugin.is_running", [test_cmd]) == {:ok, false}
 
     assert Client.call(client, "plugin.call", [test_cmd, "ping"]) == {:error, "unknown_plugin"}
-
-    # Fallback UUID caller
-    require Logger
-    Logger.info("UUID Caller")
-    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
-    assert Client.call(client, "#{test_cmd}.ping", []) == {:ok, "pong"}
-    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
-    assert Client.call(client, "#{test_cmd}.ping", []) == {:error, "unknown_plugin"}
-  end
-
-  test "Set alias" do
-    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
-
-    {:ok, test_cmd} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
-    assert Client.call(client, "plugin.alias", [test_cmd, "test"]) == {:ok, true}
-    assert Client.call(client, "test.ping", []) == {:ok, "pong"}
-    assert Client.call(client, "plugin.stop", [test_cmd]) == {:ok, true}
-    assert Client.call(client, "#{test_cmd}.ping", []) == {:error, "unknown_plugin"}
-    assert Client.call(client, "test.ping", []) == {:error, :unknown_method}
   end
 
   test "Dir after login at plugins" do
@@ -104,26 +85,6 @@ defmodule Serverboards.PluginTest do
     assert dir != []
     assert Enum.member? dir, "ping"
 
-
-    {:ok, test_cmd1} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
-    {:ok, test_cmd2} = Client.call(client, "plugin.start", ["serverboards.test.auth/fake"])
-
-    {:ok, ps} = Client.call(client, "plugin.ps", [])
-    Logger.debug("ps: #{inspect ps}")
-
-    Client.call(client, "plugin.alias", [test_cmd1, "test"])
-    # {:ok, dir} = Client.call(client, "dir", [])
-    # Logger.info (inspect dir)
-    # assert dir != []
-    # assert not (Enum.member? dir, test_cmd1<>".ping")
-    # assert Enum.member? dir, "test.ping"
-
-    # after stop, must not be there.
-    Client.call(client, "plugin.stop", [test_cmd1])
-    Client.call(client, "plugin.stop", [test_cmd2])
-    {:ok, dir} = Client.call(client, "dir", [])
-    assert not (Enum.member? dir, test_cmd1<>".ping")
-    assert not (Enum.member? dir, "test.ping")
   end
 
   test "Bad protocol" do
@@ -133,10 +94,10 @@ defmodule Serverboards.PluginTest do
 
     # .bad_protocol writes garbage to protocol, but its logged and ignored.
     # Client (TestClient) could decide to close connection if needed.
-    assert Client.call(client, pl<>".bad_protocol", []) == {:ok, true}
+    assert Client.call(client, "plugin.call", [pl, "bad_protocol", []]) == {:ok, true}
 
     # All keeps working as normal.
-    assert Client.call(client, pl<>".ping", []) == {:ok, "pong"}
+    assert Client.call(client, "plugin.call", [pl, "ping", []]) == {:ok, "pong"}
 
     Client.stop(client)
   end
@@ -196,5 +157,33 @@ defmodule Serverboards.PluginTest do
     Logger.debug("list #{inspect list}")
 
     assert Enum.count(list) > 1
+  end
+
+  test "Call directly with custom permission" do
+    # create user without permissions, to avoid `plugin` perm
+    :ok = Serverboards.Auth.User.user_add(%{
+      email: "noperms@serverboards.io",
+      name: "No permissions",
+      is_active: true,
+      }, Test.User.system)
+
+    # Log in as that user
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: []
+    user = MOM.RPC.Client.get(client, :user)
+    assert user.perms == []
+    assert {:error, :unknown_method} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm", "ping", []])
+    Client.stop(client)
+
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping"]
+    assert {:ok, "pong"} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm", "ping", []])
+    Client.stop(client)
+
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping"]
+    assert {:error, :unknown_method} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm2", "ping", []])
+    Client.stop(client)
+
+    {:ok, client} = Client.start_link as: "noperms@serverboards.io", perms: ["auth_ping", "auth_pong"]
+    assert {:ok, "pong"} == Client.call(client, "plugin.call", ["serverboards.test.auth/custom.perm2", "ping", []])
+    Client.stop(client)
   end
 end

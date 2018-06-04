@@ -146,7 +146,7 @@ defmodule DashboardTest do
     assert (List.first dash1["widgets"])["uuid"] == widget
     assert not Map.get((List.first list), "__meta__", false)
 
-    {:ok, :ok} = Test.Client.call(client, "dashboard.remove", %{ uuid: dashboard })
+    {:ok, :ok} = Test.Client.call(client, "dashboard.delete", %{ uuid: dashboard })
 
     {:ok, list} = Test.Client.call(client, "dashboard.list", %{ project: sbds} )
     Logger.debug("All dashboards -1  at #{inspect sbds}: #{inspect list}")

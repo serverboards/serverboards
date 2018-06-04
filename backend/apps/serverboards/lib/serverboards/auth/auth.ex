@@ -78,10 +78,7 @@ defmodule Serverboards.Auth do
 
 		if user do
 			Logger.info("Log in user #{user[:name]} <#{user[:email]}>", user: user)
-			{:ok,
-				user
-					|> decorate
-				}
+			{:ok,	decorate(user)}
 		else
 			Logger.error("Login failed, type #{inspect type}", type: type)
 			{:error, :unknown_user}
@@ -90,23 +87,11 @@ defmodule Serverboards.Auth do
 
 	# Regets the full user, with perms, id and so on
 	defp decorate(user) do
-		{:ok, user} = Serverboards.Auth.User.user_info(user.email)
-		user
-	end
-
-	# all perms from the given groups
-	def perms_from_groups(groups) do
-		import Ecto.Query
-		Serverboards.Repo.all(
-			from perms in Serverboards.Auth.Model.Permission,
-			join: pg in Serverboards.Auth.Model.GroupPerms,
-			  on: pg.perm_id == perms.id,
-			join: group in Serverboards.Auth.Model.Group,
-			  on: pg.group_id == group.id,
-			where: group.name in ^groups,
-			select: perms.code,
-			distinct: true
-			)
+		{:ok, ruser} = Serverboards.Auth.User.user_info(user.email)
+		%{ ruser |
+			groups: Enum.uniq(ruser.groups ++ Map.get(user, :groups, [])),
+			perms: Enum.uniq(ruser.perms ++ Map.get(user, :perms, [])),
+		}
 	end
 
 	defp ensure_exists_in_db(false, _creator), do: false
@@ -117,11 +102,13 @@ defmodule Serverboards.Auth do
 			{:error, :unknown_user} ->
 				Logger.info("Automatically creating the user #{inspect user.email}", user: user)
 				Serverboards.Auth.User.user_add(user, %{ email: creator, perms: ["auth.create_user"]})
-				%{ user | groups: [] }
-			{:ok, user} ->
+
+				{:ok, existing_user} = Serverboards.Auth.User.user_info(user.email)
+				existing_user
+			{:ok, existing_user} ->
 				# If exists, check it is active, nuser here only for test
-				if user.is_active do
-					user
+				if existing_user.is_active do
+					existing_user
 				else
 					nil
 				end
@@ -129,6 +116,12 @@ defmodule Serverboards.Auth do
 
 		# update groups
 		nuser = if nuser do
+
+			# add extra perms
+			nuser = %{ nuser |
+				perms: nuser.perms ++ Map.get(user, :perms, [])
+			}
+
 			newgroups = MapSet.new user.groups
 			oldgroups = MapSet.new nuser.groups
 			if not MapSet.equal?(newgroups, oldgroups)  do
@@ -191,8 +184,8 @@ defmodule Serverboards.Auth do
 				%{
 					email: user["email"],
 					name: user["name"],
-					perms: user["perms"],
-					groups: ["user"] ++ user["groups"],
+					perms: Map.get(user, "perms", []),
+					groups: Enum.uniq(["user"] ++ Map.get(user, "groups", [])),
 					is_active: true
 				}
 			o ->

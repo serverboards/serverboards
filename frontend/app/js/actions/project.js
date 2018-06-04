@@ -130,7 +130,7 @@ function board_update(data){
 
 function board_remove({uuid, name}){
   return rpc
-    .call("dashboard.remove", {uuid})
+    .call("dashboard.delete", {uuid})
     .then( () => {
       Flash.info(i18n(`Removed dashboard *{name}*`, {name}))
       return {type: "BOARD_REMOVED", payload: uuid}

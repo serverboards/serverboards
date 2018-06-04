@@ -1,7 +1,8 @@
 import React from 'react'
 import {merge, is_empty} from 'app/utils'
 import {set_modal} from 'app/utils/store'
-import {match_traits} from 'app/utils'
+import {match_traits, maybe_list} from 'app/utils'
+import {has_perm} from 'app/utils/perms'
 import {i18n} from 'app/utils/i18n'
 
 function by_name(a,b){
@@ -60,9 +61,24 @@ function MenuItem(props){
 class ScreensMenu extends React.Component{
   constructor(props){
     super(props)
+
+    const has_plugin_perm = has_perm("plugin")
+
+    const screens = props.screens.filter( s => {
+      if (!s.perms || s.perms.length == 0){
+        // console.log(s, " as plugin perm ", has_plugin_perm)
+        return has_plugin_perm
+      }
+      // console.log(s, " check perms ", s.perms)
+      return maybe_list(s.perms).every(has_perm)
+    })
+
+    // console.log("Accepted screens: ", screens)
+
     this.state = {
       open_screen: undefined,
-      service_id: undefined
+      service_id: undefined,
+      screens
     }
   }
   toggleScreen(id){
@@ -88,11 +104,10 @@ class ScreensMenu extends React.Component{
   render(){
     const props=this.props
     const state=this.state
-    let screens=[]
     let serverboard = props.serverboard
     return (
       <div>
-        {props.screens.sort(by_name).map( (s) => (
+        {state.screens.sort(by_name).map( (s) => (
           <MenuItem
             key={s.id}
             screen={s}

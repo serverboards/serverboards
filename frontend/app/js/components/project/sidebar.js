@@ -124,15 +124,13 @@ class SidebarSections extends React.Component{
 
         </div>
 
-        <Restricted perm="plugin">
-          <ScreensMenu
-            services={props.project.services}
-            screens={props.project.screens}
-            project={props.project}
-            section={`${props.section}/${props.subsection}`}
-            onSectionChange={this.handleSectionChange.bind(this)}
-            />
-        </Restricted>
+        <ScreensMenu
+          services={props.project.services}
+          screens={props.project.screens}
+          project={props.project}
+          section={`${props.section}/${props.subsection}`}
+          onSectionChange={this.handleSectionChange.bind(this)}
+          />
         <Restricted perm="project.update">
           <div>
             <MenuItem section="settings">{i18n("Settings")}</MenuItem>
