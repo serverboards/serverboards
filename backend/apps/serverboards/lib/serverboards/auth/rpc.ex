@@ -39,9 +39,11 @@ defmodule Serverboards.Auth.RPC do
     end, [required_perm: "auth.token.create", context: true]
 
 
-    add_method mc, "auth.user", fn [], context ->
-      user = RPC.Context.get(context, :user)
-      user
+    add_method mc, "auth.user", fn
+      [], context ->
+        RPC.Context.get(context, :user)
+      %{}, context ->
+        RPC.Context.get(context, :user)
     end, [context: true]
 
     ## User management
