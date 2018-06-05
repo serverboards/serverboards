@@ -15,6 +15,7 @@
     "react-codemirror": "^1.0.0",
     "react-hot-loader": "^4.0.0",
     "uglifyjs-webpack-plugin": "^1.2.4",
+    "uuid": "^3.2.1",
     "wdio-concise-reporter": "^0.1.2",
     "wdio-mocha-framework": "^0.5.11",
     "webdriverio": "^4.8.0",

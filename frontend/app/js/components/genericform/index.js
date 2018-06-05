@@ -3,11 +3,13 @@ import React from 'react'
 import GenericField from './genericfield'
 import {object_is_equal} from 'app/utils'
 import PropTypes from 'prop-types'
+import uuid4 from 'uuid/v4'
 
 class GenericForm extends React.Component{
   constructor(props){
     super(props)
     this.state = this.getInitialState(props)
+    this.state.form_id = uuid4()
   }
   getInitialState(props){
     props = props || this.props

@@ -6,6 +6,7 @@ import RichDescription from './richdescription'
 import GenericButton from './genericbutton'
 import TextArea from './textarea'
 import i18n from 'app/utils/i18n'
+import event from 'app/utils/event'
 
 function class_sbds_to_sui(klass){
   switch(klass){
@@ -23,12 +24,19 @@ class GenericField extends React.Component{
       items: [],
       show: this.check_if_show(this.props)
     }
+
+    this.setValue = this.setValue.bind(this)
   }
   handleChange(ev){
     this.props.setValue(this.props.name, ev.target.value)
   }
   handleChecked(ev){
     this.props.setValue(this.props.name, ev.target.checked)
+  }
+  setValue(val){
+    if (this.refs.field)
+      $(this.refs.field).val(val)
+    this.props.setValue(this.props.name, val)
   }
   componentDidMount(){
     // Some may need post initialization
@@ -39,6 +47,16 @@ class GenericField extends React.Component{
       default:
         ;;
       break;
+    }
+    if (this.props.subscribe){
+      const subscribe = `${this.props.subscribe}/${this.props.form_data.form_id}`
+      event.on(subscribe, this.setValue)
+    }
+  }
+  componentWillUnmount(){
+    if (this.props.subscribe){
+      const subscribe = `${this.props.subscribe}/${this.props.form_data.form_id}`
+      event.off(subscribe, this.setValue)
     }
   }
   componentWillReceiveProps(newprops){
@@ -67,6 +85,7 @@ class GenericField extends React.Component{
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="text"
+              ref="field"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value || props.default}
@@ -79,6 +98,7 @@ class GenericField extends React.Component{
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="url"
+              ref="field"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
@@ -95,6 +115,7 @@ class GenericField extends React.Component{
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             <input type="password"
+              ref="field"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
               defaultValue={props.value}
@@ -105,7 +126,7 @@ class GenericField extends React.Component{
         return (
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <div className="ui checkbox">
-              <input type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked.bind(this)}/>
+              <input ref="field" type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked.bind(this)}/>
               <label htmlFor={props.name} className="ui pointer">{props.label}</label>
               <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             </div>
@@ -120,7 +141,7 @@ class GenericField extends React.Component{
         )
       case 'hidden':
         return (
-          <input type="hidden" disabled={true} name={props.name} value={props.value}/>
+          <input type="hidden" ref="field" disabled={true} name={props.name} value={props.value}/>
         )
       case 'select':
         return (
@@ -128,6 +149,7 @@ class GenericField extends React.Component{
             <label>{i18n(props.label)}</label>
             <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
             <select ref="select"
+                ref="field"
                 name={props.name}
                 defaultValue={props.value}
                 className={`ui fluid ${props.search ? "search" : ""} dropdown`}
