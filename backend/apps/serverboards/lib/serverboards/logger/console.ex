@@ -48,7 +48,8 @@ defmodule Serverboards.Logger.Console do
 
   def format(msg, metadata, colors, show_time) when is_binary(msg) do
     metadata=Map.to_list(Map.new(metadata)) # get latest, to get the overwritten file/line/function
-    time = Logger.Utils.format_time( elem metadata[:timestamp], 1 )
+    {{year, month, day}, {hour, minute, second, ms}} = metadata[:timestamp]
+    time = "#{String.pad_leading(to_string(hour),2,"0")}:#{String.pad_leading(to_string(minute),2,"0")}:#{String.pad_leading(to_string(second),2,"0")}.#{String.pad_leading(to_string(ms),3,"0")}"
     level = String.upcase(to_string metadata[:level])
     fileline = if metadata[:file] do
         "#{Path.basename(Path.dirname(metadata[:file]))}/#{Path.basename(metadata[:file])}:#{metadata[:line]}"
