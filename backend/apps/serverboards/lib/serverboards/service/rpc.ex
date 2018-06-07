@@ -56,12 +56,18 @@ defmodule Serverboards.Service.RPC do
       service_catalog filter
     end, [required_perm: "service.get"]
 
-    RPC.MethodCaller.add_method mc, "service.attach", fn [project, service], context ->
-      service_attach project, service, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "service.attach", fn
+      [project, service], context ->
+        service_attach project, service, Context.get(context, :user)
+      %{ "project" => project, "service" => service }, context ->
+          service_attach project, service, Context.get(context, :user)
     end, [required_perm: "service.attach", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.detach", fn [project, service], context ->
-      service_detach project, service, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "service.detach", fn
+      [project, service], context ->
+        service_detach project, service, Context.get(context, :user)
+      %{ "project" => project, "service" => service }, context ->
+        service_detach project, service, Context.get(context, :user)
     end, [required_perm: "service.attach", context: true]
 
     # Add this method caller once authenticated.
