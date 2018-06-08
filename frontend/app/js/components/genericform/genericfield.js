@@ -116,7 +116,12 @@ class GenericField extends React.Component{
         return (
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
-            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
+            <RichDescription
+              className="ui meta"
+              value={i18n(props.description)}
+              vars={props.vars}
+              dynamic={props.dynamic}
+              />
             <input type="password"
               ref="field"
               name={props.name}
@@ -139,7 +144,13 @@ class GenericField extends React.Component{
         return (
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <label>{i18n(props.label)}</label>
-            <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars} form_data={props.form_data}/>
+            <RichDescription
+              className="ui meta"
+              dynamic={props.dynamic}
+              value={i18n(props.description)}
+              vars={props.vars}
+              form_data={props.form_data}
+            />
           </div>
         )
       case 'hidden':
@@ -157,7 +168,6 @@ class GenericField extends React.Component{
                 defaultValue={props.value}
                 className={`ui fluid ${props.search ? "search" : ""} dropdown`}
                 onChange={this.handleChange.bind(this)}
-                dynamic={props.dynamic}
                 form_data={props.form_data}
                 >
               {props.options.map((o) => ( (o.value != undefined) ? (
