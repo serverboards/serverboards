@@ -6,7 +6,6 @@ defmodule Serverboards.Plugin.Supervisor do
       worker(Serverboards.Plugin.Registry, [ [name: Serverboards.Plugin.Registry] ]),
       worker(Serverboards.Plugin.Runner, [ [name: Serverboards.Plugin.Runner] ]),
       worker(Serverboards.Plugin.Data, [ [name: Serverboards.Plugin.Data] ]),
-      worker(Serverboards.Plugin.Cron, [ [name: Serverboards.Plugin.Cron] ]),
       worker(Serverboards.Plugin.Monitor, [ [name: Serverboards.Plugin.Monitor] ]),
     ]
 
