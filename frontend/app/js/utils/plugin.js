@@ -220,9 +220,13 @@ export function install(giturl){
     })
 }
 
+export function call(pl, method, args){
+  return rpc.call("plugin.call", [pl, method, args])
+}
+
 export default {
   load, add_screen, do_screen, add_widget, do_widget, join_path,
-  start, start_call_stop,
+  start, call, start_call_stop,
   install, PluginCaller,
   screens, widgets,
 }

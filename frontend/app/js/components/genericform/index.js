@@ -1,7 +1,7 @@
 import React from 'react'
 
 import GenericField from './genericfield'
-import {object_is_equal} from 'app/utils'
+import {object_is_equal, map_drop} from 'app/utils'
 import PropTypes from 'prop-types'
 import uuid4 from 'uuid/v4'
 
@@ -10,6 +10,8 @@ class GenericForm extends React.Component{
     super(props)
     this.state = this.getInitialState(props)
     this.state.form_id = uuid4()
+
+    this.updateForm = _.debounce(this.updateForm, 100)
   }
   getInitialState(props){
     props = props || this.props
@@ -25,7 +27,7 @@ class GenericForm extends React.Component{
     this.setState( update )
     let nstate=Object.assign({}, this.state, update ) // looks like react delays state change, I need it now
     //console.log(nstate, this.props)
-    this.props.updateForm && this.props.updateForm(nstate)
+    this.updateForm()
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(newprops.fields, this.props.fields) || !object_is_equal(newprops.data, this.props.data)){
@@ -41,7 +43,13 @@ class GenericForm extends React.Component{
     $(this.refs.form).form({ on: 'blur', fields }).on('submit', function(ev){
       ev.preventDefault()
     })
-    this.props.updateForm && this.props.updateForm(this.state)
+    this.updateForm()
+  }
+  updateForm(){
+    if (this.props.updateForm){
+      const data = map_drop(this.state, ["form_id"])
+      this.props.updateForm(data)
+    }
   }
   render(){
     const props=this.props

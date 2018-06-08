@@ -1,5 +1,4 @@
 import React from 'react'
-
 import SelectService from './selectservice'
 import SelectCall from './selectcall'
 import RichDescription from './richdescription'
@@ -7,6 +6,7 @@ import GenericButton from './genericbutton'
 import TextArea from './textarea'
 import i18n from 'app/utils/i18n'
 import event from 'app/utils/event'
+import {map_get} from 'app/utils'
 
 function class_sbds_to_sui(klass){
   switch(klass){
@@ -43,6 +43,9 @@ class GenericField extends React.Component{
     switch (this.props.type){
       case 'select':
         $(this.refs.select).dropdown()
+        if (!Boolean(this.props.value)){
+          this.setValue(map_get(this.props.options, [0, 'value']))
+        }
         break;
       default:
         ;;

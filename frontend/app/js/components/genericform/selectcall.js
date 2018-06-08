@@ -38,32 +38,27 @@ class SelectCall extends React.Component{
       const data = data_from_form_data( props.options.params || [], this.props.form_data )
       this.reloadData(data)
     }
+    $(this.refs.select).dropdown()
   }
   reloadData(data){
     this.setState({loading:true})
     const props = this.props
-    plugin.start(props.options.command).then( (pl) => {
-      pl.call(props.options.call, data).then( (items) => {
-        console.log(items)
+    plugin
+      .call(props.options.command, props.options.call, data)
+      .then( (items) => {
         this.setState({items, loading: false})
-        pl.stop()
         let dd = $(this.refs.select).dropdown({
           onChange: (value) => {
             this.props.setValue(this.props.name, value)
           }
         })
 
-        const value = this.props.value
-        if (items.find( i => i.value == value ))
-          dd.dropdown('set value',value)
-        else
-          dd.dropdown('set value',"")
-      }).catch( e => {
-        pl.stop()
-        console.error(e)
-        Flash.error(e)
+        let value = this.props.value
+        if (!items.find( i => i.value == value )) {
+          value = items[0].value
+        }
+        dd.dropdown('set value', value)
       })
-    })
   }
   componentWillReceiveProps(newprops){
     const params = this.props.options.params
