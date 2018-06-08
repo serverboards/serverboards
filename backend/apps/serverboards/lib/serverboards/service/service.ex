@@ -459,7 +459,7 @@ defmodule Serverboards.Service do
           |> Map.put(:icon, nil)
       [service_definition | _other ] ->
         fields = service_definition.fields |> Enum.map(fn f ->
-          Map.put(f, :value, Map.get(service.config, f["name"], ""))
+          Map.put(f || %{}, :value, Map.get(service.config || %{}, f["name"], ""))
         end)
         service = if service_definition[:virtual] do
           service |> Map.put(:virtual, service_definition.virtual)
