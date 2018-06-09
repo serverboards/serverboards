@@ -38,7 +38,7 @@ class RichDescription extends React.Component{
     if (!props)
       props = this.props
     resolve_form_vars(props.vars, props.form_data).then( (vars) => { // Then set it into the state, update content
-      this.setState({content: this.process_description(vars), loading: false, extraClass: ""})
+      this.setState({content: this.process_description({...vars, ...props.form_data}), loading: false, extraClass: ""})
     }).catch((e) => {
       console.error(e)
       this.setError(100)
