@@ -145,8 +145,10 @@ defmodule Serverboards.Event do
   """
   def emit(type, data, guards \\ []) do
     # Logger.debug("Emit event #{type} #{inspect data, pretty: true}")
-    MOM.Channel.send(:client_events, %MOM.Message{ payload: %{
-      type: type, data: data, guards: guards
-    } })
+    Task.start(fn ->
+      MOM.Channel.send(:client_events, %MOM.Message{ payload: %{
+        type: type, data: data, guards: guards
+        } })
+    end)
   end
 end

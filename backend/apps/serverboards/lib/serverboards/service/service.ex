@@ -77,14 +77,12 @@ defmodule Serverboards.Service do
       {:ok, service} = service_get(uuid, me)
 
       # send signals in another process, to avoid stalling
-      Task.start(fn ->
-        Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
-        Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
-        Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
-        for p <- service.projects do
-          Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
-        end
-      end)
+      Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
+      Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
+      Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
+      for p <- service.projects do
+        Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
+      end
 
       if changes do
         Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me, operations: operations)
