@@ -9,15 +9,19 @@ defmodule Serverboards.Service do
   alias Serverboards.Project.Model.ProjectService, as: ProjectServiceModel
   alias Serverboards.Repo
 
-  def start_link(_options) do
-    {:ok, es} = EventSourcing.start_link name: :service
-    {:ok, _rpc} = Serverboards.Service.RPC.start_link
+  def start_link(options) do
+    # Really do a linked tree of processes. TODO use supervisors,
+    # but eventsourcing do it a bit more complex
+    Agent.start_link(fn ->
+      {:ok, es} = EventSourcing.start_link name: :service
+      {:ok, rpc} = Serverboards.Service.RPC.start_link
 
-    EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
+      EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
 
-    setup_eventsourcing(es)
+      setup_eventsourcing(es)
 
-    {:ok, es}
+      %{es: es, rpc: rpc}
+    end)
   end
 
   def setup_eventsourcing(es) do
@@ -71,12 +75,16 @@ defmodule Serverboards.Service do
       {:ok, upd} = Repo.update( changeset )
 
       {:ok, service} = service_get(uuid, me)
-      Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
-      Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
-      Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
-      for p <- service.projects do
-        Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
-      end
+
+      # send signals in another process, to avoid stalling
+      Task.start(fn ->
+        Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
+        Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
+        Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
+        for p <- service.projects do
+          Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
+        end
+      end)
 
       if changes do
         Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me, operations: operations)
