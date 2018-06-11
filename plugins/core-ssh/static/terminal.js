@@ -40,7 +40,7 @@ function main(element, config){
   }
   function add_new_tab(){
     console.log("Add new tab")
-    rpc.call(term.ssh+".open", [config.service.config.url, config.service.config.url, config.service.config.options || ""])
+    term.ssh.call("open", [config.service.config.url, config.service.config.url, config.service.config.options || ""])
        .then(function(host){
       console.log("Added %o", host)
       add_tab(
@@ -99,7 +99,7 @@ function main(element, config){
     else{
       add_new_tab()
     }
-    rpc.call(term.ssh+".close", [host]).then(function(){
+    term.ssh.call("close", [host]).then(function(){
       console.log("Closed tab")
     }).catch(function(e){
       console.error(e)
@@ -111,7 +111,7 @@ function main(element, config){
       console.error("No host defined")
       return
     }
-    rpc.call(term.ssh+".recv",{uuid: term.host, start: term.end, encoding:'b64'}).then(function(data){
+    term.ssh.call("recv",{uuid: term.host, start: term.end, encoding:'b64'}).then(function(data){
       var sdata = data.data && decode_b64(data.data)
       term.end=data.end
       if (sdata){
@@ -127,13 +127,13 @@ function main(element, config){
     if (term.send_timeout_id)
       clearTimeout(term.send_timeout_id)
     term.send_timeout_id=setTimeout(function(){ // Coalesce 20 ms worth of user input
-      rpc.call(term.ssh+".send", {uuid:term.host, data64: btoa(term.send_buffer)})
+      term.ssh.call("send", {uuid:term.host, data64: btoa(term.send_buffer)})
       term.send_buffer=''
     }, 20)
   }
   function send_resize(data){
     console.log("Resize terminal to %ox%o", data.cols, data.rows)
-    rpc.call(term.ssh+".send_control", {
+    term.ssh.call("send_control", {
       uuid: term.host,
       type: "resize",
       data: {
@@ -188,11 +188,11 @@ function main(element, config){
     plugin.load(plugin_id+"/terminal.css")
   ]).then( () =>
     plugin.load(plugin_id+"/fit.js")
-  ).then( () => {
-    return rpc.call("plugin.start", ["serverboards.core.ssh/daemon"])
-  }).then(function(ssh){
+  ).then( () =>
+    plugin.start("serverboards.core.ssh/daemon")
+  ).then(function(ssh){
     term.ssh=ssh
-    return rpc.call(ssh+".list")
+    return ssh.call("list")
   }).then(function(list){
     //console.log(list)
     term.$el.on("keyup", function(ev){

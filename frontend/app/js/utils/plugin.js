@@ -169,7 +169,7 @@ class PluginCaller{
       return this
     })
   }
-  call(method, params){
+  call(method, params={}){
     if (!this.uuid){
       return this.start().then(() => this.call(method, params))
     }

@@ -27,14 +27,18 @@ async def render_template(filename, context):
     return template.render(context)
 
 
+@serverboards.rpc_method
 async def base_url():
     base_url_ = "http://localhost:8080"
     try:
-        base_url_ = await serverboards.rpc.call(
-            "settings.get", "serverboards.core.settings/base")["base_url"]
-        if base_url_.endswith("/"):
-            base_url_ = base_url_[0:-1]
-    except Exception:
+        settings = await serverboards.rpc.call(
+            "settings.get", "serverboards.core.settings/base")
+        if settings:
+            base_url_ = settings["base_url"]
+            while base_url_.endswith("/"):
+                base_url_ = base_url_[0:-1]
+    except Exception as e:
+        serverboards.log_traceback(e)
         pass
     return base_url_
 
@@ -71,7 +75,7 @@ async def send_email_action(email=None, subject=None, body=None, **extra):
             "sent": False
         }
     msg = MIMEMultipart('alternative')
-    # serverboards.debug("email extra data: %s"%(repr(extra)))
+    # await serverboards.debug("email extra data: %s"%(repr(extra)))
 
     base_url = settings["base_url"]
     context = {
@@ -82,7 +86,7 @@ async def send_email_action(email=None, subject=None, body=None, **extra):
         "settings": settings,
         "APP_URL": base_url,
         "type": extra.get("type", "MESSAGE"),
-        "url": extra.get("url", base_url)
+        "url": extra.get("url", None)
     }
     body_html = await render_template(
         os.path.join(os.path.dirname(__file__),
@@ -110,10 +114,9 @@ async def send_email_action(email=None, subject=None, body=None, **extra):
         with open("/tmp/lastmail.md", "w") as fd:
             fd.write(body)
 
-    port = settings.get("port")
-    ssl = settings.get("ssl")
-
-    def send_sync(port):
+    def send_sync():
+        port = settings.get("port")
+        ssl = settings.get("ssl")
         if port or ssl:
             if port == '465' or ssl:
                 port = port or '465'
@@ -123,11 +126,12 @@ async def send_email_action(email=None, subject=None, body=None, **extra):
         else:
             smtp = smtplib.SMTP(settings["servername"])
         if settings.get("username"):
+            print("Login as ", repr(settings))
             smtp.login(settings.get("username"), settings.get("password_pw"))
         smtp.sendmail(settings["from"], email, msg.as_string())
         smtp.close()
 
-    await serverboards.sync(send_sync, port)
+    await serverboards.sync(send_sync)
 
     await serverboards.info(
         "Sent email to %s, with subject '%s'" % (email, subject)
