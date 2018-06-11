@@ -27,14 +27,18 @@ async def render_template(filename, context):
     return template.render(context)
 
 
+@serverboards.rpc_method
 async def base_url():
     base_url_ = "http://localhost:8080"
     try:
-        base_url_ = await serverboards.rpc.call(
-            "settings.get", "serverboards.core.settings/base")["base_url"]
-        if base_url_.endswith("/"):
-            base_url_ = base_url_[0:-1]
-    except Exception:
+        settings = await serverboards.rpc.call(
+            "settings.get", "serverboards.core.settings/base")
+        if settings:
+            base_url_ = settings["base_url"]
+            while base_url_.endswith("/"):
+                base_url_ = base_url_[0:-1]
+    except Exception as e:
+        serverboards.log_traceback(e)
         pass
     return base_url_
 
