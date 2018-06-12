@@ -41,7 +41,7 @@ defmodule Serverboards.Settings.RPC do
           ("settings.view[#{section}]" in perms)
           )
         if can_view do
-          Serverboards.Settings.get section
+          get_from_db_or_ini(section)
         else
           Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
           {:error, :not_allowed}
@@ -53,7 +53,7 @@ defmodule Serverboards.Settings.RPC do
           ("settings.view[#{section}]" in perms)
           )
         if can_view do
-          Serverboards.Settings.get section, defval
+          get_from_db_or_ini(section)
         else
           Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
           {:error, :not_allowed}
@@ -107,5 +107,18 @@ defmodule Serverboards.Settings.RPC do
     end)
 
     {:ok, mc}
+  end
+
+  def get_from_db_or_ini(section) do
+    case Serverboards.Settings.get(section) do
+      {:ok, val} -> val
+      {:error, err} ->
+        if String.contains?(section, "/") do
+          Serverboards.Config.get_ini(section)
+            |> Map.new
+        else
+          {:error, err}
+        end
+    end
   end
 end
