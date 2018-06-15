@@ -150,5 +150,6 @@ defmodule Serverboards.Event do
         type: type, data: data, guards: guards
         } })
     end)
+    :ok
   end
 end
