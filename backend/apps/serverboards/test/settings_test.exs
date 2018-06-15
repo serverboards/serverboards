@@ -64,4 +64,12 @@ defmodule Serverboards.SettingsTest do
     :timer.sleep(200)
     assert {:ok, nil} == Test.Client.call(client, "settings.user.get", ["notifications"])
   end
+
+  # sometimes some default values are needed but dont have a real db
+  # backed value. Or want to use some default values system-wide.
+  test "Get from ini files, not database" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, %{ "loaded" =>  "cool"}} = Test.Client.call(client, "settings.get", ["serverboards.test.data/ini"])
+  end
 end

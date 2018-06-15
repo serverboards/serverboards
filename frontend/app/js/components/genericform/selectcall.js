@@ -4,26 +4,9 @@ import RichDescription from './richdescription'
 import store from 'app/utils/store'
 import Flash from 'app/flash'
 import {object_is_equal} from 'app/utils'
+import {data_from_form_data} from './utils'
+import _ from 'lodash'
 
-function data_from_form_data( fields, form_data ){
-  if (!fields) // No fields set, return all
-    return form_data
-  let data = {}
-  Object.keys(form_data).map( (k) => {
-    let ff = fields.find( f => f.name == k)
-    // Only pass through the known fields
-    if (ff){
-      if (ff.type == "service"){
-        let service_id = form_data[k]
-        data[k]=store.getState().project.project.services.find( s => s.uuid == service_id )
-      }
-      else{
-        data[k]=form_data[k]
-      }
-    }
-  })
-  return data
-}
 
 class SelectCall extends React.Component{
   constructor(props){
@@ -38,32 +21,27 @@ class SelectCall extends React.Component{
       const data = data_from_form_data( props.options.params || [], this.props.form_data )
       this.reloadData(data)
     }
+    $(this.refs.select).dropdown()
   }
   reloadData(data){
     this.setState({loading:true})
     const props = this.props
-    plugin.start(props.options.command).then( (pl) => {
-      pl.call(props.options.call, data).then( (items) => {
-        console.log(items)
+    plugin
+      .call(props.options.command, props.options.call, data)
+      .then( (items) => {
         this.setState({items, loading: false})
-        pl.stop()
         let dd = $(this.refs.select).dropdown({
           onChange: (value) => {
             this.props.setValue(this.props.name, value)
           }
         })
 
-        const value = this.props.value
-        if (items.find( i => i.value == value ))
-          dd.dropdown('set value',value)
-        else
-          dd.dropdown('set value',"")
-      }).catch( e => {
-        pl.stop()
-        console.error(e)
-        Flash.error(e)
+        let value = this.props.value
+        if (!items.find( i => i.value == value )) {
+          value = items[0].value
+        }
+        dd.dropdown('set value', value)
       })
-    })
   }
   componentWillReceiveProps(newprops){
     const params = this.props.options.params
@@ -72,7 +50,7 @@ class SelectCall extends React.Component{
 
     console.log("check data change", data, newdata, !object_is_equal(data, newdata))
     if (newprops.dynamic && !object_is_equal(data, newdata) ){
-      console.log("Update dyncall")
+      // console.log("Update dyncall")
       this.reloadData(newdata)
     }
   }

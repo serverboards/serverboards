@@ -1,20 +1,16 @@
 export {render_promise, render} from 'app/utils/templates'
 import rpc from 'app/rpc'
 
+/**
+ * @short Gets a vars list as descibed at genericforms and returns the return values
+ *
+ * @param vars is the variable descriptions: {method, command, params}
+ * @param args is the current values of the form
+ */
 export function resolve_form_vars(vars, args){
-  return Promise.all( (vars || []).map( (v) => { // For each var run plugin, get value, stop plugin
-    let p=new Promise((resolve, reject) => {
-      rpc.call("plugin.start", [v.command])
-      .then((uuid) => {
-        rpc.call(`${uuid}.${v.call}`, args)
-        .then((content) => resolve([v.id, content]))
-        .catch((e) => reject(e))
-        .then(() => rpc.call("plugin.stop", [uuid]))
-        .catch((e) => true) // no prob if no stop
-      })
-      .catch((e) => reject(e))
-    })
-    return p
+  return Promise.all( (vars || []).map( (v) => {
+    return rpc.call("plugin.call", [v.command, v.call, args])
+       .then((content) => [v.id, content])
   })).then( (varlist) => {
     let ret={}
     varlist.map( kv => {
@@ -22,4 +18,29 @@ export function resolve_form_vars(vars, args){
     })
     return ret
   })
+}
+
+/**
+ * @short from some fields and some form data return only on those fields description
+ *
+ * If fields, return all.
+ */
+export function data_from_form_data( fields, form_data ){
+  if (!fields) // No fields set, return all
+    return form_data
+  let data = {}
+  Object.keys(form_data).map( (k) => {
+    let ff = fields.find( f => f.name == k)
+    // Only pass through the known fields
+    if (ff){
+      if (ff.type == "service"){
+        let service_id = form_data[k]
+        data[k]=store.getState().project.project.services.find( s => s.uuid == service_id )
+      }
+      else{
+        data[k]=form_data[k]
+      }
+    }
+  })
+  return data
 }

@@ -16,12 +16,14 @@ defmodule Serverboards.Settings do
   @nochange "%%NOCHANGE%%"
 
   def start_link(options) do
-    {:ok, es} = EventSourcing.start_link [name: :settings] ++ options
-    {:ok, _rpc} = Serverboards.Settings.RPC.start_link
+    Agent.start_link(fn ->
+      {:ok, es} = EventSourcing.start_link [name: :settings] ++ options
+      {:ok, rpc} = Serverboards.Settings.RPC.start_link
 
-    setup_eventsourcing(es)
+      setup_eventsourcing(es)
 
-    {:ok, es}
+      %{es: es, rpc: rpc}
+    end)
   end
 
   def setup_eventsourcing(es) do

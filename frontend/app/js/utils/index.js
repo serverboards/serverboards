@@ -165,6 +165,7 @@ const fixed_colors={
   "unknown" : "grey",
   "error" : "red",
   "ok" : "green",
+  "enabled": "green",
   "warning" : "orange",
   "up" : "green",
   "down" : "red",

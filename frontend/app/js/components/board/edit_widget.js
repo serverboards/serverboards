@@ -19,7 +19,6 @@ class EditWidget extends React.Component{
     const config = map_get(this.props, ["widget", "config"], {})
     this.state = {
       widget: undefined,
-      extractors: config.__extractors__ || [],
       config: config,
       postconfig: {},
       postconfig_timer: undefined,
@@ -34,7 +33,7 @@ class EditWidget extends React.Component{
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       project: this.props.project,
-      config: {...state.config, "__extractors__": state.extractors},
+      config: {...state.config},
     }
     this.props.saveWidget(data)
   }
@@ -56,7 +55,7 @@ class EditWidget extends React.Component{
     // fake do as dashboard.widget.extract, to show at widget preview
     let postconfig = {}
     let context = {}
-    for (const ext of this.state.extractors){
+    for (const ext of this.props.board_extractors){
       context[ext.id]={ extractor: ext.extractor, service: ext.service, config: ext.config }
     }
     context["__vars__"] = this.props.vars
@@ -98,11 +97,8 @@ class EditWidget extends React.Component{
       return p
     })
   }
-  handleSetExtractors(extractors){
-    this.setState({ extractors })
-    this.delayConfigUpdate()
-  }
   render(){
+    const props = this.props
     const template = this.props.template
 
 
@@ -158,7 +154,9 @@ class EditWidget extends React.Component{
                 ))}
               </ErrorBoundary>
 
-              <ExtractorsHelp extractors={state.extractors}/>
+              {this.hasQuery() && (
+                <ExtractorsHelp extractors={props.board_extractors}/>
+              )}
             </div>
           </div>
         </div>
@@ -176,14 +174,6 @@ class EditWidget extends React.Component{
               ) : (
                 <div>
                   <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
-                  {this.hasQuery() && (
-                    <div className="">
-                      <QueryServiceSelect
-                        extractors={state.extractors}
-                        onSetExtractors={this.handleSetExtractors.bind(this)}
-                        />
-                    </div>
-                  )}
 
                   <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
                   <button className="ui button teal" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>

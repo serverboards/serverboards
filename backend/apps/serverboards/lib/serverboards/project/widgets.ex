@@ -85,10 +85,13 @@ defmodule Serverboards.Project.Widget do
   def widget_add_v2(dashboard, data, me) do
     uuid = data[:uuid] || UUID.uuid4
     data = Map.merge(data, %{ dashboard: dashboard, uuid: uuid })
+    # Logger.debug("Send event :add_widget_v2 #{inspect dashboard} #{inspect data}")
     EventSourcing.dispatch(:project, :add_widget_v2, data, me.email )
     {:ok, data.uuid}
   end
   def widget_add_real_v2(dashboard, data) when is_binary(dashboard) do
+    # Logger.debug("Got event :add_widget_v2 #{inspect dashboard} #{inspect data}")
+
     import Ecto.Query
     dashboard_id = Repo.one(
       from s in Model.Dashboard,
@@ -158,9 +161,9 @@ defmodule Serverboards.Project.Widget do
       from s in Model.Widget,
       where: s.uuid == ^uuid
       )
-    Serverboards.Event.emit("dashboard.widget.removed", %{uuid: uuid}, ["project.get"])
-    Serverboards.Event.emit("dashboard.widget.removed[#{project}]", %{uuid: uuid}, ["project.get"])
-    Serverboards.Event.emit("dashboard.widget.removed[#{dashboard}]", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.deleted", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.deleted[#{project}]", %{uuid: uuid}, ["project.get"])
+    Serverboards.Event.emit("dashboard.widget.deleted[#{dashboard}]", %{uuid: uuid}, ["project.get"])
     :ok
   end
 
@@ -175,14 +178,18 @@ defmodule Serverboards.Project.Widget do
   def extract(uuid, vars, me) do
     import Ecto.Query
 
-    {widget, config} = Repo.one(
+    {widget, config, db_config} = Repo.one(
       from w in Model.Widget,
       where: w.uuid == ^uuid,
-      select: {w.widget, w.config}
+      join: db in Model.Dashboard, on: db.id == w.dashboard_id,
+      select: {w.widget, w.config, db.config}
     )
+
+    extractors = db_config && Map.get(db_config, "extractors") || config["__extractors__"]
+
     # Logger.debug("Widget and config: #{inspect {widget, config}}")
     params = get_widget_params(widget)
-    extractors = case config["__extractors__"] do
+    extractors = case extractors do
       nil -> %{}
       other ->
         Enum.map(other, fn

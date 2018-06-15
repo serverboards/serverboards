@@ -85,7 +85,7 @@ defmodule Serverboards.Project.RPC do
       end
     end, [required_perm: "dashboard.widget.create", context: true]
 
-    RPC.MethodCaller.add_method mc, "dashboard.widget.remove", fn [uuid], context ->
+    RPC.MethodCaller.add_method mc, "dashboard.widget.delete", fn [uuid], context ->
       me = Context.get(context, :user)
       Serverboards.Project.Widget.widget_remove(uuid, me)
     end, [required_perm: "dashboard.widget.create", context: true]

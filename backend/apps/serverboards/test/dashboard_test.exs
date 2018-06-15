@@ -70,7 +70,7 @@ defmodule DashboardTest do
     # just dont fail
     {:ok, _catalog} = Test.Client.call(client, "dashboard.widget.catalog", ["SBDS-TST13"])
 
-    {:ok, _} = Test.Client.call(client, "dashboard.widget.remove", [uuid])
+    {:ok, _} = Test.Client.call(client, "dashboard.widget.delete", [uuid])
     {:ok, []} = Test.Client.call(client, "dashboard.widget.list", [sbds])
   end
 
@@ -160,9 +160,36 @@ defmodule DashboardTest do
     {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST16", %{}] )
 
     {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+
+    # comatibility mode <18.10, widgets may have a __extractors__, only to be used if there
+    # is not a extractors at the dashboard config.
+
     widget_config = %{
       __extractors__: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
-      q: "SELECT random FROM random"
+      q: "SELECT random FROM random WHERE min = 10 AND max = 20"
+    }
+    {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
+      dashboard: dashboard,
+      widget: "test.extractor/widget",
+      config: widget_config,
+      ui: %{}
+    })
+
+    {:ok, data} = Test.Client.call(client, "dashboard.widget.extract", [widget, %{}])
+    Logger.debug("data #{inspect data}")
+
+    %{ "color" => nil, "q" => res} = data
+    %{ "columns" => _columns, "rows" => _rows } = res
+    assert Enum.count(res["rows"]) == 1
+
+
+    # normal mode 18.10+
+    extractors = [%{ extractor: "test.extractor/extractor", id: "A", service: nil }]
+    Test.Client.call(client, "dashboard.update", %{ uuid: dashboard, config: %{ extractors: extractors } } )
+
+    widget_config = %{
+      __extractors__: [%{ extractor: "test.extractor/error.extractor", id: "A", service: nil }],
+      q: "SELECT random FROM random WHERE min = 10 AND max = 20"
     }
     {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
       dashboard: dashboard,
@@ -185,8 +212,10 @@ defmodule DashboardTest do
     {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST17", %{}] )
 
     {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    extractors = [%{ extractor: "test.extractor/extractor", id: "A", service: nil }]
+    Test.Client.call(client, "dashboard.update", %{ uuid: dashboard, config: %{ extractors: extractors } } )
+
     widget_config = %{
-      __extractors__: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
       q: "SELECT dupa"
     }
     {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{
@@ -209,8 +238,10 @@ defmodule DashboardTest do
     {:ok, sbds} = Test.Client.call(client, "project.create", ["SBDS-TST18", %{}] )
 
     {:ok, dashboard} = Test.Client.call(client, "dashboard.create", %{ project: sbds, name: "Tools" } )
+    extractors = [%{ extractor: "test.extractor/extractor", id: "A", service: nil }]
+    Test.Client.call(client, "dashboard.update", %{ uuid: dashboard, config: %{ extractors: extractors } } )
+
     widget_config = %{
-      __extractors__: [%{ extractor: "test.extractor/extractor", id: "A", service: nil }],
       q: "42"
     }
     {:ok, widget} = Test.Client.call(client, "dashboard.widget.create", %{

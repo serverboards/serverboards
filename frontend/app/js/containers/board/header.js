@@ -6,6 +6,7 @@ import {
     }  from 'app/actions/project'
 import View from 'app/components/board/header'
 import i18n from 'app/utils/i18n'
+import {map_get} from 'app/utils'
 
 const Controller = connect({
   state: (state) => ({
@@ -35,7 +36,7 @@ const Controller = connect({
   },
   store_enter(state, props){
     return [
-      () => project_get_dashboard(state.project.dashboard.list[0].uuid), // first dashboard
+      () => project_get_dashboard(map_get(state.project.dashboard.list, [0, "uuid"])), // first dashboard
     ]
   },
 })(View)

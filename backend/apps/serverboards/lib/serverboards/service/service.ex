@@ -9,15 +9,19 @@ defmodule Serverboards.Service do
   alias Serverboards.Project.Model.ProjectService, as: ProjectServiceModel
   alias Serverboards.Repo
 
-  def start_link(_options) do
-    {:ok, es} = EventSourcing.start_link name: :service
-    {:ok, _rpc} = Serverboards.Service.RPC.start_link
+  def start_link(options) do
+    # Really do a linked tree of processes. TODO use supervisors,
+    # but eventsourcing do it a bit more complex
+    Agent.start_link(fn ->
+      {:ok, es} = EventSourcing.start_link name: :service
+      {:ok, rpc} = Serverboards.Service.RPC.start_link
 
-    EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
+      EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
 
-    setup_eventsourcing(es)
+      setup_eventsourcing(es)
 
-    {:ok, es}
+      %{es: es, rpc: rpc}
+    end)
   end
 
   def setup_eventsourcing(es) do
@@ -71,6 +75,8 @@ defmodule Serverboards.Service do
       {:ok, upd} = Repo.update( changeset )
 
       {:ok, service} = service_get(uuid, me)
+
+      # send signals in another process, to avoid stalling
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
       Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
@@ -459,7 +465,7 @@ defmodule Serverboards.Service do
           |> Map.put(:icon, nil)
       [service_definition | _other ] ->
         fields = service_definition.fields |> Enum.map(fn f ->
-          Map.put(f, :value, Map.get(service.config || %{}, f["name"], ""))
+          Map.put(f || %{}, :value, Map.get(service.config || %{}, f["name"], ""))
         end)
         service = if service_definition[:virtual] do
           service |> Map.put(:virtual, service_definition.virtual)

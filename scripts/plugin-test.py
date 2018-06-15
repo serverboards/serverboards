@@ -17,6 +17,7 @@ def main():
             print( fd.read() )
             sys.exit(1)
     end = time.time()
+    printc("Compiled in %.2f seconds" % (end - start))
 
     token = uuid.uuid4()
     fail = False

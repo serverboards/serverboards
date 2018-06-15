@@ -5,7 +5,8 @@ import store from 'app/utils/store'
 import {
   project_update_widget_catalog,
   board_update_now,
-  board_set_daterange_start_and_end
+  board_set_daterange_start_and_end,
+  dashboard_list
   } from 'app/actions/project'
 import { map_get } from 'app/utils'
 import i18n from 'app/utils/i18n'
@@ -32,13 +33,14 @@ const Board = store.connect({
       return []
     return [
       `dashboard.widget.created[${dashboard}]`,
-      `dashboard.widget.removed[${dashboard}]`,
+      `dashboard.widget.deleted[${dashboard}]`,
       `dashboard.widget.updated[${dashboard}]`
     ]
   },
   // Update catalog on entry
   store_enter: (props) => [
-    () => project_update_widget_catalog(props.project.current)
+    () => project_update_widget_catalog(props.project.current),
+    () => dashboard_list(props.project.current),
   ],
   store_exit: (props) => [
     () => project_update_widget_catalog(null),

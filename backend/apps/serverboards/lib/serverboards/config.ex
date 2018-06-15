@@ -136,8 +136,15 @@ defmodule Serverboards.Config do
     {:ok, Regex.replace(~r/#.*/, text, "")}
   end
 
+  defp simplify_sections(text) do
+    {:ok, Regex.replace(~r/\[.*\]/, text, &String.replace(&1, "/", "--"))}
+  end
+
+  def get_ini(section) when is_binary(section) do
+    get_ini(String.to_atom(section))
+  end
   def get_ini(section) do
-    section = String.to_atom(String.replace(Atom.to_string(section), "/", "-"))
+    section = String.to_atom(String.replace(Atom.to_string(section), "/", "--"))
     init_files = case System.get_env("SERVERBOARDS_INI") do
       nil ->
         files = Application.get_env(:serverboards, :ini_files, [])
@@ -161,14 +168,17 @@ defmodule Serverboards.Config do
     end
   end
   def get_ini(filename, section) do
+    # Logger.debug("Get #{inspect section}")
     with {:ok, data_with_comments} <- File.read(filename),
-      {:ok, data} <- remove_comments(data_with_comments),
+      {:ok, data_without_comments} <- remove_comments(data_with_comments),
+      {:ok, data} <- simplify_sections(data_without_comments),
       {:ok, kwlist} <- :eini.parse(data),
       l when is_list(l) <- kwlist[section] do
+        # Logger.debug("Got #{inspect section}: #{inspect l}")
         l
     else
-      _error ->
-        #Logger.debug("Could not read from #{filename}: #{inspect error}")
+      error ->
+        Logger.warn("Could not read from #{filename}: #{inspect error}")
         []
     end
   end

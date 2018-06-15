@@ -46,7 +46,7 @@ export function resubscribe(){
   rpc.call("event.subscribe", Object.keys(subscription_count))
 }
 
-const PLAIN_EVENT_RE=/[\w.-]+/
+const PLAIN_EVENT_RE=/[-\w./]+/
 
 export function on(event, fn){
   subscribe([event])
@@ -63,7 +63,7 @@ export function off(event, fn){
     delete subscription_fns[plain_event]
 }
 export function trigger(event, data){
-  // console.log("Trigger event %o(%o)", event, data)
+  // console.log("Trigger event %o(%o)", event, data, subscription_fns)
   for (let fn of (subscription_fns[event] || [])){
     if (fn){
       try{

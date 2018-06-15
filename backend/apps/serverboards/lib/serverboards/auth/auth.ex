@@ -21,11 +21,7 @@ defmodule Serverboards.Auth do
 		{:error, :unknown_user}
 
 	"""
-	use GenServer
-
 	alias MOM.RPC
-
-	defstruct []
 
 	def email_auth(%{ "email" => email, "password" => password }) do
 		case Serverboards.Auth.User.Password.auth(email, password) do
