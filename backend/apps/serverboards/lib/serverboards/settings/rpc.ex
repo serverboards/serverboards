@@ -53,7 +53,11 @@ defmodule Serverboards.Settings.RPC do
           ("settings.view[#{section}]" in perms)
           )
         if can_view do
-          get_from_db_or_ini(section)
+          case get_from_db_or_ini(section) do
+            {:error, :not_found} ->
+              defval
+            other -> other
+          end
         else
           Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
           {:error, :not_allowed}
