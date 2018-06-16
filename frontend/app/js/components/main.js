@@ -36,11 +36,13 @@ function Main(props){
     contents=(
       <Login onLogin={props.onLogin}/>
     )
-  } else if (props.legal != 1) {
+  } else if (props.licenses.length != 0) {
     contents = (
       <Legal
+        lang={props.lang}
+        license={props.licenses[0]}
         onLogout={props.onLogout}
-        onAcceptLegal={props.onAcceptLegal}
+        onAcceptLegal={() => props.onAcceptLegal(props.licenses[0].id)}
         />
     )
   } else {

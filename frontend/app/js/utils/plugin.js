@@ -65,6 +65,16 @@ export function load_html(url, options={}){
   return p
 }
 
+export function load_raw(url, options={}){
+  let p = new Promise((accept, reject) => {
+    url = join_path(url)
+    $.get(url, function(data){
+      accept(data)
+    }).error(reject)
+  })
+  return p
+}
+
 export function load(url, options={}){
   if (url.endsWith(".css"))
     return load_css(url, options)
@@ -72,6 +82,8 @@ export function load(url, options={}){
     return load_js(url, options)
   if (url.endsWith(".html"))
     return load_html(url, options)
+  if (url.endsWith(".md") || url.endsWith('.txt'))
+    return load_raw(url, options)
   throw ("Dont know how to load based on URL extension: "+url)
 }
 

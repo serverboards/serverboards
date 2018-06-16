@@ -85,6 +85,8 @@ export function map_drop(map, keys){
 
 /// Gets a deep value from a map, following a path. If any if null/undefined, returns that, not continuing the path. Path is a list
 export function map_get(obj, path, defval){
+  if (!obj)
+    return defval
   let v = obj[path[0]]
   if (v == null || v == undefined)
     return defval

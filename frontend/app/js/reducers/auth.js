@@ -11,7 +11,8 @@ const default_state={
   lang: "en",
   lang_counter: 0,
   avatar: default_avatar,
-  logging: false // this is used to mark already loading user. Actually its kept for UI reasons until logout.
+  logging: false, // this is used to mark already loading user. Actually its kept for UI reasons until logout.
+  licenses: [], // missing licenses to agree
 }
 
 // http://stackoverflow.com/questions/1179366/is-there-a-javascript-strcmp#1179377
@@ -77,8 +78,8 @@ export const auth = (state = default_state , action) => {
     case 'AUTH_SET_TRACKING':
       state.tracking=action.payload;
       break;
-    case 'AUTH_SET_LEGAL':
-      state.legal=action.payload;
+    case 'AUTH_SET_LICENSES':
+      state.licenses=action.payload;
       break;
     case '@RPC_EVENT/group.user_added':
       state.groups = state.groups.map( (g) => {

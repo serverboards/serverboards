@@ -3,6 +3,9 @@ import Flash from 'app/flash'
 import event from 'app/utils/event'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 import { set_lang } from './i18n'
+import cache from 'app/utils/cache'
+import {map_get} from 'app/utils'
+import store from 'app/utils/store'
 
 export function logout(){
   return {
@@ -45,12 +48,7 @@ export function logged_in_as(user){
       rpc.call("settings.user.get", ["tracking"]).then( (props) => {
         dispatch(set_tracking(props ? props.tracking : true))
       })
-      // console.log("Get legal ok")
-      rpc.call("settings.user.get", ["legal"]).then( (props) => {
-        // console.log("Get legal ok: ", props)
-        dispatch(set_legal(props ? props.legal_id : false))
-      })
-
+      dispatch(user_update_licenses())
     }
     else{
       Flash.error("Invalid email/password")
@@ -195,21 +193,35 @@ export function user_settings_set_tracking(tracking){
   }
 }
 
-export function user_settings_set_legal(legal_id){
-  console.log("Accept legal", legal_id)
-  return function(dispatch){
-    rpc.call("settings.user.set", ["legal", {legal_id}]).then( () => {
-      dispatch(set_legal(legal_id))
+export function user_settings_accept_license(license){
+  console.log("Accept license", license)
+  const email = store.getState().auth.user.email
+  rpc.call("log.info", [`${email} accepted license ${license}`, {email, license}])
+  return rpc
+    .call("settings.user.get", ["legal"]).then( prev => {
+      const accepted = map_get(prev, ["accepted"], []).concat(license)
+      return rpc
+        .call("settings.user.set", ["legal", {accepted}])
+        .then( () => user_update_licenses() )
     })
-  }
 }
 
-
-export function set_legal(ok){
-  return {
-    type: "AUTH_SET_LEGAL",
-    payload: ok,
-  }
+export function user_update_licenses(){
+  return Promise.all([
+    rpc.call("settings.user.get", ["legal"]),
+    cache.plugin_component({type: "license"})
+  ]).then( al => {
+    console.log(al)
+    let [legal, licenses] = al
+    console.log({legal, licenses})
+    const have = map_get(legal, ["accepted"], [])
+    licenses = licenses.filter( l => have.indexOf(l.id)<0 )
+    return {
+      type: "AUTH_SET_LICENSES",
+      payload: licenses
+    }
+  })
+  .catch(console.error)
 }
 
 export function set_tracking(tracking){
