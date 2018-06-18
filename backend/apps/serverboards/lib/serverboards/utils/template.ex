@@ -11,6 +11,14 @@ defmodule Serverboards.Utils.Template do
     {:ok, res}
   end
 
+  def render(orig, context, options) do
+    {:ok, res} = render(orig, context)
+    res = if options[:remove_empty] do
+      Regex.replace(@moustache_re, res, "")
+    else res end
+    {:ok, res}
+  end
+
   def render_map(orig, nil) do
     {:ok, orig}
   end

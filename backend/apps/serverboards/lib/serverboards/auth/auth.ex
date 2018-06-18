@@ -24,10 +24,15 @@ defmodule Serverboards.Auth do
 	alias MOM.RPC
 
 	def email_auth(%{ "email" => email, "password" => password }) do
+		# Logger.debug("Try last resort email auth #{inspect email} / #{inspect password}")
 		case Serverboards.Auth.User.Password.auth(email, password) do
-			{:error, _} -> false
+			{:error, err} ->
+				Logger.error("Error trying to log in by email #{inspect err}")
+				false
 			false -> false
-			user -> user
+			user ->
+				Logger.debug("Auth OK email")
+				user
 				#%{ email: user.email, permissions: user.perms, name: user.name }
 		end
 	end
@@ -166,7 +171,7 @@ defmodule Serverboards.Auth do
 	end
 
 	defp try_login_by_auth(%{ command: command, login: %{ call: call }, id: id } = auth, params) when is_binary(command) and is_binary(call) do
-		#Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
+		# Logger.debug("Try login at #{inspect id}: #{inspect command}.#{inspect call}(#{inspect params})")
 		 case Serverboards.Plugin.Runner.call(command, call, params, "system/auth") do
 		  {:ok, email} when is_binary(email) ->
 				case Serverboards.Auth.User.user_info(email) do
@@ -295,5 +300,17 @@ defmodule Serverboards.Auth do
 			 end
 		 end)
 		 |> Enum.filter(&(&1!=nil))
+	end
+
+
+	def auth_and_get_token(authdata) do
+		# Logger.debug("Authdata are #{inspect authdata}")
+		with {:ok, user} <- auth(authdata),
+				 true <- Enum.any?(user.perms, &(&1 == "auth.token.create")) do
+				 	token = Serverboards.Auth.User.Token.create(user)
+					{:ok, token}
+		else
+			_ -> {:error, :not_allowed}
+  	end
 	end
 end

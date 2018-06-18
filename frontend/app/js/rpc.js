@@ -61,10 +61,18 @@ var RPC = function(options={}){
 
   rpc.onopen=function(){
     rpc.set_status("CONNECTED")
-    //if (rpc.reconnect_time>1000){
-      //Flash.success("Connected to remote RPC server.")
-    //}
-    //console.debug("Connection success.")
+    // Maybe got a token from server POST auth
+    if (!localStorage.reconnect_token){
+      const meta = $('meta[name=token]')
+      const maybe_token = meta.attr('value') || ""
+      if (maybe_token){
+        console.info("Login from POST")
+        localStorage.reconnect_token = maybe_token
+        meta.remove()
+      }
+    }
+
+
     if (localStorage.reconnect_token){
       rpc.call('auth.auth',{type:'token',token:localStorage.reconnect_token}).then(function(user){
         if (user==false){

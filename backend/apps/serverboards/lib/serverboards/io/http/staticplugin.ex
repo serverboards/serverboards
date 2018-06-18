@@ -32,32 +32,7 @@ defmodule Serverboards.IO.HTTP.StaticPlugin do
 
     plugin = Serverboards.Plugin.Registry.find plugin
     requested_filename="#{plugin.path}/static/#{filepath}"
-
-    #Logger.debug("Request static handler: #{requested_filename}")
-    {:ok, reply} = case File.read(requested_filename) do
-      {:ok, content}  ->
-        {mime1, mime2, _} = :cow_mimetypes.web(filepath)
-        mimetype="#{mime1}/#{mime2}"
-
-        :cowboy_req.reply(
-          200,
-          [
-            {"content-type", mimetype},
-            {"content-length", to_string(byte_size(content))},
-            {"access-control-allow-origin", "*"}
-          ],
-          content,
-          request
-        )
-      {:error, _} ->
-        Logger.debug("Could not read static file at #{requested_filename}")
-        :cowboy_req.reply(
-          404,
-          [],
-          "",
-          request
-        )
-    end
+    {:ok, reply} = Serverboards.IO.HTTP.Utils.get_file(request, requested_filename)
 
     {:ok, reply, state}
   end

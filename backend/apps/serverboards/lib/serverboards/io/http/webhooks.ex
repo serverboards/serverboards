@@ -75,56 +75,6 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     end
   end
 
-  defp get_multipart_params(req, params \\ []) do
-    case :cowboy_req.part(req) do
-      {:ok, headers, req2} ->
-        case :cow_multipart.form_data(headers) do
-          {:data, name} ->
-            {:ok, body, req3} = :cowboy_req.part_body(req2)
-
-            get_multipart_params(req3, [{name, body} | params])
-          other ->
-            Logger.debug("Dont know how to parse multipart type #{inspect other}")
-            get_multipart_params(req2, params)
-        end
-      {:done, _} ->
-        params
-      other ->
-        Logger.debug("Dont know how to parse multipart part #{inspect other}")
-        params
-    end
-  end
-
-  defp get_params(req) do
-    # Logger.debug(inspect req, pretty: true)
-    content_type = case :cowboy_req.parse_header("content-type", req) do
-       {:ok, {content, type, _}, _} ->
-         {content, type}
-       _other ->
-         :unknown
-    end
-    # Logger.debug("Got data: #{inspect content_type}")
-    params = cond do
-      content_type == {"multipart", "form-data"} ->
-        get_multipart_params(req)
-      content_type == {"application", "json"} ->
-        {:ok, body, _} = :cowboy_req.body(req)
-        Poison.decode!(body)
-
-      content_type == {"application", "x-www-form-urlencoded"} ->
-        {:ok, params, _} = :cowboy_req.body_qs(req)
-        # Logger.debug("url encoded")
-        params
-
-      true ->
-        # Logger.debug("other")
-        {params, _} = :cowboy_req.qs_vals(req)
-        params
-    end
-
-    Map.new(params)
-  end
-
   def get_peer_data(req) do
     {:undefined, origin, _} = :cowboy_req.parse_header("origin", req, "direct")
     {{ip, port}, _} = :cowboy_req.peer(req)
@@ -140,7 +90,7 @@ defmodule Serverboards.IO.HTTP.Webhooks.Handler do
     # Do trigger
     {uuid, _} = :cowboy_req.binding(:uuid, req)
 
-    qsvals = get_params(req)
+    qsvals = Serverboards.IO.HTTP.Utils.get_params(req)
     peer = get_peer_data(req)
 
     trigger_data = try do

@@ -35,7 +35,8 @@ defmodule Serverboards.Settings.RPC do
 
     RPC.MethodCaller.add_method mc, "settings.get", fn
       [section], context ->
-        perms = (RPC.Context.get context, :user).perms
+        user = RPC.Context.get context, :user
+        perms = user.perms
         can_view = (
           ("settings.view" in perms) or
           ("settings.view[#{section}]" in perms)
@@ -43,11 +44,12 @@ defmodule Serverboards.Settings.RPC do
         if can_view do
           get_from_db_or_ini(section)
         else
-          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
+          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms} // #{inspect user.email}")
           {:error, :not_allowed}
         end
       [section, defval], context ->
-        perms = (RPC.Context.get context, :user).perms
+        user = RPC.Context.get context, :user
+        perms = user.perms
         can_view = (
           ("settings.view" in perms) or
           ("settings.view[#{section}]" in perms)
@@ -59,7 +61,7 @@ defmodule Serverboards.Settings.RPC do
             other -> other
           end
         else
-          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms}")
+          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms} // #{inspect user.email}")
           {:error, :not_allowed}
         end
     end, [context: true]

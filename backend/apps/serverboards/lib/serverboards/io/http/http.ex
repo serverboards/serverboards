@@ -21,10 +21,11 @@ defmodule Serverboards.IO.HTTP do
     if not File.exists?("#{frontend_path}/index.html") do
       Logger.error("Index not at #{frontend_path}/index.html. Check your config.")
     end
+
     dispatch = :cowboy_router.compile([
       {:_, # all host names
         [
-          {"/", :cowboy_static, {:file, "#{frontend_path}/index.html"} },
+          {"/", Serverboards.IO.HTTP.Root, [frontend_path]},
           {"/static/:plugin/[...]", Serverboards.IO.HTTP.StaticPlugin, []},
           {"/ws", Serverboards.IO.HTTP.WebSocketHandler, []},
           {"/ws/:uuid", Serverboards.IO.HTTP.PortToWebsocket.Handler, []},
