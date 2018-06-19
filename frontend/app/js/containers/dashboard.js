@@ -10,7 +10,7 @@ let Dashboard = connect(
   (state) => {
     get_last_project()
       .then(project =>
-        false ?
+        project ?
           `/project/${project}/` :
           rpc.call('settings.get', ['ui', {}]).then(data => data.start || '/project/wizard')
         )
