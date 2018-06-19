@@ -7,7 +7,8 @@ defmodule Serverboards.Settings.RPC do
   alias MOM
 
   # this sections do not need special permissions when got from other user
-  @section_whitelist ~w"profile_avatar"
+  @user_whitelist ~w"profile_avatar"
+  @settings_whitelist ~w"ui"
 
   def start_link(options \\ []) do
     {:ok, mc} = RPC.MethodCaller.start_link options
@@ -39,7 +40,8 @@ defmodule Serverboards.Settings.RPC do
         perms = user.perms
         can_view = (
           ("settings.view" in perms) or
-          ("settings.view[#{section}]" in perms)
+          ("settings.view[#{section}]" in perms) or
+          (section in @settings_whitelist)
           )
         if can_view do
           get_from_db_or_ini(section)
@@ -52,7 +54,8 @@ defmodule Serverboards.Settings.RPC do
         perms = user.perms
         can_view = (
           ("settings.view" in perms) or
-          ("settings.view[#{section}]" in perms)
+          ("settings.view[#{section}]" in perms) or
+          (section in @settings_whitelist)
           )
         if can_view do
           case get_from_db_or_ini(section) do
@@ -77,7 +80,7 @@ defmodule Serverboards.Settings.RPC do
         end
       [user, section], context ->
         me = (RPC.Context.get context, :user)
-        can_view = ("settings.user.view_all" in me.perms) or (section in @section_whitelist)
+        can_view = ("settings.user.view_all" in me.perms) or (section in @user_whitelist)
         if can_view do
           Serverboards.Settings.user_get user, section
         else
@@ -119,11 +122,12 @@ defmodule Serverboards.Settings.RPC do
     case Serverboards.Settings.get(section) do
       {:ok, val} -> val
       {:error, err} ->
-        if String.contains?(section, "/") do
-          Serverboards.Config.get_ini(section)
-            |> Map.new
-        else
-          {:error, err}
+        if String.contains?(section, "/") or (section in @settings_whitelist) do
+          Map.new(
+            Serverboards.Config.get_ini(section)
+            ++
+            Serverboards.Config.get_env(section)
+          )
         end
     end
   end
