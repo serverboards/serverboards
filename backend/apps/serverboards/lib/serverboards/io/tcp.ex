@@ -5,18 +5,27 @@ defmodule Serverboards.IO.TCP do
 
 	def start_accept() do
 		port = Serverboards.Config.get(:tcp, :port, 4040)
-		if port  do
-			start_accept(port)
-		else
-			Logger.warn("Not listening TCP")
-			:ok
+		address = Serverboards.Config.get(:tcp, :address, "localhost")
+
+		case :inet.gethostbyname(String.to_charlist(address)) do
+			{:ok, {_, _, _, :inet, _, [ip | _more]}} ->
+				if port  do
+					start_accept(ip, port)
+				else
+					Logger.warn("Not listening TCP")
+					:ok
+				end
+			{:error, err} ->
+				Logger.error("Could not resolve addres to link TCP control server (#{inspect address}): #{inspect err}")
+				{:error, err}
 		end
 	end
 
-	def start_accept(port) do
+	def start_accept(ip, port) do
 		{:ok, socket} = :gen_tcp.listen(port,
-		 	[:binary, packet: :line, active: false, reuseaddr: true])
-		Logger.info("Accepting TCP connections at #{port}")
+		 	[:binary, packet: :line, active: false, reuseaddr: true,
+			 ip: ip])
+		Logger.info("Accepting TCP connections at #{:inet.ntoa(ip)}:#{port}")
 
 		loop_acceptor(socket)
 	end

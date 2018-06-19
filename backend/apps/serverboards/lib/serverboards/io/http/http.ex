@@ -8,15 +8,24 @@ defmodule Serverboards.IO.HTTP do
     else
       Serverboards.Config.get(:http, :port, 8080)
     end
+
+    address = if options[:address] do
+      options[:address]
+    else
+      Serverboards.Config.get(:http, :address, "localhost")
+    end
+
+		{:ok, {_, _, _, :inet, _, [ip | _more]}} = :inet.gethostbyname(String.to_charlist(address))
+
     if port do
-      start_link(port, options)
+      start_link(ip, port, options)
     else
       Logger.warn("Not listening HTTP")
       :ignore # do not start
     end
   end
 
-  def start_link(port, _options) do
+  def start_link(ip, port, _options) do
     frontend_path = Serverboards.Config.get(:http, :root, "../frontend/dist")
     if not File.exists?("#{frontend_path}/index.html") do
       Logger.error("Index not at #{frontend_path}/index.html. Check your config.")
@@ -37,7 +46,7 @@ defmodule Serverboards.IO.HTTP do
     res = :cowboy.start_http(
       :http,
       100,
-      [port: port, ip: {127,0,0,1}],
+      [port: port, ip: ip],
       [
         {:env, [{:dispatch, dispatch}]},
         # Some fallbacks
@@ -46,7 +55,7 @@ defmodule Serverboards.IO.HTTP do
     )
     case res do
       {:ok, _} ->
-        Logger.info("Accepting HTTP connections at http://localhost:#{port}")
+        Logger.info("Accepting HTTP connections at http://#{:inet.ntoa(ip)}:#{port}")
       {:error, e} ->
         Logger.error(inspect e)
     end
