@@ -8,12 +8,17 @@ import rpc from 'app/rpc'
 
 let Dashboard = connect(
   (state) => {
-    get_last_project()
-      .then(project =>
-        project ?
-          `/project/${project}/` :
-          rpc.call('settings.get', ['ui', {}]).then(data => data.start || '/project/wizard')
-        )
+    rpc.call('settings.get', ['ui', {}]).then(data => data.start || 'default')
+      .then( start => {
+        if (start != 'default')
+          return start
+        else
+          return get_last_project()
+            .then(project =>
+              project ?
+                `/project/${project}/` : '/project/wizard'
+            )
+        })
       .then((path) => goto(path))
       .catch((e) => Flash.error(e))
     return {}
