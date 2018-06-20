@@ -32,8 +32,9 @@ defmodule Serverboards.Project.RPC do
       end, [required_perm: "project.update", context: true]
 
     RPC.MethodCaller.add_method mc, "project.get", fn [project_id], context ->
-      {:ok, project} = project_get project_id, Context.get(context, :user)
-      {:ok, Serverboards.Utils.clean_struct project}
+      with {:ok, project} <- project_get project_id, Context.get(context, :user) do
+        {:ok, Serverboards.Utils.clean_struct project}
+      end
     end, [required_perm: "project.get", context: true]
 
     RPC.MethodCaller.add_method mc, "project.list", fn [], context ->

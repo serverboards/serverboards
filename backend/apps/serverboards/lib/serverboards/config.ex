@@ -177,6 +177,8 @@ defmodule Serverboards.Config do
         # Logger.debug("Got #{inspect section}: #{inspect l}")
         l
     else
+      nil -> # empty, not a real error
+        []
       error ->
         Logger.warn("Could not read from #{filename}: #{inspect error}")
         []
