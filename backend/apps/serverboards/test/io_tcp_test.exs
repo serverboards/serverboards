@@ -11,7 +11,7 @@ defmodule Serverboards.IoTcpTest do
     Application.start(:io_tcp)
 
     {:ok, listener} = Task.start( fn ->
-      Serverboards.IO.TCP.start_accept(4040)
+      Serverboards.IO.TCP.start_accept({127,0,0,1}, 4040)
     end)
 
     on_exit( fn ->
