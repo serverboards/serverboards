@@ -65,7 +65,7 @@ var RPC = function(options={}){
     if (!localStorage.reconnect_token){
       const meta = $('meta[name=token]')
       const maybe_token = meta.attr('value') || ""
-      if (maybe_token){
+      if (maybe_token.indexOf('-') > 0){ // just a hint that is a valid token
         console.info("Login from POST")
         localStorage.reconnect_token = maybe_token
         meta.remove()
