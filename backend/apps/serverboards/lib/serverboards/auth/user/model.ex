@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Serverboards.Auth.User.Model do
   defmodule Password do
   	use Ecto.Schema
@@ -44,7 +46,19 @@ defmodule Serverboards.Auth.User.Model do
 
     def changeset(token, params \\ :empty) do
       import Ecto.Changeset
-  		time_limit = Timex.shift( DateTime.utc_now(), days: 1 )
+      ttl = case Serverboards.Config.get("global", "token_ttl", 1) do
+        nr when is_binary(nr) ->
+          case Integer.parse(nr) do
+            {nr, ""} -> nr
+            other ->
+              Logger.error("Could not parse auth/token_ttl config. Using 1day ttl.")
+              1
+          end
+        nr when is_number(nr) ->
+          nr
+      end
+
+  		time_limit = Timex.shift( DateTime.utc_now(), days: ttl)
 
       token
         |> cast(params, @required_fields ++ @optional_fields)

@@ -189,8 +189,11 @@ defmodule Serverboards.Auth do
 					groups: Enum.uniq(["user"] ++ Map.get(user, "groups", [])),
 					is_active: true
 				}
+			{:ok, false} ->
+				Logger.debug("Could login using #{inspect id}")
+				false
 			o ->
-				Logger.debug("Could not load at #{inspect id} because of #{inspect o}")
+				Logger.debug("Could login using #{inspect id} because of #{inspect o}")
 				false
 		 end
 	end
