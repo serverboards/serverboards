@@ -52,10 +52,8 @@ class ServerboardsDB():
         ]
         for ini in inis:
             if not os.path.exists(ini):
-                print("""Can't find Serverboards settings file (serverboards.ini).
-    Ensure Serverboards is properly installed or set the `SERVERBOARDS_INI`
-    envvar to the correct location.""", file=sys.stderr)
-                sys.exit(1)
+                # print("Could not open %s" % ini)
+                continue
             try:
                 config = configparser.ConfigParser(allow_no_value=True)
                 config.read(ini)
@@ -65,9 +63,9 @@ class ServerboardsDB():
                 return url
             except:
                 pass
-        print("""Could not read %s settings file.
+        print("""Could not read any of [%s] settings file.
 Please ensure you have the proper permissions to access that file and
-that it is well formed."""%ini)
+that it is well formed.""" % ', '.join(inis))
         sys.exit(1)
 
     def execute(self, sql, *args):
