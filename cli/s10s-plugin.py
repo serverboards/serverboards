@@ -364,10 +364,23 @@ def install_file(filename):
         # ALL OK and safe. Uncompress.
         fd.extractall(path=install_path)
 
+    path = "%s/%s/" % (install_path, manifest["id"])
+
+    if manifest.get("postinst"):
+        os.chdir(path)
+        res = subprocess.run(
+            shlex.split(
+                os.path.join(path, manifest.get("postinst"))),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        stdout = res.stdout.decode('utf8')
+
     return {
         "id": manifest.get("id"),
-        "success": True,
+        "success": res.returncode == 0,
         "version": manifest.get("version"),
+        "stdout": stdout
     }
 
 def install(url):
