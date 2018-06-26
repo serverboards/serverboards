@@ -98,7 +98,7 @@ configure(){
   INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
     $INSTALL/log $INSTALL/local/data/\
     $INSTALL/running_config $INSTALL/.ssh"
-  INTERNAL_PATHS_NOCHMOD="$INSTALL/local/plugins"
+  INTERNAL_PATHS_NOCHMOD="$INSTALL/local/plugins /etc/serverboards/"
 
   for p in $INTERNAL_PATHS; do
     mkdir -p $p
