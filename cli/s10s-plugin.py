@@ -10,6 +10,8 @@ import shlex
 import shutil
 import glob
 import configparser
+import logging
+
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -141,7 +143,9 @@ def read_plugin(path):
     if os.path.exists(manifest):
         try:
             with open(manifest) as fd:
-                data = yaml.load(fd)
+                data = yaml.safe_load(fd)
+                if not data:
+                    raise Exception("cant read %s" % manifest)
                 data["status"] = "ok"
         except yaml.scanner.ScannerError as e:
             data = {
@@ -149,10 +153,19 @@ def read_plugin(path):
                 "status": "manifest-broken",
                 "message": str(e)
             }
+        except Exception as e:
+            data = {
+                "id": manifest,
+                "status": "no-manifest",
+                "message": str(e)
+            }
         extra = os.path.join(path, ".extra.yaml")
-        if os.path.exists(extra):
-            with open(extra) as fd:
-                data.update(yaml.load(fd))
+        try:
+            if os.path.exists(extra):
+                with open(extra) as fd:
+                    data.update(yaml.safe_load(fd))
+        except:
+            extra = {}
 
         # TODO: Will work on other sources later
         gitdir = os.path.join(path, ".git")
@@ -212,14 +225,16 @@ def check_update(pl):
 
     if up_to_date != pl.get("up_to_date"):
         extrafile = os.path.join(pl["path"], ".extra.yaml")
-        if os.path.exists(extrafile):
-            with open(extrafile) as rd:
-                extra = yaml.load(rd)
-        else:
-            extra = {}
+        extra = {}
+        try:
+            if os.path.exists(extrafile):
+                with open(extrafile) as rd:
+                    extra = yaml.safe_load(rd)
+        except Exception:
+            logging.error("Could not load extra data from %s" % extrafile)
         extra["up_to_date"] = up_to_date
         with open(extrafile, "w") as wd:
-            yaml.dump(extra, wd)
+            yaml.safe_dump(extra, wd)
 
     return {"id": pl.get("id"), "up_to_date": up_to_date}
 
