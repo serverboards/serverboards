@@ -68,7 +68,7 @@ serverboards.tar.gz: prepare-release
 
 .PHONY: prepare-release
 prepare-release: compile-frontend compile-backend compile-plugins
-	cp backend/apps/serverboards/rel . -a
+	cp backend/_build/prod/rel . -a
 	mkdir -p rel/serverboards/share/serverboards/
 
 	# when creating bundle from fedora to be run on ubuntu

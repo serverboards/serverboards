@@ -32,8 +32,7 @@ defmodule Backend.Mixfile do
     [
       {:ex_doc, ">= 0.0.0", [env: :prod, hex: "ex_doc", repo: "hexpm", optional: false]},
       {:earmark, ">= 0.7.0"},
-      {:exrm, "~> 1.0"},
-      {:relx, "~> 3.22"}
+      {:distillery, "~> 1.5", runtime: false}
     ]
   end
 end
