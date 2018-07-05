@@ -104,7 +104,7 @@ class ExtractorsHelp extends React.Component{
     return !object_is_equal(nextprops.extractors, this.props.extractors)
   }
   render(){
-    const {extractors} = this.props
+    const extractors = this.props.extractors || []
     // console.log(extractors)
     return (
       <div>
