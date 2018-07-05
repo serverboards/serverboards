@@ -95,7 +95,7 @@ release:
     expire_in: 1 week
   only:
     - master
-    - disitillery
+    - distillery
 
 publish-unstable:
   stage: publish
