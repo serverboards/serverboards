@@ -112,6 +112,7 @@ configure(){
   for p in $INTERNAL_PATHS_NOCHMOD; do
     mkdir -p $p
     chown serverboards:serverboards $p
+    chmod u+x $p
   done
 
   [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
