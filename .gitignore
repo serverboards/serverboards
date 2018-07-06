@@ -7,3 +7,4 @@ log
 local/
 .*
 !.gitignore
+erl_crash.dump
