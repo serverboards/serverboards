@@ -107,7 +107,7 @@ defmodule Serverboards.Config do
       n when is_binary(n)-> case Integer.parse(v) do
         :error -> v
         {n, ""} -> n
-        o -> o
+        o -> n
       end
       o -> o # normally for default values
     end
@@ -120,7 +120,7 @@ defmodule Serverboards.Config do
     import String
     head = "serverboards_#{String.downcase(to_string(section))}_"
     head_length = String.length(head)
-    System.get_env
+    System.get_env()
       |> Map.to_list
       |> Enum.filter(fn {k,_v} -> starts_with?(downcase(k), head) end)
       |> Enum.map(fn {k,v} ->
