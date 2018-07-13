@@ -22,7 +22,7 @@ config :serverboards, ecto_repos: [Serverboards.Repo]
 config :serverboards, Serverboards.Repo,
   [
     adapter: Ecto.Adapters.Postgres,
-    url: "ecto://serverboards:serverboards@localhost/sbds"
+    url: "ecto://serverboards:serverboards@localhost/serverboards"
   ]
 
 config :serverboards,
