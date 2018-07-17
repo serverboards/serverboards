@@ -1,6 +1,8 @@
 import React from 'react'
 import AddWidget from 'app/containers/board/add_widget'
 import i18n from 'app/utils/i18n'
+import Flash from 'app/flash'
+import rpc from 'app/rpc'
 
 class AddWidgets extends React.Component{
   constructor(props){
@@ -10,9 +12,18 @@ class AddWidgets extends React.Component{
       key: 1
     }
   }
-  addAnotherWidget(){
+  addAnotherWidget(widget){
+    this.saveWidget(widget)
     console.log("Add another widget")
     this.setState({key: this.state.key+1})
+  }
+  saveAndContinue(widget){
+    this.saveWidget(widget)
+    this.props.nextStep()
+  }
+  saveWidget(widget){
+      rpc.call("dashboard.widget.create", widget)
+        .catch(Flash.error)
   }
   render(){
     return (
@@ -21,8 +32,8 @@ class AddWidgets extends React.Component{
           onSkip={ () => this.props.nextStep() }
           onClose={false}
           saveButtons={[
-              {label: i18n("Add another widget"), className: "basic teal",onClick: (data) => this.addAnotherWidget()},
-              {label: i18n("Save and continue"), className: "teal", onClick: () => this.props.nextStep()},
+              {label: i18n("Add another widget"), className: "basic teal",onClick: (data) => this.addAnotherWidget(data)},
+              {label: i18n("Save and continue"), className: "teal", onClick: (data) => this.saveAndContinue(data)},
           ]}
           />
     )

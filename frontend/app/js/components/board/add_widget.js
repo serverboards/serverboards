@@ -30,8 +30,10 @@ function SetupWidget(props){
     <EditWidget
       template={props.widget}
       project={props.project}
+      dashboard={props.dashboard}
       widget={widget}
       vars={vars}
+      saveButtons={props.saveButtons}
       saveWidget={(w) => props.addWidget(props.widget.id, props.dashboard_uuid, w.config) }
       />
   )
