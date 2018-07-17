@@ -52,8 +52,10 @@ class WizardModel extends React.Component{
               .then((uuid) => {
                 this.setState({project: shortname})
                 store.dispatch( projects_set_current(shortname) )
-                this.funcs.nextStep()
               })
+              .then( () =>
+                this.funcs.nextStep()
+              )
           }
         })
       }

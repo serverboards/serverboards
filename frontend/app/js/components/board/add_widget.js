@@ -30,6 +30,7 @@ function SetupWidget(props){
     <EditWidget
       template={props.widget}
       project={props.project}
+      dashboard={props.dashboard}
       widget={widget}
       vars={vars}
       saveButtons={props.saveButtons}

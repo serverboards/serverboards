@@ -29,15 +29,19 @@ class EditWidget extends React.Component{
     this.delayConfigUpdate()
   }
   handleSaveChanges(){
+    const data = this.getSaveData()
+    this.props.saveWidget(data)
+  }
+  getSaveData(){
     const state=this.state
     const props=this.props
-    const data={
+    return {
+      ui: {},
       uuid: props.widget.uuid,
       widget: props.widget.widget,
-      project: this.props.project,
+      dashboard: this.props.dashboard.uuid,
       config: {...state.config},
     }
-    this.props.saveWidget(data)
   }
   setFormData(config){
     this.delayConfigUpdate()
@@ -57,7 +61,7 @@ class EditWidget extends React.Component{
     // fake do as dashboard.widget.extract, to show at widget preview
     let postconfig = {}
     let context = {}
-    for (const ext of this.props.board_extractors){
+    for (const ext of (this.props.board_extractors || [])) {
       context[ext.id]={ extractor: ext.extractor, service: ext.service, config: ext.config }
     }
     context["__vars__"] = this.props.vars
@@ -180,7 +184,7 @@ class EditWidget extends React.Component{
                   <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
 
                   {props.saveButtons ? props.saveButtons.map( b => (
-                    <button className={`ui button ${b.className}`} style={{marginTop:20}} onClick={b.onClick}>
+                    <button className={`ui button ${b.className}`} style={{marginTop:20}} onClick={() => b.onClick(this.getSaveData())}>
                       {b.label}
                     </button>
                   )) : (
