@@ -96,7 +96,7 @@ configure(){
 
   # Create necessary directories and set permissions
   INTERNAL_PATHS="$INSTALL/log $INSTALL/running-config/ $INSTALL/lib/*/priv/ \
-    $INSTALL/var/log $INSTALL/local/data/\
+    $INSTALL/var/log $INSTALL/var/ $INSTALL/local/data/\
     $INSTALL/running_config $INSTALL/.ssh"
   INTERNAL_PATHS_NOCHMOD="$INSTALL/local/plugins /etc/serverboards/"
 
