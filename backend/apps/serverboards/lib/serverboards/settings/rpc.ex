@@ -61,6 +61,7 @@ defmodule Serverboards.Settings.RPC do
           case get_from_db_or_ini(section) do
             {:error, :not_found} ->
               defval
+            nil -> defval
             other -> other
           end
         else
