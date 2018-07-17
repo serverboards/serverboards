@@ -61,13 +61,23 @@ https://serverboards.io/developers/ for more information.
 Serverboards can be downloaded to be used on Ubuntu 16.04 (and maybe others) at
 https://serverboards.io/downloads/
 
+There are full instructions about how to start and first steps.
+
 ## Compiling and running the server
 
-If you plan to develop Serverboards core itself, first compile it once to ensure
-you have all the required dependencies:
+If you plan to develop Serverboards core itself, first install all
+prerequisites:
+
+* Erlang 20.x
+* Elixir 1.6.x
+
+Check `scripts/setup-ubuntu-1804.sh` as a guide on what to install and how. It
+works for Ubuntu 18.04, but should work for others.
+
+Then compile it once to ensure you have all the required dependencies:
 
 ```shell
-make
+make compile
 ```
 
 And then you may run it executing these commands in two different terminals:
@@ -97,6 +107,17 @@ localStorage.servername="http://localhost:8080"
 
 Alternatively you can create the release with `make release` and run it as
 `rel/serverboards/bin/serverboards foreground`.
+
+## First time user
+
+The easiest way to have a first time user is to use
+
+```shell
+export SERVERBOARDS_DATABASE_URL="postgresl://serverboards:serverboards@localhost/serverboards"
+cli/s10s-user.py create username
+cli/s10s-user.py passwd username password
+```
+
 
 ## Plugin development workflow
 
