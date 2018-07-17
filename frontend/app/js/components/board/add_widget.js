@@ -32,6 +32,7 @@ function SetupWidget(props){
       project={props.project}
       widget={widget}
       vars={vars}
+      saveButtons={props.saveButtons}
       saveWidget={(w) => props.addWidget(props.widget.id, props.dashboard_uuid, w.config) }
       />
   )

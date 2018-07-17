@@ -13,6 +13,8 @@ import {map_get, object_is_equal} from 'app/utils'
 import {MarkdownPreview} from 'react-marked-markdown'
 import ExtractorsHelp from './extractorshelp'
 
+require('sass/board.sass')
+
 class EditWidget extends React.Component{
   constructor(props){
     super(props)
@@ -99,7 +101,7 @@ class EditWidget extends React.Component{
   }
   render(){
     const props = this.props
-    const template = this.props.template
+    const template = props.template
 
 
     if (template=="not-found"){
@@ -112,7 +114,7 @@ class EditWidget extends React.Component{
       )
     }
 
-    const widget = this.props.widget || {}
+    const widget = props.widget || {}
     const state = this.state
 
     let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
@@ -140,7 +142,7 @@ class EditWidget extends React.Component{
                     widget={widget.widget}
                     config={state.postconfig}
                     uuid={widget.uuid}
-                    project={this.props.project}
+                    project={props.project}
                     layout={layout}
                     />
                 </div>
@@ -176,9 +178,16 @@ class EditWidget extends React.Component{
                   <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
 
                   <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
-                  <button className="ui button teal" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>
-                    {this.props.saveLabel || i18n("Update widget")}
-                  </button>
+
+                  {props.saveButtons ? props.saveButtons.map( b => (
+                    <button className={`ui button ${b.className}`} style={{marginTop:20}} onClick={b.onClick}>
+                      {b.label}
+                    </button>
+                  )) : (
+                    <button className="ui button teal" style={{marginTop:20}} onClick={this.handleSaveChanges.bind(this)}>
+                      {props.saveLabel || i18n("Update widget")}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
