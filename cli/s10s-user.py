@@ -71,7 +71,7 @@ class ServerboardsDB():
                 if url[0] == '"' and url[-1] == '"':
                     url = url[1:-1]
                 return url
-            except:
+            except Exception:
                 pass
         print("""Could not read any of [%s] settings file.
 Please ensure you have the proper permissions to access that file and
@@ -278,6 +278,8 @@ def main(argv):
     elif argv[1] == "recover":
         recover(argv[2])
     elif argv[1] == "passwd":
+        passwd(argv[2], (len(argv) >= 4) and argv[3])
+    elif argv[1] == "password":
         passwd(argv[2], (len(argv) >= 4) and argv[3])
     elif argv[1] == "add" and argv[3] == "to":
         add_user_to_group(argv[2], argv[4])

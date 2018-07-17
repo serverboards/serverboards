@@ -40,8 +40,9 @@ get_user_data(){
   db_input high serverboards/url
   db_input high serverboards/mail.server
   db_input high serverboards/email
+  db_input high serverboards/password
   db_input high serverboards/nginx
-  db_input high serverboards/newsletter
+  db_input low serverboards/newsletter
   db_go
 
   BASE_URL=$( get serverboards/url )
@@ -49,6 +50,7 @@ get_user_data(){
   EMAIL=$( get serverboards/email )
   NGINX=$( get serverboards/nginx )
   NEWSLETTER=$( get serverboards/newsletter )
+  PASSWORD=$( get serverboards/password )
 
   if [ "$NGINX" = true ]; then
     db_input high serverboards/letsencrypt
@@ -127,7 +129,7 @@ configure(){
 
   if [ ! -e "/etc/serverboards/01-database.ini" ]; then
     log "Configuring database with random password"
-    PASSWD=$( < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c32 )
+    PASSWD=$( < /dev/urandom tr -dc _A-Za-z0-9 | head -c32 )
     sudo -u postgres psql > /dev/null << EOF
 CREATE DATABASE serverboards;
 CREATE USER serverboards WITH PASSWORD '$PASSWD';
@@ -230,6 +232,7 @@ EOF
       s10s user add $EMAIL to admin
       s10s user add $EMAIL to user
       s10s user recover $EMAIL
+      s10s user passwd $EMAIL $PASSWORD
     else
       log "User $EMAIL already exists"
     fi
@@ -239,6 +242,8 @@ EOF
     echo "Telling Serverboards you are interested in the Newsletter. Thanks!"
     curl -s "https://coralbits.serverboards.io/webhook/acf332d1-b2a8-4dab-a09d-0ca85383fd74?email=$EMAIL" > /dev/null || true
   fi
+
+  db_set serverboards/password "$( < /dev/urandom tr -dc _A-Za-z0-9 | head -c32 )"
 }
 
 # This script is idempotent, running several times results n the same state
