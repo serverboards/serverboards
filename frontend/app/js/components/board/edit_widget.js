@@ -35,13 +35,15 @@ class EditWidget extends React.Component{
   getSaveData(){
     const state=this.state
     const props=this.props
-    return {
+    let ret = {
       ui: {},
       uuid: props.widget.uuid,
       widget: props.widget.widget,
-      dashboard: this.props.dashboard.uuid,
       config: {...state.config},
     }
+    if (props.dashboard)
+      ret.dashboard= props.dashboard.uuid
+    return ret
   }
   setFormData(config){
     this.delayConfigUpdate()
