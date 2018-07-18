@@ -64,13 +64,11 @@ class Board extends React.Component{
   }
   getAllLayouts(props, widget_width){
     widget_width = widget_width || (this.state || {}).widget_width || WIDGET_WIDTH
-    const layout = this.props.widgets && this.props.widgets.map( (w) => {
+    const layout = this.props.widgets && this.props.widgets.map( (w, idx) => {
       const template_layout = to_keywordmap((this.getTemplate(w.widget) || {}).hints)
 
-      const ui = {...template_layout, ...w.ui}
+      const ui = {x: 0, y: idx, ...template_layout, ...(w.ui || {})}
       ui.i = w.uuid
-      if (!ui)
-        return {w: 1, h: 1}
 
       ui.minW = ui.minW || 1
       ui.maxW = ui.maxW || 24
