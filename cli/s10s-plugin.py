@@ -10,6 +10,9 @@ import shlex
 import shutil
 import glob
 import configparser
+import logging
+import sh
+import tarfile
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -19,7 +22,7 @@ It uses git URLS to manage the state.
 Plugin management:
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
-    s10s plugin install <url> -- Installs a plugin by URL
+    s10s plugin install <url|txz> -- Installs a plugin
     s10s plugin remove <path|plugin_id>  -- Removes a plugin
     s10s plugin update <path|plugin_id>  -- Updates a plugin
 """
@@ -141,7 +144,9 @@ def read_plugin(path):
     if os.path.exists(manifest):
         try:
             with open(manifest) as fd:
-                data = yaml.load(fd)
+                data = yaml.safe_load(fd)
+                if not data:
+                    raise Exception("cant read %s" % manifest)
                 data["status"] = "ok"
         except yaml.scanner.ScannerError as e:
             data = {
@@ -149,10 +154,19 @@ def read_plugin(path):
                 "status": "manifest-broken",
                 "message": str(e)
             }
+        except Exception as e:
+            data = {
+                "id": manifest,
+                "status": "no-manifest",
+                "message": str(e)
+            }
         extra = os.path.join(path, ".extra.yaml")
-        if os.path.exists(extra):
-            with open(extra) as fd:
-                data.update(yaml.load(fd))
+        try:
+            if os.path.exists(extra):
+                with open(extra) as fd:
+                    data.update(yaml.safe_load(fd))
+        except:
+            extra = {}
 
         # TODO: Will work on other sources later
         gitdir = os.path.join(path, ".git")
@@ -212,19 +226,22 @@ def check_update(pl):
 
     if up_to_date != pl.get("up_to_date"):
         extrafile = os.path.join(pl["path"], ".extra.yaml")
-        if os.path.exists(extrafile):
-            with open(extrafile) as rd:
-                extra = yaml.load(rd)
-        else:
-            extra = {}
+        extra = {}
+        try:
+            if os.path.exists(extrafile):
+                with open(extrafile) as rd:
+                    extra = yaml.safe_load(rd)
+        except Exception:
+            logging.error("Could not load extra data from %s" % extrafile)
         extra["up_to_date"] = up_to_date
         with open(extrafile, "w") as wd:
-            yaml.dump(extra, wd)
+            yaml.safe_dump(extra, wd)
 
     return {"id": pl.get("id"), "up_to_date": up_to_date}
 
 
 def update(path):
+    logging.info("Update %s" % path)
     if not os.path.isdir(path):
         path = os.path.dirname(path)
 
@@ -291,7 +308,7 @@ def install_all(gits):
     output_data(ret)
 
 
-def install(git):
+def install_git(git):
     os.chdir(install_path)
     res = subprocess.run(
         ["git", "clone", git],
@@ -321,6 +338,61 @@ def install(git):
     }
 
 
+def install_file(filename):
+    manifest = None
+    with tarfile.open(filename, 'r:xz') as fd:
+        prefix = None
+        manifest_path = None
+        for m in fd.getmembers():
+            if not prefix:
+                prefix = m.name.split('/')[0]
+                if not prefix:
+                    raise Exception("Can not install packages at /. Shame on you.")
+                manifest_path = '%s/manifest.yaml' % prefix
+            else:
+                if not m.name.startswith(prefix):
+                    raise Exception("Not all files in the same directory")
+            if '..' in m.name:
+                raise Exception("Packages files can not have any '..' directory")
+
+            if m.name == manifest_path:
+                manifest = yaml.safe_load(fd.extractfile(m))
+
+        if manifest['id'] != prefix:
+            raise Exception("id does not match prefix")
+
+        # ALL OK and safe. Uncompress.
+        fd.extractall(path=install_path)
+
+    path = "%s/%s/" % (install_path, manifest["id"])
+
+    if manifest.get("postinst"):
+        os.chdir(path)
+        res = subprocess.run(
+            shlex.split(
+                os.path.join(path, manifest.get("postinst"))),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        stdout = res.stdout.decode('utf8')
+
+    return {
+        "id": manifest.get("id"),
+        "success": res.returncode == 0,
+        "version": manifest.get("version"),
+        "stdout": stdout
+    }
+
+def install(url):
+    logging.info("Install %s to %s" % (url, install_path))
+    if '//' in url:
+        return install_git(url)
+    if '@' in url:
+        return install_git(url)
+
+    return install_file(url)
+
+
 def remove_all(ids):
     ret = []
     for id in ids:
@@ -330,6 +402,7 @@ def remove_all(ids):
 
 
 def remove(id):
+    logging.info("Remove %s" % id)
     plugin = get_plugin(id)
     if not plugin:
         if id.startswith("/"):
@@ -350,6 +423,8 @@ def list_(what=[]):
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
+    if 'id' in what:
+        res.sort(key=lambda x: x["id"])
     output_data(res)
 
 
@@ -365,20 +440,23 @@ def main(argv):
         sys.exit(0)
     if argv[0] == '--one-line-help':
         print("Plugin management")
-    if argv[0] == '--help' or argv[0] == 'help':
+    elif argv[0] == '--help' or argv[0] == 'help':
         print(__doc__)
         sys.exit(0)
-    if argv[0] == 'list':
+    elif argv[0] == 'list':
         list_(argv[1:])
-    if argv[0] == 'check':
+    elif argv[0] == 'check':
         check_updates(argv[1:])
-    if argv[0] == 'update':
+    elif argv[0] == 'update':
         update_all(argv[1:])
-    if argv[0] == 'install':
+    elif argv[0] == 'install':
         install_all(argv[1:])
-    if argv[0] == 'remove':
+    elif argv[0] == 'remove':
         remove_all(argv[1:])
-
+    else:
+        print("Unknown command: %s" % argv[0])
+        print(__doc__)
+        sys.exit(1)
 
 update_plugin_settings()
 if __name__ == "__main__":

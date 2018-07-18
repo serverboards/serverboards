@@ -43,7 +43,7 @@ defmodule EventSourcing.Mixfile do
     [
       {:ecto, "~> 2.1"},
       {:poison, "~> 3.1"},
-      {:exrm, "~> 1.0"},
+      {:distillery, "~> 1.5", runtime: false},
     ]
   end
 end

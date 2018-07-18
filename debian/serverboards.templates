@@ -51,6 +51,13 @@ Description: Initial user email for Serverboards
   Any user in the system that is on the wheel group can also access Serverboards
   with admin priviledges with his/her user and password.
 
+Template: serverboards/password
+Type: password
+Description: Password for the initial user
+  This is the password to be used for the email entered in the previous step
+  when accessing Serverboards at the given location.
+
+
 Template: serverboards/newsletter
 Type: boolean
 Description: Do you want to receive Serverboards Newsletter?

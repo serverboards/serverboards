@@ -72,7 +72,7 @@ defmodule Serverboards.Mixfile do
       {:yaml_elixir, "~> 1.3" },
       {:yamerl, "~> 0.3" },
       {:cowboy, "~> 1.1"},
-      {:exrm, ">= 1.0.8"},
+      {:distillery, "~> 1.5", runtime: false},
       {:uuid, "~> 1.1" },
       {:eini, "~> 1.2"},
       {:httpoison, "~> 1.0"},

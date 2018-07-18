@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-__doc__="""s10s user -- User and group management
+__doc__ = """s10s user -- User and group management
 Last resort user management.
 
 This commands change the database manually, and should be used on the
@@ -22,27 +22,37 @@ User management:
 """
 
 
-import sys, os, configparser, psycopg2, datetime, json, glob, socket, time
+import sys
+import os
+import configparser
+import psycopg2
+import datetime
+import json
+import glob
+import socket
+import time
 conn = None
 
+
 class ServerboardsDB():
+
     def __init__(self):
         url = self.get_url()
 
-        import urllib.parse # import urllib.parse for python 3+
+        import urllib.parse  # import urllib.parse for python 3+
         result = urllib.parse.urlparse(url)
         connection = psycopg2.connect(
-            database = result.path[1:],
-            user = result.username,
-            password = result.password,
-            host = result.hostname
+            database=result.path[1:],
+            user=result.username,
+            password=result.password,
+            host=result.hostname
         )
 
         self.connection = connection
 
     @staticmethod
     def get_url():
-        url=os.environ.get("SERVERBOARDS_DATABASE_URL")
+        url = os.environ.get("SERVERBOARDS_DATABASE_URL")
         if url:
             return url
         inis = [
@@ -57,11 +67,11 @@ class ServerboardsDB():
             try:
                 config = configparser.ConfigParser(allow_no_value=True)
                 config.read(ini)
-                url = config.get("database","url")
-                if url[0]=='"'  and url[-1]=='"':
-                    url=url[1:-1]
+                url = config.get("database", "url")
+                if url[0] == '"' and url[-1] == '"':
+                    url = url[1:-1]
                 return url
-            except:
+            except Exception:
                 pass
         print("""Could not read any of [%s] settings file.
 Please ensure you have the proper permissions to access that file and
@@ -72,29 +82,33 @@ that it is well formed.""" % ', '.join(inis))
         cur = self.connection.cursor()
         cur.execute(sql, args)
         return cur.fetchall()
+
     def insert(self, sql, *args):
         cur = self.connection.cursor()
         cur.execute(sql, args)
         self.connection.commit()
 
+
 def log(*txt, **kwargs):
     text = ' '.join(str(x) for x in txt)
-    print("WARN: %s"%text, file=sys.stderr)
+    print("WARN: %s" % text, file=sys.stderr)
     conn.insert("""
         INSERT INTO logger_line (message, level, timestamp, meta)
              VALUES (%s, 'warn', NOW(), %s)
          """, text, json.dumps({**kwargs, "cli": True})
-        )
+                )
+
 
 def list_():
     for user in conn.execute("SELECT email FROM auth_user;"):
-        print("- %s"%(user[0]))
+        print("- %s" % (user[0]))
+
 
 def details(email):
     data = conn.execute(
         "SELECT email, name, is_active, inserted_at FROM auth_user WHERE email = %s;",
         email
-        )
+    )
     if not data:
         print("unknown user")
         return
@@ -103,14 +117,15 @@ def details(email):
         INNER JOIN auth_user_group agu ON ag.id = agu.group_id
         INNER JOIN auth_user au ON au.id = agu.user_id
         """)
-    data=data[0]
-    print("email: %s\nname: %s\nis_active: %s\ninserted_at: %s"%data)
+    data = data[0]
+    print("email: %s\nname: %s\nis_active: %s\ninserted_at: %s" % data)
     if not groups:
         print("groups: []")
     else:
         print("groups:")
         for g in groups:
-            print(" - %s"%g[0])
+            print(" - %s" % g[0])
+
 
 def add_user_to_group(user, group):
     if not user_at_group(user, group):
@@ -120,11 +135,12 @@ def add_user_to_group(user, group):
         conn.insert(
             "INSERT INTO auth_user_group (group_id, user_id) VALUES (%s, %s)",
             group_id, user_id
-            )
-        log("Manually added user %s to %s"%(user, group), user=user, group=group)
+        )
+        log("Manually added user %s to %s" % (user, group), user=user, group=group)
         print("added")
     else:
         print("user already at group")
+
 
 def remove_user_from_group(user, group):
     if user_at_group(user, group):
@@ -133,10 +149,11 @@ def remove_user_from_group(user, group):
                   WHERE user_id = (SELECT id FROM auth_user WHERE email = %s)
                     AND group_id = (SELECT id FROM auth_group WHERE name = %s)
             """, user, group )
-        log("Manually removed user %s from %s"%(user, group), user=user, group=group)
+        log("Manually removed user %s from %s" % (user, group), user=user, group=group)
         print("removed")
     else:
         print("user not in group")
+
 
 def user_at_group(name, group):
     ngroups = conn.execute("""
@@ -148,6 +165,7 @@ def user_at_group(name, group):
         """, name, group)[0][0]
     return ngroups > 0
 
+
 def create(email):
     now = datetime.datetime.now()
 
@@ -155,35 +173,39 @@ def create(email):
         conn.insert(
             "INSERT INTO auth_user (email, is_active, inserted_at, updated_at) VALUES (%s, True, %s, %s)",
             email, now, now
-            )
-        log("Manually created user %s"%(email), user=email)
+        )
+        log("Manually created user %s" % (email), user=email)
         print("inserted")
     except psycopg2.IntegrityError:
         print("error: user already exists")
+
 
 def update_enabled(email, is_active):
     conn.insert(
         "UPDATE auth_user SET is_active = %s WHERE email = %s",
         is_active, email
-        )
-    log("Manually enabled user %s (%s)"%(email, str(is_active)), user=email, is_active=is_active)
+    )
+    log("Manually enabled user %s (%s)" % (email, str(is_active)), user=email, is_active=is_active)
     print("updated")
 
+
 class TCPClient:
+
     def __init__(self, host, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, int(port)))
-        self.socket=s
-        self.max_id=0
+        self.socket = s
+        self.max_id = 0
         time.sleep(1)
+
     def call(self, f, *args, **kwargs):
-        self.max_id+=1
+        self.max_id += 1
         js = json.dumps({
-            "method" : f,
-            "params" : args or kwargs,
-            "id" : self.max_id
+            "method": f,
+            "params": args or kwargs,
+            "id": self.max_id
         })
-        self.socket.send(js.encode('utf8')+b'\n')
+        self.socket.send(js.encode('utf8') + b'\n')
         id = None
         while id != self.max_id:
             res = self.socket.recv(4096)
@@ -195,8 +217,9 @@ class TCPClient:
 
 
 def recover(email):
-    conn=TCPClient("localhost", "4040")
+    conn = TCPClient("localhost", "4040")
     print(conn.call("auth.reset_password", email))
+
 
 def passwd(email, raw_password):
     import bcrypt
@@ -206,7 +229,7 @@ def passwd(email, raw_password):
         try:
             raw_password = getpass.getpass()
             if not raw_password:
-                print("No password provided. Use `s10s recover %s` to send a recover link to the user"%(email))
+                print("No password provided. Use `s10s recover %s` to send a recover link to the user" % (email))
                 sys.exit(1)
             if raw_password != getpass.getpass("Repeat password: "):
                 print("Password dont match!")
@@ -216,23 +239,26 @@ def passwd(email, raw_password):
             sys.exit(0)
     salt = bcrypt.gensalt()
     pwhash = bcrypt.hashpw(raw_password.encode('utf8'), salt)
-    password = "$bcrypt$%s"%pwhash.decode('utf8')
+    password = "$bcrypt$%s" % pwhash.decode('utf8')
     user_id = conn.execute("SELECT id FROM auth_user WHERE email = %s", email)
     if not user_id:
         sys.exit(1)
     user_id = user_id[0]
     now = datetime.datetime.now()
     if conn.execute("SELECT id FROM auth_user_password WHERE user_id = %s", user_id):
-        conn.insert("UPDATE auth_user_password SET password = %s, updated_at = %s WHERE user_id = %s", password, now, user_id)
+        conn.insert(
+            "UPDATE auth_user_password SET password = %s, updated_at = %s WHERE user_id = %s", password, now, user_id)
     else:
-        conn.insert("INSERT INTO auth_user_password (password, user_id, inserted_at, updated_at) VALUES (%s, %s, %s, %s)", password, user_id, now, now)
-    log("Password for <%s> has been manually updated"%email)
+        conn.insert("INSERT INTO auth_user_password (password, user_id, inserted_at, updated_at) VALUES (%s, %s, %s, %s)",
+                    password, user_id, now, now)
+    log("Password for <%s> has been manually updated" % email)
+
 
 def main(argv):
     if '--one-line-help' in argv:
         print("User management")
         sys.exit(0)
-    if len(argv)==1 or '--help' in argv or 'help' in argv:
+    if len(argv) == 1 or '--help' in argv or 'help' in argv:
         print(__doc__)
         sys.exit(0)
 
@@ -252,7 +278,9 @@ def main(argv):
     elif argv[1] == "recover":
         recover(argv[2])
     elif argv[1] == "passwd":
-        passwd(argv[2], (len(argv)>=4) and argv[3])
+        passwd(argv[2], (len(argv) >= 4) and argv[3])
+    elif argv[1] == "password":
+        passwd(argv[2], (len(argv) >= 4) and argv[3])
     elif argv[1] == "add" and argv[3] == "to":
         add_user_to_group(argv[2], argv[4])
     elif argv[1] == "remove" and argv[3] == "from":
@@ -260,5 +288,5 @@ def main(argv):
     else:
         print("unknown command")
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main(sys.argv)

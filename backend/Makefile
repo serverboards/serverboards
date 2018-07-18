@@ -19,14 +19,11 @@ clean:
 	rm -rf deps _build
 	make -f Makefile.hacks clean
 
-apps/serverboards/rel/serverboards/bin/serverboards: deps
-	# cd apps/serverboards/ && mix deps.get
-	# cd apps/serverboards/ && MIX_ENV=prod mix compile
-	cd apps/serverboards/ && MIX_ENV=prod mix release
-	# Run some hacks.
+_build/prod/rel/serverboards/bin/serverboards: deps
+	MIX_ENV=prod mix release
 
-compile: apps/serverboards/rel/serverboards/bin/serverboards
+compile: _build/prod/rel/serverboards/bin/serverboards
 	make -f Makefile.hacks compile
 
-run: compile apps/serverboards/rel/serverboards/bin/serverboards
-	apps/serverboards/rel/serverboards/bin/serverboards foreground
+run: compile _build/prod/rel/serverboards/bin/serverboards
+	_build/prod/rel/serverboards/bin/serverboards foreground

@@ -5,4 +5,4 @@ erl_crash.dump
 *.ez
 doc/
 *~
-rel
+!rel
