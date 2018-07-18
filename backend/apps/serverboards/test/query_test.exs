@@ -15,12 +15,12 @@ defmodule Serverboards.QueryTest do
   end
 
   test "Get schema" do
-    {:ok, tables} = Query.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil })
+    {:ok, tables} = Query.Executor.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil })
 
     Logger.debug("Got tables #{inspect tables}")
     assert tables == ["random"]
 
-    {:ok, random} = Query.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil}, "random")
+    {:ok, random} = Query.Executor.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil}, "random")
     Logger.debug("Got random definition #{inspect random}")
   end
 
