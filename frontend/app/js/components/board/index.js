@@ -52,7 +52,8 @@ class Board extends React.Component{
       board_cols: 16,
       board_rows: 5,
       widget_width: WIDGET_WIDTH,
-      fullscreen: false
+      fullscreen: false,
+      timers: [],
     }
   }
   handleEdit(uuid){
@@ -151,6 +152,7 @@ class Board extends React.Component{
   }
   componentDidMount(){
     this.updateExtractedConfigs(this.state.to_extract, this.getStatusContext())
+    this.setupPollingWidgets()
 
     let self=this
     Command.add_command_search('add-widget',(Q, context) => [
@@ -161,6 +163,38 @@ class Board extends React.Component{
     $('#centralarea').addClass("grey background")
     this.calculateBoardSize()
     window.addEventListener("resize", lo.debounce(this.calculateBoardSize, 200))
+  }
+  setupPollingWidgets(){
+    const all_configs = map_get(this, ["state", "configs"], {})
+    const widgets = this.props.widgets
+    let timers = this.state.timers || {}
+
+    for (const w of widgets){
+      const template = this.getTemplate(w.widget)
+      let config = {...map_get(all_configs, [w.uuid], {})}
+      for (const p of ((template || {}).params || [])){
+        let k = p.name
+        const query = w.config[k]
+        let poll = query.startsWith('POLL ')
+        if (poll){
+          let t =  Number(query.substr(5).trim().split(/[\n\t ]/)[0]) * 1000
+          // console.log("Poll timer: ", query.substr(5).trim().split(" ")[0], t)
+
+          // FIXME: A widget with several queries clears and set the intervals several times. One query with polling affects all data
+          let uuid = w.uuid
+          if (timers[uuid]){
+            // console.log("Clear timer", timers[uuid])
+            clearInterval(timers[uuid])
+          }
+          if (!isNaN(t)){
+            timers[uuid] = setInterval(() => this.updateWidgetData(uuid), t)
+            // console.log("Add timer", timers[uuid], t)
+          }
+        }
+      }
+    }
+
+    this.setState({timers})
   }
   updateDaterangeInterval(props){
     if (this.state.update_now_label_timer_id)
@@ -239,8 +273,9 @@ class Board extends React.Component{
         let k = p.name
         if (p.type=="query"){
           // if no prev config, set loading
-          if (!config[k])
+          if (!config[k]){
             config[k] = {loading: true}
+          }
           else{
             config[k].stale = true
           }
@@ -249,6 +284,7 @@ class Board extends React.Component{
         else
           config[k] = w.config[k]
       }
+      // console.log("Get config from ", {...config})
 
       configs[w.uuid] = config
     }
@@ -273,12 +309,13 @@ class Board extends React.Component{
   updateExtractedConfigs(to_extract, context){
     // console.log("To extract ", to_extract)
     // console.log("Update in range", context)
-    to_extract.map( uuid => {
-      rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
-        let configs = {...this.state.configs}
-        configs[uuid] = result
-        this.setState({configs})
-      })
+    to_extract.map( (uuid) => this.updateWidgetData(uuid, context) )
+  }
+  updateWidgetData(uuid, context){
+    rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
+      let configs = {...this.state.configs}
+      configs[uuid] = result
+      this.setState({configs})
     })
   }
   getTemplate(type){
@@ -290,6 +327,7 @@ class Board extends React.Component{
     // jquery hack, may be better using some property at redux
     $('#centralarea').removeClass("grey").removeClass("background")
     window.removeEventListener("window", this.calculateBoardSize)
+    Object.values(this.state.timers).map( v => clearInterval(v) )
   }
   getLayout(wid){
     let layout = this.state && (this.state.layout || []).find( l => l.i == wid )

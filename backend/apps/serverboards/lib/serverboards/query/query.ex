@@ -18,138 +18,89 @@ defmodule Serverboards.Query do
   extra parameters that are allowed to change in the `dashboards.widgets.extract`
   that does not require special permissions to access all data.
   """
-
-  def execute(config, table, quals, columns) do
-    Serverboards.Utils.Cache.get({:execute, config, table, quals, columns}, fn ->
-      extractor = config.extractor
-
-    # Logger.debug("Use extractor #{inspect extractor}")
-      [component] = Serverboards.Plugin.Registry.filter_component(id: extractor)
-
-      res = Serverboards.Plugin.Runner.call(
-        component.extra["command"],
-        component.extra["extractor"],
-        [config, table, quals, columns],
-        config.user)
-
-      case res do
-        {:ok, result} ->
-          {:ok, %{ columns: result["columns"], rows: result["rows"] }}
-        {:error, error} ->
-          Logger.error("Error geting data from #{inspect extractor} / #{inspect table}")
-          {:error, error}
-      end
-    end, ttl: 5_000)
-  end
-
-  @doc ~S"""
-  Returns the list of tables on this extractor
-  """
-  def schema(config) do
-    Serverboards.Utils.Cache.get({:schema, config}, fn ->
-      # Logger.debug("schema #{inspect config}")
-      extractor = config.extractor
-      case Serverboards.Plugin.Registry.filter_component(id: extractor) do
-        [component] ->
-          Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, nil], config.user)
-        _ ->
-          {:error, :unknown_extractor}
-      end
-    end, ttl: 60_000)
-  end
-
-  @doc ~S"""
-  Returns the schema of the given table.
-  """
-  def schema(config, table) do
-    Serverboards.Utils.Cache.get({:schema, table, config}, fn ->
-      # Logger.debug("schema #{inspect config} #{inspect table}")
-      extractor = config.extractor
-      case Serverboards.Plugin.Registry.filter_component(id: extractor) do
-        [component] ->
-          res = Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, table], config.user)
-          case res do
-            {:ok, %{ "columns" => columns}} ->
-              columns = Enum.map(columns, fn
-                %{ "name" => name } -> name
-                other when is_binary(other) -> other
-              end)
-              {:ok, %{ columns: columns }}
-
-            other -> other
-          end
-        _ ->
-          {:error, {:unknown_extractor, extractor}}
-      end
-    end, ttl: 60_000)
-  end
-
   def query(query, context) do
     context = Enum.map(context, fn
       {"__" <> k, v} ->
         {"__" <> k, v}
       {k,v} -> # decorate the extractors
-        nv = {Serverboards.Query, v}
+        nv = {Serverboards.Query.Executor, v}
         {k, nv}
     end) |> Map.new
 
     query = String.trim(query)
     # If not starts with SELECT, it is a simple text to use (rows at \n, cells at ,)
     if not is_sql(query) do
-      res = case query do
-        "" ->
-          %{ columns: ["?NONAME?"], rows: [[""]]}
-        _ ->
-          {:ok, stream} = StringIO.open(query)
-          stream = IO.binstream(stream, :line)
-          rows = CSV.decode(stream)
-            |> Enum.map(fn
-              {:ok, line} -> line
-              other -> []
-            end)
-            |> Enum.filter(&(&1 != [])) # remove empty lines
-          columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
-          %{ columns: columns, rows: rows}
-      end
-      {:ok,  res}
+      csv_query(query)
     else
       # Logger.debug("Processed context #{inspect context}")
+      real_query(query, context)
+    end
+  end
 
-      try do
-        {time, result} = :timer.tc(ExoSQL, :query, [query, context])
-        with {:ok, %{ columns: columns, rows: rows}} <- result do
-          {:ok, %{ columns: columns, rows: rows, count: Enum.count(rows), time: time / 1_000_000.0}}
-        end
-      catch
-        :exit, {:timeout, where} ->
-          Logger.error("Timeout performing query at #{inspect where, pretty: true}")
-          {:error, :timeout}
-        :exit, any ->
-          Logger.error("Error performing query: #{inspect any}: #{inspect System.stacktrace(), pretty: true}")
-          {:error, inspect(any)}
-        any ->
-          {:error, inspect(any)}
-      rescue
-        e in MatchError ->
-          Logger.error("Error performing query: #{inspect e}: #{inspect System.stacktrace(), pretty: true}")
-          # plan = with {:ok, parsed} <- ExoSQL.parse(query, context),
-          #             {:ok, plan} <- ExoSQL.plan(parsed, context) do
-          #               plan
-          #             end
-          # Logger.debug("Query plan is #{inspect plan, pretty: true}\n  #{inspect context["__vars__"], pretty: true}")
-          {:error, {:invalid_sql, e.term}}
-        exception in FunctionClauseError ->
-          Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
-          {:error, :invalid_expression}
-        exception ->
-          Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
-          {:error, "Meditation code: `#{inspect exception}`. Ask for help at the forums."}
+  defp csv_query(query) do
+    res = case query do
+      "" ->
+        %{ columns: ["?NONAME?"], rows: [[""]]}
+      _ ->
+        {:ok, stream} = StringIO.open(query)
+        stream = IO.binstream(stream, :line)
+        rows = CSV.decode(stream)
+          |> Enum.map(fn
+            {:ok, line} -> line
+            _other -> []
+          end)
+          |> Enum.filter(&(&1 != [])) # remove empty lines
+        columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
+        %{ columns: columns, rows: rows}
+    end
+    {:ok,  res}
+  end
+
+
+  defp real_query("POLL " <> pquery, context) do
+    # Just ignore poll, this is a frontend issue. Its here becaus eits
+    # extrated from the widget config.
+    [_n, query] = String.split(String.trim(pquery), [" ", "\t", "\n"], parts: 2)
+    real_query(query, context)
+  end
+
+  defp real_query(query, context) do
+    try do
+      {time, result} = :timer.tc(ExoSQL, :query, [query, context])
+      with {:ok, %{ columns: columns, rows: rows}} <- result do
+        {:ok, %{ columns: columns, rows: rows, count: Enum.count(rows), time: time / 1_000_000.0}}
       end
+    rescue
+      e in MatchError ->
+        Logger.error("Error performing query: #{inspect e}: #{inspect System.stacktrace(), pretty: true}")
+        # plan = with {:ok, parsed} <- ExoSQL.parse(query, context),
+        #             {:ok, plan} <- ExoSQL.plan(parsed, context) do
+        #               plan
+        #             end
+        # Logger.debug("Query plan is #{inspect plan, pretty: true}\n  #{inspect context["__vars__"], pretty: true}")
+        {:error, {:invalid_sql, e.term}}
+      exception in FunctionClauseError ->
+        Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
+        {:error, :invalid_expression}
+      exception ->
+        Logger.error("#{inspect exception}: #{inspect System.stacktrace, pretty: true}")
+        {:error, "Meditation code: `#{inspect exception}`. Ask for help at the forums."}
+    catch
+      :exit, {:timeout, where} ->
+        Logger.error("Timeout performing query at #{inspect where, pretty: true}")
+        {:error, :timeout}
+      :exit, any ->
+        Logger.error("Error performing query: #{inspect any}: #{inspect System.stacktrace(), pretty: true}")
+        {:error, inspect(any)}
+      any ->
+        {:error, inspect(any)}
     end
   end
 
   def is_sql(query) do
     query = String.upcase(query)
-    String.starts_with?(query, "SELECT") || String.starts_with?(query, "WITH")
+    String.starts_with?(query, "SELECT")
+      || String.starts_with?(query, "WITH")
+      || String.starts_with?(query, "POLL ")
   end
 end
