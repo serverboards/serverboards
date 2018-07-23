@@ -175,7 +175,7 @@ class Board extends React.Component{
       for (const p of ((template || {}).params || [])){
         let k = p.name
         const query = w.config[k]
-        let poll = query.startsWith('POLL ')
+        let poll = query ? query.startsWith('POLL ') : false
         if (poll){
           let t =  Number(query.substr(5).trim().split(/[\n\t ]/)[0]) * 1000
           // console.log("Poll timer: ", query.substr(5).trim().split(" ")[0], t)
