@@ -6,6 +6,7 @@ import {
   project_update_widget_catalog,
   board_update_now,
   board_set_daterange_start_and_end,
+  board_update_rt_daterange,
   dashboard_list
   } from 'app/actions/project'
 import { map_get } from 'app/utils'
@@ -41,6 +42,7 @@ const Board = store.connect({
   store_enter: (props) => [
     () => project_update_widget_catalog(props.project.current),
     () => dashboard_list(props.project.current),
+    board_update_rt_daterange,
   ],
   store_exit: (props) => [
     () => project_update_widget_catalog(null),

@@ -148,6 +148,12 @@ function dashboard_list(project){
     }))
 }
 
+function board_update_rt_daterange(){
+  return {
+    type: 'UPDATE_RT_DATERANGE'
+  }
+}
+
 export {
   project_add,
   project_update_all,
@@ -165,5 +171,6 @@ export {
   board_set_realtime,
   board_update,
   board_remove,
+  board_update_rt_daterange,
   dashboard_list,
 }

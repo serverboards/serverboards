@@ -10,14 +10,24 @@ function previous_daterange(){
     dr = JSON.parse(drl)
 
   const range_s = dr.range_s || DEFAULT_RANGE
-  const start = dr.start ? moment(dr.start) : moment().subtract(range_s, "seconds")
+  let start, end, rt
+  if (dr.rt){
+    end = moment()
+    start = moment().subtract(range_s, "seconds")
+    rt = +new Date()
+  }
+  else{
+    start = dr.start ? moment(dr.start) : moment().subtract(range_s, "seconds")
+    end = dr.end ? moment(dr.end) : moment()
+    rt = false
+  }
   dr = {
     start,
-    end: dr.end ? moment(dr.end) : moment(),
+    end,
     prev: moment(dr.start).subtract(range_s, "seconds"),
     now: moment(),
     range_s,
-    rt: +new Date()
+    rt
   }
 
   return dr
@@ -79,6 +89,14 @@ function project(state=default_state, action){
         }
       return state
     }
+    case 'UPDATE_RT_DATERANGE':
+      if (state.daterange.rt){
+        let daterange = previous_daterange()
+        fix_daterange_constraints(daterange)
+        return merge(state, {daterange})
+      }
+      return state
+      break;
     case 'PROJECT_SET_CURRENT':
       return merge(state, {current: action.payload} )
     case 'UPDATE_ALL_PROJECTS':
@@ -172,23 +190,29 @@ function project(state=default_state, action){
         let daterange = merge(state.daterange, action.daterange)
         daterange.range_s = daterange.end.diff(daterange.start, "seconds")
 
-        fix_daterange_constraints(daterange)
-        // console.log(daterange)
         let rt = false
         if (daterange.rt)
-          rt = (+ new Date())
+          rt = +new Date()
+
+        fix_daterange_constraints(daterange)
         state = merge(state, {daterange})
       }
 
-      if (action.daterange.rt != undefined){
+      if (action.daterange.rt){
         let daterange = {...state.daterange}
-        daterange.rt = action.daterange.rt && (+new Date())
+        daterange.rt = +new Date()
+        fix_daterange_constraints(daterange)
+        state = merge(state, {daterange})
+      }
+      if (action.daterange.rt == false){
+        let daterange = {...state.daterange, rt: false}
+        fix_daterange_constraints(daterange)
         state = merge(state, {daterange})
       }
 
       if (action.daterange.now){
-        console.log("Update now", state.daterange)
         state = merge(state, {...state.daterange, now: action.daterange.now})
+        // console.log("Update now", state.daterange)
         if (state.daterange.rt){
           let end = moment()
           const secs = state.daterange.range_s
@@ -204,6 +228,7 @@ function project(state=default_state, action){
 
           fix_daterange_constraints(daterange)
           state = merge(state, {daterange})
+          console.log("Update rt", state.daterange)
         }
       }
       return state

@@ -312,6 +312,9 @@ class Board extends React.Component{
     to_extract.map( (uuid) => this.updateWidgetData(uuid, context) )
   }
   updateWidgetData(uuid, context){
+    if (!context)
+      context = this.getStatusContext()
+    // console.log("Update widget ", uuid, context)
     rpc.call("dashboard.widget.extract", [uuid, context]).then( result => {
       let configs = {...this.state.configs}
       configs[uuid] = result
