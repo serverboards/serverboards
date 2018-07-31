@@ -59,5 +59,7 @@ defmodule Serverboards do
         System.delete_env(k)
       end
     end
+
+    System.put_env("LC_ALL", "C.utf-8")
   end
 end
