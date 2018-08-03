@@ -234,10 +234,10 @@ class RPC:
         return id
 
     async def unsubscribe(self, id):
-        if id not in self.__subscriptions_ids:
+        if id not in self.__subscription_id:
             return False
 
-        (event, callback) = self.__subscriptions_ids[id]
+        (event, callback) = self.__subscription_id[id]
         subs = self.__subscriptions[event]
         subs = [x for x in subs if x != callback]
         if subs:
@@ -246,7 +246,7 @@ class RPC:
             del self.__subscriptions[event]
             await self.call("event.unsubscribe", event)
 
-        del self.__subscriptions_ids[id]
+        del self.__subscription_id[id]
         return True
 
     def run_async(self, method, *args, result=True, **kwargs):
@@ -699,6 +699,7 @@ service = RPCWrapper("service")
 settings = RPCWrapper("settings")
 dashboards = RPCWrapper("dashboards")
 dashboards.widget = RPCWrapper("dashboards.widget")
+query = RPCWrapper("query")
 
 
 async def sync(f, *args, **kwargs):
