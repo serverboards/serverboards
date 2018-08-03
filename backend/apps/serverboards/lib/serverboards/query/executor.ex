@@ -6,7 +6,7 @@ defmodule Serverboards.Query.Executor do
   """
 
   @doc ~S"""
-  Calls aa plugin extractor to extract the data
+  Calls a plugin extractor to extract the data
 
   It uses a 15s cache to avoid pounding the pligin with the same request. As a
   side effect it may timeout and take more time.
@@ -20,7 +20,7 @@ defmodule Serverboards.Query.Executor do
 
       res = Serverboards.Plugin.Runner.call(
         component.extra["command"],
-        component.extra["extractor"],
+        Map.get(component.extra, "extractor", "extractor"),
         [config, table, quals, columns],
         config.user)
 
@@ -43,7 +43,11 @@ defmodule Serverboards.Query.Executor do
       extractor = config.extractor
       case Serverboards.Plugin.Registry.filter_component(id: extractor) do
         [component] ->
-          Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, nil], config.user)
+          Serverboards.Plugin.Runner.call(
+            component.extra["command"],
+            Map.get(component.extra, "schema", "schema"),
+            [config, nil],
+            config.user)
         _ ->
           {:error, :unknown_extractor}
       end
@@ -59,7 +63,11 @@ defmodule Serverboards.Query.Executor do
       extractor = config.extractor
       case Serverboards.Plugin.Registry.filter_component(id: extractor) do
         [component] ->
-          res = Serverboards.Plugin.Runner.call(component.extra["command"], component.extra["schema"], [config, table], config.user)
+          res = Serverboards.Plugin.Runner.call(
+            component.extra["command"],
+            Map.get(component.extra, "schema", "schema"),
+            [config, table],
+            config.user)
           case res do
             {:ok, %{ "columns" => columns}} ->
               columns = Enum.map(columns, fn

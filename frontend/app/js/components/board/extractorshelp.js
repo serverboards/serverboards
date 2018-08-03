@@ -25,13 +25,13 @@ class ExtractorHelp extends React.Component{
         // console.log("found data: ", extractor)
         this.setState({extractor})
         return plugin
-          .start_call_stop(extractor.extra.command, extractor.extra.schema, [{config}, null])
+          .start_call_stop(extractor.extra.command, extractor.extra.schema || "schema", [{config}, null])
           .then( tables => ({tables, extractor}))
       }).then( ({tables, extractor}) => {
         return Promise.all(
           tables.map( table =>
             plugin
-              .start_call_stop(extractor.extra.command, extractor.extra.schema, [{config}, table])
+              .start_call_stop(extractor.extra.command, extractor.extra.schema || "schema", [{config}, table])
               .then( schema => ({table, schema}))
           ) )
       }).then( tables => {
