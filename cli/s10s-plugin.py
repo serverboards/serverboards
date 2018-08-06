@@ -174,7 +174,7 @@ def read_plugin(path):
             if os.path.exists(extra):
                 with open(extra) as fd:
                     data.update(yaml.safe_load(fd))
-        except:
+        except Exception:
             extra = {}
 
         if 'source' not in data:
@@ -183,6 +183,9 @@ def read_plugin(path):
                 data["source"] = "git"
 
         data["path"] = path
+        if not data.get("latest"):
+            data['latest'] = data.get('version')
+        data["updated"] = data.get("version") == data.get("latest")
         return data
     return {}
 
@@ -219,11 +222,25 @@ AHEAD_RE = re.compile(b".*\[behind (\d*)\].*")
 
 
 def check_update(pl):
+    print("Check", pl["id"], file=sys.stderr)
+    latest = None
     if pl.get("source") == "packageserver":
-        return check_update_remote(pl)
-    if pl.get("source") != "git":
-        return
-    return check_update_git(pl)
+        latest = check_update_remote(pl)
+    elif pl.get("source") == "git":
+        latest = check_update_git(pl)
+    if latest is not None:
+        extrafile = os.path.join(pl["path"], ".extra.yaml")
+        extra = {}
+        try:
+            if os.path.exists(extrafile):
+                with open(extrafile) as rd:
+                    extra = yaml.safe_load(rd)
+        except Exception:
+            logging.error("Could not load extra data from %s" % extrafile)
+        extra["latest"] = latest
+        with open(extrafile, "w") as wd:
+            yaml.safe_dump(extra, wd)
+    return {"id": pl["id"], "latest": latest}
 
 
 def check_update_git(pl):
@@ -234,28 +251,16 @@ def check_update_git(pl):
         stdout=subprocess.PIPE
     )
     m = AHEAD_RE.match(output.stdout)
-    up_to_date = True
+    latest = pl.get("version")
     if m:
-        up_to_date = "Behind %s" % m.groups(1)[0].decode('utf8')
+        latest = "%s+%s" % (pl.get("version", "0"), m.groups(1)[0].decode('utf8'))
 
-    if up_to_date != pl.get("up_to_date"):
-        extrafile = os.path.join(pl["path"], ".extra.yaml")
-        extra = {}
-        try:
-            if os.path.exists(extrafile):
-                with open(extrafile) as rd:
-                    extra = yaml.safe_load(rd)
-        except Exception:
-            logging.error("Could not load extra data from %s" % extrafile)
-        extra["up_to_date"] = up_to_date
-        with open(extrafile, "w") as wd:
-            yaml.safe_dump(extra, wd)
-
-    return {"id": pl.get("id"), "up_to_date": up_to_date}
+    return latest
 
 
 def check_update_remote(pl):
-    packageserver_get("api/packages/%s")
+    data = packageserver_get("packages/%s" % pl["id"]).json()
+    return data["version"]
 
 
 def update(path):
@@ -300,7 +305,7 @@ def update_all(ids):
     if not ids:
         ids = []
         for pl in all_plugins():
-            if pl.get("up_to_date") not in (True, None):
+            if pl.get("latest") not in (True, None):
                 ids.append(pl.get("path"))
 
     for id in ids:
@@ -461,7 +466,7 @@ def remove(id):
 
 def list_(what=[]):
     if not what:
-        what = ["id", "status", "version", "up_to_date"]
+        what = ["id", "status", "version", "updated"]
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
