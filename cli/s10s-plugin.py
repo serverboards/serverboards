@@ -13,6 +13,7 @@ import configparser
 import logging
 import tarfile
 import requests
+import tempfile
 
 
 __doc__ = """s10s plugin -- Plugin management
@@ -346,6 +347,20 @@ def install_git(git):
     }
 
 
+def install_saas(pkgid):
+    print("Install from remote", pkgid, file=sys.stderr)
+    res = saas_get("packages/%s" % pkgid)
+    if res.status_code != 200:
+        return res.json()
+
+    data = res.content
+    with tempfile.NamedTemporaryFile(suffix=".txz") as fd:
+        print("Temporay file", fd.name, file=sys.stderr)
+        fd.write(data)
+        fd.flush()
+        return install_file(fd.name)
+
+
 def install_file(filename):
     manifest = None
     with tarfile.open(filename, 'r:xz') as fd:
@@ -398,8 +413,13 @@ def install(url):
         return install_git(url)
     if '@' in url:
         return install_git(url)
+    if os.path.exists(url):
+        return install_file(url)
 
-    return install_file(url)
+    if '/' in url:
+        return {"error": "not found"}
+
+    return install_saas(url)
 
 
 def remove_all(ids):
@@ -446,12 +466,13 @@ def saas_get(path, **params):
     saas_url = saas_settings.get("saas_url", "https://serverboards.app")
 
     res = requests.get("%s/api/%s" % (saas_url, path), params=params, headers={"Api-Key": api_key})
-    return res.json().get("results", [])
+    return res
 
 
 def search(*terms):
     res = saas_get("packages/search", q=' '.join(terms))
-    output_data(res)
+    js = res.json().get("results", [])
+    output_data(js)
 
 
 def main(argv):
