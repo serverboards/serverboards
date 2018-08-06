@@ -69,9 +69,9 @@ def read_settings():
     settings = get_settings()
 
     paths = (
-        os.environ.get("SERVERBOARDS_PLUGINS_PATH") or
-        settings.get("plugins", {}).get('path') or
-        os.path.expandvars(
+        os.environ.get("SERVERBOARDS_PLUGINS_PATH")
+        or settings.get("plugins", {}).get('path')
+        or os.path.expandvars(
             "${HOME}/.local/serverboards/plugins;"
             "${SERVERBOARDS_PATH}/plugins;"
             "/opt/serverboards/local/plugins/;"
@@ -177,10 +177,10 @@ def read_plugin(path):
         except:
             extra = {}
 
-        # TODO: Will work on other sources later
-        gitdir = os.path.join(path, ".git")
-        if os.path.exists(gitdir):
-            data["source"] = "git"
+        if 'source' not in data:
+            gitdir = os.path.join(path, ".git")
+            if os.path.exists(gitdir):
+                data["source"] = "git"
 
         data["path"] = path
         return data
@@ -219,9 +219,14 @@ AHEAD_RE = re.compile(b".*\[behind (\d*)\].*")
 
 
 def check_update(pl):
+    if pl.get("source") == "packageserver":
+        return check_update_remote(pl)
     if pl.get("source") != "git":
         return
+    return check_update_git(pl)
 
+
+def check_update_git(pl):
     os.chdir(pl["path"])
     os.system("git fetch --quiet")
     output = subprocess.run(
@@ -247,6 +252,10 @@ def check_update(pl):
             yaml.safe_dump(extra, wd)
 
     return {"id": pl.get("id"), "up_to_date": up_to_date}
+
+
+def check_update_remote(pl):
+    packageserver_get("api/packages/%s")
 
 
 def update(path):
@@ -347,9 +356,9 @@ def install_git(git):
     }
 
 
-def install_saas(pkgid):
+def install_packageserver(pkgid):
     print("Install from remote", pkgid, file=sys.stderr)
-    res = saas_get("packages/%s" % pkgid)
+    res = packageserver_get("packages/%s/package.txz" % pkgid)
     if res.status_code != 200:
         return res.json()
 
@@ -358,7 +367,10 @@ def install_saas(pkgid):
         print("Temporay file", fd.name, file=sys.stderr)
         fd.write(data)
         fd.flush()
-        return install_file(fd.name)
+        pl = install_file(fd.name)
+        with open(pl["path"]+'/.extra.yaml', 'w') as fd:
+            fd.write("source: packageserver\n")
+        return pl
 
 
 def install_file(filename):
@@ -403,6 +415,7 @@ def install_file(filename):
         "id": manifest.get("id"),
         "success": res.returncode == 0,
         "version": manifest.get("version"),
+        "path": path,
         "stdout": stdout
     }
 
@@ -419,7 +432,7 @@ def install(url):
     if '/' in url:
         return {"error": "not found"}
 
-    return install_saas(url)
+    return install_packageserver(url)
 
 
 def remove_all(ids):
@@ -440,7 +453,7 @@ def remove(id):
     try:
         shutil.rmtree(plugin["path"])
         return {"id": plugin["id"], "path": plugin["path"], "removed": True}
-    except Exception as e:
+    except Exception:
         import traceback
         traceback.print_exc()
         return {"id": plugin["id"], "path": plugin["path"], "removed": False}
@@ -457,20 +470,25 @@ def list_(what=[]):
     output_data(res)
 
 
-def saas_get(path, **params):
+def packageserver_get(path, **params):
     """
-    Encapsulates a HTTP GET to send proper requests to saas server
+    Encapsulates a HTTP GET to send proper requests to package server
     """
-    saas_settings = get_settings().get("serverboards.saas/settings", {})
-    api_key = saas_settings.get("api_key", "")
-    saas_url = saas_settings.get("saas_url", "https://serverboards.app")
+    packageserver_settings = get_settings().get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key", "")
+    packageserver_url = packageserver_settings.get("url", "https://serverboards.app")
 
-    res = requests.get("%s/api/%s" % (saas_url, path), params=params, headers={"Api-Key": api_key})
+    try:
+        res = requests.get("%s/api/%s" % (packageserver_url, path), params=params, headers={"Api-Key": api_key})
+    except Exception:
+        print("Cant connect to server", file=sys.stderr)
+        sys.exit(1)
+
     return res
 
 
 def search(*terms):
-    res = saas_get("packages/search", q=' '.join(terms))
+    res = packageserver_get("packages/search", q=' '.join(terms))
     js = res.json().get("results", [])
     output_data(js)
 
