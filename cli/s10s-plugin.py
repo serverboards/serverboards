@@ -11,8 +11,9 @@ import shutil
 import glob
 import configparser
 import logging
-import sh
 import tarfile
+import requests
+
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -22,9 +23,16 @@ It uses git URLS to manage the state.
 Plugin management:
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
-    s10s plugin install <url|txz> -- Installs a plugin
-    s10s plugin remove <path|plugin_id>  -- Removes a plugin
-    s10s plugin update <path|plugin_id>  -- Updates a plugin
+    s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
+    s10s plugin remove  <path|plugin_id>      -- Removes a plugin
+    s10s plugin update  <path|plugin_id>      -- Updates a plugin
+    s10s plugin login         -- Logins into the plugin registry. Required for some plugins.
+    s10s plugin search        -- Remote search of a plugin form the remote database.
+
+Some actions may need authentication. The server may ping back to the SSH
+connection of the current server to ensure identity (SSH public keys hashes).
+
+Use `s10s plugin login` to attach your account with the server.
 """
 
 paths = []
@@ -55,7 +63,7 @@ def get_settings():
     return settings
 
 
-def update_plugin_settings():
+def read_settings():
     global paths, install_path
     settings = get_settings()
 
@@ -383,6 +391,7 @@ def install_file(filename):
         "stdout": stdout
     }
 
+
 def install(url):
     logging.info("Install %s to %s" % (url, install_path))
     if '//' in url:
@@ -428,6 +437,23 @@ def list_(what=[]):
     output_data(res)
 
 
+def saas_get(path, **params):
+    """
+    Encapsulates a HTTP GET to send proper requests to saas server
+    """
+    saas_settings = get_settings().get("serverboards.saas/settings", {})
+    api_key = saas_settings.get("api_key", "")
+    saas_url = saas_settings.get("saas_url", "https://serverboards.app")
+
+    res = requests.get("%s/api/%s" % (saas_url, path), params=params, headers={"Api-Key": api_key})
+    return res.json().get("results", [])
+
+
+def search(*terms):
+    res = saas_get("packages/search", q=' '.join(terms))
+    output_data(res)
+
+
 def main(argv):
     for n, a in enumerate(argv):
         if a.startswith("--format="):
@@ -453,11 +479,14 @@ def main(argv):
         install_all(argv[1:])
     elif argv[0] == 'remove':
         remove_all(argv[1:])
+    elif argv[0] == 'search':
+        search(*argv[1:])
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)
         sys.exit(1)
 
-update_plugin_settings()
+
+read_settings()
 if __name__ == "__main__":
     main(sys.argv[1:])
