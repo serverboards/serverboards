@@ -11,8 +11,10 @@ import shutil
 import glob
 import configparser
 import logging
-import sh
 import tarfile
+import requests
+import tempfile
+
 
 __doc__ = """s10s plugin -- Plugin management
 Allows to install, uninstall and update plugins.
@@ -22,9 +24,16 @@ It uses git URLS to manage the state.
 Plugin management:
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
-    s10s plugin install <url|txz> -- Installs a plugin
-    s10s plugin remove <path|plugin_id>  -- Removes a plugin
-    s10s plugin update <path|plugin_id>  -- Updates a plugin
+    s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
+    s10s plugin remove  <path|plugin_id>      -- Removes a plugin
+    s10s plugin update  <path|plugin_id>      -- Updates a plugin
+    s10s plugin login         -- Logins into the plugin registry. Required for some plugins.
+    s10s plugin search        -- Remote search of a plugin form the remote database.
+
+Some actions may need authentication. The server may ping back to the SSH
+connection of the current server to ensure identity (SSH public keys hashes).
+
+Use `s10s plugin login` to attach your account with the server.
 """
 
 paths = []
@@ -55,14 +64,14 @@ def get_settings():
     return settings
 
 
-def update_plugin_settings():
+def read_settings():
     global paths, install_path
     settings = get_settings()
 
     paths = (
-        os.environ.get("SERVERBOARDS_PLUGINS_PATH") or
-        settings.get("plugins", {}).get('path') or
-        os.path.expandvars(
+        os.environ.get("SERVERBOARDS_PLUGINS_PATH")
+        or settings.get("plugins", {}).get('path')
+        or os.path.expandvars(
             "${HOME}/.local/serverboards/plugins;"
             "${SERVERBOARDS_PATH}/plugins;"
             "/opt/serverboards/local/plugins/;"
@@ -165,15 +174,18 @@ def read_plugin(path):
             if os.path.exists(extra):
                 with open(extra) as fd:
                     data.update(yaml.safe_load(fd))
-        except:
+        except Exception:
             extra = {}
 
-        # TODO: Will work on other sources later
-        gitdir = os.path.join(path, ".git")
-        if os.path.exists(gitdir):
-            data["source"] = "git"
+        if 'source' not in data:
+            gitdir = os.path.join(path, ".git")
+            if os.path.exists(gitdir):
+                data["source"] = "git"
 
         data["path"] = path
+        if not data.get("latest"):
+            data['latest'] = data.get('version')
+        data["updated"] = data.get("version") == data.get("latest")
         return data
     return {}
 
@@ -210,21 +222,13 @@ AHEAD_RE = re.compile(b".*\[behind (\d*)\].*")
 
 
 def check_update(pl):
-    if pl.get("source") != "git":
-        return
-
-    os.chdir(pl["path"])
-    os.system("git fetch --quiet")
-    output = subprocess.run(
-        ["git", "status", "--porcelain", "--branch"],
-        stdout=subprocess.PIPE
-    )
-    m = AHEAD_RE.match(output.stdout)
-    up_to_date = True
-    if m:
-        up_to_date = "Behind %s" % m.groups(1)[0].decode('utf8')
-
-    if up_to_date != pl.get("up_to_date"):
+    print("Check", pl["id"], file=sys.stderr)
+    latest = None
+    if pl.get("source") == "packageserver":
+        latest = check_update_remote(pl)
+    elif pl.get("source") == "git":
+        latest = check_update_git(pl)
+    if latest is not None:
         extrafile = os.path.join(pl["path"], ".extra.yaml")
         extra = {}
         try:
@@ -233,11 +237,30 @@ def check_update(pl):
                     extra = yaml.safe_load(rd)
         except Exception:
             logging.error("Could not load extra data from %s" % extrafile)
-        extra["up_to_date"] = up_to_date
+        extra["latest"] = latest
         with open(extrafile, "w") as wd:
             yaml.safe_dump(extra, wd)
+    return {"id": pl["id"], "latest": latest}
 
-    return {"id": pl.get("id"), "up_to_date": up_to_date}
+
+def check_update_git(pl):
+    os.chdir(pl["path"])
+    os.system("git fetch --quiet")
+    output = subprocess.run(
+        ["git", "status", "--porcelain", "--branch"],
+        stdout=subprocess.PIPE
+    )
+    m = AHEAD_RE.match(output.stdout)
+    latest = pl.get("version")
+    if m:
+        latest = "%s+%s" % (pl.get("version", "0"), m.groups(1)[0].decode('utf8'))
+
+    return latest
+
+
+def check_update_remote(pl):
+    data = packageserver_get("packages/%s" % pl["id"]).json()
+    return data["version"]
 
 
 def update(path):
@@ -282,7 +305,7 @@ def update_all(ids):
     if not ids:
         ids = []
         for pl in all_plugins():
-            if pl.get("up_to_date") not in (True, None):
+            if pl.get("latest") not in (True, None):
                 ids.append(pl.get("path"))
 
     for id in ids:
@@ -338,6 +361,23 @@ def install_git(git):
     }
 
 
+def install_packageserver(pkgid):
+    print("Install from remote", pkgid, file=sys.stderr)
+    res = packageserver_get("packages/%s/package.txz" % pkgid)
+    if res.status_code != 200:
+        return res.json()
+
+    data = res.content
+    with tempfile.NamedTemporaryFile(suffix=".txz") as fd:
+        print("Temporay file", fd.name, file=sys.stderr)
+        fd.write(data)
+        fd.flush()
+        pl = install_file(fd.name)
+        with open(pl["path"]+'/.extra.yaml', 'w') as fd:
+            fd.write("source: packageserver\n")
+        return pl
+
+
 def install_file(filename):
     manifest = None
     with tarfile.open(filename, 'r:xz') as fd:
@@ -380,8 +420,10 @@ def install_file(filename):
         "id": manifest.get("id"),
         "success": res.returncode == 0,
         "version": manifest.get("version"),
+        "path": path,
         "stdout": stdout
     }
+
 
 def install(url):
     logging.info("Install %s to %s" % (url, install_path))
@@ -389,8 +431,13 @@ def install(url):
         return install_git(url)
     if '@' in url:
         return install_git(url)
+    if os.path.exists(url):
+        return install_file(url)
 
-    return install_file(url)
+    if '/' in url:
+        return {"error": "not found"}
+
+    return install_packageserver(url)
 
 
 def remove_all(ids):
@@ -411,7 +458,7 @@ def remove(id):
     try:
         shutil.rmtree(plugin["path"])
         return {"id": plugin["id"], "path": plugin["path"], "removed": True}
-    except Exception as e:
+    except Exception:
         import traceback
         traceback.print_exc()
         return {"id": plugin["id"], "path": plugin["path"], "removed": False}
@@ -419,13 +466,36 @@ def remove(id):
 
 def list_(what=[]):
     if not what:
-        what = ["id", "status", "version", "up_to_date"]
+        what = ["id", "status", "version", "updated"]
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
     if 'id' in what:
         res.sort(key=lambda x: x["id"])
     output_data(res)
+
+
+def packageserver_get(path, **params):
+    """
+    Encapsulates a HTTP GET to send proper requests to package server
+    """
+    packageserver_settings = get_settings().get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key", "")
+    packageserver_url = packageserver_settings.get("url", "https://serverboards.app")
+
+    try:
+        res = requests.get("%s/api/%s" % (packageserver_url, path), params=params, headers={"Api-Key": api_key})
+    except Exception:
+        print("Cant connect to server", file=sys.stderr)
+        sys.exit(1)
+
+    return res
+
+
+def search(*terms):
+    res = packageserver_get("packages/search", q=' '.join(terms))
+    js = res.json().get("results", [])
+    output_data(js)
 
 
 def main(argv):
@@ -453,11 +523,14 @@ def main(argv):
         install_all(argv[1:])
     elif argv[0] == 'remove':
         remove_all(argv[1:])
+    elif argv[0] == 'search':
+        search(*argv[1:])
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)
         sys.exit(1)
 
-update_plugin_settings()
+
+read_settings()
 if __name__ == "__main__":
     main(sys.argv[1:])

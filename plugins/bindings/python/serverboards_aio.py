@@ -735,7 +735,7 @@ async def sync(f, *args, **kwargs):
     return res
 
 
-def async(f, *args, **kwargs):
+def run_async(f, *args, **kwargs):
     """
     Runs an async function in a sync environment.
 
