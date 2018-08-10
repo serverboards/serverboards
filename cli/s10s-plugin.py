@@ -39,33 +39,46 @@ Use `s10s plugin login` to attach your account with the server.
 paths = []
 install_path = None
 format = "text"
-
-
-def get_settings():
-    inis = [
-        os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
-        os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
-        *glob.glob("/etc/serverboards/*.ini"),
-        "/etc/serverboards.ini",
-        os.environ.get("SERVERBOARDS_INI", "")
-    ]
-    settings = {}
-    for ini in inis:
-        if os.path.exists(ini):
-            try:
-                config = configparser.ConfigParser(allow_no_value=True)
-                config.read(ini)
-                for section in config.sections():
-                    prev = settings.get(section, {})
-                    prev.update({k: v for k, v in config.items(section)})
-                    settings[section] = prev
-            except Exception:
-                pass
-    return settings
+settings = None
 
 
 def read_settings():
-    global paths, install_path
+    """
+    At startup reads the settings and put them in a settings singleton
+    """
+    def get_settings():
+        """
+        Returns the full dictionary with the settings of this installation.
+        """
+
+        def clean(v):
+            if isinstance(v, str) and v.startswith('"') and v.endswith('"'):
+                return v[1:-1]
+            return v
+
+        inis = [
+            os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
+            os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
+            *glob.glob("/etc/serverboards/*.ini"),
+            "/etc/serverboards.ini",
+            os.environ.get("SERVERBOARDS_INI", "")
+        ]
+        settings = {}
+        for ini in inis:
+            if os.path.exists(ini):
+                try:
+                    config = configparser.ConfigParser(allow_no_value=True)
+                    config.read(ini)
+                    for section in config.sections():
+                        prev = settings.get(section, {})
+                        prev.update({k: clean(v) for k, v in config.items(section)})
+                        settings[section] = prev
+                except Exception:
+                    pass
+        return settings
+
+    # real settings readding
+    global paths, install_path, settings
     settings = get_settings()
 
     paths = (
@@ -357,6 +370,7 @@ def install_git(git):
         "id": plugin.get("id"),
         "success": res.returncode == 0,
         "version": plugin.get("version"),
+        "requires": plugin.get("requires", []),
         "stdout": stdout
     }
 
@@ -406,6 +420,8 @@ def install_file(filename):
 
     path = "%s/%s/" % (install_path, manifest["id"])
 
+    success = True
+    stdout = None
     if manifest.get("postinst"):
         os.chdir(path)
         res = subprocess.run(
@@ -415,29 +431,50 @@ def install_file(filename):
             stderr=subprocess.STDOUT
         )
         stdout = res.stdout.decode('utf8')
+        success = res.returncode == 0
 
     return {
         "id": manifest.get("id"),
-        "success": res.returncode == 0,
+        "success": success,
         "version": manifest.get("version"),
+        "requires": manifest.get("requires", []),
         "path": path,
         "stdout": stdout
     }
 
 
-def install(url):
-    logging.info("Install %s to %s" % (url, install_path))
-    if '//' in url:
-        return install_git(url)
-    if '@' in url:
-        return install_git(url)
-    if os.path.exists(url):
-        return install_file(url)
+def install(package):
+    """
+    Installs a package into the system.abs
 
-    if '/' in url:
-        return {"error": "not found"}
+    If the package have dependencies it maybe_install them too.
+    """
+    logging.info("Install %s to %s" % (package, install_path))
+    if '//' in package:
+        pl = install_git(package)
+    elif '@' in package:
+        pl = install_git(package)
+    elif os.path.exists(package):
+        pl = install_file(package)
+    else:
+        if '/' in package:
+            return {"error": "not found"}
+        pl = install_packageserver(package)
 
-    return install_packageserver(url)
+    for dep in pl["requires"]:
+        maybe_install(dep)
+
+    return pl
+
+
+def maybe_install(package):
+    """
+    Checks if package already installed and if so does nothing.
+    """
+    pl = get_plugin(package)
+    if pl:
+        return pl
+    return install(package)
 
 
 def remove_all(ids):
@@ -479,14 +516,32 @@ def packageserver_get(path, **params):
     """
     Encapsulates a HTTP GET to send proper requests to package server
     """
-    packageserver_settings = get_settings().get("serverboards.packageserver/settings", {})
-    api_key = packageserver_settings.get("api_key", "")
-    packageserver_url = packageserver_settings.get("url", "https://serverboards.app")
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key", "anonymous")
+    packageserver_url = os.environ.get(
+        "SERVERBOARDS_PACKAGESERVER_URL",
+        packageserver_settings.get("url", "https://serverboards.app")
+    )
 
     try:
         res = requests.get("%s/api/%s" % (packageserver_url, path), params=params, headers={"Api-Key": api_key})
+        if res.status_code != 200:
+            if res.headers["Content-Type"] == "application/json":
+                if format == 'json':
+                    print(res.content.decode('utf8'))
+                else:
+                    print("Error: %s" % res.json()["message"], file=sys.stderr)
+            else:
+                if format == 'json':
+                    print('{"error": "unknown", "message": "Bad response from server"}')
+                else:
+                    print("Error: Bad response from server", file=sys.stderr)
+            sys.exit(1)
     except Exception:
-        print("Cant connect to server", file=sys.stderr)
+        if format == 'json':
+            print('{"error": "cant-connect", "message": "Cant connect to server"}')
+        else:
+            print("Cant connect to server", file=sys.stderr)
         sys.exit(1)
 
     return res
