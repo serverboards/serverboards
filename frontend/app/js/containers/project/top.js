@@ -23,14 +23,14 @@ var Top=connect({
     const services = current_project.services || []
 
     const myperms = perms()
-    const has_plugin_perm = has_perm("plugins", myperms)
+    const has_plugin_perm = has_perm("plugin", myperms)
 
     extra_screens = extra_screens.map( s => (
       merge(s, {
         candidates: services.filter((c) => match_traits({all: c.traits, has: s.traits}))
       })
     )).filter( s => {
-      // console.log("Check if show ", s.perms)
+      // console.log("Check if show ", has_plugin_perm, s.id, s.perms)
       if (!s.perms || s.perms.length==0)
         return has_plugin_perm
       return has_perm(maybe_list(s.perms), myperms)
