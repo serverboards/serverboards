@@ -18,7 +18,7 @@ def at_sync_world():
 
 
 def at_sync_call_async():
-    return serverboards.async(at_async_world)
+    return serverboards.run_async(at_async_world)
 
 
 async def at_async_world():
@@ -79,7 +79,6 @@ async def test():
             assert False, "Should have excepted"
         except Exception as e:
             print(e, file=sys.stderr)
-            
 
     except Exception as e:
         print("Exception", e, file=sys.stderr)
@@ -92,7 +91,7 @@ async def test():
         sys.exit(0 if ok else 1)
 
 if __name__ == '__main__':
-    serverboards.async(test)
+    serverboards.run_async(test)
     serverboards.set_debug()
     serverboards.loop(with_monitor=True)
     sys.exit(0 if ok else 1)

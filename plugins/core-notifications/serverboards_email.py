@@ -199,7 +199,7 @@ async def update_settings():
 
 
 def main():
-    serverboards.async(update_settings, result=False)
+    serverboards.run_async(update_settings, result=False)
     serverboards.loop()
 
 
