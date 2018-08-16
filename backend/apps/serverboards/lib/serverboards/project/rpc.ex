@@ -45,7 +45,7 @@ defmodule Serverboards.Project.RPC do
 
     RPC.MethodCaller.add_method mc, "dashboard.create", fn attr, context ->
       me = Context.get(context, :user)
-      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"project name order")
+      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"project name order config")
       Serverboards.Project.Dashboard.dashboard_add(attr, me)
     end, [required_perm: "dashboard.create", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.update", fn attr, context ->
