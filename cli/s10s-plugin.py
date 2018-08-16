@@ -276,7 +276,28 @@ def check_update_remote(pl):
     return data["version"]
 
 
-def update(path):
+def update(id_or_path):
+    plugin = get_plugin(id_or_path)
+    source = plugin.get("source", "unknown")
+    res = False
+    stdout = None
+
+    if source == 'git':
+        (res, stdout) = update_git(source)
+    if source == 'packageserver':
+        install_res = install_packageserver(plugin["id"])
+        res = install_res["success"]
+        stdout = install_res["stdout"]
+
+    return {
+        "id": plugin["id"],
+        "source": source,
+        "updated": res,
+        "stdout": stdout,
+    }
+
+
+def update_git(path):
     logging.info("Update %s" % path)
     if not os.path.isdir(path):
         path = os.path.dirname(path)
@@ -319,19 +340,10 @@ def update_all(ids):
         ids = []
         for pl in all_plugins():
             if pl.get("latest") not in (True, None):
-                ids.append(pl.get("path"))
+                ids.append(pl.get("id"))
 
     for id in ids:
-        if not id.startswith("/"):
-            path = get_plugin(id)["path"]
-        else:
-            path = id
-        (res, stdout) = update(path)
-        ret.append({
-            "id": get_plugin(id).get("id", path),
-            "updated": res,
-            "stdout": stdout,
-        })
+        ret.append(update(id))
 
     output_data(ret)
 
