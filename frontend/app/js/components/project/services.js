@@ -10,7 +10,7 @@ import AddButton from './addbutton'
 import PropTypes from 'prop-types'
 
 function service_sort(a,b){
-  return a.name.localeCompare( b.name )
+  return (a.name || "").localeCompare( b.name )
 }
 
 class Services extends React.Component{
