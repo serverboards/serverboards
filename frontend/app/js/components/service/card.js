@@ -10,6 +10,8 @@ import {MarkdownPreview} from 'react-marked-markdown';
 import {trigger_action} from './action'
 import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
+import cache from 'app/utils/cache'
+
 
 require("sass/service/card.sass")
 const icon = require("../../../imgs/services.svg")
@@ -130,6 +132,15 @@ class VirtualBottomMenu extends React.Component{
 }
 
 class Card extends React.Component{
+  constructor(props){
+    super(props)
+
+    console.log("Card for ", props)
+
+    this.state = {
+      name: this.props.service.name,
+    }
+  }
   componentDidMount(){
     if (!this.props.service.is_virtual){
       const s = this.props.service
@@ -141,6 +152,9 @@ class Card extends React.Component{
           order: 80
         }
       ],2 )
+    }
+    if (!this.state.name){
+      cache.service_type(this.props.service.type).then( t => this.setState({name: t.name}))
     }
   }
   componentWillUnmount(){
@@ -198,10 +212,10 @@ class Card extends React.Component{
             {props.icon ? (
               <IconIcon src={icon} icon={props.icon} plugin={props.type.split('/',1)[0]}/>
             ) : (
-              <ImageIcon src={icon} name={props.name}/>
+              <ImageIcon src={icon} name={state.name}/>
             )}
           </div>
-          <div className="header">{props.name}</div>
+          <div className="header">{state.name}</div>
           <div className="description">
             {props.description ? (
               <MarkdownPreview value={i18n(props.description)}/>
