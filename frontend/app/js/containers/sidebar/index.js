@@ -19,6 +19,7 @@ const SidebarModel=connect({
     else
       section = pathname.replace( /\/(.*?)\/.*/ ,"$1")
 
+    const project = state.project.current
     console.log(pathname, section)
 
     return {
@@ -30,20 +31,23 @@ const SidebarModel=connect({
       section,
       new_issues: state.issues.new_issues,
       lang: state.auth.lang,
+      pathname,
       sections: {
         main: [
           {id: "dashboards", label: "Dashboards", goto: "/"},
-          {id: "issues", label: "Issues", goto: "/issues/"},
+          {id: "services", label: "Services", goto: `/project/${project}/services/`},
+          {id: "issues", label: "Issues", goto: `/project/${project}/issues/`},
+          {id: "rules", label: "Rules", goto: `/project/${project}/rules_v2/`},
           {id: "notifications", label: "Notifications", goto: "/notifications/"},
-          {id: "rules", label: "Rules", goto: "/rules/"},
-          {id: "project_settings", label: "Project Settings", goto: "/rules/"},
+          {id: "project_settings", label: "Project Settings", goto: `/project/${project}/settings/`},
         ],
         settings: [
-          {id: "settings", label: "System Settings", goto: "/settings/"},
-          {id: "users", label: "Packages", goto: "/settings/plugins"},
+          {id: "settings", label: "Settings Overview", goto: "/settings/overview"},
+          {id: "users", label: "Users", goto: "/settings/users"},
           {id: "groups", label: "Groups & Permissions", goto: "/settings/groups"},
           {id: "logs", label: "Logs", goto: "/settings/logs"},
           {id: "packages", label: "Packages", goto: "/settings/plugins"},
+          {id: "system", label: "System Settings", goto: "/settings/system"},
         ]
       }
     }

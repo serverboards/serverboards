@@ -6,12 +6,19 @@ require('sass/sidebar.sass')
 const blogo = require('imgs/logo.svg')
 const powered_by_serverboards = require('imgs/logo.svg')
 
+function goto_or_new_tab(ev, path){
+  if (ev.button == 0){
+    ev.preventDefault()
+    goto(path)
+  }
+}
+
 function Item(props){
   return (
     <a
       className={`ui ${props.selected ? "selected" : ""} item`}
-      href="#_"
-      onClick={ ev => {ev.preventDefault(); goto(props.goto)}}
+      href={`#${props.goto}`}
+      onClick={ (ev) => goto_or_new_tab(ev, props.goto) }
       >
       {props.label}
     </a>
@@ -19,7 +26,7 @@ function Item(props){
 }
 
 function Sidebar(props){
-  const section = props.section
+  const pathname = props.pathname
   return (
     <div className="ui sidebar" id="sidebar">
       <div className="ui horizontal split area with padding">
@@ -37,7 +44,7 @@ function Sidebar(props){
       </div>
       <div id="sections" className="ui vertical menu grow">
         {props.sections.main.map( s => (
-          <Item key={s.id} label={s.label} selected={s.id == section} goto={s.goto}/>
+          <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
         ))}
       </div>
 
@@ -61,7 +68,7 @@ function Sidebar(props){
         </a>
 
         {props.sections.settings.map( s => (
-          <Item key={s.id} label={s.label} selected={s.id == section} goto={s.goto}/>
+          <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
         ))}
       </div>
       <div id="settings" className="ui padding">
