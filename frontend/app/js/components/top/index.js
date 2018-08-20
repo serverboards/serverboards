@@ -1,10 +1,6 @@
 import React from 'react'
-import UserMenu from 'app/containers/top/usermenu'
-import ProcessesMenu from 'app/containers/top/processesmenu'
-import NotificationsMenu from 'app/containers/top/notificationsmenu'
 import {Link} from 'app/router'
 import {goto} from 'app/utils/store'
-import CommandSearch from './commands'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import { get_last_project } from 'app/utils/project'
@@ -95,129 +91,18 @@ class Top extends React.Component{
     return (
       <nav key={props.lang} className="ui serverboards top menu" id="top-menu" ref="el">
         {!props.sidebar && (
-          <a className="item" onClick={props.onToggleSidebar}>
-            <i className="ui bars big icon" style={{fontSize: 28}}/>
-          </a>
-        )}
-        <div className="item logo">
-          <a href="#/">
-            <img src={logo}/>
-          </a>
-        </div>
-        <CommandSearch/>
-
-        <span className="item stretch"/>
-
-        <a
-            className={`item ${ section == "project" ? "active" : ""}`}
-            onClick={this.handleGotoProjects.bind(this)}
-            ref="projects"
-            data-content={i18n("Project")}
-            data-position="bottom center"
-            id="projects"
-            >
-          {i18n("Projects")}
-        </a>
-
-        <Restricted perm="issues.view">
-          <a
-              className={`item ${ section == "issues" ? "active" : ""}`}
-              onClick={() => goto("/issues/")}
-              ref="issues"
-              id="issues"
-              data-content={i18n("Issues")}
-              data-position="bottom center"
-              >
-            {i18n("Issues")}
-            {props.new_issues ? (
-              <span
-                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                />
-            ) : null}
-          </a>
-        </Restricted>
-        <Restricted perm="notifications.list">
-          <a
-            className={`item ${section == 'notifications' ? "active" : ""}`}
-            onClick={() => goto("/notifications/list")}
-            ref="notifications_item"
-            id="notifications"
-            >
-            {i18n("Notifications")}
-            {((props.notifications||[]).length > 0) ? (
-              <span
-                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                />
-              ) : null}
-          </a>
-        </Restricted>
-        <Restricted perm="notifications.list">
-          <div className="ui popup" ref="notifications_menu" id="notifications_menu" style={{padding:0}}>
-            {this.state.show_popup == 'notifications' ? (
-              <NotificationsMenu open_time={this.state.open_time}/>
-            ) : null }
-          </div>
-        </Restricted>
-        <Restricted perm="action.watch">
-          <div className="ui popup" ref="processes_menu" id="processes_menu" style={{padding:0}}>
-            {this.state.show_popup == 'actions' ? (
-              <ProcessesMenu/>
-            ) : null}
-          </div>
-        </Restricted>
-        <Restricted perm="action.watch">
-          <a
-            className={`item ${section == 'process' ? "active" : ""}`}
-            onClick={() => goto('/process/history')}
-            ref="actions"
-            id="actions"
-            >
-            {i18n("Processes")}
-            {props.actions.length>0 ? (
-              <span
-                className={`ui micro label floating circular ${notifications_color(props.notifications)}`}
-                />
-            ) : null}
-          </a>
-        </Restricted>
-
-        <Restricted perm="settings.view">
-          <span className="ui item separator"/>
-        </Restricted>
-        <Restricted perm="settings.view">
-          <span>
-            <a
-                ref="settings"
-                id="settings"
-                onClick={() => goto("/settings/")}
-                className={`item icon ${( section == 'settings' ) ? "active" : ""}`}
-                >
-              <i className="big setting icon"/>
-            </a>
-            <div className="ui popup vertical menu" id="settings_menu" ref="setings_menu">
-              <a
-                className="item"
-                onClick={() => goto("/settings/")}
-              >
-                {i18n("Settings")}
-                <i className="right setting icon"/>
+          <React.Fragment>
+            <div className="item logo">
+              <a href="#/">
+                <img src={logo}/>
               </a>
             </div>
-          </span>
-        </Restricted>
-        <span className="ui item separator"/>
-        <a
-          className={`item icon ${( section == 'user' ) ? "active" : ""}`}
-          onClick={() => props.toggleMenu('user')}
-          ref="profile"
-          id="profile"
-          >
-          <img src={props.avatar} className="ui circular image small" style={{width: 32, height: 32}}
-            data-tooltip={props.user.email}/>
-        </a>
-        <div className="ui popup vertical menu" id="profile_menu" ref="profile_menu">
-          <UserMenu/>
-        </div>
+            <a className="item" onClick={props.onToggleSidebar}>
+              <i className="ui bars big icon" style={{fontSize: 28}}/>
+            </a>
+            <span className="item separator"/>
+          </React.Fragment>
+        )}
       </nav>
     )
   }
