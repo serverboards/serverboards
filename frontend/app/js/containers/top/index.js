@@ -6,6 +6,7 @@ import { get_issues_count_since } from 'app/actions/issues'
 import event from 'app/utils/event'
 import Flash from 'app/flash'
 import connect from 'app/containers/connect'
+import { toggle_sidebar } from 'app/actions/top'
 
 var Top=connect({
   state: (state) => {
@@ -27,12 +28,14 @@ var Top=connect({
       section,
       new_issues: state.issues.new_issues,
       lang: state.auth.lang,
+      sidebar: state.top.sidebar,
     }
   },
   handlers: (dispatch) => ({
     onLogout: () => dispatch(logout()),
     toggleMenu: (menu) => dispatch({type: "TOP_TOGGLE_MENU", menu: menu}),
     closeMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
+    onToggleSidebar: () => dispatch( toggle_sidebar() ),
   }),
   subscriptions: [
     "action.started","action.updated","action.stopped",

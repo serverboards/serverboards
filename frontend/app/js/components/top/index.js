@@ -94,6 +94,11 @@ class Top extends React.Component{
     let logo=require("../../../imgs/favicon.png")
     return (
       <nav key={props.lang} className="ui serverboards top menu" id="top-menu" ref="el">
+        {!props.sidebar && (
+          <a className="item" onClick={props.onToggleSidebar}>
+            <i className="ui bars big icon" style={{fontSize: 28}}/>
+          </a>
+        )}
         <div className="item logo">
           <a href="#/">
             <img src={logo}/>

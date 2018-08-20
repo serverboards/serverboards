@@ -27,7 +27,7 @@ function Sidebar(props){
           <img src={blogo} className="logo"/>
         </div>
         <div className="ui right align central text">
-          <a href="#_" onClick={props.onCloseMenu}>
+          <a href="#_" onClick={ev => {ev.preventDefault(); props.onToggleSidebar()}}>
             <i className="ui bars big icon"/>
           </a>
         </div>
@@ -43,10 +43,13 @@ function Sidebar(props){
 
       <hr/>
       <div id="settings" className="ui vertical menu">
-        <a className={`ui ${props.section == 'profile' ? "selected" : ""} item`} href="#_" style={{padding: "0 0 0 16px"}}>
+        <a
+           className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
+           href="#_" style={{padding: "0 0 0 16px"}}
+           onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
           <div className="ui horizontal split area">
-            <img src={props.avatar} className="ui avatar" onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}/>
-            <div className="ui big teal text expand with padding vcentered" onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
+            <img src={props.avatar} className="ui avatar"/>
+            <div className="ui big teal text expand with padding vcentered">
               {props.user.name}
             </div>
             <div className="ui right align">

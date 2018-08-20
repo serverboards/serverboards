@@ -1,3 +1,4 @@
+import React from 'react'
 import { logout } from 'app/actions/auth'
 import SidebarView from 'app/components/sidebar'
 import { notifications_unread } from 'app/actions/notifications'
@@ -5,8 +6,9 @@ import { get_issues_count_since } from 'app/actions/issues'
 import event from 'app/utils/event'
 import connect from 'app/containers/connect'
 import { action_ps } from 'app/actions/action'
+import { toggle_menu, toggle_sidebar } from 'app/actions/top'
 
-const Sidebar=connect({
+const SidebarModel=connect({
   state: (state) => {
     let pathname = state.routing.locationBeforeTransitions.pathname
     let section
@@ -48,8 +50,9 @@ const Sidebar=connect({
   },
   handlers: (dispatch) => ({
     onLogout: () => dispatch(logout()),
-    toggleMenu: (menu) => dispatch({type: "TOP_TOGGLE_MENU", menu: menu}),
-    onCloseMenu: () => dispatch({type: "TOP_TOGGLE_MENU", menu: ''}),
+    toggleMenu: (menu) => dispatch(  toggle_menu(menu) ),
+    onCloseMenu: () => dispatch( toggle_menu('') ),
+    onToggleSidebar: () => dispatch( toggle_sidebar() ),
   }),
   subscriptions: [
     "action.started","action.updated","action.stopped",
@@ -62,4 +65,12 @@ const Sidebar=connect({
   }]
 })(SidebarView)
 
-export default Sidebar
+const MaybeSidebar = connect({
+  state: (state) => ({
+    sidebar: state.top.sidebar
+  })
+})( ({sidebar}) => sidebar ? (
+  <SidebarModel/>
+) : null )
+
+export default MaybeSidebar
