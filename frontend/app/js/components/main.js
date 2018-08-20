@@ -9,6 +9,8 @@ import get_modal from './modalfactory'
 import Piwik from 'app/containers/piwik.js'
 import {ErrorBoundary} from 'app/components/error'
 import Legal from 'app/components/login/legal'
+import Sidebar from 'app/containers/sidebar'
+
 
 function Main(props){
   //console.log("Main component props %o", props.location)
@@ -47,10 +49,11 @@ function Main(props){
     )
   } else {
     contents=(
-      <div>
+      <div id="chrome">
         <Top onLogout={props.onLogout}/>
+        <Sidebar/>
         <ErrorBoundary>
-          <div className="ui main area">
+          <div className="ui main area" id="mainarea">
             <Router/>
             {modal}
           </div>

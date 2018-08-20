@@ -1,7 +1,8 @@
 $top-height: 70px
 $text-color: #acb5b5
 $teal: #00B5AD
-$background:  #4f6362
+$background:  #222
+
 
 .ui.vertical.menu.sections
   background: $background
@@ -111,3 +112,58 @@ $background:  #4f6362
     align-items: center
     justify-content: center
     border-radius: 0
+
+#chrome #sidebar.ui.sidebar
+  background: $background
+
+  visibility: visible
+  position: relative
+  top: auto
+  left: auto
+  width: 300px
+  display: flex
+  flex-direction: column
+
+  hr
+    width: 100%
+    border-color: #333
+    margin: 0
+
+  .grow
+    flex-grow: 1
+
+  .ui.menu
+    background: none
+    width: 100%
+    margin-top: 0
+    .item
+      border-radius: 0
+      color: white
+      border-left: solid 5px $background
+      line-height: 0.5
+      &.selected
+        border-left: solid 5px $teal
+      &:hover
+        background: #333
+
+  a
+    color: white
+    cursor: pointer
+    &:hover
+      color: $teal
+
+  .ui.split.area.horizontal
+    height: 65px
+    align-items: center
+    .item .vcentered
+      padding: 22px
+
+  .logo
+     height: 40px
+     left: 10px
+     position: absolute
+
+  .avatar
+    height: 40px
+    width: 40px
+    border-radius: 40px

@@ -411,3 +411,13 @@ body .ui.grid
 #dashboard:-webkit-full-screen
   .nofullscreen
     display: none !important
+
+#chrome
+  display: grid
+  grid-template-areas: "top top" "sidebar main"
+  #mainarea
+    grid-area: main
+  #sidebar
+    grid-area: sidebar
+  #top-menu
+    grid-area: top
