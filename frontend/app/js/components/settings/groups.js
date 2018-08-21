@@ -4,6 +4,7 @@ import Table from '../maxtable'
 import HoldButton from '../holdbutton'
 import i18n from 'app/utils/i18n'
 import Restricted from 'app/restricted'
+import {SectionMenu} from 'app/components'
 
 class Groups extends React.Component{
   handleEditUsers(g){
@@ -62,14 +63,16 @@ class Groups extends React.Component{
 
     return (
       <div className="ui expand vertical split" >
-        <div className="ui top secondary menu">
-          <h3 className="ui header">{i18n("Groups and permissions")}</h3>
-          <div className="right menu">
-            <Restricted perm="auth.manage_groups">
-              <a onClick={this.handleAddGroup.bind(this)} className="ui teal button">{i18n("Add group")}</a>
-            </Restricted>
-          </div>
-        </div>
+        <SectionMenu menu={(props) => (
+          <React.Fragment>
+            <h3 className="ui header">{i18n("Groups and permissions")}</h3>
+            <div className="right menu">
+              <Restricted perm="auth.manage_groups">
+                <a onClick={props.onAddGroup} className="ui teal button">{i18n("Add group")}</a>
+              </Restricted>
+            </div>
+          </React.Fragment>
+        )} onAddGroup={this.handleAddGroup.bind(this)}/>
 
         <div className="ui content with padding and scroll">
           {props.groups.map(Group)}

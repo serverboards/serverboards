@@ -41,7 +41,7 @@ const SidebarModel=connect({
         ],
         global: [
           {id: "issues", label: "Issues", goto: `/project/${project}/issues/`},
-          {id: "notifications", label: "Notifications", goto: "/notifications/"},
+          {id: "notifications", label: "Notifications", goto: "/notifications/list"},
         ],
         settings: [
           {id: "settings", label: "Settings Overview", goto: "/settings/overview"},

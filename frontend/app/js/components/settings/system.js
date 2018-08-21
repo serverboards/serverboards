@@ -8,6 +8,8 @@ import Restricted from 'app/restricted'
 import store from 'app/utils/store'
 import {settings_all} from 'app/actions/settings'
 import i18n from 'app/utils/i18n'
+import {SectionMenu} from 'app/components'
+
 
 function Section(props){
   return (
@@ -53,13 +55,14 @@ class System extends React.Component{
       )
 
     return (
-      <div>
-        <div className="ui secondary header top menu">
-          <h3 className="ui header">{i18n("System Settings")}</h3>
-        </div>
+      <React.Fragment>
+        <SectionMenu menu={(props) => (
+          <React.Fragment>
+            <h3 className="ui header">{i18n("System Settings")}</h3>
+            </React.Fragment>
+          )}/>
+
         <div className="ui text container settings">
-
-
           {props.settings.map( (section) => (
               <div key={section.id} ref={section.id}>
                 <Section {...section} updateSection={(data) => this.handleUpdateSection(section.id, data)}/>
@@ -75,7 +78,7 @@ class System extends React.Component{
             </button>
           </Restricted>
         </div>
-      </div>
+      </React.Fragment>
     )
   }
 }

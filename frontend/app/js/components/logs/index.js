@@ -7,6 +7,7 @@ import {i18n, i18n_nop} from 'app/utils/i18n'
 import {merge} from 'app/utils'
 import Paginator from '../paginator'
 import store from 'app/utils/store'
+import {SectionMenu} from 'app/components'
 
 require('sass/table.sass')
 
@@ -202,36 +203,38 @@ class Logs extends React.Component{
     }
 
     return (
-      <div className="ui expand split vertical area">
-        <div className="ui serverboards stackable top menu">
-          <div className="ui item with info">
-            <h3>{i18n("Logs")}</h3>
-            <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
-          </div>
+      <React.Fragment>
+        <SectionMenu menu={(props) => (
+          <React.Fragment>
+            <div className="ui item with info">
+              <h3 className="ui header">{i18n("Logs")}</h3>
+              <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
+            </div>
 
-          <div className="item">
-            <div className="ui search">
-              <div className="ui icon input" style={{width:"100%"}}>
-                <input className="prompt" type="text"
-                  placeholder="Search here..."
-                  onChange={this.handleQChange.bind(this)}
-                  defaultValue={this.state.q}/>
-                {this.state.loading ? (
-                  <i className="loading spinner icon"></i>
-                ) : (
-                  <i className="search icon"></i>
-                )}
+            <div className="item">
+              <div className="ui search">
+                <div className="ui icon input" style={{width:"100%"}}>
+                  <input className="prompt" type="text"
+                    placeholder="Search here..."
+                    onChange={this.handleQChange.bind(this)}
+                    defaultValue={this.state.q}/>
+                  {this.state.loading ? (
+                    <i className="loading spinner icon"></i>
+                  ) : (
+                    <i className="search icon"></i>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="item stretch"/>
-          <div className="item" style={{marginTop:12, marginBottom: 20}}>
-            <Paginator count={Math.ceil(this.state.count/50.0)}
-              current={this.state.page}
-              onChange={this.handlePageChange.bind(this)}
-              max={5}/>
-          </div>
-        </div>
+            <div className="item stretch"/>
+            <div className="item" style={{marginTop:12, marginBottom: 20}}>
+              <Paginator count={Math.ceil(this.state.count/50.0)}
+                current={this.state.page}
+                onChange={this.handlePageChange.bind(this)}
+                max={5}/>
+            </div>
+          </React.Fragment>
+        )}/>
 
 
         <div className="expand with scroll and padding">
@@ -256,7 +259,7 @@ class Logs extends React.Component{
           </div>
         </div>
         {popup}
-      </div>
+      </React.Fragment>
     )
   }
 }

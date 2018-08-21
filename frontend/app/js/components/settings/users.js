@@ -3,6 +3,7 @@ import Loading from '../loading'
 import HoldButton from '../holdbutton'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
+import {SectionMenu} from 'app/components'
 
 class UserRow extends React.Component{
   componentDidMount(){
@@ -83,15 +84,17 @@ class Users extends React.Component{
       )
 
     return (
-      <div className="ui expand vertical split" >
-        <div className="ui top secondary menu">
-          <h3 className="ui header">{i18n("Users")}</h3>
-          <div className="right menu">
-            <Restricted perm="auth.create_user">
-              <a onClick={this.handleOpenAddUser.bind(this)} className="ui teal button">{i18n("Add user")}</a>
-            </Restricted>
-          </div>
-        </div>
+      <div className="ui expand vertical split">
+        <SectionMenu menu={() => (
+          <React.Fragment>
+            <h3 className="ui header">{i18n("Users")}</h3>
+            <div className="right menu">
+              <Restricted perm="auth.create_user">
+                <a onClick={this.handleOpenAddUser.bind(this)} className="ui teal button">{i18n("Add user")}</a>
+              </Restricted>
+            </div>
+          </React.Fragment>
+        )}/>
 
         <div className="ui content with padding expand with scroll">
           <table className="ui table">
