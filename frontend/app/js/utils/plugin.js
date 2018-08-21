@@ -169,6 +169,16 @@ export function do_widget(id, el, data, context){
   }
 }
 
+export function load_hooks(){
+  cache
+    .plugin_component({type: "ui hooks"})
+    .then( cc => Promise.all(cc.map( c => {
+      const js = `${c.plugin}/${c.extra.js}`
+      return load(js)
+    })))
+    .catch( (e) => console.error("Error loading hooks", e) )
+}
+
 class PluginCaller{
   constructor(pluginid, options = {}){
     this.pluginid = pluginid
@@ -240,5 +250,5 @@ export default {
   load, add_screen, do_screen, add_widget, do_widget, join_path,
   start, call, start_call_stop,
   install, PluginCaller,
-  screens, widgets,
+  screens, widgets, load_hooks
 }

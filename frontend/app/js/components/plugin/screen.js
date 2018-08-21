@@ -145,7 +145,7 @@ class ExternalScreen extends React.Component{
     const Screen = this.state.component
     if (Screen)
       content = (
-        <Screen {...props} service={service} {...this.state}/>
+        <Screen {...props} {...this.state}/>
       )
     else
       content = (

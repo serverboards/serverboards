@@ -10,7 +10,6 @@ export function add(name, hook){
 
 export function Hook(props){
   const current = hooks[props.name] || []
-  console.log("Show hooks", current)
   return (
     <React.Fragment>
       {current.map((Element,i) => (
@@ -21,5 +20,6 @@ export function Hook(props){
 }
 
 Hook.add = add
+Hook.hooks = hooks
 
 export default Hook
