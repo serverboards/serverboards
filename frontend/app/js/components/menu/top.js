@@ -33,14 +33,14 @@ class Top extends React.Component{
       <nav key={props.lang} className="ui serverboards top menu" id="top-menu" ref="el">
         {!props.sidebar && (
           <React.Fragment>
+            <a className="item" onClick={props.onToggleSidebar}>
+              <i className="ui bars big icon" style={{fontSize: 28}}/>
+            </a>
             <div className="item logo">
               <a href="#/">
                 <img src={logo}/>
               </a>
             </div>
-            <a className="item" onClick={props.onToggleSidebar}>
-              <i className="ui bars big icon" style={{fontSize: 28}}/>
-            </a>
             <span className="item separator"/>
           </React.Fragment>
         )}

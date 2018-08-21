@@ -30,13 +30,13 @@ function Sidebar(props){
   return (
     <div className="ui sidebar" id="sidebar">
       <div className="ui horizontal split area with padding">
-        <div className="expand">
-          <img src={blogo} className="logo"/>
-        </div>
-        <div className="ui right align central text">
+        <div className="ui central text">
           <a href="#_" onClick={ev => {ev.preventDefault(); props.onToggleSidebar()}}>
             <i className="ui bars big icon"/>
           </a>
+        </div>
+        <div className="expand">
+          <img src={blogo} className="logo"/>
         </div>
       </div>
       <div className="ui padding">
