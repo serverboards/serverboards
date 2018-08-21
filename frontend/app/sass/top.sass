@@ -44,8 +44,10 @@ $blacktext: #333
     width: 100%
     height: $top-height_5px
 
-  .right.menu :first-child
+  .right
     margin-left: auto
+  .right :first-child
+      margin-left: auto
 
   .item.separator
     border-right: 0px
@@ -162,8 +164,6 @@ $blacktext: #333
     font-weight: bold
   .item.teal
     color: $teal
-  .item.teal:hover
-    color: $teal !important
 
 
   .ui.popup.vertical.menu
@@ -185,6 +185,13 @@ $blacktext: #333
       background: #eee
     .ui.separator
       margin-top: 2px !important
+
+  .full.button.item
+    border-radius: 0
+    margin: 0
+    min-height: $top-height
+    +background-colors-hover
+
 .ui.top.menu.secondary
   height: $top-height-secondary
   min-height: $top-height-secondary

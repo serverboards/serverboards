@@ -18,6 +18,7 @@ import FutureLabel from './futurelabel'
 import Restricted from 'app/restricted'
 import CodeMirror from './codemirror'
 import SectionMenu from 'app/containers/menu'
+import Hooks from 'app/containers/hooks'
 
 const components = {
   Modal,
@@ -40,6 +41,7 @@ const components = {
   Restricted,
   CodeMirror,
   SectionMenu,
+  Hooks,
 }
 
 // Export as default, and as destructuring.
@@ -68,4 +70,5 @@ export {
   Restricted,
   CodeMirror,
   SectionMenu,
+  Hooks,
 }

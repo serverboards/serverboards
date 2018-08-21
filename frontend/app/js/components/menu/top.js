@@ -5,6 +5,7 @@ import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import { get_last_project } from 'app/utils/project'
 import {menu} from 'app/containers/menu'
+import Hook from 'app/containers/hooks'
 
 require("sass/top.sass")
 const icon_plugin = require("../../../imgs/007-icon-plugins.svg")
@@ -47,6 +48,9 @@ class Top extends React.Component{
         {Menu && (
           <Menu key={this.state.timeid} {...menu.props}/>
         )}
+        <div className="right">
+          <Hook name="topbar" section={section}/>
+        </div>
       </nav>
     )
   }
