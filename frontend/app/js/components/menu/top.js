@@ -4,6 +4,7 @@ import {goto} from 'app/utils/store'
 import Restricted from 'app/restricted'
 import i18n from 'app/utils/i18n'
 import { get_last_project } from 'app/utils/project'
+import {menu} from 'app/containers/menu'
 
 require("sass/top.sass")
 const icon_plugin = require("../../../imgs/007-icon-plugins.svg")
@@ -15,77 +16,23 @@ function notifications_color(notifications){
 }
 
 class Top extends React.Component{
-  constructor(props){ super(props)
+  constructor(props){
+    super(props)
+
     this.state = {
-      open_time: undefined,
-      show_popup: undefined,
+      timeid: 1
     }
   }
   componentDidMount(){
-    this.updateSemanticUIBehaviours()
+    menu.real = this
   }
-  componentDidUpdate(){
-    this.updateSemanticUIBehaviours()
-  }
-  updateSemanticUIBehaviours(){
-    let self = this
-    $(this.refs.notifications_item).popup({
-      popup: this.refs.notifications_menu,
-      on: 'hover',
-      hoverable: true,
-      position: 'bottom center',
-      lastResort: true,
-      delay: {
-        show: 100,
-        hide: 300
-      },
-      onVisible(){
-        self.setState({
-          open_time: new Date(),
-          show_popup: 'notifications'
-        })
-      },
-      onHide(){
-        if (self.state.show_popup == 'notifications')
-          self.setState({show_popup: undefined})
-      }
-    })
-    $(this.refs.actions).popup({
-      popup: this.refs.processes_menu,
-      on: 'hover',
-      hoverable: true,
-      position: 'bottom center',
-      lastResort: true,
-      onVisible(){
-        self.setState({show_popup: 'actions'})
-      },
-      onHide(){
-        if (self.state.show_popup == 'actions')
-          self.setState({show_popup: undefined})
-      }
-    })
-    $(this.refs.profile).popup({
-      popup: this.refs.profile_menu,
-      on: 'hover',
-      hoverable: true,
-      position: 'bottom right',
-      lastResort: 'bottom right'
-    })
-    $(this.refs.el).find("[data-content]").popup()
-    $(this.refs.settings).popup({
-      popup: this.refs.settings_menu,
-      on: 'hover',
-      hoverable: true,
-      position: 'bottom right',
-      lastResort: 'bottom right'
-    })
-  }
-  handleGotoProjects(){
-    get_last_project()
-      .then( project => project ? goto(`/project/${project}/`) : goto(`/`) )
+  componentWillUnmount(){
+    menu.real = null
   }
   render(){
-    const props=this.props
+    const {props} = this
+    const Menu = menu.menu
+    console.log("render top", menu, Menu)
     const section=props.section
     let logo=require("../../../imgs/favicon.png")
     return (
@@ -102,6 +49,9 @@ class Top extends React.Component{
             </a>
             <span className="item separator"/>
           </React.Fragment>
+        )}
+        {Menu && (
+          <Menu {...menu.props}/>
         )}
       </nav>
     )

@@ -11,8 +11,7 @@ import Legal from 'app/components/login/legal'
 import Sidebar from 'app/containers/menu/sidebar'
 
 
-function Main(props){
-  //console.log("Main component props %o", props.location)
+function modal(props){
   let modal = []
   if (props.location && props.location.state && props.location.state.modal){
     const mod = props.location.state
@@ -31,7 +30,11 @@ function Main(props){
       console.error("Error rendering modal: %o. Not found.", mod.modal)
     }
   }
+  return modal
+}
 
+
+function Main(props){
   var contents=[]
   if (!props.logged_in) {
     contents=(
@@ -54,7 +57,7 @@ function Main(props){
         <ErrorBoundary>
           <div className="ui main area" id="mainarea">
             <Router/>
-            {modal}
+            {modal(props)}
           </div>
         </ErrorBoundary>
       </div>

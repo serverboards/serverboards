@@ -1,7 +1,8 @@
 @import serverboards
 @import colors
-$top-height: 70px
-$top-height-secondary: 70px
+$top-height: 60px
+$top-height_5px: 54px
+$top-height-secondary: 60px
 $blacktext: #333
 
 .ui.top.menu
@@ -39,6 +40,9 @@ $blacktext: #333
   .menu
     align-items: center
     z-index: 9
+  > .menu
+    width: 100%
+    height: $top-height_5px
 
   .item.separator
     border-right: 0px
@@ -165,6 +169,19 @@ $blacktext: #333
     z-index: 100
     font-size: 14px
 
+  .tabular.menu
+    flex-grow: 0
+    width: auto
+    min-height: none !important
+    height: none !important
+    border-bottom: 0
+    margin-top: $top-height-secondary - 43px
+    .item
+      text-transform: none
+    .active
+      background: #eee
+    .ui.separator
+      margin-top: 2px !important
 .ui.top.menu.secondary
   height: $top-height-secondary
   min-height: $top-height-secondary
@@ -173,17 +190,6 @@ $blacktext: #333
     flex-grow: 1
     &.right
       justify-content: flex-end
-    > .tabular.menu
-      flex-grow: 0
-      width: auto
-      min-height: none !important
-      height: none !important
-      border-bottom: 0
-      margin-top: $top-height-secondary - 38px
-      .item
-        text-transform: none
-      .active
-        background: #eee
   .item.separator
     height: 39px
     &:hover

@@ -20,7 +20,7 @@ const SidebarModel=connect({
       section = pathname.replace( /\/(.*?)\/.*/ ,"$1")
 
     const project = state.project.current
-    console.log(pathname, section)
+    // console.log(pathname, section)
 
     return {
       user: state.auth.user,

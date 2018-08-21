@@ -17,6 +17,7 @@ import ExtractorsHelp from './board/extractorshelp'
 import FutureLabel from './futurelabel'
 import Restricted from 'app/restricted'
 import CodeMirror from './codemirror'
+import SectionMenu from 'app/containers/menu'
 
 const components = {
   Modal,
@@ -38,6 +39,7 @@ const components = {
   FutureLabel,
   Restricted,
   CodeMirror,
+  SectionMenu,
 }
 
 // Export as default, and as destructuring.
@@ -65,4 +67,5 @@ export {
   FutureLabel,
   Restricted,
   CodeMirror,
+  SectionMenu,
 }
