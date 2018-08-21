@@ -13,6 +13,7 @@ import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
 import templates from 'app/utils/templates'
 import {MarkdownPreview} from 'react-marked-markdown';
+import {SectionMenu} from 'app/components'
 
 function get_services_id(node){
   if (!node){
@@ -306,14 +307,12 @@ class Rules extends React.Component{
       </div>
     )
   }
-  componentDidMount(){
-    this.props.setSectionMenu( this.RuleMenu, { project: this.props.project.shortname } )
-  }
   render(){
     let rules = (this.props.rules || [])
     rules = sort_by_name(rules)
     return (
       <div className="ui expand two column grid grey background" style={{margin:0}}>
+        <SectionMenu menu={this.RuleMenu} project={this.props.project.shortname}/>
         <div className="ui column">
           <div className="ui round pane white background">
             <div className="ui attached top form">

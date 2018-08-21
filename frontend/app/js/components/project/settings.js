@@ -3,6 +3,7 @@ import SettingsAdd from 'app/containers/project/settings_add'
 import Loading from '../loading'
 import HoldButton from '../holdbutton'
 import i18n from 'app/utils/i18n'
+import {SectionMenu} from 'app/components'
 
 function SettingsMenu(props){
   return (
@@ -17,9 +18,6 @@ function SettingsMenu(props){
 
 
 class Settings extends React.Component{
-  componentDidMount(){
-    this.props.setSectionMenu(SettingsMenu, {onDelete: this.handleDelete.bind(this)})
-  }
   handleUpdate( project ){
     this.props.onUpdate( this.props.project.shortname, project )
   }
@@ -28,13 +26,15 @@ class Settings extends React.Component{
   }
   render(){
     return (
-      <SettingsAdd
-        title={`Edit ${this.props.project.name}`}
-        project={this.props.project}
-        edit={true}
-        onSubmit={this.handleUpdate.bind(this)}
-        >
-      </SettingsAdd>
+      <React.Fragment>
+        <SectionMenu menu={SettingsMenu} onDelete={this.handleDelete.bind(this)}/>
+        <SettingsAdd
+          title={`Edit ${this.props.project.name}`}
+          project={this.props.project}
+          edit={true}
+          onSubmit={this.handleUpdate.bind(this)}
+          />
+      </React.Fragment>
     )
   }
 }

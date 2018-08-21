@@ -127,14 +127,6 @@ class ProjectMenu extends React.Component{
 class Top extends React.Component{
   constructor(props){
     super(props)
-
-    this.state ={
-      section_menu: null,
-      section_menu_props: {}
-    }
-  }
-  componentDidMount(){
-    this.props.setHandlers( this.handleSetSectionMenu.bind(this), this.handleSetSectionMenuProps.bind(this) )
   }
   componentWillReceiveProps(nprops){
     const params = this.props.params
@@ -146,12 +138,6 @@ class Top extends React.Component{
   }
   componentWillUnmount(){
     this.props.setHandlers(null, null)
-  }
-  handleSetSectionMenu(section_menu, section_menu_props={}){
-    this.setState({section_menu, section_menu_props})
-  }
-  handleSetSectionMenuProps(newprops){
-    this.setState({section_menu_props: {...this.state.section_menu_props, ...newprops}})
   }
   handleChangeSection(shortname, uuid){
     if (uuid){

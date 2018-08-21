@@ -10,7 +10,7 @@ class Issues extends React.Component{
   render(){
     const props = this.props
     return (
-      <AllIssues project={props.project.shortname} setSectionMenu={props.setSectionMenu} setSectionMenuProps={props.setSectionMenuProps}/>
+      <AllIssues project={props.project.shortname}/>
     )
   }
 }
