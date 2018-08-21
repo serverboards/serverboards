@@ -42,42 +42,45 @@ function Sidebar(props){
       <div className="ui padding">
         <h2 className="ui teal header">URL header</h2>
       </div>
-      <div id="sections" className="ui vertical menu">
-        {props.sections.project.map( s => (
-          <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
-        ))}
-      </div>
-      <hr/>
-      <div id="sections" className="ui vertical menu grow">
-        {props.sections.global.map( s => (
-          <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
-        ))}
-      </div>
 
-      <hr/>
-      <div id="settings" className="ui vertical menu">
-        <a
-           className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
-           href="#_" style={{padding: "0 0 0 16px"}}
-           onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
-          <div className="ui horizontal split area">
-            <img src={props.avatar} className="ui avatar"/>
-            <div className="ui big teal text expand with padding vcentered">
-              {props.user && props.user.name}
-            </div>
-            <div className="ui right align">
-              <a href="#_" onClick={props.onLogout}>
-                <i className="ui power icon big"/>
-              </a>
-            </div>
-          </div>
-        </a>
+      <div className="ui scroll">
+        <div id="sections" className="ui vertical menu">
+          {props.sections.project.map( s => (
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
+          ))}
+        </div>
+        <hr/>
+        <div id="sections" className="ui vertical menu grow">
+          {props.sections.global.map( s => (
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
+          ))}
+        </div>
 
-        {props.sections.settings.map( s => (
-          <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
-        ))}
+        <hr/>
+        <div id="settings" className="ui vertical menu">
+          <a
+             className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
+             href="#_" style={{padding: "0 0 0 16px"}}
+             onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
+            <div className="ui horizontal split area">
+              <img src={props.avatar} className="ui avatar"/>
+              <div className="ui big teal text expand with padding vcentered">
+                {props.user && props.user.name}
+              </div>
+              <div className="ui right align">
+                <a href="#_" onClick={props.onLogout}>
+                  <i className="ui power icon big"/>
+                </a>
+              </div>
+            </div>
+          </a>
+
+          {props.sections.settings.map( s => (
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
+          ))}
+        </div>
       </div>
-      <div id="settings" className="ui padding">
+      <div className="ui padding">
         <img src={powered_by_serverboards}/>
       </div>
     </div>
