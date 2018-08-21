@@ -1,7 +1,7 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
-import {merge, to_keywordmap, match_traits} from 'app/utils'
+import {merge, to_keywordmap, match_traits, map_get} from 'app/utils'
 import PropTypes from 'prop-types';
 import {SectionMenu} from 'app/components'
 import store from 'app/utils/store'
@@ -45,12 +45,18 @@ class ExternalScreen extends React.Component{
       return match_traits({ has: s.traits, any: screen.traits })
     })
 
+    const service = map_get(this.props, ["data", "service"])
+    let current = undefined
+    if (service)
+      current = service.uuid
+
     this.state = {
       umount: undefined,
       component: undefined,
       screen,
       services,
-      current: undefined,
+      current,
+      service
     }
   }
   componentWillUnmount(){
@@ -151,7 +157,7 @@ class ExternalScreen extends React.Component{
       )
     return (
       <React.Fragment>
-        {this.state.screen.traits.length > 0 ? (
+        {(this.state.screen.traits.length > 0) && !props.data.service ? (
           <SectionMenu
             menu={SelectService}
             onService={this.handleService.bind(this)}
