@@ -2,7 +2,6 @@ import React from 'react';
 
 import Top from 'app/containers/menu/top'
 import Login from 'app/containers/login.js'
-import Console from 'app/containers/console.js'
 import FlashMessageList from 'app/containers/flashmessages.js'
 import Router from 'app/router'
 import get_modal from './modalfactory'
@@ -66,7 +65,6 @@ function Main(props){
     <div>
       <Piwik/>
       <FlashMessageList/>
-      <Console/>
       {contents}
     </div>
   )
