@@ -33,13 +33,15 @@ const SidebarModel=connect({
       lang: state.auth.lang,
       pathname,
       sections: {
-        main: [
+        project: [
           {id: "dashboards", label: "Dashboards", goto: "/"},
           {id: "services", label: "Services", goto: `/project/${project}/services/`},
-          {id: "issues", label: "Issues", goto: `/project/${project}/issues/`},
           {id: "rules", label: "Rules", goto: `/project/${project}/rules_v2/`},
-          {id: "notifications", label: "Notifications", goto: "/notifications/"},
           {id: "project_settings", label: "Project Settings", goto: `/project/${project}/settings/`},
+        ],
+        global: [
+          {id: "issues", label: "Issues", goto: `/project/${project}/issues/`},
+          {id: "notifications", label: "Notifications", goto: "/notifications/"},
         ],
         settings: [
           {id: "settings", label: "Settings Overview", goto: "/settings/overview"},
