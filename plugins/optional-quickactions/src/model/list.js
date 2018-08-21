@@ -2,7 +2,7 @@ const {React, plugin, Flash} = Serverboards
 import View from '../views/list'
 import TopMenu from '../views/topmenu'
 import EditAction from './editaction'
-const {Modal} = Serverboards.Components.Modal
+const {Modal, SectionMenu} = Serverboards.Components
 const {merge} = Serverboards.utils
 
 const extra={
@@ -29,12 +29,6 @@ class ListModel extends React.Component{
       console.log("got actions: %o", actions)
       this.setState({actions})
     })
-    console.log("Add top menu")
-    this.props.setSectionMenu(TopMenu, {onAddQuickAction: this.handleOpenAddAction.bind(this)})
-  }
-  componentWillUnmount(){
-    console.log("Remove top menu")
-    this.props.setSectionMenu(null)
   }
   handleRunAction(a){
     if (a.confirmation){
@@ -92,11 +86,14 @@ class ListModel extends React.Component{
         )
     }
     return (
-      <View {...this.props} {...this.state}
-        onRunAction={this.handleRunAction.bind(this)}
-        onConfigureAction={this.handleConfigureAction.bind(this)}
-        onOpenAddAction={this.handleOpenAddAction.bind(this)}
-        />
+      <React.Fragment>
+        <SectionMenu menu={TopMenu} onAddQuickAction={this.handleOpenAddAction.bind(this)}/>
+        <View {...this.props} {...this.state}
+          onRunAction={this.handleRunAction.bind(this)}
+          onConfigureAction={this.handleConfigureAction.bind(this)}
+          onOpenAddAction={this.handleOpenAddAction.bind(this)}
+          />
+      </React.Fragment>
     )
   }
 }

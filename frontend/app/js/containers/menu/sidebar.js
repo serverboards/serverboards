@@ -6,7 +6,8 @@ import { get_issues_count_since } from 'app/actions/issues'
 import event from 'app/utils/event'
 import connect from 'app/containers/connect'
 import { action_ps } from 'app/actions/action'
-import { toggle_menu, toggle_sidebar } from 'app/actions/menu'
+import { toggle_menu, toggle_sidebar, update_screens } from 'app/actions/menu'
+import { i18n_nop } from 'app/utils/i18n'
 
 const SidebarModel=connect({
   state: (state) => {
@@ -22,6 +23,18 @@ const SidebarModel=connect({
     const project = state.project.current
     // console.log(pathname, section)
 
+    const screens = state.menu.screens.map( s => ({
+      id: s.id,
+      label: s.name,
+      perm: s.perms,
+      traits: s.traits,
+      goto: `/project/${project}/${s.id}/`,
+    }))
+    const project_screens = screens
+      .filter( s => (s.traits || []).length > 0 )
+    const global_screens = screens
+      .filter( s => (s.traits || []).length == 0 )
+
     return {
       user: state.auth.user,
       avatar: state.auth.avatar,
@@ -35,22 +48,24 @@ const SidebarModel=connect({
       pathname,
       sections: {
         project: [
-          {id: "dashboards", label: "Dashboards", goto: "/"},
-          {id: "services", label: "Services", goto: `/project/${project}/services/`, perm:"service.get"},
-          {id: "rules", label: "Rules", goto: `/project/${project}/rules_v2/`, perm:"rules.view"},
-          {id: "project_settings", label: "Project Settings", goto: `/project/${project}/settings/`, perm:"project.update"},
+          {id: "dashboard", label: i18n_nop("Dashboards"), goto: `/project/${project}/`},
+          {id: "services", label: i18n_nop("Services"), goto: `/project/${project}/services/`, perm:"service.get"},
+          {id: "rules", label: i18n_nop("Rules"), goto: `/project/${project}/rules_v2/`, perm:"rules.view"},
+          ...project_screens,
+          {id: "project_settings", label: i18n_nop("Project Settings"), goto: `/project/${project}/settings/`, perm:"project.update"},
         ],
         global: [
-          {id: "issues", label: "Issues", goto: `/project/${project}/issues/`, perm:"issues.view"},
-          {id: "notifications", label: "Notifications", goto: "/notifications/list", perm:"notifications.list"},
+          {id: "issues", label: i18n_nop("Issues"), goto: `/project/${project}/issues/`, perm:"issues.view"},
+          {id: "notifications", label: i18n_nop("Notifications"), goto: "/notifications/list", perm:"notifications.list"},
+          ...global_screens,
         ],
         settings: [
-          {id: "settings", label: "Settings Overview", goto: "/settings/overview", perm:"settings.view"},
-          {id: "users", label: "Users", goto: "/settings/users", perm:"auth.list"},
-          {id: "groups", label: "Groups & Permissions", goto: "/settings/groups", perm:"auth.list AND auth.manage_groups"},
-          {id: "logs", label: "Logs", goto: "/settings/logs", perm:"logs.view"},
-          {id: "packages", label: "Packages", goto: "/settings/plugins", perm:"plugin.catalog"},
-          {id: "system", label: "System Settings", goto: "/settings/system", perm:"settings.view"},
+          {id: "settings", label: i18n_nop("Settings Overview"), goto: "/settings/overview", perm:"settings.view"},
+          {id: "users", label: i18n_nop("Users"), goto: "/settings/users", perm:"auth.list"},
+          {id: "groups", label: i18n_nop("Groups & Permissions"), goto: "/settings/groups", perm:"auth.list AND auth.manage_groups"},
+          {id: "logs", label: i18n_nop("Logs"), goto: "/settings/logs", perm:"logs.view"},
+          {id: "packages", label: i18n_nop("Packages"), goto: "/settings/plugins", perm:"plugin.catalog"},
+          {id: "system", label: i18n_nop("System Settings"), goto: "/settings/system", perm:"settings.view"},
         ]
       }
     }
@@ -61,15 +76,7 @@ const SidebarModel=connect({
     onCloseMenu: () => dispatch( toggle_menu('') ),
     onToggleSidebar: () => dispatch( toggle_sidebar() ),
   }),
-  subscriptions: [
-    "action.started","action.updated","action.stopped",
-    "notifications.new","notifications.update",
-    "issue.created", "issue.updated"
-  ],
-  store_enter: [action_ps, notifications_unread, () => {
-    const timestamp = localStorage.issues_check_timestamp || "1970-01-01"
-    return get_issues_count_since(timestamp)
-  }]
+  store_enter: [ update_screens ]
 })(SidebarView)
 
 const MaybeSidebar = connect({
