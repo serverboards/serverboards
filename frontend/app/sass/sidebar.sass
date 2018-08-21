@@ -7,6 +7,7 @@ $background:  #222
 #chrome #sidebar.ui.sidebar
   background: $background
 
+  overflow: hidden !important
   visibility: visible
   position: relative
   top: auto
@@ -28,13 +29,18 @@ $background:  #222
     width: 100%
     margin-top: 0
     .item
+      display: block
+      position: relative
       border-radius: 0
       color: white
       border-left: solid 5px $background
-      line-height: 0.5
+      line-height: 3
+      min-height: 3em
+      padding: 0 10px
       &.selected
         border-left: solid 5px $teal
       &:hover
+        border-left: solid 5px $teal
         background: #333
 
   a
@@ -58,3 +64,14 @@ $background:  #222
     height: 40px
     width: 40px
     border-radius: 40px
+
+
+  .ui.scroll
+    display: flex
+    flex-direction: column
+    .ui.vertical.menu
+      display: flex
+      flex-direction: column
+      display: block
+      height: auto
+      margin: 0 !important

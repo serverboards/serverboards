@@ -31,6 +31,7 @@ const SidebarModel=connect({
       section,
       new_issues: state.issues.new_issues,
       lang: state.auth.lang,
+      project,
       pathname,
       sections: {
         project: [

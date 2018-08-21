@@ -40,24 +40,24 @@ function Sidebar(props){
         </div>
       </div>
       <div className="ui padding">
-        <h2 className="ui teal header">URL header</h2>
+        <h2 className="ui teal header">{props.project}</h2>
       </div>
 
-      <div className="ui scroll">
-        <div id="sections" className="ui vertical menu">
+      <div className="ui expand scroll">
+        <div className="ui vertical menu">
           {props.sections.project.map( s => (
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
           ))}
         </div>
         <hr/>
-        <div id="sections" className="ui vertical menu grow">
+        <div className="ui vertical menu grow">
           {props.sections.global.map( s => (
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
           ))}
         </div>
 
         <hr/>
-        <div id="settings" className="ui vertical menu">
+        <div className="ui vertical menu">
           <a
              className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
              href="#_" style={{padding: "0 0 0 16px"}}
