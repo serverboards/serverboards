@@ -23,18 +23,32 @@ export function set_props(new_props){
  * The menu will be shown at the main chrome.
  */
 export class SectionMenu extends React.Component {
+  constructor(props){
+    super(props)
+
+    this.state = {
+      inline: false,
+    }
+  }
   componentDidMount(){
     // console.log("set menu", {...this.props})
-    set_menu( this.props.menu, this.props )
+    if (menu.menu)
+      this.setState({inline: true})
+    else
+      set_menu( this.props.menu, this.props )
   }
   componentWillUnmount(){
     // console.log("unset menu")
-    set_menu( null )
+    if (!this.state.inline)
+      set_menu( null )
   }
   UNSAFE_componentWillReceiveProps(nextprops){
     set_props(nextprops)
   }
   render(){
+    if (this.state.inline){
+      return this.props.menu(this.props)
+    }
     return null
   }
 }
