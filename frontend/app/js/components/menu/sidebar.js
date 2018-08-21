@@ -63,7 +63,7 @@ function Sidebar(props){
           <div className="ui horizontal split area">
             <img src={props.avatar} className="ui avatar"/>
             <div className="ui big teal text expand with padding vcentered">
-              {props.user.name}
+              {props.user && props.user.name}
             </div>
             <div className="ui right align">
               <a href="#_" onClick={props.onLogout}>
