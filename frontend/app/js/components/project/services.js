@@ -1,6 +1,5 @@
 import React from 'react'
 import Loading from '../loading'
-import Command from 'app/utils/command'
 import ServicesView from 'app/containers/service'
 import ServiceDetails from 'app/components/service/details/modal'
 import Restricted from 'app/restricted'
@@ -8,6 +7,7 @@ import { set_modal } from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import AddButton from './addbutton'
 import PropTypes from 'prop-types'
+import {SectionMenu} from 'app/components'
 
 function service_sort(a,b){
   return (a.name || "").localeCompare( b.name )
@@ -23,16 +23,6 @@ class Services extends React.Component{
   setListMode(mode){
     localStorage.service_view_mode=mode
     this.setState({mode})
-  }
-  componentDidMount(){
-    let self = this
-    this.props.setSectionMenu(this.render_menu.bind(this))
-    Command.add_command_search("sbds-services", (Q, context) => ([
-        {id: 'add-service', title: i18n("Add Service"), description: i18n("Add a new service"), run: () => self.openAddServiceModal()},
-      ]), 2)
-  }
-  componentWillUnmount(){
-    Command.remove_command_search("sbds-services")
   }
   service_description(tpe){
      const desc=this.props.service_catalog.find((d) => d.type == tpe)
@@ -63,6 +53,7 @@ class Services extends React.Component{
       )
     return (
       <div className="ui expand">
+        <SectionMenu menu={this.render_menu.bind(this)} {...state}/>
         <ServicesView mode={state.mode} services={props.services.sort(service_sort)} project={this.props.project}/>
 
         <AddButton project={this.props.project.shortname}/>

@@ -11,6 +11,7 @@ import Empty from './empty'
 import Tip from 'app/components/tip'
 import AddIssue from 'app/containers/issues/add'
 import IssueDetails from 'app/containers/issues/details'
+import {SectionMenu} from 'app/components'
 
 import 'sass/issues.sass'
 
@@ -25,6 +26,39 @@ function tag_color(status){
 }
 
 const img1 = require('imgs/026-illustration-nocontent.svg')
+
+function IssuesMenu(props){
+  if (!props) props={}
+  console.log("Issue menu", props)
+  const filter = props.filter || []
+  return (
+    <div className="menu">
+      <div className="ui attached tabular menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
+        <a
+          className={`item ${ filter.indexOf("status:open")>=0 ? "active" : ""}`}
+          onClick={() => props.updateFilter("status:open")}>
+            {i18n("Open")}&nbsp;<span className="ui meta"> ({props.open_count})</span>
+        </a>
+        <a
+          className={`item ${ filter.indexOf("status:closed")>=0 ? "active" : ""}`}
+          onClick={() => props.updateFilter("status:closed")}>
+            {i18n("Closed")}&nbsp;<span className="ui meta"> ({props.closed_count})</span>
+        </a>
+        <a
+          className={`item ${ filter.indexOf("status:closed")<0 && filter.indexOf("status:open")<0 ? "active" : ""}`}
+          onClick={() => props.updateFilter("-status:")}>
+            {i18n("All")}&nbsp;<span className="ui meta">({props.all_count})</span>
+        </a>
+      </div>
+      <div className="item stretch"/>
+      <div className="item">
+        <button className="ui button teal" onClick={() => props.setState({selected: "add"})}>
+          {i18n("Add issue")}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function EmptyFilter(props){
   return (
@@ -106,48 +140,13 @@ class Issues extends React.Component{
     }
   }
   componentDidMount(){
-    if (this.props.setSectionMenu)
-      this.props.setSectionMenu(this.render_menu, {...this.props, setState: this.setState.bind(this)})
     if (this.props.params && this.props.params.id)
       this.setState({selected: this.props.params.id})
   }
   componentWillReceiveProps(nprops){
-    if (this.props.setSectionMenuProps)
-      this.props.setSectionMenuProps({...nprops, setState: this.setState.bind(this)})
     if (nprops.params && nprops.params.id != this.props.params.id){
       this.setState({selected: nprops.params.id})
     }
-  }
-  render_menu(props){
-    if (!props) props={}
-    const filter = props.filter || []
-    return (
-      <div className="menu">
-        <div className="ui attached tabular menu" style={{paddingLeft: 0, marginLeft: "4em"}}>
-          <a
-            className={`item ${ filter.indexOf("status:open")>=0 ? "active" : ""}`}
-            onClick={() => props.updateFilter("status:open")}>
-              {i18n("Open")}&nbsp;<span className="ui meta"> ({props.open_count})</span>
-          </a>
-          <a
-            className={`item ${ filter.indexOf("status:closed")>=0 ? "active" : ""}`}
-            onClick={() => props.updateFilter("status:closed")}>
-              {i18n("Closed")}&nbsp;<span className="ui meta"> ({props.closed_count})</span>
-          </a>
-          <a
-            className={`item ${ filter.indexOf("status:closed")<0 && filter.indexOf("status:open")<0 ? "active" : ""}`}
-            onClick={() => props.updateFilter("-status:")}>
-              {i18n("All")}&nbsp;<span className="ui meta">({props.all_count})</span>
-          </a>
-        </div>
-        <div className="item stretch"/>
-        <div className="item">
-          <button className="ui button teal" onClick={() => props.setState({selected: "add"})}>
-            {i18n("Add issue")}
-          </button>
-        </div>
-      </div>
-    )
   }
   get_current_section(selected){
     if (!selected)
@@ -180,12 +179,7 @@ class Issues extends React.Component{
 
     return (
       <div className="ui split area vertical" style={{flexDirection:"column", height: "100%"}} id="issues">
-        {props.setSectionMenu ? null :  (
-          <div className="ui top secondary menu" style={{paddingBottom: 0, zIndex: 9}}>
-            <h3 className="ui header">{i18n("Issues")}</h3>
-            {this.render_menu({...props, setState: this.setState.bind(this)})}
-          </div>
-        )}
+        <SectionMenu menu={IssuesMenu} {...props} setState={this.setState.bind(this)}/>
         <div className="ui expand two column grid grey background" style={{margin:0, flexGrow: 1, margin: 0}}>
           <div className="ui column">
             <div className="ui round pane white background">

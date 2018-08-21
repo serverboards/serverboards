@@ -9,12 +9,6 @@ import {menu} from 'app/containers/menu'
 require("sass/top.sass")
 const icon_plugin = require("../../../imgs/007-icon-plugins.svg")
 
-function notifications_color(notifications){
-  if (!notifications || notifications.length==0)
-    return ""
-  return "blue"
-}
-
 class Top extends React.Component{
   constructor(props){
     super(props)
@@ -32,7 +26,7 @@ class Top extends React.Component{
   render(){
     const {props} = this
     const Menu = menu.menu
-    console.log("render top", menu, Menu)
+    // console.log("render top", menu, Menu)
     const section=props.section
     let logo=require("../../../imgs/favicon.png")
     return (
@@ -51,7 +45,7 @@ class Top extends React.Component{
           </React.Fragment>
         )}
         {Menu && (
-          <Menu {...menu.props}/>
+          <Menu key={this.state.timeid} {...menu.props}/>
         )}
       </nav>
     )
