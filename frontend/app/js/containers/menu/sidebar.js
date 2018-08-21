@@ -1,12 +1,12 @@
 import React from 'react'
 import { logout } from 'app/actions/auth'
-import SidebarView from 'app/components/sidebar'
+import SidebarView from 'app/components/menu/sidebar'
 import { notifications_unread } from 'app/actions/notifications'
 import { get_issues_count_since } from 'app/actions/issues'
 import event from 'app/utils/event'
 import connect from 'app/containers/connect'
 import { action_ps } from 'app/actions/action'
-import { toggle_menu, toggle_sidebar } from 'app/actions/top'
+import { toggle_menu, toggle_sidebar } from 'app/actions/menu'
 
 const SidebarModel=connect({
   state: (state) => {
@@ -25,7 +25,7 @@ const SidebarModel=connect({
     return {
       user: state.auth.user,
       avatar: state.auth.avatar,
-      menu: state.top.menu,
+      menu: state.menu.menu,
       actions: state.action.actions,
       notifications: state.notifications.unread,
       section,
@@ -73,7 +73,7 @@ const SidebarModel=connect({
 
 const MaybeSidebar = connect({
   state: (state) => ({
-    sidebar: state.top.sidebar
+    sidebar: state.menu.sidebar
   })
 })( ({sidebar}) => sidebar ? (
   <SidebarModel/>

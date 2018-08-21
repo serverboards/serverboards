@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Top from 'app/containers/top'
+import Top from 'app/containers/menu/top'
 import Login from 'app/containers/login.js'
 import Console from 'app/containers/console.js'
 import FlashMessageList from 'app/containers/flashmessages.js'
@@ -9,7 +9,7 @@ import get_modal from './modalfactory'
 import Piwik from 'app/containers/piwik.js'
 import {ErrorBoundary} from 'app/components/error'
 import Legal from 'app/components/login/legal'
-import Sidebar from 'app/containers/sidebar'
+import Sidebar from 'app/containers/menu/sidebar'
 
 
 function Main(props){
