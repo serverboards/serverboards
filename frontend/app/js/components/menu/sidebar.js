@@ -1,5 +1,7 @@
 import React from 'react'
 import {goto} from 'app/utils/store'
+import Restricted from 'app/restricted'
+
 
 require('sass/sidebar.sass')
 
@@ -15,13 +17,15 @@ function goto_or_new_tab(ev, path){
 
 function Item(props){
   return (
-    <a
-      className={`ui ${props.selected ? "selected" : ""} item`}
-      href={`#${props.goto}`}
-      onClick={ (ev) => goto_or_new_tab(ev, props.goto) }
-      >
-      {props.label}
-    </a>
+    <Restricted perm={props.perms || ""}>
+      <a
+        className={`ui ${props.selected ? "selected" : ""} item`}
+        href={`#${props.goto}`}
+        onClick={ (ev) => goto_or_new_tab(ev, props.goto) }
+        >
+        {props.label}
+      </a>
+    </Restricted>
   )
 }
 
@@ -58,22 +62,24 @@ function Sidebar(props){
 
         <hr/>
         <div className="ui vertical menu">
-          <a
-             className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
-             href="#_" style={{padding: "0 0 0 16px"}}
-             onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
-            <div className="ui horizontal split area">
-              <img src={props.avatar} className="ui avatar"/>
-              <div className="ui big teal text expand with padding vcentered">
-                {props.user && props.user.name}
+          <div className="ui horizontal split area ">
+            <a
+               className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
+               href="#_" style={{padding: "0 0 0 16px"}}
+               onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
+              <div className="ui horizontal split area">
+                <img src={props.avatar} className="ui avatar"/>
+                <div className="ui big teal text expand with padding vcentered">
+                  {props.user && props.user.name}
+                </div>
               </div>
-              <div className="ui right align">
-                <a href="#_" onClick={props.onLogout}>
-                  <i className="ui power icon big"/>
-                </a>
-              </div>
+            </a>
+            <div className="ui right align item no-border">
+              <a href="#_" onClick={props.onLogout}>
+                <i className="ui power icon big"/>
+              </a>
             </div>
-          </a>
+          </div>
 
           {props.sections.settings.map( s => (
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>

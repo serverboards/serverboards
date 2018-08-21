@@ -36,21 +36,21 @@ const SidebarModel=connect({
       sections: {
         project: [
           {id: "dashboards", label: "Dashboards", goto: "/"},
-          {id: "services", label: "Services", goto: `/project/${project}/services/`},
-          {id: "rules", label: "Rules", goto: `/project/${project}/rules_v2/`},
-          {id: "project_settings", label: "Project Settings", goto: `/project/${project}/settings/`},
+          {id: "services", label: "Services", goto: `/project/${project}/services/`, perm:"service.get"},
+          {id: "rules", label: "Rules", goto: `/project/${project}/rules_v2/`, perm:"rules.view"},
+          {id: "project_settings", label: "Project Settings", goto: `/project/${project}/settings/`, perm:"project.update"},
         ],
         global: [
-          {id: "issues", label: "Issues", goto: `/project/${project}/issues/`},
-          {id: "notifications", label: "Notifications", goto: "/notifications/list"},
+          {id: "issues", label: "Issues", goto: `/project/${project}/issues/`, perm:"issues.view"},
+          {id: "notifications", label: "Notifications", goto: "/notifications/list", perm:"notifications.list"},
         ],
         settings: [
-          {id: "settings", label: "Settings Overview", goto: "/settings/overview"},
-          {id: "users", label: "Users", goto: "/settings/users"},
-          {id: "groups", label: "Groups & Permissions", goto: "/settings/groups"},
-          {id: "logs", label: "Logs", goto: "/settings/logs"},
-          {id: "packages", label: "Packages", goto: "/settings/plugins"},
-          {id: "system", label: "System Settings", goto: "/settings/system"},
+          {id: "settings", label: "Settings Overview", goto: "/settings/overview", perm:"settings.view"},
+          {id: "users", label: "Users", goto: "/settings/users", perm:"auth.list"},
+          {id: "groups", label: "Groups & Permissions", goto: "/settings/groups", perm:"auth.list AND auth.manage_groups"},
+          {id: "logs", label: "Logs", goto: "/settings/logs", perm:"logs.view"},
+          {id: "packages", label: "Packages", goto: "/settings/plugins", perm:"plugin.catalog"},
+          {id: "system", label: "System Settings", goto: "/settings/system", perm:"settings.view"},
         ]
       }
     }
