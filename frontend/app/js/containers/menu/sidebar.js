@@ -23,17 +23,19 @@ const SidebarModel=connect({
     const project = state.project.current
     // console.log(pathname, section)
 
-    const screens = state.menu.screens.map( s => ({
-      id: s.id,
-      label: s.name,
-      perm: s.perms,
-      traits: s.traits,
-      goto: `/project/${project}/${s.id}/`,
-    }))
+    const screens = state.menu.screens
+      .filter( s => s.traits.indexOf("hidden") <0 )
+      .map( s => ({
+        id: s.id,
+        label: s.name,
+        perm: s.perms,
+        traits: s.traits,
+        goto: `/project/${project}/${s.id}/`,
+      }))
     const project_screens = screens
-      .filter( s => (s.traits || []).length > 0 )
+      .filter( s => s.traits.indexOf("global")<0 )
     const global_screens = screens
-      .filter( s => (s.traits || []).length == 0 )
+      .filter( s => s.traits.indexOf("global")>=0 )
 
     return {
       user: state.auth.user,
