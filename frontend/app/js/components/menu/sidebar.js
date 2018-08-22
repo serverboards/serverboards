@@ -48,20 +48,20 @@ function Sidebar(props){
       </div>
 
       <div className="ui expand scroll">
-        <div className="ui vertical menu">
+        <div className="ui vertical split area">
           {props.sections.project.map( s => (
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
           ))}
         </div>
         <hr/>
-        <div className="ui vertical menu grow">
+        <div className="ui vertical split area grow">
           {props.sections.global.map( s => (
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
           ))}
         </div>
 
         <hr/>
-        <div className="ui vertical menu">
+        <div className="ui vertical split area">
           <div className="ui horizontal split area ">
             <a
                className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
