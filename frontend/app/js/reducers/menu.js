@@ -1,4 +1,9 @@
-const default_state = {menu: null, user: {}, sidebar: true, screens: []}
+const default_state = {
+  menu: null,
+  user: {},
+  sidebar: localStorage.show_sidebar == "true",
+  screens: []
+}
 
 function top(state=default_state, action){
   switch(action.type){
@@ -9,6 +14,8 @@ function top(state=default_state, action){
         state={...state, menu: action.menu}
       break;
     case 'TOP_TOGGLE_SIDEBAR':
+      // I store already modified
+      localStorage.show_sidebar = state.sidebar ? "false" : "true"
       state={...state, sidebar: !state.sidebar}
       break;
     case 'TOP_UPDATE_SCREENS':
