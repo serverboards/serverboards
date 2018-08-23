@@ -64,7 +64,9 @@ class ServerboardsRouter extends React.Component{
           </Route>
 
           <Route path="/s/">
-            <Route path=":plugin/:component" component={PluginScreen}/>
+            <Route path=":plugin/:component" component={(props) => (
+              <PluginScreen key={props.location.pathname} {...props}/>
+            )}/>
           </Route>
         </Router>
       )

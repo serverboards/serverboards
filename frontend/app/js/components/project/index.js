@@ -43,7 +43,9 @@ class Project extends React.Component{
       const plugin_component_id = `${section}/${subsection}`
       const screen = props.project.screens.find( s => s.id == plugin_component_id) || {}
       Section = (props) => (
-        <PluginScreen {...props}
+        <PluginScreen
+          key={plugin_component_id}
+          {...props}
           data={data}
           plugin={section}
           component={subsection}
