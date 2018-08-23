@@ -40,7 +40,7 @@ class ExternalScreen extends React.Component{
 
     // to avoid one method.. feels dirty, but its the right thing to do
     const state = store.getState()
-    const screen = state.menu.screens.find( s => s.id == screen_id )
+    const screen = state.menu.screens.find( s => s.id == screen_id ) || {}
     const services = state.project.project.services.filter( s => {
       return match_traits({ has: s.traits, any: screen.traits })
     })
@@ -50,13 +50,16 @@ class ExternalScreen extends React.Component{
     if (service)
       current = service.uuid
 
+    const show_menu = (screen.traits.length > 0) && (screen.traits.indexOf("global") == -1)
+
     this.state = {
       umount: undefined,
       component: undefined,
       screen,
       services,
       current,
-      service
+      service,
+      show_menu,
     }
   }
   componentWillUnmount(){
@@ -157,7 +160,7 @@ class ExternalScreen extends React.Component{
       )
     return (
       <React.Fragment>
-        {(this.state.screen.traits.length > 0) && !props.data.service ? (
+        {(this.state.show_menu > 0) && !props.data.service ? (
           <SectionMenu
             menu={SelectService}
             onService={this.handleService.bind(this)}

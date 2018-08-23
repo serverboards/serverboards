@@ -36,6 +36,10 @@ const SidebarModel=connect({
       .filter( s => s.traits.indexOf("global")<0 )
     const global_screens = screens
       .filter( s => s.traits.indexOf("global")>=0 )
+      .map( s => {
+        s.goto = `/s/${s.id}/`
+        return s
+      })
 
     return {
       user: state.auth.user,
