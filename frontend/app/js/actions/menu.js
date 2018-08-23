@@ -6,6 +6,12 @@ export function toggle_sidebar(){
   }
 }
 
+export function toggle_project_selector(){
+  return {
+    type: 'TOP_TOGGLE_PROJECT_SELECTOR',
+  }
+}
+
 export function toggle_menu(menu=''){
   return {
     type: "TOP_TOGGLE_MENU",

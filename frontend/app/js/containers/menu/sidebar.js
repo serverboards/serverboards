@@ -6,7 +6,7 @@ import { get_issues_count_since } from 'app/actions/issues'
 import event from 'app/utils/event'
 import connect from 'app/containers/connect'
 import { action_ps } from 'app/actions/action'
-import { toggle_menu, toggle_sidebar, update_screens } from 'app/actions/menu'
+import { toggle_menu, toggle_sidebar, toggle_project_selector, update_screens } from 'app/actions/menu'
 import { i18n_nop } from 'app/utils/i18n'
 
 const SidebarModel=connect({
@@ -52,6 +52,7 @@ const SidebarModel=connect({
       lang: state.auth.lang,
       project,
       pathname,
+      project_selector: state.menu.project_selector,
       sections: {
         project: [
           {id: "dashboard", label: i18n_nop("Dashboards"), goto: `/project/${project}/`},
@@ -81,6 +82,7 @@ const SidebarModel=connect({
     toggleMenu: (menu) => dispatch(  toggle_menu(menu) ),
     onCloseMenu: () => dispatch( toggle_menu('') ),
     onToggleSidebar: () => dispatch( toggle_sidebar() ),
+    onToggleProjectSelector: () => dispatch( toggle_project_selector() ),
   }),
   store_enter: [ update_screens ]
 })(SidebarView)

@@ -1,10 +1,9 @@
 $top-height: 70px
 $text-color: #acb5b5
-$teal: #00B5AD
 $background:  #222
+@import colors
 
-
-#chrome #sidebar.ui.sidebar
+#chrome .ui.sidebar
   background: $background
 
   overflow: hidden !important
@@ -28,28 +27,33 @@ $background:  #222
     background: none
     width: 100%
     margin-top: 0
-    .item
-      display: block
-      position: relative
-      border-radius: 0
-      color: white
-      border-left: solid 5px $background
-      line-height: 3
-      min-height: 3em
-      padding: 0 10px
-      &.selected
-        border-left: solid 5px $teal
-      &:hover
-        border-left: solid 5px $teal
-        background: #333
-      &.no-border
-        border-left: 0 !important
+  .item
+    display: block
+    position: relative
+    border-radius: 0
+    color: white
+    border-left: solid 5px $background
+    line-height: 3
+    min-height: 3em
+    padding: 0 10px
+    &.selected
+      border-left: solid 5px $teal
+    &:hover
+      border-left: solid 5px $teal
+      background: #333
+    &.no.border
+      border-left: 0 !important
 
   a
     color: white
     cursor: pointer
+    outline: 0
     &:hover
       color: $teal
+    &:focus
+      background: #000 !important
+      border-left: solid 5px $blue
+      font-weight: bold
 
   .ui.split.area.horizontal
     height: 65px
@@ -73,6 +77,10 @@ $background:  #222
       height: auto
       margin: 0 !important
 
+  .ui.button.full
+    border-radius: 0
+    padding: 30px 0
+
   #logo-area
     padding: 5px 10px
     #hamburguer
@@ -83,3 +91,7 @@ $background:  #222
       left: 10px
       img
         height: 45px
+
+  #projectname
+    .ui.header
+      margin: 0

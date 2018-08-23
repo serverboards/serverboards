@@ -2,7 +2,8 @@ const default_state = {
   menu: null,
   user: {},
   sidebar: localStorage.show_sidebar == "true",
-  screens: []
+  screens: [],
+  project_selector: true,
 }
 
 function top(state=default_state, action){
@@ -17,6 +18,9 @@ function top(state=default_state, action){
       // I store already modified
       localStorage.show_sidebar = state.sidebar ? "false" : "true"
       state={...state, sidebar: !state.sidebar}
+      break;
+    case 'TOP_TOGGLE_PROJECT_SELECTOR':
+      state={...state, project_selector: !state.project_selector}
       break;
     case 'TOP_UPDATE_SCREENS':
       state = {...state, screens: action.payload}

@@ -412,7 +412,7 @@ body .ui.grid
 
 #chrome
   display: grid
-  grid-template-areas: "sidebar top" "sidebar main"
+  grid-template-areas: "sidebar top top" "sidebar projects main"
   grid-template-rows: 60px auto
   grid-template-columns: auto 1fr
   width: 100vw
@@ -420,6 +420,9 @@ body .ui.grid
   #mainarea
     grid-area: main
     overflow: auto
+    overflow: auto
+  #projects
+    grid-area: projects
   #sidebar
     grid-area: sidebar
   #top-menu

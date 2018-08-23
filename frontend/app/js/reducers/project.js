@@ -105,8 +105,9 @@ function project(state=default_state, action){
         if (!state.project && action.projects.length > 0){ // Set the default one
           let projectname = localStorage.last_project
           let project = undefined
+          let current
           if (projectname){
-            for (prj of action.projects){
+            for (let prj of action.projects){
               if (prj.shortname == projectname){
                 current = projectname
                 project = prj
