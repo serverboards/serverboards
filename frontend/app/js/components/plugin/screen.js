@@ -40,8 +40,8 @@ class ExternalScreen extends React.Component{
 
     // to avoid one method.. feels dirty, but its the right thing to do
     const state = store.getState()
-    const screen = state.menu.screens.find( s => s.id == screen_id ) || {}
-    const services = state.project.project.services.filter( s => {
+    const screen = state.menu.screens.find( s => s.id == screen_id ) || {traits: []}
+    const services = map_get(state, ["project", "project", "services"], []).filter( s => {
       return match_traits({ has: s.traits, any: screen.traits })
     })
 
