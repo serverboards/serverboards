@@ -31,14 +31,16 @@ function Sidebar(props){
   const pathname = props.pathname
   return (
     <div className="ui sidebar" id="sidebar">
-      <div className="ui horizontal split area with padding">
-        <div className="ui central text">
+      <div className="ui horizontal split area" id="logo-area">
+        <div className="ui central text" id="hamburguer">
           <a href="#_" onClick={ev => {ev.preventDefault(); props.onToggleSidebar()}}>
             <i className="ui bars big icon"/>
           </a>
         </div>
-        <div className="expand">
-          <img src={blogo} className="logo"/>
+        <div className="expand" id="logo">
+          <a href="#/" onClick={ev => goto_or_new_tab(ev, '/')} className="ui right aligned">
+            <img src={blogo}/>
+          </a>
         </div>
       </div>
       <div className="ui padding">
