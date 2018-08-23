@@ -75,6 +75,7 @@ class Project extends React.Component{
           <div className="ui expand vertical split area with scroll" id="centralarea">
             <ErrorBoundary>
               <Section
+                key={`${props.project}/${props.params.subsection}`}
                 project={props.project}
                 subsection={props.params.subsection}
                 location={props.location}

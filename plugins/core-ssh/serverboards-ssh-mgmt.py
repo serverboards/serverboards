@@ -90,8 +90,8 @@ async def remote_fingerprint(url="", options="", **kwargs):
     return {
         "fingerprint_orig": fingerprint,
         "fingerprint": fingerprint_text,
-        "toggle": "Disable host" if enabled else "Enable host",
-        "className": "red" if enabled else "yellow",
+        "button": "Disable host" if enabled else "Enable host",
+        "class": "red" if enabled else "yellow",
         "enabled": enabled
     }
 

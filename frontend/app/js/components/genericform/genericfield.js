@@ -182,7 +182,7 @@ class GenericField extends React.Component{
         )
       case 'button':
         return (
-          <GenericButton {...props} className={class_sbds_to_sui(props["class"])}/>
+          <GenericButton {...props} className={props["class"]}/>
         )
       case 'select call':
         return (
