@@ -196,7 +196,7 @@ class TextArea extends React.Component{
               className={this.props.autocomplete && "ui fixed text"}
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
-              defaultValue={props.value}
+              value={props.value}
               onChange={this.handleChange.bind(this)}
               onKeyDown={this.handleKeyboard.bind(this)}
               onClick={() => this.setState({autocomplete:[]})}

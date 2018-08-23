@@ -60,12 +60,12 @@ class GenericForm extends React.Component{
         onSubmit={(ev) => { ev.preventDefault(); props.onSubmit && props.onSubmit(ev) }}>
         {(props.fields || []).map((f, i) => (
             <GenericField
+              {...f}
               key={f.name || i}
               setValue={this.setValue.bind(this)}
               value={this.state[f.name]}
               fields={props.fields}
               form_data={this.state}
-              {...f}
               />
         ))}
         {props.children}
