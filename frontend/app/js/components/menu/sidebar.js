@@ -3,8 +3,6 @@ import {goto} from 'app/utils/store'
 import Restricted from 'app/restricted'
 
 
-require('sass/sidebar.sass')
-
 const blogo = require('imgs/logo.svg')
 const powered_by_serverboards = require('imgs/logo.svg')
 
@@ -69,7 +67,7 @@ function Sidebar(props){
                onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
               <div className="ui horizontal split area">
                 <img src={props.avatar} className="ui avatar"/>
-                <div className="ui big teal text expand with padding vcentered">
+                <div className="ui big teal text expand with padding vcentered oneline">
                   {props.user && props.user.name}
                 </div>
               </div>
