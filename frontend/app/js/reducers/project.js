@@ -100,7 +100,27 @@ function project(state=default_state, action){
     case 'PROJECT_SET_CURRENT':
       return merge(state, {current: action.payload} )
     case 'UPDATE_ALL_PROJECTS':
-      return merge(state, {projects: action.projects} )
+      {
+        state = {...state, projects: action.projects}
+        if (!state.project && action.projects.length > 0){ // Set the default one
+          let projectname = localStorage.last_project
+          let project = undefined
+          if (projectname){
+            for (prj of action.projects){
+              if (prj.shortname == projectname){
+                current = projectname
+                project = prj
+                break;
+              }
+            }
+          } else {
+            project = action.projects[0]
+            current = project.shortname
+          }
+          state = {...state, project, current}
+        }
+        return state
+      }
     case 'UPDATE_PROJECT_SERVICES':
       return merge(state, {current_services: action.services} )
     case '@RPC_EVENT/project.created':
