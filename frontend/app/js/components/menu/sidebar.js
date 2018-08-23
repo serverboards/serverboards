@@ -1,7 +1,6 @@
 import React from 'react'
 import {goto} from 'app/utils/store'
 import Restricted from 'app/restricted'
-import ProjectSelector from 'app/containers/menu/projectselector'
 import {ErrorBoundary} from 'app/components/error'
 
 const blogo = require('imgs/logo.svg')
@@ -31,7 +30,6 @@ function Item(props){
 function Sidebar(props){
   const pathname = props.pathname
   return (
-    <React.Fragment>
     <div className="ui sidebar" id="sidebar">
       <div className="ui horizontal split area" id="logo-area">
         <div className="ui central text" id="hamburguer">
@@ -45,14 +43,12 @@ function Sidebar(props){
           </a>
         </div>
       </div>
-      <div className="ui padding horizontal split area" id="projectname">
-        <h2 className="ui teal header">{props.project}</h2>
-        <div className="expand">
-          <a href="#_" onClick={(ev) => { ev.preventDefault(); props.onToggleProjectSelector()}} className="ui right aligned item no border">
-            <i className="ui angle right icon"/>
-          </a>
+      <a className="ui item" href="#_" onClick={(ev) => { ev.preventDefault(); props.onToggleProjectSelector()}}>
+        <div className="ui padding horizontal split area" id="projectname">
+          <h2 className="ui teal header">{props.project}</h2>
+          <i className="ui expand angle right aligned icon"/>
         </div>
-      </div>
+      </a>
 
       <div className="ui expand scroll">
         <div className="ui vertical split area">
@@ -97,10 +93,6 @@ function Sidebar(props){
         <img src={powered_by_serverboards}/>
       </div>
     </div>
-    {props.project_selector && (
-      <ProjectSelector/>
-    )}
-    </React.Fragment>
   )
 }
 

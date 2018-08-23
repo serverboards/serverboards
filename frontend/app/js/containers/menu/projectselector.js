@@ -1,8 +1,10 @@
+import React from 'react'
 import View from 'app/components/menu/projectselector'
 import { push } from 'react-router-redux'
 import connect from 'app/containers/connect'
 import {project_update_all} from 'app/actions/project'
 import {has_perm_guard} from 'app/restricted'
+import { toggle_project_selector } from 'app/actions/menu'
 
 var Container=has_perm_guard("project.get", connect({
   state: (state) => {
@@ -12,11 +14,23 @@ var Container=has_perm_guard("project.get", connect({
     }
   },
   handlers: (dispatch) => ({
-    onServiceSelect: (shortname) => dispatch( push( `/project/${shortname}/`) )
+    onServiceSelect: (shortname) => dispatch( push( `/project/${shortname}/`) ),
+    onClose: () => dispatch( toggle_project_selector() )
   }),
   subscriptions: ["project.created", "project.deleted", "project.updated"],
   store_enter: [project_update_all],
   watch: ["projects", "current"]
 })(View))
 
-export default Container
+const MaybeContainer = connect({
+  state: (state) => ({
+    project_selector: state.menu.project_selector
+  })
+})( ({project_selector}) => project_selector ? (
+  <Container/>
+) : (
+null
+) )
+
+
+export default MaybeContainer

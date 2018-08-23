@@ -8,6 +8,7 @@ import connect from 'app/containers/connect'
 import { action_ps } from 'app/actions/action'
 import { toggle_menu, toggle_sidebar, toggle_project_selector, update_screens } from 'app/actions/menu'
 import { i18n_nop } from 'app/utils/i18n'
+import { map_get } from 'app/utils'
 
 const SidebarModel=connect({
   state: (state) => {
@@ -50,9 +51,8 @@ const SidebarModel=connect({
       section,
       new_issues: state.issues.new_issues,
       lang: state.auth.lang,
-      project,
+      project: map_get( state.project, ["project", "name"], project),
       pathname,
-      project_selector: state.menu.project_selector,
       sections: {
         project: [
           {id: "dashboard", label: i18n_nop("Dashboards"), goto: `/project/${project}/`},
@@ -93,6 +93,8 @@ const MaybeSidebar = connect({
   })
 })( ({sidebar}) => sidebar ? (
   <SidebarModel/>
-) : null )
+) : (
+  null
+) )
 
 export default MaybeSidebar

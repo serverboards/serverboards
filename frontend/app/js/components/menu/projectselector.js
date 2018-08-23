@@ -83,6 +83,11 @@ class Selector extends React.Component{
     this.props.onServiceSelect(project)
     this.props.onClose && this.props.onClose()
   }
+  handleAddProject(ev){
+    ev.preventDefault()
+    goto(`/project/wizard`, {step: 1})
+    this.props.onClose && this.props.onClose()
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -106,7 +111,7 @@ class Selector extends React.Component{
             ))}
           </div>
           <Restricted perm="project.create">
-            <a onClick={() => goto(`#/project/wizard`, {step: 1})} className="ui bottom full button yellow">
+            <a onClick={this.handleAddProject.bind(this)} href="#/project/wizard" className="ui bottom full button yellow">
               {i18n("Add project")} <i className="add icon"></i>
             </a>
           </Restricted>

@@ -3,7 +3,7 @@ const default_state = {
   user: {},
   sidebar: localStorage.show_sidebar == "true",
   screens: [],
-  project_selector: true,
+  project_selector: false,
 }
 
 function top(state=default_state, action){

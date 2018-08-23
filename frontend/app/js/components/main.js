@@ -9,7 +9,7 @@ import Piwik from 'app/containers/piwik.js'
 import {ErrorBoundary} from 'app/components/error'
 import Legal from 'app/components/login/legal'
 import Sidebar from 'app/containers/menu/sidebar'
-
+import ProjectSelector from 'app/containers/menu/projectselector'
 
 function modal(props){
   let modal = []
@@ -54,6 +54,8 @@ function Main(props){
       <div id="chrome">
         <Top onLogout={props.onLogout}/>
         <Sidebar/>
+        <ProjectSelector/>
+
         <ErrorBoundary>
           <div className="ui main area" id="mainarea">
             <Router/>
