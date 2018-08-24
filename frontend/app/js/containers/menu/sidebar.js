@@ -7,6 +7,7 @@ import event from 'app/utils/event'
 import connect from 'app/containers/connect'
 import { action_ps } from 'app/actions/action'
 import { toggle_menu, toggle_sidebar, toggle_project_selector, update_screens } from 'app/actions/menu'
+import { project_update_all } from 'app/actions/project'
 import { i18n_nop } from 'app/utils/i18n'
 import { map_get } from 'app/utils'
 
@@ -84,7 +85,7 @@ const SidebarModel=connect({
     onToggleSidebar: () => dispatch( toggle_sidebar() ),
     onToggleProjectSelector: () => dispatch( toggle_project_selector() ),
   }),
-  store_enter: [ update_screens ]
+  store_enter: [ update_screens, project_update_all ]
 })(SidebarView)
 
 const MaybeSidebar = connect({
