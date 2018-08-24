@@ -66,7 +66,10 @@ class RichDescription extends React.Component{
     if (state.loading)
       <div><i className="ui loading notched circle icon"/></div>
     return (
-      <div className={`${props.className} ${state.extraClass || ""}`}><MarkdownPreview value={state.content}/></div>
+      <div className={`${props.className} ${state.extraClass || ""}`}>
+        {props.label && (<label>{props.label}</label>)}
+        <MarkdownPreview value={state.content}/>
+      </div>
     )
   }
 }

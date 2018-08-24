@@ -137,7 +137,7 @@ class GenericField extends React.Component{
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <div className="ui checkbox">
               <input ref="field" type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked.bind(this)}/>
-              <label htmlFor={props.name} className="ui pointer">{props.label}</label>
+              <label htmlFor={props.name} className="ui pointer bold text">{props.label}</label>
               <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             </div>
           </div>
