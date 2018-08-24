@@ -58,8 +58,8 @@ async def remote_fingerprint(url="", options="", **kwargs):
             "fingerprint":
                 "Cant connect to server at <%s>. Set a valid SSH address." %
                 url,
-            "className": "grey disabled",
-            "toggle": "Select a valid SSH address",
+            "class": "grey disabled",
+            "button": "Select a valid SSH address",
             "enabled": False
         }
     fingerprintb = bytes(fingerprint, 'utf8')
