@@ -27,7 +27,7 @@ def real_debug(*msg):
         return
     try:
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S ")
-        real_print("\r", now, *msg, file=_debug)
+        real_print("\r", plugin_id, now, *msg, file=_debug)
     except Exception:
         pass
 
