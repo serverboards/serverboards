@@ -60,6 +60,6 @@ defmodule Serverboards do
       end
     end
 
-    System.put_env("LC_ALL", "C.utf-8")
+    System.put_env("LC_ALL", "en_US.utf-8")
   end
 end
