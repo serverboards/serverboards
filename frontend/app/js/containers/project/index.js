@@ -10,6 +10,7 @@ var Project=store.connect({
     return {
       shortname: state.project.current,
       project: state.project.project,
+      screens: state.menu.screens,
       projects_count: (state.project.projects || []).length
     }
   },
