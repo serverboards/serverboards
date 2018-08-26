@@ -10,6 +10,7 @@ import {set_modal, goto} from 'app/utils/store'
 import store from 'app/utils/store'
 import cache from 'app/utils/cache'
 import PropTypes from 'prop-types'
+import {SectionMenu} from 'app/components'
 
 require('sass/cards.sass')
 import PluginCard from './card'
@@ -89,19 +90,21 @@ class Plugins extends React.Component{
     const settings=this.state.settings
 
     return (
-      <div className="ui vertical split area">
-        <div className="ui top secondary menu">
-          <h3 className="ui header">{i18n("Plugins")}</h3>
-          <div className="item stretch"/>
-          <div className="item">
-            <a
-                className="ui teal medium button"
-                onClick={() => goto('/settings/plugins/add')}
-                >
-              {i18n("Marketplace")}
-            </a>
-          </div>
-        </div>
+      <React.Fragment>
+        <SectionMenu menu={(props) => (
+          <React.Fragment>
+            <h3 className="ui header">{i18n("Plugins")}</h3>
+            <div className="item stretch"/>
+            <div className="item">
+              <a
+                  className="ui teal medium button"
+                  onClick={() => goto('/settings/plugins/add')}
+                  >
+                {i18n("Marketplace")}
+              </a>
+            </div>
+          </React.Fragment>
+        )}/>
 
         <div className="expand with scroll and padding">
           <div className="ui container">
@@ -119,7 +122,7 @@ class Plugins extends React.Component{
             </div>
           </div>
         </div>
-      </div>
+      </React.Fragment>
     )
   }
 }

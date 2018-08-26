@@ -1,18 +1,65 @@
 import React from 'react'
 import plugin from 'app/utils/plugin'
 import Loading from '../loading'
-import {merge, to_keywordmap} from 'app/utils'
+import {merge, to_keywordmap, match_traits, map_get} from 'app/utils'
 import PropTypes from 'prop-types';
+import {SectionMenu} from 'app/components'
+import store from 'app/utils/store'
+import i18n from 'app/utils/i18n'
 
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
 
+function SelectService(props){
+  const services = props.services || []
+
+  return (
+    <div className="menu">
+      <div style={{width: 30}}/>
+      <div className="ui attached tabular menu">
+        {services.length > 0 ? services.map( s => (
+          <a key={s.uuid} className={`item ${s.uuid == props.selected ? "active" : ""}`} onClick={() => props.onService(s.uuid)}>
+            {s.name}
+          </a>
+        )) : (
+          <h3 className="ui red header">{i18n("No services for this screen. Create one.")}</h3>
+        )}
+      </div>
+    </div>
+  )
+}
+
+
 class ExternalScreen extends React.Component{
   constructor(props){
     super(props)
+
+    const plugin = props.plugin || props.params.plugin
+    const component = props.component || props.params.component
+    const screen_id = `${plugin}/${component}`
+
+    // to avoid one method.. feels dirty, but its the right thing to do
+    const state = store.getState()
+    const screen = state.menu.screens.find( s => s.id == screen_id ) || {traits: []}
+    const services = map_get(state, ["project", "project", "services"], []).filter( s => {
+      return match_traits({ has: s.traits, any: screen.traits })
+    })
+
+    const service = map_get(this.props, ["data", "service"])
+    let current = undefined
+    if (service)
+      current = service.uuid
+
+    const show_menu = (screen.traits.length > 0) && (screen.traits.indexOf("global") == -1)
+
     this.state = {
       umount: undefined,
       component: undefined,
+      screen,
+      services,
+      current,
+      service,
+      show_menu,
     }
   }
   componentWillUnmount(){
@@ -23,6 +70,10 @@ class ExternalScreen extends React.Component{
     }
   }
   componentDidMount(){
+    this.reloadScreen()
+  }
+  reloadScreen(){
+    this.componentWillUnmount()
     const props=this.props
     let self=this
     //const service=this.props.location.state.service
@@ -30,6 +81,14 @@ class ExternalScreen extends React.Component{
     // console.log(props)
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
+
+    let service = this.state.service
+    if (!service && this.state.services.length > 0 && !this.state.current){
+      const current = this.state.services[0].uuid
+      service = this.state.services.find( s => s.uuid == current )
+      this.setState({current, service})
+    }
+
     const context = {
       plugin_id: plugin,
       component_id: component,
@@ -48,7 +107,7 @@ class ExternalScreen extends React.Component{
         return plugin_do_screen(
           `${plugin}/${component}`,
           el,
-          {...(props.data || this.props.location.state), ...props, project: props.project},
+          {...(props.data || this.props.location.state), ...props, project: props.project, service},
           context
         )
       }).then( ({umount, component}) => {
@@ -76,6 +135,11 @@ class ExternalScreen extends React.Component{
       load_js()
     })
   }
+  handleService(current){
+    console.log("Set service", current)
+    const service = this.state.services.find( s => s.uuid == current )
+    this.setState({current, service}, this.reloadScreen.bind(this))
+  }
   render(){
     let props=this.props
     const plugin = props.plugin || props.params.plugin
@@ -83,16 +147,29 @@ class ExternalScreen extends React.Component{
 
     const Screen = this.state.component
     if (Screen)
-      return (
+      content = (
         <Screen {...props} {...this.state}/>
       )
-
+    else
+      content = (
+        <div ref="el" className="ui central white background expand">
+          <Loading>
+            External plugin {plugin}/{component}
+          </Loading>
+        </div>
+      )
     return (
-      <div ref="el" className="ui central white background expand">
-        <Loading>
-          External plugin {plugin}/{component}
-        </Loading>
-      </div>
+      <React.Fragment>
+        {(this.state.show_menu > 0) && !props.data.service ? (
+          <SectionMenu
+            menu={SelectService}
+            onService={this.handleService.bind(this)}
+            services={this.state.services}
+            selected={this.state.current}
+            />
+        ) : null}
+        {content}
+      </React.Fragment>
     )
   }
 }

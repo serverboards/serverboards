@@ -32,7 +32,12 @@ function get_plugin_component({tab, type}, props){
     return null
   let sp=tab.split('/')
   return (props) => (
-    <PluginScreen data={{service: props.service, project: props.project}} plugin={sp[0]} component={sp[1]}/>
+    <PluginScreen
+      key={type}
+      data={{service: props.service, project: props.project}} 
+      plugin={sp[0]}
+      component={sp[1]}
+      />
   )
 }
 function get_external_url_component({tab, type}, props){

@@ -3,10 +3,11 @@ import GenericForm from 'app/components/genericform'
 import rpc from 'app/rpc'
 import {merge, servername} from 'app/utils'
 import i18n from 'app/utils/i18n'
+import {SectionMenu} from 'app/components'
 
 class Default extends React.Component{
   constructor(props){
-    super(props) 
+    super(props)
     this.state = {
       pre: [],
       post: [],
@@ -39,12 +40,14 @@ class Default extends React.Component{
     const state = this.state
     return (
       <div>
-        <div className="ui top header secondary menu">
-          <h3 className="ui header">{i18n("General information")}</h3>
-          <div className="right menu">
-            <GenericForm fields={state.buttons}/>
-          </div>
-        </div>
+        <SectionMenu menu={(props) => (
+          <React.Fragment>
+            <h3 className="ui header">{i18n("General information")}</h3>
+            <div className="right menu">
+              <GenericForm fields={props.buttons}/>
+            </div>
+            </React.Fragment>
+          )} buttons={state.buttons}/>
         <div className="ui text container">
           <GenericForm fields={state.pre}/>
           <div className="ui form">

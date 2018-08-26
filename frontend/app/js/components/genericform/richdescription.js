@@ -51,8 +51,9 @@ class RichDescription extends React.Component{
     const data = data_from_form_data( params, this.props.form_data )
     const newdata = data_from_form_data( params, newprops.form_data )
 
-    // console.log("check data change", data, newdata, !object_is_equal(data, newdata))
+    // console.log("check data change", this.props.dynamic, !object_is_equal(data, newdata))
     if (newprops.dynamic && !object_is_equal(data, newdata) ){
+      // console.log("Shoud reload data")
       this.reloadData(newprops)
     }
   }
@@ -65,7 +66,10 @@ class RichDescription extends React.Component{
     if (state.loading)
       <div><i className="ui loading notched circle icon"/></div>
     return (
-      <div className={`${props.className} ${state.extraClass || ""}`}><MarkdownPreview value={state.content}/></div>
+      <div className={`${props.className} ${state.extraClass || ""}`}>
+        {props.label && (<label>{props.label}</label>)}
+        <MarkdownPreview value={state.content}/>
+      </div>
     )
   }
 }

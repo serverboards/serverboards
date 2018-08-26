@@ -2,9 +2,7 @@ import React from 'react'
 import Loading from '../loading'
 import {object_is_equal, merge} from 'app/utils'
 import PluginScreen from 'app/components/plugin/screen'
-import SidebarSections from 'app/containers/project/sidebar'
 import i18n from 'app/utils/i18n'
-import Top from 'app/containers/project/top'
 import {ErrorBoundary} from 'app/components'
 
 require("sass/split-area.sass")
@@ -12,9 +10,6 @@ require("sass/split-area.sass")
 class Project extends React.Component{
   constructor(props){
     super(props)
-    this.state = {
-      show_sidebar: localStorage.show_sidebar == "true",
-    }
   }
   shouldComponentUpdate(nprops, nstate){
     if (!object_is_equal(this.state, nstate))
@@ -46,9 +41,11 @@ class Project extends React.Component{
     let Section
     if (section.indexOf('.')>=0){
       const plugin_component_id = `${section}/${subsection}`
-      const screen = props.project.screens.find( s => s.id == plugin_component_id) || {}
+      const screen = props.screens.find( s => s.id == plugin_component_id) || {}
       Section = (props) => (
-        <PluginScreen {...props}
+        <PluginScreen
+          key={plugin_component_id}
+          {...props}
           data={data}
           plugin={section}
           component={subsection}
@@ -61,16 +58,6 @@ class Project extends React.Component{
       Section = require(`app/containers/project/${section}`).default
     return Section
   }
-  handleShowSidebar(show_sidebar){
-    localStorage.show_sidebar=show_sidebar ?  "true" : "false"
-    this.setState({show_sidebar})
-  }
-  handleSetTopMenuHandlers(handleSetSectionMenu, handleSetSectionMenuProps){
-    // The handlers are managed by top, so that when the menu changes there is
-    // no need to redraw all the section, which can provoke a reload of the plugin
-    // and leak the previous plugin screen
-    this.setState({handleSetSectionMenu, handleSetSectionMenuProps})
-  }
   render(){
     const props=this.props
     if (!props.project)
@@ -81,41 +68,19 @@ class Project extends React.Component{
       )
 
     const Section = this.selectSection()
-    const state = this.state
 
     return (
       <div className="ui horizontal split area">
-        {state.show_sidebar ? (
-          <SidebarSections
-            key={props.project.name}
-            section={props.params.section}
-            subsection={props.params.subsection}
-            project={props.project}
-            projects_count={props.projects_count}
-            goto={props.goto}
-            onHideSidebar={() => this.handleShowSidebar(false)}
-            />
-        ) : null }
         <div className="ui vertical expand split area">
-          <Top
-            onShowSidebar={this.handleShowSidebar.bind(this)}
-            show_sidebar={state.show_sidebar}
-            params={props.params}
-            setHandlers={this.handleSetTopMenuHandlers.bind(this)}
-            />
           <div className="ui expand vertical split area with scroll" id="centralarea">
-            {state.handleSetSectionMenu && ( // Hack to prevent redraw of section when top set the handlers.
-              <ErrorBoundary>
-                <Section
-                  project={props.project}
-                  subsection={props.params.subsection}
-                  location={props.location}
-                  setSectionMenu={state.handleSetSectionMenu}
-                  setSectionMenuProps={state.handleSetSectionMenuProps}
-                  show_sidebar={state.show_sidebar}
-                  />
-              </ErrorBoundary>
-            )}
+            <ErrorBoundary>
+              <Section
+                key={`${props.project}/${props.params.subsection}`}
+                project={props.project}
+                subsection={props.params.subsection}
+                location={props.location}
+                />
+            </ErrorBoundary>
           </div>
         </div>
       </div>

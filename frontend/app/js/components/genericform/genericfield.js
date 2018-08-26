@@ -26,14 +26,16 @@ class GenericField extends React.Component{
     }
 
     this.setValue = this.setValue.bind(this)
+    this.handleChange = this.handleChange.bind(this)
   }
   handleChange(ev){
-    this.props.setValue(this.props.name, ev.target.value)
+    this.setValue(ev.target.value)
   }
   handleChecked(ev){
-    this.props.setValue(this.props.name, ev.target.checked)
+    this.setValue(ev.target.checked)
   }
   setValue(val){
+    // console.log("Set val", this.props.name, val)
     if (this.refs.field)
       $(this.refs.field).val(val)
     this.props.setValue(this.props.name, val)
@@ -91,8 +93,8 @@ class GenericField extends React.Component{
               ref="field"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
-              defaultValue={props.value || props.default}
-              onChange={this.handleChange.bind(this)}/>
+              value={props.value || props.default}
+              onChange={this.handleChange}/>
           </div>
         )
       case 'url':
@@ -104,13 +106,13 @@ class GenericField extends React.Component{
               ref="field"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
-              defaultValue={props.value}
-              onChange={this.handleChange.bind(this)}/>
+              value={props.value}
+              onChange={this.handleChange}/>
           </div>
         )
       case 'textarea':
         return (
-          <TextArea {...props} onChange={this.handleChange.bind(this)} className={class_sbds_to_sui(props["class"])}/>
+          <TextArea {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'password':
         return (
@@ -126,8 +128,8 @@ class GenericField extends React.Component{
               ref="field"
               name={props.name}
               placeholder={i18n(props.placeholder || props.description)}
-              defaultValue={props.value}
-              onChange={this.handleChange.bind(this)}/>
+              value={props.value}
+              onChange={this.handleChange}/>
           </div>
         )
       case "checkbox":
@@ -135,7 +137,7 @@ class GenericField extends React.Component{
           <div className={`field ${class_sbds_to_sui(props["class"])}`}>
             <div className="ui checkbox">
               <input ref="field" type="checkbox" defaultChecked={props.value} id={props.name} onChange={this.handleChecked.bind(this)}/>
-              <label htmlFor={props.name} className="ui pointer">{props.label}</label>
+              <label htmlFor={props.name} className="ui pointer bold text">{props.label}</label>
               <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
             </div>
           </div>
@@ -165,9 +167,9 @@ class GenericField extends React.Component{
             <select ref="select"
                 ref="field"
                 name={props.name}
-                defaultValue={props.value}
+                value={props.value}
                 className={`ui fluid ${props.search ? "search" : ""} dropdown`}
-                onChange={this.handleChange.bind(this)}
+                onChange={this.handleChange}
                 form_data={props.form_data}
                 >
               {props.options.map((o) => ( (o.value != undefined) ? (
@@ -180,15 +182,15 @@ class GenericField extends React.Component{
         )
       case 'button':
         return (
-          <GenericButton {...props} className={class_sbds_to_sui(props["class"])}/>
+          <GenericButton {...props} className={props["class"]}/>
         )
       case 'select call':
         return (
-          <SelectCall {...props} onChange={this.handleChange.bind(this)} className={class_sbds_to_sui(props["class"])}/>
+          <SelectCall {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       case 'service':
         return (
-          <SelectService {...props} onChange={this.handleChange.bind(this)} className={class_sbds_to_sui(props["class"])}/>
+          <SelectService {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       default:
         return (

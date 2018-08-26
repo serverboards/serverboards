@@ -174,8 +174,6 @@ code
     background-color: lighten($yellow, $hover-lighten)
 
 .ui.main.area
-  width: 100vw
-  height: calc( 100vh - #{$top-height - 5})
   display: flex
   flex-direction: column
   .ui.dimmer
@@ -400,6 +398,11 @@ body .ui.grid
       align-items: center
       justify-content: center
 
+table
+  td.minimal
+    width: 1%
+    white-space: nowrap
+
 #dashboard:-moz-full-screen
   .nofullscreen
     display: none !important
@@ -411,3 +414,21 @@ body .ui.grid
 #dashboard:-webkit-full-screen
   .nofullscreen
     display: none !important
+
+#chrome
+  display: grid
+  grid-template-areas: "sidebar top top" "sidebar projects main"
+  grid-template-rows: 60px auto
+  grid-template-columns: auto auto 1fr
+  width: 100vw
+  height: 100vh
+  #mainarea
+    grid-area: main
+    overflow: auto
+    overflow: auto
+  #projects
+    grid-area: projects
+  #sidebar
+    grid-area: sidebar
+  #top-menu
+    grid-area: top

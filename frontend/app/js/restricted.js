@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 class Restricted extends React.Component{
   constructor(props){
     super(props)
-    const allowed = has_perm(this.props.perm)
+    const allowed = !this.props.perm || has_perm(this.props.perm)
     this.state = {allowed}
   }
   render(){
@@ -16,7 +16,7 @@ class Restricted extends React.Component{
 }
 
 Restricted.propTypes = {
-  perm: PropTypes.string.isRequired
+  perm: PropTypes.string
 }
 
 function has_perm_guard(perm, F){

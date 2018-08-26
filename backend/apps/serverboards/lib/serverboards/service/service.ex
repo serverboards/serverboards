@@ -9,7 +9,7 @@ defmodule Serverboards.Service do
   alias Serverboards.Project.Model.ProjectService, as: ProjectServiceModel
   alias Serverboards.Repo
 
-  def start_link(options) do
+  def start_link(_options) do
     # Really do a linked tree of processes. TODO use supervisors,
     # but eventsourcing do it a bit more complex
     Agent.start_link(fn ->
@@ -66,6 +66,13 @@ defmodule Serverboards.Service do
           true
       end
 
+      # Logger.debug("Service update #{inspect service}")
+      operations = if service.name == "" and operations["name"] == nil do
+        [type] = service_catalog([type: service.type])
+        name = type.name
+        Logger.warn("Service #{uuid} must have a name. Setting type name: #{inspect name}.", service_uuid: uuid)
+        operations = Map.put(operations, :name, name )
+      else operations end
 
       changeset = ServiceModel.changeset(
         service, operations

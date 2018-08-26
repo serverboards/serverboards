@@ -1,3 +1,5 @@
+import plugin from 'app/utils/plugin'
+
 // Default status, put over current
 const default_avatar=require('../../imgs/square-favicon.svg')
 
@@ -45,6 +47,7 @@ export const auth = (state = default_state , action) => {
     case "AUTH_LOGIN":
       state.logged_in=true
       state.user=action.user
+      plugin.load_hooks()
       break;
     case 'AUTH_LOGOUT':
       state.logged_in=false

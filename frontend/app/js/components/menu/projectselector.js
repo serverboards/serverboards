@@ -24,6 +24,8 @@ function sorted_by_name(projects){
 class Selector extends React.Component{
   constructor(props){
     super(props)
+    console.log("Seelctor", props)
+
     let projects = this.props.projects
     this.state = {
       search: undefined,
@@ -81,6 +83,11 @@ class Selector extends React.Component{
     this.props.onServiceSelect(project)
     this.props.onClose && this.props.onClose()
   }
+  handleAddProject(ev){
+    ev.preventDefault()
+    goto(`/project/wizard`, {step: 1})
+    this.props.onClose && this.props.onClose()
+  }
   render(){
     const props=this.props
     const state=this.state
@@ -88,27 +95,23 @@ class Selector extends React.Component{
     const selected=state.selected
     const projects = state.projects
     return (
-      <div style={{height: 0}}>
-        <div className="ui full background clear" onClick={() => props.onClose && props.onClose()}/>
-        <div ref="el" className={`ui vertical menu project selector ${props.className}`}>
-          <div className="ui search">
+      <div className="ui sidebar" id="projects">
+        <div ref="el" className={`ui vertical split area project selector ${props.className}`}>
+          <div className="ui search with padding">
             <div className="ui icon input">
               <input ref="search" className="prompt" type="text" placeholder={i18n("Search by name")} onChange={(ev) => this.setSearch(ev.target.value)}/>
               <i className="search icon"/>
             </div>
           </div>
-          <div className="menu">
+          <div className="ui vertical split area">
             {projects.map( (s, i) => (
-              <a className={`item ${ s.shortname == current ? "active" : ""} ${ i == selected ? "hover" : ""}`} onClick={() => this.handleSelectServerboard(s.shortname)}>
-                <div style={{paddingRight: 10}}>
-                  <LogoIcon className="small" name={s.shortname}/>
-                </div>
+              <a className={`item ${ s.shortname == current ? "selected" : ""} ${ i == selected ? "hover" : ""}`} onClick={() => this.handleSelectServerboard(s.shortname)}>
                 <div>{s.name}</div>
               </a>
             ))}
           </div>
           <Restricted perm="project.create">
-            <a onClick={() => goto(`#/project/wizard`, {step: 1})} className="ui bottom button yellow">
+            <a onClick={this.handleAddProject.bind(this)} href="#/project/wizard" className="ui bottom full button yellow">
               {i18n("Add project")} <i className="add icon"></i>
             </a>
           </Restricted>

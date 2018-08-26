@@ -1,5 +1,5 @@
 const React = Serverboards.React
-const {GenericForm} = Serverboards.Components
+const {GenericForm, SectionMenu} = Serverboards.Components
 
 class EditAction extends React.Component{
   componentDidMount(){
@@ -27,19 +27,21 @@ class EditAction extends React.Component{
     const action = props.action
     return (
       <div ref="form" className="ui scroll">
-        <div className="ui top secondary header menu">
-          <h3>Edit {action.name || "action"}</h3>
-          <div className="right menu" style={{alignItems: "center", paddingRight: 20}}>
-            <div ref="confirmation" className="field ui toggle checkbox" style={{paddingRight: 10}}>
-              <input type="checkbox" defaultChecked={action.confirmation}  onChange={(ev) => props.onUpdateConfirmation(ev.target.value)}/>
-              <label>Require confirmation</label>
+        <SectionMenu menu={() => (
+          <React.Fragment>
+            <h3 className="ui header">Edit {action.name || "action"}</h3>
+            <div className="right menu" style={{alignItems: "center", paddingRight: 20}}>
+              <div ref="confirmation" className="field ui toggle checkbox" style={{paddingRight: 10}}>
+                <input type="checkbox" defaultChecked={action.confirmation}  onChange={(ev) => props.onUpdateConfirmation(ev.target.value)}/>
+                <label>Require confirmation</label>
+              </div>
+              <div ref="star" className="field ui toggle checkbox">
+                <input type="checkbox" defaultChecked={action.star}  onChange={(ev) => props.onStar(ev.target.value)}/>
+                <label>Show at widget</label>
+              </div>
             </div>
-            <div ref="star" className="field ui toggle checkbox">
-              <input type="checkbox" defaultChecked={action.star}  onChange={(ev) => props.onStar(ev.target.value)}/>
-              <label>Show at widget</label>
-            </div>
-          </div>
-        </div>
+          </React.Fragment>
+        )}/>
 
         <div className="ui scroll">
           <div className="ui text container">

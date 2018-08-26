@@ -1,17 +1,17 @@
 import React from 'react';
 
-import Top from 'app/containers/top'
+import Top from 'app/containers/menu/top'
 import Login from 'app/containers/login.js'
-import Console from 'app/containers/console.js'
 import FlashMessageList from 'app/containers/flashmessages.js'
 import Router from 'app/router'
 import get_modal from './modalfactory'
 import Piwik from 'app/containers/piwik.js'
 import {ErrorBoundary} from 'app/components/error'
 import Legal from 'app/components/login/legal'
+import Sidebar from 'app/containers/menu/sidebar'
+import ProjectSelector from 'app/containers/menu/projectselector'
 
-function Main(props){
-  //console.log("Main component props %o", props.location)
+function modal(props){
   let modal = []
   if (props.location && props.location.state && props.location.state.modal){
     const mod = props.location.state
@@ -30,7 +30,11 @@ function Main(props){
       console.error("Error rendering modal: %o. Not found.", mod.modal)
     }
   }
+  return modal
+}
 
+
+function Main(props){
   var contents=[]
   if (!props.logged_in) {
     contents=(
@@ -47,12 +51,15 @@ function Main(props){
     )
   } else {
     contents=(
-      <div>
+      <div id="chrome">
         <Top onLogout={props.onLogout}/>
+        <Sidebar/>
+        <ProjectSelector/>
+
         <ErrorBoundary>
-          <div className="ui main area">
+          <div className="ui main area" id="mainarea">
             <Router/>
-            {modal}
+            {modal(props)}
           </div>
         </ErrorBoundary>
       </div>
@@ -63,7 +70,6 @@ function Main(props){
     <div>
       <Piwik/>
       <FlashMessageList/>
-      <Console/>
       {contents}
     </div>
   )

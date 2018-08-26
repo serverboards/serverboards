@@ -11,8 +11,6 @@ import Command from 'app/utils/command'
 import {pretty_ago} from 'app/utils'
 import Moment from 'moment'
 import { extendMoment } from 'moment-range';
-import * as d3 from 'd3'
-import graphs from 'app/graphs'
 import perms from 'app/utils/perms'
 import event from 'app/utils/event'
 import cache from 'app/utils/cache'
@@ -60,8 +58,6 @@ window.Serverboards = {
   pretty_ago,
   plugin,
   moment,
-  d3,
-  graphs,
   perms,
   cache,
   event,

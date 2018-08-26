@@ -4,7 +4,7 @@ import GenericForm from '../genericform'
 import { setup_fields, service_definition } from '../service/utils'
 import Loading from '../loading'
 import rpc from 'app/rpc'
-import { merge, to_map, to_list } from 'app/utils'
+import { merge, to_map, to_list, object_is_equal } from 'app/utils'
 import {i18n} from 'app/utils/i18n'
 
 class SetupComponent extends React.Component{
@@ -35,7 +35,7 @@ class SetupComponent extends React.Component{
       //console.log(operations)
       let name = $(this.refs.content).find("input[name=name]").val()
       let description = $(this.refs.content).find("textarea[name=description]").val()
-      console.log(name, description)
+      // console.log(name, description)
       this.props.onUpdate( this.props.service.uuid, {
         name: name,
         description: description,
@@ -46,6 +46,10 @@ class SetupComponent extends React.Component{
   }
   handleUpdateForm(data){
     this.setState({values:data})
+  }
+  componentWillReceiveProps(newprops){
+    if (!object_is_equal(newprops, this.props))
+      this.setState({fields: setup_fields(newprops.service, newprops.service_catalog)})
   }
   getFields(){
     if (this.state && this.state.fields)
@@ -62,8 +66,7 @@ class SetupComponent extends React.Component{
         </Loading>
       )
     let fields = state.fields
-    if (!fields)
-      fields=this.getFields()
+
     let servicedef=service_definition(this.props.service.type, this.props.service_catalog)
     return (
       <div className="ui text container" style={{paddingTop: 20}}>

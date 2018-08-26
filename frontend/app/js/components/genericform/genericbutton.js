@@ -30,8 +30,9 @@ class GenericButton extends React.Component{
   updateVariables(){
     const props=this.props
     resolve_form_vars(props.vars, props.form_data || {}).then( (vars) => { // Then set it into the state, update content
+      // console.log("Resolved vars", vars,{className: props.className, value: props.value})
       this.setState({
-        value: render(props.value, vars),
+        value: render(props.button, vars),
         description: render(i18n(props.description), vars),
         className: render(props.className, vars),
         extraClass: "",

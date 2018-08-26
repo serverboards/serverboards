@@ -237,7 +237,6 @@ defmodule Serverboards.Project do
 
     services = Serverboards.Service.service_list [project: project.shortname]
     project = Map.put(project, :services, services)
-    project = Map.put(project, :screens, project_screens(project))
     dashboards = Serverboards.Project.Dashboard.dashboard_list(%{ project: project.shortname} )
       |> Enum.map(&(%{
         uuid: &1.uuid,
@@ -266,42 +265,6 @@ defmodule Serverboards.Project do
     end
   end
 
-  @doc ~S"""
-  Returns the related screens for this project
-  """
-  def project_screens(%{services: services}) do
-    traits = Enum.reduce(services, [], fn s, acc ->
-      case Serverboards.Plugin.Registry.find(s.type) do
-        nil -> acc
-        s -> s.traits ++ acc
-      end
-    end) |> MapSet.new
-
-    Logger.debug("Looking for screens with traits: #{inspect traits}")
-    screens =
-      (Serverboards.Plugin.Registry.filter_component type: "screen", traits_any: traits)
-      ++
-      (Serverboards.Plugin.Registry.filter_component type: "screen", traits: :none)
-
-    screens |> Enum.map( fn s ->
-      hints = case Map.get(s.extra, "hints", "") do
-        str when is_binary(str) ->
-          String.split(str)
-        map when is_map(map) ->
-          map
-      end
-
-      %{
-        id: s.id,
-        name: s.name,
-        icon: Map.get(s.extra, "icon", nil),
-        description: s.description,
-        traits: s.traits,
-        perms: Map.get(s.extra, "perms", []),
-        hints: hints
-      }
-    end)
-  end
 
   @doc ~S"""
   Returns a list with all projects and its information

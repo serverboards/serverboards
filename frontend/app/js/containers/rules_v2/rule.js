@@ -17,6 +17,7 @@ import Condition from 'app/components/rules_v2/edit/condition'
 import ActionEdit from 'app/components/rules_v2/edit/action'
 import AddNode from 'app/components/rules_v2/edit/addnode'
 import Error from 'app/components/error'
+import {SectionMenu} from 'app/components'
 
 function find_action(actions, path){
   if (path.length==0)
@@ -216,24 +217,11 @@ class Model extends React.Component {
         data: {},
         section: "description"
       },
+      can_save: false,
     }
     this.updateRule = this.updateRule.bind(this)
     this.gotoStep = this.gotoStep.bind(this)
     this.removeStep = this.removeStep.bind(this)
-  }
-  componentDidMount(){
-    const props = this.props
-    props.setSectionMenu && props.setSectionMenu(Menu)
-    props.setSectionMenuProps && props.setSectionMenuProps({
-      gotoRules: () => { goto(`/project/${props.project.shortname}/rules_v2/`) },
-      cancel_label: props.cancel_label,
-      save_label: props.save_label,
-    })
-  }
-  componentWillUnmount(){
-    const props = this.props
-    props.setSectionMenu && props.setSectionMenu(null)
-    props.setSectionMenuProps && props.setSectionMenuProps({})
   }
   updateRule(what, value){
     let rule = this.state.rule
@@ -252,13 +240,7 @@ class Model extends React.Component {
     else{
       rule = map_set( rule, ["rule", ...what], value )
     }
-    this.setState({rule})
-    this.props.setSectionMenuProps && this.props.setSectionMenuProps({
-      gotoRules: () => { goto(`/project/${this.props.project.shortname}/rules_v2/`) },
-      saveRule: () => this.saveRule(), // added this to signal it has been modified
-      cancel_label: this.props.cancel_label,
-      save_label: this.props.save_label,
-    })
+    this.setState({rule, can_save: true})
     return rule
   }
   insertAdd(path, rule=undefined){
@@ -460,15 +442,25 @@ class Model extends React.Component {
         <div>{i18n("Unknown Rule. Try another.")}</div>
       )
     return (
-      <View
-        {...props}
-        {...state}
-        Section={this.getCurrentSection()}
-        onUpdate={this.updateRule}
-        gotoStep={this.gotoStep}
-        removeStep={this.removeStep}
-        addNode={this.addNode}
-        />
+      <React.Fragment>
+        <SectionMenu
+          menu={Menu}
+          gotoRules={() => goto(`/project/${props.project.shortname}/rules_v2/`)}
+          cancel_label={props.cancel_label}
+          save_label={props.save_label}
+          saveRule={state.can_save && this.saveRule.bind(this)}
+          />
+
+        <View
+          {...props}
+          {...state}
+          Section={this.getCurrentSection()}
+          onUpdate={this.updateRule}
+          gotoStep={this.gotoStep}
+          removeStep={this.removeStep}
+          addNode={this.addNode}
+          />
+      </React.Fragment>
     )
   }
 }

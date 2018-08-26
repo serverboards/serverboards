@@ -6,7 +6,6 @@ function main(el, config){
   console.log(config)
   Serverboards.ReactDOM.render((
       <List
-        setSectionMenu={config.setSectionMenu}
         project={config.project.shortname}
       />
     ), el)

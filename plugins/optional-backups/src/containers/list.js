@@ -1,5 +1,5 @@
 const {store, i18n, rpc, utils, event, Flash, React} = Serverboards
-const {Error, Loading} = Serverboards.Components
+const {Error, Loading, SectionMenu} = Serverboards.Components
 
 import BackupMenu from '../components/menu'
 import View from '../components/list'
@@ -19,7 +19,6 @@ class List extends React.Component{
       }
     }
     componentDidMount(){
-      this.props.setSectionMenu(BackupMenu)
       rpc
         .call("plugin.data.items", ["serverboards.optional.backups", `${this.props.project}-`])
         .then( backups =>
@@ -75,16 +74,19 @@ class List extends React.Component{
             return (<Loading>{i18n("Backups")}</Loading>)
           }
           return (
-            <View
-              {...this.props}
-              backups={this.state.backups}
-              current={this.state.current}
-              setCurrent={(current) => this.setState({current})}
-              updateBackup={this.updateBackup.bind(this)}
-              onRunBackup={this.handleRunBackup}
-              onStopBackup={this.handleStopBackup}
-              onChangeEnable={this.handleChangeEnable}
-              />
+            <React.Fragment>
+              <SectionMenu menu={BackupMenu}/>
+              <View
+                {...this.props}
+                backups={this.state.backups}
+                current={this.state.current}
+                setCurrent={(current) => this.setState({current})}
+                updateBackup={this.updateBackup.bind(this)}
+                onRunBackup={this.handleRunBackup}
+                onStopBackup={this.handleStopBackup}
+                onChangeEnable={this.handleChangeEnable}
+                />
+            </React.Fragment>
           )
         case "add":
           return (

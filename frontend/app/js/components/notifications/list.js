@@ -3,8 +3,22 @@ import Loading from 'app/components/loading'
 import NotificationItem from './item'
 import {months} from 'app/utils'
 import {i18n} from 'app/utils/i18n'
+import {SectionMenu} from 'app/components'
 
 require('sass/table.sass')
+
+function Menu(props){
+  return (
+    <div className="ui secondary top menu">
+      <h3 className="ui header">{i18n("All Notifications")}</h3>
+
+      <div className="item stretch"/>
+
+      <a onClick={props.handleShowFirstPage} style={{cursor:"pointer"}} className="item">{i18n("First page")}</a>
+      <a onClick={props.handleShowNextPage} style={{cursor:"pointer"}} className="item">{i18n("Next page")}</a>
+    </div>
+  )
+}
 
 function List(props){
   let month=undefined
@@ -30,30 +44,28 @@ function List(props){
 
   if (props.loading)
     return (
-      <Loading>{i18n("Notifications")}</Loading>
+      <React.Fragment>
+        <SectionMenu menu={Menu} {...props}/>
+        <Loading>{i18n("Notifications")}</Loading>
+      </React.Fragment>
     )
   const list = props.list
 
   return(
     <div className="ui split area vertical">
-      <div className="ui secondary top menu">
-        <h3 className="ui header">{i18n("All Notifications")}</h3>
-
-        <div className="item stretch"/>
-
-        <a onClick={props.handleShowFirstPage} style={{cursor:"pointer"}} className="item">{i18n("First page")}</a>
-        <a onClick={props.handleShowNextPage} style={{cursor:"pointer"}} className="item">{i18n("Next page")}</a>
-      </div>
+      <SectionMenu menu={Menu} {...props}/>
 
       <div className=" expand with scroll">
         <div className="ui text container">
           <div className="ui relaxed divided list" id="message_list">
-            {list.map( (n) => (
+            {(list && list.length>0) ? list.map( (n) => (
               <div className="item">
                 {maybe_month(n['inserted_at'])}
                 <NotificationItem notification={n}/>
               </div>
-            ))}
+            )) : (
+              <div className="ui padding">{i18n("No messages yet...")}</div>
+            )}
           </div>
         </div>
       </div>

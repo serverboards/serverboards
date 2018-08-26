@@ -64,8 +64,8 @@ components:
           {{{status.fingerprint}}}
           ```
           Click on "Enable host" to add to your known_hosts. This is required to access this server.
-        value: "{{status.toggle}}"
-        className: "{{status.className}}"
+        button: "{{status.button}}"
+        class: "{{status.class}}"
         onclick:
             command: serverboards.core.ssh/mgmt
             call: toggle_remote_fingerprint

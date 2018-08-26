@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/dash
 
 INFILE=""
 INIFILE=""
@@ -6,7 +6,7 @@ DBURL=""
 FORCE=""
 DATADIR=""
 
-function parse_opts(){
+parse_opts(){
   while test $# -gt 0; do
     case $1 in
       --force|-f)
@@ -42,7 +42,7 @@ function parse_opts(){
   done
 }
 
-function help(){
+help(){
   cat <<EOF
 Usage: s10s restore <backupfile.tgz> [serverboards.ini] [--force]
 
@@ -62,17 +62,17 @@ EOF
   exit 1
 }
 
-function cleanup(){
+cleanup(){
   rm -rf ${RTMPDIR}
 }
-function get_config(){
+get_config(){
   awk -F= /^$1[\ \\t]*=/' {print $2}' $INIFILE | tr -d ' '  | sed -e 's/^"//' -e 's/"$//'
 }
-function error(){
+error(){
   log $*
   exit 1
 }
-function log(){
+log(){
   >&2 echo $*
 }
 

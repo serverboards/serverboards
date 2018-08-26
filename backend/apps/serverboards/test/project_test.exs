@@ -192,7 +192,7 @@ defmodule ProjectTest do
     Test.Client.stop(client)
   end
 
-  test "Screens on project", %{ system: system } do
+  test "Screens on project -- removed 201808", %{ system: system } do
     import Serverboards.Project
     import Serverboards.Service
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
@@ -200,17 +200,7 @@ defmodule ProjectTest do
 
     {:ok, info} = project_get "SBDS-TST13", user
     screens = Map.get(info, :screens)
-    assert screens != nil
-    assert Enum.count( screens ) >= 1
-    prev_count=Enum.count( screens )
-
-    {:ok, service } = service_add %{ "name" => "Test service", "tags" => ~w(tag1 tag2 tag3), "type" => "serverboards.test.auth/email" }, user
-    service_attach "SBDS-TST13", service, user
-    {:ok, info} = project_get "SBDS-TST13", user
-    screens = Map.get(info, :screens)
-    assert screens != nil
-    assert Enum.count( screens ) > prev_count
-
+    assert screens == nil
   end
 
 end
