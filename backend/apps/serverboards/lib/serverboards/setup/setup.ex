@@ -37,10 +37,8 @@ defmodule Serverboards.Setup do
 
   @user_perms [
     "auth.token.create",
-    "auth.modify_self", "project.get", "service.get",
+    "auth.modify_self", "project.get",
     "settings.user.view", "settings.user.update",
-    "notifications.list",
-    "issues.view", "issues.create", "issues.update",
   ]
 
 

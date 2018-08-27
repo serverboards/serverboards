@@ -281,6 +281,8 @@ defmodule Serverboards.Plugin.Registry do
       |> Enum.map(&decorate_plugin(&1, context))
     active = Enum.filter(all_plugins, &(&1.status))
 
+    ensure_permissions_exist(all_plugins)
+
     # st = for i <- all_plugins do
     #   {i.id, i.status}
     # end
@@ -291,5 +293,36 @@ defmodule Serverboards.Plugin.Registry do
       all: all_plugins,
       active: active
       }}
+  end
+
+
+  def ensure_permissions_exist(plugins) do
+    perms = Enum.flat_map(plugins, fn plugin ->
+      Enum.flat_map(plugin.components, fn component ->
+        case Map.get(component.extra, "perms", "") do
+          str when is_binary(str) ->
+            String.split(str)
+          li when is_list(li) ->
+            li
+          _other ->
+            Logger.error("Bad permissions format at #{inspect plugin.id}")
+            []
+        end
+      end)
+    end) |> Enum.map(fn str ->
+      if String.contains?(str, "[") do
+        hd(String.split(str,"["))
+      else
+        str
+      end
+    end)|> MapSet.new |> Enum.filter(fn
+      "OR" -> false
+      "AND" -> false
+      _other -> true
+    end)
+
+    for perm <- perms do
+      Serverboards.Auth.Permission.ensure_exists(perm)
+    end
   end
 end
