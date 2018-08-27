@@ -2,6 +2,7 @@ import React from 'react'
 import {goto} from 'app/utils/store'
 import Restricted from 'app/restricted'
 import {ErrorBoundary} from 'app/components/error'
+import Hook from 'app/containers/hooks'
 
 const blogo = require('imgs/logo.svg')
 const powered_by_serverboards = require('imgs/logo.svg')
@@ -49,6 +50,7 @@ function Sidebar(props){
           <i className="ui expand angle right aligned icon"/>
         </div>
       </a>
+      <Hook name="sidebar.top"/>
 
       <div className="ui expand scroll">
         <div className="ui vertical split area">
@@ -62,6 +64,7 @@ function Sidebar(props){
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
           ))}
         </div>
+        <Hook name="sidebar.middle"/>
 
         <hr/>
         <div className="ui vertical split area">
@@ -77,11 +80,9 @@ function Sidebar(props){
                 </div>
               </div>
             </a>
-            <div className="ui right align item no border">
-              <a href="#_" onClick={props.onLogout}>
-                <i className="ui power icon big"/>
-              </a>
-            </div>
+            <a href="#_" onClick={props.onLogout} className="ui right align full item no border">
+              <i className="ui power icon big"/>
+            </a>
           </div>
 
           {props.sections.settings.map( s => (
@@ -89,9 +90,7 @@ function Sidebar(props){
           ))}
         </div>
       </div>
-      <div className="ui padding">
-        <img src={powered_by_serverboards}/>
-      </div>
+      <Hook name="sidebar.bottom"/>
     </div>
   )
 }
