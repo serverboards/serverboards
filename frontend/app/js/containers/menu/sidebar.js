@@ -30,7 +30,7 @@ const SidebarModel=connect({
       .map( s => ({
         id: s.id,
         label: s.name,
-        perm: s.perms,
+        perm: s.extra.perms || "plugin",
         traits: s.traits,
         goto: `/project/${project}/${s.id}/`,
       }))

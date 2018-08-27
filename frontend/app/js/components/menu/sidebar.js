@@ -15,7 +15,7 @@ function goto_or_new_tab(ev, path){
 
 function Item(props){
   return (
-    <Restricted perm={props.perms || ""}>
+    <Restricted perm={props.perm}>
       <a
         className={`ui ${props.selected ? "selected" : ""} item`}
         href={`#${props.goto}`}
@@ -53,21 +53,21 @@ function Sidebar(props){
       <div className="ui expand scroll">
         <div className="ui vertical split area">
           {props.sections.project.map( s => (
-            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
           ))}
         </div>
         <hr/>
         <div className="ui vertical split area grow">
           {props.sections.global.map( s => (
-            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
           ))}
         </div>
 
         <hr/>
         <div className="ui vertical split area">
-          <div className="ui horizontal split area ">
+          <div className="ui horizontal split area" style={{width: "100%", maxWidth: "100%"}}>
             <a
-               className={`ui ${props.section == 'profile' ? "selected" : ""} item`}
+               className={`ui grow ${props.section == 'profile' ? "selected" : ""} item`}
                href="#_" style={{padding: "0 0 0 16px"}}
                onClick={(ev) => {ev.preventDefault(); goto("/user/profile")}}>
               <div className="ui horizontal split area">
@@ -85,7 +85,7 @@ function Sidebar(props){
           </div>
 
           {props.sections.settings.map( s => (
-            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto}/>
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
           ))}
         </div>
       </div>

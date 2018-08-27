@@ -86,6 +86,7 @@ components:
     id: terminal
     description: Can access via SSH to server
     type: screen
+    perms: plugin OR ssh
     traits: ssh
     icon: terminal
 
