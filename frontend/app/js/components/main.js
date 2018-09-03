@@ -9,6 +9,7 @@ import Piwik from 'app/containers/piwik.js'
 import {ErrorBoundary} from 'app/components/error'
 import Legal from 'app/components/login/legal'
 import Sidebar from 'app/containers/menu/sidebar'
+import Hook from 'app/containers/hooks'
 import ProjectSelector from 'app/containers/menu/projectselector'
 
 function modal(props){
@@ -70,6 +71,7 @@ function Main(props){
     <div>
       <Piwik/>
       <FlashMessageList/>
+      <Hook name="outchrome"/>
       {contents}
     </div>
   )
