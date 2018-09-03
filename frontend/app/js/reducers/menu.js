@@ -4,6 +4,7 @@ const default_state = {
   sidebar: localStorage.show_sidebar == "true",
   screens: [],
   project_selector: false,
+  hooks: 0,
 }
 
 function top(state=default_state, action){
@@ -24,6 +25,9 @@ function top(state=default_state, action){
       break;
     case 'TOP_UPDATE_SCREENS':
       state = {...state, screens: action.payload}
+      break;
+    case "ADDED_MORE_HOOKS":
+      state = {...state, hooks: state.hooks + 1}
       break;
   }
   return state

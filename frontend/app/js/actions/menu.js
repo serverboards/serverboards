@@ -30,3 +30,9 @@ export function update_screens(){
       }
     })
 }
+
+export function added_more_hooks(){
+  return {
+    type: "ADDED_MORE_HOOKS"
+  }
+}
