@@ -377,6 +377,7 @@ def install_git(git):
             stderr=subprocess.STDOUT
         )
         stdout += "\n\n" + res.stdout.decode('utf8')
+        open(os.path.join(path, 'install.log'), 'wt').write(stdout)
 
     return {
         "id": plugin.get("id"),
@@ -443,6 +444,7 @@ def install_file(filename):
             stderr=subprocess.STDOUT
         )
         stdout = res.stdout.decode('utf8')
+        open(os.path.join(path, 'install.log'), 'wt').write(stdout)
         success = res.returncode == 0
 
     return {
