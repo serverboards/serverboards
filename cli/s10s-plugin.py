@@ -231,7 +231,7 @@ def check_updates(ids):
     output_data(ret)
 
 
-AHEAD_RE = re.compile(b".*\[behind (\d*)\].*")
+AHEAD_RE = re.compile(b".*\\[behind (\\d*)\\].*")
 
 
 def check_update(pl):
