@@ -11,7 +11,6 @@ defmodule Serverboards.Dashboard do
     EventSourcing.Model.subscribe :dashboard, :dashboard, Serverboards.Repo
     #EventSourcing.subscribe :project, :debug_full
 
-    setup_eventsourcing(es)
     Serverboards.Dashboard.setup_eventsourcing(es)
     Serverboards.Dashboard.Widget.setup_eventsourcing(es)
 
@@ -140,6 +139,7 @@ defmodule Serverboards.Dashboard do
   end
 
   def dashboard_add_real( %{ uuid: _uuid } = attr, me) do
+    Logger.debug("Add dashboard #{inspect attr.uuid}")
     {:ok, project} = Serverboards.Project.project_get( attr.project, me  )
     attr = Map.drop( attr, [:project] )
     attr = Map.put(attr, :project_id, project.id )
