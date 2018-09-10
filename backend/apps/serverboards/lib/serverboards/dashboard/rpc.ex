@@ -30,7 +30,7 @@ defmodule Serverboards.Dashboard.RPC do
     RPC.MethodCaller.add_method mc, "dashboard.list", fn attr, context ->
       me = Context.get(context, :user)
       Serverboards.Dashboard.dashboard_list(%{ project: attr["project"] }, me)
-        |> Enum.map( &Map.take(&1, ~w"uuid order name"a))
+        |> Enum.map( &Map.take(&1, ~w"uuid order name alias"a))
     end, [required_perm: "project.get", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.get", fn attr ->
       dashboard = case attr do
