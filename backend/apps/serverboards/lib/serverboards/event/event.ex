@@ -14,6 +14,7 @@ defmodule Serverboards.Event do
         event_type = payload.type
 
         # only send if in subscriptions.
+        # Logger.debug("#{inspect event_type} in #{inspect subscriptions}")
         if event_type in subscriptions do
           guards = Map.get(payload, :guards, [])
           user = MOM.RPC.Client.get client, :user

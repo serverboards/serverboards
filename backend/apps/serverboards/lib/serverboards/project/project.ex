@@ -237,6 +237,7 @@ defmodule Serverboards.Project do
       |> Enum.map(&(%{
         uuid: &1.uuid,
         name: &1.name,
+        alias: &1.alias,
         order: &1.order
         }))
 

@@ -278,6 +278,8 @@ defmodule Serverboards.Plugin.Registry do
     }
 
     all_plugins = load_plugins()
+      |> Enum.reverse
+      |> Enum.uniq_by(&(&1.id))
       |> Enum.map(&decorate_plugin(&1, context))
     active = Enum.filter(all_plugins, &(&1.status))
 
