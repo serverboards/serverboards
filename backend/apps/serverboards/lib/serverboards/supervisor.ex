@@ -20,9 +20,10 @@ defmodule Serverboards.Supervisor do
       supervisor(Serverboards.IO.HTTP.Supervisor, [[name: Serverboards.IO.HTTP.Supervisor]]),
       supervisor(Serverboards.Plugin.Supervisor, [[name: Serverboards.Plugin.Supervisor]]),
       supervisor(Serverboards.Utils.Cache, [[name: Serverboards.Utils.Cache]]),
+      supervisor(Serverboards.Project.Supervisor, [[name: Serverboards.Project.Supervisor]]),
+      supervisor(Serverboards.Dashboard.Supervisor, [[name: Serverboards.Dashboard.Supervisor]]),
 
       worker(Serverboards.Settings, [ [name: Serverboards.Settings] ]),
-      worker(Serverboards.Project, [ [name: Serverboards.Project] ]),
       worker(Serverboards.Service, [ [name: Serverboards.Service] ]),
       worker(Serverboards.Event, [ [name: Serverboards.Event] ]),
       worker(Serverboards.Action, [ [name: Serverboards.Action] ]),

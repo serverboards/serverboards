@@ -1,7 +1,7 @@
 require Logger
 require Serverboards.Project.Model
 
-defmodule Serverboards.Project.Widget do
+defmodule Serverboards.Dashboard.Widget do
   @moduledoc ~S"""
   Widget management
 
@@ -66,7 +66,7 @@ defmodule Serverboards.Project.Widget do
   def widget_add(project, data, me) do
     uuid = data[:uuid] || UUID.uuid4
     data = Map.merge(data, %{ project: project, uuid: uuid })
-    EventSourcing.dispatch(:project, :add_widget, data, me.email )
+    EventSourcing.dispatch(:dashboard, :add_widget, data, me.email )
     {:ok, data.uuid}
   end
   def widget_add_real(project, data) do
@@ -86,7 +86,7 @@ defmodule Serverboards.Project.Widget do
     uuid = data[:uuid] || UUID.uuid4
     data = Map.merge(data, %{ dashboard: dashboard, uuid: uuid })
     # Logger.debug("Send event :add_widget_v2 #{inspect dashboard} #{inspect data}")
-    EventSourcing.dispatch(:project, :add_widget_v2, data, me.email )
+    EventSourcing.dispatch(:dashboard, :add_widget_v2, data, me.email )
     {:ok, data.uuid}
   end
   def widget_add_real_v2(dashboard, data) when is_binary(dashboard) do
@@ -109,7 +109,7 @@ defmodule Serverboards.Project.Widget do
   end
 
   def widget_update(uuid, data, me) do
-    EventSourcing.dispatch(:project, :update_widget, Map.merge(data, %{ uuid: uuid }), me.email )
+    EventSourcing.dispatch(:dashboard, :update_widget, Map.merge(data, %{ uuid: uuid }), me.email )
     :ok
   end
   def widget_update_real(uuid, data) do
@@ -145,7 +145,7 @@ defmodule Serverboards.Project.Widget do
   end
 
   def widget_remove(uuid, me) do
-    EventSourcing.dispatch(:project, :remove_widget, %{ uuid: uuid }, me.email )
+    EventSourcing.dispatch(:dashboard, :remove_widget, %{ uuid: uuid }, me.email )
     :ok
   end
   def widget_remove_real(uuid) do

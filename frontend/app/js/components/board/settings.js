@@ -5,15 +5,6 @@ import HoldButton from 'app/components/holdbutton'
 import {map_get} from 'app/utils'
 import QueryServiceSelect from 'app/containers/board/queryserviceselect'
 
-function get_name(name=""){
-  console.log("Name is ", name)
-  let s = name.split('|')
-  if (s.length>1)
-    return s[1]
-  return name
-}
-
-
 class Settings extends React.Component{
   constructor(props){
     super(props)
@@ -51,7 +42,7 @@ class Settings extends React.Component{
     return (
       <Modal>
         <div className="ui top serverboards secondary menu">
-          <h3 className="ui header">{i18n("{name} dashboard settings", {name: get_name(dashboard.name)})}</h3>
+          <h3 className="ui header">{i18n("{name} dashboard settings", {name: dashboard.name})}</h3>
           <div className="right menu">
             <HoldButton className="item" onHoldClick={this.handleBoardRemove.bind(this)}>
               {i18n("Remove dashboard")}
