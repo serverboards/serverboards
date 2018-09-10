@@ -146,6 +146,7 @@ defmodule Serverboards.Dashboard do
     {:ok, _dashboard} = Repo.insert(
       Model.Dashboard.changeset( %Model.Dashboard{}, attr )
     )
+    Serverboards.Event.emit("dashboard.created", attr, ["project.get"])
     Serverboards.Event.emit("dashboard.created[#{project.shortname}]", attr, ["project.get"])
   end
 
@@ -153,6 +154,7 @@ defmodule Serverboards.Dashboard do
     Repo.update( Model.Dashboard.changeset( dashboard_get_model(uuid), attr ) )
 
     project_shortname = dashboard_get_project_shortname( uuid )
+    Serverboards.Event.emit("dashboard.updated", attr, ["project.get"])
     Serverboards.Event.emit("dashboard.updated[#{uuid}]", attr, ["project.get"])
     Serverboards.Event.emit("dashboard.updated[#{project_shortname}]", attr, ["project.get"])
   end
@@ -170,6 +172,7 @@ defmodule Serverboards.Dashboard do
       from d in Model.Dashboard,
       where: d.uuid == ^uuid
     )
+    Serverboards.Event.emit("dashboard.deleted", %{ uuid: uuid }, ["project.get"])
     Serverboards.Event.emit("dashboard.deleted[#{uuid}]", %{ uuid: uuid }, ["project.get"])
     Serverboards.Event.emit("dashboard.deleted[#{project_shortname}]", %{ uuid: uuid }, ["project.get"])
   end
