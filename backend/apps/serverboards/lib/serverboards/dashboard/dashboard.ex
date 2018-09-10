@@ -65,6 +65,16 @@ defmodule Serverboards.Dashboard do
     )
   end
 
+  def dashboard_alias_get( alias_ ) do
+    import Ecto.Query
+    uuid = Repo.one(
+      from d in Model.Dashboard,
+      where: d.alias == ^alias_,
+      select: d.uuid
+    )
+    dashboard_get(uuid)
+  end
+
   def dashboard_get( uuid ) do
     import Ecto.Query
     case dashboard_get_model( uuid ) do
@@ -79,6 +89,7 @@ defmodule Serverboards.Dashboard do
           uuid: data.uuid,
           config: data.config,
           order: data.order,
+          alias: data.alias,
           widgets: for w <- widgets do
             %{
               widget: w.widget,

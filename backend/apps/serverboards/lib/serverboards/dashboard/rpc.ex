@@ -33,8 +33,16 @@ defmodule Serverboards.Dashboard.RPC do
         |> Enum.map( &Map.take(&1, ~w"uuid order name"a))
     end, [required_perm: "project.get", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.get", fn attr ->
-      Serverboards.Dashboard.dashboard_get( attr["uuid"] )
-       |> Map.take(~w"uuid name updated_at inserted_at config order widgets"a)
+      dashboard = case attr do
+        [uuid] ->
+          Serverboards.Dashboard.dashboard_get( uuid )
+        %{"uuid" => uuid} ->
+          Serverboards.Dashboard.dashboard_get( uuid )
+        %{"alias" => alias_} ->
+          Serverboards.Dashboard.dashboard_alias_get( alias_ )
+      end
+
+      Map.take(dashboard, ~w"uuid name updated_at inserted_at config order widgets alias"a)
     end, [required_perm: "project.get"]
 
     RPC.MethodCaller.add_method mc, "dashboard.widget.create", fn attr, context ->

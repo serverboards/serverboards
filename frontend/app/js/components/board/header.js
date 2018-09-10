@@ -6,14 +6,6 @@ import moment from 'moment'
 import {set_modal} from 'app/utils/store'
 import utils from 'app/utils'
 
-function get_name(name){
-  const n = name.split('|')
-  if (n.length==1)
-    return name
-  else
-    return n[1]
-}
-
 class HeaderMenu extends React.Component{
   constructor(props){
     super(props)
@@ -68,7 +60,7 @@ class HeaderMenu extends React.Component{
         <div className="ui attached tabular menu">
           {props.dashboard_list.map( d => (
             <a key={d.uuid} className={`item ${d.uuid == current.uuid ? "active" : ""}`} onClick={() => this.handleDashboardChange(d.uuid)}>
-              {get_name(d.name)}
+              {d.name}
             </a>
           ))}
           <div className="ui item separator"/>
