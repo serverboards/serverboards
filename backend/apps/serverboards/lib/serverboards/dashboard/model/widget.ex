@@ -1,6 +1,6 @@
 defmodule Serverboards.Project.Model.Widget do
   use Ecto.Schema
-  schema "project_widget" do
+  schema "dashboard_widget" do
     field :dashboard_id, :id
     field :uuid, Ecto.UUID
     field :widget, :string

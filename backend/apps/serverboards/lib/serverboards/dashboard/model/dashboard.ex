@@ -1,6 +1,6 @@
 defmodule Serverboards.Project.Model.Dashboard do
   use Ecto.Schema
-  schema "project_dashboard" do
+  schema "dashboard_dashboard" do
     field :uuid, Ecto.UUID
     field :project_id, :id
     field :name, :string
