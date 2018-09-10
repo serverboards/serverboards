@@ -27,7 +27,7 @@ defmodule DashboardTest do
   ## DEPRECATED 17.04
   test "Create project and widgets, no ES" do
     import Serverboards.Project
-    import Serverboards.Project.Widget
+    import Serverboards.Dashboard.Widget
 
     user = Test.User.system
 
@@ -76,8 +76,8 @@ defmodule DashboardTest do
 
   test "Create a dashboard no RPC" do
     import Serverboards.Project
-    import Serverboards.Project.Dashboard
-    import Serverboards.Project.Widget
+    import Serverboards.Dashboard
+    import Serverboards.Dashboard.Widget
 
     user = Test.User.system
 

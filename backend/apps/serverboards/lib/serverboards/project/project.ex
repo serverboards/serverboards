@@ -9,19 +9,15 @@ defmodule Serverboards.Project do
   alias Serverboards.Project.Model.ProjectTag, as: ProjectTagModel
 
   def start_link(_options) do
-    Agent.start_link(fn ->
-      {:ok, es} = EventSourcing.start_link name: :project
-      {:ok, rpc} = Serverboards.Project.RPC.start_link
+    {:ok, es} = EventSourcing.start_link name: :project
 
-      EventSourcing.Model.subscribe :project, :project, Serverboards.Repo
-      #EventSourcing.subscribe :project, :debug_full
+    EventSourcing.Model.subscribe :project, :project, Serverboards.Repo
+    #EventSourcing.subscribe :project, :debug_full
 
-      setup_eventsourcing(es)
-      Serverboards.Project.Widget.setup_eventsourcing(es)
-      Serverboards.Project.Dashboard.setup_eventsourcing(es)
+    setup_eventsourcing(es)
+    Serverboards.Dashboard.Widget.setup_eventsourcing(es)
 
-      %{es: es, rpc: rpc}
-    end)
+    {:ok, es}
   end
 
   def setup_eventsourcing(es) do
@@ -237,7 +233,7 @@ defmodule Serverboards.Project do
 
     services = Serverboards.Service.service_list [project: project.shortname]
     project = Map.put(project, :services, services)
-    dashboards = Serverboards.Project.Dashboard.dashboard_list(%{ project: project.shortname} )
+    dashboards = Serverboards.Dashboard.dashboard_list(%{ project: project.shortname} )
       |> Enum.map(&(%{
         uuid: &1.uuid,
         name: &1.name,

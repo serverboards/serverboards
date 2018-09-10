@@ -3,7 +3,23 @@ require Serverboards.Project.Model
 alias Serverboards.Project.Model
 alias Serverboards.Repo
 
-defmodule Serverboards.Project.Dashboard do
+defmodule Serverboards.Dashboard do
+
+  def start_link(_options) do
+    {:ok, es} = EventSourcing.start_link name: :dashboard
+
+    EventSourcing.Model.subscribe :dashboard, :dashboard, Serverboards.Repo
+    #EventSourcing.subscribe :project, :debug_full
+
+    setup_eventsourcing(es)
+    Serverboards.Dashboard.setup_eventsourcing(es)
+    Serverboards.Dashboard.Widget.setup_eventsourcing(es)
+
+    {:ok, es}
+  end
+
+
+
   def setup_eventsourcing(es) do
     EventSourcing.subscribe es, :add_dashboard, fn attr, me ->
       dashboard_add_real(attr, me)
@@ -18,16 +34,16 @@ defmodule Serverboards.Project.Dashboard do
 
   def dashboard_add( attr, me ) do
     data = Map.put( attr, :uuid, UUID.uuid4() )
-    EventSourcing.dispatch(:project, :add_dashboard, data, me.email )
+    EventSourcing.dispatch(:dashboard, :add_dashboard, data, me.email )
     {:ok, data.uuid}
   end
 
   def dashboard_update( attr, me ) do
-    EventSourcing.dispatch(:project, :update_dashboard, attr, me.email )
+    EventSourcing.dispatch(:dashboard, :update_dashboard, attr, me.email )
   end
 
   def dashboard_remove( uuid, me ) do
-    EventSourcing.dispatch(:project, :remove_dashboard, %{ uuid: uuid }, me.email )
+    EventSourcing.dispatch(:dashboard, :remove_dashboard, %{ uuid: uuid }, me.email )
     :ok
   end
 
