@@ -38,11 +38,17 @@ defmodule Serverboards.Dashboard.RPC do
           Serverboards.Dashboard.dashboard_get( uuid )
         %{"uuid" => uuid} ->
           Serverboards.Dashboard.dashboard_get( uuid )
+        %{"alias" => alias_, "project" => project} ->
+          Serverboards.Dashboard.dashboard_alias_get( alias_, project )
         %{"alias" => alias_} ->
           Serverboards.Dashboard.dashboard_alias_get( alias_ )
       end
 
-      Map.take(dashboard, ~w"uuid name updated_at inserted_at config order widgets alias"a)
+      case dashboard do
+        {:error, whatever} -> {:error, whatever}
+        dashboard ->
+          Map.take(dashboard, ~w"uuid name updated_at inserted_at config order widgets alias"a)
+      end
     end, [required_perm: "project.get"]
 
     RPC.MethodCaller.add_method mc, "dashboard.widget.create", fn attr, context ->

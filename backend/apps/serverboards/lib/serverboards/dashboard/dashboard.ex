@@ -75,6 +75,23 @@ defmodule Serverboards.Dashboard do
     dashboard_get(uuid)
   end
 
+  def dashboard_alias_get( alias_, project ) do
+    import Ecto.Query
+    uuid = Repo.one(
+      from d in Model.Dashboard,
+      select: d.uuid,
+      join: p in Serverboards.Project.Model.Project,
+      on: p.id == d.project_id,
+
+      where: d.alias == ^alias_ and p.shortname == ^project
+    )
+    if uuid == nil do
+      {:error, :unknown_dashboard}
+    else
+      dashboard_get(uuid)
+    end
+  end
+
   def dashboard_get( uuid ) do
     import Ecto.Query
     case dashboard_get_model( uuid ) do
