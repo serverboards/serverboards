@@ -13,12 +13,12 @@ defmodule Serverboards.Dashboard.RPC do
 
     RPC.MethodCaller.add_method mc, "dashboard.create", fn attr, context ->
       me = Context.get(context, :user)
-      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"project name order config")
+      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"project name order config alias")
       Serverboards.Dashboard.dashboard_add(attr, me)
     end, [required_perm: "dashboard.create", context: true]
     RPC.MethodCaller.add_method mc, "dashboard.update", fn attr, context ->
       me = Context.get(context, :user)
-      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"uuid name order config")
+      attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"uuid name order config alias")
       Serverboards.Dashboard.dashboard_update(attr, me)
       :ok
     end, [required_perm: "dashboard.update", context: true]
@@ -53,6 +53,7 @@ defmodule Serverboards.Dashboard.RPC do
 
     RPC.MethodCaller.add_method mc, "dashboard.widget.create", fn attr, context ->
       me = Context.get(context, :user)
+      Logger.debug("Create widget #{inspect attr}")
       if attr["project"] do
         Serverboards.Dashboard.Widget.widget_add(attr["project"], %{
           config: attr["config"],
