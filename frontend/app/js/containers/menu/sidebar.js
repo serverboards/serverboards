@@ -57,23 +57,18 @@ const SidebarModel=connect({
       sections: {
         project: [
           {id: "dashboard", label: i18n_nop("Dashboards"), goto: `/project/${project}/`},
-          {id: "services", label: i18n_nop("Services"), goto: `/project/${project}/services/`, perm:"service.get"},
-          {id: "rules", label: i18n_nop("Rules"), goto: `/project/${project}/rules_v2/`, perm:"rules.view"},
+          {id: "services", label: i18n_nop("Services"), goto: `/project/${project}/services/`, perm: "service.get"},
+          {id: "rules", label: i18n_nop("Rules"), goto: `/project/${project}/rules_v2/`, perm: "rules.view"},
           ...project_screens,
-          {id: "project_settings", label: i18n_nop("Project Settings"), goto: `/project/${project}/settings/`, perm:"project.update"},
+          {id: "project_settings", label: i18n_nop("Project Settings"), goto: `/project/${project}/settings/`, perm: "project.update"},
         ],
         global: [
-          {id: "issues", label: i18n_nop("Issues"), goto: `/issues/`, perm:"issues.view"},
-          {id: "notifications", label: i18n_nop("Notifications"), goto: "/notifications/list", perm:"notifications.list"},
+          {id: "issues", label: i18n_nop("Issues"), goto: `/issues/`, perm: "issues.view"},
+          {id: "notifications", label: i18n_nop("Notifications"), goto: "/notifications/list", perm: "notifications.list"},
           ...global_screens,
         ],
         settings: [
-          {id: "settings", label: i18n_nop("Settings Overview"), goto: "/settings/overview", perm:"settings.view"},
-          {id: "users", label: i18n_nop("Users"), goto: "/settings/users", perm:"auth.list"},
-          {id: "groups", label: i18n_nop("Groups & Permissions"), goto: "/settings/groups", perm:"auth.list AND auth.manage_groups"},
-          {id: "logs", label: i18n_nop("Logs"), goto: "/settings/logs", perm:"logs.view"},
-          {id: "packages", label: i18n_nop("Packages"), goto: "/settings/plugins", perm:"plugin.catalog"},
-          {id: "system", label: i18n_nop("System Settings"), goto: "/settings/system", perm:"settings.view"},
+          {id: "settings", label: i18n_nop("Settings"), goto: "/settings/", perm: "settings.view"},
         ]
       }
     }

@@ -56,12 +56,6 @@ class System extends React.Component{
 
     return (
       <React.Fragment>
-        <SectionMenu menu={(props) => (
-          <React.Fragment>
-            <h3 className="ui header">{i18n("System Settings")}</h3>
-            </React.Fragment>
-          )}/>
-
         <div className="ui text container settings">
           {props.settings.map( (section) => (
               <div key={section.id} ref={section.id}>

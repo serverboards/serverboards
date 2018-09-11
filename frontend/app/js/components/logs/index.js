@@ -207,7 +207,6 @@ class Logs extends React.Component{
         <SectionMenu menu={(props) => (
           <React.Fragment>
             <div className="ui item with info">
-              <h3 className="ui header">{i18n("Logs")}</h3>
               <div className="meta">{i18n("{count} log lines.", {count: this.state.count})}</div>
             </div>
 

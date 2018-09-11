@@ -42,7 +42,6 @@ class Default extends React.Component{
       <div>
         <SectionMenu menu={(props) => (
           <React.Fragment>
-            <h3 className="ui header">{i18n("General information")}</h3>
             <div className="right menu">
               <GenericForm fields={props.buttons}/>
             </div>

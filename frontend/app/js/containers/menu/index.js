@@ -47,7 +47,11 @@ export class SectionMenu extends React.Component {
   }
   render(){
     if (this.state.inline){
-      return this.props.menu(this.props)
+      return (
+        <div className="ui horizontal secondary menu">
+          {this.props.menu(this.props)}
+        </div>
+      )
     }
     return null
   }

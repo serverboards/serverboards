@@ -65,7 +65,6 @@ class Groups extends React.Component{
       <div className="ui expand vertical split" >
         <SectionMenu menu={(props) => (
           <React.Fragment>
-            <h3 className="ui header">{i18n("Groups and permissions")}</h3>
             <div className="right menu">
               <Restricted perm="auth.manage_groups">
                 <a onClick={props.onAddGroup} className="ui teal button">{i18n("Add group")}</a>

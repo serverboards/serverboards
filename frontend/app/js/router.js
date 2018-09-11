@@ -38,10 +38,7 @@ class ServerboardsRouter extends React.Component{
             <Route path=":project/:section/:subsection" component={Project}/>
             <Route path=":project/:section/:subsection/:service" component={Project}/>
           </Route>
-          <Route path="/settings/" component={Settings}>
-            <Route path=":section" component={Settings}/>
-            <Route path=":section/:subsection" component={Settings}/>
-          </Route>
+          <Route path="/settings/" component={Settings}/>
           <Route path="/process/">
             <Route path="history" component={ProcessesHistory}/>
             <Route path=":uuid" component={ProcessView}/>
