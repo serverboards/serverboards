@@ -68,12 +68,12 @@ function Main(props){
   }
 
   return (
-    <div>
+    <React.Fragment>
       <Piwik/>
       <FlashMessageList/>
       <Hook name="outchrome"/>
       {contents}
-    </div>
+    </React.Fragment>
   )
 }
 

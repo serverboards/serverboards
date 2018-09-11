@@ -415,17 +415,25 @@ table
   .nofullscreen
     display: none !important
 
+#react
+  display: flex
+  flex-direction: column
+  height: 100vh
+  width: 100vw
+
 #chrome
   display: grid
   grid-template-areas: "sidebar top top" "sidebar projects main"
   grid-template-rows: 60px auto
   grid-template-columns: auto auto 1fr
   width: 100vw
-  height: 100vh
+  flex-grow: 1
   #mainarea
     grid-area: main
     overflow: auto
     overflow: auto
+    max-height: 100%
+    max-width: 100%
   #projects
     grid-area: projects
   #sidebar
