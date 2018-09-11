@@ -19,8 +19,8 @@ defmodule Serverboards.IO.HTTP.Root do
         |> Map.put("type", Map.get(params, "auth"))
 
       case Serverboards.Auth.auth_and_get_token(params) do
-        {:error, _} ->
-          %{}
+        {:error, error} ->
+          %{ "error" => to_string(error)}
         {:ok, token} ->
           %{ "token" => token}
       end

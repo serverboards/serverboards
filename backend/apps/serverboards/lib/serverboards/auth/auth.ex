@@ -308,12 +308,18 @@ defmodule Serverboards.Auth do
 
 	def auth_and_get_token(authdata) do
 		# Logger.debug("Authdata are #{inspect authdata}")
-		with {:ok, user} <- auth(authdata),
-				 true <- Enum.any?(user.perms, &(&1 == "auth.token.create")) do
-				 	token = Serverboards.Auth.User.Token.create(user)
-					{:ok, token}
-		else
-			_ -> {:error, :not_allowed}
-  	end
+		try do
+			with {:ok, user} <- auth(authdata),
+					 true <- Enum.any?(user.perms, &(&1 == "auth.token.create")) do
+					 	token = Serverboards.Auth.User.Token.create(user)
+						{:ok, token}
+			else
+				_ -> {:error, :not_allowed}
+	  	end
+		rescue
+			any ->
+				Logger.error("Could not authenticate with params #{inspect Map.drop(authdata, [:password])}")
+				{:error, :invalid_params}
+		end
 	end
 end

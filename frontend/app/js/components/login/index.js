@@ -6,6 +6,7 @@ import 'sass/login.sass'
 import {i18n} from 'app/utils/i18n'
 import {merge} from 'app/utils'
 import PropTypes from 'prop-types'
+import Flash from 'app/flash'
 
 const white_logo=require('../../../imgs/white-horizontal-logo.svg')
 
@@ -43,6 +44,20 @@ class LoginView extends React.Component{
     if (token_match){
       window.location.hash=''
       this.setState({modal: 'set_password', token: token_match[1]})
+    }
+
+    let maybe_error = $('meta[name=error]').attr('value') || ""
+    if (maybe_error){
+      if (maybe_error == 'not_allowed')
+        maybe_error = i18n("Access not allowed.")
+      if (maybe_error == 'invalid_params')
+        maybe_error = i18n("Access params are not valid. Contact the plugin developer or check the Serverboards API.")
+      Flash.error(maybe_error)
+      window.history.replaceState({}, document.title, "/");
+    }
+    const maybe_token = $('meta[name=token]').attr('value') || ""
+    if (maybe_token){
+      window.history.replaceState({}, document.title, "/");
     }
   }
   resetPassword(email){
