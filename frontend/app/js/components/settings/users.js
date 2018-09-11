@@ -87,7 +87,6 @@ class Users extends React.Component{
       <div className="ui expand vertical split">
         <SectionMenu menu={() => (
           <React.Fragment>
-            <h3 className="ui header">{i18n("Users")}</h3>
             <div className="right menu">
               <Restricted perm="auth.create_user">
                 <a onClick={this.handleOpenAddUser.bind(this)} className="ui teal button">{i18n("Add user")}</a>

@@ -93,7 +93,6 @@ class Plugins extends React.Component{
       <React.Fragment>
         <SectionMenu menu={(props) => (
           <React.Fragment>
-            <h3 className="ui header">{i18n("Plugins")}</h3>
             <div className="item stretch"/>
             <div className="item">
               <a
