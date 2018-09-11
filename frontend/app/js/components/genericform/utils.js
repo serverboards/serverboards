@@ -8,8 +8,9 @@ import rpc from 'app/rpc'
  * @param args is the current values of the form
  */
 export function resolve_form_vars(vars, args){
+  // console.log("Resolve from vars ", {vars, args})
   return Promise.all( (vars || []).map( (v) => {
-    return rpc.call("plugin.call", [v.command, v.call, args])
+    return rpc.call("plugin.call", [v.command, v.call, {...args, ...(v.extra||{})}])
        .then((content) => [v.id, content])
   })).then( (varlist) => {
     let ret={}
