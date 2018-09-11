@@ -37,9 +37,14 @@ defmodule Serverboards.Project.RPC do
       end
     end, [required_perm: "project.get", context: true]
 
-    RPC.MethodCaller.add_method mc, "project.list", fn [], context ->
-      {:ok, projects} = project_list Context.get(context, :user)
-      Enum.map projects, &Serverboards.Utils.clean_struct(&1)
+    RPC.MethodCaller.add_method mc, "project.list", fn args, context ->
+      case Enum.count(args) do
+        0 ->
+          {:ok, projects} = project_list Context.get(context, :user)
+          Enum.map projects, &Serverboards.Utils.clean_struct(&1)
+        _ ->
+          {:error, :invalid_arguments}
+      end
     end, [required_perm: "project.get", context: true]
 
     # Add this method caller once authenticated.
