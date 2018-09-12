@@ -36,6 +36,8 @@ connection of the current server to ensure identity (SSH public keys hashes).
 Use `s10s plugin login` to attach your account with the server.
 """
 
+os.environ["LC_ALL"] = "en_US.UTF-8"  # venv needs this...
+os.environ["LC_CTYPE"] = "en_US.UTF-8"  # venv needs this...
 paths = []
 install_path = None
 format = "text"
