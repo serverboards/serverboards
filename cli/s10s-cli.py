@@ -818,7 +818,7 @@ class CliClient(IOClient):
                 return True
 
             printc("Wrong credentials", color="red")
-        os.exit(1)
+        sys.exit(1)
 
 
 class Completer:
