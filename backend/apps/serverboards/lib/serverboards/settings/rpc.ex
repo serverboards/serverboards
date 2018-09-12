@@ -8,7 +8,7 @@ defmodule Serverboards.Settings.RPC do
 
   # this sections do not need special permissions when got from other user
   @user_whitelist ~w"profile_avatar"
-  @settings_whitelist ~w"ui"
+  @settings_whitelist ~w"ui serverboards.core.settings/base"
 
   def start_link(options \\ []) do
     {:ok, mc} = RPC.MethodCaller.start_link options
@@ -46,7 +46,7 @@ defmodule Serverboards.Settings.RPC do
         if can_view do
           get_from_db_or_ini(section)
         else
-          Logger.debug("Try to access settings #{section}, with permissions #{inspect perms} // #{inspect user.email}")
+          Logger.error("Try to access settings #{section}, with permissions #{inspect perms} // #{inspect user.email}", section: section, user: user.email)
           {:error, :not_allowed}
         end
       [section, defval], context ->
