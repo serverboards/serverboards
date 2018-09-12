@@ -30,6 +30,7 @@ function Item(props){
 
 function Sidebar(props){
   const pathname = props.pathname
+  const project_selector = props.project_selector
   return (
     <div className="ui sidebar" id="sidebar">
       <div className="ui horizontal split area" id="logo-area">
@@ -44,12 +45,18 @@ function Sidebar(props){
           </a>
         </div>
       </div>
-      <a className="ui item" href="#_" onClick={(ev) => { ev.preventDefault(); props.onToggleProjectSelector()}}>
+      {project_selector ? (
+        <a className="ui item" style={{minHeight: 65}} href="#_" onClick={(ev) => { ev.preventDefault(); props.onToggleProjectSelector()}}>
+          <div className="ui padding horizontal split area" id="projectname">
+            <h2 className="ui teal header">{props.project}</h2>
+            <i className="ui expand angle right aligned icon"/>
+          </div>
+        </a>
+      ) : (
         <div className="ui padding horizontal split area" id="projectname">
           <h2 className="ui teal header">{props.project}</h2>
-          <i className="ui expand angle right aligned icon"/>
         </div>
-      </a>
+      )}
       <Hook name="sidebar.top"/>
 
       <div className="ui expand scroll">

@@ -10,6 +10,7 @@ import { toggle_menu, toggle_sidebar, toggle_project_selector, update_screens } 
 import { project_update_all } from 'app/actions/project'
 import { i18n_nop } from 'app/utils/i18n'
 import { map_get } from 'app/utils'
+import { has_perm } from 'app/utils/perms'
 
 const SidebarModel=connect({
   state: (state) => {
@@ -43,6 +44,11 @@ const SidebarModel=connect({
         return s
       })
 
+    const project_selector = (
+      (map_get(state.project, ["projects", "length"], 0) > 1)
+      || has_perm("project.create")
+    )
+
     return {
       user: state.auth.user,
       avatar: state.auth.avatar,
@@ -54,6 +60,7 @@ const SidebarModel=connect({
       lang: state.auth.lang,
       project: map_get( state.project, ["project", "name"], project),
       pathname,
+      project_selector,
       sections: {
         project: [
           {id: "dashboard", label: i18n_nop("Dashboards"), goto: `/project/${project}/`},
