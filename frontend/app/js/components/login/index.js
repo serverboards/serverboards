@@ -47,7 +47,7 @@ class LoginView extends React.Component{
     }
 
     let maybe_error = $('meta[name=error]').attr('value') || ""
-    if (maybe_error){
+    if (maybe_error && maybe_error.indexOf("{{")<0){
       if (maybe_error == 'not_allowed')
         maybe_error = i18n("Access not allowed.")
       if (maybe_error == 'invalid_params')
