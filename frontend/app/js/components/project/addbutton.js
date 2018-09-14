@@ -56,7 +56,7 @@ class AddButton extends React.Component{
           </Restricted>
           <Restricted perm="dashboard.create">
             <a
-                onClick={() => goto(`/project/${project}/dashboard/add`)}
+                onClick={() => set_modal_and_close('dashboard.widget.create')}
                 title={i18n("Add a widget")}
                 className="ui double margin left"
                 >

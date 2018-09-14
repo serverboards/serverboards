@@ -1,3 +1,17 @@
+import React from 'react'
+import Modal from 'app/components/modal'
+
+export function make_modal(Component){
+  return function(props){
+    return (
+      <Modal>
+        <Component {...props}/>
+      </Modal>
+    )
+  }
+}
+
+
 export function get_modal(name){
   switch(name){
     case "service.add":
@@ -21,7 +35,7 @@ export function get_modal(name){
     case "service.action":
       return require('app/components/service/actionmodal').default
     case "dashboard.widget.create":
-      return require('app/containers/board/add_widget').default
+      return make_modal(require('app/containers/board/add_widget').default)
     case "dashboard.widget.edit":
       return require('app/containers/board/edit_widget').default
     case "dashboard.settings":
