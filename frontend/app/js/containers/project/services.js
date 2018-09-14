@@ -3,10 +3,11 @@ import ServiceAdd from 'app/containers/service/add'
 import connect from 'app/containers/connect'
 import React from 'react'
 import store from 'app/utils/store'
+import { map_get } from 'app/utils'
 
 var Services = connect({
   state: (state) => ({
-    services: state.project.project.services,
+    services: map_get(state.project, ["project", "services"], []),
     location: state.routing.locationBeforeTransitions,
     service_catalog: state.services.catalog || []
   }),
