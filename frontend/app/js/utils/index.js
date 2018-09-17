@@ -190,6 +190,8 @@ const fixed_colors={
   "purple": "purple",
   "pink": "pink",
   "brown": "brown",
+  "darkgrey": "#333",
+  "lightgrey": "#aaa",
   "grey": "grey",
   "facebook": "blue",
   "instagram": "pink",
