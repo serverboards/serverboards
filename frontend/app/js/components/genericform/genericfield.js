@@ -3,6 +3,7 @@ import SelectService from './selectservice'
 import SelectCall from './selectcall'
 import RichDescription from './richdescription'
 import GenericButton from './genericbutton'
+import HTMLField from './htmlfield'
 import TextArea from './textarea'
 import i18n from 'app/utils/i18n'
 import event from 'app/utils/event'
@@ -191,6 +192,10 @@ class GenericField extends React.Component{
       case 'service':
         return (
           <SelectService {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
+        )
+      case 'html':
+        return (
+          <HTMLField {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
         )
       default:
         return (
