@@ -474,28 +474,22 @@ defmodule Serverboards.Service do
     service = case service_catalog([type: service.type]) do
       [] ->
         service
-          |> Map.put(:fields, [])
           |> Map.put(:traits, [])
           |> Map.put(:description, "")
           |> Map.put(:icon, nil)
       [service_definition | _other ] ->
         # Logger.debug("Service definition #{inspect service_definition}")
-        fields = (service_definition.fields || []) |> Enum.map(fn
-          f when is_map(f)->
-            Map.put(f, :value, Map.get(service.config || %{}, f["name"], ""))
-        end)
         service = if service_definition[:virtual] do
           service |> Map.put(:virtual, service_definition.virtual)
         else
           service
         end
         service
-          |> Map.put(:fields, fields)
           |> Map.put(:traits, service_definition.traits)
           |> Map.put(:icon, service_definition.icon)
     end
 
-    service |> Map.take(~w(tags projects config uuid priority name type fields traits virtual description icon)a)
+    service |> Map.take(~w(tags projects config uuid priority name type traits virtual description icon)a)
   end
 
   @doc ~S"""
