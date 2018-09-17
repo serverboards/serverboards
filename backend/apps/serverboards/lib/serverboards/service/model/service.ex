@@ -18,9 +18,6 @@ defmodule Serverboards.Service.Model.Service do
 	 def changeset(service, changes \\ :empty) do
 		import Ecto.Changeset
 
-		require Logger
-		Logger.debug("Update service #{inspect service, pretty: true}")
-
 		changes = case Map.get(changes, :name, :nochange) do
 			:nochange -> changes
 			name when name == nil or name == "" ->
