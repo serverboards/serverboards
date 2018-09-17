@@ -71,7 +71,7 @@ defmodule Serverboards.Service do
         [type] = service_catalog([type: service.type])
         name = type.name
         Logger.warn("Service #{uuid} must have a name. Setting type name: #{inspect name}.", service_uuid: uuid)
-        operations = Map.put(operations, :name, name )
+        Map.put(operations, :name, name )
       else operations end
 
       changeset = ServiceModel.changeset(
@@ -187,9 +187,17 @@ defmodule Serverboards.Service do
       {:error, :unknown_user} -> # from command, where there is no user id
          nil
     end
+
+    name = case attributes.name do
+      name when name == nil or name == "" ->
+        [template] = Serverboards.Plugin.Registry.filter_component(id: attributes.type)
+        template.name
+      name -> name
+    end
+
     {:ok, servicem} = Repo.insert( %ServiceModel{
       uuid: uuid,
-      name: attributes.name,
+      name: name,
       type: attributes.type,
       creator_id: user_id,
       priority: attributes.priority,

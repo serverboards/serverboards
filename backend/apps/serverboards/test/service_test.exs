@@ -152,4 +152,24 @@ defmodule ServerboardTest do
 
     assert Test.Client.expect(client, method: "test.service.updated")
   end
+
+  test "Service without name" do
+    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+
+    {:ok, uuid} = Test.Client.call(client, "service.create", %{type: "serverboards.test.auth/server"})
+    {:ok, service} = Test.Client.call(client, "service.get", [uuid])
+    assert service["name"] == "generic component"
+
+    {:ok, _uuid} = Test.Client.call(client, "service.update", [uuid, %{ config: %{ aaa: "test2" }}])
+    {:ok, service} = Test.Client.call(client, "service.get", [uuid])
+    assert service["name"] == "generic component"
+
+    {:ok, _uuid} = Test.Client.call(client, "service.update", [uuid, %{ name: "test2" }])
+    {:ok, service} = Test.Client.call(client, "service.get", [uuid])
+    assert service["name"] == "test2"
+
+    {:ok, _uuid} = Test.Client.call(client, "service.update", [uuid, %{ name: "" }])
+    {:ok, service} = Test.Client.call(client, "service.get", [uuid])
+    assert service["name"] == "generic component"
+  end
 end
