@@ -34,11 +34,6 @@ const Controller = connect({
       `dashboard.deleted[${project}]`,
     ]
   },
-  store_enter(state, props){
-    return [
-      () => project_get_dashboard(map_get(state.project.dashboard.list, [0, "uuid"])), // first dashboard
-    ]
-  },
 })(View)
 
 export default Controller

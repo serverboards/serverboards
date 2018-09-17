@@ -61,17 +61,4 @@ const Board = store.connect({
   }
 }, BoardView)
 
-function BoardRouter(props){
-  console.log(props)
-  if (props.location.pathname.endsWith("/add")){
-    console.log("Add")
-    return (
-      <AddWidget {...props}/>
-    )
-  }
-  return (
-    <Board {...props}/>
-  )
-}
-
-export default BoardRouter
+export default Board

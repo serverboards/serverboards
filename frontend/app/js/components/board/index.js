@@ -65,29 +65,30 @@ class Board extends React.Component{
   }
   getAllLayouts(props, widget_width){
     widget_width = widget_width || (this.state || {}).widget_width || WIDGET_WIDTH
-    const layout = this.props.widgets && this.props.widgets.map( (w, idx) => {
-      const template_layout = to_keywordmap((this.getTemplate(w.widget) || {}).hints)
-
-      const ui = {x: 0, y: idx, ...template_layout, ...(w.ui || {})}
-      ui.i = w.uuid
-
-      ui.minW = ui.minW || 1
-      ui.maxW = ui.maxW || 24
-      ui.minH = ui.minH || 1
-      ui.maxH = ui.maxH || 8
-      ui.w = clamp(ui.w, ui.minW, ui.maxW)
-      ui.h = clamp(ui.h, ui.minH, ui.maxH)
-
-      // Width is the number of w + the gaps - 2 for border
-      ui.width = (ui.w * (widget_width + WIDGET_GAP)) - 17
-
-      ui.height = ui.h * widget_width - 30
-      ui.widget_width = widget_width
-
-      return ui
-    })
+    const layout = this.props.widgets && this.props.widgets.map( (w, idx) => this.getDefaultLayout(w, idx, widget_width))
     // console.log("Layout is", layout)
     return layout
+  }
+  getDefaultLayout(widget, y, widget_width){
+    const template_layout = to_keywordmap((this.getTemplate(widget.widget) || {}).hints)
+
+    const ui = {x: 0, y, ...template_layout, ...(widget.ui || {})}
+    ui.i = widget.uuid
+
+    ui.minW = ui.minW || 1
+    ui.maxW = ui.maxW || 24
+    ui.minH = ui.minH || 1
+    ui.maxH = ui.maxH || 8
+    ui.w = clamp(ui.w, ui.minW, ui.maxW)
+    ui.h = clamp(ui.h, ui.minH, ui.maxH)
+
+    // Width is the number of w + the gaps - 2 for border
+    ui.width = (ui.w * (widget_width + WIDGET_GAP)) - 17
+
+    ui.height = ui.h * widget_width - 30
+    ui.widget_width = widget_width
+
+    return ui
   }
   handleLayoutChange(layout){
     function layout_data(l){
@@ -332,9 +333,13 @@ class Board extends React.Component{
     window.removeEventListener("window", this.calculateBoardSize)
     Object.values(this.state.timers).map( v => clearInterval(v) )
   }
-  getLayout(wid){
+  getLayout(widget){
+    const wid = widget.uuid
     let layout = this.state && (this.state.layout || []).find( l => l.i == wid )
     // console.log(this.state.layout, layout)
+    if (!layout){ // It happens on new widgets, just add no layout set yet by react-grid-layout
+      layout = this.getDefaultLayout(widget, 0, this.state.widget_width)
+    }
     return layout
   }
   render() {
@@ -402,7 +407,7 @@ class Board extends React.Component{
                           template={template}
                           onEdit={() => this.handleEdit(widget.uuid)}
                           project={props.project}
-                          layout={this.getLayout(widget.uuid)}
+                          layout={this.getLayout(widget)}
                           theme={theme}
                           />
                       </ErrorBoundary>

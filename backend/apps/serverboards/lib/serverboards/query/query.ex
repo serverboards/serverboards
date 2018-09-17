@@ -40,7 +40,7 @@ defmodule Serverboards.Query do
   defp csv_query(query) do
     res = case query do
       "" ->
-        %{ columns: ["?NONAME?"], rows: [[""]]}
+        %{ columns: [{"tmp", "tmp", "?NONAME?"}], rows: [[""]]}
       _ ->
         {:ok, stream} = StringIO.open(query)
         stream = IO.binstream(stream, :line)
@@ -50,8 +50,16 @@ defmodule Serverboards.Query do
             _other -> []
           end)
           |> Enum.filter(&(&1 != [])) # remove empty lines
-        columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
-        %{ columns: columns, rows: rows}
+        if String.starts_with?(query, "#") do
+          [columns | rows] = rows
+          [ h | rest ] = columns # remove #
+          columns = [ String.slice(h, 1, 1000) | rest ]
+            |> Enum.map(&({"tmp", "tmp", &1}))
+          %{ columns: columns, rows: rows}
+        else
+          columns = Enum.map(List.first(rows), fn _r -> "?NONAME?" end )
+          %{ columns: columns, rows: rows}
+        end
     end
     {:ok,  res}
   end
