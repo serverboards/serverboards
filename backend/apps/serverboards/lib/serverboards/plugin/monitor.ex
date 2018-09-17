@@ -49,7 +49,7 @@ defmodule Serverboards.Plugin.Monitor do
 
   def handle_info({_port, {:data,{:eol, data}}}, state) do
     [_, dirname, _actions, filename] = Regex.run(~r/^([^,]*),(.*),([^,]*)$/, List.to_string(data))
-    file_path = "#{dirname}#{filename}"
+    file_path = "#{dirname}/#{filename}"
     Logger.debug("Changes at #{file_path}")
 
     if state.timeout != :none do
