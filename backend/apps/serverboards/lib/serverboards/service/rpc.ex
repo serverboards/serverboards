@@ -27,8 +27,11 @@ defmodule Serverboards.Service.RPC do
       service_update service, operations, Context.get(context, :user)
     end, [required_perm: "service.update", context: true]
 
-    RPC.MethodCaller.add_method mc, "service.get", fn [service], context ->
-      service_get service, Context.get(context, :user)
+    RPC.MethodCaller.add_method mc, "service.get", fn
+      [service], context ->
+        service_get service, Context.get(context, :user)
+      %{ "uuid" => service }, context ->
+        service_get service, Context.get(context, :user)
     end, [required_perm: "service.get", context: true]
 
     RPC.MethodCaller.add_method mc, "service.list", fn filter ->
