@@ -6,7 +6,7 @@ const {map_get} = Serverboards.utils
 class Mini5 extends React.Component{
   componentDidMount(){
     const props = this.props
-    props.setTitle(" ")
+    props.setTitle("|fullsize")
     // console.log("props", props)
     this.updateData(props)
   }

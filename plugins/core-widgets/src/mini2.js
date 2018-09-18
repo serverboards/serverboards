@@ -5,7 +5,7 @@ const {React, rpc}=Serverboards
 class Mini2 extends React.Component{
   componentDidMount(){
     const props = this.props
-    props.setTitle(" ")
+    props.setTitle("|fullsize")
     this.updateData()
   }
   updateData(props){

@@ -28,7 +28,7 @@ class Clock extends React.Component{
       this.setState({interval_id: interval_id})
     }
     this.props.setClass("orange card")
-    this.props.setTitle(" ")
+    props.setTitle("|fullsize")
   }
   componentWillUnmount(){
     if (this.state.interval_id){
