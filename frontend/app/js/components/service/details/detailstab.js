@@ -16,6 +16,8 @@ function DataField({field, value}){
 
   switch(field.type){
     case "description":
+    case "html":
+      return null
     case "hidden":
       return null
     case "button":

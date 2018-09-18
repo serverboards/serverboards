@@ -37,7 +37,7 @@ class HTMLField extends React.Component {
       })
   }
   componentDidUpdate(){
-    if (this.refs.me)
+    if (this.refs.me && this.refs.me.innerHTML == "")
       this.refs.me.innerHTML = this.state.html;
   }
   render(){
@@ -53,7 +53,7 @@ class HTMLField extends React.Component {
           ) : (
             <div ref="me"></div>
           )}
-          <input type="hidden" name={state.id} id={state.id} onChange={props.onChange}/>
+          <input type="text" style={{display: "none"}} name={state.id} id={state.id} onChange={(ev) => {console.log("Change", ev); props.onChange(ev)}}/>
         </div>
       </div>
     )
