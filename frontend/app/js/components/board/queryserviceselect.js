@@ -3,6 +3,7 @@ import i18n from 'app/utils/i18n'
 import ServiceSelect from 'app/containers/service/select'
 import GenericForm from 'app/components/genericform'
 import {object_is_equal, to_map} from 'app/utils'
+import Icon from '../iconicon'
 
 const ID_LIST="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -172,7 +173,7 @@ class QueryServiceSelect extends React.Component{
                     <div key={e.id}
                         className={`ui narrow card ${selected.extractor == e.id ? "selected" : ""} with pointer`}
                         onClick={() => this.handleSelectExtractor(e)}>
-                      <i className={`icon ${e.extra.icon || "database"}`}/>
+                      <Icon icon={e.extra.icon} plugin={e.id.split('/')[0]} className="ui mini"/>
                       <h3>{e.name}</h3>
                     </div>
                   ))}
