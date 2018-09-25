@@ -97,7 +97,7 @@ class Plugins extends React.Component{
             <div className="item">
               <a
                   className="ui teal medium button"
-                  onClick={() => goto('/settings/plugins/add')}
+                  onClick={this.props.gotoMarketplace}
                   >
                 {i18n("Marketplace")}
               </a>

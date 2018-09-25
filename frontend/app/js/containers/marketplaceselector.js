@@ -16,12 +16,15 @@ class MarketplaceSelector extends React.Component {
     }
   }
   loadPlugins(){
-    console.log("Load plugins ", {type: this.props.type})
+    let filter = {}
+    if (this.props.type)
+      filter.type = this.props.type
+    console.log("Load plugins ", filter)
     return Promise.all([
       plugin.call(
         "serverboards.optional.update/marketplace",
         "search",
-        {type: this.props.type}
+        filter
       ), cache.plugins()]
     ).then( ([plugins, installed]) => {
       plugins = plugins.filter( c => !installed[c.id] )
