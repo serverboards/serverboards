@@ -36,7 +36,7 @@ class EditWidget extends React.Component{
     const state=this.state
     const props=this.props
     let ret = {
-      ui: {},
+      ui: map_get(props, ["widget", "ui"], {}),
       uuid: props.widget.uuid,
       widget: props.widget.widget,
       config: {...state.config},
