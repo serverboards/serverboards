@@ -55,10 +55,6 @@ class LoginView extends React.Component{
       Flash.error(maybe_error)
       window.history.replaceState({}, document.title, "/");
     }
-    const maybe_token = $('meta[name=token]').attr('value') || ""
-    if (maybe_token){
-      window.history.replaceState({}, document.title, "/");
-    }
   }
   resetPassword(email){
     this.setState({modal: 'reset_password', email})
