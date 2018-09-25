@@ -245,13 +245,7 @@ class ServiceAddRouter extends React.Component{
           <MarketplaceSelector
             key="marketplace"
             type="service"
-            afterInstall={(plugin) => {
-              this.setState({tab:3})
-              const service = Object.values(plugin.components || {}).find( c => c.type == "service" )
-              const service_type = `${plugin.id}/${service.id}`
-              cache.service_type(service_type).then(props.onSelectServiceType)
-              // console.log("Installed plugin ", plugin, service_type)
-            }}
+            afterInstall={props.onSelectServiceType.bind(this)}
             show_filter={false}
             filter={this.filter.bind(this)}
             onSkip={props.onSkip}

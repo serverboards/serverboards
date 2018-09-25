@@ -40,7 +40,11 @@ class MarketplaceSelector extends React.Component {
            .then( cache.plugins )
            .then( plugins => {
           console.log("Current plugins are ", plugins, pl.id, plugins[pl.id])
-          this.props.afterInstall(plugins[pl.id])
+
+          const plugin = plugins[pl.id]
+          const component = Object.values(plugin.components || {}).find( c => c.type == this.props.type )
+          const component_id = `${plugin.id}/${component.id}`
+          cache.service_type(component_id).then(this.props.afterInstall)
         })
       }
     }).catch(Flash.error)
