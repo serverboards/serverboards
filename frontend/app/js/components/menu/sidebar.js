@@ -3,6 +3,7 @@ import {goto} from 'app/utils/store'
 import Restricted from 'app/restricted'
 import {ErrorBoundary} from 'app/components/error'
 import Hook from 'app/containers/hooks'
+import i18n from 'app/utils/i18n'
 
 const blogo = require('imgs/logo.svg')
 const powered_by_serverboards = require('imgs/logo.svg')
@@ -22,7 +23,7 @@ function Item(props){
         href={`#${props.goto}`}
         onClick={ (ev) => goto_or_new_tab(ev, props.goto) }
         >
-        {props.label}
+        {i18n(props.label)}
       </a>
     </Restricted>
   )
@@ -31,6 +32,16 @@ function Item(props){
 function Sidebar(props){
   const pathname = props.pathname
   const project_selector = props.project_selector
+
+  let current = props.sections.project.find( s => s.goto == pathname )
+  current = current || props.sections.global.find( s => s.goto == pathname )
+  current = current || props.sections.settings.find( s => s.goto == pathname )
+  current = current || { label: "" }
+  const title = `${i18n(current.label)} - ${props.project} - Serverboards`
+
+  if (title != document.title)
+    document.title = title
+
   return (
     <div className="ui sidebar" id="sidebar">
       <div className="ui horizontal split area" id="logo-area">
