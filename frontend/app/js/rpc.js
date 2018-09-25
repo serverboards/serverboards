@@ -86,7 +86,6 @@ var RPC = function(options={}){
 
         require('app/actions/auth').logged_in_as(user)(rpc.store.dispatch)
         require('app/utils/event').resubscribe()
-        require('app/actions/action').action_ps()( rpc.store.dispatch )
 
         // Send pending messages
         for (let msg of rpc.reconnection_message_queue){
