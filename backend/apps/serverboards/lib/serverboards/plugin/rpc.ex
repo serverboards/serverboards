@@ -129,9 +129,9 @@ defmodule Serverboards.Plugin.RPC do
       %{} ->
         Serverboards.Plugin.Registry.list
     end, [required_perm: "plugin"]
-    RPC.MethodCaller.add_method method_caller, "plugin.install", fn
-      [url] ->
-        Serverboards.Plugin.Installer.install(url)
+    RPC.MethodCaller.add_method method_caller, "plugin.reload", fn
+      _ ->
+        Serverboards.Plugin.Registry.reload_plugins()
     end, [required_perm: "plugin.install"]
 
     RPC.MethodCaller.add_method(method_caller, "plugin.data.update", fn

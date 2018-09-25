@@ -1,6 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import Selector from 'app/components/selector'
+import MarketplaceSelector from 'app/containers/marketplaceselector'
 import Flash from 'app/flash'
 import GenericForm from 'app/components/genericform'
 import Loading from 'app/components/loading'
@@ -169,23 +170,6 @@ class AddServiceRouter extends React.Component{
   }
 }
 
-function get_service_market_catalog(){
-  return Promise.all([
-      plugin.start_call_stop(
-            "serverboards.optional.update/catalog",
-            "component_filter",
-            {type: "service"}
-          )
-      , cache.plugins()
-    ]).then( (cp) => {
-      const catalog = cp[0]
-      const plugin_list = cp[1]
-
-      console.log("Got catalog %o // %o", catalog, plugin_list)
-      return catalog.filter( c => !plugin_list[c.plugin] )
-    })
-}
-
 class ServiceAddRouter extends React.Component{
   constructor(props){
     super(props)
@@ -258,23 +242,18 @@ class ServiceAddRouter extends React.Component{
             prev_label={props.prev_label}
             />
         ) : (tab == 2) ? (
-          <Selector
+          <MarketplaceSelector
             key="marketplace"
+            type="service"
+            afterInstall={(plugin) => {
+              this.setState({tab:3})
+              const service = Object.values(plugin.components || {}).find( c => c.type == "service" )
+              const service_type = `${plugin.id}/${service.id}`
+              cache.service_type(service_type).then(props.onSelectServiceType)
+              // console.log("Installed plugin ", plugin, service_type)
+            }}
             show_filter={false}
             filter={this.filter.bind(this)}
-            get_items={get_service_market_catalog}
-            current={(props.service || {}).type}
-            onSelect={(s) => {
-              this.setState({tab:3})
-              plugin.install(s.giturl).then(() => {
-                s = {...s, type: s.id} // I need the component id in the type field.
-                props.onSelectServiceType(s)
-              }).catch((e) => {
-                console.error(e)
-                this.setState({tab:2})
-                Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.", {plugin:s.name}))
-              })
-            }}
             onSkip={props.onSkip}
             skip_label={props.skip_label}
             prevStep={props.prevStep}

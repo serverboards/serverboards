@@ -88,3 +88,12 @@ components:
     type: test
     command: testcmd
     name: Updater Tests
+
+  - id: marketplace
+    type: cmd
+    name: Marketplace integration
+    command: ./serverboards-marketplace.py
+    requires: perms[plugin.install]
+    strategy: singleton
+    timeout: 10s
+    perms: settings.view[serverboards.optional.updater]
