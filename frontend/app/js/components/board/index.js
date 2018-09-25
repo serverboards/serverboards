@@ -149,7 +149,7 @@ class Board extends React.Component{
     // console.log("Is a refresh?", is_refresh)
     const {configs, to_extract} = this.updateConfigs(props.widgets, is_refresh)
     this.setState({configs, to_extract})
-    this.updateExtractedConfigs(to_extract, this.getStatusContext())
+    this.updateExtractedConfigs(to_extract, this.getStatusContext(props))
   }
   componentDidMount(){
     this.updateExtractedConfigs(this.state.to_extract, this.getStatusContext())
@@ -293,9 +293,10 @@ class Board extends React.Component{
 
     return {configs, to_extract}
   }
-  getStatusContext(time_slice){
-    if (!time_slice)
-      time_slice = this.props.time_slice
+  getStatusContext(props){
+    props = props || this.props
+
+    const time_slice = props.time_slice
     const start = time_slice[0]
     const end = time_slice[1]
     const secs = moment(end).diff(start, 'seconds')
