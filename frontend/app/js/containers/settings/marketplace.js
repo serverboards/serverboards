@@ -1,13 +1,13 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
-import View from 'app/components/settings/plugins/add'
+import View from 'app/components/settings/marketplace'
 import plugin from 'app/utils/plugin'
 import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {Loading} from 'app/components'
 
-class AddModel extends React.Component{
+class MarketplaceModel extends React.Component{
   constructor(props){
     super(props)
 
@@ -76,4 +76,4 @@ class AddModel extends React.Component{
   }
 }
 
-export default AddModel
+export default MarketplaceModel

@@ -31,6 +31,14 @@ async def install(plugin_id):
     return json.loads(res)
 
 
+@serverboards.rpc_method
+async def userdata():
+    return {
+        "name": "David Moreno",
+        "email": "dmoreno@serverboards.io",
+    }
+
+
 async def test():
     print(await search(type="screen"))
 

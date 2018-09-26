@@ -90,38 +90,22 @@ class Plugins extends React.Component{
     const settings=this.state.settings
 
     return (
-      <React.Fragment>
-        <SectionMenu menu={(props) => (
-          <React.Fragment>
-            <div className="item stretch"/>
-            <div className="item">
-              <a
-                  className="ui teal medium button"
-                  onClick={this.props.gotoMarketplace}
-                  >
-                {i18n("Marketplace")}
-              </a>
-            </div>
-          </React.Fragment>
-        )}/>
-
-        <div className="expand with scroll and padding">
-          <div className="ui container">
-            <div className="ui cards">
-              {plugins.map((p) => (
-                <PluginCard
-                  key={p.id}
-                  plugin={p}
-                  onOpenDetails={() => {set_modal('plugin.details',{plugin: p})}}
-                  onOpenSettings={settings[p.id] ? (
-                    () => set_modal('plugin.settings',{plugin: p, settings: settings[p.id] })
-                  ) : null }
-                  />
-              ))}
-            </div>
+      <div className="expand with scroll and padding">
+        <div className="ui container">
+          <div className="ui cards">
+            {plugins.map((p) => (
+              <PluginCard
+                key={p.id}
+                plugin={p}
+                onOpenDetails={() => {set_modal('plugin.details',{plugin: p})}}
+                onOpenSettings={settings[p.id] ? (
+                  () => set_modal('plugin.settings',{plugin: p, settings: settings[p.id] })
+                ) : null }
+                />
+            ))}
           </div>
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 }

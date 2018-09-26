@@ -1,18 +1,12 @@
 import React from 'react'
-import {Panes, Tip, MarketplaceSelector} from 'app/components'
+import {Panes, MarketplaceSelector} from 'app/components'
 import i18n from 'app/utils/i18n'
-import {goto} from 'app/utils/store'
+import Login from './login'
 
-function AddWidget(props){
-  console.log({Panes, Tip, MarketplaceSelector})
-
+function Marketplace(props){
   const tip = (
-    <Tip
-      subtitle={i18n("Install plugins from the Serverboards marketplace")}
-      description={i18n("Plugins allow you to add new functionalities to your Serverboards installation with a simple click")}
-      />
+    <Login/>
   )
-
   const work = (
     <div className="ui vertical split area">
       <MarketplaceSelector
@@ -58,20 +52,6 @@ function AddWidget(props){
 
   return (
     <div className="ui vertical split area">
-      {!props.hide_menu && (
-        <div className="ui top secondary menu">
-          <h3 className="ui header">{i18n("Plugins")}</h3>
-          <div className="item stretch"/>
-          <div className="item">
-            <a
-                className="ui medium button"
-                onClick={props.gotoList}
-                >
-              {i18n("Back to list")}
-            </a>
-          </div>
-        </div>
-      )}
       <Panes
         column1={tip}
         column2={work}
@@ -80,4 +60,4 @@ function AddWidget(props){
   )
 }
 
-export default AddWidget
+export default Marketplace

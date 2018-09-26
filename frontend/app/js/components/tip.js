@@ -18,6 +18,7 @@ function Tip(props){
         <div className="ui content justified">
           <MarkdownPreview value={props.description}/>
         </div>
+        {props.extra}
       </div>
     </div>
   )
