@@ -14,11 +14,11 @@ import Marketplace from 'app/containers/settings/marketplace'
 
 const sections={
   overview: [Overview, i18n_nop("Overview")],
-  users: [Users, i18n_nop("Users")],
-  groups: [Groups, i18n_nop("Groups")],
   marketplace: [Marketplace, i18n_nop("Marketplace")],
   plugins: [Plugins, i18n_nop("Plugins")],
   system: [System, i18n_nop("System")],
+  users: [Users, i18n_nop("Users")],
+  groups: [Groups, i18n_nop("Groups")],
   logs: [Logs, i18n_nop("Logs")]
 }
 
