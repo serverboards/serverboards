@@ -41,10 +41,13 @@ function Card({item, default_icon, onClick, className}){
   const icon = item.icon || (item.extra || {}).icon || default_icon
   return (
     <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
-      <h3 className="ui header">
+      <div className="ui split area horizontal" style={{alignItems: "center", marginBottom: 5}}>
         <Icon className="mini" icon={icon} plugin={plugin}/>
-        {i18n(item.name)}
-      </h3>
+        <h3 className="ui header expand" style={{margin: 5, height: "auto"}}>{i18n(item.name)}</h3>
+        {item.tag && (
+          <span className={`ui top right attached label ${item.tag.color}`} style={{marginLeft: "-0.5rem"}}>{item.tag.label}</span>
+        )}
+      </div>
       <div className="description">
         <MarkdownPreview value={i18n(item.description) || ""}/>
       </div>

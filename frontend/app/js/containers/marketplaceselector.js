@@ -4,8 +4,20 @@ import Selector from 'app/components/selector'
 import Flash from 'app/flash'
 import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
+import i18n from 'app/utils/i18n'
 import plugin from 'app/utils/plugin'
 
+
+function tag_by_price(component){
+  const price = component.price
+  const available = component.available
+  if (!price){
+    return {label: i18n("Free"), color: "light green"}
+  }
+  if (available)
+    return {label: i18n("Available"), color: "blue"}
+  return {label: `${Number(price).toFixed(2)} €`, color: "blue"}
+}
 
 class MarketplaceSelector extends React.Component {
   constructor(props){
@@ -27,11 +39,20 @@ class MarketplaceSelector extends React.Component {
         filter
       ), cache.plugins()]
     ).then( ([plugins, installed]) => {
-      plugins = plugins.filter( c => !installed[c.id] )
+      plugins = plugins.filter( c => !installed[c.id] ).map( p => {
+        return {...p, tag: tag_by_price(p)}
+      })
       return plugins
     })
   }
   installPlugin(pl){
+    if (pl.price && !pl.available){
+      const url = "https://serverboards.app/packages/" + pl.id
+      console.log("Information on package at ", url)
+      window.open(url, '_blank');
+      Flash.info(i18n("A new tab has been opened with information on how to acquire the required plugin."))
+      return
+    }
     plugin.call(
       "serverboards.optional.update/marketplace",
       "install",
