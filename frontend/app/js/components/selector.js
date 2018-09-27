@@ -15,6 +15,9 @@ const DEFAULT_ICON={
   filter: "lab"
 }
 
+// Tags 1 or 2
+const TAGS_TYPE=2
+
 function default_icon_for(item, section){
   const traits = item.traits || []
   if (traits.indexOf("cloud")!=-1)
@@ -43,9 +46,14 @@ function Card({item, default_icon, onClick, className}){
     <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
       <div className="ui split area horizontal" style={{alignItems: "center", marginBottom: 5}}>
         <Icon className="mini" icon={icon} plugin={plugin}/>
-        <h3 className="ui header expand" style={{margin: 5, height: "auto"}}>{i18n(item.name)}</h3>
-        {item.tag && (
+        <h3 className="ui header" style={{margin: 5, height: "auto", width: "auto"}}>{i18n(item.name)}</h3>
+        {item.tag && TAGS_TYPE == 1 ? (
           <span className={`ui top right attached label ${item.tag.color}`} style={{marginLeft: "-0.5rem"}}>{item.tag.label}</span>
+        ) : (
+          <React.Fragment>
+            <span className="ui grey text"> | </span>
+            <span className={`ui text ${item.tag.color}`}>&nbsp;{item.tag.label}</span>
+          </React.Fragment>
         )}
       </div>
       <div className="description">
