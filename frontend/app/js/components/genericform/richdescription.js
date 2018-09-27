@@ -6,6 +6,8 @@ import i18n from 'app/utils/i18n'
 import {map_get, object_is_equal} from 'app/utils'
 import _ from 'lodash'
 
+const window_re = /window(\[(\d+),(\d+)\]|)\+(.*)/
+
 class RichDescription extends React.Component{
   process_description(vars={}){
     return render(this.props.value, vars)
@@ -60,13 +62,35 @@ class RichDescription extends React.Component{
   setError(code){
     this.setState({content: i18n("Error loading dynamic data. Contact plugin author. [Error #{code}]", {code}), loading: false, extraClass: "error"})
   }
+  componentDidUpdate(oprops, ostate){
+    if (ostate.content != this.state.content){
+      this.postProcess()
+    }
+  }
+  postProcess(){
+    $(this.refs.el).find('a').map( (i, a) => {
+      a = $(a)
+      let href = a.attr('href')
+      const maybe_window = window_re.exec(href)
+      if (maybe_window){
+        href = maybe_window[4]
+        const width = maybe_window[2] || 700
+        const height = maybe_window[3] || 500
+        a.attr("href", href)
+        a.on('click', (ev) => {
+          ev.preventDefault()
+          window.open(href, "_blank", `height=${height},width=${width}`)
+        })
+      }
+    })
+  }
   render(){
     const props=this.props
     const state=this.state
     if (state.loading)
       <div><i className="ui loading notched circle icon"/></div>
     return (
-      <div className={`${props.className} ${state.extraClass || ""}`}>
+      <div ref="el" className={`${props.className} ${state.extraClass || ""}`}>
         {props.label && (<label>{props.label}</label>)}
         <MarkdownPreview value={state.content}/>
       </div>
