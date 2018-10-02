@@ -42,6 +42,19 @@ paths = []
 install_path = None
 format = "text"
 settings = None
+inis = [
+    os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
+    os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
+    *glob.glob("/etc/serverboards/*.ini"),
+    "/etc/serverboards.ini",
+    os.environ.get("SERVERBOARDS_INI", "")
+]
+
+
+def clean_ini_entry(v):
+    if isinstance(v, str) and v.startswith('"') and v.endswith('"'):
+        return v[1:-1]
+    return v
 
 
 def read_settings():
@@ -53,18 +66,6 @@ def read_settings():
         Returns the full dictionary with the settings of this installation.
         """
 
-        def clean(v):
-            if isinstance(v, str) and v.startswith('"') and v.endswith('"'):
-                return v[1:-1]
-            return v
-
-        inis = [
-            os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
-            os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
-            *glob.glob("/etc/serverboards/*.ini"),
-            "/etc/serverboards.ini",
-            os.environ.get("SERVERBOARDS_INI", "")
-        ]
         settings = {}
         for ini in inis:
             if os.path.exists(ini):
@@ -73,7 +74,7 @@ def read_settings():
                     config.read(ini)
                     for section in config.sections():
                         prev = settings.get(section, {})
-                        prev.update({k: clean(v) for k, v in config.items(section)})
+                        prev.update({k: clean_ini_entry(v) for k, v in config.items(section)})
                         settings[section] = prev
                 except Exception:
                     pass
@@ -97,6 +98,36 @@ def read_settings():
     install_path = paths[0]
 
 
+def update_settings(section, key, value):
+    for ini in inis:
+        if os.path.exists(ini):
+            try:
+                config = configparser.ConfigParser(allow_no_value=True)
+                config.read(ini)
+                if section in config:
+                    config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="·")
+                    config.read(ini)
+                    if value is None:
+                        if key in config[section]:
+                            del config[section][key]
+                    else:
+                        config[section][key] = value
+                    with open(ini, "w") as inif:
+                        config.write(inif)
+                    # done
+                    return
+            except Exception:
+                pass
+    # new value
+    if value is None:
+        return
+    # add to first, which sould be user's defined
+    config = config.read(inis[0])
+    config[section] = {key: value}
+    with open(ini[0], "w") as inif:
+        config.write(inif)
+
+
 def output_data(data):
     if format == "json":
         print(json.dumps(data))
@@ -104,6 +135,9 @@ def output_data(data):
 
     if not data:
         return
+
+    if isinstance(data, dict):
+        data = [data]
 
     def colorize(txt):
         txt = str(txt)
@@ -569,6 +603,56 @@ def search(*terms):
     output_data(js)
 
 
+def login(email=None, password=None):
+    """
+    Logins into the boards server.
+    """
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key")
+    if api_key:
+        res = {"error": "already-loggedin", "message": "You are already logged in. Need to logout before try again."}
+        output_data(res)
+        return
+
+    if not email:
+        email = input("Email: ")
+    if not password:
+        import getpass
+        password = getpass.getpass("Password: ")
+
+    packageserver_url = os.environ.get(
+        "SERVERBOARDS_PACKAGESERVER_URL",
+        packageserver_settings.get("url", "https://serverboards.app")
+    )
+
+    ret = requests.post(packageserver_url + "/api/login", {"email": email, "password": password})
+    if ret.status_code != 200:
+        res = {
+            "status": "error",
+            "message": "invalid user or password"
+        }
+    else:
+        update_settings("serverboards.packageserver/settings", "api_key", ret.json()["api_key"])
+        res = {"success": "logged-in", "message": "You are succesfully logged in"}
+    output_data(res)
+
+
+def logout():
+    """
+    Logs out of the marketplace.
+    """
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key")
+    if not api_key:
+        res = {"error": "not-loggedin", "message": "You are not logged in."}
+        output_data(res)
+        return
+
+    update_settings("serverboards.packageserver/settings", "api_key", None)
+    res = {"success": "logged-out", "message": "You are succesfully logged out"}
+    output_data(res)
+
+
 def main(argv):
     for n, a in enumerate(argv):
         if a.startswith("--format="):
@@ -596,6 +680,10 @@ def main(argv):
         remove_all(argv[1:])
     elif argv[0] == 'search':
         search(*argv[1:])
+    elif argv[0] == 'login':
+        login(*argv[1:])
+    elif argv[0] == 'logout':
+        logout()
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)

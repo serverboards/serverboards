@@ -16,7 +16,8 @@ function tag_by_price(component){
   }
   if (available)
     return {label: i18n("Available"), color: "blue"}
-  return {label: `${Number(price).toFixed(2)} €`, color: "blue"}
+  const price_str = Number(price).toFixed(2)
+  return {label: i18n("{price} € / month", {price: price_str}), color: "blue"}
 }
 
 class MarketplaceSelector extends React.Component {

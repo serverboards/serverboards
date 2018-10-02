@@ -23,12 +23,18 @@ class MarketplaceLogin extends React.Component {
       "serverboards.optional.update/marketplace",
       "userdata",
       []
-    ).then( (logged_in) => {
-      if (logged_in)
-        this.setState({step: STEP_LOGGED_IN})
+    ).then( (userdata) => {
+      if (userdata.email)
+        this.setState({step: STEP_LOGGED_IN, userdata})
       else
         this.setState({step: STEP_NOT_LOGGED_IN})
     }).catch( Flash.error )
+  }
+  handleLogout(){
+    this.setState({step: STEP_NOT_LOGGED_IN})
+  }
+  handleLogin(){
+
   }
   render(){
     const step = this.state.step
@@ -36,6 +42,26 @@ class MarketplaceLogin extends React.Component {
     if (step == STEP_LOADING){
       return (
         <Loading/>
+      )
+    }
+    if (step == STEP_LOGGED_IN){
+      return (
+        <Tip
+          subtitle={i18n("Install plugins from the Serverboards marketplace")}
+          description={i18n(`
+Plugins allow you to add new functionalities to your Serverboards installation
+with a simple click
+
+Username: **{name} < <{email}> >**.
+
+If you logout all the recurring items will be automatically removed. On next
+login they will be automatically installed.
+          `, {name: this.state.userdata.name, email: this.state.userdata.email})}
+          extra={(
+            <div className="ui padding">
+              <a className="ui teal button" onClick={this.handleLogout.bind(this)}>{i18n("Logout")}</a>
+            </div>
+          )}/>
       )
     }
     if (step == STEP_NOT_LOGGED_IN){
@@ -57,7 +83,9 @@ So everybody wins.
           `)}
           extra={(
             <div className="ui padding">
-              <a className="ui teal button">{i18n("Login into the Marketplace")}</a>
+              <a className="ui teal button" onClick={() => this.setState({step: STEP_LOGIN})}>
+                {i18n("Login into the Marketplace")}
+              </a>
             </div>
           )}/>
       )
