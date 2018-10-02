@@ -271,7 +271,7 @@ AHEAD_RE = re.compile(b".*\\[behind (\\d*)\\].*")
 
 
 def check_update(pl):
-    print("Check", pl["id"], file=sys.stderr)
+    # print("Check", pl["id"], file=sys.stderr)
     latest = None
     if pl.get("source") == "packageserver":
         latest = check_update_remote(pl)
@@ -286,9 +286,10 @@ def check_update(pl):
                     extra = yaml.safe_load(rd)
         except Exception:
             logging.error("Could not load extra data from %s" % extrafile)
-        extra["latest"] = latest
-        with open(extrafile, "w") as wd:
-            yaml.safe_dump(extra, wd)
+        if latest != extra["latest"]:
+            extra["latest"] = latest
+            with open(extrafile, "w") as wd:
+                yaml.safe_dump(extra, wd)
     return {"id": pl["id"], "latest": latest}
 
 

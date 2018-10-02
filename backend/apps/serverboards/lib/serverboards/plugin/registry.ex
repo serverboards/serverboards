@@ -261,7 +261,7 @@ defmodule Serverboards.Plugin.Registry do
   end
 
   def handle_cast({:reload}, status), do: handle_cast({:reload, %{}}, status)
-  def handle_cast({:reload, context}, _status) do
+  def handle_cast({:reload, context}, status) do
     Logger.debug("Reloading plugin lists.")
     active = case Map.get(context, :plugins) do
       nil -> Serverboards.Config.get_map(:plugins)
@@ -289,7 +289,11 @@ defmodule Serverboards.Plugin.Registry do
     #   {i.id, i.status}
     # end
 
-    Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
+    if all_plugins != status.all or active != status.active do
+      Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
+    else
+      Logger.debug("No changes on manifest files. Not emiting plugins.reloaded.")
+    end
 
     {:noreply, %{
       all: all_plugins,

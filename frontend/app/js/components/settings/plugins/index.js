@@ -26,7 +26,7 @@ class Plugins extends React.Component{
     this.reload_plugin_list = this.reload_plugin_list.bind(this)
   }
   componentDidMount(){
-    // event.on("plugins.reloaded", this.reload_plugin_list)
+    event.on("plugins.reloaded", this.reload_plugin_list)
     this.load_plugin_list()
   }
   load_plugin_list(){
