@@ -39,6 +39,30 @@ async def userdata():
     }
 
 
+@serverboards.rpc_method
+async def check_updates():
+    try:
+        await curio.subprocess.check_output(["s10s", "plugin", "check", "--format=json"])
+        res = await curio.subprocess.check_output(["s10s", "plugin", "list", "--format=json"])
+    except curio.subprocess.CalledProcessError as e:
+        print(e.output)
+        raise
+
+    return json.loads(res)
+
+
+@serverboards.rpc_method
+async def update(plugin_id):
+    try:
+        res = await curio.subprocess.check_output(["s10s", "plugin", "update", plugin_id, "--format=json"])
+    except curio.subprocess.CalledProcessError as e:
+        print(e.output)
+        raise
+
+    return json.loads(res)
+
+
+
 async def test():
     print(await search(type="screen"))
 

@@ -314,16 +314,27 @@ def check_update_remote(pl):
 
 def update(id_or_path):
     plugin = get_plugin(id_or_path)
+    if not plugin:
+        return {
+            "status": "error",
+            "message": "Unknown plugin. Use id or path."
+        }
+
     source = plugin.get("source", "unknown")
     res = False
     stdout = None
-
+    # print(json.dumps(plugin, indent=2))
     if source == 'git':
-        (res, stdout) = update_git(source)
-    if source == 'packageserver':
+        (res, stdout) = update_git(plugin["path"])
+    elif source == 'packageserver':
         install_res = install_packageserver(plugin["id"])
         res = install_res["success"]
         stdout = install_res["stdout"]
+    else:
+        return {
+            "status": "error",
+            "message": "Plugin was not installed by s10s. Don't know how to update."
+        }
 
     return {
         "id": plugin["id"],

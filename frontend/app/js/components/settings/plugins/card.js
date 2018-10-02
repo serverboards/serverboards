@@ -42,6 +42,9 @@ function PluginCard(props){
       </div>
       <div className="extra content" style={{padding:0}}>
         <div className="ui inverted yellow menu bottom attached">
+          {p.updated === false && (
+            <a className="ui right blue item" onClick={(ev) => {ev.preventDefault(); props.onUpdate()}}>{i18n("Update")}</a>
+          )}
           {props.onOpenSettings ? (
             <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenSettings()}}>
               {i18n("Settings")}

@@ -3,7 +3,7 @@ import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import PluginDetails from './details'
 import plugin from 'app/utils/plugin'
-import {merge} from 'app/utils'
+import {merge, object_list_to_map} from 'app/utils'
 import event from 'app/utils/event'
 import i18n from 'app/utils/i18n'
 import {set_modal, goto} from 'app/utils/store'
@@ -20,33 +20,33 @@ class Plugins extends React.Component{
     super(props)
     this.state = {
       plugins: [],
+      updates: {},
       settings: {}
     }
     this.reload_plugin_list = this.reload_plugin_list.bind(this)
-    this.updated = this.updated.bind(this)
-    this.updateRequired = this.updateRequired.bind(this)
   }
   componentDidMount(){
-    event.on("plugin.update.required", this.updateRequired)
-    event.on("plugin.updated", this.updated)
-    event.on("plugins.reloaded", this.reload_plugin_list)
+    // event.on("plugins.reloaded", this.reload_plugin_list)
     this.load_plugin_list()
   }
   load_plugin_list(){
-    cache.plugins().then((pluginsd)=>{
-      let plugins=[]
-      for (let k in pluginsd){
-        plugins.push(pluginsd[k])
-      }
-      plugins = plugins.sort( function(a,b){ return (a.name || "").localeCompare(b.name || "") })
+    cache.plugins().then( pluginsd => {
+      let plugins = Object.values(pluginsd)
+      plugins = plugins.sort( (a,b) => (a.name || "").localeCompare(b.name || "") )
       this.setState({plugins})
     }).catch((e) => {
       Flash.error(`Could not load plugin list.\n ${e}`)
-    }).then( () => {
-      // do not launch more times. May miss some updates needed.
-      if (!store.getState().action.actions.some( i => i.id=="serverboards.optional.update/check_plugin_updates" ))
-        return rpc.call("action.trigger", ["serverboards.optional.update/check_plugin_updates", {}])
-    } )
+    })
+
+    plugin.call("serverboards.optional.update/marketplace", "check_updates", [])
+      .then( orig => {
+        let updates = {}
+        for (let o of orig){
+          updates[o.id] = o.updated
+        }
+        this.setState({updates})
+      })
+
     rpc.call("plugin.component.catalog", {type: "settings"})
       .then( formlist => {
         let settings = {}
@@ -61,33 +61,18 @@ class Plugins extends React.Component{
     this.load_plugin_list()
   }
   componentWillUnmount(){
-    event.off("plugin.update.required", this.updateRequired)
-    event.off("plugin.updated", this.updateRequired)
     event.off("plugins.reloaded", this.reload_plugin_list)
   }
-  updateRequired({plugin_id, changelog}){
-    console.log("Update required: %o; %o", plugin_id, changelog)
-    const plugins = this.state.plugins.map( (pl) => {
-      if (pl.id==plugin_id)
-        return merge(pl, {changelog: changelog, status: pl.status.concat("updatable")})
-      else
-        return pl
-    })
-    this.setState({plugins})
-  }
-  updated({plugin_id}){
-    cache.invalidate("plugins")
-    const plugins = this.state.plugins.map( (pl) => {
-      if (pl.id==plugin_id)
-        return merge(pl, {changelog: null, status: pl.status.filter( t => t!="updatable") })
-      else
-        return pl
-    })
-    this.setState({plugins})
+  handleUpdate(id){
+    plugin.call("serverboards.optional.update/marketplace", "update", [id])
+      .then( () => {
+        this.reload_plugin_list.bind(this)
+        Flash.success(i18n("Plugin updated successfully."))
+      })
+      .catch( Flash.error )
   }
   render(){
-    const plugins=this.state.plugins
-    const settings=this.state.settings
+    const {plugins, settings, updates} = this.state
 
     return (
       <div className="expand with scroll and padding">
@@ -96,7 +81,8 @@ class Plugins extends React.Component{
             {plugins.map((p) => (
               <PluginCard
                 key={p.id}
-                plugin={p}
+                plugin={{...p, updated: updates[p.id]}}
+                onUpdate={() => this.handleUpdate(p.id)}
                 onOpenDetails={() => {set_modal('plugin.details',{plugin: p})}}
                 onOpenSettings={settings[p.id] ? (
                   () => set_modal('plugin.settings',{plugin: p, settings: settings[p.id] })
