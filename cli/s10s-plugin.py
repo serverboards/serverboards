@@ -664,6 +664,7 @@ def logout():
         output_data(res)
         return
 
+    packageserver_get("account/logout")
     update_settings("serverboards.packageserver/settings", "api_key", None)
     res = {"success": "logged-out", "message": "You are succesfully logged out"}
     output_data(res)
@@ -676,13 +677,7 @@ def account():
     if not api_key:
         res = {"logged": False}
     else:
-        packageserver_url = os.environ.get(
-            "SERVERBOARDS_PACKAGESERVER_URL",
-            packageserver_settings.get("url", "https://serverboards.app")
-        )
-
-        res = requests.get(packageserver_url + "/api/account/", {"api_key": api_key})
-        res = res.json()
+        res = packageserver_get("account/").json()
 
         res = {
             "logged": True,
