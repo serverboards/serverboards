@@ -74,7 +74,7 @@ const SidebarModel=connect({
           ...global_screens,
         ],
         settings: [
-          {id: "settings", label: i18n_nop("Settings"), goto: "/settings/", perm: "settings.view"},
+          {id: "settings", label: i18n_nop("Serverboards Settings"), goto: "/settings/", perm: "settings.view"},
         ]
       }
     }
