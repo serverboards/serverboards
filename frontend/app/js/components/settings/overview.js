@@ -40,12 +40,10 @@ class Default extends React.Component{
     const state = this.state
     return (
       <div>
-        <SectionMenu menu={(props) => (
-          <React.Fragment>
+        <SectionMenu menu={(props) => ( // Here we pass the buttons as prop to force update, and the read it the updated prop
             <div className="right menu">
               <GenericForm fields={props.buttons}/>
             </div>
-            </React.Fragment>
           )} buttons={state.buttons}/>
         <div className="ui text container">
           <GenericForm fields={state.pre}/>
