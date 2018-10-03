@@ -32,11 +32,39 @@ async def install(plugin_id):
 
 
 @serverboards.rpc_method
-async def userdata():
-    return {
-        "name": "David Moreno",
-        "email": "dmoreno@serverboards.io",
-    }
+async def account():
+    try:
+        res = await curio.subprocess.check_output(["s10s", "plugin", "account", "--format=json"])
+    except curio.subprocess.CalledProcessError as e:
+        print(e.output)
+        raise
+
+    return json.loads(res)
+
+
+@serverboards.rpc_method
+async def logout():
+    try:
+        res = await curio.subprocess.check_output(["s10s", "plugin", "logout", "--format=json"])
+    except curio.subprocess.CalledProcessError as e:
+        print(e.output)
+        raise
+
+    return json.loads(res)
+
+
+@serverboards.rpc_method
+async def login(email, password):
+    try:
+        res = await curio.subprocess.check_output(
+            ["s10s", "plugin", "login", email, password, "--format=json"],
+            stdin=None
+        )
+    except curio.subprocess.CalledProcessError as e:
+        print(e.output)
+        raise
+
+    return json.loads(res)
 
 
 @serverboards.rpc_method

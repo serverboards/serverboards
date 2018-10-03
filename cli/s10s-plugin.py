@@ -22,13 +22,17 @@ Allows to install, uninstall and update plugins.
 It uses git URLS to manage the state.
 
 Plugin management:
+    s10s plugin search        -- Remote search of a plugin form the remote database.
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
+    s10s plugin update  <path|plugin_id>      -- Updates a plugin
     s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
     s10s plugin remove  <path|plugin_id>      -- Removes a plugin
-    s10s plugin update  <path|plugin_id>      -- Updates a plugin
+
+Marketplace account management:
+    s10s plugin account       -- Shows data about currently logged in account.
     s10s plugin login         -- Logins into the plugin registry. Required for some plugins.
-    s10s plugin search        -- Remote search of a plugin form the remote database.
+    s10s plugin logout        -- Logouts from the plugin registry.
 
 Some actions may need authentication. The server may ping back to the SSH
 connection of the current server to ensure identity (SSH public keys hashes).
@@ -617,7 +621,7 @@ def search(*terms):
 
 def login(email=None, password=None):
     """
-    Logins into the boards server.
+    Logins into the Marketplace server.
     """
     packageserver_settings = settings.get("serverboards.packageserver/settings", {})
     api_key = packageserver_settings.get("api_key")
@@ -637,7 +641,7 @@ def login(email=None, password=None):
         packageserver_settings.get("url", "https://serverboards.app")
     )
 
-    ret = requests.post(packageserver_url + "/api/login", {"email": email, "password": password})
+    ret = requests.post(packageserver_url + "/api/account/login", {"email": email, "password": password})
     if ret.status_code != 200:
         res = {
             "status": "error",
@@ -662,6 +666,30 @@ def logout():
 
     update_settings("serverboards.packageserver/settings", "api_key", None)
     res = {"success": "logged-out", "message": "You are succesfully logged out"}
+    output_data(res)
+
+
+def account():
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key")
+
+    if not api_key:
+        res = {"logged": False}
+    else:
+        packageserver_url = os.environ.get(
+            "SERVERBOARDS_PACKAGESERVER_URL",
+            packageserver_settings.get("url", "https://serverboards.app")
+        )
+
+        res = requests.get(packageserver_url + "/api/account/", {"api_key": api_key})
+        res = res.json()
+
+        res = {
+            "logged": True,
+            "name": res.get("name"),
+            "email": res.get("email")
+        }
+
     output_data(res)
 
 
@@ -696,6 +724,8 @@ def main(argv):
         login(*argv[1:])
     elif argv[0] == 'logout':
         logout()
+    elif argv[0] == 'account':
+        account()
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)

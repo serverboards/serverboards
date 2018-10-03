@@ -21,20 +21,36 @@ class MarketplaceLogin extends React.Component {
   componentDidMount(){
     plugin.call(
       "serverboards.optional.update/marketplace",
-      "userdata",
+      "account",
       []
     ).then( (userdata) => {
-      if (userdata.email)
+      if (userdata.logged)
         this.setState({step: STEP_LOGGED_IN, userdata})
       else
         this.setState({step: STEP_NOT_LOGGED_IN})
     }).catch( Flash.error )
   }
   handleLogout(){
-    this.setState({step: STEP_NOT_LOGGED_IN})
+    plugin.call(
+      "serverboards.optional.update/marketplace",
+      "logout",
+      []
+    ).then( () => this.setState({step: STEP_NOT_LOGGED_IN}))
   }
   handleLogin(){
-
+    const email = this.refs.email.value
+    const password = this.refs.password.value
+    console.log("Try log in Marketplace with", email)
+    plugin.call(
+      "serverboards.optional.update/marketplace",
+      "login",
+      [email, password]
+    ).then( (res) => {
+      if (res.status == "error")
+        Flash.error(res.message)
+      else
+        this.componentDidMount()
+    })
   }
   render(){
     const step = this.state.step
@@ -50,9 +66,16 @@ class MarketplaceLogin extends React.Component {
           subtitle={i18n("Install plugins from the Serverboards marketplace")}
           description={i18n(`
 Plugins allow you to add new functionalities to your Serverboards installation
-with a simple click
+with a simple click.
 
-Username: **{name} < <{email}> >**.
+---
+
+**You are logged in**
+
+* Username: {name}
+* Email: <{email}>
+
+---
 
 If you logout all the recurring items will be automatically removed. On next
 login they will be automatically installed.
@@ -90,6 +113,44 @@ So everybody wins.
           )}/>
       )
     }
+    if (step == STEP_LOGIN){
+      return (
+        <div className="ui centered fill area padding with scroll">
+          <h1 className="ui slim teal text header">{i18n("Log in into the marketplace.")}</h1>
+          <div className="ui form card with padding">
+            <div className="ui content left text">
+              <div className="ui field">
+                <label>{i18n("Email")}</label>
+                <input ref="email" type="email" name="email"/>
+              </div>
+              <div className="ui field">
+                <label>{i18n("Password")}</label>
+                <input ref="password" type="password" name="password"/>
+              </div>
+
+              <div className="ui split horizontal area">
+                <a href="https://serverboards.app/register"
+                   target="_blank" className="expand  padding"
+                   >
+                  {i18n("Click here to register")}
+                </a>
+                <div className="ui expand right text padding">
+                  <button
+                      className="ui button teal"
+                      onClick={this.handleLogin.bind(this)}
+                      >
+                    {i18n("Log in")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+          </div>
+        </div>
+      )
+    }
+
     return null
   }
 }
