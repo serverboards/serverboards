@@ -4,7 +4,7 @@ description: |
   Shows at serverboards setting oerview whether serverboards needs an update,
   and allows to trigger the update of the system.
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: 18.10
 
 components:
   - id: settings.overview
@@ -72,9 +72,9 @@ components:
     traits: plugins hidden
     type: action
     name: Plugin update
-    command: updater
+    command: marketplace
     call:
-      method: update_plugin
+      method: update
       params:
         - name: action_id
         - name: plugin_id

@@ -23,6 +23,8 @@ function PluginCard(props){
     }
   }
 
+  const color = p.updated == false ? "orange" : "yellow"
+
   return (
     <div key={p.id} className="card">
       <div className="extra content">
@@ -41,12 +43,18 @@ function PluginCard(props){
         <div className="ui description"><MarkdownPreview value={i18n(p.description)}/></div>
       </div>
       <div className="extra content" style={{padding:0}}>
-        <div className="ui inverted yellow menu bottom attached">
-          {p.updated === false && (
-            <a className="ui right blue item" onClick={(ev) => {ev.preventDefault(); props.onUpdate()}}>{i18n("Update")}</a>
-          )}
+        <div className={`ui inverted ${color} menu bottom attached`}>
+          {(p.updated === "updating") ? (
+            <span className="ui right item"><i className="ui loading spinner icon"/>{i18n("Updating...")}</span>
+          ) : (p.updated === false) ? (
+            <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onUpdate()}}>
+              <i className="ui recycle icon"/>
+              {i18n("Update")}
+            </a>
+          ) : null}
           {props.onOpenSettings ? (
             <a className="ui right item" onClick={(ev) => {ev.preventDefault(); props.onOpenSettings()}}>
+              <i className="ui cogs icon"/>
               {i18n("Settings")}
             </a>
           ) : null }

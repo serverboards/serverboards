@@ -8,6 +8,7 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import event from 'app/utils/event'
 import cache from 'app/utils/cache'
+import plugin from 'app/utils/plugin'
 import {colorize, capitalize} from 'app/utils'
 
 const icon = require("../../../../imgs/plugins.svg")
@@ -37,17 +38,14 @@ class PluginDetails extends React.Component{
     super(props)
 
     this.state = this.getInitialState(props)
+    this.checkUpdates = this.checkUpdates.bind(this)
   }
   getInitialState(props){
-    let status
-    if (props)
-      status = props.plugin.status
-    else
-      status = this.props.plugin.status
     return {
       is_active: status.includes("active"),
-      is_updatable: status.includes("updatable"),
-      tags: status
+      updated: props.updated,
+      plugin: props.plugin,
+      tags: props.plugin.status
     }
   }
   componentDidMount(){
@@ -59,18 +57,26 @@ class PluginDetails extends React.Component{
         self.setState({is_active})
       }
     })
-    event.on("plugins.reloaded", this.checkUpdates.bind(this))
+    event.on("plugins.reloaded", this.checkUpdates)
+    this.checkUpdates()
   }
   componentWillUnmount(){
-    event.off("plugins.reloaded", this.checkUpdates.bind(this))
+    event.off("plugins.reloaded", this.checkUpdates)
   }
   checkUpdates(){
     console.log("Maybe some changes, reload the plugin data from cache.")
     const pid = this.props.plugin.id
-    cache.plugins().then( pl => {
-      console.log(pl[pid])
-      const plugin = pl[pid]
-      this.setState( this.getInitialState({plugin}) )
+    Promise.all([
+      plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]),
+      cache.plugin(pid)
+    ]).then( ([update, plugin]) => {
+      console.log("Got update data", update, plugin)
+      if (update.length == 0){
+        Flash.error("Error getting current update status.")
+        this.setState( this.getInitialState({plugin, updated: false}))
+        return;
+      }
+      this.setState( this.getInitialState({plugin, updated: update[0].updated}))
     })
   }
   handleSetActive(plugin_id, is_active){
@@ -82,14 +88,15 @@ class PluginDetails extends React.Component{
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
       // this.props.updateAll()
-      this.setState({is_updatable: false, tags: this.state.tags.filter( t => t!="updatable" ) })
+      this.setState({updated: undefined})
+      this.checkUpdates()
     }).catch( (e) => {
       console.log(e)
       Flash.error("Error updating plugin: "+e)
     })
   }
   render(){
-    const {plugin} = this.props
+    const {plugin} = this.state
     let author=plugin.author
     if (author && author.indexOf('<')>0){
       let m = author.match(/(.*)<(.*)>/)
@@ -109,7 +116,13 @@ class PluginDetails extends React.Component{
             <div className="ui meta bold">{i18n("by")} {author}</div>
           </div>
           <div className="right menu">
-            {this.state.is_updatable ? (
+            {this.state.updated == undefined ? (
+              <div className="item">
+                <button className="ui teal basic disabled button" onClick={this.handleUpdate.bind(this)}>
+                  <i className="ui icon loading spinner"/>{i18n("Checking updates")}
+                </button>
+              </div>
+            ) : this.state.updated == false ? (
               <div className="item">
                 <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
               </div>

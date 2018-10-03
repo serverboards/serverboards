@@ -64,7 +64,10 @@ class Plugins extends React.Component{
     event.off("plugins.reloaded", this.reload_plugin_list)
   }
   handleUpdate(id){
-    plugin.call("serverboards.optional.update/marketplace", "update", [id])
+    let updates = {...this.state.updates}
+    updates[id] = "updating"
+    this.setState({updates})
+    rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": id}])
       .then( () => {
         this.reload_plugin_list.bind(this)
         Flash.success(i18n("Plugin updated successfully."))

@@ -40,19 +40,25 @@ async def userdata():
 
 
 @serverboards.rpc_method
-async def check_updates():
+async def check_updates(*plugins):
+    """
+    Checks for updates. If no plugins passed, checks them all.
+    """
     try:
-        await curio.subprocess.check_output(["s10s", "plugin", "check", "--format=json"])
+        await curio.subprocess.check_output(["s10s", "plugin", "check", *plugins, "--format=json"])
         res = await curio.subprocess.check_output(["s10s", "plugin", "list", "--format=json"])
+        res = json.loads(res)
+        if plugins:  # Not the most efficient. But works. Might be fixed with a "plugin info" command.
+            res = [x for x in res if x["id"] in plugins]
     except curio.subprocess.CalledProcessError as e:
         print(e.output)
         raise
 
-    return json.loads(res)
+    return res
 
 
 @serverboards.rpc_method
-async def update(plugin_id):
+async def update(plugin_id, action_id=None):
     try:
         res = await curio.subprocess.check_output(["s10s", "plugin", "update", plugin_id, "--format=json"])
     except curio.subprocess.CalledProcessError as e:

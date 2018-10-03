@@ -234,7 +234,7 @@ def read_plugin(path):
         data["path"] = path
         if not data.get("latest"):
             data['latest'] = data.get('version')
-        data["updated"] = data.get("version") == data.get("latest")
+        data["updated"] = str(data.get("version")) == str(data.get("latest"))
         return data
     return {}
 
@@ -286,7 +286,7 @@ def check_update(pl):
                     extra = yaml.safe_load(rd)
         except Exception:
             logging.error("Could not load extra data from %s" % extrafile)
-        if latest != extra["latest"]:
+        if latest != extra.get("latest"):
             extra["latest"] = latest
             with open(extrafile, "w") as wd:
                 yaml.safe_dump(extra, wd)
