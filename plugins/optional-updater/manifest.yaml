@@ -23,8 +23,8 @@ components:
             command: serverboards.optional.update/updater
       - id: update
         type: button
-        value: Update now
-        className: yellow
+        button: Update now
+        class: yellow
         onclick:
           action: serverboards.optional.update/update.now
           params: {}
