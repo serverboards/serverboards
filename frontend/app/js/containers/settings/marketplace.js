@@ -47,7 +47,11 @@ class MarketplaceModel extends React.Component{
       return;
     }
     this.setState({installing: plugin_url})
-    rpc.call("plugin.install", [plugin_url]).then( () => {
+    plugin.call(
+      "serverboards.optional.update/marketplace",
+      "install",
+      [plugin_url]
+    ).then( () => {
       Flash.info(i18n("Plugin from {plugin_url} installed and ready.",{plugin_url}))
       this.setState({installing: false})
       this.reload()
