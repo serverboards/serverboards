@@ -25,9 +25,11 @@ Plugin management:
     s10s plugin search        -- Remote search of a plugin form the remote database.
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
-    s10s plugin update  <path|plugin_id>      -- Updates a plugin
     s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
+    s10s plugin update  <path|plugin_id>      -- Updates a plugin
     s10s plugin remove  <path|plugin_id>      -- Removes a plugin
+    s10s plugin enable  <path|plugin_id>      -- Activates a plugin
+    s10s plugin disable <path|plugin_id>      -- Deactivates a plugin
 
 Marketplace account management:
     s10s plugin account       -- Shows data about currently logged in account.
@@ -99,6 +101,16 @@ def read_settings():
             "../plugins/")
     ).split(';')
     paths = [os.path.abspath(x) for x in paths if os.path.isdir(x)]
+
+    # remove dups
+    seen = set()
+    seen_add = seen.add
+    paths = [
+        x
+        for x in paths
+        if not (x in seen or seen_add(x))
+    ]
+
     install_path = paths[0]
 
 
@@ -228,6 +240,8 @@ def read_plugin(path):
                 with open(extra) as fd:
                     data.update(yaml.safe_load(fd))
         except Exception:
+            import traceback
+            traceback.print_exc()
             extra = {}
 
         if 'source' not in data:
@@ -241,6 +255,27 @@ def read_plugin(path):
         data["updated"] = str(data.get("version")) == str(data.get("latest"))
         return data
     return {}
+
+
+def update_extra(path_or_id, key, value):
+    if path_or_id.startswith("/"):
+        path = path_or_id
+    else:
+        path = get_plugin(path_or_id)["path"]
+
+    path = os.path.join(path, ".extra.yaml")
+
+    data = {}
+    if os.path.exists(path):
+        with open(path, 'r') as fd:
+            data = fd.read()
+            data = yaml.load(data)
+
+    data[key] = value
+
+    with open(path, 'w') as fd:
+        fd.write(yaml.dump(data))
+
 
 
 def clean_plugin_cache():
@@ -452,8 +487,7 @@ def install_packageserver(pkgid):
         fd.write(data)
         fd.flush()
         pl = install_file(fd.name)
-        with open(pl["path"]+'/.extra.yaml', 'w') as fd:
-            fd.write("source: packageserver\n")
+        update_extra(pl["path"], "source", "packageserver")
         return pl
 
 
@@ -530,6 +564,8 @@ def install(package):
     for dep in pl["requires"]:
         maybe_install(dep)
 
+    update_extra(pl["path"], "enabled", True)
+
     return pl
 
 
@@ -569,7 +605,7 @@ def remove(id):
 
 def list_(what=[]):
     if not what:
-        what = ["id", "status", "version", "updated"]
+        what = ["id", "status", "version", "enabled", "updated"]
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
@@ -688,6 +724,15 @@ def account():
     output_data(res)
 
 
+def enable(plugin):
+    update_extra(plugin, "enabled", True)
+    output_data({"plugin": plugin, "enabled": True})
+
+def disable(plugin):
+    update_extra(plugin, "enabled", False)
+    output_data({"plugin": plugin, "enabled": False})
+
+
 def main(argv):
     for n, a in enumerate(argv):
         if a.startswith("--format="):
@@ -713,6 +758,10 @@ def main(argv):
         install_all(argv[1:])
     elif argv[0] == 'remove':
         remove_all(argv[1:])
+    elif argv[0] == 'enable':
+        enable(argv[1])
+    elif argv[0] == 'disable':
+        disable(argv[1])
     elif argv[0] == 'search':
         search(*argv[1:])
     elif argv[0] == 'login':

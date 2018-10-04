@@ -23,17 +23,10 @@ function PluginCard(props){
     }
   }
 
-  const color = p.updated == false ? "orange" : "yellow"
+  const color = p.enabled ? (p.updated == false ? "orange" : "yellow") : "grey"
 
   return (
     <div key={p.id} className="card">
-      <div className="extra content">
-        <div className="labels">
-          {p.status.map( (s) => (
-            <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
-          )) }
-        </div>
-      </div>
       <div className="content">
         <ImageIcon src={icon} className="right floated" name={i18n(p.name)}/>
         <h2 className="ui header">{i18n(p.name)}</h2>

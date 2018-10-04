@@ -79,6 +79,18 @@ components:
         - name: action_id
         - name: plugin_id
 
+  - id: enable_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin enable
+    command: marketplace
+    call:
+      method: enable
+      params:
+        - name: action_id
+        - name: plugin_id
+        - name: enabled
+
   - id: testcmd
     type: cmd
     command: updater-test.py

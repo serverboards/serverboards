@@ -231,4 +231,7 @@ defmodule Serverboards.Utils do
       {:error, _} -> defv
     end
   end
+
+  def value_or({:error, _val}, orval), do: orval
+  def value_or({:ok, val}, _orval), do: val
 end

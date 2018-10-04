@@ -42,19 +42,18 @@ class PluginDetails extends React.Component{
   }
   getInitialState(props){
     return {
-      is_active: status.includes("active"),
+      enabled: props.plugin.enabled,
       updated: props.updated,
       plugin: props.plugin,
-      tags: props.plugin.status
     }
   }
   componentDidMount(){
     let self=this
-    $(this.refs.is_active).checkbox({
+    $(this.refs.enabled).checkbox({
       onChange(ev){
-        const is_active = $(self.refs.is_active).is('.checked')
-        self.handleSetActive(self.props.plugin.id, is_active)
-        self.setState({is_active})
+        const enabled = $(self.refs.enabled).is('.checked')
+        self.handleSetEnable(enabled)
+        self.setState({enabled})
       }
     })
     event.on("plugins.reloaded", this.checkUpdates)
@@ -64,25 +63,27 @@ class PluginDetails extends React.Component{
     event.off("plugins.reloaded", this.checkUpdates)
   }
   checkUpdates(){
-    console.log("Maybe some changes, reload the plugin data from cache.")
     const pid = this.props.plugin.id
     Promise.all([
       plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]),
       cache.plugin(pid)
     ]).then( ([update, plugin]) => {
-      console.log("Got update data", update, plugin)
+      // console.log("Got update data", update, plugin)
       if (update.length == 0){
         Flash.error("Error getting current update status.")
         this.setState( this.getInitialState({plugin, updated: false}))
         return;
       }
+      if (plugin.enabled)
+        $(this.refs.enabled).checkbox("set checked")
+      else
+        $(this.refs.enabled).checkbox("set unchecked")
       this.setState( this.getInitialState({plugin, updated: update[0].updated}))
     })
   }
-  handleSetActive(plugin_id, is_active){
-    rpc
-      .call("settings.update", ["plugins", plugin_id, is_active])
-      .then( () => this.componentDidMount() )
+  handleSetEnable(enabled){
+    rpc.call("action.trigger", ["serverboards.optional.update/enable_plugin",  {"plugin_id": this.props.plugin.id, enabled}])
+    this.setState({enabled})
   }
   handleUpdate(){
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
@@ -140,13 +141,8 @@ class PluginDetails extends React.Component{
             ) }
             {!plugin.id.startsWith("serverboards.core.") ? (
               <div className="item two lines">
-                <div>
-                  {this.state.tags.map( (s) => (
-                    <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
-                  )) }
-                </div>
-                <div ref="is_active" className="ui toggle checkbox">
-                  <input type="checkbox" checked={this.state.is_active}/>
+                <div ref="enabled" className="ui toggle checkbox">
+                  <input type="checkbox" checked={this.state.enabled}/>
                 </div>
               </div>
             ) : null }

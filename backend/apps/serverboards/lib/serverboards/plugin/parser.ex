@@ -71,6 +71,7 @@ defmodule Serverboards.Plugin.Parser do
       author: Map.get(dict, "author"),
       version: Map.get(dict, "version"),
       url: Map.get(dict, "url"),
+      enabled: Map.get(dict, "enabled", true),
 
       components: components,
 
@@ -93,8 +94,7 @@ defmodule Serverboards.Plugin.Parser do
   def parse_yaml(yaml, filename \\ "") do
     try do
       data = YamlElixir.read_from_string(yaml)
-      plugin = parse(data)
-      {:ok, plugin}
+      {:ok, data}
     catch
       {:yamerl_exception, [
         {:yamerl_parsing_error, :error, msg, line, column, _, _ , _} | _]} ->
@@ -134,18 +134,21 @@ defmodule Serverboards.Plugin.Parser do
     iex> Serverboards.Plugin.Parser.read("test/data/non-existant.yaml")
     {:error, :enoent}
   """
-  def read(filename) do
-    ret = with {:ok, data} <- File.read(filename),
-      {:ok, plugin} <- parse_yaml( data, filename ),
-      do: {:ok, plugin}
-    case ret do
-      {:ok, v} -> {:ok, v}
+  def load_plugin(dirname) do
+    ret = with {:ok, data}  <- File.read("#{dirname}/manifest.yaml"),
+          {:ok, extra}      <- {:ok, Serverboards.Utils.value_or(File.read("#{dirname}/.extra.yaml"), "{}")},
+          {:ok, data_yaml}  <- parse_yaml( data, "#{dirname}/manifest.yaml" ),
+          {:ok, extra_yaml} <- parse_yaml( extra, "#{dirname}/.extra.yaml" )
+    do
+      plugin = parse(Map.merge(data_yaml, extra_yaml))
+      {:ok, plugin}
+    else
       {:error, :enoent} ->
         {:error, :enoent}
       {:error, :bad_formed} ->
         {:error, :bad_formed}
       {:error, v} when is_binary(v) ->
-        Logger.error("Error loading yaml file #{filename}:#{v}")
+        Logger.error("Error loading plugin at #{dirname}/manifest.yaml:#{v}")
         {:error, :invalid_yaml}
     end
   end
@@ -199,7 +202,7 @@ defmodule Serverboards.Plugin.Parser do
             |> filter(&is_directory.(dirname, &1))
             |> filter(&is_valid_dirname.(&1))
             |> filter(&has_manifest.(dirname<>"/"<>&1))
-            |> map(&{read("#{dirname}/#{&1}/manifest.yaml"), &1}) # returns {{:ok, plugin}, midpath}
+            |> map(&{load_plugin("#{dirname}/#{&1}/"), &1}) # returns {{:ok, plugin}, midpath}
             |> filter(fn
                 {{:ok, _}, _} -> true
                 _ -> false

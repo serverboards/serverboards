@@ -177,25 +177,6 @@ defmodule Serverboards.Plugin.Registry do
     end
   end
 
-  def get_plugin_status( id, context ) do
-    broken = Map.get(context.broken, id, false)
-    active = (
-      String.starts_with?(id || "", "serverboards.core") ||
-      Map.get(context.active, id, true)
-      )
-
-    status = cond do
-      broken ->
-        ["disabled", "broken"]
-      active ->
-        ["active"]
-      true ->
-        ["disabled"]
-    end
-
-    status
-  end
-
   def list() do
     Enum.reduce(all_plugins(), %{}, fn plugin, acc ->
       components = Enum.reduce(plugin.components, %{}, fn component, acc ->
@@ -214,7 +195,7 @@ defmodule Serverboards.Plugin.Registry do
         author: plugin.author,
         description: plugin.description,
         url: plugin.url,
-        status: plugin.status,
+        enabled: plugin.enabled,
         components: components,
         extra: plugin.extra
         })
@@ -240,13 +221,6 @@ defmodule Serverboards.Plugin.Registry do
 
     GenServer.cast(self(), {:reload})
     {:ok, %{ active: [], all: []}}
-  end
-
-  def decorate_plugin(p, context) do
-    %{
-      p |
-      status: get_plugin_status(p.id, context)
-    }
   end
 
   def handle_call({:reload}, _from, status) do
@@ -280,8 +254,7 @@ defmodule Serverboards.Plugin.Registry do
     all_plugins = load_plugins()
       |> Enum.reverse
       |> Enum.uniq_by(&(&1.id))
-      |> Enum.map(&decorate_plugin(&1, context))
-    active = Enum.filter(all_plugins, &(&1.status))
+    active = Enum.filter(all_plugins, &(&1.enabled))
 
     ensure_permissions_exist(all_plugins)
 

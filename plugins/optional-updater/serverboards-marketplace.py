@@ -96,6 +96,21 @@ async def update(plugin_id, action_id=None):
     return json.loads(res)
 
 
+@serverboards.rpc_method
+async def enable(plugin_id, action_id=None, enabled=True):
+    try:
+        action = None
+        if enabled:
+            action = "enable"
+        else:
+            action = "disable"
+        res = await curio.subprocess.check_output(["s10s", "plugin", action, plugin_id, "--format=json"])
+    except curio.subprocess.CalledProcessError as e:
+        print(e.output)
+        raise
+
+    return json.loads(res)
+
 
 async def test():
     print(await search(type="screen"))
