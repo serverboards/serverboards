@@ -91,6 +91,17 @@ components:
         - name: plugin_id
         - name: enabled
 
+  - id: remove_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin remove
+    command: marketplace
+    call:
+      method: remove
+      params:
+        - name: action_id
+        - name: plugin_id
+
   - id: testcmd
     type: cmd
     command: updater-test.py

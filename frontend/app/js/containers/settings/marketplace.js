@@ -6,6 +6,7 @@ import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {Loading} from 'app/components'
+import event from 'app/utils/event'
 
 class MarketplaceModel extends React.Component{
   constructor(props){
@@ -16,6 +17,13 @@ class MarketplaceModel extends React.Component{
       reload_key: 1,
       installing: false
     }
+    this.reload = this.reload.bind(this)
+  }
+  componentDidMount(){
+    event.on("plugins.reloaded", this.reload)
+  }
+  componentWillUnmount(){
+    event.off("plugins.reloaded", this.reload)
   }
   get_plugins(){
     return Promise.all([

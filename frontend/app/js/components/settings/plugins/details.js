@@ -10,6 +10,7 @@ import event from 'app/utils/event'
 import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
 import {colorize, capitalize} from 'app/utils'
+import HoldButton from 'app/components/holdbutton'
 
 const icon = require("../../../../imgs/plugins.svg")
 
@@ -96,6 +97,16 @@ class PluginDetails extends React.Component{
       Flash.error("Error updating plugin: "+e)
     })
   }
+  handleRemove(){
+    rpc.call("action.trigger", ["serverboards.optional.update/remove_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
+      Flash.info("Plugin removed.")
+      // this.props.updateAll()
+      this.props.onClose()
+    }).catch( (e) => {
+      console.log(e)
+      Flash.error("Error removing plugin: "+e)
+    })
+  }
   render(){
     const {plugin} = this.state
     let author=plugin.author
@@ -139,6 +150,11 @@ class PluginDetails extends React.Component{
                 </button>
               </div>
             ) }
+            <HoldButton
+                className="ui red button" style={{marginTop: 4}}
+                onHoldClick={this.handleRemove.bind(this)}>
+              {i18n("Hold to remove")}
+            </HoldButton>
             {!plugin.id.startsWith("serverboards.core.") ? (
               <div className="item two lines">
                 <div ref="enabled" className="ui toggle checkbox">
