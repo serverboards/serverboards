@@ -1,10 +1,11 @@
 id: serverboards.optional.update
-name: Serverboards Update Checker
+name: Core Update Checker
 description: |
-  Shows at serverboards setting oerview whether serverboards needs an update,
+  Shows at serverboards setting overview whether serverboards needs an update,
   and allows to trigger the update of the system.
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: "18.10"
+icon: recycle
 
 components:
   - id: settings.overview
@@ -23,8 +24,8 @@ components:
             command: serverboards.optional.update/updater
       - id: update
         type: button
-        value: Update now
-        className: yellow
+        button: Update now
+        class: yellow
         onclick:
           action: serverboards.optional.update/update.now
           params: {}
@@ -72,19 +73,51 @@ components:
     traits: plugins hidden
     type: action
     name: Plugin update
-    command: updater
+    command: marketplace
     call:
-      method: update_plugin
+      method: update
       params:
         - name: action_id
         - name: plugin_id
 
-  - id: testcmd
+  - id: enable_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin enable
+    command: marketplace
+    call:
+      method: enable
+      params:
+        - name: action_id
+        - name: plugin_id
+        - name: enabled
+
+  - id: remove_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin remove
+    command: marketplace
+    call:
+      method: remove
+      params:
+        - name: action_id
+        - name: plugin_id
+
+  # - id: testcmd
+  #   type: cmd
+  #   command: updater-test.py
+  #   perms:
+  #     plugin
+  # - id: test
+  #   type: test
+  #   command: testcmd
+  #   name: Updater Tests
+
+  - id: marketplace
     type: cmd
-    command: updater-test.py
-    perms:
-      plugin
-  - id: test
-    type: test
-    command: testcmd
-    name: Updater Tests
+    name: Marketplace integration
+    command: ./serverboards-marketplace.py
+    requires: perms[plugin.install]
+    strategy: singleton
+    timeout: 10s
+    perms: settings.view[serverboards.optional.updater]

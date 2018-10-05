@@ -1,9 +1,10 @@
 id: serverboards.optional.cloud
 name: Optional core cloud services
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: "18.10"
 description: >
   Definition an basic ussage of cloud services.
+icon: light blue cloud outline
 
 components:
   - id: daemon

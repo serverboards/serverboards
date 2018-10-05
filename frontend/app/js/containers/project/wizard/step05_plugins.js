@@ -1,5 +1,5 @@
 import React from 'react'
-import AddPlugin from 'app/containers/settings/plugins/add'
+import Marketplace from 'app/containers/settings/marketplace'
 import i18n from 'app/utils/i18n'
 
 class AddPlugins extends React.Component{
@@ -16,7 +16,7 @@ class AddPlugins extends React.Component{
   }
   render(){
     return (
-        <AddPlugin
+        <Marketplace
           key={this.state.key}
           nextStep={ () => this.props.nextStep() }
           next_label={i18n("Finish")}

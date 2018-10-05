@@ -15,9 +15,10 @@ function Tip(props){
         <h3 className="ui header centered">
           {props.subtitle}
         </h3>
-        <div className="ui content justified">
+        <div className="ui content text left">
           <MarkdownPreview value={props.description}/>
         </div>
+        {props.extra}
       </div>
     </div>
   )

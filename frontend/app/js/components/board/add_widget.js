@@ -9,6 +9,8 @@ import plugin from 'app/utils/plugin'
 import Widget from 'app/containers/board/widget'
 import EditWidget from './edit_widget'
 import moment from 'moment'
+import MarketplaceSelector from 'app/containers/marketplaceselector'
+
 
 function SetupWidget(props){
   const widget = {
@@ -37,22 +39,6 @@ function SetupWidget(props){
       saveWidget={(w) => props.addWidget(props.widget.id, props.dashboard_uuid, w.config) }
       />
   )
-}
-
-function get_widget_market_catalog(){
-  return Promise.all([
-      plugin.start_call_stop(
-            "serverboards.optional.update/catalog",
-            "component_filter",
-            {type: "widget"}
-          )
-      , cache.plugins()
-    ]).then( (cp) => {
-      const catalog = cp[0]
-      const plugin_list = cp[1]
-      // console.log("Got catalog %o // %o", catalog, plugin_list)
-      return catalog.filter( c => !plugin_list[c.plugin] )
-    })
 }
 
 class SelectWidget extends React.Component{
@@ -124,11 +110,10 @@ class SelectWidget extends React.Component{
             prevStep={props.prevStep}
           />
         ) : (tab==2) ? (
-          <Selector
+          <MarketplaceSelector
             key="marketplace"
-            get_items={get_widget_market_catalog}
-            onSelect={this.handleInstallWidget.bind(this)}
-            current={(props.widget || {}).id}
+            type="widget"
+            afterInstall={this.handleInstallWidget.bind(this)}
             show_filter={false}
             filter={state.filter}
             skip_label={props.skip_label}

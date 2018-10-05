@@ -1,13 +1,14 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
-import View from 'app/components/settings/plugins/add'
+import View from 'app/components/settings/marketplace'
 import plugin from 'app/utils/plugin'
 import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import {Loading} from 'app/components'
+import event from 'app/utils/event'
 
-class AddModel extends React.Component{
+class MarketplaceModel extends React.Component{
   constructor(props){
     super(props)
 
@@ -16,6 +17,13 @@ class AddModel extends React.Component{
       reload_key: 1,
       installing: false
     }
+    this.reload = this.reload.bind(this)
+  }
+  componentDidMount(){
+    event.on("plugins.reloaded", this.reload)
+  }
+  componentWillUnmount(){
+    event.off("plugins.reloaded", this.reload)
   }
   get_plugins(){
     return Promise.all([
@@ -39,7 +47,11 @@ class AddModel extends React.Component{
       return;
     }
     this.setState({installing: plugin_url})
-    rpc.call("plugin.install", [plugin_url]).then( () => {
+    plugin.call(
+      "serverboards.optional.update/marketplace",
+      "install",
+      [plugin_url]
+    ).then( () => {
       Flash.info(i18n("Plugin from {plugin_url} installed and ready.",{plugin_url}))
       this.setState({installing: false})
       this.reload()
@@ -76,4 +88,4 @@ class AddModel extends React.Component{
   }
 }
 
-export default AddModel
+export default MarketplaceModel

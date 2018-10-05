@@ -1,12 +1,13 @@
-name: Core extractors
+name: Core Extractors
 id: serverboards.core.extractors
 description: |
   Extract data from Serverboards itself, as services, status, users
   and builtin pivot tables.
 author: David Moreno <dmoreno@serverboards.io>
-version: 18.4
+version: "18.10"
 license: Apache 2.0
 url: https://serverboards.io
+icon: table
 
 components:
   - id: daemon

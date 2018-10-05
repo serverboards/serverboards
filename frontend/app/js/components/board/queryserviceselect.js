@@ -173,8 +173,13 @@ class QueryServiceSelect extends React.Component{
                     <div key={e.id}
                         className={`ui narrow card ${selected.extractor == e.id ? "selected" : ""} with pointer`}
                         onClick={() => this.handleSelectExtractor(e)}>
-                      <Icon icon={e.extra.icon} plugin={e.id.split('/')[0]} className="ui mini"/>
-                      <h3>{e.name}</h3>
+                      <div className="ui padding">
+                        <div className="ui split area horizontal" style={{height: "auto"}}>
+                          <h3 className="ui expand">{e.name}</h3>
+                          <Icon icon={e.extra.icon} plugin={e.id.split('/')[0]} className="ui mini"/>
+                        </div>
+                        {i18n(e.description)}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -1,23 +1,18 @@
 import React from 'react'
-import {Panes, Tip, Selector} from 'app/components'
+import {Panes, MarketplaceSelector} from 'app/components'
 import i18n from 'app/utils/i18n'
-import {goto} from 'app/utils/store'
+import Login from './login'
 
-function View(props){
+function Marketplace(props){
   const tip = (
-    <Tip
-      subtitle={i18n("Install plugins from the Serverboards marketplace")}
-      description={i18n("All plugins are free to use, and allow you to add new functionalities to your Serverboards installation with a simple click")}
-      />
+    <Login/>
   )
-
   const work = (
     <div className="ui vertical split area">
-      <Selector
+      <MarketplaceSelector
         title={i18n("Select a plugin to add")}
-        get_items={props.get_items}
         no_items_label={i18n("You already have all the plugins installed. Maybe its time you [develop](https://serverboards.io/developers/) your own one?")}
-        onSelect={(s) => props.onInstallPlugin(s.giturl)}
+        afterInstall={props.gotoList}
         />
       <div className="ui divider" style={{marginTop:0}}/>
       <div className="ui padding">
@@ -57,20 +52,6 @@ function View(props){
 
   return (
     <div className="ui vertical split area">
-      {!props.hide_menu && (
-        <div className="ui top secondary menu">
-          <h3 className="ui header">{i18n("Plugins")}</h3>
-          <div className="item stretch"/>
-          <div className="item">
-            <a
-                className="ui medium button"
-                onClick={() => goto('/settings/plugins')}
-                >
-              {i18n("Back to list")}
-            </a>
-          </div>
-        </div>
-      )}
       <Panes
         column1={tip}
         column2={work}
@@ -79,4 +60,4 @@ function View(props){
   )
 }
 
-export default View
+export default Marketplace

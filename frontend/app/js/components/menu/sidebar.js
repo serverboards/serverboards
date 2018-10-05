@@ -81,7 +81,12 @@ function Sidebar(props){
           {props.sections.global.map( s => (
             <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
           ))}
+          <hr/>
+          {props.sections.settings.map( s => (
+            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
+          ))}
         </div>
+
         <Hook name="sidebar.middle"/>
 
         <hr/>
@@ -102,10 +107,6 @@ function Sidebar(props){
               <i className="ui power icon big"/>
             </a>
           </div>
-
-          {props.sections.settings.map( s => (
-            <Item key={s.id} label={s.label} selected={s.goto == pathname} goto={s.goto} perm={s.perm}/>
-          ))}
         </div>
       </div>
       <Hook name="sidebar.bottom"/>

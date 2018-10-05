@@ -1,10 +1,11 @@
 id: serverboards.core.actions
-name: Core actions
+name: Core Actions
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: "18.10"
 description: >
   Various core actions.
 url: https://serverboards.io
+icon: shipping fast
 
 components:
   - name: Ping server

@@ -9,22 +9,22 @@ function IconIcon(props){
       props.icon.endsWith(".jpg") || props.icon.endsWith(".gif") ){
     const imgurl=`${servername()}/static/${props.plugin}/${props.icon}`
     return (
-      <span className={`ui iconicon ${props.className} ${props.src ? "with background" : ""}`}>
+      <span className={`ui iconicon ${props.className || "normal"} ${props.src ? "with background" : ""}`}>
         {props.src ? (
-          <img src={props.src} className="base"/>
+          <img src={props.src} className="base" style={props.style}/>
         ) : null}
         <span className="icon">
-          <img src={imgurl}/>
+          <img src={imgurl} style={props.style}/>
         </span>
       </span>
     )
   }
   return (
-    <span className={`ui iconicon ${props.className} ${props.src ? "with background" : ""}`}>
+    <span className={`ui iconicon ${props.className || "normal"} ${props.src ? "with background" : ""}`}>
       {props.src ? (
-        <img src={props.src} className="base"/>
+        <img src={props.src} className="base" style={props.style}/>
       ) : null}
-      <i className={`ui ${props.icon} icon`}/>
+      <i className={`ui ${props.icon} icon`} style={props.style}/>
     </span>
   )
 }

@@ -6,7 +6,7 @@ defmodule Serverboards.Plugin.Monitor do
   """
   use GenServer
 
-  @timeout 5000 # batch changes to until no changes in 1s
+  @timeout 1000 # batch changes to until no changes in 1s
 
   def start_link(options \\ []) do
     if Serverboards.Config.get(:plugins, :watch, true) do

@@ -22,13 +22,19 @@ Allows to install, uninstall and update plugins.
 It uses git URLS to manage the state.
 
 Plugin management:
+    s10s plugin search        -- Remote search of a plugin form the remote database.
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
     s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
-    s10s plugin remove  <path|plugin_id>      -- Removes a plugin
     s10s plugin update  <path|plugin_id>      -- Updates a plugin
+    s10s plugin remove  <path|plugin_id>      -- Removes a plugin
+    s10s plugin enable  <path|plugin_id>      -- Activates a plugin
+    s10s plugin disable <path|plugin_id>      -- Deactivates a plugin
+
+Marketplace account management:
+    s10s plugin account       -- Shows data about currently logged in account.
     s10s plugin login         -- Logins into the plugin registry. Required for some plugins.
-    s10s plugin search        -- Remote search of a plugin form the remote database.
+    s10s plugin logout        -- Logouts from the plugin registry.
 
 Some actions may need authentication. The server may ping back to the SSH
 connection of the current server to ensure identity (SSH public keys hashes).
@@ -42,6 +48,30 @@ paths = []
 install_path = None
 format = "text"
 settings = None
+inis = [
+    os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
+    os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
+    *glob.glob("/etc/serverboards/*.ini"),
+    "/etc/serverboards.ini",
+    os.environ.get("SERVERBOARDS_INI", "")
+]
+
+
+def remove_dups(paths, key=lambda p: p):
+    seen = set()
+    seen_add = seen.add  # microoptimizaiton
+    paths = [
+        x
+        for x in paths
+        if not (key(x) in seen or seen_add(key(x)))
+    ]
+    return paths
+
+
+def clean_ini_entry(v):
+    if isinstance(v, str) and v.startswith('"') and v.endswith('"'):
+        return v[1:-1]
+    return v
 
 
 def read_settings():
@@ -53,18 +83,6 @@ def read_settings():
         Returns the full dictionary with the settings of this installation.
         """
 
-        def clean(v):
-            if isinstance(v, str) and v.startswith('"') and v.endswith('"'):
-                return v[1:-1]
-            return v
-
-        inis = [
-            os.path.expandvars("${HOME}/.local/serverboards/serverboards.ini"),
-            os.path.expandvars("${SERVERBOARDS_PATH}/serverboards.ini"),
-            *glob.glob("/etc/serverboards/*.ini"),
-            "/etc/serverboards.ini",
-            os.environ.get("SERVERBOARDS_INI", "")
-        ]
         settings = {}
         for ini in inis:
             if os.path.exists(ini):
@@ -73,7 +91,7 @@ def read_settings():
                     config.read(ini)
                     for section in config.sections():
                         prev = settings.get(section, {})
-                        prev.update({k: clean(v) for k, v in config.items(section)})
+                        prev.update({k: clean_ini_entry(v) for k, v in config.items(section)})
                         settings[section] = prev
                 except Exception:
                     pass
@@ -94,7 +112,41 @@ def read_settings():
             "../plugins/")
     ).split(';')
     paths = [os.path.abspath(x) for x in paths if os.path.isdir(x)]
+
+    # remove dups
+    paths = remove_dups(paths)
+
     install_path = paths[0]
+
+
+def update_settings(section, key, value):
+    for ini in inis:
+        if os.path.exists(ini):
+            try:
+                config = configparser.ConfigParser(allow_no_value=True)
+                config.read(ini)
+                if section in config:
+                    config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="·")
+                    config.read(ini)
+                    if value is None:
+                        if key in config[section]:
+                            del config[section][key]
+                    else:
+                        config[section][key] = value
+                    with open(ini, "w") as inif:
+                        config.write(inif)
+                    # done
+                    return
+            except Exception:
+                pass
+    # new value
+    if value is None:
+        return
+    # add to first, which sould be user's defined
+    config = config.read(inis[0])
+    config[section] = {key: value}
+    with open(ini[0], "w") as inif:
+        config.write(inif)
 
 
 def output_data(data):
@@ -104,6 +156,9 @@ def output_data(data):
 
     if not data:
         return
+
+    if isinstance(data, dict):
+        data = [data]
 
     def colorize(txt):
         txt = str(txt)
@@ -160,6 +215,8 @@ def all_plugins():
             data = read_plugin(path)
             if data:
                 all_plugins_cache.append(data)
+
+        all_plugins_cache = remove_dups(all_plugins_cache, lambda x: x["id"])
     return all_plugins_cache
 
 
@@ -190,6 +247,8 @@ def read_plugin(path):
                 with open(extra) as fd:
                     data.update(yaml.safe_load(fd))
         except Exception:
+            import traceback
+            traceback.print_exc()
             extra = {}
 
         if 'source' not in data:
@@ -200,9 +259,30 @@ def read_plugin(path):
         data["path"] = path
         if not data.get("latest"):
             data['latest'] = data.get('version')
-        data["updated"] = data.get("version") == data.get("latest")
+        data["updated"] = str(data.get("version")) == str(data.get("latest"))
         return data
     return {}
+
+
+def update_extra(path_or_id, key, value):
+    if path_or_id.startswith("/"):
+        path = path_or_id
+    else:
+        path = get_plugin(path_or_id)["path"]
+
+    path = os.path.join(path, ".extra.yaml")
+
+    data = {}
+    if os.path.exists(path):
+        with open(path, 'r') as fd:
+            data = fd.read()
+            data = yaml.load(data)
+
+    data[key] = value
+
+    with open(path, 'w') as fd:
+        fd.write(yaml.dump(data))
+
 
 
 def clean_plugin_cache():
@@ -237,7 +317,7 @@ AHEAD_RE = re.compile(b".*\\[behind (\\d*)\\].*")
 
 
 def check_update(pl):
-    print("Check", pl["id"], file=sys.stderr)
+    # print("Check", pl["id"], file=sys.stderr)
     latest = None
     if pl.get("source") == "packageserver":
         latest = check_update_remote(pl)
@@ -252,9 +332,10 @@ def check_update(pl):
                     extra = yaml.safe_load(rd)
         except Exception:
             logging.error("Could not load extra data from %s" % extrafile)
-        extra["latest"] = latest
-        with open(extrafile, "w") as wd:
-            yaml.safe_dump(extra, wd)
+        if latest != extra.get("latest"):
+            extra["latest"] = latest
+            with open(extrafile, "w") as wd:
+                yaml.safe_dump(extra, wd)
     return {"id": pl["id"], "latest": latest}
 
 
@@ -280,16 +361,27 @@ def check_update_remote(pl):
 
 def update(id_or_path):
     plugin = get_plugin(id_or_path)
+    if not plugin:
+        return {
+            "status": "error",
+            "message": "Unknown plugin. Use id or path."
+        }
+
     source = plugin.get("source", "unknown")
     res = False
     stdout = None
-
+    # print(json.dumps(plugin, indent=2))
     if source == 'git':
-        (res, stdout) = update_git(source)
-    if source == 'packageserver':
+        (res, stdout) = update_git(plugin["path"])
+    elif source == 'packageserver':
         install_res = install_packageserver(plugin["id"])
         res = install_res["success"]
         stdout = install_res["stdout"]
+    else:
+        return {
+            "status": "error",
+            "message": "Plugin was not installed by s10s. Don't know how to update."
+        }
 
     return {
         "id": plugin["id"],
@@ -402,8 +494,7 @@ def install_packageserver(pkgid):
         fd.write(data)
         fd.flush()
         pl = install_file(fd.name)
-        with open(pl["path"]+'/.extra.yaml', 'w') as fd:
-            fd.write("source: packageserver\n")
+        update_extra(pl["path"], "source", "packageserver")
         return pl
 
 
@@ -480,6 +571,8 @@ def install(package):
     for dep in pl["requires"]:
         maybe_install(dep)
 
+    update_extra(pl["path"], "enabled", True)
+
     return pl
 
 
@@ -519,7 +612,7 @@ def remove(id):
 
 def list_(what=[]):
     if not what:
-        what = ["id", "status", "version", "updated"]
+        what = ["id", "status", "version", "enabled", "updated"]
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
@@ -569,6 +662,84 @@ def search(*terms):
     output_data(js)
 
 
+def login(email=None, password=None):
+    """
+    Logins into the Marketplace server.
+    """
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key")
+    if api_key:
+        res = {"error": "already-loggedin", "message": "You are already logged in. Need to logout before try again."}
+        output_data(res)
+        return
+
+    if not email:
+        email = input("Email: ")
+    if not password:
+        import getpass
+        password = getpass.getpass("Password: ")
+
+    packageserver_url = os.environ.get(
+        "SERVERBOARDS_PACKAGESERVER_URL",
+        packageserver_settings.get("url", "https://serverboards.app")
+    )
+
+    ret = requests.post(packageserver_url + "/api/account/login", {"email": email, "password": password})
+    if ret.status_code != 200:
+        res = {
+            "status": "error",
+            "message": "invalid user or password"
+        }
+    else:
+        update_settings("serverboards.packageserver/settings", "api_key", ret.json()["api_key"])
+        res = {"success": "logged-in", "message": "You are succesfully logged in"}
+    output_data(res)
+
+
+def logout():
+    """
+    Logs out of the marketplace.
+    """
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key")
+    if not api_key:
+        res = {"error": "not-loggedin", "message": "You are not logged in."}
+        output_data(res)
+        return
+
+    packageserver_get("account/logout")
+    update_settings("serverboards.packageserver/settings", "api_key", None)
+    res = {"success": "logged-out", "message": "You are succesfully logged out"}
+    output_data(res)
+
+
+def account():
+    packageserver_settings = settings.get("serverboards.packageserver/settings", {})
+    api_key = packageserver_settings.get("api_key")
+
+    if not api_key:
+        res = {"logged": False}
+    else:
+        res = packageserver_get("account/").json()
+
+        res = {
+            "logged": True,
+            "name": res.get("name"),
+            "email": res.get("email")
+        }
+
+    output_data(res)
+
+
+def enable(plugin):
+    update_extra(plugin, "enabled", True)
+    output_data({"plugin": plugin, "enabled": True})
+
+def disable(plugin):
+    update_extra(plugin, "enabled", False)
+    output_data({"plugin": plugin, "enabled": False})
+
+
 def main(argv):
     for n, a in enumerate(argv):
         if a.startswith("--format="):
@@ -594,8 +765,18 @@ def main(argv):
         install_all(argv[1:])
     elif argv[0] == 'remove':
         remove_all(argv[1:])
+    elif argv[0] == 'enable':
+        enable(argv[1])
+    elif argv[0] == 'disable':
+        disable(argv[1])
     elif argv[0] == 'search':
         search(*argv[1:])
+    elif argv[0] == 'login':
+        login(*argv[1:])
+    elif argv[0] == 'logout':
+        logout()
+    elif argv[0] == 'account':
+        account()
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)

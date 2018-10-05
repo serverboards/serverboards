@@ -8,14 +8,18 @@ import Flash from 'app/flash'
 import i18n from 'app/utils/i18n'
 import event from 'app/utils/event'
 import cache from 'app/utils/cache'
+import plugin from 'app/utils/plugin'
 import {colorize, capitalize} from 'app/utils'
+import HoldButton from 'app/components/holdbutton'
+import IconIcon from 'app/components/iconicon'
 
 const icon = require("../../../../imgs/plugins.svg")
 
 function ComponentDetails({component: c}){
   return (
     <div>
-      <h3 className="ui small header" style={{marginBottom: 0, textTransform:"none"}}>{i18n(c.name || c.id)}</h3>
+      <hr className="ui divider"/>
+      <h3 className="ui small header" style={{margin: "0 0 10px 0", textTransform:"none"}}>{i18n(c.name || c.id)}</h3>
       <div><label>{i18n("Type:")}</label> <span className="ui meta">{c.type}</span></div>
       {c.description ? (
         <div><label>{i18n("Description:")}</label> <span className="ui meta"><MarkdownPreview value={i18n(c.description)}/></span></div>
@@ -37,59 +41,79 @@ class PluginDetails extends React.Component{
     super(props)
 
     this.state = this.getInitialState(props)
+    this.checkUpdates = this.checkUpdates.bind(this)
   }
   getInitialState(props){
-    let status
-    if (props)
-      status = props.plugin.status
-    else
-      status = this.props.plugin.status
     return {
-      is_active: status.includes("active"),
-      is_updatable: status.includes("updatable"),
-      tags: status
+      enabled: props.plugin.enabled,
+      updated: props.updated,
+      plugin: props.plugin,
     }
   }
   componentDidMount(){
     let self=this
-    $(this.refs.is_active).checkbox({
+    $(this.refs.enabled).checkbox({
       onChange(ev){
-        const is_active = $(self.refs.is_active).is('.checked')
-        self.handleSetActive(self.props.plugin.id, is_active)
-        self.setState({is_active})
+        const enabled = $(self.refs.enabled).is('.checked')
+        self.handleSetEnable(enabled)
+        self.setState({enabled})
       }
     })
-    event.on("plugins.reloaded", this.checkUpdates.bind(this))
+    event.on("plugins.reloaded", this.checkUpdates)
+    this.checkUpdates()
   }
   componentWillUnmount(){
-    event.off("plugins.reloaded", this.checkUpdates.bind(this))
+    event.off("plugins.reloaded", this.checkUpdates)
   }
   checkUpdates(){
-    console.log("Maybe some changes, reload the plugin data from cache.")
     const pid = this.props.plugin.id
-    cache.plugins().then( pl => {
-      console.log(pl[pid])
-      const plugin = pl[pid]
-      this.setState( this.getInitialState({plugin}) )
+    const maybe_update_promise = this.state.plugin.tags.indexOf("core")<0 ?
+      plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]) :
+      Promise.resolve([{updated: true}])
+
+    Promise.all([
+      maybe_update_promise,
+      cache.plugin(pid)
+    ]).then( ([update, plugin]) => {
+      if (update.length == 0){
+        Flash.error("Error getting current update status.")
+        this.setState( this.getInitialState({plugin, updated: false}))
+        return;
+      }
+      if (plugin.enabled)
+        $(this.refs.enabled).checkbox("set checked")
+      else
+        $(this.refs.enabled).checkbox("set unchecked")
+      this.setState( this.getInitialState({plugin, updated: update[0].updated}))
     })
   }
-  handleSetActive(plugin_id, is_active){
-    rpc
-      .call("settings.update", ["plugins", plugin_id, is_active])
-      .then( () => this.componentDidMount() )
+  handleSetEnable(enabled){
+    rpc.call("action.trigger", ["serverboards.optional.update/enable_plugin",  {"plugin_id": this.props.plugin.id, enabled}])
+    this.setState({enabled})
   }
   handleUpdate(){
     rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
       // this.props.updateAll()
-      this.setState({is_updatable: false, tags: this.state.tags.filter( t => t!="updatable" ) })
+      this.setState({updated: undefined})
+      this.checkUpdates()
     }).catch( (e) => {
       console.log(e)
       Flash.error("Error updating plugin: "+e)
     })
   }
+  handleRemove(){
+    rpc.call("action.trigger", ["serverboards.optional.update/remove_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
+      Flash.info("Plugin removed.")
+      // this.props.updateAll()
+      this.props.onClose()
+    }).catch( (e) => {
+      console.log(e)
+      Flash.error("Error removing plugin: "+e)
+    })
+  }
   render(){
-    const {plugin} = this.props
+    const {plugin} = this.state
     let author=plugin.author
     if (author && author.indexOf('<')>0){
       let m = author.match(/(.*)<(.*)>/)
@@ -99,44 +123,63 @@ class PluginDetails extends React.Component{
         )
       }
     }
+    const tags = plugin.tags
+    console.log("tags", tags)
 
     return (
       <Modal className="wide">
         <div className="ui top secondary menu">
-          <ImageIcon src={icon} name={i18n(plugin.name)}/>
+          <div style={{minWidth: 48, minHeight: 48, margin: "0 10px 0 10px"}}>
+            {plugin.extra.icon ? (
+              <IconIcon icon={plugin.extra.icon} plugin={plugin.id} style={{minWidth: 48, minHeight: 48}}/>
+            ) : (
+              <ImageIcon src={icon} name={i18n(plugin.name)} className="mini"/>
+            )}
+          </div>
+
           <div style={{display:"inline-block"}}>
             <h3 className="ui header" style={{marginBottom:0, textTransform:"none"}}>{i18n(plugin.name)}</h3>
             <div className="ui meta bold">{i18n("by")} {author}</div>
           </div>
           <div className="right menu">
-            {this.state.is_updatable ? (
-              <div className="item">
-                <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
-              </div>
-            ) : (
-              <div className="item">
-                <button
-                  className="ui teal button"
-                  onClick={this.handleUpdate.bind(this)}
-                  data-tooltip={i18n("Altough no update has been detected for this plugin, you can force update.")}
-                  data-position="bottom right"
-                  >
-                    {i18n("Force update")}
-                </button>
-              </div>
-            ) }
-            {!plugin.id.startsWith("serverboards.core.") ? (
+            {tags.indexOf("core")<0 && (
+              <React.Fragment>
+                {this.state.updated == undefined ? (
+                  <div className="item">
+                    <button className="ui teal basic disabled button" onClick={this.handleUpdate.bind(this)}>
+                      <i className="ui icon loading spinner"/>{i18n("Checking updates")}
+                    </button>
+                  </div>
+                ) : this.state.updated == false ? (
+                  <div className="item">
+                    <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
+                  </div>
+                ) : (
+                  <div className="item">
+                    <button
+                      className="ui teal button"
+                      onClick={this.handleUpdate.bind(this)}
+                      data-tooltip={i18n("Altough no update has been detected for this plugin, you can force update.")}
+                      data-position="bottom right"
+                      >
+                        {i18n("Force update")}
+                    </button>
+                  </div>
+                ) }
+                <HoldButton
+                    className="ui basic red button" style={{marginTop: 4}}
+                    onHoldClick={this.handleRemove.bind(this)}>
+                  {i18n("Hold to remove")}
+                </HoldButton>
+              </React.Fragment>
+            )}
+            {tags.indexOf("optional")>=0 && (
               <div className="item two lines">
-                <div>
-                  {this.state.tags.map( (s) => (
-                    <span key={s} className="ui text label"><i className={`ui rectangular ${ colorize(s) } label`}/> {i18n(capitalize(s))}</span>
-                  )) }
-                </div>
-                <div ref="is_active" className="ui toggle checkbox">
-                  <input type="checkbox" checked={this.state.is_active}/>
+                <div ref="enabled" className="ui toggle checkbox">
+                  <input type="checkbox" checked={this.state.enabled}/>
                 </div>
               </div>
-            ) : null }
+            )}
           </div>
         </div>
         <div className="ui grid stackable" style={{margin: 0}}>

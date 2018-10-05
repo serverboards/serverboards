@@ -61,7 +61,7 @@ class EditAction extends React.Component{
                   <div className="ui meta">
                     Visit <a target="_blank" href="http://semantic-ui.com/elements/icon.html">
                     Semantic UI icon{"'"}s selection</a> and copy the name of your choice.
-                    Then paste it in the input bellow.
+                    Then paste it in the input below.
                   </div>
                 </div>
               </div>

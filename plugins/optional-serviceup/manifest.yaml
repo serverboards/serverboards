@@ -7,9 +7,10 @@ description: |
   This is very similar to what a rule can do, but specialized and integrated
   so that every service can use without any need for external rules.
 author: David Moreno <dmoreno@serverboards.io>
-version: 18.4
+version: "18.10"
 license: Apache 2.0
 url: https://serverboards.io
+icon: thumbs up
 
 components:
   - id: init

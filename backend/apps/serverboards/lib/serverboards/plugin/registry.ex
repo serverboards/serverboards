@@ -177,25 +177,6 @@ defmodule Serverboards.Plugin.Registry do
     end
   end
 
-  def get_plugin_status( id, context ) do
-    broken = Map.get(context.broken, id, false)
-    active = (
-      String.starts_with?(id || "", "serverboards.core") ||
-      Map.get(context.active, id, true)
-      )
-
-    status = cond do
-      broken ->
-        ["disabled", "broken"]
-      active ->
-        ["active"]
-      true ->
-        ["disabled"]
-    end
-
-    status
-  end
-
   def list() do
     Enum.reduce(all_plugins(), %{}, fn plugin, acc ->
       components = Enum.reduce(plugin.components, %{}, fn component, acc ->
@@ -214,8 +195,9 @@ defmodule Serverboards.Plugin.Registry do
         author: plugin.author,
         description: plugin.description,
         url: plugin.url,
-        status: plugin.status,
+        enabled: plugin.enabled,
         components: components,
+        tags: plugin.tags,
         extra: plugin.extra
         })
     end)
@@ -242,13 +224,6 @@ defmodule Serverboards.Plugin.Registry do
     {:ok, %{ active: [], all: []}}
   end
 
-  def decorate_plugin(p, context) do
-    %{
-      p |
-      status: get_plugin_status(p.id, context)
-    }
-  end
-
   def handle_call({:reload}, _from, status) do
     {:noreply, status} = handle_cast({:reload}, status)
     {:reply, :ok, status}
@@ -261,27 +236,13 @@ defmodule Serverboards.Plugin.Registry do
   end
 
   def handle_cast({:reload}, status), do: handle_cast({:reload, %{}}, status)
-  def handle_cast({:reload, context}, _status) do
+  def handle_cast({:reload, context}, status) do
     Logger.debug("Reloading plugin lists.")
-    active = case Map.get(context, :plugins) do
-      nil -> Serverboards.Config.get_map(:plugins)
-      value -> value
-    end
-    broken = case Map.get(context, :broken_plugins) do
-      nil -> Serverboards.Config.get_map(:broken_plugins)
-      value -> value
-    end
-
-    context = %{
-      active: active,
-      broken: broken,
-    }
 
     all_plugins = load_plugins()
       |> Enum.reverse
       |> Enum.uniq_by(&(&1.id))
-      |> Enum.map(&decorate_plugin(&1, context))
-    active = Enum.filter(all_plugins, &(&1.status))
+    active = Enum.filter(all_plugins, &(&1.enabled))
 
     ensure_permissions_exist(all_plugins)
 
@@ -289,7 +250,11 @@ defmodule Serverboards.Plugin.Registry do
     #   {i.id, i.status}
     # end
 
-    Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
+    if all_plugins != status.all or active != status.active do
+      Serverboards.Event.emit("plugins.reloaded", nil, ["plugin"])
+    else
+      Logger.debug("No changes on manifest files. Not emiting plugins.reloaded.")
+    end
 
     {:noreply, %{
       all: all_plugins,

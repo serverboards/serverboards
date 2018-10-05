@@ -14,6 +14,8 @@ import Flash from 'app/flash'
 import templates from 'app/utils/templates'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {SectionMenu} from 'app/components'
+import MarketplaceSelector from 'app/containers/marketplaceselector'
+
 
 function get_services_id(node){
   if (!node){
@@ -249,24 +251,15 @@ class ExistingOrMarketplaceTemplate extends React.Component{
             show_filter={false}
           />
         ) : (
-          <Selector
+          <MarketplaceSelector
             key="marketplace"
             show_filter={false}
             filter={filter}
-            get_items={this.get_rule_template_market_catalog}
-            onSelect={(rt) => {
-              this.setState({tab:3})
-              plugin.install(rt.giturl).then(() => {
-                cache.invalidate_all()
-                rt = {...rt, type: rt.id} // I need the component id in the type field.
-                goto(`/project/${props.project.shortname}/rules_v2/add`, {template: rt})
-              }).catch((error) => {
-                console.error(error)
-                this.setState({tab:2})
-                Flash.error(i18n("Error installing *{plugin}*. Please try again or check logs.\n\n{error}", {plugin:rt.name, error}))
-              })
+            type="rule template"
+            afterInstall={(rt) => {
+              goto(`/project/${props.project.shortname}/rules_v2/add`, {template: rt})
             }}
-            />
+          />
         )}
       </div>
     )

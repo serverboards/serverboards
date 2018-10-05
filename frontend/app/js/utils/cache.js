@@ -92,6 +92,9 @@ const cache={
     }
     return Promise.resolve(data)
   },
+  plugin(id){
+    return cache.plugins().then( plugins => plugins[id] )
+  },
   plugin_component({type, id}){
     const cache_key = `plugin_component+${type}`
     var data = cache_data[cache_key]

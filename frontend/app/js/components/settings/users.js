@@ -27,27 +27,27 @@ class UserRow extends React.Component{
                   <Restricted perm="auth.modify_any">
                     <a href="#" className="item"
                       onClick={(ev) => { ev.preventDefault(); this.props.onOpenEditUser()}}>
+                      <i className="ui icon edit"/>
                       {i18n("Edit user")}
-                      <i className="ui icon edit" style={{float:"right"}}/>
                     </a>
                   </Restricted>
                   <Restricted perm="notifications.create_all">
                     <a href="#" className="item"
                       onClick={(ev) => { ev.preventDefault(); this.props.onOpenSendNotification()}}>
+                      <i className="ui icon mail"/>
                       {i18n("Send notification")}
-                      <i className="ui icon mail" style={{float:"right"}}/>
                     </a>
                   </Restricted>
                   <Restricted perm="auth.modify_any">
                     {u.is_active ? (
                       <HoldButton className="item" onHoldClick={this.props.onDisableUser}>
+                      <i className="ui icon trash user"/>
                       {i18n("Hold to disable")}
-                      <i className="ui icon trash user" style={{paddingLeft: 10}}/>
                       </HoldButton>
                     ) : (
                       <HoldButton className="item" onHoldClick={this.props.onEnableUser}>
+                      <i className="ui icon enable user"/>
                       {i18n("Hold to enable")}
-                      <i className="ui icon enable user" style={{paddingLeft: 10}}/>
                       </HoldButton>
                     )}
                   </Restricted>

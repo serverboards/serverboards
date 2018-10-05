@@ -11,6 +11,7 @@ import Logs from './logs'
 import IconIcon from './iconicon'
 import PluginScreen from './plugin/screen'
 import Selector from './selector'
+import MarketplaceSelector from 'app/containers/marketplaceselector'
 import Panes from './panes'
 import QueryServiceSelect from 'app/containers/board/queryserviceselect'
 import ExtractorsHelp from './board/extractorshelp'
@@ -34,6 +35,7 @@ const components = {
   IconIcon,
   PluginScreen,
   Selector,
+  MarketplaceSelector,
   Panes,
   QueryServiceSelect,
   ExtractorsHelp,
@@ -63,6 +65,7 @@ export {
   IconIcon,
   PluginScreen,
   Selector,
+  MarketplaceSelector,
   Panes,
   QueryServiceSelect,
   ExtractorsHelp,
