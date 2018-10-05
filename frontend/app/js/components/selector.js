@@ -47,14 +47,14 @@ function Card({item, default_icon, onClick, className}){
       <div className="ui split area horizontal" style={{alignItems: "center", marginBottom: 5}}>
         <Icon className="mini" icon={icon} plugin={plugin}/>
         <h3 className="ui header" style={{margin: 5, height: "auto", width: "auto"}}>{i18n(item.name)}</h3>
-        {item.tag && TAGS_TYPE == 1 ? (
+        {item.tag ? (TAGS_TYPE == 1) ? (
           <span className={`ui top right attached label ${item.tag.color}`} style={{marginLeft: "-0.5rem"}}>{item.tag.label}</span>
         ) : (
           <React.Fragment>
             <span className="ui grey text"> | </span>
             <span className={`ui text ${item.tag.color}`}>&nbsp;{item.tag.label}</span>
           </React.Fragment>
-        )}
+        ) : null}
       </div>
       <div className="description">
         <MarkdownPreview value={i18n(item.description) || ""}/>
