@@ -1,5 +1,6 @@
 export {render_promise, render} from 'app/utils/templates'
 import rpc from 'app/rpc'
+import store from 'app/utils/store'
 
 /**
  * @short Gets a vars list as descibed at genericforms and returns the return values
