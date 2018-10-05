@@ -58,14 +58,14 @@ defmodule Serverboards.Plugin.Parser do
           type: "iocmd"
       }],
       description: nil, extra: %{}, id: "test",
-      name: "mytest", version: nil
+      name: "mytest", version: nil, tags: ["core"]
     }
   """
   def parse(%{} = dict) do
     components = Enum.map( Map.get(dict, "components", []), &parse_component(&1) )
 
     id = Map.get(dict, "id")
-    path = Map.get(dict, "path")
+    path = Map.get(dict, "path", "")
     is_core = not String.starts_with?(path, Serverboards.Config.serverboards_path)
     # rw_path = File.stat!(path).access == :read_write
     tags = if is_core do
@@ -101,9 +101,9 @@ defmodule Serverboards.Plugin.Parser do
 
   ## Examples
     iex> {:ok, plugin} = Serverboards.Plugin.Parser.parse_yaml "id: serverboards.ls\nname: \"Ls\"\nauthor: \"David Moreno\"\nversion: 0.0.1\ncomponents:\n  - id: ls\n    name: ls\n    cmd: ./ls\n"
-    iex> plugin.id
+    iex> plugin["id"]
     "serverboards.ls"
-    iex> (hd plugin.components).id
+    iex> (hd plugin["components"])["id"]
     "ls"
 
   """
@@ -141,14 +141,14 @@ defmodule Serverboards.Plugin.Parser do
 
   ## Examples
 
-    iex> {:ok, plugin} = Serverboards.Plugin.Parser.read("test/data/plugins/auth/manifest.yaml")
+    iex> {:ok, plugin} = Serverboards.Plugin.Parser.load_plugin("test/data/plugins/auth/")
     iex> plugin.id
     "serverboards.test.auth"
 
-    iex> Serverboards.Plugin.Parser.read("test/data/plugins/invalid/manifest.yaml")
+    iex> Serverboards.Plugin.Parser.load_plugin("test/data/plugins/invalid/")
     {:error, :invalid_yaml}
 
-    iex> Serverboards.Plugin.Parser.read("test/data/non-existant.yaml")
+    iex> Serverboards.Plugin.Parser.load_plugin("test/data/")
     {:error, :enoent}
   """
   def load_plugin(dirname) do
