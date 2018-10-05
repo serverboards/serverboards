@@ -17,7 +17,8 @@ const icon = require("../../../../imgs/plugins.svg")
 function ComponentDetails({component: c}){
   return (
     <div>
-      <h3 className="ui small header" style={{marginBottom: 0, textTransform:"none"}}>{i18n(c.name || c.id)}</h3>
+      <hr className="ui divider"/>
+      <h3 className="ui small header" style={{margin: "0 0 10px 0", textTransform:"none"}}>{i18n(c.name || c.id)}</h3>
       <div><label>{i18n("Type:")}</label> <span className="ui meta">{c.type}</span></div>
       {c.description ? (
         <div><label>{i18n("Description:")}</label> <span className="ui meta"><MarkdownPreview value={i18n(c.description)}/></span></div>
@@ -69,7 +70,7 @@ class PluginDetails extends React.Component{
       plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]),
       cache.plugin(pid)
     ]).then( ([update, plugin]) => {
-      // console.log("Got update data", update, plugin)
+      console.log("Got update data", update, plugin)
       if (update.length == 0){
         Flash.error("Error getting current update status.")
         this.setState( this.getInitialState({plugin, updated: false}))
