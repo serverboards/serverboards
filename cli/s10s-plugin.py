@@ -57,6 +57,17 @@ inis = [
 ]
 
 
+def remove_dups(paths, key=lambda p: p):
+    seen = set()
+    seen_add = seen.add  # microoptimizaiton
+    paths = [
+        x
+        for x in paths
+        if not (key(x) in seen or seen_add(key(x)))
+    ]
+    return paths
+
+
 def clean_ini_entry(v):
     if isinstance(v, str) and v.startswith('"') and v.endswith('"'):
         return v[1:-1]
@@ -103,13 +114,7 @@ def read_settings():
     paths = [os.path.abspath(x) for x in paths if os.path.isdir(x)]
 
     # remove dups
-    seen = set()
-    seen_add = seen.add
-    paths = [
-        x
-        for x in paths
-        if not (x in seen or seen_add(x))
-    ]
+    paths = remove_dups(paths)
 
     install_path = paths[0]
 
@@ -210,6 +215,8 @@ def all_plugins():
             data = read_plugin(path)
             if data:
                 all_plugins_cache.append(data)
+
+        all_plugins_cache = remove_dups(all_plugins_cache, lambda x: x["id"])
     return all_plugins_cache
 
 
