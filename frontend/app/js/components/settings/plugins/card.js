@@ -1,5 +1,6 @@
 import React from 'react'
 import ImageIcon from 'app/components/imageicon'
+import IconIcon from 'app/components/iconicon'
 import {MarkdownPreview} from 'react-marked-markdown';
 import {colorize, capitalize} from 'app/utils'
 import {i18n, i18n_nop} from 'app/utils/i18n'
@@ -28,12 +29,21 @@ function PluginCard(props){
   return (
     <div key={p.id} className="card">
       <div className="content">
-        <ImageIcon src={icon} className="right floated" name={i18n(p.name)}/>
-        <h2 className="ui header">{i18n(p.name)}</h2>
-        <div className="ui meta bold">{i18n("by")} {author}</div>
-        <div className="ui meta italic">{i18n("version")} {p.version}</div>
-
-        <div className="ui description"><MarkdownPreview value={i18n(p.description)}/></div>
+        <div className="ui split area horizontal" style={{height: "auto", marginBottom: 10}}>
+          <div className="expand">
+            <h2 className="ui header">{i18n(p.name)}</h2>
+            <div className="ui meta bold">{i18n("by")} {author}</div>
+            <div className="ui meta italic">{i18n("version")} {p.version}</div>
+          </div>
+          <div style={{minWidth: 48, minHeight: 48, margin: "0px 0px 10px 10px"}}>
+            {p.extra.icon ? (
+              <IconIcon icon={p.extra.icon} plugin={p.id}/>
+            ) : (
+              <ImageIcon src={icon} name={i18n(p.name)} className="mini"/>
+            )}
+          </div>
+        </div>
+        <div className="ui description"><MarkdownPreview value={i18n(p.description.split('\n\n')[0])}/></div>
       </div>
       <div className="extra content" style={{padding:0}}>
         <div className={`ui inverted ${color} menu bottom attached`}>

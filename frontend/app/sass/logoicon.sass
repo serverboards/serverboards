@@ -30,6 +30,7 @@ div.ui.logoicon
 
 .ui.imageicon
   position: relative
+  width: auto !important
   img
     max-height: 50px !important
     max-width: 50px !important
@@ -81,77 +82,69 @@ a.svg:after
     margin: auto
 
 .ui.iconicon
-  position: relative
-  display: inline-block
-  &.with.background
-    i.icon
-      position: absolute
-      top: 40px
-      left: 20px
-    span.icon
-      position: absolute
-      top: 33px
-      left: 18px
-
-  img.base
-    width: 80px
-    height: 76px
+  width: 48px
+  min-width: 48px
+  max-width: 48px
+  height: 48px
+  min-height: 48px
+  max-height: 48px
   .icon
-    position: relative
-    font-size: 35px
+    font-size: 48px
+    line-height: 48px
     color: #666
-  span.icon
-    width: 45px
-    height: 30px
-    text-align: center
-    position: absolute
-    top: 0
-    left: 0
-    line-height: 35px
-    img
-      max-width: 45px
-      max-height: 30px
-  &.mini
-    display: inline-flex
-    justify-content: center
-    align-items: center
-    max-width: 30px
-    max-height: 30px
-    text-align: center
-    padding: 3px
-    margin: 3px
-    span.icon
-      max-width: 30px
-      max-height: 30px
-      img
-        max-width: 30px
-        max-height: 30px
+
+  display: inline-block
+
+  &.tiny
+    width: 16px
+    min-width: 16px
+    max-width: 16px
+    height: 16px
+    min-height: 16px
+    max-height: 16px
     .icon
-      font-size: 14px
-      position: relative
-      top: 0
-      left: 0
+      font-size: 16px
+      line-height: 16px
+
+  &.mini
+    width: 24px
+    min-width: 24px
+    max-width: 24px
+    height: 24px
+    min-height: 24px
+    max-height: 24px
+    .icon
+      font-size: 24px
+      line-height: 24px
+
+  &.big
+    width: 96px
+    min-width: 96px
+    max-width: 96px
+    height: 96px
+    min-height: 96px
+    max-height: 96px
+    .icon
+      font-size: 96px
+      line-height: 96px
 
   &.massive
     width: 350px
+    min-width: 350px
+    max-width: 350px
     height: 350px
-    text-align: center
-    display: flex
-    align-items: center
-    justify-content: center
+    min-height: 350px
+    max-height: 350px
     .icon
-      font-size: 250px
+      font-size: 350px
       line-height: 350px
-      width: 100%
-      height: 100%
-      img
-        max-width: 100%
-        max-height: 100%
-        width: 100%
-        height: 100%
-        padding: 20px
-//.grid .ui.iconicon i.icon
-//    top: 20px
+
+  img
+    max-width: 100%
+    max-height: 100%
+    width: 100%
+    height: 100%
+
 
 .ui.top.secondary.menu
   .ui.iconicon

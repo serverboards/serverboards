@@ -26,7 +26,9 @@ class Card extends React.Component{
       <div key={service.uuid} className={`ui narrow card ${className || ""}`} onClick={props.onClick}
            style={{cursor: props.onClick ? "pointer" : "cursor"}}>
         <div className="header">
-          <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini"/>
+          <div style={{margin: "7px 0 0 7px"}}>
+            <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini grey"/>
+          </div>
           <div className="right">
             {(service.tags || []).map(s => simple_tag(s)).map( s => (
               <span key={s} className="ui text label">

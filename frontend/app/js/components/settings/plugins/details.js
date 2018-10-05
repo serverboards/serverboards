@@ -11,6 +11,7 @@ import cache from 'app/utils/cache'
 import plugin from 'app/utils/plugin'
 import {colorize, capitalize} from 'app/utils'
 import HoldButton from 'app/components/holdbutton'
+import IconIcon from 'app/components/iconicon'
 
 const icon = require("../../../../imgs/plugins.svg")
 
@@ -128,7 +129,14 @@ class PluginDetails extends React.Component{
     return (
       <Modal className="wide">
         <div className="ui top secondary menu">
-          <ImageIcon src={icon} name={i18n(plugin.name)}/>
+          <div style={{minWidth: 48, minHeight: 48, margin: "0 10px 0 10px"}}>
+            {plugin.extra.icon ? (
+              <IconIcon icon={plugin.extra.icon} plugin={plugin.id} style={{minWidth: 48, minHeight: 48}}/>
+            ) : (
+              <ImageIcon src={icon} name={i18n(plugin.name)} className="mini"/>
+            )}
+          </div>
+
           <div style={{display:"inline-block"}}>
             <h3 className="ui header" style={{marginBottom:0, textTransform:"none"}}>{i18n(plugin.name)}</h3>
             <div className="ui meta bold">{i18n("by")} {author}</div>
