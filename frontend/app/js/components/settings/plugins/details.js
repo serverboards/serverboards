@@ -151,7 +151,7 @@ class PluginDetails extends React.Component{
               </div>
             ) }
             <HoldButton
-                className="ui red button" style={{marginTop: 4}}
+                className="ui basic red button" style={{marginTop: 4}}
                 onHoldClick={this.handleRemove.bind(this)}>
               {i18n("Hold to remove")}
             </HoldButton>
