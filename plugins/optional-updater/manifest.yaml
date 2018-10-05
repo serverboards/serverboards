@@ -103,15 +103,15 @@ components:
         - name: action_id
         - name: plugin_id
 
-  - id: testcmd
-    type: cmd
-    command: updater-test.py
-    perms:
-      plugin
-  - id: test
-    type: test
-    command: testcmd
-    name: Updater Tests
+  # - id: testcmd
+  #   type: cmd
+  #   command: updater-test.py
+  #   perms:
+  #     plugin
+  # - id: test
+  #   type: test
+  #   command: testcmd
+  #   name: Updater Tests
 
   - id: marketplace
     type: cmd
