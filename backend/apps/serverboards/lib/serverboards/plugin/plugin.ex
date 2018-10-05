@@ -7,6 +7,7 @@ defmodule Serverboards.Plugin do
     version: nil,
     url: nil,
     enabled: true,
+    tags: [],
     # status: ["disabled"],
 
     components: [],

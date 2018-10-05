@@ -66,11 +66,14 @@ class PluginDetails extends React.Component{
   }
   checkUpdates(){
     const pid = this.props.plugin.id
+    const maybe_update_promise = this.state.plugin.tags.indexOf("core")<0 ?
+      plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]) :
+      Promise.resolve([{updated: true}])
+
     Promise.all([
-      plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]),
+      maybe_update_promise,
       cache.plugin(pid)
     ]).then( ([update, plugin]) => {
-      console.log("Got update data", update, plugin)
       if (update.length == 0){
         Flash.error("Error getting current update status.")
         this.setState( this.getInitialState({plugin, updated: false}))
@@ -119,6 +122,8 @@ class PluginDetails extends React.Component{
         )
       }
     }
+    const tags = plugin.tags
+    console.log("tags", tags)
 
     return (
       <Modal className="wide">
@@ -129,40 +134,44 @@ class PluginDetails extends React.Component{
             <div className="ui meta bold">{i18n("by")} {author}</div>
           </div>
           <div className="right menu">
-            {this.state.updated == undefined ? (
-              <div className="item">
-                <button className="ui teal basic disabled button" onClick={this.handleUpdate.bind(this)}>
-                  <i className="ui icon loading spinner"/>{i18n("Checking updates")}
-                </button>
-              </div>
-            ) : this.state.updated == false ? (
-              <div className="item">
-                <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
-              </div>
-            ) : (
-              <div className="item">
-                <button
-                  className="ui teal button"
-                  onClick={this.handleUpdate.bind(this)}
-                  data-tooltip={i18n("Altough no update has been detected for this plugin, you can force update.")}
-                  data-position="bottom right"
-                  >
-                    {i18n("Force update")}
-                </button>
-              </div>
-            ) }
-            <HoldButton
-                className="ui basic red button" style={{marginTop: 4}}
-                onHoldClick={this.handleRemove.bind(this)}>
-              {i18n("Hold to remove")}
-            </HoldButton>
-            {!plugin.id.startsWith("serverboards.core.") ? (
+            {tags.indexOf("core")<0 && (
+              <React.Fragment>
+                {this.state.updated == undefined ? (
+                  <div className="item">
+                    <button className="ui teal basic disabled button" onClick={this.handleUpdate.bind(this)}>
+                      <i className="ui icon loading spinner"/>{i18n("Checking updates")}
+                    </button>
+                  </div>
+                ) : this.state.updated == false ? (
+                  <div className="item">
+                    <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
+                  </div>
+                ) : (
+                  <div className="item">
+                    <button
+                      className="ui teal button"
+                      onClick={this.handleUpdate.bind(this)}
+                      data-tooltip={i18n("Altough no update has been detected for this plugin, you can force update.")}
+                      data-position="bottom right"
+                      >
+                        {i18n("Force update")}
+                    </button>
+                  </div>
+                ) }
+                <HoldButton
+                    className="ui basic red button" style={{marginTop: 4}}
+                    onHoldClick={this.handleRemove.bind(this)}>
+                  {i18n("Hold to remove")}
+                </HoldButton>
+              </React.Fragment>
+            )}
+            {tags.indexOf("optional")>=0 && (
               <div className="item two lines">
                 <div ref="enabled" className="ui toggle checkbox">
                   <input type="checkbox" checked={this.state.enabled}/>
                 </div>
               </div>
-            ) : null }
+            )}
           </div>
         </div>
         <div className="ui grid stackable" style={{margin: 0}}>

@@ -64,14 +64,31 @@ defmodule Serverboards.Plugin.Parser do
   def parse(%{} = dict) do
     components = Enum.map( Map.get(dict, "components", []), &parse_component(&1) )
 
+    id = Map.get(dict, "id")
+    path = Map.get(dict, "path")
+    is_core = not String.starts_with?(path, Serverboards.Config.serverboards_path)
+    # rw_path = File.stat!(path).access == :read_write
+    tags = if is_core do
+      is_optional = String.contains?(id, "optional")
+      if is_optional do
+        ["core", "optional"]
+      else
+        ["core"]
+      end
+    else
+      ["optional"]
+    end
+      # rw_path and
+
     %Serverboards.Plugin{
-      id: Map.get(dict, "id"),
+      id: id,
       name: Map.get(dict, "name"),
       description: Map.get(dict, "description"),
       author: Map.get(dict, "author"),
       version: Map.get(dict, "version"),
       url: Map.get(dict, "url"),
       enabled: Map.get(dict, "enabled", true),
+      tags: tags,
 
       components: components,
 
@@ -140,7 +157,8 @@ defmodule Serverboards.Plugin.Parser do
           {:ok, data_yaml}  <- parse_yaml( data, "#{dirname}/manifest.yaml" ),
           {:ok, extra_yaml} <- parse_yaml( extra, "#{dirname}/.extra.yaml" )
     do
-      plugin = parse(Map.merge(data_yaml, extra_yaml))
+      manifest = data_yaml |> Map.merge(extra_yaml) |> Map.merge(%{"path" => dirname})
+      plugin = parse(manifest)
       {:ok, plugin}
     else
       {:error, :enoent} ->

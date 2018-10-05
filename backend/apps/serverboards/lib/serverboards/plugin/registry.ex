@@ -197,6 +197,7 @@ defmodule Serverboards.Plugin.Registry do
         url: plugin.url,
         enabled: plugin.enabled,
         components: components,
+        tags: plugin.tags,
         extra: plugin.extra
         })
     end)
@@ -237,19 +238,6 @@ defmodule Serverboards.Plugin.Registry do
   def handle_cast({:reload}, status), do: handle_cast({:reload, %{}}, status)
   def handle_cast({:reload, context}, status) do
     Logger.debug("Reloading plugin lists.")
-    active = case Map.get(context, :plugins) do
-      nil -> Serverboards.Config.get_map(:plugins)
-      value -> value
-    end
-    broken = case Map.get(context, :broken_plugins) do
-      nil -> Serverboards.Config.get_map(:broken_plugins)
-      value -> value
-    end
-
-    context = %{
-      active: active,
-      broken: broken,
-    }
 
     all_plugins = load_plugins()
       |> Enum.reverse
