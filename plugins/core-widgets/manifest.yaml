@@ -1,9 +1,10 @@
 id: serverboards.core.widgets
 name: Core Widgets
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: "18.10"
 description: >
   Various core widgets.
+icon: chart pie
 
 components:
   - name: Core widgets daemon

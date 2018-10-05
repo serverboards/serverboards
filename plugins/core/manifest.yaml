@@ -1,10 +1,11 @@
 id: serverboards.core
-name: Serverboards Core Data
+name: Core Data
 description: |
-  Some misc data that Sererboards needs to run.
+  Some misc data that Serverboards needs to run.
 author: David Moreno
 email: dmoreno@serverboards.io
 version: "18.10"
+icon: certificate
 
 components:
   - id: license.1810

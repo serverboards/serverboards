@@ -1,10 +1,11 @@
 id: serverboards.core.notifications
-name: core services
+name: Core Notifications
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: "18.10"
 description: >
   Definition of core notification subsystem. Includes global config,
   user notification channel config, and delivery subsystem.
+icon: bullhorn
 
 components:
   - id: settings.email

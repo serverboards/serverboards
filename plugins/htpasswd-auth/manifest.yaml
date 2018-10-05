@@ -1,6 +1,7 @@
-name: htpasswd
+name: htpasswd Authentication
 description: >
   Allows to log in using a htpasswd-like file.
+  
   Have the file at $INSTALLPATH/auth/htpasswd file.
 
   User can create new users executing manually the
@@ -10,7 +11,8 @@ description: >
   variable.
 author: David Moreno <dmoreno@serverboards.io>
 id: serverboards.auth.htpasswd
-version: 17.04
+version: "18.10"
+icon: key
 
 components:
   - name: htpasswd

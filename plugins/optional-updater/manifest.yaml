@@ -1,10 +1,11 @@
 id: serverboards.optional.update
-name: Serverboards Update Checker
+name: Core Update Checker
 description: |
-  Shows at serverboards setting oerview whether serverboards needs an update,
+  Shows at serverboards setting overview whether serverboards needs an update,
   and allows to trigger the update of the system.
 author: David Moreno <dmoreno@serverboards.io>
-version: 18.10
+version: "18.10"
+icon: recycle
 
 components:
   - id: settings.overview

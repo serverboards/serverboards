@@ -1,12 +1,14 @@
 id: serverboards.core.settings
-name: core settings
+name: Core Settings
 author: David Moreno <dmoreno@serverboards.io>
-version: 17.04
+version: "18.10"
 description: >
   Definition of core settings and fields to store in them.
 
   Core settings define minimal settings required for Serverboards to
   work.
+icon: cogs
+
 # name and tags fields are always assumed
 
 components:
