@@ -1,6 +1,7 @@
 all: compile-dev
 
 compile-dev: setup
+	iex --version
 	mix compile
 
 setup: deps

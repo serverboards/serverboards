@@ -81,12 +81,7 @@ prepare-release: compile-frontend compile-backend compile-plugins
 	cp -a backend/apps/serverboards/priv/repo/initial.sql rel/serverboards/share/serverboards/backend/
 	cp -a backend/apps/serverboards/priv/repo/migrations rel/serverboards/share/serverboards/backend/
 
-	cp -a plugins rel/serverboards/share/serverboards/plugins
-	find rel -name node_modules | xargs rm -rf
-	rm rel/serverboards/share/serverboards/plugins/.git -rf
-
 	#cp -a serverboards.sh rel/serverboards/
-	cd cli; make install
 
 INSTALL=$(DESTDIR)$(prefix)
 install: prepare-release
@@ -103,6 +98,9 @@ install: prepare-release
 	cp etc/nginx.conf $(INSTALL)/../etc/nginx/sites-available/serverboards.conf
 	mkdir -p $(INSTALL)/../usr/bin/
 	ln -fs /opt/serverboards/bin/s10s $(INSTALL)/../usr/bin/s10s
+	mkdir -p $(INSTALL)/lib/python3/dist-packages/serverboards/
+	cd plugins/ && make install INSTALL=$(INSTALL)
+	cd cli; make install INSTALL=$(INSTALL)
 
 deb:
 	scripts/version-update.sh
