@@ -1,0 +1,123 @@
+id: serverboards.optional.update
+name: Core Update Checker
+description: |
+  Shows at serverboards setting overview whether serverboards needs an update,
+  and allows to trigger the update of the system.
+author: David Moreno <dmoreno@serverboards.io>
+version: "18.10"
+icon: recycle
+
+components:
+  - id: settings.overview
+    type: settings overview
+    name: Update
+    order: -1
+    requires: perms[update]
+    fields:
+      - id: version
+        label: Latest version available
+        description: "{{latest_version.version}}"
+        type: description
+        vars:
+          - id: latest_version
+            call: latest_version
+            command: serverboards.optional.update/updater
+      - id: update
+        type: button
+        button: Update now
+        class: yellow
+        onclick:
+          action: serverboards.optional.update/update.now
+          params: {}
+
+  - id: updater
+    type: cmd
+    name: Updater
+    command: ./serverboards-updater.py
+    requires: perms[update]
+    strategy: singleton
+    timeout: 5m
+    perms: event.emit action.update settings.view[serverboards.optional.updater]
+
+  - id: update.now
+    type: action
+    name: Update now
+    description: Update now. Will reboot Serverboards as last step.
+    command: updater
+    call:
+      method: update_now
+      params:
+        - name: action_id
+
+  - id: catalog
+    type: cmd
+    name: Catalog check
+    command: ./serverboards-updater.py
+    requires: perms[update]
+    strategy: singleton
+    timeout: 5m
+    perms: event.emit action.update settings.view[serverboards.optional.updater]
+    description: Same executable as updater, but another instance, to allow logn running plugin update check.
+
+  - id: check_plugin_updates
+    traits: plugins hidden
+    type: action
+    name: Check if any plugin require updating
+    command: updater
+    call:
+      method: check_plugin_updates
+      params:
+        - name: action_id
+
+  - id: update_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin update
+    command: marketplace
+    call:
+      method: update
+      params:
+        - name: action_id
+        - name: plugin_id
+
+  - id: enable_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin enable
+    command: marketplace
+    call:
+      method: enable
+      params:
+        - name: action_id
+        - name: plugin_id
+        - name: enabled
+
+  - id: remove_plugin
+    traits: plugins hidden
+    type: action
+    name: Plugin remove
+    command: marketplace
+    call:
+      method: remove
+      params:
+        - name: action_id
+        - name: plugin_id
+
+  # - id: testcmd
+  #   type: cmd
+  #   command: updater-test.py
+  #   perms:
+  #     plugin
+  # - id: test
+  #   type: test
+  #   command: testcmd
+  #   name: Updater Tests
+
+  - id: marketplace
+    type: cmd
+    name: Marketplace integration
+    command: ./serverboards-marketplace.py
+    requires: perms[plugin.install]
+    strategy: singleton
+    timeout: 10s
+    perms: settings.view[serverboards.optional.updater]
