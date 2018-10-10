@@ -657,7 +657,12 @@ def packageserver_get(path, **params):
 
 
 def search(*terms):
-    res = packageserver_get("packages/search", q=' '.join(terms))
+    fields = ""
+    for arg in terms[:]:
+        if arg.startswith("--fields="):
+            fields = arg[9:]
+            terms = [x for x in terms if x != arg]
+    res = packageserver_get("packages/search", q=' '.join(terms), fields=fields)
     js = res.json().get("results", [])
     output_data(js)
 

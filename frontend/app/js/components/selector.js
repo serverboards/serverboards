@@ -41,12 +41,12 @@ function filter_items(items, filter){
 
 function Card({item, default_icon, onClick, className}){
   const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
-  const icon = item.icon || (item.extra || {}).icon || default_icon
+  const icon = item.icon64 || item.icon || (item.extra || {}).icon || default_icon
   return (
     <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
       <div className="ui split area horizontal" style={{alignItems: "center", marginBottom: 5}}>
         <Icon className="mini" icon={icon} plugin={plugin}/>
-        <h3 className="ui header" style={{margin: 5, height: "auto", width: "auto"}}>{i18n(item.name)}</h3>
+        <h3 className="ui header" style={{margin: "5px 5px 5px 15px", height: "auto", width: "auto"}}>{i18n(item.name)}</h3>
         {item.tag ? (TAGS_TYPE == 1) ? (
           <span className={`ui top right attached label ${item.tag.color}`} style={{marginLeft: "-0.5rem"}}>{item.tag.label}</span>
         ) : (

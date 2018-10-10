@@ -5,8 +5,17 @@ require("sass/logoicon.sass")
 function IconIcon(props){
   if (!props.icon)
     return null
-  if (props.icon.endsWith(".svg") || props.icon.endsWith(".png") ||
-      props.icon.endsWith(".jpg") || props.icon.endsWith(".gif") ){
+  if (props.icon.startsWith("data:")){
+    const imgurl = props.icon
+    return (
+      <span className={`ui iconicon ${props.className || "normal"}`}>
+        <span className="icon">
+          <img src={imgurl} style={props.style}/>
+        </span>
+      </span>
+    )
+  } else if (props.icon.endsWith(".svg") || props.icon.endsWith(".png") ||
+             props.icon.endsWith(".jpg") || props.icon.endsWith(".gif") ){
     const imgurl=`${servername()}/static/${props.plugin}/${props.icon}`
     return (
       <span className={`ui iconicon ${props.className || "normal"} ${props.src ? "with background" : ""}`}>

@@ -14,7 +14,8 @@ async def search(*args, **kwargs):
     terms = list(args) + ["%s:%s" % x for x in kwargs.items() if not x[0].startswith('-')]
     await serverboards.debug("Searching for components with: %s" % terms)
 
-    cmd = ["s10s", "plugin", "search", "--format=json", *terms]
+    cmd = ["s10s", "plugin", "search", "--format=json", *terms, "--fields=base,icon,icon64"]
+    print(cmd)
     result = await curio.subprocess.check_output(cmd)
 
     return json.loads(result)
