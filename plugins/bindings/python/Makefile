@@ -22,8 +22,8 @@ install: setup
 	cp smock.py $(DIST_PACKAGES)/serverboards/
 
 	# overreaching.. may need custom package. No time now.
-	cp -a env/lib/python3.6/site-packages/curio $(DIST_PACKAGES)/
-	cp -a env/lib/python3.6/site-packages/asks $(DIST_PACKAGES)/
-	cp -a env/lib/python3.6/site-packages/h11 $(DIST_PACKAGES)/
-	cp -a env/lib/python3.6/site-packages/multio $(DIST_PACKAGES)/
-	cp -a env/lib/python3.6/site-packages/async_generator $(DIST_PACKAGES)/
+	cp -a env/lib/python*/site-packages/curio $(DIST_PACKAGES)/
+	cp -a env/lib/python*/site-packages/asks $(DIST_PACKAGES)/
+	cp -a env/lib/python*/site-packages/h11 $(DIST_PACKAGES)/
+	cp -a env/lib/python*/site-packages/multio $(DIST_PACKAGES)/
+	cp -a env/lib/python*/site-packages/async_generator $(DIST_PACKAGES)/
