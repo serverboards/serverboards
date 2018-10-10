@@ -35,7 +35,7 @@ class MarketplaceSelector extends React.Component {
     console.log("Load plugins ", filter)
     return Promise.all([
       plugin.call(
-        "serverboards.optional.update/marketplace",
+        "serverboards.core.update/marketplace",
         "search",
         filter
       ), cache.plugins()]
@@ -55,7 +55,7 @@ class MarketplaceSelector extends React.Component {
       return
     }
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "install",
       [pl.id]
     ).then( () => {

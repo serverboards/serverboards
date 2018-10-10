@@ -1,4 +1,4 @@
-id: serverboards.optional.update
+id: serverboards.core.update
 name: Core Update Checker
 description: |
   Shows at serverboards setting overview whether serverboards needs an update,
@@ -21,13 +21,13 @@ components:
         vars:
           - id: latest_version
             call: latest_version
-            command: serverboards.optional.update/updater
+            command: serverboards.core.update/updater
       - id: update
         type: button
         button: Update now
         class: yellow
         onclick:
-          action: serverboards.optional.update/update.now
+          action: serverboards.core.update/update.now
           params: {}
 
   - id: updater
@@ -37,7 +37,7 @@ components:
     requires: perms[update]
     strategy: singleton
     timeout: 5m
-    perms: event.emit action.update settings.view[serverboards.optional.updater]
+    perms: event.emit action.update settings.view[serverboards.core.updater]
 
   - id: update.now
     type: action
@@ -56,7 +56,7 @@ components:
     requires: perms[update]
     strategy: singleton
     timeout: 5m
-    perms: event.emit action.update settings.view[serverboards.optional.updater]
+    perms: event.emit action.update settings.view[serverboards.core.updater]
     description: Same executable as updater, but another instance, to allow logn running plugin update check.
 
   - id: check_plugin_updates
@@ -120,4 +120,4 @@ components:
     requires: perms[plugin.install]
     strategy: singleton
     timeout: 10s
-    perms: settings.view[serverboards.optional.updater]
+    perms: settings.view[serverboards.core.updater]

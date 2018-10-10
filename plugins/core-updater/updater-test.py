@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards
 from serverboards import Plugin, print
 
-updater = Plugin("serverboards.optional.update/updater", kill_and_restart=True)
+updater = Plugin("serverboards.core.update/updater", kill_and_restart=True)
 
 
 @serverboards.rpc_method

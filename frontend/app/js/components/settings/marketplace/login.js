@@ -20,7 +20,7 @@ class MarketplaceLogin extends React.Component {
   }
   componentDidMount(){
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "account",
       []
     ).then( (userdata) => {
@@ -32,7 +32,7 @@ class MarketplaceLogin extends React.Component {
   }
   handleLogout(){
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "logout",
       []
     ).then( () => this.setState({step: STEP_NOT_LOGGED_IN}))
@@ -42,7 +42,7 @@ class MarketplaceLogin extends React.Component {
     const password = this.refs.password.value
     console.log("Try log in Marketplace with", email)
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "login",
       [email, password]
     ).then( (res) => {

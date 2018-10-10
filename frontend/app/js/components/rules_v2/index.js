@@ -207,7 +207,7 @@ class ExistingOrMarketplaceTemplate extends React.Component{
   get_rule_template_market_catalog(){
     return Promise.all([
         plugin.start_call_stop(
-              "serverboards.optional.update/catalog",
+              "serverboards.core.update/catalog",
               "component_filter",
               {type: "rule template"}
             )
