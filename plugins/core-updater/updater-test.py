@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
-import sys
-import os
 import yaml
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards
 from serverboards import Plugin, print
 

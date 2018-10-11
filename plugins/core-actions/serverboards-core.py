@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
 import serverboards
-import requests, subprocess, re, socket, time
+import requests
+import subprocess
+import re
+import socket
+import time
 from urllib.parse import urlparse
-import json
 from serverboards import print
+
 
 @serverboards.rpc_method
 def ping(ip=None, url=None):

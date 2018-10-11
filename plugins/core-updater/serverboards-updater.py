@@ -1,16 +1,8 @@
 #!/usr/bin/python3
 
 import sys
-import os
 import requests
-import subprocess
-import yaml
-import time
-import urllib
-import gzip
 import sh
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
-from serverboards import print, settings
 import serverboards
 
 PLUGINS_YAML_URL = "https://serverboards.io/downloads/plugins.yaml.gz"

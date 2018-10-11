@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 import sys
-import os
 import json
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 from serverboards_aio import print, settings
 import serverboards_aio as serverboards
 import curio
