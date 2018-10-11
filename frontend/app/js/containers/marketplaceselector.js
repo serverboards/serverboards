@@ -25,7 +25,8 @@ class MarketplaceSelector extends React.Component {
     super(props)
     this.state = {
       plugins: undefined,
-      loading: true
+      loading: true,
+      installing: false
     }
   }
   loadPlugins(){
@@ -54,11 +55,13 @@ class MarketplaceSelector extends React.Component {
       Flash.info(i18n("A new tab has been opened with information on how to acquire the required plugin."))
       return
     }
+    this.setState({installing: true})
     plugin.call(
       "serverboards.core.update/marketplace",
       "install",
       [pl.id]
     ).then( () => {
+      this.setState({installing: false})
       if (this.props.afterInstall){
         cache.invalidate_all()
         rpc.call("plugin.reload", [])
@@ -76,6 +79,11 @@ class MarketplaceSelector extends React.Component {
   }
   render(){
     const state = this.state
+    if (state.installing){
+      return (
+        <Loading>{i18n("Installing...")}</Loading>
+      )
+    }
 
     return (
       <Selector
