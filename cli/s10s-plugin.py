@@ -143,10 +143,18 @@ def update_settings(section, key, value):
     if value is None:
         return
     # add to first, which sould be user's defined
-    config = config.read(inis[0])
-    config[section] = {key: value}
-    with open(ini[0], "w") as inif:
-        config.write(inif)
+    for ini in inis:
+        try:
+            config = configparser.ConfigParser(allow_no_value=True)
+            config.read(ini)
+            config[section] = {key: value}
+            os.makedirs(os.path.dirname(ini), exist_ok=True)
+            with open(ini, "w") as inif:
+                config.write(inif)
+            return
+        except Exception:
+            pass
+    raise Exception("cound not write config")
 
 
 def output_data(data):
