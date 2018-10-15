@@ -6,18 +6,19 @@ import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
 import i18n from 'app/utils/i18n'
 import plugin from 'app/utils/plugin'
+import store from 'app/utils/store'
 
 
 function tag_by_price(component){
   const price = component.price
   const available = component.available
   if (!price){
-    return {label: i18n("Free"), color: "light green"}
+    return {label: i18n("Free"), color: "light green", free: true}
   }
   if (available)
-    return {label: i18n("Available"), color: "blue"}
+    return {label: i18n("Available"), color: "blue", free: false}
   const price_str = Number(price).toFixed(2)
-  return {label: i18n("{price} € / month", {price: price_str}), color: "blue"}
+  return {label: i18n("{price} € / month", {price: price_str}), color: "blue", free: false}
 }
 
 class MarketplaceSelector extends React.Component {
@@ -55,6 +56,7 @@ class MarketplaceSelector extends React.Component {
       Flash.info(i18n("A new tab has been opened with information on how to acquire the required plugin."))
       return
     }
+    store.set_modal(null)
     this.setState({installing: true})
     plugin.call(
       "serverboards.core.update/marketplace",
@@ -77,6 +79,13 @@ class MarketplaceSelector extends React.Component {
       }
     }).catch(Flash.error)
   }
+  showPlugin(pl){
+    store.set_modal("plugin.show.from.marketplace", {
+      plugin: pl,
+      tag: tag_by_price(pl),
+      onInstall: () => this.installPlugin(pl),
+    })
+  }
   render(){
     const state = this.state
     if (state.installing){
@@ -88,7 +97,7 @@ class MarketplaceSelector extends React.Component {
     return (
       <Selector
         get_items={this.loadPlugins.bind(this)}
-        onSelect={this.installPlugin.bind(this)}
+        onSelect={this.showPlugin.bind(this)}
         {...this.props}
         />
     )

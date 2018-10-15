@@ -35,8 +35,19 @@ async def account():
     try:
         res = await curio.subprocess.check_output(["s10s", "plugin", "account", "--format=json"])
     except curio.subprocess.CalledProcessError as e:
-        print(e.output)
-        raise
+        raise Exception(json.loads(e.output)["message"])
+
+    return json.loads(res)
+
+
+@serverboards.rpc_method
+async def package_show(package_id):
+    try:
+        res = await curio.subprocess.check_output([
+            "s10s", "plugin", "show", package_id, "--format=json", "--fields=all,full_description,assets,assetsdata"
+        ])
+    except curio.subprocess.CalledProcessError as e:
+        raise Exception(json.loads(e.output)["message"])
 
     return json.loads(res)
 

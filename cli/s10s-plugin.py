@@ -25,6 +25,7 @@ Plugin management:
     s10s plugin search        -- Remote search of a plugin form the remote database.
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
+    s10s plugin show    <plugin_id|url|txz>   -- Shows information about a package
     s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
     s10s plugin update  <path|plugin_id>      -- Updates a plugin
     s10s plugin remove  <path|plugin_id>      -- Removes a plugin
@@ -720,8 +721,8 @@ def logout():
         output_data(res)
         return
 
-    packageserver_get("account/logout")
     update_settings("serverboards.packageserver/settings", "api_key", None)
+    packageserver_get("account/logout")
     res = {"success": "logged-out", "message": "You are succesfully logged out"}
     output_data(res)
 
@@ -748,9 +749,32 @@ def enable(plugin):
     update_extra(plugin, "enabled", True)
     output_data({"plugin": plugin, "enabled": True})
 
+
 def disable(plugin):
     update_extra(plugin, "enabled", False)
     output_data({"plugin": plugin, "enabled": False})
+
+
+def show(plugin, fields=None):
+    if not fields:
+        fields = "all,full_description"
+    fields = fields.split(',')
+    fields = ','.join(fields)
+    data = packageserver_get("packages/%s/" % plugin, fields=fields).json()
+    output_data(data)
+
+
+def make_options(options):
+    args = []
+    kwargs = {}
+
+    for o in options:
+        if o.startswith('--'):
+            k, v = o[2:].split('=')
+            kwargs[k] = v
+        else:
+            args.append(o)
+    return (args, kwargs)
 
 
 def main(argv):
@@ -790,6 +814,9 @@ def main(argv):
         logout()
     elif argv[0] == 'account':
         account()
+    elif argv[0] == 'show':
+        arg, kwargs = make_options(argv[1:])
+        show(*arg, **kwargs)
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)

@@ -42,6 +42,8 @@ export function get_modal(name){
       return require('app/containers/board/settings').default
     case "plugin.screen":
       return require('app/components/plugin/modal').default
+    case "plugin.show.from.marketplace":
+      return require('app/components/settings/marketplace/marketinfo').default
     case "service.create":
       return require('app/containers/project/addservice').default
     case "dashboard.create":
