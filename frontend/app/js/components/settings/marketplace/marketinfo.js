@@ -37,6 +37,7 @@ class PluginInfo extends React.Component{
     const {plugin} = this.state
     const props = this.props
     const icon = map_get(plugin, ["assetsdata", "icon"]) || map_get(plugin, ["assets", "icon"])
+    const screenshot = map_get(plugin, ["assetsdata", "screenshot"])
 
     const button_text = props.tag.free ? i18n("Install now for free") : i18n("Install now for {label}", props.tag)
 
@@ -63,8 +64,8 @@ class PluginInfo extends React.Component{
             <span className="ui meta">
               {plugin.id}
             </span>
-            {plugin.assetsdata.screenshot && (
-              <img src={plugin.assetsdata.screenshot} style={{maxWidth: "100%", boxShadow: "1px 1px 4px rgba(0,0,0,0.5)"}}/>
+            {screenshot && (
+              <img src={screenshot} style={{maxWidth: "100%", boxShadow: "1px 1px 4px rgba(0,0,0,0.5)"}}/>
             )}
             <div className="ui normal text" style={{marginTop: 30, marginBottom: 30}}>
               <MarkdownPreview value={plugin.full_description}/>
