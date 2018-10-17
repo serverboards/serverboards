@@ -7,6 +7,12 @@ import curio
 import curio.subprocess
 
 
+def json_loads(str):
+    if isinstance(str, bytes):
+        str = bytes.decode('utf8')
+    return json.loads(str)
+
+
 @serverboards.rpc_method
 async def search(*args, **kwargs):
     terms = list(args) + ["%s:%s" % x for x in kwargs.items() if not x[0].startswith('-')]
@@ -16,7 +22,7 @@ async def search(*args, **kwargs):
     print(cmd)
     result = await curio.subprocess.check_output(cmd)
 
-    return json.loads(result)
+    return json_loads(result)
 
 
 @serverboards.rpc_method
@@ -27,7 +33,7 @@ async def install(plugin_id):
         print(e.output)
         raise
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -35,9 +41,9 @@ async def account():
     try:
         res = await curio.subprocess.check_output(["s10s", "plugin", "account", "--format=json"])
     except curio.subprocess.CalledProcessError as e:
-        raise Exception(json.loads(e.output)["message"])
+        raise Exception(json_loads(e.output)["message"])
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -47,9 +53,9 @@ async def package_show(package_id):
             "s10s", "plugin", "show", package_id, "--format=json", "--fields=all,full_description,assets,assetsdata"
         ])
     except curio.subprocess.CalledProcessError as e:
-        raise Exception(json.loads(e.output)["message"])
+        raise Exception(json_loads(e.output)["message"])
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -60,7 +66,7 @@ async def logout():
         print(e.output)
         raise
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -74,7 +80,7 @@ async def login(email, password):
         print(e.output)
         raise
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -85,7 +91,7 @@ async def check_updates(*plugins):
     try:
         await curio.subprocess.check_output(["s10s", "plugin", "check", *plugins, "--format=json"])
         res = await curio.subprocess.check_output(["s10s", "plugin", "list", "--format=json"])
-        res = json.loads(res)
+        res = json_loads(res)
         if plugins:  # Not the most efficient. But works. Might be fixed with a "plugin info" command.
             res = [x for x in res if x["id"] in plugins]
     except curio.subprocess.CalledProcessError as e:
@@ -103,7 +109,7 @@ async def update(plugin_id, action_id=None):
         print(e.output)
         raise
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -114,7 +120,7 @@ async def remove(plugin_id, action_id=None):
         print(e.output)
         raise
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 @serverboards.rpc_method
@@ -130,7 +136,7 @@ async def enable(plugin_id, action_id=None, enabled=True):
         print(e.output)
         raise
 
-    return json.loads(res)
+    return json_loads(res)
 
 
 async def test():
