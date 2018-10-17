@@ -140,19 +140,22 @@ defmodule Serverboards.Config do
     {:ok, Regex.replace(~r/\[.*\]/, text, &String.replace(&1, "/", "--"))}
   end
 
-  def get_ini(section) when is_binary(section) do
-    get_ini(String.to_atom(section))
-  end
-  def get_ini(section) do
-    section = String.to_atom(String.replace(Atom.to_string(section), "/", "--"))
-    init_files = case System.get_env("SERVERBOARDS_INI") do
+  def ini_files() do
+    case System.get_env("SERVERBOARDS_INI") do
       nil ->
         files = Application.get_env(:serverboards, :ini_files, [])
         files
       ini_file ->
         [ini_file]
     end
-    init_files
+  end
+
+  def get_ini(section) when is_binary(section) do
+    get_ini(String.to_atom(section))
+  end
+  def get_ini(section) do
+    section = String.to_atom(String.replace(Atom.to_string(section), "/", "--"))
+    ini_files()
       |> Enum.map(&get_iniw(&1, section))
       |> Enum.reduce([], &Keyword.merge/2)
   end

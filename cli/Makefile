@@ -1,7 +1,7 @@
 all: s10s s10s-shell
 
-CMDDIR=../rel/serverboards/lib/serverboards/cli/
-BINDIR=../rel/serverboards/bin/
+CMDDIR=$(INSTALL)/../opt/serverboards/lib/serverboards/cli/
+BINDIR=$(INSTALL)/../opt/serverboards/bin/
 FINALDIR=/opt/serverboards/lib/serverboards/cli/
 CFLAGS=-O2 -DCOMMANDS_NAME=\"s10s\" -DDEFAULT_COMMANDS_PATH=\"${FINALDIR}\"
 

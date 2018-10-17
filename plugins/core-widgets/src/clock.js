@@ -28,7 +28,7 @@ class Clock extends React.Component{
       this.setState({interval_id: interval_id})
     }
     this.props.setClass("orange card")
-    props.setTitle("|fullsize")
+    this.props.setTitle("|fullsize")
   }
   componentWillUnmount(){
     if (this.state.interval_id){
@@ -61,7 +61,7 @@ class Clock extends React.Component{
 
     return (
       <div className="content">
-        <div className="content" style={{...styles.clock, height: layout.height, fontSize}}>
+        <div className="content" style={{...styles.clock, fontSize}}>
           <span className="hour">{hour}</span> :
           <span className="minute">{minute}</span> :
           <span className="second">{second}</span>

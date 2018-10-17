@@ -28,7 +28,7 @@ class MarketplaceModel extends React.Component{
   get_plugins(){
     return Promise.all([
         plugin
-          .start_call_stop("serverboards.optional.update/catalog", "plugin_catalog")
+          .start_call_stop("serverboards.core.update/catalog", "plugin_catalog")
         , cache.plugins()
       ]).then( (cp) => {
         const catalog = cp[0]
@@ -39,7 +39,7 @@ class MarketplaceModel extends React.Component{
       })
 
     return plugin
-      .start_call_stop("serverboards.optional.update/catalog", "plugin_catalog")
+      .start_call_stop("serverboards.core.update/catalog", "plugin_catalog")
   }
   handleInstallPlugin(plugin_url){
     if (!plugin_url){
@@ -48,7 +48,7 @@ class MarketplaceModel extends React.Component{
     }
     this.setState({installing: plugin_url})
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "install",
       [plugin_url]
     ).then( () => {

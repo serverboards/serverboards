@@ -86,10 +86,14 @@ defmodule Serverboards.Plugin.Component do
         Logger.error("Error creating directory for plugin #{id} at #{home}: #{inspect err}")
       _ -> :ok
     end
-    [
+    system_env = Serverboards.Config.get_map(:env)
+      |> Enum.map(fn {a,b} -> {String.to_charlist(a), String.to_charlist(b)} end)
+    env = [
       {'HOME', to_charlist home},
       {'PLUGIN_ID', to_charlist id},
       {'SERVERBOARDS_PATH', to_charlist serverboards_path},
-    ]
+    ] ++ system_env
+    # Logger.debug("Env is #{inspect env}")
+    env
   end
 end

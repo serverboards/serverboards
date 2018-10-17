@@ -34,7 +34,7 @@ function get_plugin_component({tab, type}, props){
   return (props) => (
     <PluginScreen
       key={type}
-      data={{service: props.service, project: props.project}} 
+      data={{service: props.service, project: props.project}}
       plugin={sp[0]}
       component={sp[1]}
       />
@@ -153,13 +153,15 @@ class Details extends React.Component{
       <div className="extend">
         <div className="ui top serverboards secondary pointing menu">
           {props.service.icon ? (
-            <IconIcon src={icon} icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
+            <div className="ui padding">
+              <IconIcon icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
+            </div>
           ) : (
             <ImageIcon src={icon} name={props.service.name}/>
           )}
 
           <div style={{display: "inline-block"}}>
-            <h3 className="ui header" style={{paddingRight: 50, marginBottom: 0}}>{i18n(props.service.name)}</h3>
+            <h3 className="ui header oneline" style={{paddingRight: 50, marginBottom: 0}}>{i18n(props.service.name)}</h3>
             <span className="ui meta">{i18n(props.service_template.name)}</span>
           </div>
           <TabBar tabs={sections.map( s => ({

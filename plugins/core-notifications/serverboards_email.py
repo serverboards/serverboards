@@ -8,7 +8,6 @@ import yaml
 import jinja2
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 from serverboards_aio import print
 import serverboards_aio as serverboards
 

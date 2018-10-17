@@ -59,7 +59,7 @@ class Legal extends React.Component{
     return (
       <div className="ui login serverboards background diagonal">
         <div className="ui form" style={{maxWidth: 720, margin: "auto"}}>
-          <div className="ui horizontal split area" style={{paddingTop: "25%"}}>
+          <div className="ui horizontal split area" style={{paddingTop: "15%", height: "auto"}}>
             <img src={white_logo} className="ui serverboards logo" style={{padding: 0}}/>
             <div className="ui buttons">
               <button className={`ui button ${ lang == "en" ? "teal" : ""}`} onClick={() => this.handleLanguageChange("en")}>

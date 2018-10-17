@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/env/lib/python3.6/site-packages/'))
 import asks
 import serverboards_aio as serverboards
 import curio

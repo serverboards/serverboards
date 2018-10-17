@@ -25,6 +25,7 @@ Plugin management:
     s10s plugin search        -- Remote search of a plugin form the remote database.
     s10s plugin list [what]   -- Lists all the plugins
     s10s plugin check         -- Checks if there is something to update
+    s10s plugin show    <plugin_id|url|txz>   -- Shows information about a package
     s10s plugin install <plugin_id|url|txz>   -- Installs a plugin
     s10s plugin update  <path|plugin_id>      -- Updates a plugin
     s10s plugin remove  <path|plugin_id>      -- Removes a plugin
@@ -143,10 +144,18 @@ def update_settings(section, key, value):
     if value is None:
         return
     # add to first, which sould be user's defined
-    config = config.read(inis[0])
-    config[section] = {key: value}
-    with open(ini[0], "w") as inif:
-        config.write(inif)
+    for ini in inis:
+        try:
+            config = configparser.ConfigParser(allow_no_value=True)
+            config.read(ini)
+            config[section] = {key: value}
+            os.makedirs(os.path.dirname(ini), exist_ok=True)
+            with open(ini, "w") as inif:
+                config.write(inif)
+            return
+        except Exception:
+            pass
+    raise Exception("cound not write config")
 
 
 def output_data(data):
@@ -657,7 +666,12 @@ def packageserver_get(path, **params):
 
 
 def search(*terms):
-    res = packageserver_get("packages/search", q=' '.join(terms))
+    fields = ""
+    for arg in terms[:]:
+        if arg.startswith("--fields="):
+            fields = arg[9:]
+            terms = [x for x in terms if x != arg]
+    res = packageserver_get("packages/search", q=' '.join(terms), fields=fields)
     js = res.json().get("results", [])
     output_data(js)
 
@@ -707,8 +721,8 @@ def logout():
         output_data(res)
         return
 
-    packageserver_get("account/logout")
     update_settings("serverboards.packageserver/settings", "api_key", None)
+    packageserver_get("account/logout")
     res = {"success": "logged-out", "message": "You are succesfully logged out"}
     output_data(res)
 
@@ -735,9 +749,32 @@ def enable(plugin):
     update_extra(plugin, "enabled", True)
     output_data({"plugin": plugin, "enabled": True})
 
+
 def disable(plugin):
     update_extra(plugin, "enabled", False)
     output_data({"plugin": plugin, "enabled": False})
+
+
+def show(plugin, fields=None):
+    if not fields:
+        fields = "all,full_description"
+    fields = fields.split(',')
+    fields = ','.join(fields)
+    data = packageserver_get("packages/%s/" % plugin, fields=fields).json()
+    output_data(data)
+
+
+def make_options(options):
+    args = []
+    kwargs = {}
+
+    for o in options:
+        if o.startswith('--'):
+            k, v = o[2:].split('=')
+            kwargs[k] = v
+        else:
+            args.append(o)
+    return (args, kwargs)
 
 
 def main(argv):
@@ -777,6 +814,9 @@ def main(argv):
         logout()
     elif argv[0] == 'account':
         account()
+    elif argv[0] == 'show':
+        arg, kwargs = make_options(argv[1:])
+        show(*arg, **kwargs)
     else:
         print("Unknown command: %s" % argv[0])
         print(__doc__)

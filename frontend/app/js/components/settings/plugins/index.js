@@ -38,7 +38,7 @@ class Plugins extends React.Component{
       Flash.error(`Could not load plugin list.\n ${e}`)
     })
 
-    plugin.call("serverboards.optional.update/marketplace", "check_updates", [])
+    plugin.call("serverboards.core.update/marketplace", "check_updates", [])
       .then( orig => {
         let updates = {}
         for (let o of orig){
@@ -67,7 +67,7 @@ class Plugins extends React.Component{
     let updates = {...this.state.updates}
     updates[id] = "updating"
     this.setState({updates})
-    rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": id}])
+    rpc.call("action.trigger", ["serverboards.core.update/update_plugin",  {"plugin_id": id}])
       .then( () => {
         this.reload_plugin_list.bind(this)
         Flash.success(i18n("Plugin updated successfully."))

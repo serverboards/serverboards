@@ -1,9 +1,10 @@
 import React from 'react'
-import {Loading, Tip, MarkdownPreview} from 'app/components'
+import {Loading, Tip, MarkdownPreview, Error} from 'app/components'
 import i18n from 'app/utils/i18n'
 import Flash from 'app/flash'
 import plugin from 'app/utils/plugin'
 
+const STEP_ERROR = -1
 const STEP_LOADING = 0
 const STEP_NOT_LOGGED_IN = 1
 const STEP_LOGIN = 2
@@ -20,7 +21,7 @@ class MarketplaceLogin extends React.Component {
   }
   componentDidMount(){
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "account",
       []
     ).then( (userdata) => {
@@ -28,11 +29,14 @@ class MarketplaceLogin extends React.Component {
         this.setState({step: STEP_LOGGED_IN, userdata})
       else
         this.setState({step: STEP_NOT_LOGGED_IN})
-    }).catch( Flash.error )
+    }).catch((e) => {
+      this.setState({step: STEP_ERROR})
+      Flash.error(e)
+    })
   }
   handleLogout(){
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "logout",
       []
     ).then( () => this.setState({step: STEP_NOT_LOGGED_IN}))
@@ -42,7 +46,7 @@ class MarketplaceLogin extends React.Component {
     const password = this.refs.password.value
     console.log("Try log in Marketplace with", email)
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "login",
       [email, password]
     ).then( (res) => {
@@ -55,6 +59,11 @@ class MarketplaceLogin extends React.Component {
   render(){
     const step = this.state.step
 
+    if (step == STEP_ERROR){
+      return (
+        <Error>{i18n("Could not check logged in status. Connectivity problems? Check again later.")}</Error>
+      )
+    }
     if (step == STEP_LOADING){
       return (
         <Loading/>

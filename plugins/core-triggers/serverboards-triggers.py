@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__),'../bindings/python/'))
-import serverboards, time, subprocess, re, requests
+import serverboards
+import time
+import subprocess
+import re
+import requests
 import socket
 from urllib.parse import urlparse
 from serverboards import print

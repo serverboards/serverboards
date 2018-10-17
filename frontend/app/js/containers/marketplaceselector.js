@@ -6,18 +6,19 @@ import cache from 'app/utils/cache'
 import rpc from 'app/rpc'
 import i18n from 'app/utils/i18n'
 import plugin from 'app/utils/plugin'
+import store from 'app/utils/store'
 
 
 function tag_by_price(component){
   const price = component.price
   const available = component.available
   if (!price){
-    return {label: i18n("Free"), color: "light green"}
+    return {label: i18n("Free"), color: "light green", free: true}
   }
   if (available)
-    return {label: i18n("Available"), color: "blue"}
+    return {label: i18n("Available"), color: "blue", free: false}
   const price_str = Number(price).toFixed(2)
-  return {label: i18n("{price} € / month", {price: price_str}), color: "blue"}
+  return {label: i18n("{price} € / month", {price: price_str}), color: "blue", free: false}
 }
 
 class MarketplaceSelector extends React.Component {
@@ -25,7 +26,8 @@ class MarketplaceSelector extends React.Component {
     super(props)
     this.state = {
       plugins: undefined,
-      loading: true
+      loading: true,
+      installing: false
     }
   }
   loadPlugins(){
@@ -35,7 +37,7 @@ class MarketplaceSelector extends React.Component {
     console.log("Load plugins ", filter)
     return Promise.all([
       plugin.call(
-        "serverboards.optional.update/marketplace",
+        "serverboards.core.update/marketplace",
         "search",
         filter
       ), cache.plugins()]
@@ -54,11 +56,14 @@ class MarketplaceSelector extends React.Component {
       Flash.info(i18n("A new tab has been opened with information on how to acquire the required plugin."))
       return
     }
+    store.set_modal(null)
+    this.setState({installing: true})
     plugin.call(
-      "serverboards.optional.update/marketplace",
+      "serverboards.core.update/marketplace",
       "install",
       [pl.id]
     ).then( () => {
+      this.setState({installing: false})
       if (this.props.afterInstall){
         cache.invalidate_all()
         rpc.call("plugin.reload", [])
@@ -74,13 +79,25 @@ class MarketplaceSelector extends React.Component {
       }
     }).catch(Flash.error)
   }
+  showPlugin(pl){
+    store.set_modal("plugin.show.from.marketplace", {
+      plugin: pl,
+      tag: tag_by_price(pl),
+      onInstall: () => this.installPlugin(pl),
+    })
+  }
   render(){
     const state = this.state
+    if (state.installing){
+      return (
+        <Loading>{i18n("Installing...")}</Loading>
+      )
+    }
 
     return (
       <Selector
         get_items={this.loadPlugins.bind(this)}
-        onSelect={this.installPlugin.bind(this)}
+        onSelect={this.showPlugin.bind(this)}
         {...this.props}
         />
     )

@@ -68,7 +68,7 @@ class PluginDetails extends React.Component{
   checkUpdates(){
     const pid = this.props.plugin.id
     const maybe_update_promise = this.state.plugin.tags.indexOf("core")<0 ?
-      plugin.call("serverboards.optional.update/marketplace", "check_updates", [pid]) :
+      plugin.call("serverboards.core.update/marketplace", "check_updates", [pid]) :
       Promise.resolve([{updated: true}])
 
     Promise.all([
@@ -88,11 +88,11 @@ class PluginDetails extends React.Component{
     })
   }
   handleSetEnable(enabled){
-    rpc.call("action.trigger", ["serverboards.optional.update/enable_plugin",  {"plugin_id": this.props.plugin.id, enabled}])
+    rpc.call("action.trigger", ["serverboards.core.update/enable_plugin",  {"plugin_id": this.props.plugin.id, enabled}])
     this.setState({enabled})
   }
   handleUpdate(){
-    rpc.call("action.trigger", ["serverboards.optional.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
+    rpc.call("action.trigger", ["serverboards.core.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
       // this.props.updateAll()
       this.setState({updated: undefined})
@@ -103,7 +103,7 @@ class PluginDetails extends React.Component{
     })
   }
   handleRemove(){
-    rpc.call("action.trigger", ["serverboards.optional.update/remove_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
+    rpc.call("action.trigger", ["serverboards.core.update/remove_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin removed.")
       // this.props.updateAll()
       this.props.onClose()

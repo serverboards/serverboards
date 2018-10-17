@@ -46,15 +46,15 @@ class SelectService extends React.Component{
     const filter = this.prepareFilter()
 
     cache.services().then( (services) => {
-      const results=services
+      const items=services
         .filter(s => match_filter(s, filter))
         .map( (s) => ({
           //name: s.name,
           value: s.uuid,
           name: s.name,
-          description: s.fields.filter( (p) => p.card ).map( (p) => p.value ).join(',')
+          description: (s.fields || []).filter( (p) => p.card ).map( (p) => p.value ).join(',')
         }))
-      this.setState({items: results})
+      this.setState({items})
     })
   }
   handleAddService(){

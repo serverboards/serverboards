@@ -99,7 +99,7 @@ function Sidebar(props){
               <div className="ui horizontal split area">
                 <img src={props.avatar} className="ui avatar"/>
                 <div className="ui big teal text expand with padding vcentered oneline">
-                  {props.user && props.user.name}
+                  {props.user && (props.user.name || props.user.email)}
                 </div>
               </div>
             </a>

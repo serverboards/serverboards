@@ -1,10 +1,18 @@
 .ui.login.background
   height: 100vh
 
+  .ui.form
+    height: 100%
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    position: relative
+
   .ui.serverboards.logo
     display: block
-    padding-top: calc( 25vh - 100px )
-    margin: auto
+    position: relative
+    margin: -100px auto 30px auto
     max-width: 100vw
     width: 250px
     @media (max-width: 600px)
@@ -15,6 +23,8 @@
       background: none
 
   .modal
+    display: block
+    position: relative
     background: white
     .header
       border-bottom: 0

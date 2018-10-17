@@ -4,12 +4,18 @@ import SidebarView from 'app/components/menu/sidebar'
 import { notifications_unread } from 'app/actions/notifications'
 import { get_issues_count_since } from 'app/actions/issues'
 import event from 'app/utils/event'
+import store from 'app/utils/store'
 import connect from 'app/containers/connect'
 import { toggle_menu, toggle_sidebar, toggle_project_selector, update_screens } from 'app/actions/menu'
 import { project_update_all } from 'app/actions/project'
 import { i18n_nop } from 'app/utils/i18n'
 import { map_get } from 'app/utils'
 import { has_perm } from 'app/utils/perms'
+
+function dispatch_update_screens(){
+  console.log("Update sidebar screens")
+  store.dispatch( update_screens() )
+}
 
 const SidebarModel=connect({
   state: (state) => {
@@ -86,7 +92,13 @@ const SidebarModel=connect({
     onToggleSidebar: () => dispatch( toggle_sidebar() ),
     onToggleProjectSelector: () => dispatch( toggle_project_selector() ),
   }),
-  store_enter: [ update_screens, project_update_all ]
+  store_enter: () =>{
+    event.on("plugins.reloaded", dispatch_update_screens)
+    return [ update_screens, project_update_all ]
+  },
+  store_exit: () => {
+    event.off("plugins.reloaded", dispatch_update_screens)
+  }
 })(SidebarView)
 
 const MaybeSidebar = connect({

@@ -10,12 +10,15 @@ class Card extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      description: undefined
+      description: undefined,
+      error: false,
     }
   }
   componentDidMount(){
     if (!this.props.service.description){
-      cache.service_type(this.props.service.type).then(st => this.setState({description: i18n(st.description)}))
+      cache.service_type(this.props.service.type)
+        .then(st => this.setState({description: i18n(st.description)}))
+        .catch( () => this.setState({error: true}))
     }
   }
   render(){
@@ -27,7 +30,11 @@ class Card extends React.Component{
            style={{cursor: props.onClick ? "pointer" : "cursor"}}>
         <div className="header">
           <div style={{margin: "7px 0 0 7px"}}>
-            <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini grey"/>
+            {this.state.error ? (
+              <Icon icon="red ban" className="ui mini"/>
+            ) : (
+                <Icon icon={service.icon} plugin={service.type.split('/')[0]} className="ui mini grey"/>
+            )}
           </div>
           <div className="right">
             {(service.tags || []).map(s => simple_tag(s)).map( s => (
@@ -40,7 +47,11 @@ class Card extends React.Component{
         </div>
         <div className="content">
           <h3 className="ui header">{service.name}</h3>
-          <MarkdownPreview value={description}/>
+          {this.state.error ? (
+            <div className="ui red text">{i18n("This service type is not properly installed. Please install the appropiate plugin at Settings")}</div>
+          ) : (
+            <MarkdownPreview value={description}/>
+          )}
         </div>
         <div className="extra content">
           {props.bottomElement && (

@@ -69,12 +69,7 @@ defmodule Serverboards.Plugin.Parser do
     is_core = not String.starts_with?(path, Serverboards.Config.serverboards_path)
     # rw_path = File.stat!(path).access == :read_write
     tags = if is_core do
-      is_optional = String.contains?(id, "optional")
-      if is_optional do
-        ["core", "optional"]
-      else
-        ["core"]
-      end
+      ["core"]
     else
       ["optional"]
     end
