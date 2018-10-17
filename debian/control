@@ -15,7 +15,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
   python3,
   python3-requests, python3-yaml, python3-markdown, python3-pip,
   python3-dateutil, python3-tz, python3-bcrypt,
-  python3-jinja2, python3-venv, python3-sh,
+  python3-jinja2, python3-venv, python3-sh, python3-pyscopg2,
   postgresql, postgresql-client, inotify-tools, git, nginx,
   letsencrypt, screen, moreutils
 Description: Serverboards is a single platform to integrate all the services of your organizaion
