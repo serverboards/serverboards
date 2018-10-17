@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 
 import sys
-import os
 import gettext
-sys.path.append(os.path.join(os.path.dirname(__file__), '../bindings/python/'))
 import serverboards_aio as serverboards
 from serverboards_aio import print, curio
 from pcolor import printc
@@ -168,7 +166,7 @@ async def open_service_issue(service, status):
     if service_uuid not in failure_count:
         print("Delay open issue for ", service_uuid)
         failure_count.add(service_uuid)
-        return 30 # try again in 30 seconds
+        return 30  # try again in 30 seconds
     print("Open issue for ", service_uuid)
     issue_id = "service_down/%s" % service_uuid
     issue = await serverboards.issues.get(issue_id)

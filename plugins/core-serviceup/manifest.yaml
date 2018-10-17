@@ -1,4 +1,4 @@
-id: serverboards.optional.serviceup
+id: serverboards.core.serviceup
 name: Check services stay up
 description: |
   Performs service is up checks at any service update and periodically,
@@ -15,7 +15,7 @@ icon: thumbs up
 components:
   - id: init
     type: init
-    command: serverboards.optional.serviceup/daemon
+    command: serverboards.core.serviceup/daemon
     call: init
     name: Service Up Init service
   - id: daemon
