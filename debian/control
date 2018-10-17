@@ -18,6 +18,6 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
   python3-jinja2, python3-venv, python3-sh, python3-psycopg2,
   postgresql, postgresql-client, inotify-tools, git, nginx,
   letsencrypt, screen, moreutils
-Description: Serverboards is a single platform to integrate all the services of your organizaion
+Description: Serverboards is a single platform to integrate all the services of your organization
   Serverboards is a Web application that lets the users Manage, Monitor and Automate
   management tasks on Services.
