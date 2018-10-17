@@ -64,6 +64,11 @@ async def recheck_service(service, *args, **kwargs):
             return (await open_service_issue(service, tag))
 
 
+async def recheck_service_nocache(*args, **kwargs):
+    recheck_service.invalidate_cache()
+    return (await recheck_service(*args, **kwargs))
+
+
 tasks = {}
 
 
@@ -246,7 +251,7 @@ def time_description_to_seconds(td):
 
 async def subscribe_to_services():
     printc("Subscribe to services")
-    await serverboards.rpc.subscribe("service.updated", recheck_service)
+    await serverboards.rpc.subscribe("service.updated", recheck_service_nocache)
     await serverboards.rpc.subscribe("service.inserted", inserted_service)
     await serverboards.rpc.subscribe("service.deleted", remove_service)
     printc("Subscribe to services done")
