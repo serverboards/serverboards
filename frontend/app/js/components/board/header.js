@@ -109,7 +109,7 @@ class HeaderMenu extends React.Component{
         </a>
         <div className="ui item separator"/>
         <a className="item" id="maximize">
-          <i className="ui icon maximize"/>
+          <i className="ui icon expand arrows alternate"/>
         </a>
       </div>
     )
