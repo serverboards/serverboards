@@ -117,7 +117,7 @@ configure(){
     chmod u+x $p
   done
 
-  mkdir $INSTALL/.local/
+  mkdir -p $INSTALL/.local/
   chown serverboards:serverboards $INSTALL/local/data/
 
   [ -e /var/log/serverboards ] || ln -s $INSTALL/log /var/log/serverboards
