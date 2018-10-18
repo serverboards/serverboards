@@ -22,8 +22,12 @@ const MONTHS=[
 class Calendar extends React.Component{
   constructor(props){
     super(props)
+    this.state = this.getStateFromProps(props)
+    console.log("Calendar now", this.state)
+  }
+  getStateFromProps(props){
     const now = moment()
-    this.state = {
+    return {
       month: (this.props.month != undefined) ? Number(this.props.month) : now.month(),
       year: (this.props.year != undefined) ? Number(this.props.year) : now.year()
     }
@@ -46,9 +50,10 @@ class Calendar extends React.Component{
     this.setState({year: this.state.year + n })
   }
   componentWillReceiveProps(newprops){
-    this.setState({year: newprops.year, month: newprops.month})
+    this.setState(this.getStateFromProps(newprops))
   }
   render(){
+    console.log("Calendar render", this.state)
     const props = this.props
     const state = this.state
     const {selected, onClick, marks} = props
@@ -104,24 +109,33 @@ class Calendar extends React.Component{
 
     return (
       <div className="ui calendar">
-        {props.navigation ? (
-          <div className="ui week header">
-            <a onClick={() => this.addMonth(-1)}>&lt;&lt;</a>
-            <div>{MONTHS[month]}</div>
-            <a onClick={() => this.addMonth(1)}>&gt;&gt;</a>
-            <a onClick={() => this.addYear(-1)}>&lt;&lt;&lt;</a>
-            <div>{year}</div>
-            <a onClick={() => this.addYear(1)}>&gt;&gt;&gt;</a>
+        <div className="ui header">
+          {props.navigation ? (
+            <div className="selector">
+              <div></div>
+              <div>
+                <a onClick={() => this.addMonth(-1)}>&lt;&lt;</a>
+                <div style={{width: "6em"}}>{MONTHS[month]}</div>
+                <a onClick={() => this.addMonth(1)}>&gt;&gt;</a>
+              </div>
+              <div></div>
+              <div>
+                <a onClick={() => this.addYear(-1)}>&lt;&lt;&lt;</a>
+                <div>{year}</div>
+                <a onClick={() => this.addYear(1)}>&gt;&gt;&gt;</a>
+              </div>
+              <div></div>
+            </div>
+          ) : null}
+          <div className="ui week text bold">
+            <span>{i18n_c("calendar", "mo")}</span>
+            <span>{i18n_c("calendar", "tu")}</span>
+            <span>{i18n_c("calendar", "we")}</span>
+            <span>{i18n_c("calendar", "th")}</span>
+            <span>{i18n_c("calendar", "fr")}</span>
+            <span>{i18n_c("calendar", "sa")}</span>
+            <span>{i18n_c("calendar", "su")}</span>
           </div>
-        ) : null}
-        <div className="ui week header text bold">
-          <span>{i18n_c("calendar", "MON")}</span>
-          <span>{i18n_c("calendar", "TUE")}</span>
-          <span>{i18n_c("calendar", "WED")}</span>
-          <span>{i18n_c("calendar", "THU")}</span>
-          <span>{i18n_c("calendar", "FRI")}</span>
-          <span>{i18n_c("calendar", "SAT")}</span>
-          <span>{i18n_c("calendar", "SUN")}</span>
         </div>
         {weeks.map( (w, nw) => (
           <div key={nw} className="ui week">

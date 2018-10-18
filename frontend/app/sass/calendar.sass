@@ -52,86 +52,75 @@
     .dropdown
       min-width: 50%
 
-.ignore-me
-  background: white
-  border-radius: 3px
-  border: 1px solid #ddd
-  position: fixed
-  .daterangepicker_start_input, .daterangepicker_end_input
-    visibility: hidden
-  > .calendar
-    display: inline-block
-    padding: 20px
-    table
-      th
-        padding: 5px
-        text-align: right
-      td
-        border: 1px solid #eee
-        padding: 5px
-        text-align: right
-        &.off
-          color: #aaa
-        &.active
-          background: $teal
-        &.in-range
-          background: $olive
-        &.available
-          &:hover
-            background-color: #eee
-            cursor: pointer
-    // In wrong order in the original
-    &.first
-      float: right
-    &.second
-      float: left
-  .ui.button
-    float: right
-    padding: 10px
-    margin: 20px
-    margin-top: -20px
-
 
 div.ui.calendar
   display: flex
   justify-content: space-between
   flex-direction: column
+  box-shadow: 0 0 1px rgba(0,0,0,0.5)
+  border-radius: 3px
+  margin: 2px
+  padding: 0px
+  margin-bottom: -5px
   .ui.week
     display: flex
     flex-direction: row
     justify-content: space-between
+    color: #333
+    &.weekend
+      color: #777
+    a
+      color: #333
+      &.weekend
+        color: #777
     .ui.day, a.ui.day
       width: 30px
       height: 30px
-      color: #333
       text-align: center
-      padding: 4px
+      padding: 7px
       border-radius: 50%
-      border: 2px solid white
-      &.weekend
-        color: #777
       &.out
         color: #aaa
       &.selected
-        border-color: $teal
+        background: $teal
+        color: white !important
       &:hover
-        border-color: $green
+        background: $green
+        color: white !important
 
       &.background
-        +background-colors
+        +background-colors-with-text
 
       &.text
         +text-colors
 
-  .ui.week.header
+  .ui.header
     margin: 0
     font-size: 0.9rem
+    background: rgba(0,0,0,0.1)
+    padding: 5px
+    display: flex
+    flex-direction: column
+    .selector
+      display: flex
+      flex-direction: row
+      justify-content: center
+      padding: 5px
+      div
+        flex: 1
+        display: flex
+        flex-direction: row
+        justify-content: center
     span
       width: 30px
       text-align: center
 
 .ui.dark.board
-  div.ui.calendar .ui.week a.ui.day
+  div.ui.calendar .ui.week
     color: #aaa
-  div.ui.calendar .ui.week a.ui.day.weekend
-    color: #99a
+    a
+      color: #aaa
+    .ui.weekend
+      color: #99a
+      a
+        color: #99a
