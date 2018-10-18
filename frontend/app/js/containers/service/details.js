@@ -76,6 +76,11 @@ const Container = connect({
   ],
   loading(state, props){
     state = this.state(state, props) // Get next component props, no need to generate again
+    if (state.service == 'error')
+      return false;
+    if (state.service_template == 'error')
+      return false;
+
     if (state.service && state.service_template)
       return false;
     return i18n("Service details")

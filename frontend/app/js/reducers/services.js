@@ -12,7 +12,7 @@ var default_state={
 function get_template(catalog, type){
   if (!catalog)
     return undefined
-  return catalog.find( (t) => t.type == type )
+  return catalog.find( (t) => t.type == type ) || 'error'
 }
 
 function services(state=default_state, action){

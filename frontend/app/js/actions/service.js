@@ -95,5 +95,9 @@ export function service_load_current(uuid){
       .then( (screens) => {
         dispatch({ type: "SERVICE_SET_CURRENT_SCREENS", payload: screens })
       } )
+      .catch( e => {
+        console.error("Error loading service", e)
+        dispatch({ type: "SERVICE_SET_CURRENT", payload: 'error' })
+      })
   }
 }

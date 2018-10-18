@@ -1,11 +1,12 @@
 import React from 'react'
-import Modal from '../../modal'
-import Loading from '../../loading'
-import ImageIcon from '../../imageicon'
-import IconIcon from '../../iconicon'
+import Modal from 'app/components/modal'
+import Loading from 'app/components/loading'
+import Error from 'app/components/error'
+import ImageIcon from 'app/components/imageicon'
+import IconIcon from 'app/components/iconicon'
 import {goto} from 'app/utils/store'
 import store from 'app/utils/store'
-const icon = require("../../../../imgs/services.svg")
+const icon = require("app/../imgs/services.svg")
 import {get_service_data} from '../utils'
 import PluginScreen from 'app/components/plugin/screen'
 
@@ -105,6 +106,11 @@ class Details extends React.Component{
   render(){
     const props = this.props
     const state = this.state
+    if (props.service == "error" || props.service_template == "error"){
+      return (
+        <Error>{i18n("Error loading service details. Maybe it does not exist or user has no permissions.")}</Error>
+      )
+    }
     if (props.loading){
       return (
         <Loading>{i18n("Service details")}</Loading>
