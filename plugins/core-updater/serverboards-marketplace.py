@@ -7,10 +7,10 @@ import curio
 import curio.subprocess
 
 
-def json_loads(str):
-    if isinstance(str, bytes):
-        str = bytes.decode('utf8')
-    return json.loads(str)
+def json_loads(s):
+    if isinstance(s, bytes):
+        s = s.decode('utf8')
+    return json.loads(s)
 
 
 @serverboards.rpc_method
