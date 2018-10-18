@@ -61,7 +61,9 @@ defmodule Serverboards.Logger.Server do
       Repo.delete_all(query)
       # vacuum. Reclaim disk space from the log deleting.
       if Serverboards.Config.get(:logs, "vacuum_after_cleanup", true) do
-        Ecto.Adapters.SQL.query!(Repo, "VACUUM FULL", [])
+        Task.start(fn ->
+          Ecto.Adapters.SQL.query!(Repo, "VACUUM", [])
+        end)
       end
     end
   end
