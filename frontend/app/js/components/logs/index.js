@@ -35,10 +35,6 @@ function levelToLabelClass(level){
   return ""
 }
 
-function reformatMessage(msg){
-  return msg.replace(/{/g,'{\n ').replace(/}/g,'\n}\n').replace(/\[/g,'[\n ').replace(/]/g,'\n]\n').replace(/,/g,',\n')
-}
-
 function LogLine(props){
   const line = props.line
   const datetime = line.timestamp.slice(0,19).split('T')
@@ -96,15 +92,15 @@ function Details(props){
           <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
         </div>
       </div>
-      <div className="ui content" style={{marginTop: 20}}>
+      <div className="ui content" style={{marginTop: 20, maxWidth: 1000}}>
         <h3 className="ui header uppercase">{i18n("Date")}</h3>
         <div className="meta">{line.timestamp.replace('T',' ')}</div>
 
 
         <h3 className="ui header uppercase">{i18n("Full Message")}</h3>
         <div>
-          <pre className="ui code">
-            {reformatMessage(line.message)}
+          <pre className="ui code scroll">
+            {line.message}
           </pre>
         </div>
 
