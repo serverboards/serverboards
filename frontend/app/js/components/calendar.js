@@ -23,48 +23,20 @@ class Calendar extends React.Component{
   constructor(props){
     super(props)
     this.state = this.getStateFromProps(props)
-    console.log("Calendar now", this.state)
   }
   getStateFromProps(props){
-    const now = moment()
-    return {
-      month: (this.props.month != undefined) ? Number(this.props.month) : now.month(),
-      year: (this.props.year != undefined) ? Number(this.props.year) : now.year()
-    }
-  }
-  addMonth(n){
-    let year = this.state.year
-    let month = this.state.month + n
-    if (month<0){
-      year-=1
-      month=11
-    }
-    if (month>11){
-      year+=1
-      month=0
-    }
-    console.log("Set state", {year, month})
-    this.setState({year, month})
-  }
-  addYear(n){
-    this.setState({year: this.state.year + n })
-  }
-  componentWillReceiveProps(newprops){
-    this.setState(this.getStateFromProps(newprops))
-  }
-  render(){
-    console.log("Calendar render", this.state)
-    const props = this.props
-    const state = this.state
-    const {selected, onClick, marks} = props
-    const {month, year} = state
+    const now = moment(props.value || moment())
+    const month = (props.month != undefined) ? Number(props.month) : now.month()
+    const year = (props.year != undefined) ? Number(props.year) : now.year()
+    const {marks, selected} = props
+
     let weeks=[]
     let curweek=[]
     let current_date
     let first_date
     // moment js months, are 0 based
     {
-      current_date=moment({year: year, month: month, day: 1})
+      current_date=moment({year, month, day: 1})
       if (!current_date.isValid())
         current_date = moment()
       while (current_date.day()!=WEEKSTART){
@@ -107,6 +79,38 @@ class Calendar extends React.Component{
     }
     weeks.push(curweek)
 
+    return {
+      month,
+      year,
+      weeks,
+    }
+  }
+  addMonth(n){
+    let year = this.state.year
+    let month = this.state.month + n
+    if (month<0){
+      year-=1
+      month=11
+    }
+    if (month>11){
+      year+=1
+      month=0
+    }
+    console.log("Set state", {year, month})
+    this.setState({year, month})
+  }
+  addYear(n){
+    this.setState({year: this.state.year + n })
+  }
+  componentWillReceiveProps(newprops){
+    this.setState(this.getStateFromProps(newprops))
+  }
+  render(){
+    const props = this.props
+    const state = this.state
+    const {onClick} = props
+    const {month, year, weeks} = state
+
     return (
       <div className="ui calendar">
         <div className="ui header">
@@ -143,9 +147,9 @@ class Calendar extends React.Component{
               <a key={d.date}
                 onClick={() => onClick && onClick(d.date)}
                 className={`ui day ${d.className}`}
-                data-date={d.date}
+                data-date={d.date.format("YYYY-MM-DD")}
                 >
-                  {d.date.date()}
+                  <span>{d.date.date()}</span>
               </a>
             ))}
           </div>

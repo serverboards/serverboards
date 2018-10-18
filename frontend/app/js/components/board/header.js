@@ -99,7 +99,6 @@ class HeaderMenu extends React.Component{
             </div>
             <hr className="ui divider"></hr>
 
-
             <DateRange/>
           </div>
         </div>

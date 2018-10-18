@@ -61,7 +61,9 @@ div.ui.calendar
   border-radius: 3px
   margin: 2px
   padding: 0px
-  margin-bottom: -5px
+  margin-bottom: 5px
+  a
+    cursor: pointer
   .ui.week
     display: flex
     flex-direction: row
@@ -74,17 +76,35 @@ div.ui.calendar
       &.weekend
         color: #777
     .ui.day, a.ui.day
-      width: 30px
-      height: 30px
       text-align: center
-      padding: 7px
-      border-radius: 50%
+      cursor: pointer
+      flex: 1
+      margin: auto
+      span
+        min-width: 36px
+        min-height: 36px
+        border-radius: 50%
+        display: inline-flex
+        align-items: center
+        justify-content: center
+      &.today
+        font-weight: bold
+      &.inrange
+        background: rgba(142, 212, 222, 0.3)
+        border-radius: 0
+        &.selected
+          background: $teal
+          border-radius: 50px
+          color: white !important
+      &.inrange.selected
+          background: none
+
       &.out
         color: #aaa
-      &.selected
+      &.selected span
         background: $teal
         color: white !important
-      &:hover
+      &:hover span
         background: $green
         color: white !important
 

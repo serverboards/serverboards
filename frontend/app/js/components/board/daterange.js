@@ -1,5 +1,5 @@
 import React from 'react'
-import Calendar from 'rc-calendar';
+import Calendar from 'app/components/calendar';
 import moment from 'moment'
 import {pretty_ago} from 'app/utils'
 import {i18n, i18n_c} from 'app/utils/i18n'
@@ -26,9 +26,9 @@ class TimePicker extends React.Component{
     let val=this.props.value.hours(v)
     this.props.onSelect(val)
   }
-  range(max){
+  range(max, step=1){
     var hh=[]
-    for (var i=0;i<max;i++){
+    for (var i=0;i<max;i+=step){
       hh.push( (""+"0"+i).slice(-2) )
     }
     return hh
@@ -37,18 +37,23 @@ class TimePicker extends React.Component{
     const props=this.props
     const value=props.value
     return (
-      <div className="ui form time" style={{display: "flex"}}>
-        <select ref="h" className="ui dropdown" defaultValue={value.format("H")}>
-          {this.range(24).map( (h) =>
-            <option key={h} value={h}>{h}</option>
-          )}
-        </select>
-        <div style={{width: 10}}/>
-        <select ref="m" className="ui dropdown" defaultValue={value.format("m")}>
-          {this.range(60).map( (m) =>
-            <option key={m} value={m}>{m}</option>
-          )}
-        </select>
+      <div className="ui form time">
+        <div className="two fields" style={{width: 180}}>
+          <div className="field">
+            <select ref="h" className="ui dropdown" defaultValue={value.format("H")}>
+              {this.range(24).map( (h) =>
+                <option key={h} value={h}>{h}</option>
+              )}
+            </select>
+          </div>
+          <div className="field">
+            <select ref="m" className="ui dropdown" defaultValue={value.format("m")}>
+              {this.range(60,5).map( (m) =>
+                <option key={m} value={m}>{m}</option>
+              )}
+            </select>
+          </div>
+        </div>
       </div>
     )
   }
@@ -62,10 +67,7 @@ TimePicker.propsTypes = {
 class DatetimePicker extends React.Component{
   constructor(props){
     super(props)
-    this.state = {
-      now: moment(),
-      value: this.props.value
-    }
+    this.state = this.getStateFromProps(props)
   }
   isDateDisabled(date){
     if (date)
@@ -73,41 +75,45 @@ class DatetimePicker extends React.Component{
   }
   handleDateSelect(value){
     this.setState({value})
-    this.props.onSelect(this.state.value)
+    this.props.onSelect(value)
   }
-  handleOk(){
-    this.props.onSelect(this.state.value)
+  componentWillReceiveProps(props){
+    this.setState(this.getStateFromProps(props))
   }
-  setToday(){
-    this.props.onSelect(moment())
+  getStateFromProps(props){
+    let marks = {
+      [moment().format('YYYY-MM-DD')]: "today"
+    }
+    let current = moment(props.start)
+    let end = props.end
+
+    while (current < end){
+      marks[current.format('YYYY-MM-DD')] = "inrange"
+      current.add(1, 'days')
+    }
+
+    return {
+      marks,
+      now: moment(),
+      value: props.value,
+    }
   }
   render(){
     const props=this.props
+
     return (
-      <div ref="calendar" className="ui calendar">
-        <label>Date:</label>
+      <div ref="calendar">
         <Calendar
-          value={this.state.value}
-          onSelect={this.handleDateSelect.bind(this)}
-          onChange={this.handleDateSelect.bind(this)}
+          selected={this.state.value}
+          navigation={true}
+          onClick={this.handleDateSelect.bind(this)}
           disabledDate={this.isDateDisabled.bind(this)}
-          showToday={false}
+          marks={this.state.marks}
           />
-        <label>Time:</label>
         <TimePicker
           value={this.state.value}
           onSelect={this.handleDateSelect.bind(this)}
           />
-        <div className="ui right" style={{marginTop: 10}}>
-          <button
-            className="ui button"
-            onClick={this.setToday.bind(this)}
-            >{i18n("Set now")}</button>
-          <button
-            className="ui button yellow"
-            onClick={this.handleOk.bind(this)}
-            >{i18n("Set selected")}</button>
-        </div>
       </div>
     )
   }
@@ -157,7 +163,11 @@ export class DateRange extends React.Component{
     }
   }
   handleOpenCalendar(selected){
-    this.setState({selected, value: this.props[selected]})
+    console.log(selected, this.state.selected)
+    if (selected == this.state.selected)
+      this.setState({selected: null, value: null})
+    else
+      this.setState({selected, value: this.props[selected]})
   }
   handleSelectedDate(value){
     const selected = this.state.selected
@@ -201,6 +211,8 @@ export class DateRange extends React.Component{
             value={state.value}
             onSelect={(value) => this.handleSelectedDate(moment(value))}
             onClose={this.handleHideCalendar.bind(this)}
+            start={props.start}
+            end={props.end}
             />
         ) : null}
       </div>
