@@ -29,7 +29,7 @@ class Selector extends React.Component{
     let projects = this.props.projects
     this.state = {
       search: undefined,
-      selected: 0,
+      selected: -1,
       projects: sorted_by_name(projects)
     }
   }
