@@ -5,6 +5,7 @@ import time
 import traceback
 import datetime
 import inspect
+import io
 # from contextlib import contextmanager
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 'env/lib64/python3.6/site-packages/'))
@@ -290,16 +291,16 @@ class RPC:
                         RED, "Exception at task %s: %s" % (method, e), RESET)
                     log_traceback(e)
                     return
+                except SystemExit:
+                    # real_debug(RED, "exit %s: %s" % (method, e), RESET)
+                    await curio.spawn(self.stop)
+                    raise
                 except Exception as e:
                     real_debug(
                         RED, "Exception at task %s: %s" % (method, e), RESET)
                     if q:
                         await q.put(e)
                     log_traceback(e)
-                except SystemExit as e:
-                    # real_debug(RED, "exit %s: %s" % (method, e), RESET)
-                    await curio.spawn(self.stop)
-                    raise
                 finally:
                     # real_debug(GREY, "Finally", method, RESET)
                     self.__background_tasks -= 1
@@ -537,9 +538,11 @@ def log_traceback(exc=None):
     """
     Logs the given traceback to the error log.
     """
-    if exc:
-        run_async(error, "Got exception: %s" % exc, level=1, result=False)
-    traceback.print_exc(file=error_sync)
+    strio = io.StringIO()
+    strio.write("Got exception: %s\n" % exc)
+    traceback.print_exc(file=strio)
+    strio.seek(0)
+    error_sync(strio.read())
 
 
 def test_mode(test_function, mock_data={}):
