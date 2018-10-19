@@ -1,5 +1,4 @@
 # Required sudo permissions for serverboards
 # This avoid giving suid permissions to specific commands that require to be root
 # Copy to `/etc/sudoers.d/serverboards`
-serverboards ALL= NOPASSWD: /opt/serverboards/share/serverboards/plugins/optional-updater/serverboards-updater.sh
-serverboards ALL= NOPASSWD: /opt/serverboards/share/serverboards/plugins/optional-auth-pam/serverboards-auth-helper
+serverboards ALL= NOPASSWD: /opt/serverboards/share/serverboards/plugins/core-updater/serverboards-updater.sh
