@@ -629,24 +629,6 @@ def test_mode(test_function, mock_data={}):
     loop(with_monitor=True)
 
 
-def run_async(method, *args, **kwargs):
-    """
-    Bridge to call async from sync code and a run later facility
-
-    This function allows to run later in the coro loop any required
-    function that may require communication or async behaviour.
-
-    This also allows to call an async function from sync code, for example,
-    it is used in the print wrapper on the Serverboards API to call print
-    as normal code (sync) but send the proper message to log the data on
-    Serveboards CORE.
-
-    The call will not be processed straight away, buut may be delayed until
-    the process gets into some specific points in the serverboards loop.
-    """
-    return rpc.run_async(method, *args, **kwargs)
-
-
 def set_debug(on=True):
     """
     Set debug mode.
@@ -671,6 +653,7 @@ class RPCWrapper:
     There are already some instances ready for importing as:
     `from serverboards import service, issues, rules, action`
     """
+
     def __init__(self, module):
         self.module = module
 
