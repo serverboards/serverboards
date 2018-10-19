@@ -427,6 +427,7 @@ def update_git(path):
     clean_plugin_cache()
 
     if plugin.get("postinst"):
+        print("Running postinst %s" % plugin.get("postinst"), file=sys.stderr)
         res = subprocess.run(
             shlex.split(
                 os.path.join(plugin.get("path"), plugin.get("postinst"))),
@@ -472,6 +473,7 @@ def install_git(git):
     plugin = get_plugin(path)
 
     if res.returncode == 0 and plugin.get("postinst"):
+        print("Running postinst %s" % plugin.get("postinst"), file=sys.stderr)
         os.chdir(plugin["path"])
         res = subprocess.run(
             shlex.split(
@@ -538,6 +540,7 @@ def install_file(filename):
     success = True
     stdout = None
     if manifest.get("postinst"):
+        print("Running postinst %s" % manifest.get("postinst"), file=sys.stderr)
         os.chdir(path)
         res = subprocess.run(
             shlex.split(
