@@ -49,17 +49,19 @@ class PluginInfo extends React.Component{
             <h3 className="ui header">{plugin.name}</h3>
           </div>
           <span style={{paddingLeft: 10}} className={`ui text ${props.tag.color}`}>{props.tag.label}</span>
-          <span className="ui right item">
-            <button className={`ui ${props.tag.color} button`} onClick={props.onInstall}>{button_text}</button>
-          </span>
+          {!plugin.sudo && (
+            <span className="ui right item">
+              <button className={`ui ${props.tag.color} button`} onClick={props.onInstall}>{button_text}</button>
+            </span>
+          )}
         </div>
 
         <div className="ui scroll">
           <div className="ui text container" style={{paddingBottom: 30}}>
-            <h1 className="ui slim header no margin">{plugin.name}</h1>
+            <h1 className="ui slim header no margin">{plugin.name} <span className="ui normal text meta">{plugin.version}</span></h1>
             <div className="ui meta no margin">{plugin.author}</div>
             {plugin.url && (
-              <a href={plugin.url}>{plugin.urk}</a>
+              <a href={plugin.url}>{plugin.url}</a>
             )}
             <span className="ui meta">
               {plugin.id}
@@ -70,7 +72,26 @@ class PluginInfo extends React.Component{
             <div className="ui normal text" style={{marginTop: 30, marginBottom: 30}}>
               <MarkdownPreview value={plugin.full_description}/>
             </div>
-            <button className={`ui ${props.tag.color} button`} onClick={props.onInstall}>{button_text}</button>
+            {plugin.sudo ? (
+              <div className="ui icon message visible">
+                <i className="info blue circle icon"></i>
+                <div className="content">
+                  <MarkdownPreview value={i18n(`
+This plugin requires to install additional software on your computer,
+for example \`.deb\` packages or add some system level configuraton.
+
+To install this plugin, write this on the server terminal:
+
+\`\`\`shell
+sudo s10s plugin install {id}
+\`\`\`
+
+`, {id: plugin.id})}/>
+                </div>
+              </div>
+            ) : (
+              <button className={`ui ${props.tag.color} button`} onClick={props.onInstall}>{button_text}</button>
+            )}
           </div>
         </div>
       </Modal>
