@@ -82,8 +82,6 @@ defmodule Serverboards.RulesV2.Rule do
 
     case start_trigger(uuid, rule.rule["when"]) do
       {:ok, trigger} ->
-        # Logger.debug("Got trigger #{inspect trigger}")
-
         {:ok, %{
           trigger: trigger,
           rule: rule,
@@ -96,6 +94,9 @@ defmodule Serverboards.RulesV2.Rule do
         }}
       {:error, error} ->
         Logger.error("Error starting trigger: #{inspect error}.", rule: rule.rule)
+        {:stop, :cant_start_trigger}
+      other ->
+        Logger.error("Other error #{inspect other}")
         {:stop, :cant_start_trigger}
     end
   end
@@ -148,8 +149,15 @@ defmodule Serverboards.RulesV2.Rule do
       }
 
       params = Map.merge(w["params"], default_params)
-      paramsdef = [%{ "name" => "id", "value" => uuid }] ++ Map.get(trigger.start, "params", [])
-      method = Map.put( trigger.start, "params", paramsdef )
+      method = if trigger.start do
+        trigger.start
+      else
+        Logger.warn("This trigger has no start #{inspect trigger.id}", rule_uuid: uuid)
+        %{}
+      end
+
+      paramsdef = [%{ "name" => "id", "value" => uuid }] ++ Map.get(method, "params", [])
+      method = Map.put( method, "params", paramsdef )
       # Logger.debug("Call #{inspect plugin_id}.#{inspect method["method"]}(#{inspect params})")
       case Serverboards.Plugin.Runner.call( plugin_id, method, params ) do
         {:ok, stop_id} ->
@@ -161,10 +169,14 @@ defmodule Serverboards.RulesV2.Rule do
             plugin_id: plugin_id,
             stop_id: stop_id,
             }}
-        {:error, error} -> {:error, error}
+        {:error, error} ->
+          Logger.error("Error starting rule #{inspect uuid}: #{inspect error}", rule_uuid: uuid, error: error)
+          {:error, error}
       end
     else
-      [] -> {:error, :not_found}
+      [] ->
+        Logger.error("Error, trigger for rule #{inspect uuid} not found", rule_uuid: uuid)
+        {:error, :not_found}
       {:error, :no_trigger} ->
         Logger.info("Starting rule #{inspect uuid}, with external trigger.", rule_uuid: uuid)
           {:ok, %{
@@ -172,7 +184,9 @@ defmodule Serverboards.RulesV2.Rule do
             plugin_id: nil,
             stop_id: nil
           }}
-      error -> error
+      error ->
+        Logger.error("Error starting rule #{inspect uuid}: #{inspect error}", rule_uuid: uuid, error: error)
+        error
     end
   end
 
