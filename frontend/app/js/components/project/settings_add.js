@@ -43,7 +43,7 @@ class Settings extends React.Component{
         shortname: 'minLength[4]',
         name: 'minLength[4]'
       }
-    }).on('submit', this.handleSubmit)
+    }).on('submit', this.handleSubmit.bind(this))
     $(this.refs.form).find('input[name=shortname]').attr('maxlength',5)
   }
   render(){

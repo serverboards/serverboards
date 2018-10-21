@@ -35,7 +35,7 @@ function project_delete(shortname){
 function project_update(shortname, changes){
   return function(dispatch){
     rpc.call("project.update", [shortname, changes]).then(function(){
-      Flash.info(i18n("Updated project *{shortname}*", {shortname: data.shortname}))
+      Flash.info(i18n("Updated project *{shortname}*", {shortname}))
     })
   }
 }
