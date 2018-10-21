@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {SectionMenu} from 'app/components'
 import store from 'app/utils/store'
 import i18n from 'app/utils/i18n'
+import {ErrorBoundary} from 'app/components/error'
 
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
@@ -161,12 +162,14 @@ class ExternalScreen extends React.Component{
     return (
       <React.Fragment>
         {(this.state.show_menu > 0) && !props.data.service ? (
-          <SectionMenu
-            menu={SelectService}
-            onService={this.handleService.bind(this)}
-            services={this.state.services}
-            selected={this.state.current}
-            />
+          <ErrorBoundary>
+            <SectionMenu
+              menu={SelectService}
+              onService={this.handleService.bind(this)}
+              services={this.state.services}
+              selected={this.state.current}
+              />
+          </ErrorBoundary>
         ) : null}
         {content}
       </React.Fragment>

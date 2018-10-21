@@ -19,6 +19,11 @@ export default connect({
               i18n("Rule deactivated successfully"))
           )
           .catch( () => Flash.error(i18n("Error activating rule")) )
+      },
+      onRemoveRule(uuid){
+        rpc.call("rules_v2.delete", [uuid])
+          .then(() => Flash.success(i18n("Rule removed")))
+          .catch(Flash.error)
       }
     }
   },

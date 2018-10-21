@@ -13,8 +13,9 @@ import plugin from 'app/utils/plugin'
 import Flash from 'app/flash'
 import templates from 'app/utils/templates'
 import {MarkdownPreview} from 'react-marked-markdown';
-import {SectionMenu} from 'app/components'
+import {SectionMenu, HoldButton} from 'app/components'
 import MarketplaceSelector from 'app/containers/marketplaceselector'
+import {Restricted} from 'app/restricted'
 
 
 function get_services_id(node){
@@ -120,6 +121,10 @@ class RuleCard extends React.Component{
   showLog(rule){
     set_modal("logs", {filter: {extra:{rule_uuid: rule.uuid}}})
   }
+  handleRemove(){
+     this.props.onRemoveRule(this.props.rule.uuid)
+     $(this.refs.menu).dropdown('hide')
+  }
   render(){
     const {rule, gotoRule, filter} = this.props
     const state = this.state
@@ -183,6 +188,12 @@ class RuleCard extends React.Component{
                   {i18n("Logs")}
                   <i className="icon file text outline"/>
                 </a>
+                <Restricted perm="rules.delete">
+                  <HoldButton className="ui item" onHoldClick={this.handleRemove.bind(this)}>
+                    {i18n("Remove rule")}
+                    <i className="icon trash"/>
+                  </HoldButton>
+                </Restricted>
               </div>
             </div>
           </div>
@@ -248,6 +259,7 @@ class ExistingOrMarketplaceTemplate extends React.Component{
             get_items={this.get_rule_presets.bind(this)}
             filter={filter}
             onSelect={(rt) => goto(`/project/${props.project.shortname}/rules_v2/add`, {template: rt})}
+            onRemoveRule={this.props.onRemoveRule}
             show_filter={false}
           />
         ) : (
@@ -322,6 +334,7 @@ class Rules extends React.Component{
                   rule={r}
                   gotoRule={this.gotoRule.bind(this)}
                   updateActive={(v) => this.props.updateActive(r.uuid, v)}
+                  onRemoveRule={this.props.onRemoveRule}
                   filter={this.state.filter}
                   />
               ) ) }
@@ -359,7 +372,7 @@ function RulesRouter(props){
     }
     const subsection = props.subsection
     const rule = props.rules.find( r => r.uuid == subsection)
-    if (rule.from_template)
+    if (rule.from_template){
       return (
         <RuleAddTemplate
           template={rule.from_template}
@@ -369,10 +382,12 @@ function RulesRouter(props){
           {...props}
           />
       )
-  else
+    }
+    else {
       return (
         <Rule {...props} rule={rule}/>
       )
+    }
   }
   return <Rules {...props}/>
 }
