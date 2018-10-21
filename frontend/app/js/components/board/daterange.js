@@ -89,8 +89,11 @@ class DatetimePicker extends React.Component{
 
     while (current < end){
       marks[current.format('YYYY-MM-DD')] = "inrange"
+      marks[current.format('YYYY-MM-DD')] = "inrange"
       current.add(1, 'days')
     }
+    marks[props.start.format('YYYY-MM-DD')] = "background teal"
+    marks[props.end.format('YYYY-MM-DD')] = "background teal"
 
     return {
       marks,
@@ -104,7 +107,6 @@ class DatetimePicker extends React.Component{
     return (
       <div ref="calendar">
         <Calendar
-          selected={this.state.value}
           navigation={true}
           onClick={this.handleDateSelect.bind(this)}
           disabledDate={this.isDateDisabled.bind(this)}

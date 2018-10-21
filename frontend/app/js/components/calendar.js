@@ -22,13 +22,34 @@ const MONTHS=[
 class Calendar extends React.Component{
   constructor(props){
     super(props)
-    this.state = this.getStateFromProps(props)
-  }
-  getStateFromProps(props){
+
     const now = moment(props.value || moment())
     const month = (props.month != undefined) ? Number(props.month) : now.month()
     const year = (props.year != undefined) ? Number(props.year) : now.year()
-    const {marks, selected} = props
+
+    this.state = this.getStateFromProps({month, year}, props)
+  }
+  getStateFromProps(state, props){
+    // const now = moment(props.value || moment())
+    let month = state.month
+    let year = state.year
+
+    if (!month && !year){
+      const now = moment(props.value || moment())
+      month = (props.month != undefined) ? Number(props.month) : now.month()
+      year = (props.year != undefined) ? Number(props.year) : now.year()
+    }
+    else if (!month){
+      const now = moment(props.value || moment())
+      month = (props.month != undefined) ? Number(props.month) : now.month()
+    }
+    else if (!year){
+      const now = moment(props.value || moment())
+      year = (props.year != undefined) ? Number(props.year) : now.year()
+    }
+
+
+    const {marks} = props
 
     let weeks=[]
     let curweek=[]
@@ -60,8 +81,6 @@ class Calendar extends React.Component{
       let className=[]
       if (current_date.month() != month)
         className.push("out")
-      if (current_date.isSame(selected, "day"))
-        className.push("selected")
       const dayofweek=current_date.day()
       if (dayofweek==6 || dayofweek==0)
         className.push("weekend")
@@ -97,13 +116,16 @@ class Calendar extends React.Component{
       month=0
     }
     console.log("Set state", {year, month})
-    this.setState({year, month})
+    this.setState(this.getStateFromProps({year, month}, this.props))
   }
   addYear(n){
-    this.setState({year: this.state.year + n })
+    const year = this.state.year + n
+    this.setState(this.getStateFromProps({year, month: this.state.month}, this.props))
   }
   componentWillReceiveProps(newprops){
-    this.setState(this.getStateFromProps(newprops))
+    // Allow to move around, only on month and year changes.
+    let state = {year: newprops.year, month: newprops.month}
+    this.setState(this.getStateFromProps(state, newprops))
   }
   render(){
     const props = this.props
@@ -146,10 +168,13 @@ class Calendar extends React.Component{
             {w.map( (d, nd) => (
               <a key={d.date}
                 onClick={() => onClick && onClick(d.date)}
-                className={`ui day ${d.className}`}
                 data-date={d.date.format("YYYY-MM-DD")}
                 >
-                  <span>{d.date.date()}</span>
+                  <span
+                    className={`ui day ${d.className}`}
+                    >
+                    {d.date.date()}
+                  </span>
               </a>
             ))}
           </div>

@@ -80,33 +80,55 @@ div.ui.calendar
       cursor: pointer
       flex: 1
       margin: auto
-      span
-        min-width: 36px
-        min-height: 36px
-        border-radius: 50%
-        display: inline-flex
-        align-items: center
-        justify-content: center
+      min-width: 36px
+      min-height: 36px
+      border-radius: 50%
+      display: inline-flex
+      align-items: center
+      justify-content: center
       &.today
         font-weight: bold
       &.inrange
         background: rgba(142, 212, 222, 0.3)
-        border-radius: 0
-        &.selected
-          background: $teal
-          border-radius: 50px
-          color: white !important
-      &.inrange.selected
-          background: none
-
       &.out
         color: #aaa
-      &.selected span
-        background: $teal
-        color: white !important
-      &:hover span
+      &:hover
         background: $green
         color: white !important
+
+      &.circle
+        border: 2px solid $teal
+      &.circle.red
+        border: 2px solid $red
+      &.circle.orange
+        border: 2px solid $orange
+      &.circle.yellow
+        border: 2px solid $yellow
+      &.circle.olive
+        border: 2px solid $olive
+      &.circle.green
+        border: 2px solid $green
+      &.circle.teal
+        border: 2px solid $teal
+      &.circle.blue
+        border: 2px solid $blue
+      &.circle.violet
+        border: 2px solid $violet
+      &.circle.purple
+        border: 2px solid $purple
+      &.circle.pink
+        border: 2px solid $pink
+      &.circle.brown
+        border: 2px solid $brown
+      &.circle.grey
+        border: 2px solid $grey
+      &.circle.lightgrey
+        border: 2px solid $lightgrey
+      &.circle.white
+        border: 2px solid $white
+      &.circle.black
+        border: 2px solid $black
+
 
       &.background
         +background-colors-with-text
