@@ -37,7 +37,7 @@ function prep_bars(bars){
 
 class Mini3Bars extends React.Component{
   componentDidMount(){
-    props.setTitle("|fullsize")
+    this.props.setTitle("|fullsize")
   }
   shouldComponentUpdate(nextprops){
     return !Serverboards.utils.object_is_equal( nextprops.config, this.props.config )
