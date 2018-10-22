@@ -91,13 +91,13 @@ class Widget extends React.Component{
       this.setState({title: nextprops.config.title})
   }
   render(){
-    const state = this.state
+    const state = this.state || {}
     const props = this.props
     const config = props.config || {}
     const widget = props.template || {}
     const Component = state.component
 
-    const parts = (state.title || config.name || widget.name).split('|')
+    const parts = (state.title || config.name || widget.name || "").split('|')
     const title = parts[0].trim()
     const titleColor = parts[2] || "grey"
     const titleColorClass = (
