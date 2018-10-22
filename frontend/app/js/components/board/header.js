@@ -9,9 +9,7 @@ import utils from 'app/utils'
 class HeaderMenu extends React.Component{
   constructor(props){
     super(props)
-    this.state={
-      filter: props.filter,
-    }
+    this.state={}
   }
   componentDidMount(){
     // console.log("Set dashboard header")
@@ -39,7 +37,6 @@ class HeaderMenu extends React.Component{
 
     this.props.onDateRangeChange(start, end, true)
     // console.log("%o to %o", start, end)
-    this.setState({filter})
   }
   handleDashboardChange(ds){
     this.props.onDashboardChange(ds)
@@ -49,7 +46,7 @@ class HeaderMenu extends React.Component{
   }
   render(){
     const props = this.props
-    const filter = this.state.filter
+    const filter = this.props.filter
     const current = props.dashboard_current || {}
 
     const filter_time = utils.pretty_time(filter*1000)
