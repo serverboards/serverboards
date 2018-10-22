@@ -38,7 +38,7 @@ class ServiceTableLine extends React.Component{
       <tr ref="el" onClick={this.handleOpenDetails.bind(this)} style={{cursor: "pointer"}}>
         <td>
           {d.icon ? (
-            <IconIcon src={icon} icon={d.icon} plugin={d.type.split('/',1)[0]}/>
+            <IconIcon icon={d.icon} plugin={d.type.split('/',1)[0]}/>
           ) : (
             <ImageIcon src={icon} name={s.name}/>
           )}

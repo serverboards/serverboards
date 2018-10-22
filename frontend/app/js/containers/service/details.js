@@ -4,7 +4,7 @@ import {Loading} from 'app/components'
 import connect from 'app/containers/connect'
 import rpc from 'app/rpc'
 import cache from 'app/utils/cache'
-import { object_is_equal, match_traits } from 'app/utils'
+import { object_is_equal, match_traits, map_get } from 'app/utils'
 import {
   service_load_current,
   services_update_catalog,
@@ -23,7 +23,7 @@ class DetailsWithScreensAndUrls extends React.Component{
     }
   }
   componentDidMount(){
-    const service_traits = this.props.service.traits
+    const service_traits = map_get(this.props, ["service", "traits"], [])
     cache.plugin_component({type: "screen"}).then( screens => screens.filter(
       s => s.traits.length>0 && match_traits({has: service_traits, any: s.traits})
     )).then( screens => this.setState({screens}) )
