@@ -5,66 +5,8 @@ import {pretty_ago} from 'app/utils'
 import {i18n, i18n_c} from 'app/utils/i18n'
 import PropTypes from 'prop-types'
 
-require("sass/calendar.sass")
-const DATE_FORMAT="YYYY-MM-DD hh:mm"
 
-class TimePicker extends React.Component{
-  componentDidMount(){
-    let self=this
-    $(this.refs.h).dropdown({
-      onChange: self.handleChangeHour
-    })
-    $(this.refs.m).dropdown({
-      onChange: self.handleChangeMinute
-    })
-  }
-  handleChangeMinute(v){
-    let val=this.props.value.minutes(v)
-    this.props.onSelect(val)
-  }
-  handleChangeHour(v){
-    let val=this.props.value.hours(v)
-    this.props.onSelect(val)
-  }
-  range(max, step=1){
-    var hh=[]
-    for (var i=0;i<max;i+=step){
-      hh.push( (""+"0"+i).slice(-2) )
-    }
-    return hh
-  }
-  render(){
-    const props=this.props
-    const value=props.value
-    return (
-      <div className="ui form time">
-        <div className="two fields" style={{width: 180}}>
-          <div className="field">
-            <select ref="h" className="ui dropdown" defaultValue={value.format("H")}>
-              {this.range(24).map( (h) =>
-                <option key={h} value={h}>{h}</option>
-              )}
-            </select>
-          </div>
-          <div className="field">
-            <select ref="m" className="ui dropdown" defaultValue={value.format("m")}>
-              {this.range(60,5).map( (m) =>
-                <option key={m} value={m}>{m}</option>
-              )}
-            </select>
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-TimePicker.propsTypes = {
-  value: PropTypes.object.isRequired
-}
-
-
-class DatetimePicker extends React.Component{
+class DatePicker extends React.Component{
   constructor(props){
     super(props)
     this.state = this.getStateFromProps(props)
@@ -112,16 +54,12 @@ class DatetimePicker extends React.Component{
           disabledDate={this.isDateDisabled.bind(this)}
           marks={this.state.marks}
           />
-        <TimePicker
-          value={this.state.value}
-          onSelect={this.handleDateSelect.bind(this)}
-          />
       </div>
     )
   }
 }
 
-DatetimePicker.propTypes = {
+DatePicker.propTypes = {
   value: PropTypes.object.isRequired,
   onSelect: PropTypes.func.isRequired,
 }
@@ -130,7 +68,7 @@ DatetimePicker.propTypes = {
 class DatetimeItem extends React.Component{
   render(){
     const props=this.props
-    const pretty=pretty_ago(props.value, props.now, 60 * 1000)
+    const pretty=pretty_ago(props.value, props.now, "day")
 
     return (
       <div title={props.value.format("YYYY-MM-DD HH:mm")}>
@@ -208,10 +146,10 @@ export class DateRange extends React.Component{
             />
         </div>
         {state.value ? (
-          <DatetimePicker
+          <DatePicker
             key={state.selected}
             value={state.value}
-            onSelect={(value) => this.handleSelectedDate(moment(value))}
+            onSelect={(value) => this.handleSelectedDate(value)}
             onClose={this.handleHideCalendar.bind(this)}
             start={props.start}
             end={props.end}

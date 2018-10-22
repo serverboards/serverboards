@@ -17,16 +17,17 @@ describe("Pretty print", () => {
     assert.equal(pretty_ago("2016-12-28T11:59:31", now, "second"), "59 seconds ago")
 
     assert.equal(pretty_ago("2016-12-28T11:59:30", now, "second"), "1 minute ago")
-    assert.equal(pretty_ago("2016-12-28T11:00:31", now, "second"), "59 minutes ago")
+    assert.equal(pretty_ago("2016-12-28T11:00:31", now, "second"), "60 minutes ago")
 
     assert.equal(pretty_ago("2016-12-28T11:00:30", now, "second"), "1 hour ago")
-    assert.equal(pretty_ago("2016-12-27T12:00:31", now, "second"), "23 hours ago")
+    assert.equal(pretty_ago("2016-12-27T12:00:31", now, "second"), "24 hours ago")
 
     assert.equal(pretty_ago("2016-12-26T00:00:00", "2016-12-27T00:00:00", "second"), "yesterday")
     assert.equal(pretty_ago("2016-12-25T23:59:59", "2016-12-27T00:00:00", "second"), "2 days ago")
 
     assert.equal(pretty_ago("2016-12-27T11:00:30", now, "second"), "yesterday")
     assert.equal(pretty_ago("2016-12-27T00:00:00", now, "second"), "yesterday")
+    assert.equal(pretty_ago(now, "2016-12-27T00:00:00", "second"), "tomorrow")
     assert.equal(pretty_ago("2016-12-26T23:59:59", now, "second"), "2 days ago")
     assert.equal(pretty_ago("2016-12-26T00:00:00", now, "second"), "2 days ago")
     assert.equal(pretty_ago("2016-12-25T23:59:59", now, "second"), "3 days ago")

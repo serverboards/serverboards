@@ -76,13 +76,15 @@ function project_update_widget_catalog(){
 }
 
 function board_set_daterange_start(start){
+  start = start.format()
   return {
     type: "UPDATE_DATERANGE",
-    daterange: { start: start }
+    daterange: { start }
   }
 }
 
 function board_set_daterange_end(end){
+  end = end.format()
   return {
     type: "UPDATE_DATERANGE",
     daterange: { end }

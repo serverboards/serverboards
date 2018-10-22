@@ -35,13 +35,21 @@ function previous_daterange(){
 
 
 function fix_daterange_constraints(daterange){
+  // Ensure they are moments
+  daterange.start = moment(daterange.start)
+  daterange.end = moment(daterange.end)
+
   let range_s = daterange.range_s
   if (range_s<300){
     range_s = 300
     daterange.start=moment(daterange.end).subtract(300, "seconds")
   }
   if (range_s > (2 * 24 * 60 * 60)){ // More than 2 days, use full days
-    daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0}).add(1, "day")
+    daterange.start = moment(daterange.start).set({hour: 0, minute: 0, second: 0, millisecond: 0})
+    // Start was adding 1 day for unknown reasons, but it has to be removed or
+    // else at setting any date in the range picker, the start date moves one
+    // day forward each new date, including select start was setting next day.
+    //.add(1, "day")
     daterange.end = moment(daterange.end).set({hour: 23, minute: 59, second: 59, millisecond: 999})
   }
   daterange.range_s = daterange.end.diff(daterange.start, "seconds")
@@ -209,14 +217,13 @@ function project(state=default_state, action){
     {
       if (action.daterange.start || action.daterange.end){
         let daterange = merge(state.daterange, action.daterange)
-        daterange.range_s = daterange.end.diff(daterange.start, "seconds")
+        daterange.range_s = moment(daterange.end).diff(daterange.start, "seconds")
 
-        let rt = false
-        if (daterange.rt)
-          rt = +new Date()
-
+        console.log("DR %o", daterange)
+        console.log("Pre fix %o", daterange.start)
         fix_daterange_constraints(daterange)
-        state = merge(state, {daterange})
+        console.log("Post fix %o", daterange.start)
+        state = merge(state, {daterange, rt: false})
       }
 
       if (action.daterange.rt){

@@ -303,9 +303,9 @@ class Board extends React.Component{
     const prev = moment(start).subtract(secs, "seconds")
 
     return {
-      start: start.toISOString(),
-      end: end.toISOString(),
-      prev: prev.toISOString()
+      start: start.format(),
+      end: end.format(),
+      prev: prev.format()
     }
   }
   updateExtractedConfigs(to_extract, context){

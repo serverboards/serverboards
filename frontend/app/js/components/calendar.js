@@ -2,6 +2,8 @@ import React from 'react'
 import moment from 'moment'
 import {i18n_c} from 'app/utils/i18n'
 
+require("sass/calendar.sass")
+
 const WEEKSTART=1
 const WEEKEND=0
 const MONTHS=[
@@ -115,7 +117,7 @@ class Calendar extends React.Component{
       year+=1
       month=0
     }
-    console.log("Set state", {year, month})
+    // console.log("Set state", {year, month})
     this.setState(this.getStateFromProps({year, month}, this.props))
   }
   addYear(n){

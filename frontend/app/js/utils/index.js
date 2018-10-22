@@ -389,43 +389,61 @@ i18n_nop("hour")
 i18n_nop("day")
 
 export function pretty_ago(t, now, minres="second"){
-  now = moment.utc(now)
-  let other = moment.utc(t)
+  now = moment(now)
+  let other = moment(t)
   if (minres && typeof(minres)=="string")
     minres=timeunits[minres]
 
   let timediff = now.diff(other)
 
+  if (timediff < 0){
+    timediff = -timediff
+  }
+  // Minimum resolution
+  let mtimediff = Math.max(timediff, minres)
+
   if (timediff>timeunits.MAX){
     return pretty_date(other, minres)
   }
 
+  // What are we going to use to measure
   let lastunit='millisecond'
+  let prevd
   for (let d in timeunits){
-    if (timediff >= timeunits[d])
+    if (mtimediff >= timeunits[d]){
+      // This removes uncertaintly as we assume that once you look into days, you dont care bout the exact hour, and so on.
+      if (prevd){
+        now[prevd](0)
+        other[prevd](0)
+      }
+      prevd=d
       lastunit=d
+    }
   }
-  if (timeunits[lastunit] < minres){
-    if (minres >= (timeunits["day"]))
-      return i18n("today")
-    return i18n("now")
-  }
-  let units
+  // How many units
+  let units = now.diff(other, lastunit)
+  // Days have also today and yesterday
   if (lastunit=="day"){
-    // if days, must check on day boundaries, not 24h chunks;
-    // 24h+1m ago could be 2 days ago, not yesterday
-    units = Math.floor(now.unix() / one_day) - Math.floor(other.unix() / one_day)
-
     if (units==0)
       return i18n('today')
     if (units==1)
-      return i18n('yesterday')
+      return i18n("yesterday")
+    if (units==-1)
+        return i18n("tomorrow")
+  } else if (minres == timeunits[lastunit] && units == 0){
+    return i18n("now")
+  }
+
+
+  // Final expression
+  const s=units > 1 ? 's' : ''
+  let expr
+  if (units<0){
+    expr=i18n("in {units} {timeunit}", {units: -units, timeunit: `${i18n(lastunit)}${s}` })
   }
   else{
-    units=Math.floor(timediff / timeunits[lastunit])
+    expr=i18n("{units} {timeunit} ago", {units, timeunit: `${i18n(lastunit)}${s}` })
   }
-  const s=units > 1 ? 's' : ''
-  let expr=i18n("{units} {timeunit} ago", {units, timeunit: `${i18n(lastunit)}${s}` })
   return expr
 }
 
