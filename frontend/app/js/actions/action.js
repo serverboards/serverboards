@@ -10,8 +10,8 @@ export function action_ps(){
 
 export function action_catalog(){
   return function(dispatch){
-    rpc.call('action.catalog',{}).then(function(catalog){
+    rpc.call('plugin.component.catalog',{type: "action"}).then(function(catalog){
       dispatch({type: "ACTION_CATALOG", catalog})
-    })
+    }).catch(console.error)
   }
 }

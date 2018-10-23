@@ -32,12 +32,7 @@ const cache={
     store_update: require('app/actions/project').project_update_widget_catalog()
   }),
   action_catalog: cache_builder({
-      store_get: () => {
-        const catalog = store.getState().action.catalog
-        if (catalog.length==0)
-          return undefined
-        return catalog
-      },
+      store_get: () => store.getState().action.catalog,
       store_update: require('app/actions/action').action_catalog()
   }),
   trigger_catalog: cache_builder({

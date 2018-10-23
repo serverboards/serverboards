@@ -2,8 +2,8 @@ import {merge} from 'app/utils'
 
 // Default status, put over current
 const default_state={
-  actions: [],
-  catalog: []
+  actions: undefined,
+  catalog: undefined
 }
 
 export function action(state=default_state, action){

@@ -42,16 +42,6 @@ defmodule Serverboards.Action.RPC do
       end
     end, context: true
 
-    add_method mc, "action.catalog", fn q, context ->
-      user = RPC.Context.get context, :user
-      q = Map.to_list(q) |> Enum.map( fn
-        {"traits", v} -> {:traits, v}
-        {:traits, v} -> {:traits, v}
-      end)
-      list = Serverboards.Utils.clean_struct Serverboards.Action.catalog q, user
-      {:ok, list}
-    end, [required_perm: "action.trigger", context: true]
-
     add_method mc, "action.ps", fn [], context ->
       user = RPC.Context.get context, :user
       Serverboards.Utils.clean_struct Serverboards.Action.ps user
