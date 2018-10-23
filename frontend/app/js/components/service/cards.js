@@ -14,7 +14,7 @@ export function service_definition(service_type, service_catalog){
   return service_catalog.find( (c) => c.type == service_type )
 }
 
-class CardBottom extends React.Component{
+export class CardBottom extends React.Component{
   componentDidMount(){
     $(this.refs.dropdown).dropdown()
   }
@@ -27,7 +27,11 @@ class CardBottom extends React.Component{
     return (
       <div className="right">
         <div className="ui dropdown" ref="dropdown">
-          <a onClick={(ev) => {ev.stopPropagation(); console.log("details", props)}}><i className="ui teal ellipsis horizontal icon"/></a>
+          <a onClick={(ev) => {ev.stopPropagation(); console.log("details", props)}}>
+            {props.children || (
+              <i className="ui teal ellipsis horizontal icon"/>
+            )}
+          </a>
           <div className="ui vertical menu">
             <a className="ui item">
               {i18n("Details")}

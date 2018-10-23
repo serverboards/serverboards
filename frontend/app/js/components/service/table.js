@@ -2,7 +2,7 @@ import React from 'react'
 import {colorize} from 'app/utils'
 import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
-import ActionMenu from 'app/containers/service/actionmenu'
+import {CardBottom} from 'app/components/service/cards'
 import Loading from '../loading'
 import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
@@ -54,9 +54,12 @@ class ServiceTableLine extends React.Component{
           ))}
         </td>
         <td>
-          <ActionMenu service={props.service} actions={props.actions}>
-            {i18n("Options")}
-          </ActionMenu>
+          <CardBottom
+            service={props.service}
+            project={props.project}
+            >
+            {i18n("Options")} <i className="ui dropdown icon"/>
+          </CardBottom>
         </td>
       </tr>
     )
