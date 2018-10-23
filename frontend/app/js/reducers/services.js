@@ -12,7 +12,7 @@ var default_state={
 function get_template(catalog, type){
   if (!catalog)
     return undefined
-  return catalog.find( (t) => t.type == type ) || 'error'
+  return catalog[type] || "error"
 }
 
 function services(state=default_state, action){
@@ -21,10 +21,10 @@ function services(state=default_state, action){
       let current = state.current
       if (current.service){
         current = merge( current, {
-          template: get_template(action.services, current.service.type)
+          template: get_template(action.payload, current.service.type)
         } )
       }
-      return merge(state, {catalog: action.services, current} )
+      return merge(state, {catalog: action.payload, current} )
     }
     case 'UPDATE_ALL_SERVICES':
       return merge(state, {services: action.services} )
