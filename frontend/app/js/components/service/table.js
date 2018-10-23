@@ -6,41 +6,36 @@ import {CardBottom} from 'app/components/service/cards'
 import Loading from '../loading'
 import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
+import {get_template} from './utils'
 
 const icon = require("../../../imgs/services.svg")
 
 require("sass/service/table.sass")
 
-export function service_definition(service_type, service_catalog){
-  return service_catalog.find( (c) => c.type == service_type )
-}
-
-
-
 function ServiceTableLine(props){
-  const s=props.service
-  const d=props.definition || {}
-  let tags = s.tags || []
-  if (!s.config || $.isEmptyObject(s.config))
+  const service = props.service
+  let tags = service.tags || []
+  if (!service.config || $.isEmptyObject(service.config))
     tags = tags.concat("NOT-CONFIGURED")
   tags = tags.map( t => {
     if (t.startsWith("status:"))
       return t.slice(7)
     return t
   })
+  const template = props.template || {}
 
   return (
-    <tr ref="el" onClick={() => props.onSelectService(s)} style={{cursor: "pointer"}} className={props.className}>
+    <tr ref="el" onClick={() => props.onSelectService(service)} style={{cursor: "pointer"}} className={props.className}>
       <td>
-        {d.icon ? (
-          <IconIcon icon={d.icon} plugin={d.type.split('/',1)[0]}/>
+        {template.icon ? (
+          <IconIcon icon={template.icon} plugin={template.plugin}/>
         ) : (
-          <ImageIcon src={icon} name={s.name}/>
+          <ImageIcon src={template.icon} name={service.name}/>
         )}
       </td>
-      <td><b>{s.name}</b></td>
-      <td>{d.name}</td>
-      <td className="ui meta">{s.description}</td>
+      <td><b>{service.name}</b></td>
+      <td>{template.name}</td>
+      <td className="ui meta">{service.description}</td>
       <td>
         {(tags || []).map( (l) => (
           <span key={l} style={{color:"#ccc", display:"block", whiteSpace:"nowrap"}}>
@@ -77,9 +72,9 @@ function Table(props){
           key={p.uuid}
           service={p}
           project={props.project}
-          definition={service_definition(p.type, props.catalog)}
+          template={props.catalog[p.type] || "error"}
           onSelectService={props.onSelectService}
-          className={props.selected_uuid == p.uuid && "selected"}
+          className={props.selected_uuid == p.uuid && "selected" || undefined}
           />
       ))}
       </tbody>

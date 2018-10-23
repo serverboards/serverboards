@@ -106,7 +106,7 @@ class Details extends React.Component{
   render(){
     const props = this.props
     const state = this.state
-    if (props.service == "error" || props.service_template == "error"){
+    if (props.service == "error" || props.template == "error"){
       return (
         <Error>{i18n("Error loading service details. Maybe it does not exist or user has no permissions.")}</Error>
       )
@@ -158,9 +158,9 @@ class Details extends React.Component{
     return (
       <div className="extend">
         <div className="ui top serverboards secondary pointing menu">
-          {props.service.icon ? (
+          {props.template.icon ? (
             <div className="ui padding">
-              <IconIcon icon={props.service.icon} plugin={props.service.type.split('/',1)[0]}/>
+              <IconIcon icon={props.template.icon} plugin={props.template.plugin}/>
             </div>
           ) : (
             <ImageIcon src={icon} name={props.service.name}/>
@@ -168,7 +168,7 @@ class Details extends React.Component{
 
           <div style={{display: "inline-block"}}>
             <h3 className="ui header oneline" style={{paddingRight: 50, marginBottom: 0}}>{i18n(props.service.name)}</h3>
-            <span className="ui meta">{i18n(props.service_template.name)}</span>
+            <span className="ui meta">{i18n(props.template.name)}</span>
           </div>
           <TabBar tabs={sections.map( s => ({
             key: s.id,
@@ -188,7 +188,7 @@ class Details extends React.Component{
           </div>
         </div>
         <div className="ui extend with scroll">
-          <CurrentTab {...props} service={props.service} onClose={handleClose} />
+          <CurrentTab {...props} service={props.service} template={props.template} onClose={handleClose} />
         </div>
       </div>
     )
@@ -203,10 +203,10 @@ Details.propTypes = {
     description: PropTypes.string,
     config: PropTypes.object.isRequired,
   }).isRequired,
-  service_template: PropTypes.shape({
+  template: PropTypes.shape({
     name: PropTypes.string.isRequired,
     description: PropTypes.string,
-    params: PropTypes.string,
+    icon: PropTypes.string,
   }).isRequired
 }
 

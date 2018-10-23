@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from '../modal'
 import GenericForm from '../genericform'
-import { setup_fields, service_definition } from '../service/utils'
+import { setup_fields } from '../service/utils'
 import Loading from '../loading'
 import rpc from 'app/rpc'
 import { merge, to_map, to_list, object_is_equal } from 'app/utils'
@@ -11,7 +11,7 @@ class SetupComponent extends React.Component{
   constructor(props){
     super(props)
     let fields=undefined
-    if (this.props.service_catalog){
+    if (this.props.template){
       fields = this.getFields()
     }
     this.state = {fields,
@@ -49,12 +49,12 @@ class SetupComponent extends React.Component{
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(newprops, this.props))
-      this.setState({fields: setup_fields(newprops.service, newprops.service_catalog)})
+      this.setState({fields: setup_fields(this.props.service, this.props.template)})
   }
   getFields(){
     if (this.state && this.state.fields)
       return this.state.fields
-    return setup_fields(this.props.service, this.props.service_catalog)
+    return setup_fields(this.props.service, this.props.template)
   }
   render(){
     let props=this.props
@@ -67,7 +67,6 @@ class SetupComponent extends React.Component{
       )
     let fields = state.fields
 
-    let servicedef=service_definition(this.props.service.type, this.props.service_catalog)
     return (
       <div className="ui text container" style={{paddingTop: 20}}>
         <div className="content" ref="content">

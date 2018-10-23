@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Card from './card_v2'
+import Card from './card'
 import Loading from 'app/components/loading'
 import cache from 'app/utils/cache'
 import i18n from 'app/utils/i18n'

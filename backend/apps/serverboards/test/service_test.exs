@@ -134,11 +134,6 @@ defmodule ServerboardTest do
     project_delete "SBDS-TST11", user
   end
 
-  test "Service RPC" do
-    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
-    {:ok, _catalog} = Test.Client.call(client, "service.catalog", [])
-  end
-
   test "Service on_update as event" do
     {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
     {:ok, _uuid } = Test.Client.call(client, "plugin.start", ["serverboards.test.auth/fake"]) # ensure running

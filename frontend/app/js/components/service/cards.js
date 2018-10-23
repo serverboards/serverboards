@@ -1,5 +1,5 @@
 import React from 'react'
-import Card from './card_v2'
+import Card from './card'
 import Loading from '../loading'
 import {i18n} from 'app/utils/i18n'
 import {goto} from 'app/utils/store'
@@ -7,10 +7,6 @@ import store from 'app/utils/store'
 import {sort_by_name} from 'app/utils'
 import HoldButton from '../holdbutton'
 import {service_detach} from 'app/actions/service'
-
-export function service_definition(service_type, service_catalog){
-  return service_catalog.find( (c) => c.type == service_type )
-}
 
 export class CardBottom extends React.Component{
   componentDidMount(){
@@ -121,6 +117,7 @@ class Cards extends React.Component{
                   onClick={() => props.onSelectService(p)}
                   project={props.project}
                   bottomElement={CardBottom}
+                  template={props.catalog[p.type] || "error"}
                   />
               ))
             }

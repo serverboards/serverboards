@@ -10,8 +10,12 @@ export function action_ps(){
 
 export function action_catalog(){
   return function(dispatch){
-    rpc.call('plugin.component.catalog',{type: "action"}).then(function(catalog){
-      dispatch({type: "ACTION_CATALOG", catalog})
+    rpc.call('plugin.component.catalog',{type: "action"}).then(function(catalog_list){
+      let payload = {}
+      for(let i of catalog_list){
+        payload[i.id] = i
+      }
+      dispatch({type: "ACTION_CATALOG", payload})
     }).catch(console.error)
   }
 }

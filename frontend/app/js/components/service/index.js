@@ -20,7 +20,7 @@ class ServicesView extends React.Component{
   }
   render(){
     const props=this.props
-    const selected_service = this.state.selected_service || {}
+    const selected_service = this.state.selected_service
 
     return (
       (props.services.length == 0) ? (
@@ -33,14 +33,14 @@ class ServicesView extends React.Component{
                 <ServiceTable
                   services={props.services}
                   project={props.project}
-                  selected_uuid={selected_service.uuid}
+                  selected_uuid={selected_service && selected_service.uuid}
                   onSelectService={this.handleSelectService.bind(this)}
                   />
               ) : (
                 <ServiceCards
                   services={props.services}
                   project={props.project}
-                  selected_uuid={selected_service.uuid}
+                  selected_uuid={selected_service && selected_service.uuid}
                   onSelectService={this.handleSelectService.bind(this)}
                   />
               )}

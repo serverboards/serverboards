@@ -68,7 +68,7 @@ defmodule Serverboards.Service do
 
       # Logger.debug("Service update #{inspect service}")
       operations = if service.name == "" and operations["name"] == nil do
-        [type] = service_catalog([type: service.type])
+        [type] = service_template(service.type)
         name = type.name
         Logger.warn("Service #{uuid} must have a name. Setting type name: #{inspect name}.", service_uuid: uuid)
         Map.put(operations, :name, name )
@@ -190,6 +190,7 @@ defmodule Serverboards.Service do
 
     name = case attributes.name do
       name when name == nil or name == "" ->
+        Logger.debug("Get template of #{inspect attributes}")
         [template] = Serverboards.Plugin.Registry.filter_component(id: attributes.type)
         template.name
       name -> name
@@ -470,26 +471,7 @@ defmodule Serverboards.Service do
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
-    #Logger.debug(inspect service_catalog([type: service.type]))
-    service = case service_catalog([type: service.type]) do
-      [] ->
-        service
-          |> Map.put(:traits, [])
-          |> Map.put(:description, "")
-          |> Map.put(:icon, nil)
-      [service_definition | _other ] ->
-        # Logger.debug("Service definition #{inspect service_definition}")
-        service = if service_definition[:virtual] do
-          service |> Map.put(:virtual, service_definition.virtual)
-        else
-          service
-        end
-        service
-          |> Map.put(:traits, service_definition.traits)
-          |> Map.put(:icon, service_definition.icon)
-    end
-
-    service |> Map.take(~w(tags projects config uuid priority name type traits virtual description icon)a)
+    service |> Map.take(~w(tags projects config uuid priority name type description icon)a)
   end
 
   @doc ~S"""
@@ -613,60 +595,9 @@ defmodule Serverboards.Service do
     type == service.id
   end
 
-  @doc ~S"""
-  Returns the list of available services (catalog) that fullfills a condition
-  as type or traits
-
-  Current allowed filters:
-  * type -- Should return a list with one element, or empty. Matches the plugin/component id
-  * traits -- MAtches any of the given traits. Empty matches none.
-
-  ## Example
-
-    iex> service_def_list = service_catalog([])
-    iex> Enum.count(service_def_list) >= 1
-    true
-
-    iex> [specific_service_type] = service_catalog([type: "serverboards.test.auth/server" ])
-    iex> specific_service_type.type
-    "serverboards.test.auth/server"
-    iex> specific_service_type.traits
-    ["generic"]
-
-    iex> [] = service_catalog([traits: ["wrong", "traits"]])
-    iex> service_def_list = service_catalog([traits: ["wrong", "traits", "next_matches", "generic"]])
-    iex> Enum.count(service_def_list) >= 1
-    true
-
-  """
-  def service_catalog(filter) do
-    Serverboards.Plugin.Registry.filter_component(type: "service")
-      |> Enum.filter(fn service ->
-        #Logger.debug("Match service catalog: #{inspect service}, #{inspect filter}")
-        Enum.all?(filter, &match_service_filter(service, &1))
-      end)
-      |> Enum.map(fn service ->
-        s = %{
-          name: service.name,
-          type: service.id,
-          fields: service.extra["fields"],
-          traits: service.traits,
-          description: service.description,
-          icon: service.extra["icon"],
-         }
-        s = if service.extra["virtual"] do
-          Map.put(s, :virtual, service.extra["virtual"])
-        else
-          s
-        end
-
-        s
-      end)
-  end
-
-  def service_definition(type) do
-    case service_catalog(type: type) do
-      [definition] -> definition
+  def service_template(type) do
+    case Serverboards.Plugins.Component.find(type: "service", id: type) do
+      [template] -> template
       _ -> nil
     end
   end

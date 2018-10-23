@@ -4,10 +4,14 @@ import i18n from 'app/utils/i18n'
 
 export function services_update_catalog(){
   return function(dispatch){
-    rpc.call("service.catalog",[]).then(function(services){
+    rpc.call("plugin.component.catalog",{type: "service"}).then(function(catalog_list){
+      let payload = {}
+      for(let i of catalog_list){
+        payload[i.id] = i
+      }
       dispatch({
-        type:"UPDATE_SERVICE_CATALOG",
-        services: services
+        type: "UPDATE_SERVICE_CATALOG",
+        payload
       })
     })
   }

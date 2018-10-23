@@ -2,11 +2,11 @@ import React from 'react'
 import Settings from './settings'
 import Modal from '../modal'
 import {MarkdownPreview} from 'react-marked-markdown';
-import { service_definition } from '../service/utils'
+import { get_template } from '../service/utils'
 import {i18n} from 'app/utils/i18n'
 
 function SettingsModal(props){
-  let servicedef=service_definition(props.service.type, props.service_catalog)
+  let servicedef=get_template(props.service.type, props.service_catalog)
   return (
     <Modal>
       <div>
