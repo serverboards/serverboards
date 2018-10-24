@@ -111,6 +111,11 @@ class Selector extends React.Component{
   }
   componentDidMount(){
     this.props.get_items().then( items => {
+      // Allow conversion from object to array
+      if (!$.isArray(items)){
+        items = Object.values(items)
+      }
+      
       const all_items=items
         .filter( s => (s.traits || []).indexOf("hidden")==-1 )
         .sort( (a,b) => a.name.localeCompare(b.name) )
