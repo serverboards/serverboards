@@ -3,7 +3,7 @@ import Flash from 'app/flash'
 import moment from 'moment'
 import { push } from 'react-router-redux'
 import i18n from 'app/utils/i18n'
-import {map_get} from 'app/utils'
+import {map_get, to_mapf} from 'app/utils'
 
 function project_update_all(){
   return function(dispatch){
@@ -70,10 +70,8 @@ function projects_update_info(project){
 function project_update_widget_catalog(){
   return function(dispatch){
     rpc.call("plugin.component.catalog", {type: "widget"}).then( (catalog) => {
-      let widget_catalog = {}
-      for (let c of catalog)
-        widget_catalog[c.id] = c
-      dispatch({type:"UPDATE_WIDGET_CATALOG", payload: widget_catalog})
+      const payload = to_mapf(catalog, c => c.id)
+      dispatch({type:"UPDATE_WIDGET_CATALOG", payload: payload})
     })
   }
 }

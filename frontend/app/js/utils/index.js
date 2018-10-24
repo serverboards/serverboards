@@ -11,6 +11,16 @@ export function to_map(l){
     d[kv[0]]=kv[1]
   return d
 }
+
+/// Converts a list to an object, using a function to get key
+export function to_mapf(l, f){
+  let d = {}
+  for(let v of l){
+    d[f(v)] = v
+  }
+  return d
+}
+
 /// Convert an object to a list of [k,v]
 export function to_list(d){
   let l=[]
