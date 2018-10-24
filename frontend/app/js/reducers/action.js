@@ -33,7 +33,7 @@ export function action(state=default_state, action){
       })})
       break;
     case "ACTION_CATALOG":
-      return merge(state, {catalog: action.catalog})
+      return merge(state, {catalog: action.payload})
   }
   return state
 }
