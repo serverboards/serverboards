@@ -70,7 +70,7 @@ class Board extends React.Component{
     return layout
   }
   getDefaultLayout(widget, y, widget_width){
-    const template_layout = to_keywordmap((this.getTemplate(widget.widget) || {}).hints)
+    const template_layout = to_keywordmap(map_get(this.getTemplate(widget.widget), ["extra", "hints"]))
 
     const ui = {x: 0, y, ...template_layout, ...(widget.ui || {})}
     ui.i = widget.uuid
@@ -173,7 +173,7 @@ class Board extends React.Component{
     for (const w of widgets){
       const template = this.getTemplate(w.widget)
       let config = {...map_get(all_configs, [w.uuid], {})}
-      for (const p of ((template || {}).params || [])){
+      for (const p of map_get(template, ["extra", "params"], []) ){
         let k = p.name
         const query = w.config[k]
         let poll = query ? query.startsWith('POLL ') : false
@@ -270,7 +270,7 @@ class Board extends React.Component{
     for (const w of widgets){
       const template = this.getTemplate(w.widget)
       let config = {...map_get(all_configs, [w.uuid], {})}
-      for (const p of ((template || {}).params || [])){
+      for (const p of map_get(template, ["extra", "params"], [])){
         let k = p.name
         if (p.type=="query"){
           // if no prev config, set loading
@@ -324,7 +324,7 @@ class Board extends React.Component{
     })
   }
   getTemplate(type){
-    return this.props.widget_catalog.find( t => t.id == type )
+    return this.props.widget_catalog[type]
   }
   componentWillUnmount(){
     Command.remove_command_search('add-widget')
@@ -396,7 +396,7 @@ class Board extends React.Component{
                 return (
                     <div
                       key={widget.uuid}
-                      data-grid={{x:0, y: 0, w: 1, h: 1, ...((template || {}).hints || {}), ...(widget.ui || {} )}}
+                      data-grid={{x:0, y: 0, w: 1, h: 1, ...map_get(template, ["extra", "hints"]), ...(widget.ui || {} )}}
                       className="ui card"
                       >
                       <ErrorBoundary key={widget.uuid} error={i18n("Fatal error rendering widget {type}", {type: widget.widget})}>

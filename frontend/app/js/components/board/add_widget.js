@@ -10,12 +10,13 @@ import Widget from 'app/containers/board/widget'
 import EditWidget from './edit_widget'
 import moment from 'moment'
 import MarketplaceSelector from 'app/containers/marketplaceselector'
+import {map_get} from 'app/utils'
 
 
 function SetupWidget(props){
   const widget = {
     widget: props.widget.id,
-    ui: props.widget.hints || {},
+    ui: map_get(props.widget, ["extra", "hints"], {}),
     config: {},
   }
   const {start, end} = store.getState().project.daterange
@@ -99,7 +100,7 @@ class SelectWidget extends React.Component{
         {tab == 1 ? (
           <Selector
             key="installed"
-            get_items={cache.widget_catalog}
+            get_items={() => cache.widget_catalog().then(Object.values)}
             onSelect={props.onSelectWidget}
             current={(props.widget || {}).id}
             show_filter={false}

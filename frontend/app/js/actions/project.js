@@ -69,7 +69,10 @@ function projects_update_info(project){
 
 function project_update_widget_catalog(){
   return function(dispatch){
-    rpc.call("dashboard.widget.catalog", {}).then( (widget_catalog) => {
+    rpc.call("plugin.component.catalog", {type: "widget"}).then( (catalog) => {
+      let widget_catalog = {}
+      for (let c of catalog)
+        widget_catalog[c.id] = c
       dispatch({type:"UPDATE_WIDGET_CATALOG", payload: widget_catalog})
     })
   }

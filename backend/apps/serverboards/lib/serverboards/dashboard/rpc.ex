@@ -94,10 +94,6 @@ defmodule Serverboards.Dashboard.RPC do
       Serverboards.Dashboard.Widget.widget_get(shortname) |> Serverboards.Utils.clean_struct
     end, [required_perm: "project.get"]
 
-    RPC.MethodCaller.add_method mc, "dashboard.widget.catalog", fn _filter ->
-        Serverboards.Dashboard.Widget.catalog()
-    end, [required_perm: "project.get"]
-
     RPC.MethodCaller.add_method mc, "dashboard.widget.extract", fn
       [uuid, vars], context ->
         me = Context.get(context, :user)
