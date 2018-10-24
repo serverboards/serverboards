@@ -2,7 +2,7 @@ import React from 'react'
 import i18n from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import Selector from 'app/components/selector'
-import {match_traits} from 'app/utils'
+import {match_traits, map_get} from 'app/utils'
 
 const BLACKLIST=["cloud","server"]
 
@@ -15,16 +15,18 @@ function maybe_no_service(traits){
 function get_triggers(service_id){
   return Promise.all([
     cache.trigger_catalog(),
-    cache.service(service_id)
-  ]).then( ([tc,s]) =>  {
+    service_id ? cache.service_catalog() : {},
+    service_id ? cache.service(service_id) : null
+  ]).then( ([tc,sc, s]) =>  {
     let straits = []
     if (s){
-      straits = s.traits.filter( t => !BLACKLIST.includes(t) ).concat("service") // remove those on blacklist
+      straits = map_get(sc, [s.type, "traits"], []).filter( t => !BLACKLIST.includes(t) ).concat("service") // remove those on blacklist
     }
     else{
       straits = ["no-service"] // Show only those that require no service selected
     }
-    return tc.filter( t => match_traits({has: straits, any: maybe_no_service(t.traits)}) )
+    console.log("Needs traits from %o / %o with %o", s, tc, straits)
+    return Object.values(tc).filter( t => match_traits({has: straits, any: maybe_no_service(t.traits)}) )
   } )
 }
 

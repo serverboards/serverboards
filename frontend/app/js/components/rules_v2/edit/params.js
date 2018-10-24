@@ -21,7 +21,8 @@ class Params extends React.Component{
   }
   componentDidMount(){
     cache.trigger(this.props.trigger).then( trigger => {
-      let fields = map_get(trigger, ["start", "params"], [])
+      console.log(trigger)
+      let fields = map_get(trigger, ["extra", "start", "params"], [])
       const toskip = this.props.skip_fields || []
       fields = fields.filter( f => !toskip.includes(f.name) )
       if (trigger){

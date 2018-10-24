@@ -448,7 +448,7 @@ class Model extends React.Component {
           gotoRules={() => goto(`/project/${props.project.shortname}/rules_v2/`)}
           cancel_label={props.cancel_label}
           save_label={props.save_label}
-          saveRule={state.can_save && this.saveRule.bind(this)}
+          saveRule={state.can_save ? this.saveRule.bind(this) : undefined}
           />
 
         <View

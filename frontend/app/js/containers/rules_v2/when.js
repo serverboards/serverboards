@@ -18,13 +18,15 @@ class WhenModel extends React.Component{
   updateWhen(props){
     const when = (props || this.props).when
     if (when.params.service_id){
-      cache
-        .service(when.params.service_id)
-        .then( s =>{
+      Promise.all([
+        cache.service(when.params.service_id),
+        cache.service_catalog()
+      ])
+        .then( ([s,sc]) =>{
           this.setState({
             service_name: s.name,
             service_type: s.type,
-            service_params: s.fields.map( s => s.name )
+            service_params: map_get(sc, [s.type, "extra", "fields"], []).map( s => s.name )
           })
         })
     }
@@ -43,9 +45,9 @@ class WhenModel extends React.Component{
         }
         let params = []
         const data = when.params
-        for (let p of map_get(t, ["start","params"], [])){
+        for (let p of map_get(t, ["extra", "start","params"], [])){
           if (p.card){
-            params.push(`${i18n(p.label)}: ${data[p.name] || p.default}`)
+            params.push(`${i18n(p.label)}: ${data[p.name] || p.default || ""}`)
           }
         }
         let params_resume=params.join('; ')
