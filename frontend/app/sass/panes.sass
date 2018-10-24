@@ -20,16 +20,27 @@
     padding: 1em
     font-size: 1.2em
     position: relative
+    border-radius: 4px 4px 0 0
+    &.input.dark
+      border: 2px solid #555
+      &:hover
+        border: 2px solid $blue
+      background: #555
+      input
+        color: white
+      .seamless.input input
+        background: #555
     .ui.input
       width: calc( 100% - 2em)
       display: flex
       flex-direction: row
       align-items: baseline
-    .seamless.white.input input
+    .seamless.input input
       background: white
-      color: black
       border: 0
+      border-color: none !important
       padding: 0 1em 0 1em
+      box-shadow: 0
     .ui.floating.right.menu
       position: absolute
       top: 6px
@@ -60,6 +71,14 @@
     border: 0
     background: none
     padding: 1em
+    &.dark
+      background: #555
+      color: white
+    &.hover
+      border: 2px solid #555
+      &:hover
+        border: 2px solid $blue
+
 
   .wide.card
     width: 100%
