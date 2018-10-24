@@ -18,11 +18,9 @@ class Profile extends React.Component{
     }
   }
   handleSubmit(){
-    console.log("Submit %o",this.state)
     this.props.onSubmit(this.state)
   }
   handleUpdate(section, data){
-    console.log("Update ", section, data)
     this.setState({ [section]: data })
   }
   openPasswordChange(ev){
