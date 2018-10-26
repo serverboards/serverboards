@@ -10,7 +10,9 @@ function Tip(props){
       {props.title && (
         <h2 className="ui header centered">{props.title}</h2>
       )}
-      <img src={props.middle_img || require("imgs/019-illustration-tips.svg")} style={{height: 80}}/>
+      {props.middle_img && (
+        <img src={props.middle_img || require("imgs/019-illustration-tips.svg")} style={{height: 80}}/>
+      )}
       <div className="ui text container">
         <h3 className="ui header centered">
           {props.subtitle}

@@ -7,19 +7,23 @@ import {SectionMenu} from 'app/components'
 import store from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import {ErrorBoundary} from 'app/components/error'
+import Tip from 'app/components/tip'
+
+const empty_box_img = require('imgs/026-illustration-nocontent.svg')
 
 const plugin_load = plugin.load
 const plugin_do_screen = plugin.do_screen
 
 function SelectService(props){
   const services = props.services || []
+  const uuid = props.selected && props.selected.uuid
 
   return (
     <div className="menu">
       <div style={{width: 30}}/>
       <div className="ui attached tabular menu">
         {services.length > 0 ? services.map( s => (
-          <a key={s.uuid} className={`item ${s.uuid == props.selected ? "active" : ""}`} onClick={() => props.onService(s.uuid)}>
+          <a key={s.uuid} className={`item ${s.uuid == uuid ? "active" : ""}`} onClick={() => props.onService(s.uuid)}>
             {s.name}
           </a>
         )) : (
@@ -35,37 +39,13 @@ class ExternalScreen extends React.Component{
   constructor(props){
     super(props)
 
-    const plugin = props.plugin || props.params.plugin
-    const component = props.component || props.params.component
-    const screen_id = `${plugin}/${component}`
-
-    // to avoid one method.. feels dirty, but its the right thing to do
-    const state = store.getState()
-    const screen = state.menu.screens.find( s => s.id == screen_id ) || {traits: []}
-    const services = map_get(state, ["project", "project", "services"], []).filter( s => {
-      return match_traits({ has: s.traits, any: screen.traits })
-    })
-
-    const service = map_get(this.props, ["data", "service"])
-    let current = undefined
-    if (service)
-      current = service.uuid
-
-    const show_menu = (screen.traits.length > 0) && (screen.traits.indexOf("global") == -1)
-
     this.state = {
       umount: undefined,
-      component: undefined,
-      screen,
-      services,
-      current,
-      service,
-      show_menu,
+      service: props.service
     }
   }
   componentWillUnmount(){
     if (this.state.umount){
-      console.debug("Cleanup plugin screen")
       this.state.umount()
       $(this.refs.el).html('')
     }
@@ -75,26 +55,14 @@ class ExternalScreen extends React.Component{
   }
   reloadScreen(){
     this.componentWillUnmount()
-    const props=this.props
-    let self=this
-    //const service=this.props.location.state.service
-    //console.log(service)
-    // console.log(props)
-    const plugin = props.plugin || props.params.plugin
-    const component = props.component || props.params.component
-
-    let service = this.state.service
-    if (!service && this.state.services.length > 0 && !this.state.current){
-      const current = this.state.services[0].uuid
-      service = this.state.services.find( s => s.uuid == current )
-      this.setState({current, service})
-    }
+    const {props, state} = this
+    const plugin = props.plugin
+    const component = props.component
 
     const context = {
       plugin_id: plugin,
       component_id: component,
-      screen_id: `${plugin}/${component}`,
-      setSectionMenu: props.setSectionMenu,
+      screen_id: `${plugin}/${component}`
     }
 
     const load_js = () => {
@@ -103,19 +71,22 @@ class ExternalScreen extends React.Component{
         this.setState({cleanupf(){}})
       }
       const plugin_js=`${plugin}/${component}.js`
-      plugin_load(plugin_js).then(() => {
-        const el = this.refs.el
-        return plugin_do_screen(
-          `${plugin}/${component}`,
-          el,
-          {...(props.data || this.props.location.state), ...props, project: props.project, service},
-          context
-        )
-      }).then( ({umount, component}) => {
+      const pprops = {
+        ...(props.data || this.props.location.state),
+        ...props,
+        project: props.project,
+        service: state.service
+      }
+      const el = this.refs.el
+
+      plugin_load(plugin_js).then(() =>
+        plugin_do_screen(`${plugin}/${component}`, el, pprops, context)
+      ).then( ({umount, component}) => {
         this.setState({umount, component})
       }).catch( (e) => {
         console.warn("Could not load JS %o: %o", plugin_js, e)
       })
+
     }
     $(this.refs.el)
       .attr('data-pluginid', plugin)
@@ -137,19 +108,38 @@ class ExternalScreen extends React.Component{
     })
   }
   handleService(current){
-    console.log("Set service", current)
-    const service = this.state.services.find( s => s.uuid == current )
+    const service = this.props.services.find( s => s.uuid == current )
     this.setState({current, service}, this.reloadScreen.bind(this))
   }
+  componentWillReceiveProps(newprops){
+    const nuuid = newprops.service && newprops.service.uuid
+    const puuid = this.props.service && this.props.service.uuid
+    const suuid = this.state.service && this.state.service.uuid
+
+    if (nuuid != puuid && nuuid != suuid){
+      this.setState({service: newprops.service}, this.reloadScreen.bind(this))
+    }
+  }
   render(){
-    let props=this.props
+    const {props, state} = this
     const plugin = props.plugin || props.params.plugin
     const component = props.component || props.params.component
 
-    const Screen = this.state.component
+    if (props.require_service && !state.service){
+      return (
+        <Tip
+          title={i18n("No compatible service exists")}
+          description={i18n("This screen requires a compatible service, and none was found.\n\nPlease add a compatible service type and try again.")}
+          top_img={empty_box_img}
+          middle_img={null}
+        />
+      )
+    }
+
+    const Screen = state.component
     if (Screen)
       content = (
-        <Screen {...props} {...this.state}/>
+        <Screen {...props} {...state}/>
       )
     else
       content = (
@@ -161,17 +151,19 @@ class ExternalScreen extends React.Component{
       )
     return (
       <React.Fragment>
-        {(this.state.show_menu > 0) && !props.data.service ? (
+        {props.show_menu && (
           <ErrorBoundary>
             <SectionMenu
               menu={SelectService}
               onService={this.handleService.bind(this)}
-              services={this.state.services}
-              selected={this.state.current}
+              services={props.services}
+              selected={props.service}
               />
           </ErrorBoundary>
-        ) : null}
-        {content}
+        )}
+        <ErrorBoundary>
+          {content}
+        </ErrorBoundary>
       </React.Fragment>
     )
   }

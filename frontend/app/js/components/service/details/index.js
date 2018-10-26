@@ -38,6 +38,7 @@ function get_plugin_component({tab, type}, props){
       data={{service: props.service, project: props.project}}
       plugin={sp[0]}
       component={sp[1]}
+      service={props.service}
       />
   )
 }
