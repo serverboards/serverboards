@@ -462,6 +462,11 @@ defmodule Serverboards.Service do
   end
   def decorate(service) do
     import Ecto.Query
+    traits = case Serverboards.Plugin.Registry.filter_component(id: service.type) do
+      [comp] -> comp.traits
+      [] -> []
+    end
+
     service = service
           |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
           |> Map.put(:projects, Repo.all(
@@ -471,7 +476,8 @@ defmodule Serverboards.Service do
            where: ss.service_id == ^service.id,
           select: s.shortname
             ))
-    service |> Map.take(~w(tags projects config uuid priority name type description icon)a)
+          |> Map.put(:traits, traits)
+    service |> Map.take(~w(tags projects config uuid priority name type description icon traits)a)
   end
 
   @doc ~S"""
