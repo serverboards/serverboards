@@ -59,6 +59,9 @@ class EditWidget extends React.Component{
       }, 300 )
     this.setState({postconfig_timer})
   }
+  getParams(){
+    return map_get(this.props, ["template","extra", "params"], [])
+  }
   fakeWidgetExtract(){
     // fake do as dashboard.widget.extract, to show at widget preview
     let postconfig = {}
@@ -69,7 +72,7 @@ class EditWidget extends React.Component{
     context["__vars__"] = this.props.vars
     const config = this.state.config
 
-    for (const p of map_get(this.props, ["template","params"], [])){
+    for (const p of this.getParams()){
       let value = config[p.name]
       if (p.type=="query"){
         value = rpc.call("query.query", {query: value, context}).then( res => {
@@ -93,12 +96,10 @@ class EditWidget extends React.Component{
     this.setState({postconfig, errors: []})
   }
   hasQuery(){
-    return this.props.template && this.props.template.params && this.props.template.params.find( t => t.type == "query" ) != undefined
+    return this.getParams().find( t => t.type == "query" ) != undefined
   }
-  updateQueryParams(params){
-    if (!params)
-      return
-    return params.map( p => {
+  upgradedQueryParams(){
+    return this.getParams().map( p => {
       if (p.type=='query'){
         return {...p, type: "textarea", mode: "sql"} // TODO data for autocomplete and so on.
       }
@@ -124,8 +125,9 @@ class EditWidget extends React.Component{
     const state = this.state
 
     let layout={x:0, y:0, h: 2, w: 2, minW: 1, minH: 1, maxW: 20, maxH: 20}
-    if (typeof(template.hints) == "object"){
-      layout={...layout, ...template.hints}
+    const hints = map_get(template, ["extra", "hints"])
+    if (typeof(hints) == "object"){
+      layout={...layout, ...hints}
     }
     if (widget.ui)
       layout = {...layout, ...widget.ui}
@@ -183,7 +185,7 @@ class EditWidget extends React.Component{
                 <div>
                   <div className="ui meta" style={{marginBottom:30}}>{widget.description}</div>
 
-                  <GenericForm fields={this.updateQueryParams(template.params)} data={state.config} updateForm={this.setFormData.bind(this)}/>
+                  <GenericForm fields={this.upgradedQueryParams()} data={state.config} updateForm={this.setFormData.bind(this)}/>
 
                   {props.saveButtons ? props.saveButtons.map( b => (
                     <button className={`ui button ${b.className}`} style={{marginTop:20}} onClick={() => b.onClick(this.getSaveData())}>

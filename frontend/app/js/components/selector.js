@@ -40,7 +40,7 @@ function filter_items(items, filter){
 }
 
 function Card({item, default_icon, onClick, className}){
-  const plugin = item.plugin_id || (item.type && item.type.split('/')[0])
+  const plugin = item.plugin_id || item.plugin || (item.type && item.type.split('/')[0])
   const icon = item.icon64 || item.icon || (item.extra || {}).icon || default_icon
   return (
     <a className={`ui wide card ${className || ""}`} style={{padding: 5}} onClick={onClick}>
@@ -111,6 +111,11 @@ class Selector extends React.Component{
   }
   componentDidMount(){
     this.props.get_items().then( items => {
+      // Allow conversion from object to array
+      if (!$.isArray(items)){
+        items = Object.values(items)
+      }
+      
       const all_items=items
         .filter( s => (s.traits || []).indexOf("hidden")==-1 )
         .sort( (a,b) => a.name.localeCompare(b.name) )

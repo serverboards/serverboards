@@ -27,7 +27,7 @@ export class AddServiceDetailsForm extends React.Component{
       const state = this.state
       const service = {
         name: state.name,
-        type: props.service.type,
+        type: props.service.id,
         description: state.description,
         config: state.data
       }
@@ -54,7 +54,7 @@ export class AddServiceDetailsForm extends React.Component{
             />
         </form>
         <div className="separator" style={{height: 40}}/>
-        <GenericForm fields={service.fields} updateForm={(data) => this.setState({data})}/>
+        <GenericForm fields={service.extra.fields} updateForm={(data) => this.setState({data})}/>
         <div className="separator" style={{height: 40}}/>
 
         <div className="ui right aligned">
@@ -233,7 +233,7 @@ class ServiceAddRouter extends React.Component{
             key="installed"
             show_filter={false}
             filter={this.filter.bind(this)}
-            get_items={cache.service_catalog}
+            get_items={() => cache.service_catalog().then(Object.values)}
             onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
             onSkip={props.onSkip}

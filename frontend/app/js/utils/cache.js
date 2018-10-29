@@ -32,12 +32,7 @@ const cache={
     store_update: require('app/actions/project').project_update_widget_catalog()
   }),
   action_catalog: cache_builder({
-      store_get: () => {
-        const catalog = store.getState().action.catalog
-        if (catalog.length==0)
-          return undefined
-        return catalog
-      },
+      store_get: () => store.getState().action.catalog,
       store_update: require('app/actions/action').action_catalog()
   }),
   trigger_catalog: cache_builder({
@@ -52,13 +47,13 @@ const cache={
     return Promise.resolve( services.find( s => s.uuid == service_id ) )
   },
   trigger(trigger_id){
-    return cache.trigger_catalog().then( tc => tc.find( t => t.id == trigger_id ) )
+    return cache.trigger_catalog().then( tc => tc[trigger_id] )
   },
   service_type(type){
-    return cache.service_catalog().then( sc => sc.find( s => s.type == type ) )
+    return cache.service_catalog().then( sc => sc[type] )
   },
   action(action_id){
-    return cache.action_catalog().then( ac => ac.find( a => a.id == action_id ))
+    return cache.action_catalog().then( ac => ac[action_id] )
   },
   projects: cache_builder({
     store_get: () => store.getState().project.projects,

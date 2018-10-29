@@ -14,7 +14,7 @@ class Service extends React.Component{
       service_id: this.props.service_id
     }
     this.selectType = (t) => {
-      this.setState({step: 2, type: t.type})
+      this.setState({step: 2, type: t.id})
     }
   }
   render(){

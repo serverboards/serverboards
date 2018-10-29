@@ -1,7 +1,7 @@
 import React from 'react'
 import Loading from '../loading'
 import {object_is_equal, merge} from 'app/utils'
-import PluginScreen from 'app/components/plugin/screen'
+import PluginScreen from 'app/containers/plugin/screen'
 import i18n from 'app/utils/i18n'
 import {ErrorBoundary} from 'app/components'
 

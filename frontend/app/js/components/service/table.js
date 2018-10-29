@@ -2,65 +2,57 @@ import React from 'react'
 import {colorize} from 'app/utils'
 import ImageIcon from '../imageicon'
 import IconIcon from '../iconicon'
-import ActionMenu from 'app/containers/service/actionmenu'
+import {CardBottom} from 'app/components/service/cards'
 import Loading from '../loading'
 import {goto} from 'app/utils/store'
 import {i18n} from 'app/utils/i18n'
+import {get_template} from './utils'
 
 const icon = require("../../../imgs/services.svg")
 
 require("sass/service/table.sass")
 
-export function service_definition(service_type, service_catalog){
-  return service_catalog.find( (c) => c.type == service_type )
-}
+function ServiceTableLine(props){
+  const service = props.service
+  let tags = service.tags || []
+  if (!service.config || $.isEmptyObject(service.config))
+    tags = tags.concat("NOT-CONFIGURED")
+  tags = tags.map( t => {
+    if (t.startsWith("status:"))
+      return t.slice(7)
+    return t
+  })
+  const template = props.template || {}
 
-
-
-class ServiceTableLine extends React.Component{
-  handleOpenDetails(){
-    goto(`/project/${this.props.project.shortname}/services/${this.props.service.uuid}`)
-  }
-  render(){
-    const props=this.props
-    const s=props.service
-    const d=props.definition || {}
-    let tags = s.tags || []
-    if (!s.config || $.isEmptyObject(s.config))
-      tags = tags.concat("NOT-CONFIGURED")
-    tags = tags.map( t => {
-      if (t.startsWith("status:"))
-        return t.slice(7)
-      return t
-    })
-
-    return (
-      <tr ref="el" onClick={this.handleOpenDetails.bind(this)} style={{cursor: "pointer"}}>
-        <td>
-          {d.icon ? (
-            <IconIcon icon={d.icon} plugin={d.type.split('/',1)[0]}/>
-          ) : (
-            <ImageIcon src={icon} name={s.name}/>
-          )}
-        </td>
-        <td><b>{s.name}</b></td>
-        <td>{d.name}</td>
-        <td className="ui meta">{s.description}</td>
-        <td>
-          {(tags || []).map( (l) => (
-            <span key={l} style={{color:"#ccc", display:"block", whiteSpace:"nowrap"}}>
-              <span className={`ui circular empty ${colorize(l)} label`}/> {l}
-            </span>
-          ))}
-        </td>
-        <td>
-          <ActionMenu service={props.service} actions={props.actions}>
-            {i18n("Options")}
-          </ActionMenu>
-        </td>
-      </tr>
-    )
-  }
+  return (
+    <tr ref="el" onClick={() => props.onSelectService(service)} style={{cursor: "pointer"}} className={props.className}>
+      <td>
+        {template.icon ? (
+          <IconIcon icon={template.icon} plugin={template.plugin}/>
+        ) : (
+          <ImageIcon src={template.icon} name={service.name}/>
+        )}
+      </td>
+      <td><b>{service.name}</b></td>
+      <td>{template.name}</td>
+      <td className="ui meta">{service.description}</td>
+      <td>
+        {(tags || []).map( (l) => (
+          <span key={l} style={{color:"#ccc", display:"block", whiteSpace:"nowrap"}}>
+            <span className={`ui circular empty ${colorize(l)} label`}/> {l}
+          </span>
+        ))}
+      </td>
+      <td>
+        <CardBottom
+          service={props.service}
+          project={props.project}
+          >
+          {i18n("Options")} <i className="ui dropdown icon"/>
+        </CardBottom>
+      </td>
+    </tr>
+  )
 }
 
 function Table(props){
@@ -76,7 +68,14 @@ function Table(props){
       </tr></thead>
       <tbody>
       {props.services.map((p) => (
-        <ServiceTableLine key={p.uuid} service={p} project={props.project} definition={service_definition(p.type, props.catalog)}/>
+        <ServiceTableLine
+          key={p.uuid}
+          service={p}
+          project={props.project}
+          template={props.catalog[p.type] || "error"}
+          onSelectService={props.onSelectService}
+          className={props.selected_uuid == p.uuid && "selected" || undefined}
+          />
       ))}
       </tbody>
     </table>

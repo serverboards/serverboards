@@ -34,9 +34,7 @@ function EditWidgetModal(props){
 
 const Controller = connect(
   (state, props) => ({
-    template: state.project.widget_catalog && (
-      state.project.widget_catalog.find( (w) => (w.id == props.widget.widget) ) || "not-found"
-    ),
+    template: map_get(state.project.widget_catalog, [props.widget.widget], "not-found"),
     widget_id: props.widget.widget,
     project: state.project.current,
     board_extractors: map_get(state.project.dashboard, ["current", "config", "extractors"], []),

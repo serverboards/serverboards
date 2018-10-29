@@ -58,7 +58,7 @@ class Widget extends React.Component{
   }
   componentDidMount(){
     let toload = [plugin.load(`${this.props.widget}.js`)]
-    if (!to_keywordmap((this.props.template || {}).hints)["nocss"])
+    if (!to_keywordmap(map_get(this.props.template, ["extra", "hints"]))["nocss"])
       toload.push(plugin.load(`${this.props.widget}.css`))
     Promise.all(toload).then( () => {
       if (!this.cancel_widget)

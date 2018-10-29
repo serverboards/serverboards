@@ -47,15 +47,15 @@ class DetailsWithScreensAndUrls extends React.Component{
 const Container = connect({
   state(state, props){
     const locstate = state.routing.locationBeforeTransitions.state || {}
-    let service, service_template
+    let service, template
     let current = state.services.current
     if (current){
       service=props.service || current.service
-      service_template = current.template
+      template = current.template
     }
     return {
       service,
-      service_template,
+      template,
     }
   },
   subscriptions(state, props){
@@ -78,10 +78,10 @@ const Container = connect({
     state = this.state(state, props) // Get next component props, no need to generate again
     if (state.service == 'error')
       return false;
-    if (state.service_template == 'error')
+    if (state.template == 'error')
       return false;
 
-    if (state.service && state.service_template)
+    if (state.service && state.template)
       return false;
     return i18n("Service details")
   }

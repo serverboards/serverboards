@@ -11,10 +11,6 @@ defmodule Serverboards.Notifications.RPC do
     # Adds that it needs permissions and user
     Serverboards.Utils.Decorators.permission_method_caller mc
 
-    add_method mc, "notifications.catalog", fn _ ->
-      {:ok, Notifications.catalog}
-    end
-
     add_method mc, "notifications.config.get", fn
       [email], context ->
         me = RPC.Context.get(context, :user)

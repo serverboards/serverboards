@@ -3,7 +3,7 @@ import rpc from 'app/rpc'
 import RichDescription from './richdescription'
 import i18n from 'app/utils/i18n'
 import store from 'app/utils/store'
-import {match_traits} from 'app/utils'
+import {match_traits, map_get} from 'app/utils'
 import cache from 'app/utils/cache'
 import AddServiceModal from 'app/components/service/addmodal'
 import PropTypes from 'prop-types'
@@ -45,15 +45,20 @@ class SelectService extends React.Component{
   updateServices(){
     const filter = this.prepareFilter()
 
-    cache.services().then( (services) => {
+    Promise.all([
+      cache.services(),
+      cache.service_catalog()
+    ]).then( ([services, templates]) => {
+      console.log(services, templates)
       const items=services
-        .filter(s => match_filter(s, filter))
+        .filter(s => match_filter({...s, traits: map_get(templates, [s.type, "traits"], [])}, filter))
         .map( (s) => ({
           //name: s.name,
           value: s.uuid,
           name: s.name,
           description: (s.fields || []).filter( (p) => p.card ).map( (p) => p.value ).join(',')
         }))
+      console.log("Items", services, items, filter)
       this.setState({items})
     })
   }

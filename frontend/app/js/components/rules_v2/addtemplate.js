@@ -5,6 +5,7 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import cache from 'app/utils/cache'
 import Tip from 'app/components/tip'
 import Loading from 'app/components/loading'
+import {SectionMenu} from 'app/components'
 
 class AddTemplate extends React.Component{
   constructor(props){
@@ -67,6 +68,13 @@ class AddTemplate extends React.Component{
     }
 
   	return (
+      <React.Fragment>
+        <SectionMenu menu={() => (
+          <a onClick={props.prevStep} className="item">
+            <i className="ui chevron left icon"/> {i18n("Back")}
+          </a>
+        )}/>
+
         <div className="ui expand two column grid grey background" style={{margin:0}}>
           <div className="ui column">
             <Tip
@@ -117,6 +125,7 @@ simple rules. If you have any idea, don't hesitate to [contact us](mailto:connec
             </div>
         	</div>
         </div>
+      </React.Fragment>
   	)
   }
 }

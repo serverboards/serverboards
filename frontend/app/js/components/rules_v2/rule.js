@@ -10,9 +10,9 @@ function Rule(props){
     <div id="rule" className="ui two column grid grey background" style={{margin:0, height: "100%"}}>
       <div className="ui column">
         <div className="ui round pane white background">
-          <div className="ui attached top form">
-            <div className="ui input seamless white">
-              <i className="icon pencil"/>
+          <div className="ui attached top input dark form">
+            <div className="ui input seamless">
+              <i className="ui white text icon pencil"/>
               <input
                 type="text"
                 placeholder={i18n("Rule name")}

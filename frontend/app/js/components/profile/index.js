@@ -18,11 +18,9 @@ class Profile extends React.Component{
     }
   }
   handleSubmit(){
-    console.log("Submit %o",this.state)
     this.props.onSubmit(this.state)
   }
   handleUpdate(section, data){
-    console.log("Update ", section, data)
     this.setState({ [section]: data })
   }
   openPasswordChange(ev){
@@ -47,6 +45,14 @@ class Profile extends React.Component{
       $(this.refs.tracking).checkbox("check")
     else
       $(this.refs.tracking).checkbox("uncheck")
+  }
+  componentWillReceiveProps(newprops){
+    if (newprops.tracking != this.props.tracking){
+      if (newprops.tracking)
+        $(this.refs.tracking).checkbox("check")
+      else
+        $(this.refs.tracking).checkbox("uncheck")
+    }
   }
   uploadAvatar(ev){
     let fr = new FileReader()
@@ -119,8 +125,8 @@ class Profile extends React.Component{
                 <br/>
                 {i18n("We will not access any personal information, just general data as which functionalities and plugins are most used and errors.")}
               </div>
-              <div className="ui inline field" ref="tracking">
-                <div className="ui checkbox">
+              <div className="ui inline field">
+                <div ref="tracking" className="ui checkbox">
                   <input onChange={(ev) => this.handleUpdate("tracking", ev.target.checked)} type="checkbox" defaultChecked={props.tracking} id="tracking"/>
                   <label>{i18n("Allow Serverboards to track which functionalities I use.")}</label>
                 </div>

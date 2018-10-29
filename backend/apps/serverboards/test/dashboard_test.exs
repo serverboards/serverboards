@@ -67,9 +67,6 @@ defmodule DashboardTest do
     assert Test.Client.expect(client, method: "dashboard.widget.updated")
     {:ok, [%{"uuid" => uuid}]} = Test.Client.call(client, "dashboard.widget.list", [sbds])
 
-    # just dont fail
-    {:ok, _catalog} = Test.Client.call(client, "dashboard.widget.catalog", ["SBDS-TST13"])
-
     {:ok, _} = Test.Client.call(client, "dashboard.widget.delete", [uuid])
     {:ok, []} = Test.Client.call(client, "dashboard.widget.list", [sbds])
   end

@@ -211,7 +211,7 @@ export function user_update_licenses(){
     rpc.call("settings.user.get", ["legal"]),
     cache.plugin_component({type: "license"})
   ]).then( al => {
-    console.log(al)
+    // console.log(al)
     let [legal, licenses] = al
     console.log({legal, licenses})
     const have = map_get(legal, ["accepted"], [])

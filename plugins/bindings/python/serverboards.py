@@ -781,8 +781,11 @@ def log_traceback(e=None):
     """
     if e:
         error(str(e))
-    import traceback
-    traceback.print_exc(file=error)
+    import traceback, io
+    ss = io.StringIO()
+    traceback.print_exc(file=ss)
+    ss.seek(0)
+    error(ss.read(), level=2)
 
 
 def __simple_hash__(*args, **kwargs):

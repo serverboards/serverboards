@@ -6,11 +6,11 @@ sudo apt update
 sudo apt install -y wget
 
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
-wget https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_20.3.6-1~ubuntu~bionic_amd64.deb
+wget https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_20.3.8.6-1~ubuntu~bionic_amd64.deb
 wget -q -O - https://deb.nodesource.com/setup_6.x | sudo -E bash -
 
 sudo dpkg -i erlang-solutions_1.0_all.deb
-sudo dpkg -i esl-erlang_20.3.6-1~ubuntu~bionic_amd64.deb
+sudo dpkg -i esl-erlang_20.3.8-1~ubuntu~bionic_amd64.deb
 echo "esl-erlang hold" | dpkg --set-selections
 
 rm erlang-solutions_1.0_all.deb

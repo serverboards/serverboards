@@ -1,5 +1,6 @@
 import {merge, is_empty} from 'app/utils'
 import rpc from 'app/rpc'
+import store from 'app/utils/store'
 
 // Two services refer to the same, used for replacing and deleting
 export function is_same_service(c1, c2){
@@ -10,14 +11,14 @@ export function is_same_service(c1, c2){
   )
 }
 
-export function service_definition(service_type, service_catalog){
-  return service_catalog.find( (c) => c.type == service_type )
+export function get_template(service_type, service_catalog){
+  if (!service_catalog)
+    service_catalog = store.getState().services.catalog || {}
+  return service_catalog[service_type] || "error"
 }
 
-export function setup_fields(service, service_catalog){
-  let definition=service_definition(service.type, service_catalog)
-
-  let fields = (definition.fields || []).map( (f) => Object.assign({}, f,
+export function setup_fields(service, template){
+  let fields = (template.extra.fields || []).map( (f) => Object.assign({}, f,
       { value: service.config[f.name] || f.value }
     ) )
   return fields

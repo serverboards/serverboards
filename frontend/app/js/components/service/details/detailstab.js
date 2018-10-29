@@ -60,10 +60,10 @@ function DetailsTab(props){
     <div className="ui grid" style={{flexGrow:1, margin: 0}}>
       <div className="six wide column" style={{borderRight:"1px solid #ddd", paddingLeft: 20}}>
         <h3 className="ui header">{i18n("Service Type")}</h3>
-        {props.service_template.name}
+        {props.template.name}
         <h3 className="ui header">{i18n("Description")}</h3>
-        {props.service_template.description ? (
-          <MarkdownPreview className="ui grey text" value={i18n(props.service_template.description)}/>
+        {props.template.description ? (
+          <MarkdownPreview className="ui grey text" value={i18n(props.template.description)}/>
         ) : null}
         <h3 className="ui header">{i18n("Related projects")}</h3>
         <div className="ui vertical secondary menu" style={{width:"100%"}}>
@@ -80,7 +80,7 @@ function DetailsTab(props){
         <MarkdownPreview className="ui grey text" value={props.service.description || i18n("Not provided")}/>
         <h3 className="ui header">{i18n("Config Details")}</h3>
         <div className="ui grid">
-          {((props.service_template || {}).fields || []).map( (f, i) => (
+          {((props.template || {}).fields || []).map( (f, i) => (
             <DataField key={f.name || i} field={f} value={props.service.config[f.name]}/>
           ))}
         </div>

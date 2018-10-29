@@ -18,8 +18,6 @@ export function get_modal(name){
       return require('app/components/service/addmodal').default
     case "service.settings":
       return require('app/containers/service/settingsmodal').default
-    case "service.virtual":
-      return require('app/components/service/virtual').default
     case "auth.group.edit_perms":
       return require('app/containers/settings/group/edit_perms').default
     case "auth.group.edit_users":

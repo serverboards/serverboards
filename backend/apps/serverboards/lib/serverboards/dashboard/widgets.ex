@@ -47,22 +47,6 @@ defmodule Serverboards.Dashboard.Widget do
   end
 
 
-  @doc ~S"""
-  Returns the list of plugins.
-  """
-  def catalog() do
-    for w <- Serverboards.Plugin.Registry.filter_component([type: "widget"]) do
-      %{
-        id: w.id,
-        name: w.name,
-        description: w.description,
-        params: w.extra["params"],
-        traits: w.traits,
-        hints: Map.get(w.extra, "hints", %{}),
-      }
-    end
-  end
-
   def widget_add(project, data, me) do
     uuid = data[:uuid] || UUID.uuid4
     data = Map.merge(data, %{ project: project, uuid: uuid })
