@@ -79,15 +79,6 @@ defmodule ServerboardTest do
     service_delete service, user
   end
 
-  test "List service catalog" do
-    import Serverboards.Service
-
-    services = service_catalog []
-
-    assert Enum.count(services) > 0
-    assert Enum.count((hd services).fields) > 0
-  end
-
   test "Update project removing services", %{ system: system } do
     import Serverboards.Project
     import Serverboards.Service
