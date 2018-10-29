@@ -1,9 +1,9 @@
 import connect from 'app/containers/connect'
-import QueryServiceSelectView from 'app/components/board/queryserviceselect'
+import ExtractorSelectView from 'app/components/board/extractorselect'
 import { services_update_catalog, services_update_all } from 'app/actions/service'
 import cache from 'app/utils/cache'
 
-const QueryServiceSelect = connect({
+const ExtractorSelect = connect({
   state: (state, props) => {
     const project = state.project.current
     const all_services = ( state.services.services || []).filter( s => s.projects.indexOf(project)>=0)
@@ -18,6 +18,6 @@ const QueryServiceSelect = connect({
   handlers: (dispatch) => ({
   }),
   store_enter: [services_update_all]
-})(QueryServiceSelectView)
+})(ExtractorSelectView)
 
-export default QueryServiceSelect
+export default ExtractorSelect

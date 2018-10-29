@@ -15,7 +15,7 @@ function fix_extractors(props){
   return Object.values(to_map(props.map( ext => [ext.id, ext])))
 }
 
-class QueryServiceSelect extends React.Component{
+class ExtractorSelect extends React.Component{
   constructor(props){
     super(props)
 
@@ -226,4 +226,4 @@ class QueryServiceSelect extends React.Component{
   }
 }
 
-export default QueryServiceSelect
+export default ExtractorSelect

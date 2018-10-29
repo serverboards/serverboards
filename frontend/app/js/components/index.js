@@ -13,7 +13,7 @@ import PluginScreen from './plugin/screen'
 import Selector from './selector'
 import MarketplaceSelector from 'app/containers/marketplaceselector'
 import Panes from './panes'
-import QueryServiceSelect from 'app/containers/board/queryserviceselect'
+import ExtractorSelect from 'app/containers/board/extractorselect'
 import ExtractorsHelp from './board/extractorshelp'
 import FutureLabel from './futurelabel'
 import Restricted from 'app/restricted'
@@ -37,7 +37,7 @@ const components = {
   Selector,
   MarketplaceSelector,
   Panes,
-  QueryServiceSelect,
+  ExtractorSelect,
   ExtractorsHelp,
   FutureLabel,
   Restricted,
@@ -67,7 +67,7 @@ export {
   Selector,
   MarketplaceSelector,
   Panes,
-  QueryServiceSelect,
+  ExtractorSelect,
   ExtractorsHelp,
   FutureLabel,
   Restricted,

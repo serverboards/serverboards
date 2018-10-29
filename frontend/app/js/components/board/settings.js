@@ -3,7 +3,7 @@ import i18n from 'app/utils/i18n'
 import Modal from 'app/components/modal'
 import HoldButton from 'app/components/holdbutton'
 import {map_get} from 'app/utils'
-import QueryServiceSelect from 'app/containers/board/queryserviceselect'
+import ExtractorSelect from 'app/containers/board/extractorselect'
 
 class Settings extends React.Component{
   constructor(props){
@@ -67,7 +67,7 @@ class Settings extends React.Component{
                 </div>
               </div>
             </div>
-            <QueryServiceSelect
+            <ExtractorSelect
               extractors={map_get(this.state, ["config", "extractors"])}
               onSetExtractors={(extractors) => this.setConfig("extractors", extractors)}
               />
