@@ -17,7 +17,7 @@ import ExtractorSelect from 'app/containers/board/extractorselect'
 import ExtractorsHelp from './board/extractorshelp'
 import FutureLabel from './futurelabel'
 import Restricted from 'app/restricted'
-import CodeMirror from './codemirror'
+import CodeEdit from 'app/components/genericform/codeedit'
 import SectionMenu from 'app/containers/menu'
 import Hooks from 'app/containers/hooks'
 
@@ -41,7 +41,7 @@ const components = {
   ExtractorsHelp,
   FutureLabel,
   Restricted,
-  CodeMirror,
+  CodeEdit,
   SectionMenu,
   Hooks,
 }
@@ -71,7 +71,7 @@ export {
   ExtractorsHelp,
   FutureLabel,
   Restricted,
-  CodeMirror,
+  CodeEdit,
   SectionMenu,
   Hooks,
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import RichDescription from './richdescription'
 import i18n from 'app/utils/i18n'
 import plugin from 'app/utils/plugin'
-import CodeMirror from 'app/components/codemirror'
+import CodeEdit from 'app/components/genericform/codeedit'
 
 const SEPARATORS=/ \:\n.\[\]\s/
 
@@ -184,7 +184,7 @@ class TextArea extends React.Component{
         <RichDescription className="ui meta" value={i18n(props.description)} vars={props.vars}/>
         <div style={{position: "relative"}}>
           {props.mode ? (
-            <CodeMirror
+            <CodeEdit
               name={props.name}
               mode={props.mode}
               value={props.value}

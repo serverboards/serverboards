@@ -6,7 +6,7 @@ import 'brace/theme/monokai'
 
 
 
-function CodeMirrorWrapper(props){
+function CodeEdit(props){
   return (
     <AceEditor
       mode="sql"
@@ -22,4 +22,4 @@ function CodeMirrorWrapper(props){
   )
 }
 
-export default CodeMirrorWrapper
+export default CodeEdit
