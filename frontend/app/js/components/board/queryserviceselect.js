@@ -176,7 +176,7 @@ class QueryServiceSelect extends React.Component{
                       <div className="ui padding">
                         <div className="ui split area horizontal" style={{height: "auto"}}>
                           <h3 className="ui expand">{e.name}</h3>
-                          <Icon icon={e.extra.icon} plugin={e.id.split('/')[0]} className="ui mini"/>
+                          <Icon icon={e.icon} plugin={e.plugin} className="ui mini"/>
                         </div>
                         {i18n(e.description)}
                       </div>
