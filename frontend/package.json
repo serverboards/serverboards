@@ -4,16 +4,16 @@
   "description": "Serverboards Frontend",
   "main": "index.js",
   "dependencies": {
+    "babel-core": "6",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
-    "codemirror": "^5.35.0",
     "jsdom": "^11.10.0",
     "jsdom-global": "^3.0.2",
     "moment": "^2.22.2",
     "mustache": "^2.3.0",
     "pngquant": "^1.3.0",
     "pngquant-bin": "^4.0.0",
-    "react-codemirror": "^1.0.0",
+    "react-ace": "^6.2.0",
     "react-hot-loader": "^4.0.0",
     "uglifyjs-webpack-plugin": "^1.2.4",
     "uuid": "^3.2.1",
@@ -24,7 +24,6 @@
     "yaml-import-loader": "^1.3.6"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
     "babel-loader": "^7.1.5",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
