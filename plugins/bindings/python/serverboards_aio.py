@@ -534,7 +534,7 @@ print = WriteToSync(log_("debug"))
 # sys.stdout = sys.stderr
 
 
-def log_traceback(exc=None):
+def log_traceback(exc=None, **extra):
     """
     Logs the given traceback to the error log.
     """
@@ -542,7 +542,7 @@ def log_traceback(exc=None):
     strio.write("Got exception: %s\n" % exc)
     traceback.print_exc(file=strio)
     strio.seek(0)
-    error_sync(strio.read())
+    error_sync(strio.read(), **extra)
 
 
 def test_mode(test_function, mock_data={}):
