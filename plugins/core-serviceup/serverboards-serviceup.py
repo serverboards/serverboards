@@ -9,28 +9,30 @@ _ = gettext.gettext
 OK_TAGS = ["ok", "up"]
 
 
-def service_uuid(service):
+def service_uuid(service, *args, **kwargs):
     return service["uuid"]
 
 
 @serverboards.cache_ttl(30)
-async def recheck_service_by_uuid(service_uuid):
+async def recheck_service_by_uuid(service_uuid, *args, **kwargs):
     service = await serverboards.service.get(service_uuid)
-    if 'fields' in service:
-        del service['fields']
-    await serverboards.debug("Check service up", service_uuid, service)
-
-    return await recheck_service(service)
+    return await recheck_service(service, *args, **kwargs)
 
 
 # Use a cache to avoid checking more than one every 30 seconds
 # this also avoid that changing the status retriggers the check
 @serverboards.cache_ttl(30, hashf=service_uuid)
-async def recheck_service(service, *args, **kwargs):
+async def recheck_service(service, *args, retry_count=2, **kwargs):
     """
     Checks if the given service has changed status
 
-    May return a number indicating when to check again
+    May return a number indicating when to check again.
+
+    There may be several checks at the same time for a given service: It may
+    fail and retry, the user changes a setting, and then there is another
+    concurrent check.
+
+    This is not a big problem as only one will open the issue or close it.
     """
     # First do the real check
     checker = await get_status_checker(service["type"])
@@ -38,7 +40,8 @@ async def recheck_service(service, *args, **kwargs):
         return
     try:
         status = await serverboards.plugin.call(
-            checker["command"], checker["call"], [service])
+            checker["command"], checker["call"], [service]
+        )
         if isinstance(status, str):
             status = {
                 "status": status,
@@ -58,64 +61,89 @@ async def recheck_service(service, *args, **kwargs):
         }
     status["checker"] = checker["id"]
 
-    # Then fill some extra data
+    # Fill some extra data
     tag = status.get("status")
-    message = status.get("message")
-    if not message:
-        if tag in OK_TAGS:
-            status["message"] = _('Everything alright.')
-        else:
-            status["message"] = _('There\'s been some error.')
-        message = status["message"]
-
-    # log status. One log per check. A lot but good for diagnosing.
-    if tag in OK_TAGS:
-        await serverboards.info(
-            "Service %s (%s) state is %s: %s"
-            % (service["uuid"], service["type"], tag, message), service_id=service["uuid"], **status)
-    else:
-        await serverboards.error(
-            "Service %s (%s) state is %s: %s"
-            % (service["uuid"], service["type"], tag, message), service_id=service["uuid"], **status)
-
-    # Now if in different status, update service and open or close issues
     fulltag = "status:" + status.get("status", "unknown")
-    if fulltag in service["tags"]:
-        return
-    else:
+
+    # Check if there is some change. It may reflech tag change, and not notify user.
+    if fulltag not in service["tags"]:
         newtags = [x for x in service["tags"] if not x.startswith("status:")]
         newtags.append(fulltag)
         await serverboards.service.update(service["uuid"], {"tags": newtags})
-        if tag in OK_TAGS:
-            return (await close_service_issue(service, status))
+
+    # Log and open/close issue
+    message = status.get("message")
+    if tag in OK_TAGS:
+        if not message:
+            status["message"] = _('Everything alright.')
+        await serverboards.info(
+            "%s (%s) state is %s: %s"
+            % (service["name"], service["type"], tag, status["message"]), service_id=service["uuid"], **status)
+        return (await close_service_issue(service, status))
+    else:
+        if not message:
+            status["message"] = _('There\'s been some error.')
+        if retry_count > 0:
+            await serverboards.warning(
+                "%s (%s) state is %s: %s. Will check again in 30 seconds. %d retry left."
+                % (service["name"], service["type"], tag, status["message"], retry_count),
+                service_id=service["uuid"], **status)
+            await curio.sleep(30)
+            await recheck_service_by_uuid(service["uuid"], *args, retry_count=retry_count-1, **kwargs)
+            return
         else:
-            return (await open_service_issue(service, status))
+            await serverboards.error(
+                "%s (%s) state is %s: %s"
+                % (service["name"], service["type"], tag, status["message"]), service_id=service["uuid"], **status)
+            await open_service_issue(service, status)
 
 
-async def recheck_service_nocache(*args, **kwargs):
-    recheck_service.invalidate_cache()
-    return (await recheck_service(*args, **kwargs))
+noreentrant = set()
+
+
+async def recheck_service_noreentrant(service, *args, **kwargs):
+    """
+    Checks that this recheck is only once per service, if other comes, just return.
+
+    And do the normal service check.
+    """
+    uuid = service["uuid"]
+    if uuid in noreentrant:
+        return
+    noreentrant.add(uuid)
+    try:
+        recheck_service.invalidate_cache()
+        return (await recheck_service(service, *args, **kwargs))
+    finally:
+        noreentrant.remove(uuid)
 
 
 tasks = {}
 
 
 async def poll_serviceup(seconds, uuid):
+    await serverboards.debug("Poll %s" % uuid)
     secs = seconds
     while True:
         await curio.sleep(secs)
         secs = seconds
         maybe_secs = await recheck_service_by_uuid(uuid)
         if maybe_secs:  # marked to change next loop, for check two times in a row
+            await serverboards.debug(
+                "Short recheck in %s seconds." % maybe_secs,
+                service_id=uuid
+                )
             secs = maybe_secs
 
 
 async def inserted_service(service, *args, **kwargs):
-    await recheck_service(service)
+    uuid = service["uuid"]
+    if uuid in tasks:
+        return
+    await recheck_service_noreentrant(service)
     status = await get_status_checker(service["type"])
     if status and status.get("frequency"):
         seconds = time_description_to_seconds(status["frequency"])
-        uuid = service["uuid"]
         task_id = await curio.spawn(poll_serviceup, seconds, uuid)
         tasks[uuid] = task_id
         return True
@@ -192,18 +220,8 @@ async def get_status_checker(type):
     return status
 
 
-failure_count = set()  # will not open issues, until 2 failures are detected.
-
-
 async def open_service_issue(service, status):
     service_uuid = service["uuid"]
-    if service_uuid not in failure_count:
-        failure_count.add(service_uuid)
-        await serverboards.debug(
-            "The issue will not be opened yet. I will try again in 30 seconds.",
-            service_id=service["uuid"]
-            )
-        return 30  # try again in 30 seconds
     issue_id = "service_down/%s" % service_uuid
     issue = await serverboards.issues.get(issue_id)
     if issue:
@@ -231,8 +249,8 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
         service_url=url,
         message=status["message"],
         BASE_URL=base_url)
-    title = _("%(service)s: %(status)s") % dict(
-        service=service["name"], status=status)
+    title = _("%(service)s: %(message)s") % dict(
+        service=service["name"], **status)
 
     # print(description, title)
 
@@ -245,8 +263,6 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
 
 async def close_service_issue(service, status):
     service_uuid = service["uuid"]
-    if service_uuid in failure_count:
-        failure_count.remove(service_uuid)
     issue_id = "service_down/%s" % service_uuid
     issue = await serverboards.issues.get(issue_id)
     if not issue or issue["status"] == "closed":
@@ -297,7 +313,7 @@ def time_description_to_seconds(td):
 
 async def subscribe_to_services():
     printc("Subscribe to services")
-    await serverboards.rpc.subscribe("service.updated", recheck_service_nocache)
+    await serverboards.rpc.subscribe("service.updated", recheck_service_noreentrant)
     await serverboards.rpc.subscribe("service.inserted", inserted_service)
     await serverboards.rpc.subscribe("service.deleted", remove_service)
     printc("Subscribe to services done")

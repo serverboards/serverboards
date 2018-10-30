@@ -44,6 +44,12 @@ async def web_is_up(service):
             "message": _('Timeout connecting to %s' % url)
         }
     except Exception as e:
+        if '[Errno -2]' in str(e):
+            return {
+                "status": "error",
+                "code": str(e),
+                "message": _('Can not resolve domain name at %s' % (url))
+            }
         serverboards.log_traceback(e)
         return {
             "status": "error",

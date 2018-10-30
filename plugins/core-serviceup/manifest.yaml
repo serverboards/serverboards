@@ -23,5 +23,5 @@ components:
     command: ./serverboards-serviceup.py
     name: Service up daemon
     perms: service.get service.update issues.view issues.create issues.update plugin settings.view[serverboards.core.settings/base]
-    timeout: 24h
     strategy: singleton
+    timeout: 24h
