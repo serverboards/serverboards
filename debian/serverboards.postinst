@@ -197,7 +197,7 @@ EOF
         --agree-tos \
         --email $EMAIL
       if [ "$?" = 0 ]; then
-        rm /etc/nginx/ssl/$SERVERNAME
+        rm -rf /etc/nginx/ssl/$SERVERNAME
         ln -s /etc/letsencrypt/live/$SERVERNAME /etc/nginx/ssl/
         service nginx reload
 
