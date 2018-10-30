@@ -56,7 +56,7 @@ class System extends React.Component{
 
     return (
       <React.Fragment>
-        <div className="ui text container settings">
+        <div className="ui text container settings" style={{paddingBottom: 60}}>
           {props.settings.map( (section) => (
               <div key={section.id} ref={section.id}>
                 <Section {...section} updateSection={(data) => this.handleUpdateSection(section.id, data)}/>
@@ -65,7 +65,7 @@ class System extends React.Component{
           <Restricted perm="settings.update">
             <button
                 type="button"
-                className="ui button approve floating right yellow"
+                className="ui button approve teal"
                 onClick={this.handleSubmit.bind(this)}
                 >
               {i18n("Save all changes")}
