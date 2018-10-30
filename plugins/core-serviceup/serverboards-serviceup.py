@@ -5,8 +5,6 @@ import gettext
 import serverboards_aio as serverboards
 from serverboards_aio import print, curio
 from pcolor import printc
-
-
 _ = gettext.gettext
 OK_TAGS = ["ok", "up"]
 
@@ -34,34 +32,64 @@ async def recheck_service(service, *args, **kwargs):
 
     May return a number indicating when to check again
     """
-    # print("service is", repr(service))
-    status = await get_status_checker(service["type"])
-    if not status:
+    # First do the real check
+    checker = await get_status_checker(service["type"])
+    if not checker:
         return
     try:
-        tag = await serverboards.plugin.call(
-            status["command"], status["call"], [service])
-        if not tag:
-            tag = "plugin-error"
+        status = await serverboards.plugin.call(
+            checker["command"], checker["call"], [service])
+        if isinstance(status, str):
+            status = {
+                "status": status,
+            }
+        if not status:
+            status = {
+                "status": "plugin-error",
+                "message": _('The serviceup checker did not return a valid status')
+            }
     except Exception as e:
+        serverboards.log_traceback(e, service_id=service["uuid"])
+        status = {
+            "status": "plugin-error",
+            "code": str(e),
+            "message": _('The checker itself failed. '
+                         'Please contact the developer or file a bug report into Serverboards.'),
+        }
+    status["checker"] = checker["id"]
+
+    # Then fill some extra data
+    tag = status.get("status")
+    message = status.get("message")
+    if not message:
+        if tag in OK_TAGS:
+            status["message"] = _('Everything alright.')
+        else:
+            status["message"] = _('There\'s been some error.')
+        message = status["message"]
+
+    # log status. One log per check. A lot but good for diagnosing.
+    if tag in OK_TAGS:
+        await serverboards.info(
+            "Service %s (%s) state is %s: %s"
+            % (service["uuid"], service["type"], tag, message), service_id=service["uuid"], **status)
+    else:
         await serverboards.error(
-            "Error checking service %s: %s" % (service["uuid"], str(e)))
-        # serverboards.log_traceback(e)
-        tag = "plugin-error"
-    fulltag = "status:" + tag
+            "Service %s (%s) state is %s: %s"
+            % (service["uuid"], service["type"], tag, message), service_id=service["uuid"], **status)
+
+    # Now if in different status, update service and open or close issues
+    fulltag = "status:" + status.get("status", "unknown")
     if fulltag in service["tags"]:
         return
     else:
-        await serverboards.info(
-            "Service %s changed state to %s"
-            % (service["uuid"], tag), service_id=service["uuid"])
         newtags = [x for x in service["tags"] if not x.startswith("status:")]
         newtags.append(fulltag)
         await serverboards.service.update(service["uuid"], {"tags": newtags})
         if tag in OK_TAGS:
-            return (await close_service_issue(service, tag))
+            return (await close_service_issue(service, status))
         else:
-            return (await open_service_issue(service, tag))
+            return (await open_service_issue(service, status))
 
 
 async def recheck_service_nocache(*args, **kwargs):
@@ -160,6 +188,7 @@ async def get_status_checker(type):
     status = catalog[0].get("extra", {}).get("status")
     if not status:
         return None
+    status["id"] = catalog[0]["id"]
     return status
 
 
@@ -169,14 +198,20 @@ failure_count = set()  # will not open issues, until 2 failures are detected.
 async def open_service_issue(service, status):
     service_uuid = service["uuid"]
     if service_uuid not in failure_count:
-        print("Delay open issue for ", service_uuid)
         failure_count.add(service_uuid)
+        await serverboards.debug(
+            "The issue will not be opened yet. I will try again in 30 seconds.",
+            service_id=service["uuid"]
+            )
         return 30  # try again in 30 seconds
-    print("Open issue for ", service_uuid)
     issue_id = "service_down/%s" % service_uuid
     issue = await serverboards.issues.get(issue_id)
     if issue:
-        print("Issue already open, not opening again.")
+        await serverboards.debug(
+            "Issue %s already open, not opening again." % issue_id,
+            issue_id=issue['id'],
+            service_id=service.get('uuid')
+        )
         return
 
     issue_id2 = "service/%s" % service_uuid
@@ -185,15 +220,18 @@ async def open_service_issue(service, status):
     description = _("""
 Service [%(service)s](%(service_url)s) is %(status)s.
 
+%(message)s
+
 Please check at [Serverboards](%(BASE_URL)s) to fix this status.
 
 * Service: [%(service)s](%(service_url)s)
 """) % dict(
         service=service["name"],
-        status=status,
+        status=status["status"],
         service_url=url,
+        message=status["message"],
         BASE_URL=base_url)
-    title = _("%(service)s is %(status)s") % dict(
+    title = _("%(service)s: %(status)s") % dict(
         service=service["name"], status=status)
 
     # print(description, title)
@@ -207,7 +245,6 @@ Please check at [Serverboards](%(BASE_URL)s) to fix this status.
 
 async def close_service_issue(service, status):
     service_uuid = service["uuid"]
-    print("Close issue for ", service_uuid)
     if service_uuid in failure_count:
         failure_count.remove(service_uuid)
     issue_id = "service_down/%s" % service_uuid
@@ -216,12 +253,21 @@ async def close_service_issue(service, status):
         return None
     base_url = await get_base_url()
     url = "%s/#/services/%s" % (base_url, service_uuid)
+    context = {
+        "name": service["name"],
+        "url": url,
+        "status": status["status"],
+        "message": status["message"]
+    }
+
     await serverboards.issues.update(issue_id, [
         {
             "type": "comment",
-            "data": _("[%(name)s](%(url)s) is back to %(status)s") % dict(
-                name=service["name"], url=url, status=status)},
-        {"type": "change_status", "data": "closed"}
+            "data": _("[%(name)s](%(url)s) is back to %(status)s\n\n%(message)s") % context
+        }, {
+            "type": "change_status",
+            "data": "closed"
+        }
     ])
 
 
