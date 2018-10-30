@@ -44,6 +44,13 @@ class SetupComponent extends React.Component{
       this.props.onClose()
     }
   }
+  componentDidMount(){
+    $(this.refs.mainform).on('keyup', (ev) => {
+      if (ev.ctrlKey && ev.keyCode == 13){
+        this.handleAccept(ev)
+      }
+    })
+  }
   handleUpdateForm(data){
     this.setState({values:data})
   }
@@ -70,7 +77,7 @@ class SetupComponent extends React.Component{
     return (
       <div className="ui text container" style={{paddingTop: 20}}>
         <div className="content" ref="content">
-          <div className="ui form">
+          <div className="ui form" ref="mainform">
             <div className="field">
               <label>{i18n("Name")}</label>
               <input type="text" name="name"

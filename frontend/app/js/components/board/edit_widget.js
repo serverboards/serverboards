@@ -28,6 +28,14 @@ class EditWidget extends React.Component{
     }
     this.delayConfigUpdate()
   }
+  componentDidMount(){
+    $(this.refs.form).on('keyup', (ev) => {
+      if (ev.ctrlKey && ev.keyCode == 13){
+        ev.preventDefault()
+        this.handleSaveChanges()
+      }
+    })
+  }
   handleSaveChanges(){
     const data = this.getSaveData()
     this.props.saveWidget(data)
