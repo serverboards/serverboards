@@ -1,3 +1,334 @@
+serverboards (18.10.0-beta368) unstable; urgency=medium
+
+  * Improved service rechecking logic
+  * Logging the traceback can use a log context
+  * Style fixes at system settings
+  * Ctrl+Enter accepts some more dialogs
+  * Statusup provides a lot more information
+  * Fix use letsencrypt certs, remove old ssl dir
+  * Fix tests
+  * Can execute with Ctrl-Enter
+  * Renamed CodeMirror internal component to CodeEdit
+  * Renamed QueryServiceSelect to ExtractorSelect
+  * Fix icons at extractors
+  * Revert add traits to service
+  * Removed comments
+  * Simplify/fix use of external screens
+  * Fix ubuntu18 install
+  * Fix corner case not showing tracking status
+  * Back button on rules
+  * Consistency fix forms at form edit now dark inputs
+  * Edit rules with plugin.component.catelog
+  * Fix selector for services
+  * Fix height at google chrome
+  * Do not use google fonts.
+  * Fix actions where not being stored
+  * Added utils.to_mapf
+  * Properly log exceptions using only one log msg
+  * Removed action.catalog
+  * Service cards and table merge parent view
+  * Removed old cards and sevice debris
+  * Fixes to service table view
+  * Do not fail if no title at props nor state at widget
+  * Fix update of time slice indicator
+  * Improvements to datepicker use
+  * Can remove rules
+  * Improved calendar and datepicker
+  * Fix update project settings
+  * Fix mini3bars title
+  * Improved error logging of trigger error
+  * Removed duplicate run_async method
+  * Added info on plugin postinst run
+  * Different message for sudo requiring plugins
+  * Fixed path for updater
+  * Improved date range calendar
+  * Improved calendar
+  * Improved error reporting access invalid services
+  * Keyboard navigation on projects starts off
+  * Import heatmap CSS always
+  * Improved sidebar separator
+  * No [not]fancy formatting of log messages
+  * Fix marketplace at real installations
+  * Improved traceback logging
+  * Do simple VACUUM not full, and in other task
+  * Fix reinstall fails at recreate .local
+  * Json loads can be from bytes (subprocess output)
+  * Automatic cleanup of logs after some time
+  * Fix typo
+  * Fix installation
+  * Changes are automatic, no cache involved at serviceup
+  * Renamed optional.serviceup -> core.serviceup
+  * Recover serviceup plugin
+  * Fix flags at legal
+  * Fix no name at sidebar
+  * Fix too light headers
+  * Fix expand arrows
+  * Fix overflow at sidebar
+  * Resilience agains no assetsdata
+  * Fixes to clock
+  * Added missing python3-pyscopg2
+  * Fix show services at selectservice
+  * Show error on login error.
+  * Show intermediary screen to confirm purchase
+  * Show loading/installing when installing from marketplace
+  * Fix get api key at users local config
+  * Improved location of python bindings and updated users
+  * Added support for xcustom envvars at cmds
+  * Removed many now unnecessary dependencies
+  * Fix icon at service details
+  * Removed core ssh, now is an optional at the marketplace
+  * Reloads sidebar at plugins change
+  * Use marketplace icons at marketplace component
+  * Renamed plugin id optional.update > core.update
+  * Renamed updater so now it is core
+  * Recovered updater
+  * Fixes to main login
+  * Plugins are core or optional
+  * Can use python3.5 or python 3.6
+  * Compile test packages
+  * Reworked installations
+  * Removed non core plugins
+  * Skip plugin udpater test as out of time
+  * Added slight shadow to logoicons
+  * Fixed plugin tests
+  * Updated semantic UI
+  * Fix dups of plugins in some cases.
+  * Updated all manifest icons, names and version
+  * Added missing store
+  * Improved iconicon, improved css
+  * s/bellow/below/g
+  * Fix show update / enable only on allowed plugins
+  * Improved UI for component list at plugin details
+  * Improvements on edit user popup menu
+  * Style improvements on holdbuttons
+  * Fix selector without tags (rules)
+  * Less time for plugin reload
+  * Can install plugins from GIT URL
+  * Can remove plugins
+  * Enable/disable plugins uses s10s plugin enable/disable
+  * Cleanup account and logout
+  * Can login from UI and CLI
+  * Removed dead updater python code
+  * Updater uses s10s udpate
+  * Fix update button status
+  * Simplified buttons
+  * Updating plugins from UI uses the s10s plugin
+  * Moved settings up the sidebar
+  * Improved change detection at plugins
+  * Can login/logout to update the api key at the settings
+  * Reordered settings sections
+  * Changed file layout. Added explicit references to the Marketplace.
+  * Variation on selector tags
+  * Richdescription can open windows with special protocol
+  * Shows a tag with options of marketplace plugins
+  * Fix at save widget was lossing UI data
+  * Fix change in daterange was 1 change lagging
+  * Show current seciton name at window title
+  * Fix always at enter goes to /
+  * No need for action.ps
+  * Shows extractor icon
+  * Updated exosql
+  * Updated ExoSQL
+  * Added fullsize widget title decorator
+  * Improvements to html field
+  * Can get service by dict or list
+  * Cleanup comments
+  * Do not send fields at service.get / service.list
+  * Added html fields.
+  * Improvements on services with no fields
+  * Fix log typo
+  * Added seamless header decoration
+  * Added dark and light grey
+  * No name at service, uses template name
+  * Can have title at CSV pass
+  * Fixed no initial layout on some cases
+  * Clock is now a full react component
+  * Add widget is now a modal
+  * Do not reload dashboard at some header changes
+  * Fix services but no project loaded (yet)
+  * Optional show more projects
+  * Improved no error on dev mode
+  * Improved sidebar width user name
+  * Fix settings section names
+  * Also allow public access to base settings / url
+  * Proper exit from cli
+  * Force LC_ALL at plugin management
+  * Improved error reporting on login by credentials
+  * project.list can be called with list or dict (empty)
+  * Improvements to general layout
+  * Settings now navigated via tabs
+  * Can pass extra params to form vars
+  * Added alias to simple dashboard list at project.
+  * Send simple dashboard create/update/remove events
+  * Clenaup debug log
+  * Fix double event sourcing dashboard edit
+  * Do not return never duplicate plugins
+  * Fix edit/add dashboard with alias
+  * Can dup dashboard alias in several projects
+  * Dashboards can have alias, and get by it
+  * Renamed project dashboard db tables
+  * Dashboard refactores out of project
+  * Improvements to massive image logo icons
+  * Save an install log.
+  * Fix regex binary
+  * Added outchrome hook
+  * Hooks are updated as added
+  * Ensure all plugin permissions exist
+  * Improved logout button layout
+  * Improved permissions on new sidebar
+  * Added basic graph colors a color names (blue1, blue2...)
+  * Fix no screens test
+  * `project.get` does not return screens.
+  * Improved show dashboard name
+  * When in python bindings low level debug, show which plugin
+  * Always loads all projects
+  * Force en_EN.utf-8 encoding
+  * Consistency on label use on generic fields
+  * Proper message at ssh fungerprint message if nok
+  * Basic buttons aso have custom style
+  * Fixes to project selector when not open
+  * Can show project selector
+  * Improved set a default project at start
+  * Fixes to generic buttons.
+  * Async changes on forms are reflected and some fixes
+  * Set the service type as name if no name
+  * Force external screen change via key depending on url
+  * Store sidebar status for next session
+  * Improve massive icons
+  * Fix call when no service selected
+  * Same position for hamburguer at collapse and expand
+  * Fix overlap sidebar submenu
+  * Do not show service select menu on global screens
+  * Fix sidebar scroll overlap items
+  * Removed bashisms
+  * Working hooks from plugins
+  * Added initial support for hooks
+  * Fix open screen in service details
+  * Can choose a service when external screen depends on service
+  * Allow inline menus if top already in use
+  * Improved filtering by traits
+  * Show screens at sidebar
+  * Added permissions to sidebar menus entries
+  * Reverse order of logo and hamburguer
+  * Slight improvements to sidebar css
+  * Use new menus
+  * Working right menu
+  * Fix mainarea grow
+  * Sidebar scroll to avoid overimpression of html elements
+  * Can update props of menu, added issues top menu
+  * Fix when loading and no user data yet
+  * Removed console
+  * join tp and sidebar into menu folder
+  * Created project / global sections
+  * Removed plotly and internal graphs
+  * Updated to react 16.3 with context api
+  * Removed old top menu and support components
+  * Imrpvoed sidebar can open with second button
+  * Show default service name at cards
+  * Allow set widget config at creation
+  * No error on list of services when name = null
+  * Can have dashboards with id and name
+  * Can update plugins from packageserver
+  * Add full width text
+  * Use run_async, not async
+  * Added simple text alignment
+  * Fix show sections at top menu and names
+  * Can install packages with dependencies
+  * Updated gitignore
+  * Style improvements for massive and centered elements
+  * Renamed async to run_async
+  * Improved version update detection
+  * Package server, not saas server
+  * Can install from package server. If key ok.
+  * Fix envvar test
+  * Default schema / executor function names
+  * Fix typo
+  * Flash can be used even on non this environments
+  * Ensure UTF8 for commands
+  * Fixes to RT and datetime selection
+  * No failure on no query fields
+  * Fix test for new module layout
+  * Added "POLL XX" support for USQ
+  * Split Query and executor
+  * Fix edit widgets
+  * Fix initial widget position
+  * Fix add widgets at create wizard
+  * Show continue buttons at project wizard / widget
+  * Ask for user password at install time
+  * PEP8
+  * Added var dir to distillery installation
+  * New log directory for distillery generated
+  * Fix return proper defval when no settings.get
+  * Updated documentation and scripts for Ubuntu18.04
+  * Fix parse of IP addresses at config
+  * Fix /etc/serverboards file permissions
+  * Fix release typo
+  * Initial distillery release version
+  * Fix no extractors configured yet
+  * Updated ExoSQL
+  * Run postinst when installing tgx files
+  * Fix /etc/serverboards permissions at install
+  * Can install txz files
+  * Added logging and safe load
+  * Improved error resilience at `s10s user`
+  * Can set different auth_ttl and update docs
+  * UI/start goes unconditionally to start
+  * Improved basic error returns and reporting
+  * Smarter detect token at POST / HTML bridge meta
+  * Fixes tests for new tcp start
+  * Fix open default project if any
+  * Added ui/start settings
+  * By default only listen at localhost
+  * Can log in using POST to /
+  * Legal terms are now a component
+  * Improvements to postinstall and letsencrypt use
+  * Fixed settings.get default value
+  * Emmiting events always return :ok
+  * Improved deb control and no genserver at auth
+  * Example ini use / as fixed
+  * Can get settings for plugin from ini files
+  * Send all events in a new process
+  * Agents link rpc + eventsourcing at settings + project
+  * Send service update in an async process
+  * Enabled is green
+  * Fixes to term no uuid.method(args) plugin call
+  * Fix email get proper base_url
+  * Fix email template with no url
+  * Pass other fields data to richtext
+  * Updated ecto
+  * Removed logging
+  * Resilience on service decorate
+  * Removed cron components
+  * Dynamic data at richtext too
+  * Improved print with proper file/line info
+  * Improved generic form with select initial value
+  * More resilient parameters at service attach/detach
+  * Do not show hidden data on service details
+  * Fix to compile on elixir 1.6
+  * Generic forms items may wait for an event
+  * Auth user also allows map as param
+  * Improved go to just installed dashboards
+  * Cleanup logging
+  * No big fail when no dashboards
+  * widget.remove -> widget.delete
+  * Rename dashboard.remove -> dashboard.delete
+  * Fix test flunk
+  * Check user_perms to run commands
+  * Removed `UUID.method` plugin calling
+  * Show sections depending on user permissions
+  * Updated ExoSQL
+  * Can receive extra perms from external auth
+  * @user have default permissions to use the platform
+  * Stability fix
+  * Updated exosql
+  * Fix accept user desire of not receive newsletter
+  * Fix use palette at line graph
+  * Set version for 18.10 beta
+  * Use agreement in spanish
+  * Version update to 18.04
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 31 Oct 2018 09:45:41 +0100
+
 serverboards (18.4.0-rc179) unstable; urgency=medium
 
   * Fix extra sections per service
