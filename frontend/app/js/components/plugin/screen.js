@@ -41,7 +41,8 @@ class ExternalScreen extends React.Component{
 
     this.state = {
       umount: undefined,
-      service: props.service
+      service: props.service,
+      component: undefined,
     }
   }
   componentWillUnmount(){

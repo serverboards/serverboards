@@ -7,9 +7,9 @@ import {services_update_catalog} from 'app/actions/service'
 const ScreenModel = connect({
   state: (state, props) => {
     const templates = state.services.catalog || {}
-    let all_services = map_get(state, ["project", "project", "services"])
+    let all_services = map_get(state, ["project", "project", "services"], [])
 
-    if (templates == undefined || all_services==undefined){
+    if (templates == undefined){
       return {loading: true}
     }
 
@@ -31,7 +31,8 @@ const ScreenModel = connect({
       service = services[0]
     }
 
-    const require_service = screen.traits.length > 0
+    // Has traits, and none is global
+    const require_service = (screen.traits.length > 0) && (screen.traits.indexOf('global') < 0)
 
     // console.log("PluginScreen services %o |> %o, service %o", all_services, services)
     // console.log(service)
