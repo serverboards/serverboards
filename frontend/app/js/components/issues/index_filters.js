@@ -64,7 +64,7 @@ class Filters extends React.Component{
               <h4 className="ui grey header">{i18n("At project")}</h4>
               <select
                   className="ui dropdown search"
-                  onChange={this.handleProjectChange.this()}
+                  onChange={this.handleProjectChange.bind(this)}
                   placeholder={i18n("All projects")}
                   defaultValue={current_project}
                   >
