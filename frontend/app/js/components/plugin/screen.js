@@ -158,7 +158,7 @@ class ExternalScreen extends React.Component{
               menu={SelectService}
               onService={this.handleService.bind(this)}
               services={props.services}
-              selected={props.service}
+              selected={state.service}
               />
           </ErrorBoundary>
         )}
