@@ -82,6 +82,14 @@ export function FormatError({error}){
       break;
   }
 
+  if (error && error.$$typeof){
+    return (
+      <div className="ui red left text">
+        {error}
+      </div>
+    )
+  }
+
   console.log("Original SQL error: ", error)
   return (
     <pre className="ui text red bold" style={{overflow: "unset"}}>{JSON.stringify(error,undefined,2)}</pre>
