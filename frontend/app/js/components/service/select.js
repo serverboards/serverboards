@@ -10,7 +10,7 @@ function ServiceSelect(props){
   if (!services){
     return <Loading>Services</Loading>
   }
-  const {filter} = props
+  const {filter, templates} = props
   if (filter)
     services = services.filter(filter)
 
@@ -27,6 +27,7 @@ function ServiceSelect(props){
           service={s}
           onClick={() => props.onSelect(s)}
           bottomElement={props.bottomElement}
+          template={templates[s.type] || {}}
           />
       ))}
     </div>

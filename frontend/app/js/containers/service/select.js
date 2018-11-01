@@ -15,12 +15,13 @@ const ServiceSelect = connect({
       }
     }
     return {
-      services
+      services,
+      templates: state.services.catalog,
     }
   },
   handlers: (dispatch) => ({
   }),
-  store_enter: [services_update_all]
+  store_enter: [services_update_all, services_update_catalog]
 })(SelectView)
 
 export default ServiceSelect
