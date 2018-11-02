@@ -35,6 +35,7 @@ defmodule Serverboards.Plugin.Component do
   def run(%Serverboards.Plugin.Component{ type: "cmd" } = component) do
     cmd = component.extra["command"]
     if cmd == "" or cmd == nil do
+      Logger.error("#{inspect component.id} has no 'command' field or is empty.")
       {:error, :invalid_component}
     else
       plugin = case component.plugin do
