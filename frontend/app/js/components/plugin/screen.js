@@ -136,6 +136,7 @@ class ExternalScreen extends React.Component{
         />
       )
     }
+    let content
 
     const Screen = state.component
     if (Screen)
