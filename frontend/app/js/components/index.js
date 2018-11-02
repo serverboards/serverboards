@@ -4,6 +4,7 @@ import Loading from './loading'
 import Modal from './modal'
 import HoldButton from './holdbutton'
 import GenericForm from './genericform'
+import GenericField from './genericform/genericfield'
 import Calendar from './calendar'
 import {Error, ErrorBoundary} from './error'
 import Tip from './tip'
@@ -27,6 +28,7 @@ const components = {
   MarkdownPreview,
   HoldButton,
   GenericForm,
+  GenericField,
   Calendar,
   Error,
   ErrorBoundary,
@@ -57,6 +59,7 @@ export {
   MarkdownPreview,
   HoldButton,
   GenericForm,
+  GenericField,
   Calendar,
   Error,
   ErrorBoundary,
