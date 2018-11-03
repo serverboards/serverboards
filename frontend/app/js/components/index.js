@@ -21,6 +21,7 @@ import Restricted from 'app/restricted'
 import CodeEdit from 'app/components/genericform/codeedit'
 import SectionMenu from 'app/containers/menu'
 import Hooks from 'app/containers/hooks'
+import DateRange from 'app/components/board/daterange'
 
 const components = {
   Modal,
@@ -46,6 +47,7 @@ const components = {
   CodeEdit,
   SectionMenu,
   Hooks,
+  DateRange,
 }
 
 // Export as default, and as destructuring.
@@ -77,4 +79,5 @@ export {
   CodeEdit,
   SectionMenu,
   Hooks,
+  DateRange,
 }
