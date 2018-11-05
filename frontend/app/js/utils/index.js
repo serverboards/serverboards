@@ -607,6 +607,7 @@ export function to_number(n){
 
 export default {
   to_map,
+  to_mapf,
   to_list,
   dedup,
   flatmap,
