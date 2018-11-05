@@ -22,6 +22,7 @@ import CodeEdit from 'app/components/genericform/codeedit'
 import SectionMenu from 'app/containers/menu'
 import Hooks from 'app/containers/hooks'
 import DateRange from 'app/components/board/daterange'
+import Widget from 'app/components/board/widget'
 
 const components = {
   Modal,
@@ -48,6 +49,7 @@ const components = {
   SectionMenu,
   Hooks,
   DateRange,
+  Widget,
 }
 
 // Export as default, and as destructuring.
@@ -80,4 +82,5 @@ export {
   SectionMenu,
   Hooks,
   DateRange,
+  Widget,
 }
