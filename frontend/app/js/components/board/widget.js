@@ -106,7 +106,11 @@ class Widget extends React.Component{
     const titleClass = `${parts[1] || ""} ${titleColorClass} ${title != "" ? "" : "no background"}`
     const titleStyle = (titleColorClass ? {} : {background: titleColor})
 
-    const finalprops = {...props, ...state, ...state.context}
+    let finalprops = {...props, ...state, ...state.context}
+
+    if (titleClass.indexOf('no background')){
+      finalprops = {...finalprops, layout: {...finalprops.layout, height: finalprops.layout.height - 20 }}
+    }
 
     return (
       <div>
