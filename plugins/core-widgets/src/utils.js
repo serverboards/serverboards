@@ -59,6 +59,7 @@ export function MiniBar({value, color}){
 }
 
 export function get_legend(legend){
+  legend = String(legend)
   const pipe = legend.indexOf('|')
   if (pipe < 0)
     return legend

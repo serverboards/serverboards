@@ -12,7 +12,7 @@ node_modules/: package.json
 
 compile: static/*.js
 
-static/%.js: src/%.js
+static/%.js: src/*.js
 	node_modules/.bin/rollup -c
 
 clean:
