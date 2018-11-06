@@ -29,7 +29,7 @@ monitored or managed in an easy way.
 
 # Main Features
 
-* Service
+* Services
 * Dashboards
 * Rules
 * Notifications
