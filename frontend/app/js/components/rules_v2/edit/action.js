@@ -4,7 +4,7 @@ import cache from 'app/utils/cache'
 import Selector from 'app/components/selector'
 import GenericForm from 'app/components/genericform'
 import Loading from 'app/components/loading'
-import {object_is_equal} from 'app/utils'
+import {object_is_equal, map_get} from 'app/utils'
 import RulesHelp from './ruleshelp'
 
 class ActionParams extends React.Component{
@@ -66,7 +66,7 @@ class Action extends React.Component{
       action: undefined,
     }
     this.setType = (action) => {
-      console.log("Set type: %o", action)
+      // console.log("Set type: %o", action)
       this.setState({step:2, action})
     }
     this.handleUpdate = (data) => {
@@ -86,7 +86,7 @@ class Action extends React.Component{
         if (action)
           this.setState({action})
         else
-          this.setState({action: {type: action, action: undefined, id: "", params: {}}})
+          this.setState({step: 1, action: {type: action, action: undefined, id: "", params: {}, extra: {}}})
       })
   }
   render(){
@@ -116,7 +116,7 @@ class Action extends React.Component{
       return (
         <ActionParams
           description={action.description}
-          fields={action.extra.call.params}
+          fields={map_get(action, ["extra", "call", "params"],[])}
           data={state.data}
           prevStep={() => this.setState({step: 1})}
           nextStep={() => props.gotoStep("next", undefined, props.id)}
