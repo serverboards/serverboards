@@ -12,7 +12,7 @@ class Widget extends React.Component{
     super(props)
     this.umount = undefined
     this.state = {
-      title: undefined,
+      title: map_get(props, ["config", "title"]),
       default_title: true,
       error: false,
       component: undefined,
@@ -97,7 +97,7 @@ class Widget extends React.Component{
     const widget = props.template || {}
     const Component = state.component
 
-    const parts = (state.title || config.name || widget.name || "").split('|')
+    const parts = (state.title || config.title || widget.name || "").split('|')
     const title = parts[0].trim()
     const titleColor = parts[2] || "grey"
     const titleColorClass = (
