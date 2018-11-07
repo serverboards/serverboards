@@ -163,7 +163,7 @@ class RulesHelp extends React.Component{
         {show_all && (
           <div className="ui extend scroll">
             <div className="ui meta">
-              {description || i18n("You can use these variables to construct your exapression, for example 'A.exit == 0'")}
+              {description || i18n("You can use these variables to construct your expression, for example 'A.exit == 0'")}
             </div>
             <div className="ui with scroll">
               <ul className="ui no bullet list with padding inline markdown">
