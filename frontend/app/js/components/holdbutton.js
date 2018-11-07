@@ -1,6 +1,7 @@
 import React from 'react'
 import {map_drop} from 'app/utils'
 import PropTypes from 'prop-types'
+import i18n from 'app/utils/i18n'
 
 require('sass/holdbutton.sass')
 
@@ -38,7 +39,7 @@ class HoldButton extends React.Component{
       position: "bottom left",
       on: 'click'
     })
-
+    $button.popup({content: this.props.tooltip || i18n("Hold to press")})
   }
   startHold(ev){
     if (this.timer)
@@ -94,7 +95,8 @@ HoldButton.propTypes ={
   onHoldClick: PropTypes.func.isRequired,
   className: PropTypes.string,
   children: PropTypes.array, // not required when class has `icon`
-  type: PropTypes.string
+  type: PropTypes.string,
+  tooltip: PropTypes.string, // If none shows a default "Hold to press"
 }
 
 export default HoldButton
