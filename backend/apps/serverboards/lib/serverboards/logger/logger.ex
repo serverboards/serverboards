@@ -19,6 +19,9 @@ defmodule Serverboards.Logger do
 
   * start -- maximum id to show (not included). Used for paging
   * count -- how many messages to show
+  * service -- Only for related service
+  * extra -- map of extra meta fields and value, for example {plugin: "serverboards.core.ssh"}
+  * q -- text search via ts_vectors
   """
   def history(options \\ %{}) do
     import Ecto.Query
@@ -54,9 +57,17 @@ defmodule Serverboards.Logger do
         )
     end
 
-    # count total lines
-    qcount = select(q, [l], count(l.id))
-    count = Repo.one( qcount )
+
+    # count total lines. Postgresql is slow jsut counting all rows.
+    # See https://wiki.postgresql.org/wiki/Slow_Counting and https://wiki.postgresql.org/wiki/Count_estimate
+    is_plain_list = (options |> Map.keys |> MapSet.new |> MapSet.intersection(MapSet.new([:service, :extra, :q])) |> Enum.count) == 0
+    count = if is_plain_list do
+      res = Ecto.Adapters.SQL.query!(Repo, "SELECT reltuples::integer AS approximate_row_count FROM pg_class WHERE relname = 'logger_line';", [])
+      res.rows |> hd |> hd
+    else
+      qcount = select(q, [l], count(l.id))
+      Repo.one( qcount )
+    end
 
     # get the lines, current window
     qlines = q
