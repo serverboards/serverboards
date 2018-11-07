@@ -49,7 +49,6 @@ class Project extends React.Component{
           data={data}
           plugin={section}
           component={subsection}
-          hints={screen.hints}
           />
       )
       // console.log("Got plugin screen %o", Section)
