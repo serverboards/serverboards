@@ -13,7 +13,7 @@ function Tip(props){
       {props.middle_img && (
         <img src={props.middle_img || require("imgs/019-illustration-tips.svg")} style={{height: 80}}/>
       )}
-      <div className="ui text container">
+      <div className="ui text container with padding">
         <h3 className="ui header centered">
           {props.subtitle}
         </h3>
