@@ -96,7 +96,7 @@ class ExternalScreen extends React.Component{
     const hints = to_keywordmap(map_get(this.props, ["screen", "extra", "hints"], []))
     const plugin_html = `${plugin}/${component}.html`
     const plugin_css = `${plugin}/${component}.css`
-    console.log("Screen hints", hints, this.props)
+    // console.log("Screen hints", hints, this.props)
     Promise.all([
       !hints["nohtml"] && plugin_load(plugin_html,  {base_url: plugin}),
       !hints["nocss"] && plugin_load(plugin_css,  {base_url: plugin})
