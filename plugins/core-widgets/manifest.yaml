@@ -16,9 +16,11 @@ components:
     id: clock
     type: widget
     hints: nocss
+    icon: clock
   - name: Markdown text
     description: A simple markdown text to write notes
     id: markdown
+    icon: file alternate
     type: widget
     hints:
       maxW: 2
@@ -31,6 +33,7 @@ components:
         placeholder: "# Title"
   - name: Mini 2
     type: widget
+    icon: blue square
     description: Small widget with name, and a value.
     id: mini2
     hints:
@@ -57,6 +60,7 @@ components:
   - name: Mini N
     type: widget
     description: Horizontal widget with a name and a list of texts and values.
+    icon: newspaper blue
     id: minin
     hints:
       minW: 1
@@ -82,6 +86,7 @@ components:
   - name: Mini 5
     type: widget
     description: Small widget with name, two columns of data with number, name and icon.
+    icon: newspaper outline
     id: mini5
     hints:
       minW: 1
@@ -120,6 +125,7 @@ components:
     type: widget
     description: Big data and three bars
     id: mini3bars
+    icon: sliders horizontal
     hints:
       w: 3
       h: 1
@@ -302,6 +308,7 @@ components:
     type: widget
     description: Pie bar with summary data and three bars
     id: pie3
+    icon: chart pie
     hints:
       minW: 2
       minH: 2
@@ -339,6 +346,7 @@ components:
     type: widget
     description: Leaderboard with bars.
     id: leaderbars
+    icon: horizontal sliders
     hints:
       minW: 2
       minH: 1

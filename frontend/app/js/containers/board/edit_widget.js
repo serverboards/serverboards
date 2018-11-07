@@ -5,6 +5,7 @@ import {set_modal} from 'app/utils/store'
 import Modal from 'app/components/modal'
 import React from 'react'
 import HoldButton from 'app/components/holdbutton'
+import IconIcon from 'app/components/iconicon'
 import Loading from 'app/components/loading'
 import i18n from 'app/utils/i18n'
 import moment from 'moment'
@@ -22,7 +23,10 @@ function EditWidgetModal(props){
   return (
     <Modal className="wide">
       <div className="ui top serverboards secondary menu">
-        <h3 className="ui header">{props.template.name}</h3>
+        <div className="ui padding">
+          <IconIcon plugin={props.template.plugin} icon={props.template.icon || "th large"}/>
+        </div>
+        <h3 className="ui header expand">{props.template.name}</h3>
         <div className="right menu">
           <HoldButton className="item" onHoldClick={props.removeWidget}>{i18n("Remove")} <i className="ui icon trash"/></HoldButton>
         </div>
