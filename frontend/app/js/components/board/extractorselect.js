@@ -1,6 +1,7 @@
 import React from 'react'
 import i18n from 'app/utils/i18n'
 import ServiceSelect from 'app/containers/service/select'
+import HoldButton from 'app/components/holdbutton'
 import GenericForm from 'app/components/genericform'
 import {object_is_equal, to_map} from 'app/utils'
 import Icon from '../iconicon'
@@ -68,7 +69,7 @@ class ExtractorSelect extends React.Component{
     this.setState({open_selector: true, selected, step: STEP_EXTRACTOR})
   }
   handleSelectService(service){
-    console.log("Select service", service)
+    // console.log("Select service", service)
     const state = this.state
     const selected = {...this.state.selected, service: service}
     if (state.extractor.extra.params){
@@ -108,6 +109,11 @@ class ExtractorSelect extends React.Component{
     this.setState({extractors, max_service_id, open_selector: false, selected: {}})
     this.props.onSetExtractors(extractors)
   }
+  handleRemoveExtractor(){
+    const cid = this.state.selected.id
+    const extractors = (this.state.extractors || []).filter( e => e.id != cid)
+    this.setState({extractors, step: STEP_EXTRACTOR, selected: {}, open_selector: false})
+  }
   updateExtractorConfig(config){
     const selected = {...this.state.selected, config}
     this.setState({selected, selection_ready: true})
@@ -133,7 +139,7 @@ class ExtractorSelect extends React.Component{
     const extractors = this.state.extractors
     return (
       <div>
-        <label className="ui bold text">{i18n("Add extractors to apply Universal Service Queries.")}</label>
+        <label className="ui bold text">{i18n("Select extractors to apply Universal Service Queries.")}</label>
         <div className="ui service selector list" style={{marginBottom: 20}}>
           {(extractors || []).map( s => (
             <a key={s.id}
@@ -205,19 +211,21 @@ class ExtractorSelect extends React.Component{
             ) : (
               <span>Unknown step {state.step}.</span>
             )}
-            {state.selection_ready ? (
-              <div className="ui right aligned">
+            <div className="ui right aligned">
+              <HoldButton className="ui basic red button" onHoldClick={this.handleRemoveExtractor.bind(this)}>
+                {i18n("Remove Extractor")}
+              </HoldButton>
+              <span style={{minWidth: 10, display: "inline-block"}}/>
+              {state.selection_ready ? (
                 <a className="ui button teal" onClick={this.handleAcceptExtractor.bind(this)}>
                   {i18n("Accept")}
                 </a>
-              </div>
-            ) : (
-              <div className="ui right aligned">
+              ) : (
                 <a className="ui button disabled">
                   {i18n("Accept")}
                 </a>
-              </div>
-            )}
+              )}
+            </div>
             <hr/>
           </div>
         )}
