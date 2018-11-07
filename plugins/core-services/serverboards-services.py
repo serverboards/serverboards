@@ -2,7 +2,9 @@
 import sys
 import asks
 import serverboards_aio as serverboards
+from serverboards import print
 import curio
+from urllib.parse import urlparse
 sys.stderr = serverboards.error
 asks.init('curio')
 _ = str
@@ -18,7 +20,18 @@ async def web_is_up(service):
         }
     try:
         async with curio.timeout_after(10):
-            res = await asks.get(url)
+            urlp = urlparse(url)
+            extra = {}
+            if urlp.username:
+                extra["auth"] = asks.BasicAuth((urlp.username, urlp.password))
+                if urlp.port:
+                    port = ":" + str(urlp.port)
+                else:
+                    port = ""
+                url = "%s://%s%s%s" % (urlp.scheme or "http", urlp.hostname, port, urlp.path)
+            elif '://' not in url:
+                url = "http://" + url
+            res = await asks.get(url, **extra)
             code = res.status_code
             if code == 200:
                 return "ok"
