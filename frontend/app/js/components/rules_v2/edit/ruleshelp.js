@@ -84,11 +84,12 @@ class RulesHelp extends React.Component{
     if (id){
       cache.trigger(this.props.rule.rule.when.trigger).then( trigger => {
         console.log("Got data from rule ", trigger)
-        if (trigger && trigger.result){
+        if (trigger && trigger.extra.result){
           const extra_help = this.state.extra_help
           let params = {}
-          map_get(trigger, ["start","params"], []).map( p => {
-            params[p.name]=p.label
+          map_get(trigger, ["extra", "start", "params"], []).map( p => {
+            if (p.name)
+              params[p.name]=p.label
           })
           this.setState({extra_help: {...extra_help, [id]: {...trigger.result, ...params} }})
         }
@@ -100,9 +101,9 @@ class RulesHelp extends React.Component{
     this.cacheGetActions(this.props.rule.rule.actions)
   }
   cacheGetActions(actions){
-    console.log(actions)
+    // console.log(actions)
     for (let ac of actions){
-      console.log(ac)
+      // console.log(ac)
       if (ac.type=="action"){
         this.cacheGetAction(ac)
       } else if (ac.type=="condition") {
