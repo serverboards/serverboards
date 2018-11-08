@@ -167,9 +167,9 @@ class Details extends React.Component{
             <ImageIcon src={icon} name={props.service.name}/>
           )}
 
-          <div style={{display: "inline-block"}}>
+          <div style={{display: "flex", flexDirection: "column"}}>
             <h3 className="ui header oneline" style={{paddingRight: 50, marginBottom: 0}}>{i18n(props.service.name)}</h3>
-            <span className="ui meta">{i18n(props.template.name)}</span>
+            <span className="ui meta" style={{lineHeight: "10px"}}>{i18n(props.template.name)}</span>
           </div>
           <TabBar tabs={sections.map( s => ({
             key: s.id,
