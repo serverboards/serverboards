@@ -95,7 +95,7 @@ class TextArea extends React.Component{
 
     plugin.start_call_stop( ac.command, ac.call, {"current": newtext, ...this.form_data}).then(
       autocomplete => {
-        console.log(autocomplete)
+        // console.log(autocomplete)
         this.setState({autocomplete})
       })
   }
@@ -123,7 +123,7 @@ class TextArea extends React.Component{
       return
     let ignorekey=false
     let autocomplete_current = this.state.autocomplete_current || 0
-    console.log(ev.key)
+    // console.log(ev.key)
 
     if (ev.key == "ArrowUp"){
       autocomplete_current = autocomplete_current - 1
