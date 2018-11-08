@@ -65,3 +65,20 @@ export function get_legend(legend){
     return legend
   return legend.split('|')[1]
 }
+
+const METRIC_SUFIX="kMGTPEZ"
+
+export function display_number(number){
+  if (number < 1)
+    return number
+  if (number < 10)
+    return number.toFixed(1)
+  if (number < 1000)
+    return number.toFixed(0)
+  for (const suf of METRIC_SUFIX){
+    number= (number / 1000).toFixed(0)
+    if (number<1000)
+      return `${number}${suf}`
+  }
+  return `${number}Y` // Really... I dont think you had this big number.
+}

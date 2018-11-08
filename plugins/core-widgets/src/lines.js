@@ -1,5 +1,5 @@
 const {React} =  Serverboards
-import {get_legend} from './utils'
+import {get_legend, display_number} from './utils'
 import GraphWithData from './graph_with_data'
 const {colorize_list_hex} = Serverboards.utils
 
@@ -79,10 +79,10 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, pa
   return (
     <svg height={height} width={width}>
       <g>
-        <text x={25} y={ystart+5} textAnchor="end" style={style.axisy}>{(maxy).toFixed(0)}</text>
-        <text x={25} y={ystart+5+ygap} textAnchor="end" style={style.axisy}>{(maxy*3/4).toFixed(0)}</text>
-        <text x={25} y={ystart+5+2*ygap} textAnchor="end" style={style.axisy}>{(maxy*2/4).toFixed(0)}</text>
-        <text x={25} y={ystart+5+3*ygap} textAnchor="end" style={style.axisy}>{(maxy/4).toFixed(0)}</text>
+        <text x={25} y={ystart+5} textAnchor="end" style={style.axisy}>{display_number(maxy)}</text>
+        <text x={25} y={ystart+5+ygap} textAnchor="end" style={style.axisy}>{display_number(maxy*3/4)}</text>
+        <text x={25} y={ystart+5+2*ygap} textAnchor="end" style={style.axisy}>{display_number(maxy*2/4)}</text>
+        <text x={25} y={ystart+5+3*ygap} textAnchor="end" style={style.axisy}>{display_number(maxy/4)}</text>
         <text x={25} y={ystart+5+4*ygap-5} textAnchor="end" style={style.axisy}>0</text>
 
 
