@@ -6,6 +6,10 @@ import {MarkdownPreview} from 'react-marked-markdown'
 import i18n from 'app/utils/i18n'
 import {simple_tag, get_template} from './utils'
 
+function first_paragraph(str){
+  return (str || "").split('\n\n')[0]
+}
+
 function Card(props){
   const {service, className, template} = props
   const description = service.description || template.description
@@ -34,7 +38,7 @@ function Card(props){
         {template == "error" ? (
           <div className="ui red text">{i18n("This service type is not properly installed. Please install the appropiate plugin at Settings")}</div>
         ) : (
-          <MarkdownPreview value={description}/>
+          <MarkdownPreview value={first_paragraph(description)}/>
         )}
       </div>
       <div className="extra content">
