@@ -21,7 +21,7 @@ const svg_style = {
   grey: "rgba(155,155,155,0.5)"
 }
 
-function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, palette}){
+function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, palette, spacing}){
   height = height + 0
   width = width + 0
 
@@ -68,7 +68,7 @@ function SVGLines({data, xaxis, maxy, categories, width, height, theme, fill, pa
     return ret
   }
 
-  const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / 40))
+  const show_one_in = Math.ceil(xaxis.length / ((width - xstart) / (spacing || 50)))
   function show_category(i){
     // console.log("Show %d? %d", i, (i % show_one_in) == 0)
     return (i % show_one_in) == 0
