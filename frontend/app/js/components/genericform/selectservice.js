@@ -49,7 +49,7 @@ class SelectService extends React.Component{
       cache.services(),
       cache.service_catalog()
     ]).then( ([services, templates]) => {
-      console.log(services, templates)
+      // console.log(services, templates)
       const items=services
         .filter(s => match_filter({...s, traits: map_get(templates, [s.type, "traits"], [])}, filter))
         .map( (s) => ({
@@ -58,7 +58,7 @@ class SelectService extends React.Component{
           name: s.name,
           description: (s.fields || []).filter( (p) => p.card ).map( (p) => p.value ).join(',')
         }))
-      console.log("Items", services, items, filter)
+      // console.log("Items", services, items, filter)
       this.setState({items})
     })
   }
