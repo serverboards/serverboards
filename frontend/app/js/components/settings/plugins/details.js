@@ -85,6 +85,9 @@ class PluginDetails extends React.Component{
       else
         $(this.refs.enabled).checkbox("set unchecked")
       this.setState( this.getInitialState({plugin, updated: update[0].updated}))
+    }).catch(e => {
+      Flash.error(e)
+      this.setState({updated: "unknown"})
     })
   }
   handleSetEnable(enabled){
@@ -153,6 +156,17 @@ class PluginDetails extends React.Component{
                 ) : this.state.updated == false ? (
                   <div className="item">
                     <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
+                  </div>
+                ) : this.state.updated == "unknown" ? (
+                  <div className="item">
+                    <button
+                      className="ui teal button"
+                      onClick={this.handleUpdate.bind(this)}
+                      data-tooltip={i18n("Could not check update status. You can force update anyway.")}
+                      data-position="bottom right"
+                      >
+                        {i18n("Force update")}
+                    </button>
                   </div>
                 ) : (
                   <div className="item">
