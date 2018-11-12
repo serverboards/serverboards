@@ -192,6 +192,14 @@ class ServiceAddRouter extends React.Component{
     }
     return true
   }
+  get_available_services(){
+    return cache.service_catalog()
+      .then(Object.values)
+      .then( services => services.map( s => ({
+        ...s,
+        description: (s.description || "").split('\n\n')[0]
+      })))
+  }
   render(){
     const props = this.props
     const state = this.state
@@ -233,7 +241,7 @@ class ServiceAddRouter extends React.Component{
             key="installed"
             show_filter={false}
             filter={this.filter.bind(this)}
-            get_items={() => cache.service_catalog().then(Object.values)}
+            get_items={this.get_available_services.bind(this)}
             onSelect={(what) => props.onSelectServiceType(what)}
             current={(props.service || {}).type}
             onSkip={props.onSkip}
