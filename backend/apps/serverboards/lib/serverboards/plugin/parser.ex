@@ -106,8 +106,7 @@ defmodule Serverboards.Plugin.Parser do
 
   def parse_yaml(yaml, filename \\ "") do
     try do
-      data = YamlElixir.read_from_string(yaml)
-      {:ok, data}
+      YamlElixir.read_from_string(yaml)
     catch
       {:yamerl_exception, [
         {:yamerl_parsing_error, :error, msg, line, column, _, _ , _} | _]} ->

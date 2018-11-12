@@ -30,8 +30,8 @@ defmodule Backend.Mixfile do
   # and cannot be accessed from applications inside the apps folder
   defp deps do
     [
-      {:ex_doc, ">= 0.0.0", [env: :prod, hex: "ex_doc", repo: "hexpm", optional: false]},
-      {:earmark, ">= 0.7.0"},
+      {:ex_doc, "~> 0.18.0", [env: :prod, hex: "ex_doc", repo: "hexpm", optional: false]},
+      {:earmark, "~> 1.2"},
       {:distillery, "~> 1.5", runtime: false}
     ]
   end

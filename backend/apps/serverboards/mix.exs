@@ -69,7 +69,7 @@ defmodule Serverboards.Mixfile do
       {:comeonin, "~> 3.0"},
       {:timex, "~> 3.1"},
       {:poison,  "~> 3.1"},
-      {:yaml_elixir, "~> 1.3" },
+      {:yaml_elixir, "~> 2.0" },
       {:yamerl, "~> 0.3" },
       {:cowboy, "~> 1.1"},
       {:distillery, "~> 1.5", runtime: false},
