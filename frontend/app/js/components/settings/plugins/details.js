@@ -48,6 +48,7 @@ class PluginDetails extends React.Component{
       enabled: props.plugin.enabled,
       updated: props.updated,
       plugin: props.plugin,
+      latest: props.latest,
     }
   }
   componentDidMount(){
@@ -75,8 +76,9 @@ class PluginDetails extends React.Component{
       maybe_update_promise,
       cache.plugin(pid)
     ]).then( ([update, plugin]) => {
+      console.log("Update", update)
       if (update.length == 0){
-        Flash.error("Error getting current update status.")
+        Flash.error("Error getting current update status. Maybe manually installed?")
         this.setState( this.getInitialState({plugin, updated: false}))
         return;
       }
@@ -84,7 +86,7 @@ class PluginDetails extends React.Component{
         $(this.refs.enabled).checkbox("set checked")
       else
         $(this.refs.enabled).checkbox("set unchecked")
-      this.setState( this.getInitialState({plugin, updated: update[0].updated}))
+      this.setState( this.getInitialState({plugin, updated: update[0].updated, latest: update[0].latest}))
     }).catch(e => {
       Flash.error(e)
       this.setState({updated: "unknown"})
@@ -95,6 +97,8 @@ class PluginDetails extends React.Component{
     this.setState({enabled})
   }
   handleUpdate(){
+    this.setState({updated: "updating"})
+
     rpc.call("action.trigger", ["serverboards.core.update/update_plugin",  {"plugin_id": this.props.plugin.id}]).then( () => {
       Flash.info("Plugin updated.")
       // this.props.updateAll()
@@ -153,9 +157,17 @@ class PluginDetails extends React.Component{
                       <i className="ui icon loading spinner"/>{i18n("Checking updates")}
                     </button>
                   </div>
+                ) : this.state.updated == "installing" ? (
+                  <div className="item">
+                    <button className="ui teal basic disabled button" onClick={this.handleUpdate.bind(this)}>
+                      <i className="ui icon loading spinner"/>{i18n("Updating...")}
+                    </button>
+                  </div>
                 ) : this.state.updated == false ? (
                   <div className="item">
-                    <button className="ui yellow button" onClick={this.handleUpdate.bind(this)}>{i18n("Update now")}</button>
+                    <button className="ui teal button" onClick={this.handleUpdate.bind(this)}>
+                      {i18n("Update Now to {version}", {version: this.state.latest})}
+                    </button>
                   </div>
                 ) : this.state.updated == "unknown" ? (
                   <div className="item">

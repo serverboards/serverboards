@@ -364,7 +364,7 @@ def check_update_git(pl):
 
 
 def check_update_remote(pl):
-    data = packageserver_get("packages/%s" % pl["id"]).json()
+    data = packageserver_get("packages/%s/" % pl["id"]).json()
     return data["version"]
 
 
@@ -624,7 +624,7 @@ def remove(id):
 
 def list_(what=[]):
     if not what:
-        what = ["id", "status", "version", "enabled", "updated"]
+        what = ["id", "status", "version", "enabled", "updated", "latest"]
     res = []
     for pl in all_plugins():
         res.append({k: pl.get(k) for k in what})
