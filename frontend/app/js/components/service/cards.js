@@ -6,18 +6,22 @@ import {goto} from 'app/utils/store'
 import store from 'app/utils/store'
 import {sort_by_name} from 'app/utils'
 import HoldButton from '../holdbutton'
-import {service_detach} from 'app/actions/service'
+import {service_detach, service_remove} from 'app/actions/service'
 
 export class CardBottom extends React.Component{
   componentDidMount(){
     $(this.refs.dropdown).dropdown()
   }
   detachService(){
-    console.log(this)
     store.dispatch( service_detach(this.props.project.shortname, this.props.service.uuid) )
+  }
+  removeService(){
+    store.dispatch( service_remove(this.props.service.uuid) )
   }
   render(){
     const props = this.props
+    // If only one parent, it will remove. Else detach from current project.
+    const is_detach = props.service.projects.length > 1
     return (
       <div className="right">
         <div className="ui dropdown" ref="dropdown">
@@ -31,10 +35,17 @@ export class CardBottom extends React.Component{
               {i18n("Details")}
               <i className="icon id card outline"/>
             </a>
-            <HoldButton className="ui item" onHoldClick={this.detachService.bind(this)}>
-              {i18n("Hold to remove")}
-              <i className="ui trash icon"/>
-            </HoldButton>
+            {is_detach ? (
+              <HoldButton className="ui item" onHoldClick={this.detachService.bind(this)}>
+                {i18n("Hold to detach from project")}
+                <i className="ui trash alternate outline icon"/>
+              </HoldButton>
+            ) : (
+              <HoldButton className="ui item" onHoldClick={this.removeService.bind(this)}>
+                {i18n("Hold to remove")}
+                <i className="ui trash icon"/>
+              </HoldButton>
+            )}
           </div>
         </div>
       </div>

@@ -67,6 +67,14 @@ export function service_add(sbds, service){
   }
 }
 
+export function service_remove(service){
+  return function(dispatch){
+    rpc.call("service.delete", [service]).then(() => {
+      Flash.success(i18n("Removed service from Serverboards"))
+    }).catch(Flash.error)
+  }
+}
+
 export function update_external_url_components(traits=[]){
   return function(dispatch){
     rpc.call("plugin.component.catalog",{type:"external url", traits})

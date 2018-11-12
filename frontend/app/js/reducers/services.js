@@ -53,6 +53,16 @@ function services(state=default_state, action){
         return state
       return merge(state, {services, current})
     }
+    case '@RPC_EVENT/service.deleted' : {
+      const removed_uuid = action.service.uuid
+      if (state.current.uuid == removed_uuid)
+        state = {...state, current: undefined }
+      if (!state.services)
+        return state
+      return {...state,
+        services: state.services.filter( s => s.id != removed_uuid )
+      }
+    }
     case "SERVICE_SET_CURRENT":
       return merge(state, {
         current: merge( state.current, {

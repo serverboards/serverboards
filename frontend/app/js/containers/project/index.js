@@ -29,6 +29,7 @@ var Project=store.connect({
     () => projects_update_info(),
   ],
   subscriptions: (state) => ([
+    "service.deleted",
     "service.updated",
     `project.updated[${state.project.current}]`
   ]),

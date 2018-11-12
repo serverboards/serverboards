@@ -167,6 +167,22 @@ function project(state=default_state, action){
           current_services.push(action.service)
         return merge(state, {project: merge(state.project, {services: current_services})})
       }
+    case '@RPC_EVENT/service.deleted':
+      {
+        if (!state.project || !state.project.services)
+          return state
+        const removed_uuid = action.service.uuid
+        let project = state.project
+        console.log("Removed %o from %o", removed_uuid, project.services)
+        project = {
+          ...state.project,
+          services: project.services.filter( s => s.uuid != removed_uuid)
+        }
+        return {
+          ...state,
+          project
+        }
+      }
     case 'UPDATE_WIDGET_CATALOG':
       const widget_catalog=action.payload
       return merge(state, {widget_catalog})

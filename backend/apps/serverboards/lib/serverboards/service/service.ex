@@ -218,6 +218,7 @@ defmodule Serverboards.Service do
     end)
 
     service = decorate(servicem)
+    Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, ["service.get"])
     for p <- service.projects do
@@ -229,6 +230,7 @@ defmodule Serverboards.Service do
     import Ecto.Query
 
     service = decorate(uuid)
+    Serverboards.Event.emit("service.deleted", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.deleted[#{service.uuid}]", %{service: service}, ["service.get"])
     Serverboards.Event.emit("service.deleted[#{service.type}]", %{service: service}, ["service.get"])
     for p <- service.projects do
