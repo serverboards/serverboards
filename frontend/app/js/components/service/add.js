@@ -96,7 +96,8 @@ class AddServiceRouter extends React.Component{
   constructor(props){
     super(props)
     this.state={
-      tab: 1
+      tab: 1,
+      templates: {}
     }
 
     this.handleAttachService = (uuid) => {
@@ -114,12 +115,13 @@ class AddServiceRouter extends React.Component{
       }
     })
     cache.services().then( all_services => this.setState({all_services}))
+    cache.service_catalog().then( templates => this.setState({templates}))
   }
   render(){
     const props = this.props
     const tab = this.state.tab
     const {service} = props
-    const my_type = service.type
+    const my_type = service.id
     const my_project = props.project
     return (
       <div className="ui extend">
@@ -160,6 +162,7 @@ class AddServiceRouter extends React.Component{
                 onSelect={(s) => this.handleAttachService(s.uuid)}
                 bottomElement={AddServiceButton}
                 services={this.state.all_services}
+                templates={this.state.templates}
                 />
             </div>
           </div>
