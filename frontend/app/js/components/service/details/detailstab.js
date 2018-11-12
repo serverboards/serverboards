@@ -6,6 +6,7 @@ import {i18n} from 'app/utils/i18n'
 import cache from 'app/utils/cache'
 import ServiceLink from 'app/components/servicelink'
 import {FutureLabel} from 'app/components'
+import {map_get} from 'app/utils'
 
 function is_current_project(shortname){
   return (store.getState().project.current ==  shortname)
@@ -22,6 +23,9 @@ function DataField({field, value}){
       return null
     case "button":
       return null
+    case "checkbox":
+      inner = value ? i18n("yes") : i18n("no")
+      break
     case "password":
       inner = "********"
       break;
@@ -80,7 +84,7 @@ function DetailsTab(props){
         <MarkdownPreview className="ui grey text" value={props.service.description || i18n("Not provided")}/>
         <h3 className="ui header">{i18n("Config Details")}</h3>
         <div className="ui grid">
-          {((props.template || {}).fields || []).map( (f, i) => (
+          {map_get(props.template, ["extra", "fields"], []).map( (f, i) => (
             <DataField key={f.name || i} field={f} value={props.service.config[f.name]}/>
           ))}
         </div>
