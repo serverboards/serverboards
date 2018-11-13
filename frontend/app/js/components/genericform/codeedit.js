@@ -15,6 +15,10 @@ class CodeEdit extends React.Component{
         exec: this.props.onCtrlEnter
       })
     }
+    let observer = new MutationObserver( () => {
+      this.refs.ace.editor.resize()
+    })
+    observer.observe(this.refs.ace.refEditor, {attributes: true})
   }
   render(){
     const props = this.props
@@ -26,7 +30,7 @@ class CodeEdit extends React.Component{
         fontSize={16}
         width="100%"
         height="10em"
-        style={{borderRadius: 3}}
+        style={{borderRadius: 3, resize: "vertical"}}
         enableBasicAutocompletion={true}
         enableLiveAutocompletion={true}
         {...props}
