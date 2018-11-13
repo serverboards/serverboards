@@ -1,4 +1,5 @@
 import React from 'react'
+import ExtractorSelect from 'app/containers/board/extractorselect'
 import SelectService from './selectservice'
 import SelectCall from './selectcall'
 import RichDescription from './richdescription'
@@ -196,6 +197,10 @@ class GenericField extends React.Component{
       case 'html':
         return (
           <HTMLField {...props} onChange={this.handleChange} className={class_sbds_to_sui(props["class"])}/>
+        )
+      case 'extractorselect':
+        return (
+          <ExtractorSelect {...props} extractors={props.value} onSetExtractors={this.setValue} className={class_sbds_to_sui(props["class"])}/>
         )
       default:
         return (
