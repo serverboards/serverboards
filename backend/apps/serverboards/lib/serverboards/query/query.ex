@@ -77,6 +77,10 @@ defmodule Serverboards.Query do
       {time, result} = :timer.tc(ExoSQL, :query, [query, context])
       with {:ok, %{ columns: columns, rows: rows}} <- result do
         {:ok, %{ columns: columns, rows: rows, count: Enum.count(rows), time: time / 1_000_000.0}}
+      else
+        any ->
+          Logger.error("Error performing query: #{inspect any}")
+          any
       end
     rescue
       e in MatchError ->
@@ -101,6 +105,7 @@ defmodule Serverboards.Query do
         Logger.error("Error performing query: #{inspect any}: #{inspect System.stacktrace(), pretty: true}")
         {:error, inspect(any)}
       any ->
+        Logger.error("Error performing query: #{inspect any}: #{inspect System.stacktrace(), pretty: true}")
         {:error, inspect(any)}
     end
   end
