@@ -13,21 +13,23 @@ const STEP_SERVICE = Symbol('service')
 const STEP_PARAMS = Symbol('params')
 
 function fix_extractors(props){
-  return Object.values(to_map(props.map( ext => [ext.id, ext])))
+  const extractors = Object.values(to_map(props.map( ext => [ext.id, ext])))
+
+  let max_service_id = 0
+  for (let e of extractors){
+    let eid = ID_LIST.indexOf(e.id)
+    if (eid >= max_service_id)
+      max_service_id = eid+1
+  }
+
+  return {max_service_id, extractors}
 }
 
 class ExtractorSelect extends React.Component{
   constructor(props){
     super(props)
 
-    const extractors = fix_extractors(props.extractors || []) // format is [{id, extractor, service}] // service is uuid
-
-    let max_service_id = 0
-    for (let e of extractors){
-      let eid = ID_LIST.indexOf(e.id)
-      if (eid >= max_service_id)
-        max_service_id = eid+1
-    }
+    const {max_service_id, extractors} = fix_extractors(props.extractors || []) // format is [{id, extractor, service}] // service is uuid
 
     this.state = {
       open_selector: false,
@@ -43,7 +45,7 @@ class ExtractorSelect extends React.Component{
   }
   componentWillReceiveProps(newprops){
     if (!object_is_equal(newprops.extractors, this.props.extractors)){
-      this.setState({extractors: fix_extractors(newprops.extractors)})
+      this.setState(fix_extractors(newprops.extractors))
     }
   }
   handleOpenSelector(){
