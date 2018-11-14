@@ -206,7 +206,7 @@ class ExtractorSelect extends React.Component{
               <div>
                 <GenericForm
                   fields={state.extractor.extra.params}
-                  data={{service_id: selected.service, ...state.selected.config}}
+                  data={{...state.selected.config, service_id: selected.service}}
                   updateForm={this.updateExtractorConfig.bind(this)}
                   />
               </div>
