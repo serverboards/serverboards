@@ -36,16 +36,16 @@ class Calendar extends React.Component{
     let month = state.month
     let year = state.year
 
-    if (!month && !year){
+    if (month == undefined && year == undefined){
       const now = moment(props.value || moment())
       month = (props.month != undefined) ? Number(props.month) : now.month()
       year = (props.year != undefined) ? Number(props.year) : now.year()
     }
-    else if (!month){
+    else if (month == undefined){
       const now = moment(props.value || moment())
       month = (props.month != undefined) ? Number(props.month) : now.month()
     }
-    else if (!year){
+    else if (year == undefined){
       const now = moment(props.value || moment())
       year = (props.year != undefined) ? Number(props.year) : now.year()
     }
@@ -117,7 +117,6 @@ class Calendar extends React.Component{
       year+=1
       month=0
     }
-    // console.log("Set state", {year, month})
     this.setState(this.getStateFromProps({year, month}, this.props))
   }
   addYear(n){
