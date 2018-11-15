@@ -62,7 +62,7 @@ class GenericForm extends React.Component{
             <GenericField
               {...f}
               key={f.name || i}
-              setValue={this.setValue.bind(this)}
+              setValue={(v) => this.setValue(f.name, v)}
               value={this.state[f.name]}
               fields={props.fields}
               form_data={this.state}

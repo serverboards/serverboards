@@ -27,7 +27,6 @@ class GenericField extends React.Component{
       show: this.check_if_show(this.props)
     }
 
-    this.setValue = this.setValue.bind(this)
     this.handleChange = this.handleChange.bind(this)
   }
   handleChange(ev){
@@ -40,7 +39,7 @@ class GenericField extends React.Component{
     // console.log("Set val", this.props.name, val)
     if (this.refs.field)
       $(this.refs.field).val(val)
-    this.props.setValue(this.props.name, val)
+    this.props.setValue(val)
   }
   componentDidMount(){
     // Some may need post initialization
