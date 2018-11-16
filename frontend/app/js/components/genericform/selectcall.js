@@ -32,7 +32,7 @@ class SelectCall extends React.Component{
         this.setState({items, loading: false})
         let dd = $(this.refs.select).dropdown({
           onChange: (value) => {
-            this.props.setValue(this.props.name, value)
+            this.props.setValue(value)
           }
         })
 
