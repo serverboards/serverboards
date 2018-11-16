@@ -68,16 +68,18 @@ defmodule Serverboards.Utils.Cache do
         error ->
           {:error, error}
       end
-      if val != {:error, :exit} do
-        GenServer.cast(__MODULE__, {:insert, id, val})
+      case val do
+        {:error, _} ->
+          # reply error, dont cache it
+          GenServer.cast(__MODULE__, {:remove, id, val})
+        _ -> # otherwise cache and call waiters
+          GenServer.cast(__MODULE__, {:insert, id, val})
 
-        case options[:ttl] do
-          nil -> :ok
-          ttl ->
-            Process.send_after(__MODULE__, {:remove, id, :timeout}, ttl)
-        end
-      else # reply error, but dont cache it
-        GenServer.cast(__MODULE__, {:remove, id, val})
+          case options[:ttl] do
+            nil -> :ok
+            ttl ->
+              Process.send_after(__MODULE__, {:remove, id, :timeout}, ttl)
+          end
       end
       val
     else
