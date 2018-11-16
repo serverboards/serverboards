@@ -31,7 +31,7 @@ defmodule Serverboards.Query.Executor do
           Logger.error("Error geting data from #{inspect extractor} / #{inspect table}")
           {:error, error}
       end
-    end, ttl: 15_000)
+    end, ttl: 15_000, timeout: 60_000)
   end
 
   @doc ~S"""
