@@ -36,7 +36,7 @@ set -e
 touch $OUTFILE
 
 if [ "$GTFILES" ]; then
-  xgettext --language=C -o ${OUTFILE} --force-po --keyword=i18n_nop --keyword=i18n_c:1c,2 --keyword=i18n --join-existing ${GTFILES}
+  xgettext --from-code=UTF-8 --language=C -o ${OUTFILE} --force-po --keyword=i18n_nop --keyword=i18n_c:1c,2 --keyword=i18n --join-existing ${GTFILES}
 fi
 
 if [ "$YAMLFILES" ]; then
