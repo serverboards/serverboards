@@ -64,6 +64,19 @@ function pretty_print(el){
   return el
 }
 
+function get_related(props){
+  const {line} = props
+  const filename = line.meta.file || ""
+  const pidx = filename.indexOf('/core/')
+  if (pidx < 0)
+    return false
+
+  const shortpath=filename.slice(pidx+6)
+  const related = `https://github.com/serverboards/serverboards/tree/master/${shortpath}#L${line.meta.line}`
+
+  return related
+}
+
 function DataView({name, data}){
   if (name=="stdout" || name=="stderr" || name == "command"){
     return (
@@ -80,14 +93,12 @@ function DataView({name, data}){
 function Details(props){
   const line = props.line
 
-  const filename=line.meta.file || ""
-  const shortpath=filename.slice(filename.indexOf('serverboards/backend')+13)
-  const related=`https://github.com/serverboards/serverboards/tree/master/${shortpath}#L${line.meta.line}`
+  const related = get_related(props)
 
   return (
     <Modal onClose={props.onClose}>
-      <div className="ui top serverboards header menu with padding">
-        <h2 className="ui header">{i18n("Log line details")}</h2>
+      <div className="ui top serverboards header menu" style={{alignItems: "center", padding: 10}}>
+        <h2 className="ui expand header oneline with padding" style={{height: "auto"}}>{i18n("Log line details")}</h2>
         <div className="right menu">
           <span className={`ui label ${levelToLabelClass(line.level)}`}>{line.level}</span>
         </div>
@@ -114,11 +125,15 @@ function Details(props){
           ))}
 
         </div>
-        <h3 className="ui header uppercase">{i18n("Related")}</h3>
-        <div>
-          <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
-          <a href={related} target="_blank">{related}</a>
-        </div>
+        {related && (
+          <React.Fragment>
+            <h3 className="ui header uppercase">{i18n("Related")}</h3>
+            <div>
+              <h4 className="ui header" style={{marginTop:10, marginBottom:0 }}>Link</h4>
+              <a href={related} target="_blank">{related}</a>
+            </div>
+          </React.Fragment>
+        )}
       </div>
     </Modal>
   )
