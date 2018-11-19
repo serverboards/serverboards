@@ -18,6 +18,16 @@ class ServicesView extends React.Component{
   handleSelectService(selected_service){
     this.setState({selected_service})
   }
+  componentWillReceiveProps(newprops){
+    if (!this.state.selected_service)
+      return
+    for (const s of newprops.services){
+      const ssuuid = this.state.selected_service.uuid
+      if (s.uuid == ssuuid){
+        this.setState({selected_service: s})
+      }
+    }
+  }
   render(){
     const props=this.props
     const selected_service = this.state.selected_service
