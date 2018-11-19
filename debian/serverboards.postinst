@@ -223,7 +223,7 @@ EOF
     fi
   else
     log "Enabling and starting server"
-    systemctl enable serverboards
+    systemctl enable serverboards || true
     systemctl start serverboards
   fi
   wait_for_port 4040
