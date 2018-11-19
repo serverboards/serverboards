@@ -58,9 +58,11 @@ function Sidebar(props){
       </div>
       {project_selector ? (
         <a className="ui item" style={{minHeight: 65}} href="#_" onClick={(ev) => { ev.preventDefault(); props.onToggleProjectSelector()}}>
-          <div className="ui padding horizontal split area" id="projectname">
-            <h2 className="ui teal header">{props.project}</h2>
-            <i className="ui expand angle right aligned icon"/>
+          <div className="ui horizontal split area" id="projectname">
+            <h2 className="ui expand teal header oneline" style={{lineHeight: "65px"}}>{props.project}</h2>
+            <span>
+              <i className="ui angle right aligned icon"/>
+            </span>
           </div>
         </a>
       ) : (
