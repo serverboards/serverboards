@@ -3,6 +3,8 @@ import sys
 import asks
 import serverboards_aio as serverboards
 from serverboards import print
+import socket
+import time
 import curio
 from urllib.parse import urlparse
 sys.stderr = serverboards.error
@@ -68,6 +70,47 @@ async def web_is_up(service):
             "status": "error",
             "code": str(e),
             "message": _('There was an error connecting to %s: %s' % (url, str(e)))
+        }
+
+
+@serverboards.rpc_method
+async def server_is_up(service):
+    url = service and service.get("config", {}).get("url")
+    if not url:
+        return {
+            "status": "unconfigured",
+            "message": _('The service is not properly configured as it has not an URL.')
+        }
+    try:
+        urlp = urlparse(url)
+    except Exception:
+        return {
+            "status": "unconfigured",
+            "message": _('The service is not properly configured as the URL is invalid.')
+        }
+    port = urlp.port or socket.getservbyname(urlp.scheme)
+    ssl = (urlp.scheme or "").endswith("s")  # Simple heristic for secure protocols
+    try:
+        ini_t = time.time()
+        async with curio.timeout_after(10):
+            _sock = await curio.open_connection(urlp.hostname, port, ssl=ssl)
+            secs = time.time() - ini_t
+            return {
+                "status": "ok",
+                "message": _("Connected after %.3fs" % secs),
+                "seconds": secs,
+            }
+            await _sock.close()
+    except curio.TaskTimeout:
+        return {
+            "status": "timeout",
+            "message": _('Timeout connecting to %s' % url)
+        }
+    except Exception as e:
+        serverboards.log_traceback(e, service_id=service["uuid"])
+        return {
+            "status": "error",
+            "message": _('Error connecting to %s: %s' % (url, e))
         }
 
 

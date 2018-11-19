@@ -53,15 +53,31 @@ components:
 
   - name: Server
     type: service
-    traits: ip server
+    description: |
+      Generic server service.
+
+      It has only knowledge of schemes and ports, not os special handling of
+      service resolution as required in smtp. It try to connect using SSL if
+      the schema finishes in `s`, as `smtps`, `imaps` and others.
+    traits: url server
     id: server
     icon: server
     fields:
-      - label: IP Addresses
-        description: Space or comma separated list of ip addresses and DNS names that point to this server
-        name: ip
+      - label: Server URL Address
+        description: |
+          The URL must indicate the protocol and address, for example:
+          `smtps://gmail-smtp-in.l.google.com.` or `imap://imap.gmail.com`.
+
+          Some service require special servername. For example smtp requires the
+          MX  servers, so for example it does not need `gmail.com` but
+          `gmail-smtp-in.l.google.com.`
+        name: url
         card: true
         type: text
+    status:
+      command: serverboards.core.services/daemon
+      call: server_is_up
+      frequency: 10m
 
 
   - id: pagespeed
