@@ -3,19 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-22 21:25+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2018-11-19 16:15+0100\n"
+"PO-Revision-Date: 2018-11-19 16:30+0100\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.6\n"
 
 #: app/js/components/issues/index.js:90 app/js/components/issues/details.js:169
 #: app/js/components/project/sidebar.js:107 app/js/components/top/index.js:105
@@ -28,25 +28,25 @@ msgstr ""
 #: frontend/app/js/components/top/index.js:120
 #: app/js/components/issues/index.js:185
 #: app/js/components/project/sidebar.js:118 app/js/components/top/index.js:123
-#: app/js/components/top/index.js:126
+#: app/js/components/top/index.js:126 app/js/containers/menu/sidebar.js:78
 msgid "Issues"
 msgstr "Incidencias"
 
 #: app/js/components/issues/index.js:95 app/js/components/issues/index.js:98
 #: frontend/app/js/components/issues/index.js:130
-#: app/js/components/issues/index.js:130
+#: app/js/components/issues/index.js:130 app/js/components/issues/index.js:40
 msgid "Open"
 msgstr "Abiertas"
 
 #: app/js/components/issues/index.js:100 app/js/components/issues/index.js:103
 #: frontend/app/js/components/issues/index.js:135
-#: app/js/components/issues/index.js:135
+#: app/js/components/issues/index.js:135 app/js/components/issues/index.js:45
 msgid "Closed"
 msgstr "Cerradas"
 
 #: app/js/components/issues/index.js:105 app/js/components/issues/index.js:108
 #: frontend/app/js/components/issues/index.js:140
-#: app/js/components/issues/index.js:140
+#: app/js/components/issues/index.js:140 app/js/components/issues/index.js:50
 msgid "All"
 msgstr "Todas"
 
@@ -147,6 +147,11 @@ msgstr "Resumen de la incidencia"
 #: app/js/components/service/details/detailstab.js:60
 #: app/js/components/service/details/detailstab.js:75
 #: app/js/components/service/table.js:75
+#: app/js/components/settings/plugins/details.js:234
+#: app/js/components/service/add.js:50 app/js/components/service/settings.js:97
+#: app/js/components/service/details/detailstab.js:68
+#: app/js/components/service/details/detailstab.js:83
+#: app/js/components/service/table.js:67
 msgid "Description"
 msgstr "Descripción"
 
@@ -176,6 +181,7 @@ msgstr "Añadir comentario"
 #: app/js/components/issues/details.js:40
 #: app/js/components/issues/details.js:212
 #: app/js/components/settings/index.js:57
+#: app/js/components/settings/index.js:19
 msgid "System"
 msgstr "Sistema"
 
@@ -209,6 +215,7 @@ msgstr "Etiquetas"
 #: frontend/app/js/components/logs/index.js:120
 #: frontend/app/js/components/issues/filters.js:79
 #: app/js/components/issues/filters.js:79 app/js/components/logs/index.js:120
+#: app/js/components/logs/index.js:130
 msgid "Related"
 msgstr "Relacionados"
 
@@ -259,7 +266,7 @@ msgstr "Añadir nuevo proyecto"
 
 #: app/js/components/project/index.js:43
 #: frontend/app/js/components/project/index.js:77
-#: app/js/components/project/index.js:79
+#: app/js/components/project/index.js:79 app/js/components/project/index.js:65
 msgid "Project information"
 msgstr "Información del proyecto"
 
@@ -290,6 +297,7 @@ msgstr "Seleccionado"
 #: app/js/components/project/board/edit_widget.js:45
 #: frontend/app/js/components/project/board/edit_widget.js:50
 #: app/js/containers/board/edit_widget.js:16
+#: app/js/containers/board/edit_widget.js:18
 msgid "Widget description"
 msgstr "Descripción del Widget"
 
@@ -297,6 +305,7 @@ msgstr "Descripción del Widget"
 #: frontend/app/js/components/project/board/edit_widget.js:60
 #: frontend/app/js/components/project/board/edit_widget.js:76
 #: app/js/containers/board/edit_widget.js:26
+#: app/js/containers/board/edit_widget.js:31
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -307,6 +316,7 @@ msgstr "Eliminar"
 #: frontend/app/js/components/project/board/edit_widget.js:83
 #: app/js/components/flashmessages.js:18
 #: app/js/components/board/edit_widget.js:173
+#: app/js/components/board/edit_widget.js:189
 msgid "Error"
 msgstr "Error"
 
@@ -314,6 +324,7 @@ msgstr "Error"
 #: app/js/components/project/board/edit_widget.js:69
 #: frontend/app/js/components/project/board/edit_widget.js:91
 #: app/js/components/board/edit_widget.js:190
+#: app/js/components/board/edit_widget.js:204
 msgid "Update widget"
 msgstr "Actualizar Widget"
 
@@ -352,6 +363,7 @@ msgstr "Añadir un nuevo servicio"
 #: frontend/app/js/components/rules_v2/edit/serviceselector.js:48
 #: app/js/components/project/sidebar.js:112
 #: app/js/components/rules_v2/edit/serviceselector.js:48
+#: app/js/containers/menu/sidebar.js:72
 msgid "Services"
 msgstr "Servicios"
 
@@ -381,7 +393,8 @@ msgstr "Dashboard"
 #: frontend/app/js/components/project/sidebar.js:110
 #: frontend/app/js/containers/rules_v2/index.js:45
 #: app/js/components/project/sidebar.js:115
-#: app/js/containers/rules_v2/index.js:45
+#: app/js/containers/rules_v2/index.js:45 app/js/containers/menu/sidebar.js:73
+#: app/js/containers/rules_v2/index.js:50
 msgid "Rules"
 msgstr "Reglas"
 
@@ -402,6 +415,8 @@ msgstr "Reglas"
 #: app/js/components/project/sidebar.js:138 app/js/components/top/index.js:197
 #: app/js/components/service/actionmenu.js:55
 #: app/js/components/service/details/index.js:112
+#: app/js/components/settings/plugins/card.js:61
+#: app/js/components/service/details/index.js:124
 msgid "Settings"
 msgstr "Configuración"
 
@@ -410,6 +425,8 @@ msgstr "Configuración"
 #: app/js/components/board/queryserviceselect.js:205
 #: app/js/components/board/queryserviceselect.js:211
 #: app/js/components/project/setupservice.js:47
+#: app/js/components/board/extractorselect.js:223
+#: app/js/components/board/extractorselect.js:227
 msgid "Accept"
 msgstr "Aceptar"
 
@@ -432,6 +449,7 @@ msgstr "Eliminar"
 #: app/js/components/project/setupservice.js:49
 #: app/js/components/rules_v2/addtemplate.js:103
 #: app/js/components/notifications/send.js:47
+#: app/js/components/rules_v2/addtemplate.js:111
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -439,6 +457,7 @@ msgstr "Cancelar"
 #: app/js/components/project/projectselector.js:94
 #: frontend/app/js/components/project/projectselector.js:95
 #: app/js/components/project/projectselector.js:96
+#: app/js/components/menu/projectselector.js:102
 msgid "Search by name"
 msgstr "Buscar por nombre"
 
@@ -461,6 +480,7 @@ msgstr ""
 #: app/js/components/project/settings_add.js:55
 #: frontend/app/js/components/project/settings.js:21
 #: app/js/components/project/settings.js:11
+#: app/js/components/project/settings.js:12
 msgid "Delete project"
 msgstr "Eliminar proyecto"
 
@@ -594,7 +614,7 @@ msgstr ""
 
 #: ../plugins/core-ssh/manifest.yaml
 msgid "Core SSH support"
-msgstr "Soporte Core SSH"
+msgstr "Soporte básico SSH"
 
 #: ../plugins/core-services/manifest.yaml
 msgid ""
@@ -609,7 +629,7 @@ msgstr ""
 #: ../plugins/core-services/manifest.yaml
 #: ../plugins/core-notifications/manifest.yaml
 msgid "core services"
-msgstr "Servicios Core"
+msgstr "Servicios básicos"
 
 #: ../plugins/core-triggers/manifest.yaml
 msgid "Various core triggers.\n"
@@ -676,6 +696,7 @@ msgstr "Acciones Core"
 #: app/js/components/settings/index.js:40
 #: frontend/app/js/components/settings/index.js:42
 #: app/js/components/settings/index.js:43
+#: app/js/components/settings/index.js:16
 msgid "Overview"
 msgstr "Vista general"
 
@@ -688,6 +709,8 @@ msgstr "Vista general"
 #: app/js/components/settings/index.js:45
 #: app/js/components/settings/groups.js:46
 #: app/js/components/settings/users.js:88
+#: app/js/components/settings/index.js:20
+#: app/js/components/settings/groups.js:47
 msgid "Users"
 msgstr "Usuarios"
 
@@ -709,6 +732,7 @@ msgstr "Grupos y permisos"
 #: app/js/components/settings/index.js:51
 #: app/js/components/settings/plugins/add.js:62
 #: app/js/components/settings/plugins/index.js:94
+#: app/js/components/settings/index.js:18
 msgid "Plugins"
 msgstr "Plugins"
 
@@ -855,6 +879,7 @@ msgstr "Opciones `Host *`"
 #: app/js/components/settings/plugins/details.js:106
 #: frontend/app/js/components/settings/plugins/details.js:126
 #: app/js/components/settings/plugins/details.js:151
+#: app/js/components/settings/plugins/details.js:220
 msgid "URL"
 msgstr "URL"
 
@@ -898,6 +923,8 @@ msgstr "Nombre de usuario"
 #: app/js/components/login/index.js:87
 #: frontend/app/js/components/login/index.js:87
 #: app/js/components/login/index.js:84
+#: app/js/components/settings/marketplace/login.js:136
+#: app/js/components/login/index.js:95
 msgid "Password"
 msgstr "Contraseña"
 
@@ -926,12 +953,14 @@ msgstr "URL Base"
 #: app/js/components/settings/system.js:45
 #: frontend/app/js/components/settings/system.js:49
 #: app/js/components/settings/system.js:52
+#: app/js/components/settings/system.js:54
 msgid "Loading settings"
 msgstr "Cargando configuración"
 
 #: app/js/components/settings/system.js:67
 #: frontend/app/js/components/settings/system.js:71
 #: app/js/components/settings/system.js:74
+#: app/js/components/settings/system.js:71
 msgid "Save all changes"
 msgstr "Guardar todos los cambios"
 
@@ -941,6 +970,8 @@ msgstr "Guardar todos los cambios"
 #: frontend/app/js/components/genericform/richdescription.js:34
 #: app/js/components/genericform/genericbutton.js:44
 #: app/js/components/genericform/richdescription.js:35
+#: app/js/components/genericform/genericbutton.js:45
+#: app/js/components/genericform/richdescription.js:47
 msgid "Error loading dynamic data. Contact plugin author."
 msgstr "Error cargando los datos dinámicos. Contactar con el autor del plugin."
 
@@ -950,6 +981,8 @@ msgstr "Error cargando los datos dinámicos. Contactar con el autor del plugin."
 #: frontend/app/js/components/genericform/richdescription.js:38
 #: app/js/components/genericform/genericbutton.js:60
 #: app/js/components/genericform/richdescription.js:39
+#: app/js/components/genericform/genericbutton.js:61
+#: app/js/components/genericform/richdescription.js:63
 msgid "Error loading dynamic data. Contact plugin author. [Error #{code}]"
 msgstr ""
 "Error cargando los datos dinamicos. Contacte con el autor del plugin [Error "
@@ -964,6 +997,7 @@ msgid "PAM Auth"
 msgstr "Autenticación PAM"
 
 #: ../plugins/optional-updater/manifest.yaml
+#: app/js/components/settings/plugins/card.js:55
 msgid "Update"
 msgstr "Actualizar"
 
@@ -1026,6 +1060,7 @@ msgstr "Cuenta de Email"
 
 #: ../plugins/core-services/manifest.yaml
 #: frontend/app/js/components/selector.js:95 app/js/components/selector.js:95
+#: app/js/components/selector.js:106
 msgid "Server"
 msgstr "Servidor"
 
@@ -1199,6 +1234,7 @@ msgstr "Cambio de tabs del servicio"
 #: frontend/app/js/components/notifications/send.js:46
 #: frontend/app/js/components/settings/users.js:36
 #: app/js/components/notifications/send.js:46
+#: app/js/components/settings/users.js:38
 msgid "Send notification"
 msgstr "Enviar notificación"
 
@@ -1258,6 +1294,8 @@ msgstr "Configuración base"
 #: frontend/app/js/components/settings/plugins/details.js:84
 #: app/js/components/settings/plugins/card.js:38
 #: app/js/components/settings/plugins/details.js:109
+#: app/js/components/settings/plugins/card.js:35
+#: app/js/components/settings/plugins/details.js:149
 msgid "by"
 msgstr "por"
 
@@ -1266,18 +1304,21 @@ msgstr "por"
 #: app/js/components/settings/plugins/card.js:45
 #: frontend/app/js/components/settings/plugins/card.js:39
 #: app/js/components/settings/plugins/card.js:39
+#: app/js/components/settings/plugins/card.js:36
 msgid "version"
 msgstr "versión"
 
 #: app/js/components/settings/plugins/details.js:16
 #: frontend/app/js/components/settings/plugins/details.js:17
 #: app/js/components/settings/plugins/details.js:19
+#: app/js/components/settings/plugins/details.js:23
 msgid "Type:"
 msgstr "Tipo:"
 
 #: app/js/components/settings/plugins/details.js:18
 #: frontend/app/js/components/settings/plugins/details.js:19
 #: app/js/components/settings/plugins/details.js:21
+#: app/js/components/settings/plugins/details.js:25
 msgid "Description:"
 msgstr "Descripción:"
 
@@ -1285,6 +1326,7 @@ msgstr "Descripción:"
 #: app/js/components/profile/notifications.js:43
 #: frontend/app/js/components/profile/notifications.js:43
 #: app/js/components/profile/notifications.js:47
+#: app/js/components/profile/notifications.js:45
 msgid "Active"
 msgstr "Activo"
 
@@ -1301,18 +1343,21 @@ msgstr "Actualizar ahora"
 #: app/js/components/settings/plugins/details.js:101
 #: frontend/app/js/components/settings/plugins/details.js:121
 #: app/js/components/settings/plugins/details.js:146
+#: app/js/components/settings/plugins/details.js:215
 msgid "Version"
 msgstr "Versión"
 
 #: app/js/components/settings/plugins/details.js:112
 #: frontend/app/js/components/settings/plugins/details.js:132
 #: app/js/components/settings/plugins/details.js:157
+#: app/js/components/settings/plugins/details.js:226
 msgid "Components"
 msgstr "Componentes"
 
 #: app/js/components/settings/plugins/details.js:127
 #: frontend/app/js/components/settings/plugins/details.js:147
 #: app/js/components/settings/plugins/details.js:172
+#: app/js/components/settings/plugins/details.js:241
 msgid "Update changelog"
 msgstr "Actualizar changelog"
 
@@ -1320,6 +1365,7 @@ msgstr "Actualizar changelog"
 #: frontend/app/js/components/settings/groups.js:38
 #: frontend/app/js/components/maxtable.js:41
 #: app/js/components/settings/groups.js:38 app/js/components/maxtable.js:42
+#: app/js/components/settings/groups.js:39
 msgid "Hold to remove from group"
 msgstr "Manten pulsado para eliminar del grupo"
 
@@ -1329,6 +1375,8 @@ msgstr "Manten pulsado para eliminar del grupo"
 #: frontend/app/js/components/settings/groups.js:54
 #: app/js/components/settings/groups.js:47
 #: app/js/components/settings/groups.js:54
+#: app/js/components/settings/groups.js:48
+#: app/js/components/settings/groups.js:55
 msgid "Edit users"
 msgstr "Editar usuarios"
 
@@ -1349,49 +1397,61 @@ msgstr "Editar usuarios"
 #: app/js/components/settings/users.js:101
 #: app/js/components/settings/user/add.js:36
 #: app/js/components/settings/user/edit.js:62
-#: app/js/components/login/index.js:77
+#: app/js/components/login/index.js:77 app/js/components/profile/index.js:105
+#: app/js/components/settings/groups.js:50
+#: app/js/components/settings/users.js:103
+#: app/js/components/settings/marketplace/login.js:132
+#: app/js/components/login/index.js:88
 msgid "Email"
 msgstr "Email"
 
 #: app/js/components/settings/groups.js:52
 #: frontend/app/js/components/settings/groups.js:53
 #: app/js/components/settings/groups.js:53
+#: app/js/components/settings/groups.js:54
 msgid "Permissions"
 msgstr "Permisos"
 
 #: app/js/components/settings/groups.js:55
 #: frontend/app/js/components/settings/groups.js:56
 #: app/js/components/settings/groups.js:56
+#: app/js/components/settings/groups.js:57
 msgid "Permission"
 msgstr "Permiso"
 
 #: app/js/components/settings/users.js:18
 #: frontend/app/js/components/settings/users.js:18
+#: app/js/components/settings/users.js:19
 msgid "true"
 msgstr "verdadero"
 
 #: app/js/components/settings/users.js:18
 #: frontend/app/js/components/settings/users.js:18
+#: app/js/components/settings/users.js:19
 msgid "false"
 msgstr "false"
 
 #: app/js/components/settings/users.js:23 app/js/components/service/table.js:49
 #: frontend/app/js/components/settings/users.js:23
+#: app/js/components/settings/users.js:24
 msgid "More"
 msgstr "Más"
 
 #: app/js/components/settings/users.js:29
 #: frontend/app/js/components/settings/users.js:29
+#: app/js/components/settings/users.js:31
 msgid "Edit user"
 msgstr "Editar usuario"
 
 #: app/js/components/settings/users.js:43
 #: frontend/app/js/components/settings/users.js:43
+#: app/js/components/settings/users.js:45
 msgid "Hold to disable"
 msgstr "Mantén pulsado para desactivar"
 
 #: app/js/components/settings/users.js:48
 #: frontend/app/js/components/settings/users.js:48
+#: app/js/components/settings/users.js:50
 msgid "Hold to enable"
 msgstr "Mantén pulsado para activar"
 
@@ -1409,18 +1469,24 @@ msgstr "Mantén pulsado para activar"
 #: app/js/components/settings/user/add.js:40
 #: app/js/components/service/settings.js:73
 #: app/js/components/service/table.js:75
+#: app/js/components/settings/users.js:102
+#: app/js/components/service/settings.js:82
+#: app/js/components/service/table.js:67
 msgid "Name"
 msgstr "Nombre"
 
 #: app/js/components/settings/users.js:94
 #: frontend/app/js/components/settings/users.js:102
 #: app/js/components/settings/users.js:102
+#: app/js/components/settings/index.js:21
+#: app/js/components/settings/users.js:104
 msgid "Groups"
 msgstr "Grupos"
 
 #: app/js/components/settings/users.js:95
 #: frontend/app/js/components/settings/users.js:103
 #: app/js/components/settings/users.js:103
+#: app/js/components/settings/users.js:105
 msgid "Is active?"
 msgstr "¿Está activo?"
 
@@ -1428,6 +1494,7 @@ msgstr "¿Está activo?"
 #: app/js/components/settings/plugins/index.js:111
 #: frontend/app/js/components/settings/plugins/add.js:31
 #: app/js/components/settings/plugins/add.js:31
+#: app/js/components/settings/marketplace/index.js:26
 msgid "Install"
 msgstr "Instalar"
 
@@ -1474,6 +1541,7 @@ msgstr "Conectado al servidor:"
 #: app/js/components/settings/system.js:38
 #: frontend/app/js/components/settings/system.js:39
 #: app/js/components/settings/system.js:42
+#: app/js/components/settings/system.js:44
 msgid "Updated settings!"
 msgstr "¡Configuración actualizada!"
 
@@ -1486,12 +1554,14 @@ msgstr "Configuración del sistema"
 #: app/js/components/settings/plugins/index.js:74
 #: frontend/app/js/containers/settings/plugins/add.js:38
 #: app/js/containers/settings/plugins/add.js:38
+#: app/js/containers/settings/marketplace.js:46
 msgid "Please set a valid URL"
 msgstr "Por favor indique una URL válida"
 
 #: app/js/components/settings/plugins/index.js:78
 #: frontend/app/js/containers/settings/plugins/add.js:43
 #: app/js/containers/settings/plugins/add.js:43
+#: app/js/containers/settings/marketplace.js:55
 msgid "Plugin from {plugin_url} installed and ready."
 msgstr "Plugin de {plugin_url} instalado listo para ser usado."
 
@@ -1499,6 +1569,7 @@ msgstr "Plugin de {plugin_url} instalado listo para ser usado."
 #: app/js/components/settings/plugins/index.js:108
 #: frontend/app/js/components/settings/plugins/add.js:27
 #: app/js/components/settings/plugins/add.js:27
+#: app/js/components/settings/marketplace/index.js:22
 msgid "Enter plugin git repository URL"
 msgstr "Introduzca la URL del repositorio git"
 
@@ -1515,6 +1586,7 @@ msgstr "Esto será usado como identificador del usuario"
 #: frontend/app/js/components/settings/user/add.js:44
 #: app/js/components/settings/users.js:91
 #: app/js/components/settings/user/add.js:44
+#: app/js/components/settings/users.js:92
 msgid "Add user"
 msgstr "Añadir usuario"
 
@@ -1525,17 +1597,21 @@ msgstr "Añadir usuario"
 #: frontend/app/js/components/profile/notifications.js:43
 #: frontend/app/js/components/settings/plugins/card.js:10
 #: app/js/components/profile/notifications.js:47
+#: app/js/components/profile/notifications.js:45
+#: app/js/components/settings/plugins/card.js:11
 msgid "Disabled"
 msgstr "Desactivado"
 
 #: app/js/components/settings/plugins/card.js:11
 #: app/js/components/rules/edit.js:151 app/js/components/rules/edit.js:150
 #: frontend/app/js/components/settings/plugins/card.js:11
+#: app/js/components/settings/plugins/card.js:12
 msgid "Enabled"
 msgstr "Activo"
 
 #: app/js/components/settings/plugins/card.js:12
 #: frontend/app/js/components/settings/plugins/card.js:12
+#: app/js/components/settings/plugins/card.js:13
 msgid "Broken"
 msgstr "Roto"
 
@@ -1543,6 +1619,7 @@ msgstr "Roto"
 #: app/js/components/settings/plugins/card.js:52
 #: frontend/app/js/components/settings/plugins/card.js:51
 #: app/js/components/settings/plugins/card.js:51
+#: app/js/components/settings/plugins/card.js:65
 msgid "View details"
 msgstr "Ver detalles"
 
@@ -1609,7 +1686,7 @@ msgstr "No se como ejecutar esta acción"
 
 #: app/js/components/service/cards.js:13
 #: frontend/app/js/components/service/cards.js:89
-#: app/js/components/service/cards.js:89
+#: app/js/components/service/cards.js:89 app/js/components/service/cards.js:97
 msgid "Service catalog"
 msgstr "Catálogo de servicios"
 
@@ -1643,6 +1720,7 @@ msgstr "Presets de reglas"
 #: app/js/components/service/settings.js:189
 #: frontend/app/js/components/service/settings.js:75
 #: app/js/components/service/settings.js:75
+#: app/js/components/service/settings.js:84
 msgid "Service name as shown in UI"
 msgstr "Nombre del servicio como se muestra en el interfáz"
 
@@ -1650,6 +1728,7 @@ msgstr "Nombre del servicio como se muestra en el interfáz"
 #: app/js/components/service/settings.js:200
 #: frontend/app/js/components/service/settings.js:85
 #: app/js/components/service/settings.js:91
+#: app/js/components/service/settings.js:100
 msgid "Comments about this service"
 msgstr "Comentarios sobre este servicio"
 
@@ -1657,6 +1736,7 @@ msgstr "Comentarios sobre este servicio"
 #: app/js/components/service/settings.js:208
 #: frontend/app/js/components/service/settings.js:93
 #: app/js/components/service/settings.js:103
+#: app/js/components/service/settings.js:112
 msgid "Update service settings"
 msgstr "Actualizar la configuración del servicio"
 
@@ -1667,6 +1747,8 @@ msgstr "Actualizar la configuración del servicio"
 #: app/js/containers/service/details.js:79
 #: app/js/containers/service/details.js:39
 #: app/js/containers/service/details.js:81
+#: app/js/components/service/details/index.js:117
+#: app/js/containers/service/details.js:86
 msgid "Service details"
 msgstr "Detalles del servicio"
 
@@ -1681,18 +1763,23 @@ msgstr "Detalles del servicio"
 #: app/js/components/service/details/index.js:111
 #: ../plugins/optional-backups/src/components/detailstab.js:44
 #: ../plugins/optional-cloud/src/components/detailstab.js:41
+#: app/js/components/rules_v2/index.js:184
+#: app/js/components/service/cards.js:35
+#: app/js/components/service/details/index.js:123
 msgid "Details"
 msgstr "Detalles"
 
 #: app/js/components/service/details/detailstab.js:19
 #: frontend/app/js/components/service/details/detailstab.js:58
 #: app/js/components/service/details/detailstab.js:58
+#: app/js/components/service/details/detailstab.js:66
 msgid "Service Type"
 msgstr "Tipo de servicio"
 
 #: app/js/components/service/details/detailstab.js:25
 #: frontend/app/js/components/service/details/detailstab.js:64
 #: app/js/components/service/details/detailstab.js:64
+#: app/js/components/service/details/detailstab.js:72
 msgid "Related projects"
 msgstr "Projectos relacionados"
 
@@ -1703,12 +1790,13 @@ msgstr "Aún no hay descripción"
 #: app/js/components/service/details/detailstab.js:38
 #: frontend/app/js/components/service/details/detailstab.js:77
 #: app/js/components/service/details/detailstab.js:77
+#: app/js/components/service/details/detailstab.js:85
 msgid "Config Details"
 msgstr "Detalles de configuración"
 
 #: app/js/components/service/table.js:65 app/js/components/service/table.js:69
 #: frontend/app/js/components/service/table.js:70
-#: app/js/components/service/table.js:75
+#: app/js/components/service/table.js:75 app/js/components/service/table.js:67
 msgid "Type"
 msgstr "Tipo"
 
@@ -1719,14 +1807,14 @@ msgstr "Tipo"
 #: frontend/app/js/components/service/table.js:70
 #: frontend/app/js/components/processes/index.js:51
 #: app/js/components/processes/index.js:51
-#: app/js/components/service/table.js:75
+#: app/js/components/service/table.js:75 app/js/components/service/table.js:67
 msgid "Status"
 msgstr "Estado"
 
 #: app/js/components/service/table.js:65 app/js/components/top/index.js:135
 #: app/js/components/top/index.js:136 app/js/components/service/table.js:69
 #: frontend/app/js/components/service/table.js:70
-#: app/js/components/service/table.js:75
+#: app/js/components/service/table.js:75 app/js/components/service/table.js:67
 msgid "Actions"
 msgstr "Acciones"
 
@@ -1973,6 +2061,7 @@ msgstr "Comentar una incidencia"
 #: app/js/components/project/board/daterange.js:176
 #: frontend/app/js/components/project/board/daterange.js:166
 #: app/js/components/board/daterange.js:184
+#: app/js/components/board/daterange.js:134
 msgctxt "date range"
 msgid "From"
 msgstr "Desde"
@@ -1980,6 +2069,7 @@ msgstr "Desde"
 #: app/js/components/project/board/daterange.js:182
 #: frontend/app/js/components/project/board/daterange.js:173
 #: app/js/components/board/daterange.js:191
+#: app/js/components/board/daterange.js:141
 msgctxt "date range"
 msgid "to"
 msgstr "hasta"
@@ -1987,78 +2077,91 @@ msgstr "hasta"
 #: app/js/components/project/board/daterange.js:157
 #: frontend/app/js/components/project/board/daterange.js:136
 #: app/js/components/board/daterange.js:134
+#: app/js/components/board/daterange.js:80
 msgctxt "date range"
 msgid "at"
 msgstr "a las"
 
 #: app/js/components/calendar.js:8 app/js/utils/index.js:196
 #: app/js/utils/index.js:202 frontend/app/js/components/calendar.js:8
+#: app/js/components/calendar.js:10
 msgctxt "calendar"
 msgid "January"
 msgstr "Enero"
 
 #: app/js/components/calendar.js:9 app/js/utils/index.js:197
 #: app/js/utils/index.js:203 frontend/app/js/components/calendar.js:9
+#: app/js/components/calendar.js:11
 msgctxt "calendar"
 msgid "February"
 msgstr "Febrero"
 
 #: app/js/components/calendar.js:10 app/js/utils/index.js:198
 #: app/js/utils/index.js:204 frontend/app/js/components/calendar.js:10
+#: app/js/components/calendar.js:12
 msgctxt "calendar"
 msgid "March"
 msgstr "Marzo"
 
 #: app/js/components/calendar.js:11 app/js/utils/index.js:199
 #: app/js/utils/index.js:205 frontend/app/js/components/calendar.js:11
+#: app/js/components/calendar.js:13
 msgctxt "calendar"
 msgid "April"
 msgstr "Abril"
 
 #: app/js/components/calendar.js:12 app/js/utils/index.js:200
 #: app/js/utils/index.js:206 frontend/app/js/components/calendar.js:12
+#: app/js/components/calendar.js:14
 msgctxt "calendar"
 msgid "May"
 msgstr "Mayo"
 
 #: app/js/components/calendar.js:13 app/js/utils/index.js:201
 #: app/js/utils/index.js:207 frontend/app/js/components/calendar.js:13
+#: app/js/components/calendar.js:15
 msgctxt "calendar"
 msgid "June"
 msgstr "Junio"
 
 #: app/js/components/calendar.js:14 app/js/utils/index.js:202
 #: app/js/utils/index.js:208 frontend/app/js/components/calendar.js:14
+#: app/js/components/calendar.js:16
 msgctxt "calendar"
 msgid "July"
 msgstr "Julio"
 
 #: app/js/components/calendar.js:15 app/js/utils/index.js:203
 #: app/js/utils/index.js:209 frontend/app/js/components/calendar.js:15
+#: app/js/components/calendar.js:17
 msgctxt "calendar"
 msgid "August"
 msgstr "Agosto"
 
 #: app/js/components/calendar.js:16 app/js/utils/index.js:204
 #: app/js/utils/index.js:210 frontend/app/js/components/calendar.js:16
+#: app/js/components/calendar.js:18
 msgctxt "calendar"
 msgid "September"
 msgstr "Septiembre"
 
 #: app/js/components/calendar.js:17 app/js/utils/index.js:205
 #: app/js/utils/index.js:211 frontend/app/js/components/calendar.js:17
+#: app/js/components/calendar.js:19
 msgctxt "calendar"
 msgid "October"
 msgstr "Octubre"
 
 #: app/js/components/calendar.js:18 app/js/utils/index.js:206
 #: app/js/utils/index.js:212 frontend/app/js/components/calendar.js:18
+#: app/js/components/calendar.js:20
 msgctxt "calendar"
 msgid "November"
 msgstr "Noviembre"
 
 #: app/js/components/calendar.js:19 app/js/utils/index.js:207
 #: app/js/utils/index.js:213 frontend/app/js/components/calendar.js:19
+#: app/js/components/calendar.js:21
 msgctxt "calendar"
 msgid "December"
 msgstr "Diciembre"
@@ -2113,37 +2216,43 @@ msgstr "hoy"
 
 #: app/js/utils/index.js:168 app/js/utils/index.js:174
 #: app/js/utils/index.js:179 frontend/app/js/utils/index.js:240
-#: app/js/utils/index.js:371
+#: app/js/utils/index.js:371 app/js/utils/index.js:444
 msgid "now"
 msgstr "ahora"
 
 #: app/js/utils/index.js:148 app/js/utils/index.js:153
 #: frontend/app/js/utils/index.js:214 app/js/utils/index.js:345
+#: app/js/utils/index.js:395
 msgid "millisecond"
 msgstr "milisegundo"
 
 #: app/js/utils/index.js:149 app/js/utils/index.js:154
 #: frontend/app/js/utils/index.js:215 app/js/utils/index.js:346
+#: app/js/utils/index.js:396
 msgid "second"
 msgstr "segundo"
 
 #: app/js/utils/index.js:150 app/js/utils/index.js:155
 #: frontend/app/js/utils/index.js:216 app/js/utils/index.js:347
+#: app/js/utils/index.js:397
 msgid "minute"
 msgstr "minuto"
 
 #: app/js/utils/index.js:151 app/js/utils/index.js:156
 #: frontend/app/js/utils/index.js:217 app/js/utils/index.js:348
+#: app/js/utils/index.js:398
 msgid "hour"
 msgstr "hora"
 
 #: app/js/utils/index.js:152 app/js/utils/index.js:157
 #: frontend/app/js/utils/index.js:218 app/js/utils/index.js:349
+#: app/js/utils/index.js:399
 msgid "day"
 msgstr "día"
 
 #: app/js/utils/index.js:191 app/js/utils/index.js:196
 #: frontend/app/js/utils/index.js:257 app/js/utils/index.js:388
+#: app/js/utils/index.js:455
 msgid "{units} {timeunit} ago"
 msgstr "hace {units} {timeunit}"
 
@@ -2179,12 +2288,16 @@ msgstr "Búscar y ejecutar comandos..."
 #: app/js/components/logs/index.js:208
 #: app/js/components/service/details/index.js:113
 #: ../plugins/optional-backups/src/components/detailstab.js:58
+#: app/js/components/settings/index.js:22
+#: app/js/components/rules_v2/index.js:188 app/js/components/logs/index.js:203
+#: app/js/components/service/details/index.js:125
 msgid "Logs"
 msgstr "Logs"
 
 #: app/js/components/top/usermenu.js:25
 #: frontend/app/js/components/top/usermenu.js:14
 #: app/js/components/top/usermenu.js:14
+#: app/js/components/settings/marketplace/login.js:94
 msgid "Logout"
 msgstr "Logout"
 
@@ -2224,11 +2337,14 @@ msgstr "Cuerpo del mensaje"
 #: frontend/app/js/components/top/index.js:135
 #: app/js/components/top/index.js:141
 #: app/js/components/notifications/notification.js:43
+#: app/js/components/notifications/list.js:49
+#: app/js/containers/menu/sidebar.js:79
 msgid "Notifications"
 msgstr "Notificaciones"
 
 #: app/js/components/notifications/list.js:40
 #: frontend/app/js/components/notifications/list.js:40
+#: app/js/components/notifications/list.js:13
 msgid "All Notifications"
 msgstr "Todas las notificaciones"
 
@@ -2239,6 +2355,7 @@ msgstr "Todas las notificaciones"
 #: frontend/app/js/components/processes/index.js:38
 #: app/js/components/notifications/list.js:44
 #: app/js/components/processes/index.js:38
+#: app/js/components/notifications/list.js:17
 msgid "First page"
 msgstr "Primera página"
 
@@ -2249,6 +2366,7 @@ msgstr "Primera página"
 #: frontend/app/js/components/processes/index.js:39
 #: app/js/components/notifications/list.js:45
 #: app/js/components/processes/index.js:39
+#: app/js/components/notifications/list.js:18
 msgid "Next page"
 msgstr "Siguiente página"
 
@@ -2274,61 +2392,73 @@ msgstr "Próximo mensaje"
 
 #: app/js/utils/index.js:202 app/js/utils/index.js:207
 #: frontend/app/js/utils/index.js:299 app/js/utils/index.js:431
+#: app/js/utils/index.js:499
 msgid "January"
 msgstr "Enero"
 
 #: app/js/utils/index.js:203 app/js/utils/index.js:208
 #: frontend/app/js/utils/index.js:300 app/js/utils/index.js:432
+#: app/js/utils/index.js:500
 msgid "February"
 msgstr "Febrero"
 
 #: app/js/utils/index.js:204 app/js/utils/index.js:209
 #: frontend/app/js/utils/index.js:301 app/js/utils/index.js:433
+#: app/js/utils/index.js:501
 msgid "March"
 msgstr "Marzo"
 
 #: app/js/utils/index.js:205 app/js/utils/index.js:210
 #: frontend/app/js/utils/index.js:302 app/js/utils/index.js:434
+#: app/js/utils/index.js:502
 msgid "April"
 msgstr "Abril"
 
 #: app/js/utils/index.js:206 app/js/utils/index.js:211
 #: frontend/app/js/utils/index.js:303 app/js/utils/index.js:435
+#: app/js/utils/index.js:503
 msgid "May"
 msgstr "Mayo"
 
 #: app/js/utils/index.js:207 app/js/utils/index.js:212
 #: frontend/app/js/utils/index.js:304 app/js/utils/index.js:436
+#: app/js/utils/index.js:504
 msgid "June"
 msgstr "Junio"
 
 #: app/js/utils/index.js:208 app/js/utils/index.js:213
 #: frontend/app/js/utils/index.js:305 app/js/utils/index.js:437
+#: app/js/utils/index.js:505
 msgid "July"
 msgstr "Julio"
 
 #: app/js/utils/index.js:209 app/js/utils/index.js:214
 #: frontend/app/js/utils/index.js:306 app/js/utils/index.js:438
+#: app/js/utils/index.js:506
 msgid "August"
 msgstr "Agosto"
 
 #: app/js/utils/index.js:210 app/js/utils/index.js:215
 #: frontend/app/js/utils/index.js:307 app/js/utils/index.js:439
+#: app/js/utils/index.js:507
 msgid "September"
 msgstr "Septiembre"
 
 #: app/js/utils/index.js:211 app/js/utils/index.js:216
 #: frontend/app/js/utils/index.js:308 app/js/utils/index.js:440
+#: app/js/utils/index.js:508
 msgid "October"
 msgstr "Octubre"
 
 #: app/js/utils/index.js:212 app/js/utils/index.js:217
 #: frontend/app/js/utils/index.js:309 app/js/utils/index.js:441
+#: app/js/utils/index.js:509
 msgid "November"
 msgstr "Noviembre"
 
 #: app/js/utils/index.js:213 app/js/utils/index.js:218
 #: frontend/app/js/utils/index.js:310 app/js/utils/index.js:442
+#: app/js/utils/index.js:510
 msgid "December"
 msgstr "Diciembre"
 
@@ -2354,7 +2484,7 @@ msgstr "nuevo"
 #: app/js/components/processes/index.js:16 app/js/components/logs/index.js:8
 #: frontend/app/js/components/logs/index.js:13
 #: frontend/app/js/components/processes/index.js:16
-#: app/js/components/logs/index.js:13
+#: app/js/components/logs/index.js:13 app/js/components/logs/index.js:14
 msgid "error"
 msgstr "error"
 
@@ -2391,7 +2521,8 @@ msgstr "Historial de procesos"
 #: frontend/app/js/components/processes/process.js:42
 #: frontend/app/js/components/processes/index.js:47
 #: app/js/components/logs/index.js:99 app/js/components/logs/index.js:245
-#: app/js/components/processes/index.js:47
+#: app/js/components/processes/index.js:47 app/js/components/logs/index.js:107
+#: app/js/components/logs/index.js:258
 msgid "Date"
 msgstr "Fecha"
 
@@ -2447,13 +2578,13 @@ msgstr "Resultado de la acción"
 
 #: app/js/components/profile/index.js:45 app/js/components/profile/index.js:48
 #: frontend/app/js/components/profile/index.js:48
-#: app/js/components/profile/index.js:56
+#: app/js/components/profile/index.js:56 app/js/components/profile/index.js:62
 msgid "Avatar image saved"
 msgstr "Imagen del avatar guardada"
 
 #: app/js/components/profile/index.js:75 app/js/components/profile/index.js:78
 #: frontend/app/js/components/profile/index.js:78
-#: app/js/components/profile/index.js:86
+#: app/js/components/profile/index.js:86 app/js/components/profile/index.js:92
 msgid "Personal data"
 msgstr "Datos personales"
 
@@ -2467,24 +2598,26 @@ msgstr "Datos personales"
 #: app/js/components/profile/index.js:87
 #: app/js/components/profile/password_change.js:39
 #: app/js/components/profile/password_change.js:60
+#: app/js/components/profile/index.js:93
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
 #: app/js/components/profile/index.js:82 app/js/components/profile/index.js:85
 #: frontend/app/js/components/profile/index.js:85
-#: app/js/components/profile/index.js:94
+#: app/js/components/profile/index.js:94 app/js/components/profile/index.js:100
 msgid "Upload new image"
 msgstr "Actualizar imagen"
 
 #: app/js/components/profile/index.js:85 app/js/components/profile/index.js:88
 #: frontend/app/js/components/profile/index.js:88
-#: app/js/components/profile/index.js:97
+#: app/js/components/profile/index.js:97 app/js/components/profile/index.js:103
 msgid "Basic user data"
 msgstr "Datos básicos del usuario"
 
 #: app/js/components/profile/index.js:96 app/js/components/profile/index.js:113
 #: frontend/app/js/components/profile/index.js:113
 #: app/js/components/profile/index.js:138
+#: app/js/components/profile/index.js:144
 msgid "Update profile"
 msgstr "Actualizar perfíl"
 
@@ -2541,18 +2674,20 @@ msgstr "Repita la contraseña para la verificación"
 #: app/js/components/profile/notifications.js:87
 #: frontend/app/js/components/profile/notifications.js:87
 #: app/js/components/profile/notifications.js:92
+#: app/js/containers/profile/notifications.js:51
 msgid "Notification channels"
 msgstr "Canales de notificación"
 
 #: app/js/components/profile/notifications.js:91
 #: frontend/app/js/components/profile/notifications.js:91
 #: app/js/components/profile/notifications.js:96
+#: app/js/components/profile/notifications.js:66
 msgid "Communication Channels"
 msgstr "Canales de comunicación"
 
 #: app/js/components/login/index.js:75 app/js/components/login/index.js:103
 #: frontend/app/js/components/login/index.js:97
-#: app/js/components/login/index.js:72
+#: app/js/components/login/index.js:72 app/js/components/login/index.js:83
 msgid "Login"
 msgstr "Login"
 
@@ -2623,37 +2758,37 @@ msgstr "Poner una nueva contraseña"
 
 #: app/js/components/logs/index.js:9
 #: frontend/app/js/components/logs/index.js:14
-#: app/js/components/logs/index.js:14
+#: app/js/components/logs/index.js:14 app/js/components/logs/index.js:15
 msgid "warn"
 msgstr "aviso"
 
 #: app/js/components/logs/index.js:10
 #: frontend/app/js/components/logs/index.js:15
-#: app/js/components/logs/index.js:15
+#: app/js/components/logs/index.js:15 app/js/components/logs/index.js:16
 msgid "debug"
 msgstr "debug"
 
 #: app/js/components/logs/index.js:11
 #: frontend/app/js/components/logs/index.js:16
-#: app/js/components/logs/index.js:16
+#: app/js/components/logs/index.js:16 app/js/components/logs/index.js:17
 msgid "info"
 msgstr "info"
 
 #: app/js/components/logs/index.js:73
 #: frontend/app/js/components/logs/index.js:93
-#: app/js/components/logs/index.js:93
+#: app/js/components/logs/index.js:93 app/js/components/logs/index.js:101
 msgid "Log line details"
 msgstr "Detalles de la linea de bitacora"
 
 #: app/js/components/logs/index.js:82
 #: frontend/app/js/components/logs/index.js:103
-#: app/js/components/logs/index.js:103
+#: app/js/components/logs/index.js:103 app/js/components/logs/index.js:111
 msgid "Full Message"
 msgstr "Mensaje completo"
 
 #: app/js/components/logs/index.js:89
 #: frontend/app/js/components/logs/index.js:110
-#: app/js/components/logs/index.js:110
+#: app/js/components/logs/index.js:110 app/js/components/logs/index.js:118
 msgid "Metadata"
 msgstr "Metadatos"
 
@@ -2671,19 +2806,19 @@ msgstr "Refrescar"
 
 #: app/js/components/logs/index.js:185
 #: frontend/app/js/components/logs/index.js:235
-#: app/js/components/logs/index.js:242
+#: app/js/components/logs/index.js:242 app/js/components/logs/index.js:255
 msgid "Id"
 msgstr "Id"
 
 #: app/js/components/logs/index.js:186
 #: frontend/app/js/components/logs/index.js:237
-#: app/js/components/logs/index.js:244
+#: app/js/components/logs/index.js:244 app/js/components/logs/index.js:257
 msgid "Level"
 msgstr "Nivel"
 
 #: app/js/components/logs/index.js:188
 #: frontend/app/js/components/logs/index.js:239
-#: app/js/components/logs/index.js:246
+#: app/js/components/logs/index.js:246 app/js/components/logs/index.js:259
 msgid "Message"
 msgstr "Mensaje"
 
@@ -2695,21 +2830,25 @@ msgstr "Entrar en Serverboards"
 #: app/js/components/profile/index.js:92
 #: frontend/app/js/components/profile/index.js:92
 #: app/js/components/profile/index.js:102
+#: app/js/components/profile/index.js:108
 msgid "Language"
 msgstr "Idioma"
 
 #: app/js/actions/auth.js:168 app/js/actions/auth.js:167
 #: frontend/app/js/actions/auth.js:169 app/js/actions/auth.js:177
+#: app/js/actions/auth.js:175
 msgid "spanish"
 msgstr "español"
 
 #: app/js/actions/auth.js:169 app/js/actions/auth.js:168
 #: frontend/app/js/actions/auth.js:170 app/js/actions/auth.js:178
+#: app/js/actions/auth.js:176
 msgid "english"
 msgstr "inglés"
 
 #: app/js/actions/auth.js:176 app/js/actions/auth.js:175
 #: frontend/app/js/actions/auth.js:176 app/js/actions/auth.js:184
+#: app/js/actions/auth.js:182
 msgid "Set language to {lang}"
 msgstr "Se ha cambiado el idioma a {lang}"
 
@@ -2742,6 +2881,7 @@ msgstr "Aviso"
 #: frontend/app/js/components/project/projectselector.js:111
 #: app/js/components/project/projectselector.js:112
 #: app/js/components/project/top.js:114
+#: app/js/components/menu/projectselector.js:115
 msgid "Add project"
 msgstr "Añadir proyecto"
 
@@ -2757,12 +2897,13 @@ msgstr "Perfíl de usuario y más..."
 #: frontend/app/js/components/issues/index.js:33
 #: frontend/app/js/components/issues/index.js:235
 #: app/js/components/issues/index.js:33 app/js/components/issues/index.js:235
+#: app/js/components/issues/index.js:67 app/js/components/issues/index.js:229
 msgid "There are no issues to show."
 msgstr "No hay incidencias que mostar"
 
 #: app/js/components/issues/index.js:119
 #: frontend/app/js/components/issues/index.js:236
-#: app/js/components/issues/index.js:236
+#: app/js/components/issues/index.js:236 app/js/components/issues/index.js:230
 msgid "Try different filters to look beyond..."
 msgstr "Prueba filtros diferentes para ver mas allá..."
 
@@ -2912,7 +3053,7 @@ msgstr "Obtén plugins"
 
 #: app/js/components/project/board/widget.js:104
 #: frontend/app/js/components/project/board/widget.js:110
-#: app/js/components/board/widget.js:128
+#: app/js/components/board/widget.js:128 app/js/components/board/widget.js:132
 msgid "Error loading widget"
 msgstr "Error cargando el widget"
 
@@ -3268,6 +3409,7 @@ msgstr ""
 #: plugins/optional-cloud/src/components/ssh.js:139
 #: app/js/components/service/card.js:62 app/js/components/service/table.js:58
 #: ../plugins/optional-cloud/src/components/ssh.js:139
+#: app/js/components/service/table.js:51
 msgid "Options"
 msgstr "Opciones"
 
@@ -3389,28 +3531,34 @@ msgstr ""
 #: app/js/components/service/details/detailstab.js:37
 #: frontend/app/js/components/service/details/detailstab.js:76
 #: app/js/components/service/details/detailstab.js:76
+#: app/js/components/service/details/detailstab.js:84
 msgid "Not provided"
 msgstr "No proporcionado"
 
 #: app/js/actions/service.js:30 frontend/app/js/actions/service.js:30
+#: app/js/actions/service.js:34
 msgid "*{name}* updated"
 msgstr "*{name}* actualizado"
 
 #: app/js/actions/service.js:38 frontend/app/js/actions/service.js:38
+#: app/js/actions/service.js:42
 msgid "Service attached to project"
 msgstr "Servició adjuntado al proyecto"
 
 #: app/js/actions/service.js:46 frontend/app/js/actions/service.js:46
+#: app/js/actions/service.js:50
 msgid "Service detached from project"
 msgstr "Servició separado del proyecto"
 
 #: app/js/actions/service.js:56 frontend/app/js/containers/service/add.js:13
 #: frontend/app/js/actions/service.js:56 app/js/containers/service/add.js:13
+#: app/js/actions/service.js:60
 msgid "Added service and attached to project"
 msgstr "Servicio añadiro y adjuntado al proyecto"
 
 #: app/js/actions/service.js:60 frontend/app/js/containers/service/add.js:17
 #: frontend/app/js/actions/service.js:60 app/js/containers/service/add.js:17
+#: app/js/actions/service.js:64
 msgid "Added DETACHED service"
 msgstr "Añadido servicio DISJUNTO"
 
@@ -3462,7 +3610,7 @@ msgstr "Web Site"
 msgid "A web URL to be monitored."
 msgstr "Una URL web a ser monitorizada"
 
-#: frontend/app/js/rpc.js:72 app/js/rpc.js:71
+#: frontend/app/js/rpc.js:72 app/js/rpc.js:71 app/js/rpc.js:79
 msgid "User session expired. Please log in again."
 msgstr "La sesión ha caducado. Por favor lgueese de nuevo."
 
@@ -3477,17 +3625,17 @@ msgid "Error loading data"
 msgstr "Error cargando datos"
 
 #: frontend/app/js/components/logs/index.js:162
-#: app/js/components/logs/index.js:163
+#: app/js/components/logs/index.js:163 app/js/components/logs/index.js:175
 msgid "Can't load log history."
 msgstr "No se pudo cargar el historial"
 
 #: frontend/app/js/components/logs/index.js:208
-#: app/js/components/logs/index.js:209
+#: app/js/components/logs/index.js:209 app/js/components/logs/index.js:221
 msgid "{count} log lines."
 msgstr "{count} lineas de log"
 
 #: frontend/app/js/components/logs/index.js:236
-#: app/js/components/logs/index.js:243
+#: app/js/components/logs/index.js:243 app/js/components/logs/index.js:256
 msgid "Module"
 msgstr "Módulo"
 
@@ -3500,15 +3648,17 @@ msgstr ""
 "recuperación de contraseña."
 
 #: frontend/app/js/components/selector.js:93 app/js/components/selector.js:93
+#: app/js/components/selector.js:104
 msgid "Cloud"
 msgstr "Cloud"
 
 #: frontend/app/js/components/selector.js:97 app/js/components/selector.js:97
-#: ../plugins/core-widgets/src/pie3.js:102
+#: ../plugins/core-widgets/src/pie3.js:102 app/js/components/selector.js:108
 msgid "Other"
 msgstr "Otros"
 
 #: frontend/app/js/components/selector.js:117 app/js/components/selector.js:117
+#: app/js/components/selector.js:133
 msgid "Error loading items. Maybe connectivity problems? {error_msg}."
 msgstr ""
 "Error cargando los elementos. ¿Quizás tienes problemas de conectividad? "
@@ -3533,14 +3683,21 @@ msgstr ""
 #: app/js/components/selector.js:148
 #: ../plugins/optional-backups/src/components/list.js:98
 #: ../plugins/optional-cloud/src/components/list.js:110
+#: app/js/components/issues/index.js:191
+#: app/js/components/board/add_widget.js:78
+#: app/js/components/rules_v2/index.js:242
+#: app/js/components/rules_v2/index.js:326 app/js/components/service/add.js:220
+#: app/js/components/service/cards.js:116 app/js/components/selector.js:164
 msgid "Filter..."
 msgstr "Filtro..."
 
 #: frontend/app/js/components/selector.js:169 app/js/components/selector.js:169
+#: app/js/components/selector.js:185
 msgid "There are no items for selection."
 msgstr "No hay elementos para la selección actual."
 
 #: frontend/app/js/components/selector.js:173 app/js/components/selector.js:173
+#: app/js/components/selector.js:189
 msgid "No matches found"
 msgstr "No se han encontrado coincidencias"
 
@@ -3552,6 +3709,10 @@ msgstr "No se han encontrado coincidencias"
 #: app/js/components/settings/plugins/add.js:43
 #: app/js/components/project/addbutton.js:76
 #: app/js/components/service/add.js:64 app/js/components/selector.js:194
+#: app/js/components/settings/marketplace/index.js:38
+#: app/js/components/rules_v2/rulemenu.js:14
+#: app/js/components/rules_v2/addtemplate.js:74
+#: app/js/components/service/add.js:65 app/js/components/selector.js:210
 msgid "Back"
 msgstr "Volver"
 
@@ -3559,10 +3720,13 @@ msgstr "Volver"
 #: frontend/app/js/components/settings/plugins/add.js:48
 #: app/js/components/settings/plugins/add.js:48
 #: app/js/components/selector.js:197
+#: app/js/components/settings/marketplace/index.js:43
+#: app/js/components/selector.js:213
 msgid "Continue"
 msgstr "Continuar"
 
 #: frontend/app/js/components/selector.js:200 app/js/components/selector.js:200
+#: app/js/components/selector.js:216
 msgid "Skip"
 msgstr "Saltar"
 
@@ -3652,6 +3816,7 @@ msgstr "Añadir nuevo grupo"
 
 #: frontend/app/js/components/settings/groups.js:69
 #: app/js/components/settings/groups.js:69
+#: app/js/components/settings/groups.js:70
 msgid "Add group"
 msgstr "Añadir grupo"
 
@@ -3662,11 +3827,15 @@ msgstr "Añadir grupo"
 #: app/js/components/board/add_widget.js:108
 #: app/js/components/settings/plugins/index.js:101
 #: app/js/components/rules_v2/index.js:240 app/js/components/service/add.js:244
+#: app/js/components/board/add_widget.js:97
+#: app/js/components/settings/index.js:17
+#: app/js/components/rules_v2/index.js:254 app/js/components/service/add.js:239
 msgid "Marketplace"
 msgstr "Marketplace"
 
 #: frontend/app/js/components/settings/plugins/details.js:96
 #: app/js/components/settings/plugins/details.js:121
+#: app/js/components/settings/plugins/details.js:188
 msgid ""
 "Altough no update has been detected for this plugin, you can force update."
 msgstr ""
@@ -3674,6 +3843,8 @@ msgstr ""
 
 #: frontend/app/js/components/settings/plugins/details.js:99
 #: app/js/components/settings/plugins/details.js:124
+#: app/js/components/settings/plugins/details.js:180
+#: app/js/components/settings/plugins/details.js:191
 msgid "Force update"
 msgstr "Forzar actualizado"
 
@@ -3704,6 +3875,8 @@ msgstr "Guardar configuración"
 
 #: frontend/app/js/components/settings/plugins/add.js:9
 #: app/js/components/settings/plugins/add.js:9
+#: app/js/components/settings/marketplace/login.js:75
+#: app/js/components/settings/marketplace/login.js:102
 msgid "Install plugins from the Serverboards marketplace"
 msgstr "Instalar plugins desde el Marketplace de Serverboards"
 
@@ -3718,11 +3891,13 @@ msgstr ""
 
 #: frontend/app/js/components/settings/plugins/add.js:17
 #: app/js/components/settings/plugins/add.js:17
+#: app/js/components/settings/marketplace/index.js:13
 msgid "Select a plugin to add"
 msgstr "Selecciona plugin a añadir"
 
 #: frontend/app/js/components/settings/plugins/add.js:19
 #: app/js/components/settings/plugins/add.js:19
+#: app/js/components/settings/marketplace/index.js:14
 msgid ""
 "You already have all the plugins installed. Maybe its time you [develop]"
 "(https://serverboards.io/developers/) your own one?"
@@ -3732,6 +3907,7 @@ msgstr ""
 
 #: frontend/app/js/components/settings/plugins/add.js:24
 #: app/js/components/settings/plugins/add.js:24
+#: app/js/components/settings/marketplace/index.js:19
 msgid "Or add manually from a git repository:"
 msgstr "O añade uno manualmente de un repositorio git:"
 
@@ -3749,21 +3925,24 @@ msgstr "No hay servicios de este tipo"
 
 #: frontend/app/js/components/service/cards.js:37
 #: app/js/components/service/cards.js:37
+#: app/js/components/settings/plugins/details.js:198
+#: app/js/components/service/cards.js:45
 msgid "Hold to remove"
 msgstr "Mantén pulsado para eliminar"
 
 #: frontend/app/js/components/service/cards.js:117
 #: app/js/components/service/cards.js:117
+#: app/js/components/service/cards.js:122
 msgid "No items found."
 msgstr "No se han encontrado elementos."
 
 #: frontend/app/js/components/service/cards.js:142
-#: app/js/components/service/cards.js:142
+#: app/js/components/service/cards.js:142 app/js/components/service/index.js:68
 msgid "Use account connections to manage your services."
 msgstr "Usa la conexión de cuenta para gestionar tus servicios."
 
 #: frontend/app/js/components/service/add.js:44
-#: app/js/components/service/add.js:44
+#: app/js/components/service/add.js:44 app/js/components/service/add.js:45
 msgid "Service name"
 msgstr "Nombre del servicio"
 
@@ -3775,31 +3954,33 @@ msgstr "Nombre del servicio"
 #: app/js/components/rules_v2/edit/params.js:62
 #: app/js/components/rules_v2/edit/action.js:49
 #: app/js/components/service/add.js:78
+#: app/js/components/rules_v2/edit/params.js:63
+#: app/js/components/service/add.js:79
 msgid "Save and Continue"
 msgstr "Guardar y continuar"
 
 #: frontend/app/js/components/service/add.js:90
-#: app/js/components/service/add.js:90
+#: app/js/components/service/add.js:90 app/js/components/service/add.js:91
 msgid "Attach"
 msgstr "Adjuntar"
 
 #: frontend/app/js/components/service/add.js:125
-#: app/js/components/service/add.js:126
+#: app/js/components/service/add.js:126 app/js/components/service/add.js:129
 msgid "Add {service_type} service to project"
 msgstr "Añadir {service_type} al proyecto"
 
 #: frontend/app/js/components/service/add.js:131
-#: app/js/components/service/add.js:132
+#: app/js/components/service/add.js:132 app/js/components/service/add.js:135
 msgid "Create new"
 msgstr "Crear nuevo"
 
 #: frontend/app/js/components/service/add.js:138
-#: app/js/components/service/add.js:139
+#: app/js/components/service/add.js:139 app/js/components/service/add.js:142
 msgid "Select existing"
 msgstr "Seleccionar existente"
 
 #: frontend/app/js/components/service/add.js:151
-#: app/js/components/service/add.js:152
+#: app/js/components/service/add.js:152 app/js/components/service/add.js:155
 msgid ""
 "This services are used on other projects but may be attached to the current "
 "one, so they will be shared between the projects."
@@ -3808,12 +3989,12 @@ msgstr ""
 "actual, de modo que estén compartidos entre ambos proyectos."
 
 #: frontend/app/js/components/service/add.js:228
-#: app/js/components/service/add.js:232
+#: app/js/components/service/add.js:232 app/js/components/service/add.js:227
 msgid "Add a service to this project"
 msgstr "Añadir servicio al proyecto"
 
 #: frontend/app/js/components/service/add.js:231
-#: app/js/components/service/add.js:235
+#: app/js/components/service/add.js:235 app/js/components/service/add.js:230
 msgid ""
 "First select the service type. If not available at the already installed "
 "services, there are many more available to install at the marketplace."
@@ -3826,6 +4007,8 @@ msgstr ""
 #: frontend/app/js/components/project/board/add_widget.js:117
 #: app/js/components/board/add_widget.js:105
 #: app/js/components/service/add.js:241
+#: app/js/components/board/add_widget.js:94
+#: app/js/components/service/add.js:236
 msgid "Available services"
 msgstr "Servicios disponibles"
 
@@ -3833,22 +4016,23 @@ msgstr "Servicios disponibles"
 #: frontend/app/js/components/project/board/add_widget.js:84
 #: app/js/components/board/add_widget.js:72
 #: app/js/components/service/add.js:275
+#: app/js/components/board/add_widget.js:61
 msgid "Error installing *{plugin}*. Please try again or check logs."
 msgstr ""
 "Error instalando *{plugin}*. Por favor intenta de nuevo o comprueba los logs."
 
 #: frontend/app/js/components/service/add.js:280
-#: app/js/components/service/add.js:284
+#: app/js/components/service/add.js:284 app/js/components/service/add.js:268
 msgid "Installing the required add-on"
 msgstr "Instalando el plugin solicitado"
 
 #: frontend/app/js/components/service/add.js:330
-#: app/js/components/service/add.js:334
+#: app/js/components/service/add.js:334 app/js/components/service/add.js:318
 msgid "Add Services to your project."
 msgstr "Añadir servicios a tu proyecto."
 
 #: frontend/app/js/components/service/add.js:332
-#: app/js/components/service/add.js:336
+#: app/js/components/service/add.js:336 app/js/components/service/add.js:320
 msgid ""
 "Add services you are already subscribed to manage, monitor or automate tasks "
 "with them."
@@ -3858,6 +4042,7 @@ msgstr ""
 
 #: frontend/app/js/components/genericform/selectservice.js:91
 #: app/js/components/genericform/selectservice.js:91
+#: app/js/components/genericform/selectservice.js:96
 msgid "Add new service"
 msgstr "Añade nuevo servicio"
 
@@ -3987,38 +4172,39 @@ msgid "Add a widget, service, rule, issue..."
 msgstr "Añadir un widget, servicio, regla, incidencia..."
 
 #: frontend/app/js/components/project/board/header.js:84
-#: app/js/components/board/header.js:97
+#: app/js/components/board/header.js:97 app/js/components/board/header.js:94
 msgid "Realtime updates"
 msgstr "Acutalizaciones en Tiempo Real"
 
 #: frontend/app/js/components/project/board/header.js:90
-#: app/js/components/board/header.js:83
+#: app/js/components/board/header.js:83 app/js/components/board/header.js:80
 msgid "5 minutes"
 msgstr "5 minutos"
 
 #: frontend/app/js/components/project/board/header.js:91
-#: app/js/components/board/header.js:84
+#: app/js/components/board/header.js:84 app/js/components/board/header.js:81
 msgid "2 hours"
 msgstr "2 horas"
 
 #: frontend/app/js/components/project/board/header.js:92
-#: app/js/components/board/header.js:85
+#: app/js/components/board/header.js:85 app/js/components/board/header.js:82
 msgid "24 hours"
 msgstr "24 horas"
 
 #: frontend/app/js/components/project/board/header.js:93
-#: app/js/components/board/header.js:86
+#: app/js/components/board/header.js:86 app/js/components/board/header.js:83
 msgid "1 week"
 msgstr "1 semana"
 
 #: frontend/app/js/components/project/board/header.js:94
-#: app/js/components/board/header.js:87
+#: app/js/components/board/header.js:87 app/js/components/board/header.js:84
 msgid "30 days"
 msgstr "30 días"
 
 #: frontend/app/js/components/project/board/add_dashboard.js:30
 #: app/js/components/board/settings.js:54
 #: app/js/components/board/add_dashboard.js:31
+#: app/js/components/board/settings.js:55
 msgid "Dashboard name"
 msgstr "Nombre del Dashboard"
 
@@ -4034,11 +4220,13 @@ msgstr "Crear Dashboard"
 
 #: frontend/app/js/components/project/board/add_widget.js:108
 #: app/js/components/board/add_widget.js:96
+#: app/js/components/board/add_widget.js:85
 msgid "Add a widget to this dashboard"
 msgstr "Añadir Widgets a este Dashboard"
 
 #: frontend/app/js/components/project/board/add_widget.js:111
 #: app/js/components/board/add_widget.js:99
+#: app/js/components/board/add_widget.js:88
 msgid ""
 "Select the widget you want to add to the dashboard. If you can not find what "
 "you are looking for, check the marketplace."
@@ -4048,6 +4236,7 @@ msgstr ""
 
 #: frontend/app/js/components/project/board/add_widget.js:151
 #: app/js/components/board/add_widget.js:139
+#: app/js/components/board/add_widget.js:127
 msgid "Installing plugin"
 msgstr "Instalando plugin"
 
@@ -4055,22 +4244,26 @@ msgstr "Instalando plugin"
 #: frontend/app/js/containers/settings/plugins/index.js:18
 #: app/js/components/board/add_widget.js:205
 #: app/js/containers/settings/plugins/index.js:18
+#: app/js/components/board/add_widget.js:193
 msgid "Unknown section"
 msgstr "Sección desconocida"
 
 #: frontend/app/js/components/project/board/add_widget.js:216
 #: app/js/components/board/add_widget.js:174
+#: app/js/components/board/add_widget.js:162
 msgid "Add widgets to your dashboards."
 msgstr "Añade Widgets a tus Dashboards"
 
 #: frontend/app/js/components/project/board/add_widget.js:218
 #: app/js/components/board/add_widget.js:176
+#: app/js/components/board/add_widget.js:164
 msgid "Dashboards allow to have a fast graphic view of your system."
 msgstr ""
 "Los dashboards te permiten tener una visión gráfica rápida de tu sistema"
 
 #: frontend/app/js/components/project/board/edit_widget.js:65
 #: app/js/components/board/edit_widget.js:113
+#: app/js/components/board/edit_widget.js:126
 msgid ""
 "Could not load information about this widget. Maybe the plugin was deleted?\n"
 "\n"
@@ -4097,6 +4290,7 @@ msgstr "Crear nuevo proyecto"
 
 #: frontend/app/js/components/rules_v2/edit/trigger.js:31
 #: app/js/components/rules_v2/edit/trigger.js:37
+#: app/js/components/rules_v2/edit/trigger.js:39
 msgid "Setup the trigger"
 msgstr "Configurar el disparador"
 
@@ -4119,6 +4313,8 @@ msgstr "Sin servicio relacionado"
 #: frontend/app/js/components/rules_v2/edit/ruleshelp.js:140
 #: app/js/components/rules_v2/edit/ruleshelp.js:138
 #: app/js/components/rules_v2/edit/ruleshelp.js:140
+#: app/js/components/rules_v2/edit/ruleshelp.js:139
+#: app/js/components/rules_v2/edit/ruleshelp.js:141
 msgid "Rule unique identifier"
 msgstr "Identificador único de la regla"
 
@@ -4126,21 +4322,25 @@ msgstr "Identificador único de la regla"
 #: frontend/app/js/components/rules_v2/rule.js:18
 #: app/js/components/rules_v2/rule.js:18
 #: app/js/components/rules_v2/edit/ruleshelp.js:141
+#: app/js/components/rules_v2/edit/ruleshelp.js:142
 msgid "Rule name"
 msgstr "Nombre de la regla"
 
 #: frontend/app/js/components/rules_v2/edit/ruleshelp.js:142
 #: app/js/components/rules_v2/edit/ruleshelp.js:142
+#: app/js/components/rules_v2/edit/ruleshelp.js:143
 msgid "Rule description"
 msgstr "Descripción de la regla"
 
 #: frontend/app/js/components/rules_v2/edit/ruleshelp.js:146
 #: app/js/components/rules_v2/edit/ruleshelp.js:146
+#: app/js/components/rules_v2/edit/ruleshelp.js:147
 msgid "This installation's base url"
 msgstr "URL base de la instalación"
 
 #: frontend/app/js/components/rules_v2/edit/ruleshelp.js:156
 #: app/js/components/rules_v2/edit/ruleshelp.js:156
+#: app/js/components/rules_v2/edit/ruleshelp.js:157
 msgid "Conditional template help"
 msgstr "Ayuda de las plantillas condicionales"
 
@@ -4178,6 +4378,7 @@ msgstr "Añadir una condición"
 #: app/js/components/rules_v2/edit/action.js:47
 #: app/js/components/rules_v2/edit/serviceselector.js:96
 #: app/js/components/rules_v2/edit/addnode.js:34
+#: app/js/components/rules_v2/edit/params.js:62
 msgid "Previous step"
 msgstr "Paso anterior"
 
@@ -4262,11 +4463,13 @@ msgstr "Configura el diaprador"
 
 #: frontend/app/js/components/rules_v2/index.js:239
 #: app/js/components/rules_v2/index.js:232
+#: app/js/components/rules_v2/index.js:246
 msgid "Create rule from template"
 msgstr "Crear regla desde una plantilla"
 
 #: frontend/app/js/components/rules_v2/index.js:240
 #: app/js/components/rules_v2/index.js:233
+#: app/js/components/rules_v2/index.js:247
 msgid ""
 "Use these presets to fast add rules to your projects for most common tasks. "
 "Use the 'Create new rule' button on the menu bar to create one from scratch."
@@ -4277,6 +4480,7 @@ msgstr ""
 
 #: frontend/app/js/components/rules_v2/index.js:244
 #: app/js/components/rules_v2/index.js:237
+#: app/js/components/rules_v2/index.js:251
 msgid "Available templates"
 msgstr "Plantillas disponibles"
 
@@ -4294,6 +4498,7 @@ msgstr ""
 
 #: frontend/app/js/components/rules_v2/index.js:311
 #: app/js/components/rules_v2/index.js:304
+#: app/js/components/rules_v2/index.js:310
 msgid "New rule"
 msgstr "Nueva regla"
 
@@ -4304,21 +4509,25 @@ msgstr "Volver a las reglas"
 
 #: frontend/app/js/components/rules_v2/rulemenu.js:11
 #: app/js/components/rules_v2/rulemenu.js:11
+#: app/js/components/rules_v2/rulemenu.js:20
 msgid "Save rule"
 msgstr "Guardar regla"
 
 #: frontend/app/js/components/rules_v2/addtemplate.js:66
 #: app/js/components/rules_v2/addtemplate.js:66
+#: app/js/components/rules_v2/addtemplate.js:67
 msgid "Template definition"
 msgstr "Definición de la plantilla"
 
 #: frontend/app/js/components/rules_v2/addtemplate.js:76
 #: app/js/components/rules_v2/addtemplate.js:76
+#: app/js/components/rules_v2/addtemplate.js:84
 msgid "Add a simple rule to your project."
 msgstr "Añade una simple regla a tu proyecto"
 
 #: frontend/app/js/components/rules_v2/addtemplate.js:77
 #: app/js/components/rules_v2/addtemplate.js:77
+#: app/js/components/rules_v2/addtemplate.js:85
 msgid ""
 "Fill the form on the right and you will be adding this rule to this project. "
 "Simple."
@@ -4327,6 +4536,7 @@ msgstr ""
 
 #: frontend/app/js/components/rules_v2/addtemplate.js:78
 #: app/js/components/rules_v2/addtemplate.js:78
+#: app/js/components/rules_v2/addtemplate.js:86
 msgid ""
 "Using the rule templates it is very easy to add rules to your project for "
 "the most common tasks.\n"
@@ -4346,6 +4556,7 @@ msgstr ""
 
 #: frontend/app/js/components/rules_v2/addtemplate.js:107
 #: app/js/components/rules_v2/addtemplate.js:107
+#: app/js/components/rules_v2/addtemplate.js:115
 msgid "Modify rule"
 msgstr "Modificar regla"
 
@@ -4353,6 +4564,7 @@ msgstr "Modificar regla"
 #: frontend/app/js/containers/rules_v2/add.js:27
 #: app/js/components/rules_v2/addtemplate.js:111
 #: app/js/containers/rules_v2/add.js:27
+#: app/js/components/rules_v2/addtemplate.js:119
 msgid "Create rule"
 msgstr "Crear regla"
 
@@ -4389,12 +4601,12 @@ msgid "Manual or automatic issues"
 msgstr "Incidencias manuales o automáticas"
 
 #: frontend/app/js/components/issues/index.js:35
-#: app/js/components/issues/index.js:35
+#: app/js/components/issues/index.js:35 app/js/components/issues/index.js:69
 msgid "Try diferent filters to look beyond, or create a new issue."
 msgstr "Prueba distintos filtros para ver mas allá, o crea nuevas incidencias."
 
 #: frontend/app/js/components/issues/index.js:146
-#: app/js/components/issues/index.js:146
+#: app/js/components/issues/index.js:146 app/js/components/issues/index.js:56
 msgid "Add issue"
 msgstr "Añadir incidencia"
 
@@ -4402,6 +4614,7 @@ msgstr "Añadir incidencia"
 #: plugins/optional-cloud/src/components/list.js:118
 #: app/js/components/issues/index.js:208
 #: ../plugins/optional-cloud/src/components/list.js:118
+#: app/js/components/issues/index.js:202
 msgid "Filters"
 msgstr "Filtros"
 
@@ -4442,11 +4655,13 @@ msgstr "Procesos"
 
 #: frontend/app/js/containers/settings/plugins/add.js:60
 #: app/js/containers/settings/plugins/add.js:60
+#: app/js/containers/settings/marketplace.js:72
 msgid "Installing plugin from {plugin_url}"
 msgstr "Instalando plugin de {plugin_url}"
 
 #: frontend/app/js/containers/settings/plugins/add.js:65
 #: app/js/containers/settings/plugins/add.js:65
+#: app/js/containers/settings/marketplace.js:77
 msgid "Widget descriptions"
 msgstr "Descripción de los widgets"
 
@@ -4484,6 +4699,7 @@ msgstr ""
 
 #: frontend/app/js/containers/project/wizard/index.js:78
 #: app/js/containers/project/wizard/index.js:78
+#: app/js/containers/project/wizard/index.js:80
 msgid "Unknown wizard step"
 msgstr "Paso del wizard desconocido"
 
@@ -4496,31 +4712,33 @@ msgstr "Añadir otro servicio"
 #: frontend/app/js/containers/project/wizard/step03_widgets.js:25
 #: app/js/containers/project/wizard/step04_services.js:27
 #: app/js/containers/project/wizard/step03_widgets.js:25
+#: app/js/containers/project/wizard/step03_widgets.js:36
 msgid "Save and continue"
 msgstr "Guardar y continuar"
 
 #: frontend/app/js/containers/project/wizard/step03_widgets.js:24
 #: app/js/containers/project/wizard/step03_widgets.js:24
+#: app/js/containers/project/wizard/step03_widgets.js:35
 msgid "Add another widget"
 msgstr "Añadir otro widget"
 
 #: frontend/app/js/containers/project/board/index.js:46
-#: app/js/containers/board/index.js:49
+#: app/js/containers/board/index.js:49 app/js/containers/board/index.js:53
 msgid "Unknown dashboard"
 msgstr "Dashboard desconocido"
 
 #: frontend/app/js/containers/project/board/index.js:48
-#: app/js/containers/board/index.js:51
+#: app/js/containers/board/index.js:51 app/js/containers/board/index.js:55
 msgid "No current dashboard"
 msgstr "No hay dashboard actual"
 
 #: frontend/app/js/containers/project/board/index.js:50
-#: app/js/containers/board/index.js:53
+#: app/js/containers/board/index.js:53 app/js/containers/board/index.js:57
 msgid "Widget catalog"
 msgstr "Catalogo de Widgets"
 
 #: frontend/app/js/containers/project/board/index.js:52
-#: app/js/containers/board/index.js:55
+#: app/js/containers/board/index.js:55 app/js/containers/board/index.js:59
 msgid "Widgets"
 msgstr "Widgets"
 
@@ -4528,6 +4746,7 @@ msgstr "Widgets"
 #: frontend/app/js/containers/rules_v2/addtemplate.js:21
 #: app/js/containers/rules_v2/rule.js:424
 #: app/js/containers/rules_v2/addtemplate.js:21
+#: app/js/containers/rules_v2/rule.js:406
 msgid "Updated rule *{name}*"
 msgstr "Actualizada regla *{name}*"
 
@@ -4535,11 +4754,13 @@ msgstr "Actualizada regla *{name}*"
 #: frontend/app/js/containers/rules_v2/addtemplate.js:15
 #: app/js/containers/rules_v2/rule.js:429
 #: app/js/containers/rules_v2/addtemplate.js:15
+#: app/js/containers/rules_v2/rule.js:411
 msgid "Created rule *{name}*"
 msgstr "Creada regla *{name}*"
 
 #: frontend/app/js/containers/rules_v2/rule.js:460
 #: app/js/containers/rules_v2/rule.js:460
+#: app/js/containers/rules_v2/rule.js:442
 msgid "Unknown Rule. Try another."
 msgstr "Regla desconocida. Intenta con otra."
 
@@ -4569,34 +4790,42 @@ msgid "Issue data"
 msgstr "Datos de la incidencia"
 
 #: frontend/app/js/utils/index.js:277 app/js/utils/index.js:409
+#: app/js/utils/index.js:477
 msgid "ms"
 msgstr "ms"
 
 #: frontend/app/js/utils/index.js:278 app/js/utils/index.js:410
+#: app/js/utils/index.js:478
 msgid "s"
 msgstr "s"
 
 #: frontend/app/js/utils/index.js:279 app/js/utils/index.js:411
+#: app/js/utils/index.js:479
 msgid "m"
 msgstr "m"
 
 #: frontend/app/js/utils/index.js:280 app/js/utils/index.js:412
+#: app/js/utils/index.js:480
 msgid "h"
 msgstr "h"
 
 #: frontend/app/js/utils/index.js:281 app/js/utils/index.js:413
+#: app/js/utils/index.js:481
 msgid "d"
 msgstr "d"
 
 #: frontend/app/js/utils/index.js:282 app/js/utils/index.js:414
+#: app/js/utils/index.js:482
 msgid "w"
 msgstr "w"
 
 #: frontend/app/js/utils/index.js:283 app/js/utils/index.js:415
+#: app/js/utils/index.js:483
 msgid "mo"
 msgstr "mo"
 
 #: frontend/app/js/utils/index.js:293 app/js/utils/index.js:425
+#: app/js/utils/index.js:493
 msgid "{units}{timeunit}"
 msgstr "{units}{timeunit}"
 
@@ -4604,6 +4833,7 @@ msgstr "{units}{timeunit}"
 #: plugins/optional-backups/src/components/edit.js:213
 #: app/js/utils/index.js:446 app/js/utils/index.js:453
 #: ../plugins/optional-backups/src/components/edit.js:213
+#: app/js/utils/index.js:514 app/js/utils/index.js:521
 msgid "Sunday"
 msgstr "Domingo"
 
@@ -4611,6 +4841,7 @@ msgstr "Domingo"
 #: plugins/optional-backups/src/components/edit.js:207
 #: app/js/utils/index.js:447
 #: ../plugins/optional-backups/src/components/edit.js:207
+#: app/js/utils/index.js:515
 msgid "Monday"
 msgstr "Lunes"
 
@@ -4618,6 +4849,7 @@ msgstr "Lunes"
 #: plugins/optional-backups/src/components/edit.js:208
 #: app/js/utils/index.js:448
 #: ../plugins/optional-backups/src/components/edit.js:208
+#: app/js/utils/index.js:516
 msgid "Tuesday"
 msgstr "Martes"
 
@@ -4625,6 +4857,7 @@ msgstr "Martes"
 #: plugins/optional-backups/src/components/edit.js:209
 #: app/js/utils/index.js:449
 #: ../plugins/optional-backups/src/components/edit.js:209
+#: app/js/utils/index.js:517
 msgid "Wednesday"
 msgstr "Miercoles"
 
@@ -4632,6 +4865,7 @@ msgstr "Miercoles"
 #: plugins/optional-backups/src/components/edit.js:210
 #: app/js/utils/index.js:450
 #: ../plugins/optional-backups/src/components/edit.js:210
+#: app/js/utils/index.js:518
 msgid "Thursday"
 msgstr "Jueves"
 
@@ -4639,6 +4873,7 @@ msgstr "Jueves"
 #: plugins/optional-backups/src/components/edit.js:211
 #: app/js/utils/index.js:451
 #: ../plugins/optional-backups/src/components/edit.js:211
+#: app/js/utils/index.js:519
 msgid "Friday"
 msgstr "Viernes"
 
@@ -4646,6 +4881,7 @@ msgstr "Viernes"
 #: plugins/optional-backups/src/components/edit.js:212
 #: app/js/utils/index.js:452
 #: ../plugins/optional-backups/src/components/edit.js:212
+#: app/js/utils/index.js:520
 msgid "Saturday"
 msgstr "Sabado"
 
@@ -5762,6 +5998,7 @@ msgstr "Cargando datos"
 
 #: frontend/app/js/components/rules_v2/edit/params.js:52
 #: app/js/components/rules_v2/edit/params.js:47
+#: app/js/components/rules_v2/edit/params.js:48
 msgid "Setup Options"
 msgstr "Configurar opciones"
 
@@ -5771,10 +6008,12 @@ msgid "Select a {name} or create one"
 msgstr "Selecciona un {name}"
 
 #: app/js/components/profile/index.js:116
+#: app/js/components/profile/index.js:122
 msgid "Usage tracking"
 msgstr "Seguimiento de usuarios"
 
 #: app/js/components/profile/index.js:118
+#: app/js/components/profile/index.js:124
 msgid ""
 "By letting Serverboards get information about your use of Serverboards "
 "allows us to center on the most used features and to detect failures on the "
@@ -5785,6 +6024,7 @@ msgstr ""
 "detectar fallos del uso real."
 
 #: app/js/components/profile/index.js:120
+#: app/js/components/profile/index.js:126
 msgid ""
 "We will not access any personal information, just general data as which "
 "functionalities and plugins are most used and errors."
@@ -5793,26 +6033,27 @@ msgstr ""
 "funcionalidades se usan, que plugins y los errores que sucedan."
 
 #: app/js/components/profile/index.js:125
+#: app/js/components/profile/index.js:131
 msgid "Allow Serverboards to track which functionalities I use."
 msgstr "Permitir que Serverboards siga que funcionalidades uso."
 
-#: app/js/components/board/index.js:357
+#: app/js/components/board/index.js:357 app/js/components/board/index.js:402
 msgid "Fatal error rendering widget {type}"
 msgstr "Error fatal renderizando el widget {type}"
 
-#: app/js/components/board/header.js:88
+#: app/js/components/board/header.js:88 app/js/components/board/header.js:85
 msgid "3 months"
 msgstr "3 meses"
 
-#: app/js/components/board/header.js:89
+#: app/js/components/board/header.js:89 app/js/components/board/header.js:86
 msgid "6 months"
 msgstr "6 meses"
 
-#: app/js/components/board/header.js:90
+#: app/js/components/board/header.js:90 app/js/components/board/header.js:87
 msgid "1 year"
 msgstr "1 año"
 
-#: app/js/components/board/widget.js:124
+#: app/js/components/board/widget.js:124 app/js/components/board/widget.js:128
 msgid "Error rendering widget. {type}. Contact author."
 msgstr "Error renderizando el widget. {type}. Contacte con el autor."
 
@@ -5821,26 +6062,32 @@ msgid "Add extractors to apply Universal Service Queries."
 msgstr "Añadir extractores para usar Consultas de Servicio Universales."
 
 #: app/js/components/board/queryserviceselect.js:169
+#: app/js/components/board/extractorselect.js:178
 msgid "Select an extractor:"
 msgstr "Seleccionar extractor:"
 
 #: app/js/components/board/queryserviceselect.js:183
+#: app/js/components/board/extractorselect.js:197
 msgid "Select a service to extract data from."
 msgstr "Seleccione un servicio del que desee extraer datos."
 
 #: app/js/components/board/settings.js:44
+#: app/js/components/board/settings.js:45
 msgid "{name} dashboard settings"
 msgstr "Configuración del Dashboard {name}"
 
 #: app/js/components/board/settings.js:47
+#: app/js/components/board/settings.js:48
 msgid "Remove dashboard"
 msgstr "Eliminar Dashboard"
 
 #: app/js/components/board/settings.js:58
+#: app/js/components/board/settings.js:59
 msgid "Style theme"
 msgstr "Tema del estilo"
 
 #: app/js/components/board/settings.js:71
+#: app/js/components/board/settings.js:76
 msgid "Accept changes"
 msgstr "Aceptar cambios"
 
@@ -5860,11 +6107,11 @@ msgstr ""
 "Puede añadir extractores para acceder datos remotos usando consultas USQ. La "
 "ayuda de cada extractor aparecerá aquí."
 
-#: app/js/components/login/index.js:89
+#: app/js/components/login/index.js:89 app/js/components/login/index.js:100
 msgid "Reset your password"
 msgstr "Reiniciar su contraseña"
 
-#: app/js/components/login/index.js:99
+#: app/js/components/login/index.js:99 app/js/components/login/index.js:110
 msgid "Log In"
 msgstr "Entrar"
 
@@ -5873,10 +6120,12 @@ msgid "Serverboards terms of use"
 msgstr "Terminos de uso de Serverboards"
 
 #: app/js/components/login/legal.js:30 app/js/components/login/legal.js:45
+#: app/js/components/login/legal.js:87
 msgid "I don't accept"
 msgstr "No acepto"
 
 #: app/js/components/login/legal.js:31 app/js/components/login/legal.js:46
+#: app/js/components/login/legal.js:88
 msgid "I accept"
 msgstr "Acepto"
 
@@ -5900,23 +6149,23 @@ msgstr "Error extrayendo datos de **{db}.{name}**: **{error}**"
 msgid "Cant remove last dashboard"
 msgstr "No se puede eliminar el ultimo dashboard"
 
-#: app/js/containers/main.js:33
+#: app/js/containers/main.js:33 app/js/containers/main.js:34
 msgid "User data"
 msgstr "Datos de usuario"
 
-#: app/js/actions/project.js:21
+#: app/js/actions/project.js:21 app/js/actions/project.js:22
 msgid "Added project *{shortname}*"
 msgstr "Añadido proyecto *{shortname}*"
 
-#: app/js/actions/project.js:29
+#: app/js/actions/project.js:29 app/js/actions/project.js:30
 msgid "Removed project *{shortname}*"
 msgstr "Eliminaro proyecto *{shortname}*"
 
-#: app/js/actions/project.js:37
+#: app/js/actions/project.js:37 app/js/actions/project.js:38
 msgid "Updated project *{shortname}*"
 msgstr "Actualizado proyecto *{shortname}*"
 
-#: app/js/actions/project.js:45
+#: app/js/actions/project.js:45 app/js/actions/project.js:46
 msgid "Added service to project"
 msgstr "Añadido servicio al proyecto"
 
@@ -6379,8 +6628,12 @@ msgid ""
 "If you don't accept its not possible to give you the service so you will "
 "belogged out.              "
 msgstr ""
+"Aceptando estas condiciones admite que ha leído las mencionadas cláusulas.\n"
+"\n"
+"Si no las acepta no nos es posible darle servicio por lo que su sesión se "
+"cerrará. "
 
-#: app/js/components/login/legal.js:36
+#: app/js/components/login/legal.js:36 app/js/components/login/legal.js:78
 msgid ""
 "By accepting these conditions you acknowledge that you have read and agree "
 "the mentioned use clasues.\n"
@@ -6393,3 +6646,345 @@ msgstr ""
 "\n"
 "Si no acepta no será posible proveerle del servicio, por lo que se cerrará "
 "su sesión."
+
+#: app/js/components/plugin/screen.js:30
+msgid "No services for this screen. Create one."
+msgstr "No hay servicios en esta pantalla. Cree uno"
+
+#: app/js/components/plugin/screen.js:133
+msgid "No compatible service exists"
+msgstr "No hay servicios compatibles"
+
+#: app/js/components/plugin/screen.js:134
+msgid ""
+"This screen requires a compatible service, and none was found.\n"
+"\n"
+"Please add a compatible service type and try again."
+msgstr ""
+"Esta pantalla requiere un servicio compatible, y ningúno ha sido "
+"encontrado.\n"
+"\n"
+"Por favor añada un servicio compatible e intente de nuevo."
+
+#: app/js/components/calendar.js:158
+msgctxt "calendar"
+msgid "mo"
+msgstr "lu"
+
+#: app/js/components/calendar.js:159
+msgctxt "calendar"
+msgid "tu"
+msgstr "ma"
+
+#: app/js/components/calendar.js:160
+msgctxt "calendar"
+msgid "we"
+msgstr "mi"
+
+#: app/js/components/calendar.js:161
+msgctxt "calendar"
+msgid "th"
+msgstr "ju"
+
+#: app/js/components/calendar.js:162
+msgctxt "calendar"
+msgid "fr"
+msgstr "vi"
+
+#: app/js/components/calendar.js:163
+msgctxt "calendar"
+msgid "sa"
+msgstr "sa"
+
+#: app/js/components/calendar.js:164
+msgctxt "calendar"
+msgid "su"
+msgstr "do"
+
+#: app/js/components/board/extractorselect.js:144
+msgid "Select extractors to apply Universal Service Queries."
+msgstr ""
+"Seleccione los extractores para aplicar Consultas Universales de Servicio "
+"(USQ)"
+
+#: app/js/components/board/extractorselect.js:218
+msgid "Remove Extractor"
+msgstr "Eliminar el extractor"
+
+#: app/js/components/settings/marketplace/marketinfo.js:42
+msgid "Install now for free"
+msgstr "Instalar ahora grátis"
+
+#: app/js/components/settings/marketplace/marketinfo.js:42
+msgid "Install now for {label}"
+msgstr "Instalar ahora por {label}"
+
+#: app/js/components/settings/marketplace/login.js:64
+msgid ""
+"Could not check logged in status. Connectivity problems? Check again later."
+msgstr ""
+"No se puede comprobar el estado de autenticación. ¿Tiene problemas de "
+"conectividad? Por favor intente mas tarde."
+
+#: app/js/components/settings/marketplace/login.js:119
+msgid "Login into the Marketplace"
+msgstr "Entrar en el Marketplace"
+
+#: app/js/components/settings/marketplace/login.js:128
+msgid "Log in into the marketplace."
+msgstr "Entrar en el Marketplace"
+
+#: app/js/components/settings/marketplace/login.js:144
+msgid "Click here to register"
+msgstr "Pulse aquí apra registrarse"
+
+#: app/js/components/settings/marketplace/login.js:151
+msgid "Log in"
+msgstr "Entrar"
+
+#: app/js/components/settings/plugins/index.js:73
+msgid "Plugin updated successfully."
+msgstr "Plugin actualizado con éxito"
+
+#: app/js/components/settings/plugins/card.js:51
+#: app/js/components/settings/plugins/details.js:163
+msgid "Updating..."
+msgstr "Actualizando..."
+
+#: app/js/components/settings/plugins/details.js:157
+msgid "Checking updates"
+msgstr "Comprobando actualizaciones"
+
+#: app/js/components/settings/plugins/details.js:169
+msgid "Update Now to {version}"
+msgstr "Actualizar ahora a {version}"
+
+#: app/js/components/settings/plugins/details.js:177
+msgid "Could not check update status. You can force update anyway."
+msgstr ""
+"No se puede comprobar el estado de actualización. Puede forzar la "
+"actualización si lo desea."
+
+#: app/js/components/login/index.js:52
+msgid "Access not allowed."
+msgstr "Acceso no permitido."
+
+#: app/js/components/login/index.js:54
+msgid ""
+"Access params are not valid. Contact the plugin developer or check the "
+"Serverboards API."
+msgstr ""
+"Los parametros de acceso no son válidos. Contacte con el desarrollador del "
+"plugin o compruebe el API de Serverboards."
+
+#: app/js/components/login/legal.js:48
+msgid ""
+"There was an serious error downloading the license data. Try reloading the "
+"page or contact admin."
+msgstr ""
+"Hubo un error serio descargando los datos de licencia. Pruebe recargando la "
+"página o contacte con su administrador."
+
+#: app/js/components/rules_v2/index.js:193
+msgid "Remove rule"
+msgstr "Eliminar regla"
+
+#: app/js/components/rules_v2/edit/ruleshelp.js:167
+msgid ""
+"You can use these variables to construct your expression, for example 'A."
+"exit == 0'"
+msgstr ""
+"Puede usar estas variables para construir su expresión, por ejemplo `A.exit "
+"== 0`."
+
+#: app/js/components/rules_v2/edit/description.js:14
+msgid "Enter here a description of what this rule do."
+msgstr "Escriba aquí la descripción de que hace esta regla."
+
+#: app/js/components/notifications/list.js:67
+msgid "No messages yet..."
+msgstr "No hay mensajes aún..."
+
+#: app/js/components/service/cards.js:40
+msgid "Hold to detach from project"
+msgstr "Mantenga pulsado para quitar del proyecto"
+
+#: app/js/components/service/card.js:39
+msgid ""
+"This service type is not properly installed. Please install the appropiate "
+"plugin at Settings"
+msgstr ""
+"Este servicio no esta instalado correctamente. Por favor instale el plugin "
+"apropiado en Configuración."
+
+#: app/js/components/service/details/index.js:112
+msgid ""
+"Error loading service details. Maybe it does not exist or user has no "
+"permissions."
+msgstr ""
+"Error cargando los detalles del servicio. Quizás no existe o el usuario no "
+"tiene permisos."
+
+#: app/js/components/service/details/detailstab.js:27
+msgid "yes"
+msgstr "sí"
+
+#: app/js/components/service/details/detailstab.js:27
+msgid "no"
+msgstr "no"
+
+#: app/js/components/holdbutton.js:42
+msgid "Hold to press"
+msgstr "Mantenga pulsado para pulsar"
+
+#: app/js/containers/profile/index.js:44
+msgid "Updated user settings"
+msgstr "Actualizados datos del usuario"
+
+#: app/js/containers/menu/sidebar.js:71
+msgid "Dashboards"
+msgstr "Dashboards"
+
+#: app/js/containers/menu/sidebar.js:75
+msgid "Project Settings"
+msgstr "Configuración del proyecto"
+
+#: app/js/containers/menu/sidebar.js:83
+msgid "Serverboards Settings"
+msgstr "Configuración de Serverboards"
+
+#: app/js/containers/marketplaceselector.js:16
+msgid "Free"
+msgstr "Grátis"
+
+#: app/js/containers/marketplaceselector.js:19
+msgid "Available"
+msgstr "Disponible"
+
+#: app/js/containers/marketplaceselector.js:21
+msgid "{price} € / month"
+msgstr "\t"
+
+#: app/js/containers/marketplaceselector.js:56
+msgid ""
+"A new tab has been opened with information on how to acquire the required "
+"plugin."
+msgstr ""
+"Un nuevo tab se ha abierto con información sobre como adquirir este plugin."
+
+#: app/js/containers/marketplaceselector.js:93
+msgid "Installing..."
+msgstr "Instalando..."
+
+#: app/js/containers/rules_v2/index.js:25
+msgid "Rule removed"
+msgstr "Regla eliminada"
+
+#: app/js/actions/service.js:73
+msgid "Removed service from Serverboards"
+msgstr "Servicio eliminado de Serverboards"
+
+#: app/js/utils/index.js:440
+msgid "yesterday"
+msgstr "ayer"
+
+#: app/js/utils/index.js:442
+msgid "tomorrow"
+msgstr "mañana"
+
+#: app/js/utils/index.js:452
+msgid "in {units} {timeunit}"
+msgstr "en {units} {timeunit}"
+
+#: ../plugins/core/manifest.yaml
+msgid "Core Data"
+msgstr "Datos Core"
+
+#: ../plugins/core/manifest.yaml
+msgid "Some misc data that Serverboards needs to run.\n"
+msgstr "Algunos datos miscelaneos necesarios para ejecutar Serverboards\n"
+
+#: ../plugins/core/manifest.yaml
+msgid "Serverboards Core License Agreement."
+msgstr "Acuerdo de licencia básico de Serverboards."
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Core Services"
+msgstr "Servicios Core"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"Generic server service.\n"
+"\n"
+"It has only knowledge of schemes and ports, not os special handling of\n"
+"service resolution as required in smtp. It try to connect using SSL if\n"
+"the schema finishes in `s`, as `smtps`, `imaps` and others.\n"
+msgstr ""
+"Servidor generic básico. \n"
+"\n"
+"Solo conoce puertos y protocolos. No hace ninguna gestión especial ni "
+"resolución espeficica por servicios, por ejemplo `smtp` necesita resolución "
+"`mx`. Intentará conectarse usando SSL si el protocolo acaba en `s`como "
+"`smtps` e `imaps`. \n"
+
+#: ../plugins/core-services/manifest.yaml
+msgid "Server URL Address"
+msgstr "Dirección URL del servidor"
+
+#: ../plugins/core-services/manifest.yaml
+msgid ""
+"The URL must indicate the protocol and address, for example:\n"
+"`smtps://gmail-smtp-in.l.google.com.` or `imap://imap.gmail.com`.\n"
+"\n"
+"Some service require special servername. For example smtp requires the\n"
+"MX  servers, so for example it does not need `gmail.com` but\n"
+"`gmail-smtp-in.l.google.com.`\n"
+msgstr ""
+"La URL debe indicar el protocolo y la dirección, por ejemplo: `smtps://gmail-"
+"smtp-in.l.google.com.` o `imap://imap.gmail.com`.\n"
+"\n"
+"Algunos servicios necesitan un nombre de servidor especial. Por ejemplo smtp "
+"necesita los servidores de tipo MX, de modo que por ejemplo para el servidor "
+"smtp de goole no se accede a `gmail.com` si no a `gmail-smtp-in.l.google."
+"com`.\n"
+
+#: ../plugins/core-updater/manifest.yaml
+msgid "Core Update Checker"
+msgstr "Comprobador de actualizaciónes core"
+
+#: ../plugins/core-updater/manifest.yaml
+msgid ""
+"Shows at serverboards setting overview whether serverboards needs an "
+"update,\n"
+"and allows to trigger the update of the system.\n"
+msgstr ""
+"Muestra en el resumen de configuración si Serverboards necesita una "
+"actualización y permite iniciar dicha actualización.\n"
+
+#: ../plugins/core-updater/manifest.yaml
+msgid "Plugin enable"
+msgstr "Activar plugin"
+
+#: ../plugins/core-updater/manifest.yaml
+msgid "Plugin remove"
+msgstr "Eliminar plugin"
+
+#: ../plugins/core-updater/manifest.yaml
+msgid "Marketplace integration"
+msgstr "Integración con el Marketplace"
+
+#: ../plugins/core-notifications/manifest.yaml
+msgid "Core Notifications"
+msgstr "Notificaciones básicas"
+
+#: ../plugins/core-extractors/manifest.yaml
+msgid "Core Extractors"
+msgstr "Extractores básicos"
+
+#: ../plugins/core-actions/manifest.yaml
+msgid "Core Actions"
+msgstr "Acciones básicas"
+
+#: ../plugins/core-settings/manifest.yaml
+msgid "Core Settings"
+msgstr "Configuración básica"
