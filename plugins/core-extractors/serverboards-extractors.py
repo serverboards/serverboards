@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
-import serverboards
+import serverboards_aio as serverboards
+import curio
+import asks
+import re
 from serverboards import print
+asks.init('curio')
 
 
 @serverboards.rpc_method
@@ -139,6 +143,117 @@ def table_extractor(config, table, _quals, _columns):
     if table in tables:
         return tables[table]
     raise Exception('unknown-table')
+
+
+fields_re = re.compile(r"\{\{(.*?)\}\}")
+
+
+def get_fields(str):
+    return fields_re.findall(str)
+
+
+@serverboards.rpc_method
+def http_schema(config, table):
+    config = config.get("config")
+    if not table:
+        return [config["table"]]
+    else:
+        url = config.get("url", "")
+        headers = config.get("headers", "")
+        return {
+            "columns": get_fields(url + headers) + ["url", "result", "status_code"]
+        }
+
+
+def get_row(result, fields, columns):
+    r = []
+    for c in columns:
+        if c == "result":
+            r.append(result)
+        else:
+            r.append(fields.get(c))
+    return r
+
+
+@serverboards.rpc_method
+async def http_extractor(config, table, quals, columns):
+    config = config.get("config")
+    url = config.get("url", "")
+    headers = config.get("headers", "")
+
+    qs = http_extractor_get_qs(quals)
+    # print("qs", qs, quals)
+
+    rows = []
+    for q in qs:
+        rows += [
+            get_row(row, q, columns)
+            for row in (await http_extractor_with_fields(q, columns, url, headers))
+        ]
+
+    return {
+        "columns": columns,
+        "rows": rows,
+    }
+
+
+def http_extractor_get_qs(quals):
+    if not quals:
+        return [{}]
+    restfields = http_extractor_get_qs(quals[1:])
+
+    k, op, v = quals[0]
+    # print("Mix", k, op, v, restfields)
+    ret = []
+    if op == 'IN':
+        vs = v
+        ret = []
+        for v in vs:
+            for r in restfields:
+                ret.append({
+                    **r,
+                    k: v,
+                })
+    elif op == '=':
+        for r in restfields:
+            ret.append({
+                **r,
+                k: v,
+            })
+    else:
+        raise Exception("Invalid operator for %s %s" % (k, op))
+
+    return ret
+
+
+async def http_extractor_with_fields(fields, columns, url, headers):
+    url = fields_re.sub((lambda k: fields.get(k.group(1))), url)
+    headers = fields_re.sub((lambda k: fields.get(k.group(1))), headers)
+    # print(repr(headers))
+
+    def split_header_line(str):
+        k, v = str.split(':')
+        return [k.strip(), v.strip()]
+
+    headers = dict([
+        split_header_line(line)
+        for line in headers.split('\n')
+        if line
+    ])
+    headers["User-Agent"] = "Serverboards - https://serverboards.io"
+    # print("GET %s: %s", url, headers)
+
+    res = await asks.get(url, headers=headers)
+    fields["status_code"] = res.status_code
+    fields["url"] = url
+    try:
+        result = res.json()
+        if isinstance(result, dict):
+            return [result]
+        elif isinstance(result, list):
+            return result
+    except Exception as e:
+        return [{"error": str(e)}]
 
 
 if __name__ == '__main__':

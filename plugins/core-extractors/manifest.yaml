@@ -15,7 +15,7 @@ components:
     name: Core extractor
     command: ./serverboards-extractors.py
     strategy: singleton
-    timeout: 30m
+    timeout: 10s
     perms: service.get auth.list rules.view
 
   - id: extractor
@@ -42,3 +42,39 @@ components:
           Use `#` to mark new table names, then the data as CSV, first
           row the headers.
         label: Data
+
+
+  - id: http
+    name: HTTP request
+    description: |
+      Performs an HTTP GET request and parses the data. The data is parsed always as
+      JSON. Can use extra params to complete the URL and add extra headers.
+
+      It can use `{{fieldname}}` as placeholders. If they values are not provided,
+      they will empty.
+    type: extractor
+    icon: www blue
+    command: serverboards.core.extractors/daemon
+    extractor: http_extractor
+    schema: http_schema
+    params:
+      - name: table
+        type: text
+        label: Table Name
+      - name: url
+        type: url
+        label: URL
+        description: |
+          URL to request the data from.
+
+          Can use `{{fieldname}}` to use query provided urls, for example:
+          `https://api.github.com/users/{{username}}`
+
+          The fieldnames will be extracted from the url.
+      - name: headers
+        type: textarea
+        label: Headers
+        description: |
+          Headers as provided for the query. Can also contain `{{fieldname}}`.
+
+          For example: `Authorization: token {{oauth_token}}`
