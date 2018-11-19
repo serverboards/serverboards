@@ -28,6 +28,7 @@ class GenericField extends React.Component{
     }
 
     this.handleChange = this.handleChange.bind(this)
+    this.setValue = this.setValue.bind(this)
   }
   handleChange(ev){
     this.setValue(ev.target.value)

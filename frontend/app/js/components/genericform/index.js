@@ -81,7 +81,7 @@ GenericForm.propTypes = {
       name: PropTypes.string,
       description: PropTypes.string,
       type: PropTypes.string,
-      value: PropTypes.string,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.Boolean]),
       params: PropTypes.string,
     }).isRequired).isRequired,
   data: PropTypes.object,
