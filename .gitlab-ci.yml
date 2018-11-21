@@ -95,6 +95,7 @@ release:
     expire_in: 1 week
   only:
     - master
+    - v18.10
     - CORE-590-remove-noncore-plugins
 
 publish-unstable:
