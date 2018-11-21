@@ -36,7 +36,7 @@ class SelectService extends React.Component{
     $(this.refs.select)
       .dropdown({
         onChange: (value) => {
-          this.props.setValue(this.props.name, value)
+          this.props.setValue(value)
         }
       })
       .dropdown('set value', this.props.value)
@@ -82,6 +82,7 @@ class SelectService extends React.Component{
           <i className="dropdown icon"></i>
           <div className="default text" style={{display:"block"}}>{(props.value || {}).uuid || defaultName || props.placeholder}</div>
           <div className="menu">
+            <div key={"empty"} className="item" data-value="">{i18n("No service")}</div>
             {(this.state.items || []).map( (ac) => (
               <div key={ac.value} className="item" data-value={ac.value}>{ac.name}<span className="ui meta" style={{float:"right"}}>{ac.description}</span></div>
             ))}
