@@ -16,7 +16,18 @@ class GenericForm extends React.Component{
   getInitialState(props){
     props = props || this.props
     let state={};
-    (props.fields || []).map((f) => { if (f.name){ state[f.name]=(f.value || f.default || '') } } )
+    (props.fields || []).map((f) => {
+      if (f.name){
+        let v = f.value
+        if (v == undefined){
+          if (f.default == undefined)
+            v = ""
+          else
+            v = f.default
+        }
+        state[f.name]=v
+      } 
+    })
     if (props.data){
       Object.keys(props.data).map( (k) => { if (k){ state[k]=props.data[k] }})
     }
