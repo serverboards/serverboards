@@ -49,7 +49,7 @@ defmodule Serverboards.Query.Executor do
             [config, nil],
             config.user)
         _ ->
-          {:error, :unknown_extractor}
+          {:error, {:unknown_extractor, extractor}}
       end
     end, ttl: 60_000)
   end
