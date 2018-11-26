@@ -11,6 +11,8 @@ import Legal from 'app/components/login/legal'
 import Sidebar from 'app/containers/menu/sidebar'
 import Hook from 'app/containers/hooks'
 import ProjectSelector from 'app/containers/menu/projectselector'
+import Tip from 'app/components/tip'
+import i18n from 'app/utils/i18n'
 
 function modal(props){
   let modal = []
@@ -40,6 +42,20 @@ function Main(props){
   if (!props.logged_in) {
     contents=(
       <Login onLogin={props.onLogin}/>
+    )
+  } else if (!props.has_perms) {
+    const NOCONTENT_IMG = require("../../imgs/026-illustration-nocontent.svg")
+
+    contents = (
+      <Tip
+        title={i18n("No permissions")}
+        top_img={NOCONTENT_IMG}
+        subtitle={i18n("Without permissions there is nothing to do.")}
+        description={i18n("Ask your Serverboards administrator to add you to the users group and add some permissions.")}
+        extra={(
+          <a href="/">Try login again</a>
+        )}
+        />
     )
   } else if (props.licenses.length != 0) {
     contents = (

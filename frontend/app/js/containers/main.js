@@ -5,6 +5,8 @@ import { login, logout, user_settings_accept_license } from 'app/actions/auth'
 import { set_modal } from 'app/actions/modal'
 import rpc from 'app/rpc'
 import i18n from 'app/utils/i18n'
+import {map_get} from 'app/utils'
+
 
 var Main = connect({
   state(state){
@@ -14,6 +16,7 @@ var Main = connect({
       location: state.routing.locationBeforeTransitions,
       lang_counter: state.auth.lang_counter,
       licenses: state.auth.licenses,
+      has_perms: (map_get(state, ["auth", "user", "perms", "length"], 0) > 0)
     }
   },
   handlers(dispatch){
