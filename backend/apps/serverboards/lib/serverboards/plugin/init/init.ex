@@ -43,14 +43,12 @@ defmodule Serverboards.Plugin.Init do
   ## impl
   def init(init) do
     state = %{
-      running: false,
       init: init,
       task: nil,
       timeout: 1,
       timer: nil,
       started_at: nil,
-      cmd: nil,
-      ignore_down: false # ignore one down, do not dup timeout
+      ignore_down: false # ignore one down, do not dup first timeout
     }
 
     GenServer.cast(self(),{:start})
@@ -59,7 +57,7 @@ defmodule Serverboards.Plugin.Init do
   end
 
   def terminate(reason, state) do
-    Serverboards.Plugin.Runner.stop(state.cmd)
+    # Serverboards.Plugin.Runner.stop(state.cmd)
     Logger.info("Terminated init #{ state.init.id } #{inspect reason}", init: state.init)
     :shutdown
   end
@@ -67,15 +65,10 @@ defmodule Serverboards.Plugin.Init do
   def handle_cast({:start}, state) do
     Logger.info("Starting init service #{inspect state.init.id}", init: state.init)
     init = state.init
-    {:ok, cmd} = Serverboards.Plugin.Runner.start(init.command, "system/init")
-    Process.monitor((Serverboards.Plugin.Runner.get cmd).pid)
-    #Process.link((Serverboards.Plugin.Runner.get cmd).pid)
-    task =  Task.async(Serverboards.Plugin.Runner, :call, [cmd, init.call, []])
+    task =  Task.async(Serverboards.Plugin.Runner, :call, [init.command, init.call, []])
 
     state = %{
       state |
-      cmd: cmd,
-      running: true,
       task: task,
       started_at: Timex.Duration.now()
     }
@@ -86,11 +79,15 @@ defmodule Serverboards.Plugin.Init do
   end
 
   defp handle_wait_run(%{started_at: started_at, timeout: timeout, ignore_down: ignore_down } = state) do
-    if state.timer do # if inside timer, do not retrigger. Wait for real timer.
+    # There has been an error (process or method failed), so we retry to call it
+    # again after some time, that depends on how long it was running.
+    if state.timer do # if inside timer, do not retrigger. Just set a new timer.
       running_for_seconds = case started_at do
         nil -> 0
         _other -> -Timex.Duration.diff(started_at, nil, :seconds)
       end
+
+      Process.cancel_timer(state.timer)
       timer = Process.send_after(self(), {:restart}, timeout * 1000)
 
       # Timeout is for next run
@@ -114,22 +111,15 @@ defmodule Serverboards.Plugin.Init do
     end
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, _type}, %{started_at: started_at} = state) when is_nil(started_at) do
-    # this is when already finished properly, it may close the cmd.
+  def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
     # Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
-    Serverboards.Plugin.Runner.stop(state.cmd)
-    # and restart soon
-    state = handle_wait_run(state)
-    {:noreply, state}
-  end
-def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
-    # Logger.info("Init \"#{inspect state.init.id}\" down (#{inspect type}).")
-    Serverboards.Plugin.Runner.stop(state.cmd)
     state = handle_wait_run(state)
     {:noreply, state}
   end
   def handle_info({:restart}, state) do
-    Serverboards.Plugin.Runner.stop(state.cmd)
+    if state.timer do
+      Process.cancel_timer(state.timer)
+    end
     state = %{
       state |
       timer: nil
@@ -167,18 +157,13 @@ def handle_info({:DOWN, _ref, :process, _pid, _type}, state) do
       started_at: nil,
       task: nil
     }
-    Logger.info("Init \"#{state.init.id}\" finished properly. Did run for #{inspect running_for_seconds} seconds. #{inspect timeout} secs")
+    Logger.info(
+      "Init \"#{state.init.id}\" finished properly. Did run for #{inspect running_for_seconds} seconds. " <>
+      "Restart in #{inspect timeout} secs.")
     {:noreply, state}
   end
-  def handle_info({:EXIT, _from, :normal}, state) do
-    Logger.debug("Stop the external process #{inspect state}")
-    Serverboards.Plugin.Runner.stop(state.cmd)
-    {:stop, :normal, state}
-  end
-  def handle_info({:EXIT, _from, :force_stop}, state) do
-    Logger.info("Kill the external process #{inspect state.init.command}")
-    Serverboards.Plugin.Runner.kill(state.cmd)
-    {:stop, :normal, state}
+  def handle_info({ref, {:ok, nil}}, state) do
+    handle_info({ref, {:ok, 10*60*60}}, state)
   end
   def handle_info(any, state) do
     Logger.warn("Got info: #{inspect any}")
