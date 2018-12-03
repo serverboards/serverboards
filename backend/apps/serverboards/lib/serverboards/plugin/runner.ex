@@ -206,15 +206,17 @@ defmodule Serverboards.Plugin.Runner do
 
   """
   def call(id, method, params, user) when (is_binary(id) and is_binary(method)) do
-    pid = if String.contains?(id, "/") do
+    {pid, uuid} = if String.contains?(id, "/") do
       case start(id, user) do
         {:ok, uuid} ->
-          GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
+          pid = GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
+          {pid, uuid}
         other ->
-          other
+          {other, nil}
       end
     else
-      GenServer.call(Serverboards.Plugin.Runner, {:get, id})
+      pid = GenServer.call(Serverboards.Plugin.Runner, {:get, id})
+      {pid, id}
     end
 
     case pid do
@@ -229,7 +231,7 @@ defmodule Serverboards.Plugin.Runner do
         case Serverboards.IO.Cmd.call pid, method, params do
           {:error, :exit} ->
             Logger.error("Unexpected exit process while calling #{id}.#{method}")
-            GenServer.call(Serverboards.Plugin.Runner, {:exit, id}) # just exitted, mark it
+            GenServer.call(Serverboards.Plugin.Runner, {:exit, uuid}) # just exitted, mark it
             {:error, :exit}
           {:error, :unknown_method} ->
             Logger.error("Could not call method #{inspect method} at #{inspect id}")

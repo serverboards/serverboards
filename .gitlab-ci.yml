@@ -93,6 +93,10 @@ release:
     paths:
       - serverboards.deb
     expire_in: 1 week
+  dependencies:
+    - backend-test
+    - frontend-test
+    - plugins-test 
   only:
     - master
     - v18.10
