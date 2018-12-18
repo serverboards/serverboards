@@ -13,20 +13,24 @@ defmodule Serverboards.IO.HTTP.WebSocketHandler do
   def websocket_init(_TransportName, req, _opts) do
     Logger.info("Websocket connected.")
 
-    wspid=self()
+    wspid = self()
+
     write_line_to_ws = fn line ->
-      #Logger.info("Write to WS #{line}")
+      # Logger.info("Write to WS #{line}")
       send(wspid, {:send_line, line})
     end
 
-    {:ok, client} = RPC.Client.start_link [
+    {:ok, client} =
+      RPC.Client.start_link(
         writef: write_line_to_ws,
         name: "WebSocket"
-      ]
+      )
+
     Serverboards.Auth.authenticate(client)
 
-    {:ok, req, %{client: client} }
+    {:ok, req, %{client: client}}
   end
+
   def websocket_terminate(_reason, _req, state) do
     Logger.info("Websocket disconnected.")
     RPC.Client.stop(state.client)
@@ -39,9 +43,10 @@ defmodule Serverboards.IO.HTTP.WebSocketHandler do
   def websocket_handle({:text, line}, req, state) do
     case RPC.Client.parse_line(state.client, line) do
       {:error, e} ->
-        Logger.error("Error parsing websockets data: #{inspect e}. Close connection.")
-        Logger.debug("Offending line is #{inspect line}")
+        Logger.error("Error parsing websockets data: #{inspect(e)}. Close connection.")
+        Logger.debug("Offending line is #{inspect(line)}")
         {:shutdown, req, state}
+
       _ ->
         nil
         {:ok, req, state}
@@ -50,7 +55,7 @@ defmodule Serverboards.IO.HTTP.WebSocketHandler do
 
   # ignore other
   def websocket_handle(data, req, state) do
-    Logger.debug("Fallback ignore data #{inspect data}")
+    Logger.debug("Fallback ignore data #{inspect(data)}")
     {:ok, req, state}
   end
 
@@ -58,13 +63,13 @@ defmodule Serverboards.IO.HTTP.WebSocketHandler do
   Sends a line to the WS.
   """
   def websocket_info({:send_line, line}, req, state) do
-    #Logger.info("Call to WS #{line}")
-    { :reply, {:text, line}, req, state}
+    # Logger.info("Call to WS #{line}")
+    {:reply, {:text, line}, req, state}
   end
 
   # fallback message handler
   def websocket_info(info, req, state) do
-    Logger.info("Fallback ignore info #{inspect info}")
+    Logger.info("Fallback ignore info #{inspect(info)}")
     {:ok, req, state}
   end
 end

@@ -22,26 +22,33 @@ defmodule Test.Client do
   """
   def start_link(options \\ []) do
     options = options ++ [reauth: true]
-    {:ok, pid} = GenServer.start_link __MODULE__, options, []
-    client=GenServer.call(pid, {:get_client})
+    {:ok, pid} = GenServer.start_link(__MODULE__, options, [])
+    client = GenServer.call(pid, {:get_client})
 
-    maybe_user=Keyword.get(options, :as, false)
-    ok = if maybe_user do
-      Serverboards.Auth.authenticate(client)
+    maybe_user = Keyword.get(options, :as, false)
 
-      Client.expect( client, method: "auth.required" )
-      case Serverboards.Auth.User.user_info maybe_user, %{ email: "system", perms: ["auth.info_any_user"] } do
-        {:ok, user} ->
-          token = Serverboards.Auth.User.Token.create(user, options[:perms])
-          _user = Client.call(client, "auth.auth", %{ "type" => "token", "token" => token })
-          :ok
-        {:error, _} ->
-          Logger.warn("Test client cant log as user #{inspect maybe_user}")
-          :cant_log_in
+    ok =
+      if maybe_user do
+        Serverboards.Auth.authenticate(client)
+
+        Client.expect(client, method: "auth.required")
+
+        case Serverboards.Auth.User.user_info(maybe_user, %{
+               email: "system",
+               perms: ["auth.info_any_user"]
+             }) do
+          {:ok, user} ->
+            token = Serverboards.Auth.User.Token.create(user, options[:perms])
+            _user = Client.call(client, "auth.auth", %{"type" => "token", "token" => token})
+            :ok
+
+          {:error, _} ->
+            Logger.warn("Test client cant log as user #{inspect(maybe_user)}")
+            :cant_log_in
+        end
+      else
+        :ok
       end
-    else
-      :ok
-    end
 
     if ok == :ok do
       {:ok, client}
@@ -75,7 +82,7 @@ defmodule Test.Client do
   """
   def expect(client, what, timeout \\ 5000) do
     try do
-      GenServer.call(RPC.Client.get(client, :pid), {:expect, what, timeout}, timeout + 1000 )
+      GenServer.call(RPC.Client.get(client, :pid), {:expect, what, timeout}, timeout + 1000)
     rescue
       _e ->
         false
@@ -96,11 +103,14 @@ defmodule Test.Client do
   """
   def cast(client, method, params, cb) do
     Task.start_link(fn ->
-      ret = GenServer.call(
-        RPC.Client.get(client, :pid),
-        {:call_from_json, method, params},
-        100_000 # much larger timeout
-      )
+      ret =
+        GenServer.call(
+          RPC.Client.get(client, :pid),
+          {:call_from_json, method, params},
+          # much larger timeout
+          100_000
+        )
+
       cb.(ret)
     end)
   end
@@ -109,7 +119,7 @@ defmodule Test.Client do
   Sends response to client from the JSON side
   """
   def parse_line(client, line) when is_binary(line) do
-    RPC.Client.parse_line( RPC.Client.get(client, :client), line )
+    RPC.Client.parse_line(RPC.Client.get(client, :client), line)
   end
 
   def parse_map(client, map) do
@@ -128,62 +138,70 @@ defmodule Test.Client do
   ## server impl
   def init(options) do
     pid = self()
-    {:ok, client} = RPC.Client.start_link [
-      writef: fn line ->
-        #Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
-        {:ok, rpc_call} = Poison.decode( line )
-        GenServer.cast(pid, {:call, rpc_call } )
-      end,
-      name: "TestClient",
-      #tap: true
-      ]
 
-    RPC.Client.set client, :pid, pid
-    RPC.Client.set client, :client, client
+    {:ok, client} =
+      RPC.Client.start_link(
+        writef: fn line ->
+          # Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
+          {:ok, rpc_call} = Poison.decode(line)
+          GenServer.cast(pid, {:call, rpc_call})
+        end,
+        name: "TestClient"
+      )
 
-    {:ok, %{
-        client: client,
-        messages: [],
-        expecting: nil,
-        waiting: %{},
-        maxid: 1,
-        options: options
-    } }
+    # tap: true
+
+    RPC.Client.set(client, :pid, pid)
+    RPC.Client.set(client, :client, client)
+
+    {:ok,
+     %{
+       client: client,
+       messages: [],
+       expecting: nil,
+       waiting: %{},
+       maxid: 1,
+       options: options
+     }}
   end
 
   defp expect_rec(_what, []) do
     {false, []}
   end
-  defp expect_rec(what, [msg | rest ]) do
+
+  defp expect_rec(what, [msg | rest]) do
     if expect_match?(what, msg) do
-      #Logger.debug("True!")
+      # Logger.debug("True!")
       {true, rest}
     else
       {ok, rmsgs} = expect_rec(what, rest)
-      {ok, [msg | rmsgs ]}
+      {ok, [msg | rmsgs]}
     end
   end
 
   def handle_call({:expect, what, timeout}, from, status) do
-    Logger.debug("Test.Client at expect: Look for #{inspect what} at #{inspect status.messages}")
+    Logger.debug(
+      "Test.Client at expect: Look for #{inspect(what)} at #{inspect(status.messages)}"
+    )
+
     {isin, messages} = expect_rec(what, status.messages)
+
     if isin do
-      #Logger.debug("Already here")
-      {:reply, true, %{status | messages: messages, expecting: nil }}
+      # Logger.debug("Already here")
+      {:reply, true, %{status | messages: messages, expecting: nil}}
     else
-      #Logger.debug("Not here here")
-      status=%{ status | expecting: %{ what: what, from: from } }
+      # Logger.debug("Not here here")
+      status = %{status | expecting: %{what: what, from: from}}
       {:noreply, status, timeout}
     end
   end
 
   def handle_call({:call_from_json, method, params}, from, status) do
-    {:ok, json} = Poison.encode( %{ method: method, params: params, id: status.maxid })
+    {:ok, json} = Poison.encode(%{method: method, params: params, id: status.maxid})
     RPC.Client.parse_line(status.client, json)
-    {:noreply, %{ status |
-      waiting: Map.put(status.waiting, status.maxid, from),
-      maxid: status.maxid + 1,
-    } }
+
+    {:noreply,
+     %{status | waiting: Map.put(status.waiting, status.maxid, from), maxid: status.maxid + 1}}
   end
 
   def handle_call({:get_client}, _from, status) do
@@ -191,29 +209,34 @@ defmodule Test.Client do
   end
 
   def handle_call({:debug}, _from, status) do
-    {:reply, %{ "debug test client" => inspect(status.client) }, status}
+    {:reply, %{"debug test client" => inspect(status.client)}, status}
   end
 
   def handle_cast({:call, msg}, status) do
-    if (msg["method"]=="auth.reauth") && status.options[:reauth] do
-      handle_cast({:reauth, msg}, status )
+    if msg["method"] == "auth.reauth" && status.options[:reauth] do
+      handle_cast({:reauth, msg}, status)
     else
-      #Logger.debug("Add msg #{inspect msg} && #{inspect status.expecting}")
+      # Logger.debug("Add msg #{inspect msg} && #{inspect status.expecting}")
 
       waiting_from = status.waiting[msg["id"]]
-      #Logger.debug("Waiting for #{inspect status.waiting}, got id #{inspect msg["id"]}, waiting from #{inspect waiting_from}")
+
+      # Logger.debug("Waiting for #{inspect status.waiting}, got id #{inspect msg["id"]}, waiting from #{inspect waiting_from}")
       if waiting_from do
         if msg["error"] == nil do
-          res = case msg["result"] do
-            "ok" -> :ok
-            other -> other
-          end
+          res =
+            case msg["result"] do
+              "ok" -> :ok
+              other -> other
+            end
+
           GenServer.reply(waiting_from, {:ok, res})
         else
-          err = case msg["error"] do
-            "unknown_method" -> :unknown_method
-            other -> other
-          end
+          err =
+            case msg["error"] do
+              "unknown_method" -> :unknown_method
+              other -> other
+            end
+
           GenServer.reply(waiting_from, {:error, err})
         end
       end
@@ -222,47 +245,59 @@ defmodule Test.Client do
 
       if status.expecting do
         {isin, messages} = expect_rec(status.expecting.what, messages)
+
         if isin do
-          #Logger.debug("Got #{inspect status.expecting.what} now")
+          # Logger.debug("Got #{inspect status.expecting.what} now")
           GenServer.reply(status.expecting.from, true)
-          {:noreply, %{ status | messages: messages, expecting: nil }}
+          {:noreply, %{status | messages: messages, expecting: nil}}
         else
-          {:noreply, %{ status | messages: messages }}
+          {:noreply, %{status | messages: messages}}
         end
       else
-        {:noreply, %{ status | messages: messages }}
+        {:noreply, %{status | messages: messages}}
       end
     end
   end
 
   def handle_cast({:reauth, rpc_call}, status) do
     Logger.debug("Required reauth.")
-    Test.Client.parse_map(status.client,
-      %{ id: rpc_call["id"], result:
-        %{ type: "basic", username: "dmoreno@serverboards.io", password: "asdfasdf"}
-      } )
+
+    Test.Client.parse_map(
+      status.client,
+      %{
+        id: rpc_call["id"],
+        result: %{type: "basic", username: "dmoreno@serverboards.io", password: "asdfasdf"}
+      }
+    )
+
     {:noreply, status}
   end
 
   defp expect_match?(_w, nil) do
     false
   end
+
   defp expect_match?([], _) do
-    #Logger.debug("Match done!")
+    # Logger.debug("Match done!")
     true
   end
+
   defp expect_match?([w | rest], msg) do
-    #Logger.debug("Match? #{inspect w} #{inspect msg}")
-    cont = case w do
-      {:method, v} ->
-        Map.get(msg, "method", nil) == v
-      {[k], v} ->
-        Map.get(msg, to_string(k), nil) == v
-      {[k | kr], v} ->
-        expect_match?([{kr, v}], Map.get( msg, to_string(k)))
-      {k, v} ->
-        Map.get(msg, to_string(k), nil) == v
-    end
+    # Logger.debug("Match? #{inspect w} #{inspect msg}")
+    cont =
+      case w do
+        {:method, v} ->
+          Map.get(msg, "method", nil) == v
+
+        {[k], v} ->
+          Map.get(msg, to_string(k), nil) == v
+
+        {[k | kr], v} ->
+          expect_match?([{kr, v}], Map.get(msg, to_string(k)))
+
+        {k, v} ->
+          Map.get(msg, to_string(k), nil) == v
+      end
 
     if cont do
       expect_match?(rest, msg)
@@ -273,6 +308,6 @@ defmodule Test.Client do
 
   def handle_info(:timeout, state) do
     GenServer.reply(state.expecting.from, false)
-    {:noreply, %{ state | expecting: nil }}
+    {:noreply, %{state | expecting: nil}}
   end
 end

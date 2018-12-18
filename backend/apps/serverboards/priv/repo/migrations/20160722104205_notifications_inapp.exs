@@ -3,15 +3,15 @@ defmodule Serverboards.Repo.Migrations.NotificationsInapp do
 
   def change do
     create table(:notifications_notification) do
-      add :user_id, :id
-      add :subject, :string
-      add :body, :string
-      add :meta, :map
-      add :tags, {:array, :string}
+      add(:user_id, :id)
+      add(:subject, :string)
+      add(:body, :string)
+      add(:meta, :map)
+      add(:tags, {:array, :string})
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:notifications_notification, [:user_id])
+    create(index(:notifications_notification, [:user_id]))
   end
 end

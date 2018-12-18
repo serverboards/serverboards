@@ -22,16 +22,16 @@ defmodule Serverboards.IO.HTTP.StaticPlugin do
   end
 
   def handle(request, state) do
-    {plugin, _} = :cowboy_req.binding(:plugin,request)
+    {plugin, _} = :cowboy_req.binding(:plugin, request)
     {rest, _} = :cowboy_req.path_info(request)
-    filepath = Enum.join(rest,"/")
+    filepath = Enum.join(rest, "/")
 
     if String.contains?(filepath, "..") do
       raise "Invalid path"
     end
 
-    plugin = Serverboards.Plugin.Registry.find plugin
-    requested_filename="#{plugin.path}/static/#{filepath}"
+    plugin = Serverboards.Plugin.Registry.find(plugin)
+    requested_filename = "#{plugin.path}/static/#{filepath}"
     {:ok, reply} = Serverboards.IO.HTTP.Utils.get_file(request, requested_filename)
 
     {:ok, reply, state}
@@ -39,9 +39,13 @@ defmodule Serverboards.IO.HTTP.StaticPlugin do
 
   def terminate(reason, request, state) do
     if reason != {:normal, :shutdown} do
-      Logger.error("Not normal static handler termination", request: request, state: state, reason: reason)
+      Logger.error("Not normal static handler termination",
+        request: request,
+        state: state,
+        reason: reason
+      )
     end
+
     :ok
   end
-
 end

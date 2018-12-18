@@ -13,14 +13,14 @@ defmodule Serverboards.Plugin.Runner do
   use GenServer
   alias Serverboards.Plugin
 
-
-  def start_link (options \\ []) do
-    {:ok, pid} = GenServer.start_link __MODULE__, :ok, options
+  def start_link(options \\ []) do
+    {:ok, pid} = GenServer.start_link(__MODULE__, :ok, options)
 
     method_caller = Serverboards.Plugin.Runner.method_caller()
+
     MOM.Channel.subscribe(:auth_authenticated, fn msg ->
-      %{ user: _user, client: client} = msg.payload
-      MOM.RPC.Client.add_method_caller client, method_caller
+      %{user: _user, client: client} = msg.payload
+      MOM.RPC.Client.add_method_caller(client, method_caller)
       :ok
     end)
 
@@ -54,40 +54,43 @@ defmodule Serverboards.Plugin.Runner do
 
   """
   def start(%Serverboards.Plugin.Component{} = component, user) do
-    plugin_id = cond do
-      is_map(component.plugin) -> component.plugin.id
-      true -> component.plugin
-    end
+    plugin_id =
+      cond do
+        is_map(component.plugin) -> component.plugin.id
+        true -> component.plugin
+      end
 
-    component = %Serverboards.Plugin.Component{component |
-      plugin: plugin_id
-    }
+    component = %Serverboards.Plugin.Component{component | plugin: plugin_id}
     # Logger.info("Start component #{inspect component.id}")
     GenServer.call(Serverboards.Plugin.Runner, {:start, component, user})
   end
 
   def start(plugin_component_id, user)
-  when is_binary(plugin_component_id) do
-      case Serverboards.Plugin.Registry.find(plugin_component_id) do
-        nil ->
-          Logger.error("Plugin component #{plugin_component_id} not found")
-          {:error, :not_found}
-        c ->
-          start(c, user)
-      end
+      when is_binary(plugin_component_id) do
+    case Serverboards.Plugin.Registry.find(plugin_component_id) do
+      nil ->
+        Logger.error("Plugin component #{plugin_component_id} not found")
+        {:error, :not_found}
+
+      c ->
+        start(c, user)
+    end
   end
 
   def stop(uuid) do
     case GenServer.call(Serverboards.Plugin.Runner, {:stop, uuid}) do
-      {:error, :cant_stop} -> # just do not log it, as it is quite normal
-        #Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
+      # just do not log it, as it is quite normal
+      {:error, :cant_stop} ->
+        # Logger.debug("Non stoppable plugin to stop #{inspect uuid}")
         {:error, :cant_stop}
+
       {:error, e} ->
-        Logger.error("Error stopping component #{inspect uuid}: #{inspect e}")
+        Logger.error("Error stopping component #{inspect(uuid)}: #{inspect(e)}")
         {:error, e}
+
       {:ok, cmd} ->
-        #Logger.debug("Stop plugin #{inspect uuid}")
-        Serverboards.IO.Cmd.stop cmd
+        # Logger.debug("Stop plugin #{inspect uuid}")
+        Serverboards.IO.Cmd.stop(cmd)
         true
     end
   end
@@ -99,13 +102,16 @@ defmodule Serverboards.Plugin.Runner do
   """
   def kill(uuid) do
     case get(uuid) do
-      %{ pid: pid } = data when is_pid(pid) ->
-        Logger.info("Kill process #{uuid} / #{ inspect data.component.id }")
-        GenServer.call(Serverboards.Plugin.Runner,  {:exit, uuid})
-        if Process.alive?(pid) do # should be running, but have found the bug in the wild.
-          Serverboards.IO.Cmd.stop pid
+      %{pid: pid} = data when is_pid(pid) ->
+        Logger.info("Kill process #{uuid} / #{inspect(data.component.id)}")
+        GenServer.call(Serverboards.Plugin.Runner, {:exit, uuid})
+        # should be running, but have found the bug in the wild.
+        if Process.alive?(pid) do
+          Serverboards.IO.Cmd.stop(pid)
         end
+
         :ok
+
       other ->
         {:error, other}
     end
@@ -150,9 +156,10 @@ defmodule Serverboards.Plugin.Runner do
   """
   def client(uuid) when is_binary(uuid) do
     case get(uuid) do
-      %{ pid: pid }  ->
-        client = Serverboards.IO.Cmd.client pid
+      %{pid: pid} ->
+        client = Serverboards.IO.Cmd.client(pid)
         {:ok, client}
+
       nil ->
         {:error, :not_found}
     end
@@ -205,70 +212,90 @@ defmodule Serverboards.Plugin.Runner do
     {:ok, "Pong"}
 
   """
-  def call(id, method, params, user) when (is_binary(id) and is_binary(method)) do
-    {pid, uuid} = if String.contains?(id, "/") do
-      case start(id, user) do
-        {:ok, uuid} ->
-          pid = GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
-          {pid, uuid}
-        other ->
-          {other, nil}
+  def call(id, method, params, user) when is_binary(id) and is_binary(method) do
+    {pid, uuid} =
+      if String.contains?(id, "/") do
+        case start(id, user) do
+          {:ok, uuid} ->
+            pid = GenServer.call(Serverboards.Plugin.Runner, {:get, uuid})
+            {pid, uuid}
+
+          other ->
+            {other, nil}
+        end
+      else
+        pid = GenServer.call(Serverboards.Plugin.Runner, {:get, id})
+        {pid, id}
       end
-    else
-      pid = GenServer.call(Serverboards.Plugin.Runner, {:get, id})
-      {pid, id}
-    end
 
     case pid do
       :not_found ->
-        Logger.error("Could not find plugin id #{inspect id}: :not_found")
+        Logger.error("Could not find plugin id #{inspect(id)}: :not_found")
         {:error, :unknown_plugin}
+
       :exit ->
         {:error, :exit}
-      %{ pid: pid } when is_pid(pid) ->
+
+      %{pid: pid} when is_pid(pid) ->
         GenServer.cast(Serverboards.Plugin.Runner, {:ping, id})
-        #Logger.debug("Plugin runner call #{inspect method}(#{inspect(params)})")
-        case Serverboards.IO.Cmd.call pid, method, params do
+        # Logger.debug("Plugin runner call #{inspect method}(#{inspect(params)})")
+        case Serverboards.IO.Cmd.call(pid, method, params) do
           {:error, :exit} ->
             Logger.error("Unexpected exit process while calling #{id}.#{method}")
-            GenServer.call(Serverboards.Plugin.Runner, {:exit, uuid}) # just exitted, mark it
+            # just exitted, mark it
+            GenServer.call(Serverboards.Plugin.Runner, {:exit, uuid})
             {:error, :exit}
+
           {:error, :unknown_method} ->
-            Logger.error("Could not call method #{inspect method} at #{inspect id}")
+            Logger.error("Could not call method #{inspect(method)} at #{inspect(id)}")
             {:error, [:unknown_method, method]}
-          other -> other
+
+          other ->
+            other
         end
-      other -> other
+
+      other ->
+        other
     end
   end
+
   # map version
-  def call(id, %{ "method" => method, "extra" => true }, defparams, user) when is_binary(id) do
+  def call(id, %{"method" => method, "extra" => true}, defparams, user) when is_binary(id) do
     # If extra is true means that the method can get any extra parameter that is passed to it
     # This is necesary for example for send_notification where it may get many extra params
     # to fill as template
     call(id, method, defparams, user)
   end
-  def call(id, %{ "method" => method } = defcall, defparams, user) when is_binary(id) do
+
+  def call(id, %{"method" => method} = defcall, defparams, user) when is_binary(id) do
     # This version (no extra) filters which parameters to pass to the method.
-    #Logger.debug("Call using map version: #{inspect defcall} // #{inspect defparams}")
-    defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k,v} -> {to_string(k), v} end))
-    params = Map.get(defcall,"params",[]) |> Enum.map( fn %{ "name" => name } = param ->
-      # this with is just to try to fetch in order or nil
-      value = with :error <- Map.fetch(defparams, to_string(name)),
-                   :error <- Map.fetch(param, "default"),
-                   :error <- Map.fetch(param, "value")
-              do
-                nil
-              else
-                {:ok, value} -> value
-              end
-      {name, value}
-    end ) |> Map.new
+    # Logger.debug("Call using map version: #{inspect defcall} // #{inspect defparams}")
+    defparams = Map.new(Map.to_list(defparams) |> Enum.map(fn {k, v} -> {to_string(k), v} end))
+
+    params =
+      Map.get(defcall, "params", [])
+      |> Enum.map(fn %{"name" => name} = param ->
+        # this with is just to try to fetch in order or nil
+        value =
+          with :error <- Map.fetch(defparams, to_string(name)),
+               :error <- Map.fetch(param, "default"),
+               :error <- Map.fetch(param, "value") do
+            nil
+          else
+            {:ok, value} -> value
+          end
+
+        {name, value}
+      end)
+      |> Map.new()
+
     call(id, method, params, user)
   end
+
   def call(id, method, params) do
     call(id, method, params, :system)
   end
+
   def call(id, method) do
     call(id, method, %{}, :system)
   end
@@ -278,7 +305,9 @@ defmodule Serverboards.Plugin.Runner do
   """
   def start_call_stop(command_id, method, params, user) do
     case start(command_id, user) do
-      {:error, e} -> {:error, e}
+      {:error, e} ->
+        {:error, e}
+
       {:ok, uuid} ->
         res = call(uuid, method, params)
         stop(uuid)
@@ -286,7 +315,7 @@ defmodule Serverboards.Plugin.Runner do
     end
   end
 
-  #def cast(id, method, params, cont) do
+  # def cast(id, method, params, cont) do
   #  runner = Serverboards.Plugin.Runner
   #  case GenServer.call(runner, {:get, id}) do
   #    :not_found ->
@@ -295,8 +324,7 @@ defmodule Serverboards.Plugin.Runner do
   #    cmd when is_pid(cmd) ->
   #      Serverboards.IO.Cmd.cast cmd, method, params, cont
   #  end
-  #end
-
+  # end
 
   def status(uuid) do
     GenServer.call(Serverboards.Plugin.Runner, {:status, uuid})
@@ -307,59 +335,69 @@ defmodule Serverboards.Plugin.Runner do
   end
 
   ## server impl
-  def init :ok do
-    #Logger.info("Plugin runner ready #{inspect self()}")
+  def init(:ok) do
+    # Logger.info("Plugin runner ready #{inspect self()}")
 
     {:ok, method_caller} = Serverboards.Plugin.RPC.start_link()
 
-    {:ok, %{
-      method_caller: method_caller,
-      running: %{}, # UUID -> %{ pid, component, timeout }
-      by_component_id: %{}, # component_id -> UUID, only last
-      timeouts: %{}
-      }}
+    {:ok,
+     %{
+       method_caller: method_caller,
+       # UUID -> %{ pid, component, timeout }
+       running: %{},
+       # component_id -> UUID, only last
+       by_component_id: %{},
+       timeouts: %{}
+     }}
   end
 
   # only applicable to one_for_one
   defp drop_uuid(state, uuid) do
     :timer.cancel(state.timeouts[uuid])
 
-    %{ state |
-      running: Map.drop(state.running, [uuid]),
-      timeouts: Map.drop(state.timeouts, [uuid])
+    %{
+      state
+      | running: Map.drop(state.running, [uuid]),
+        timeouts: Map.drop(state.timeouts, [uuid])
     }
   end
 
   def handle_call({:get_by_component_id, component_id}, _from, state) do
-    ret = case Map.get(state.by_component_id, component_id, false) do
-      false -> {:error, :not_found}
-      uuid -> {:ok, uuid}
-    end
+    ret =
+      case Map.get(state.by_component_id, component_id, false) do
+        false -> {:error, :not_found}
+        uuid -> {:ok, uuid}
+      end
+
     {:reply, ret, state}
   end
+
   def handle_call({:start, uuid, pid, component, user}, _from, state) do
-    #Logger.debug("Component start #{component.id}")
+    # Logger.debug("Component start #{component.id}")
     # get strategy and timeout
-    {timeout, strategy} = case Map.get(component.extra, "strategy", "one_for_one") do
-      "one_for_one" ->
-        timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout", "5m"))
-        {timeout, :one_for_one}
-      "singleton" ->
-        timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout", "5m"))
-        {timeout, :singleton}
-      "init" ->
-        {:never, :init}
-    end
+    {timeout, strategy} =
+      case Map.get(component.extra, "strategy", "one_for_one") do
+        "one_for_one" ->
+          timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout", "5m"))
+          {timeout, :one_for_one}
+
+        "singleton" ->
+          timeout = Serverboards.Utils.timespec_to_ms!(Map.get(component.extra, "timeout", "5m"))
+          {timeout, :singleton}
+
+        "init" ->
+          {:never, :init}
+      end
+
     # prepare timeout
-    state = if timeout != :never do
-      {:ok, timeout_ref} = :timer.send_after( timeout, self(), {:timeout, uuid})
-      #Logger.debug("new timer #{inspect timeout_ref} #{inspect timeout} #{inspect strategy}")
-      %{ state |
-        timeouts: Map.put(state.timeouts, uuid, timeout_ref)
-      }
-    else
-      state
-    end
+    state =
+      if timeout != :never do
+        {:ok, timeout_ref} = :timer.send_after(timeout, self(), {:timeout, uuid})
+        # Logger.debug("new timer #{inspect timeout_ref} #{inspect timeout} #{inspect strategy}")
+        %{state | timeouts: Map.put(state.timeouts, uuid, timeout_ref)}
+      else
+        state
+      end
 
     # add entry to main running dict
     entry = %{
@@ -369,181 +407,226 @@ defmodule Serverboards.Plugin.Runner do
       strategy: strategy,
       user: user
     }
-    state = %{ state |
-      running: Map.put(state.running, uuid, entry )
-    }
+
+    state = %{state | running: Map.put(state.running, uuid, entry)}
 
     # if singleton or init, add to by component_id dict
-    state = if strategy in [:singleton, :init] do
-      %{ state | by_component_id: Map.put(state.by_component_id, component.id, uuid) }
-    else
-      state
-    end
+    state =
+      if strategy in [:singleton, :init] do
+        %{state | by_component_id: Map.put(state.by_component_id, component.id, uuid)}
+      else
+        state
+      end
 
     # all systems go
     {:reply, :ok, state}
   end
+
   def handle_call({:start, component, user}, from, state) do
     # it may come from partial or full component, just get the id
-    plugin_id = case component.plugin do
-      plugin when is_binary(plugin) -> plugin
-      %{ id: id } -> id
-    end
+    plugin_id =
+      case component.plugin do
+        plugin when is_binary(plugin) -> plugin
+        %{id: id} -> id
+      end
 
-    {res, state} = case Map.get(state.by_component_id, component.id, false) do
-      false ->
-        res = Plugin.Component.run(component)
-        case res do
-          {:ok, pid } ->
-            require UUID
-            uuid = UUID.uuid4
-            Logger.debug("Adding runner #{uuid} #{inspect component.id}")
-            try do
-              client = Serverboards.IO.Cmd.client(pid)
-              MOM.RPC.Client.set(client, :plugin, %{ plugin_id: plugin_id, component_id: component.id })
-              # Call the start pt2, which updates the state
-              {:reply, :ok, state} = handle_call({:start, uuid, pid, component, user}, from, state)
-              {{:ok, uuid}, state}
-            catch
-              :exit, _ ->
-                Logger.error("Command exitted unexpectedly: #{component.id}", command: component)
-                {{:error, :cant_run}, state}
-            end
-          {:error, {:timeout, _where}} ->
-            Logger.error("Timeout starting plugin component #{inspect component.id}")
-            {{:error, :timeout}, state}
-          {:error, e} ->
-            Logger.error("Error starting plugin component #{inspect component.id}: #{inspect e}")
-            {{:error, e}, state}
-        end
-      uuid ->
-        # Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
-        GenServer.cast(self(), {:ping, uuid}) # delay this
-        {{:ok, uuid}, state}
-    end
+    {res, state} =
+      case Map.get(state.by_component_id, component.id, false) do
+        false ->
+          res = Plugin.Component.run(component)
+
+          case res do
+            {:ok, pid} ->
+              require UUID
+              uuid = UUID.uuid4()
+              Logger.debug("Adding runner #{uuid} #{inspect(component.id)}")
+
+              try do
+                client = Serverboards.IO.Cmd.client(pid)
+
+                MOM.RPC.Client.set(client, :plugin, %{
+                  plugin_id: plugin_id,
+                  component_id: component.id
+                })
+
+                # Call the start pt2, which updates the state
+                {:reply, :ok, state} =
+                  handle_call({:start, uuid, pid, component, user}, from, state)
+
+                {{:ok, uuid}, state}
+              catch
+                :exit, _ ->
+                  Logger.error("Command exitted unexpectedly: #{component.id}", command: component)
+
+                  {{:error, :cant_run}, state}
+              end
+
+            {:error, {:timeout, _where}} ->
+              Logger.error("Timeout starting plugin component #{inspect(component.id)}")
+              {{:error, :timeout}, state}
+
+            {:error, e} ->
+              Logger.error(
+                "Error starting plugin component #{inspect(component.id)}: #{inspect(e)}"
+              )
+
+              {{:error, e}, state}
+          end
+
+        uuid ->
+          # Logger.debug("Already running: #{inspect component.id} / #{inspect uuid}")
+          # delay this
+          GenServer.cast(self(), {:ping, uuid})
+          {{:ok, uuid}, state}
+      end
 
     {:reply, res, state}
   end
 
   def handle_call({:stop, uuid}, _from, state) do
     entry = state.running[uuid]
-    #Logger.debug("Stop plugin #{uuid}: #{inspect entry}")
+    # Logger.debug("Stop plugin #{uuid}: #{inspect entry}")
     case entry do
       nil ->
-        {:reply, {:error, :not_running}, state }
+        {:reply, {:error, :not_running}, state}
+
       :exit ->
         state = drop_uuid(state, uuid)
-        {:reply, {:error, :exit}, state }
-      %{ strategy: :one_for_one } ->
+        {:reply, {:error, :exit}, state}
+
+      %{strategy: :one_for_one} ->
         # Maybe remove from timeouts
         state = drop_uuid(state, uuid)
 
-        {:reply, {:ok, entry.pid}, state }
+        {:reply, {:ok, entry.pid}, state}
+
       _ ->
-        #Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
+        # Logger.debug("Will not stop plugin, strategy is #{entry.strategy}")
         {:reply, {:error, :cant_stop}, state}
     end
   end
+
   def handle_call({:method_caller}, _from, state) do
     {:reply, state.method_caller, state}
   end
+
   def handle_call({:get, id}, _from, state) do
     {:reply, Map.get(state.running, id, :not_found), state}
   end
+
   def handle_call({:status, id}, _from, state) do
-    uuid = case Map.get(state.by_component_id, id, false) do
-      false -> id
-      uuid -> uuid
-    end
-    #Logger.debug("Running #{inspect id} #{inspect uuid}? // #{inspect state.by_component_id}")
-    status = if Map.has_key?(state.running, uuid) do
-      :running
-    else
-      :not_running
-    end
+    uuid =
+      case Map.get(state.by_component_id, id, false) do
+        false -> id
+        uuid -> uuid
+      end
+
+    # Logger.debug("Running #{inspect id} #{inspect uuid}? // #{inspect state.by_component_id}")
+    status =
+      if Map.has_key?(state.running, uuid) do
+        :running
+      else
+        :not_running
+      end
+
     {:reply, status, state}
   end
+
   def handle_call({:exit, uuid}, _from, state) do
-    state=case state.running[uuid] do
-      nil ->
-        state
-      :exit ->
-        state
-      %{ component: component } ->
-        :timer.cancel( state.timeouts[uuid] )
-        state = %{ state |
-          running: Map.put(state.running, uuid, :exit),
-          by_component_id: Map.drop(state.by_component_id, [component.id]),
-          timeouts: Map.drop(state.timeouts, [uuid])
-        }
-        MOM.Channel.send(:plugin_down, %MOM.Message{ payload: %{uuid: uuid, id: component.id}})
-        :timer.send_after(60000, {:remove_uuid, uuid})
-        state
-    end
+    state =
+      case state.running[uuid] do
+        nil ->
+          state
+
+        :exit ->
+          state
+
+        %{component: component} ->
+          :timer.cancel(state.timeouts[uuid])
+
+          state = %{
+            state
+            | running: Map.put(state.running, uuid, :exit),
+              by_component_id: Map.drop(state.by_component_id, [component.id]),
+              timeouts: Map.drop(state.timeouts, [uuid])
+          }
+
+          MOM.Channel.send(:plugin_down, %MOM.Message{payload: %{uuid: uuid, id: component.id}})
+          :timer.send_after(60000, {:remove_uuid, uuid})
+          state
+      end
 
     {:reply, :ok, state}
   end
+
   def handle_call({:ps}, _from, state) do
-    ps = for {uuid, p} when is_map(p) <- state.running do
-      %{
-        uuid: uuid,
-        component: p.component.id,
-        name: p.component.name,
-        timeout: p.timeout,
-        strategy: p.strategy,
-        user: p.user,
-      }
-    end
+    ps =
+      for {uuid, p} when is_map(p) <- state.running do
+        %{
+          uuid: uuid,
+          component: p.component.id,
+          name: p.component.name,
+          timeout: p.timeout,
+          strategy: p.strategy,
+          user: p.user
+        }
+      end
 
     {:reply, {:ok, ps}, state}
   end
 
   def handle_cast({:ping, uuid}, state) do
-    #Logger.debug("ping #{inspect uuid }")
+    # Logger.debug("ping #{inspect uuid }")
     case state.timeouts[uuid] do
       nil ->
         {:noreply, state}
+
       oldref ->
         {:ok, :cancel} = :timer.cancel(oldref)
         timeout = state.running[uuid].timeout
-        {:ok, newref} = :timer.send_after( timeout, self(), {:timeout, uuid} )
-        #Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
+        {:ok, newref} = :timer.send_after(timeout, self(), {:timeout, uuid})
+        # Logger.debug("update timer #{inspect oldref} -> #{inspect newref}")
         timeouts = Map.put(state.timeouts, uuid, newref)
-        {:noreply, %{ state |
-          timeouts: timeouts
-          }}
+        {:noreply, %{state | timeouts: timeouts}}
     end
   end
 
   def handle_info({:timeout, uuid}, state) do
     {entry, running} = Map.pop(state.running, uuid, nil)
+
     if entry do
-      Logger.info("Timeout process, stopping. #{inspect uuid} // #{inspect entry.component.id} #{inspect entry.pid}",
-        uuid: uuid, timeout: entry.timeout, strategy: entry.strategy, component: entry.component.id)
+      Logger.info(
+        "Timeout process, stopping. #{inspect(uuid)} // #{inspect(entry.component.id)} #{
+          inspect(entry.pid)
+        }",
+        uuid: uuid,
+        timeout: entry.timeout,
+        strategy: entry.strategy,
+        component: entry.component.id
+      )
+
       if Process.alive?(entry.pid) do
         Serverboards.IO.Cmd.stop(entry.pid)
       end
+
       by_component_id = Map.drop(state.by_component_id, [entry.component.id])
 
       timeouts = Map.drop(state.timeouts, [uuid])
-      {:noreply, %{ state |
-        running: running,
-        timeouts: timeouts,
-        by_component_id: by_component_id
-      }}
+
+      {:noreply,
+       %{state | running: running, timeouts: timeouts, by_component_id: by_component_id}}
     else
       {:noreply, state}
     end
   end
+
   def handle_info({:remove_uuid, uuid}, state) do
     # Removes after 60s after a uuid failed, to return some {:error, :exit}, but not mem leak the uuid forever
-    {:noreply, %{ state |
-      running: Map.drop(state.running, [uuid])
-    }}
+    {:noreply, %{state | running: Map.drop(state.running, [uuid])}}
   end
 
   def handle_info(any, state) do
-    Logger.warn("New unknown info #{inspect any}")
+    Logger.warn("New unknown info #{inspect(any)}")
     {:noreply, state}
   end
 end

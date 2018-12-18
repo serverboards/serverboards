@@ -13,10 +13,10 @@ defmodule Serverboards.Service do
     # Really do a linked tree of processes. TODO use supervisors,
     # but eventsourcing do it a bit more complex
     Agent.start_link(fn ->
-      {:ok, es} = EventSourcing.start_link name: :service
-      {:ok, rpc} = Serverboards.Service.RPC.start_link
+      {:ok, es} = EventSourcing.start_link(name: :service)
+      {:ok, rpc} = Serverboards.Service.RPC.start_link()
 
-      EventSourcing.Model.subscribe :service, :service, Serverboards.Repo
+      EventSourcing.Model.subscribe(:service, :service, Serverboards.Repo)
 
       setup_eventsourcing(es)
 
@@ -27,72 +27,98 @@ defmodule Serverboards.Service do
   def setup_eventsourcing(es) do
     import EventSourcing
 
-    subscribe es, :add_service, fn attributes, me ->
+    subscribe(es, :add_service, fn attributes, me ->
       service_add_real(attributes.uuid, attributes, me)
-    end
-    subscribe es, :delete_service, fn service, me ->
+    end)
+
+    subscribe(es, :delete_service, fn service, me ->
       service_delete_real(service, me)
-    end
+    end)
+
     # This attach_service is idempotent
-    subscribe es, :attach_service, fn [project, service], me ->
+    subscribe(es, :attach_service, fn [project, service], me ->
       service_attach_real(project, service, me)
-    end
-    subscribe es, :detach_service, fn [project, service], me ->
+    end)
+
+    subscribe(es, :detach_service, fn [project, service], me ->
       service_detach_real(project, service, me)
-    end
-    subscribe es, :update_service, fn [service, operations], me ->
-      service_update_real( service, operations, me)
-    end
+    end)
+
+    subscribe(es, :update_service, fn [service, operations], me ->
+      service_update_real(service, operations, me)
+    end)
 
     # this is at a project, not at a service, updates services into that project
-    subscribe :project, :update_project, fn [project, attributes], me ->
-      service_update_project_real( project, attributes, me)
-    end
+    subscribe(:project, :update_project, fn [project, attributes], me ->
+      service_update_project_real(project, attributes, me)
+    end)
   end
 
-  defp service_update_real( uuid, operations, me) do
+  defp service_update_real(uuid, operations, me) do
     import Ecto.Query
     service = Repo.get_by(ServiceModel, uuid: uuid)
+
     if service do
-      #Logger.debug("Operations: #{inspect operations}")
-      changes = case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
-        nil -> false
-        l when is_list(l) ->
-          update_tags_real(service, l)
-          true
-        s when is_binary(s) ->
-          tags = String.split(s)
-          update_tags_real(service, tags)
-          true
-      end
+      # Logger.debug("Operations: #{inspect operations}")
+      changes =
+        case Map.get(operations, :tags, Map.get(operations, "tags", nil)) do
+          nil ->
+            false
+
+          l when is_list(l) ->
+            update_tags_real(service, l)
+            true
+
+          s when is_binary(s) ->
+            tags = String.split(s)
+            update_tags_real(service, tags)
+            true
+        end
 
       # Logger.debug("Service update #{inspect service}")
-      operations = if service.name == "" and operations["name"] == nil do
-        [type] = service_template(service.type)
-        name = type.name
-        Logger.warn("Service #{uuid} must have a name. Setting type name: #{inspect name}.", service_uuid: uuid)
-        Map.put(operations, :name, name )
-      else operations end
+      operations =
+        if service.name == "" and operations["name"] == nil do
+          [type] = service_template(service.type)
+          name = type.name
 
-      changeset = ServiceModel.changeset(
-        service, operations
-      )
-      changes = changes or (changeset.changes != %{})
+          Logger.warn("Service #{uuid} must have a name. Setting type name: #{inspect(name)}.",
+            service_uuid: uuid
+          )
 
-      {:ok, upd} = Repo.update( changeset )
+          Map.put(operations, :name, name)
+        else
+          operations
+        end
+
+      changeset =
+        ServiceModel.changeset(
+          service,
+          operations
+        )
+
+      changes = changes or changeset.changes != %{}
+
+      {:ok, upd} = Repo.update(changeset)
 
       {:ok, service} = service_get(uuid, me)
 
       # send signals in another process, to avoid stalling
       Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
+
       Serverboards.Event.emit("service.updated[#{upd.uuid}]", %{service: service}, ["service.get"])
+
       Serverboards.Event.emit("service.updated[#{upd.type}]", %{service: service}, ["service.get"])
+
       for p <- service.projects do
         Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
       end
 
       if changes do
-        Logger.info("Service #{inspect service.name} updated", service_id: uuid, user: me, operations: operations)
+        Logger.info("Service #{inspect(service.name)} updated",
+          service_id: uuid,
+          user: me,
+          operations: operations
+        )
       end
 
       :ok
@@ -118,229 +144,286 @@ defmodule Serverboards.Service do
 
   defp update_tags_real(service, tags) do
     import Ecto.Query
-    tags = MapSet.new tags
+    tags = MapSet.new(tags)
 
-    current_tags = Repo.all(from ct in ServiceTagModel, where: ct.service_id == ^service.id, select: ct.name )
-    current_tags = MapSet.new current_tags
+    current_tags =
+      Repo.all(from(ct in ServiceTagModel, where: ct.service_id == ^service.id, select: ct.name))
+
+    current_tags = MapSet.new(current_tags)
 
     new_tags = MapSet.difference(tags, current_tags)
     expired_tags = MapSet.difference(current_tags, tags)
 
-    if (Enum.count expired_tags) > 0 do
-      expired_tags = MapSet.to_list expired_tags
-      Repo.delete_all( from t in ServiceTagModel, where: t.service_id == ^service.id and t.name in ^expired_tags )
+    if Enum.count(expired_tags) > 0 do
+      expired_tags = MapSet.to_list(expired_tags)
+
+      Repo.delete_all(
+        from(t in ServiceTagModel, where: t.service_id == ^service.id and t.name in ^expired_tags)
+      )
     end
+
     Enum.map(new_tags, fn name ->
-      Repo.insert( %ServiceTagModel{name: name, service_id: service.id} )
+      Repo.insert(%ServiceTagModel{name: name, service_id: service.id})
     end)
   end
 
-  def service_update_project_real( project, attributes, me) do
+  def service_update_project_real(project, attributes, me) do
     import Ecto.Query
 
     case attributes do
-      %{ services: services } ->
-        current_uuids = services
+      %{services: services} ->
+        current_uuids =
+          services
           |> service_update_list_real(me)
 
         current_uuids
-          |> Enum.map(fn uuid ->
-            service_attach_real(project, uuid, me)
-          end)
+        |> Enum.map(fn uuid ->
+          service_attach_real(project, uuid, me)
+        end)
 
         # now detach from non listed uuids
-        if (Enum.count current_uuids) == 0 do # remove all
+        # remove all
+        if Enum.count(current_uuids) == 0 do
           Repo.delete_all(
-            from sc in ProjectServiceModel,
-            join: s in ProjectModel,
+            from(sc in ProjectServiceModel,
+              join: s in ProjectModel,
               on: s.id == sc.project_id,
-           where: s.shortname == ^project
-           )
+              where: s.shortname == ^project
+            )
+          )
         else
           # remove only not updated
-          ids_to_remove = Repo.all(
-            from sc in ProjectServiceModel,
-             join: c in ServiceModel,
-               on: c.id == sc.service_id,
-             join: s in ProjectModel,
-               on: s.id == sc.project_id,
-             where: s.shortname == ^project and
-                    not (c.uuid in ^current_uuids),
-            select: sc.id
-          )
-          Repo.delete_all(
-             from sc_ in ProjectServiceModel,
-            where: sc_.id in ^ids_to_remove
+          ids_to_remove =
+            Repo.all(
+              from(sc in ProjectServiceModel,
+                join: c in ServiceModel,
+                on: c.id == sc.service_id,
+                join: s in ProjectModel,
+                on: s.id == sc.project_id,
+                where: s.shortname == ^project and not (c.uuid in ^current_uuids),
+                select: sc.id
+              )
             )
+
+          Repo.delete_all(
+            from(sc_ in ProjectServiceModel,
+              where: sc_.id in ^ids_to_remove
+            )
+          )
         end
 
       _ ->
         nil
     end
+
     :ok
   end
 
-  defp service_add_real( uuid, attributes, me) do
-    user_id = case Serverboards.Auth.User.user_info( me, %{ email: me } ) do
-      {:ok, user} ->
-        user.id
-      {:error, :unknown_user} -> # from command, where there is no user id
-         nil
-    end
+  defp service_add_real(uuid, attributes, me) do
+    user_id =
+      case Serverboards.Auth.User.user_info(me, %{email: me}) do
+        {:ok, user} ->
+          user.id
 
-    name = case attributes.name do
-      name when name == nil or name == "" ->
-        Logger.debug("Get template of #{inspect attributes}")
-        [template] = Serverboards.Plugin.Registry.filter_component(id: attributes.type)
-        template.name
-      name -> name
-    end
+        # from command, where there is no user id
+        {:error, :unknown_user} ->
+          nil
+      end
 
-    {:ok, servicem} = Repo.insert( %ServiceModel{
-      uuid: uuid,
-      name: name,
-      type: attributes.type,
-      creator_id: user_id,
-      priority: attributes.priority,
-      config: attributes.config
-    } )
+    name =
+      case attributes.name do
+        name when name == nil or name == "" ->
+          Logger.debug("Get template of #{inspect(attributes)}")
+          [template] = Serverboards.Plugin.Registry.filter_component(id: attributes.type)
+          template.name
+
+        name ->
+          name
+      end
+
+    {:ok, servicem} =
+      Repo.insert(%ServiceModel{
+        uuid: uuid,
+        name: name,
+        type: attributes.type,
+        creator_id: user_id,
+        priority: attributes.priority,
+        config: attributes.config
+      })
 
     Logger.info(
-      "Created new service #{inspect servicem.name} (#{servicem.type})",
+      "Created new service #{inspect(servicem.name)} (#{servicem.type})",
       service_id: uuid,
       user: me
-      )
+    )
 
     tags = attributes.tags
 
     Enum.map(tags, fn name ->
-      Repo.insert( %ServiceTagModel{name: name, service_id: servicem.id} )
+      Repo.insert(%ServiceTagModel{name: name, service_id: servicem.id})
     end)
 
     service = decorate(servicem)
     Serverboards.Event.emit("service.updated", %{service: service}, ["service.get"])
-    Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, ["service.get"])
-    Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, ["service.get"])
+
+    Serverboards.Event.emit("service.updated[#{service.uuid}]", %{service: service}, [
+      "service.get"
+    ])
+
+    Serverboards.Event.emit("service.updated[#{service.type}]", %{service: service}, [
+      "service.get"
+    ])
+
     for p <- service.projects do
       Serverboards.Event.emit("service.updated[#{p}]", %{service: service}, ["service.get"])
     end
   end
 
-  defp service_delete_real( uuid, me) do
+  defp service_delete_real(uuid, me) do
     import Ecto.Query
 
     service = decorate(uuid)
     Serverboards.Event.emit("service.deleted", %{service: service}, ["service.get"])
-    Serverboards.Event.emit("service.deleted[#{service.uuid}]", %{service: service}, ["service.get"])
-    Serverboards.Event.emit("service.deleted[#{service.type}]", %{service: service}, ["service.get"])
+
+    Serverboards.Event.emit("service.deleted[#{service.uuid}]", %{service: service}, [
+      "service.get"
+    ])
+
+    Serverboards.Event.emit("service.deleted[#{service.type}]", %{service: service}, [
+      "service.get"
+    ])
+
     for p <- service.projects do
       Serverboards.Event.emit("service.deleted[#{p}]", %{service: service}, ["service.get"])
     end
 
-
     # remove it when used inside any project
     Repo.delete_all(
-      from sc in ProjectServiceModel,
-      join: c in ServiceModel, on: c.id == sc.service_id,
-      where: c.uuid == ^uuid
+      from(sc in ProjectServiceModel,
+        join: c in ServiceModel,
+        on: c.id == sc.service_id,
+        where: c.uuid == ^uuid
       )
+    )
 
     Logger.info(
-      "Deleted service #{inspect uuid} (#{inspect service.type})",
+      "Deleted service #{inspect(uuid)} (#{inspect(service.type)})",
       service: service,
       user: me
-      )
+    )
 
     # 1 removed
-    case Repo.delete_all( from c in ServiceModel, where: c.uuid == ^uuid ) do
+    case Repo.delete_all(from(c in ServiceModel, where: c.uuid == ^uuid)) do
       {1, _} -> :ok
       {0, _} -> {:error, :not_found}
     end
   end
 
-  defp service_attach_real( project, service, me ) do
+  defp service_attach_real(project, service, me) do
     import Ecto.Query
+
     case Repo.one(
-        from sc in ProjectServiceModel,
-          join: s in ProjectModel,
-            on: s.id == sc.project_id,
-          join: c in ServiceModel,
-            on: c.id == sc.service_id,
-          where: s.shortname == ^project and
-                 c.uuid == ^service,
-          select: sc.id ) do
+           from(sc in ProjectServiceModel,
+             join: s in ProjectModel,
+             on: s.id == sc.project_id,
+             join: c in ServiceModel,
+             on: c.id == sc.service_id,
+             where: s.shortname == ^project and c.uuid == ^service,
+             select: sc.id
+           )
+         ) do
       nil ->
         project_obj = Repo.get_by(ProjectModel, shortname: project)
         service_obj = Repo.get_by(ServiceModel, uuid: service)
+
         if Enum.all?([project_obj, service_obj]) do
-          {:ok, _project_service} = Repo.insert( %Serverboards.Project.Model.ProjectService{
-            project_id: project_obj.id,
-            service_id: service_obj.id
-          } )
+          {:ok, _project_service} =
+            Repo.insert(%Serverboards.Project.Model.ProjectService{
+              project_id: project_obj.id,
+              service_id: service_obj.id
+            })
         else
-          Logger.warn("Trying to attach invalid project or service (#{project} (#{inspect project_obj}), #{service} (#{inspect service_obj}))")
+          Logger.warn(
+            "Trying to attach invalid project or service (#{project} (#{inspect(project_obj)}), #{
+              service
+            } (#{inspect(service_obj)}))"
+          )
         end
 
-        {:ok, service} = service_get service_obj.uuid, me
+        {:ok, service} = service_get(service_obj.uuid, me)
         Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
-      _ ->  #  already in
+
+      #  already in
+      _ ->
         nil
     end
+
     :ok
   end
 
-  defp service_detach_real(project, service, me ) do
+  defp service_detach_real(project, service, me) do
     import Ecto.Query
 
-    to_remove = Repo.all(
-      from sc in ProjectServiceModel,
-      join: s in ProjectModel, on: s.id == sc.project_id,
-      join: c in ServiceModel, on: c.id == sc.service_id,
-      where: c.uuid == ^service and s.shortname == ^project,
-      select: sc.id
-     )
+    to_remove =
+      Repo.all(
+        from(sc in ProjectServiceModel,
+          join: s in ProjectModel,
+          on: s.id == sc.project_id,
+          join: c in ServiceModel,
+          on: c.id == sc.service_id,
+          where: c.uuid == ^service and s.shortname == ^project,
+          select: sc.id
+        )
+      )
 
     Repo.delete_all(
-      from sc_ in ProjectServiceModel,
-      where: sc_.id in ^to_remove )
+      from(sc_ in ProjectServiceModel,
+        where: sc_.id in ^to_remove
+      )
+    )
 
-    {:ok, service} = service_get service, me
+    {:ok, service} = service_get(service, me)
     Serverboards.Event.emit("service.updated", %{service: service}, ["service.update"])
     :ok
   end
 
   # Updates all services in a give project, or creates them. Returns list of uuids.
-  defp service_update_list_real( [], _me), do: []
-  defp service_update_list_real( [ attributes | rest ], me) do
-    uuid = case Map.get(attributes,"uuid",false) do
-      false ->
-        uuid=UUID.uuid4
-        attributes = %{
-          uuid: uuid,
-          name: attributes["name"],
-          type: attributes["type"],
-          priority: Map.get(attributes,"priority", 50),
-          tags: Map.get(attributes,"tags", []),
-          config: Map.get(attributes,"config", %{}),
-        }
+  defp service_update_list_real([], _me), do: []
 
-        service_add_real( uuid, attributes, me )
-        uuid
-      uuid ->
-        attributes = %{
-          uuid: uuid,
-          name: attributes["name"],
-          type: attributes["type"],
-          priority: Map.get(attributes,"priority", 50),
-          tags: Map.get(attributes,"tags", []),
-          config: Map.get(attributes,"config", %{}),
-        }
+  defp service_update_list_real([attributes | rest], me) do
+    uuid =
+      case Map.get(attributes, "uuid", false) do
+        false ->
+          uuid = UUID.uuid4()
 
-        nattributes = Serverboards.Utils.drop_empty_values attributes
+          attributes = %{
+            uuid: uuid,
+            name: attributes["name"],
+            type: attributes["type"],
+            priority: Map.get(attributes, "priority", 50),
+            tags: Map.get(attributes, "tags", []),
+            config: Map.get(attributes, "config", %{})
+          }
 
-        service_update_real( uuid, nattributes, me )
-        uuid
+          service_add_real(uuid, attributes, me)
+          uuid
+
+        uuid ->
+          attributes = %{
+            uuid: uuid,
+            name: attributes["name"],
+            type: attributes["type"],
+            priority: Map.get(attributes, "priority", 50),
+            tags: Map.get(attributes, "tags", []),
+            config: Map.get(attributes, "config", %{})
+          }
+
+          nattributes = Serverboards.Utils.drop_empty_values(attributes)
+
+          service_update_real(uuid, nattributes, me)
+          uuid
       end
+
     [uuid | service_update_list_real(rest, me)]
   end
 
@@ -361,12 +444,12 @@ defmodule Serverboards.Service do
   """
   def service_add(attributes, me) do
     attributes = %{
-      uuid: UUID.uuid4,
+      uuid: UUID.uuid4(),
       name: attributes["name"],
       type: attributes["type"],
-      priority: Map.get(attributes,"priority", 50),
-      tags: Map.get(attributes,"tags", []),
-      config: Map.get(attributes,"config", %{}),
+      priority: Map.get(attributes, "priority", 50),
+      tags: Map.get(attributes, "tags", []),
+      config: Map.get(attributes, "config", %{})
     }
 
     EventSourcing.dispatch(:service, :add_service, attributes, me.email)
@@ -412,33 +495,45 @@ defmodule Serverboards.Service do
 
     # Logger.info("Get service list for #{inspect filter}", filter: filter)
 
-    query = if filter do
-        Enum.reduce(filter, from(c in ServiceModel), fn {k,v}, acc ->
+    query =
+      if filter do
+        Enum.reduce(filter, from(c in ServiceModel), fn {k, v}, acc ->
           case k do
             :name ->
-              acc |>
-                where([c], c.name == ^v)
+              acc
+              |> where([c], c.name == ^v)
+
             :type ->
-              acc |>
-                where([c], c.type == ^v)
+              acc
+              |> where([c], c.type == ^v)
+
             :project ->
               acc
-                |> join(:inner,[c], sc in ProjectServiceModel, sc.service_id == c.id)
-                |> join(:inner,[c,sc], s in ProjectModel, s.id == sc.project_id and s.shortname == ^v)
-                |> select([c,sc,s], c)
-            :traits -> # at post process
+              |> join(:inner, [c], sc in ProjectServiceModel, sc.service_id == c.id)
+              |> join(
+                :inner,
+                [c, sc],
+                s in ProjectModel,
+                s.id == sc.project_id and s.shortname == ^v
+              )
+              |> select([c, sc, s], c)
+
+            # at post process
+            :traits ->
               acc
           end
         end)
       else
         ServiceModel
       end
-    #Logger.info("#{inspect filter} #{inspect query}")
-    res = Repo.all(query) |> Enum.map( &decorate(&1) )
+
+    # Logger.info("#{inspect filter} #{inspect query}")
+    res = Repo.all(query) |> Enum.map(&decorate(&1))
 
     # post process
     if Keyword.has_key?(filter, :traits) do
-      res |> Enum.filter( fn s ->
+      res
+      |> Enum.filter(fn s ->
         Enum.all?(filter[:traits], &(&1 in s.traits))
       end)
     else
@@ -455,30 +550,41 @@ defmodule Serverboards.Service do
   def decorate(nil) do
     nil
   end
+
   def decorate(uuid) when is_binary(uuid) do
     import Ecto.Query
-    case Repo.one( from c in ServiceModel, where: c.uuid == ^uuid, preload: :tags ) do
+
+    case Repo.one(from(c in ServiceModel, where: c.uuid == ^uuid, preload: :tags)) do
       nil -> nil
       service -> decorate(service)
     end
   end
+
   def decorate(service) do
     import Ecto.Query
-    traits = case Serverboards.Plugin.Registry.filter_component(id: service.type) do
-      [comp] -> comp.traits
-      [] -> []
-    end
 
-    service = service
-          |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), &(&1.name)) )
-          |> Map.put(:projects, Repo.all(
-            from s in ProjectModel,
+    traits =
+      case Serverboards.Plugin.Registry.filter_component(id: service.type) do
+        [comp] -> comp.traits
+        [] -> []
+      end
+
+    service =
+      service
+      |> Map.put(:tags, Enum.map(Repo.all(Ecto.assoc(service, :tags)), & &1.name))
+      |> Map.put(
+        :projects,
+        Repo.all(
+          from(s in ProjectModel,
             join: ss in ProjectServiceModel,
-              on: ss.project_id == s.id,
-           where: ss.service_id == ^service.id,
-          select: s.shortname
-            ))
-          |> Map.put(:traits, traits)
+            on: ss.project_id == s.id,
+            where: ss.service_id == ^service.id,
+            select: s.shortname
+          )
+        )
+      )
+      |> Map.put(:traits, traits)
+
     service |> Map.take(~w(tags projects config uuid priority name type description icon traits)a)
   end
 
@@ -487,11 +593,15 @@ defmodule Serverboards.Service do
   """
   def service_config(uuid) do
     import Ecto.Query
-    [config] = Repo.all(
-      from s in ServiceModel,
-      where: s.uuid == ^uuid,
-      select: s.config
+
+    [config] =
+      Repo.all(
+        from(s in ServiceModel,
+          where: s.uuid == ^uuid,
+          select: s.config
+        )
       )
+
     config
   end
 
@@ -558,20 +668,36 @@ defmodule Serverboards.Service do
   end
 
   def service_update(service, operations, me) do
-    changes = Enum.reduce(operations, %{}, fn op, acc ->
-      {opname, newval} = op
-      opatom = case opname do
-        "name" -> :name
-        "priority" -> :priority
-        "tags" -> :tags
-        "config" -> :config
-        "description" -> :description
-        e ->
-          Logger.error("Unknown operation #{inspect e}. Failing.")
-          raise RuntimeError, "Unknown operation updating service #{service}: #{inspect e}. Failing."
-        end
+    changes =
+      Enum.reduce(operations, %{}, fn op, acc ->
+        {opname, newval} = op
+
+        opatom =
+          case opname do
+            "name" ->
+              :name
+
+            "priority" ->
+              :priority
+
+            "tags" ->
+              :tags
+
+            "config" ->
+              :config
+
+            "description" ->
+              :description
+
+            e ->
+              Logger.error("Unknown operation #{inspect(e)}. Failing.")
+
+              raise RuntimeError,
+                    "Unknown operation updating service #{service}: #{inspect(e)}. Failing."
+          end
+
         if opatom do
-          Map.put acc, opatom, newval
+          Map.put(acc, opatom, newval)
         else
           acc
         end
@@ -579,26 +705,35 @@ defmodule Serverboards.Service do
 
     EventSourcing.dispatch(:service, :update_service, [service, changes], me.email)
 
-    {:ok, service }
+    {:ok, service}
   end
 
-  defp match_service_filter(service, {"traits", traits}), do: match_service_filter(service, {:traits, traits})
+  defp match_service_filter(service, {"traits", traits}),
+    do: match_service_filter(service, {:traits, traits})
+
   defp match_service_filter(_service, {:traits, []}), do: false
+
   defp match_service_filter(service, {:traits, [trait | rest]}) do
-    Logger.debug("trait #{trait} in #{inspect service}")
+    Logger.debug("trait #{trait} in #{inspect(service)}")
+
     cond do
       service.traits == nil ->
         Logger.debug("No traits")
         false
+
       trait in service.traits ->
         Logger.debug("ok")
         true
+
       true ->
         Logger.debug("keep looking")
         match_service_filter(service, {:traits, rest})
     end
   end
-  defp match_service_filter(service, {"type", type}), do: match_service_filter(service, {:type, type})
+
+  defp match_service_filter(service, {"type", type}),
+    do: match_service_filter(service, {:type, type})
+
   defp match_service_filter(service, {:type, type}) do
     type == service.id
   end

@@ -1,26 +1,40 @@
 defmodule Perms do
   def all_perms do
     [
-    "auth.modify_self", "auth.modify_any",
-    "auth.create_user", "auth.create_token",
-    "auth.info_any_user",
-    "auth.modify_groups", "auth.manage_groups",
-    "plugin",
-    "project.add", "project.get",
-    "project.delete", "project.info",
-    "project.widget.add", "project.widget.update",
-    "service.add", "service.update",
-    "service.delete", "service.info",
-    "service.attach",
-    "settings.user.view", "settings.user.view_all",
-    "settings.user.update", "settings.user.update_all",
-    "settings.view", "settings.update",
-    "debug",
-    "notifications.notify", "notifications.notify_all",
-    "notifications.list",
-    "action.trigger", "action.watch",
-    "rules.update", "rules.view",
-    "logs.view"
+      "auth.modify_self",
+      "auth.modify_any",
+      "auth.create_user",
+      "auth.create_token",
+      "auth.info_any_user",
+      "auth.modify_groups",
+      "auth.manage_groups",
+      "plugin",
+      "project.add",
+      "project.get",
+      "project.delete",
+      "project.info",
+      "project.widget.add",
+      "project.widget.update",
+      "service.add",
+      "service.update",
+      "service.delete",
+      "service.info",
+      "service.attach",
+      "settings.user.view",
+      "settings.user.view_all",
+      "settings.user.update",
+      "settings.user.update_all",
+      "settings.view",
+      "settings.update",
+      "debug",
+      "notifications.notify",
+      "notifications.notify_all",
+      "notifications.list",
+      "action.trigger",
+      "action.watch",
+      "rules.update",
+      "rules.view",
+      "logs.view"
     ]
   end
 
@@ -33,10 +47,10 @@ defmodule Perms do
   end
 
   def do_update do
-    Enum.map all_perms, fn p ->
-      :ok = Serverboards.Auth.Group.perm_add "admin", p, system_user
-    end
+    Enum.map(all_perms, fn p ->
+      :ok = Serverboards.Auth.Group.perm_add("admin", p, system_user)
+    end)
   end
-
 end
-Perms.do_update
+
+Perms.do_update()

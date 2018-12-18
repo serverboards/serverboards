@@ -3,8 +3,7 @@ defmodule Serverboards.Repo.Migrations.RemoveIssueEventTitle do
 
   def change do
     alter table(:issues_event) do
-      remove :title
+      remove(:title)
     end
-
   end
 end

@@ -8,38 +8,45 @@ defmodule Serverboards.Event do
   so on.
   """
   def start_link(options) do
-    MOM.Channel.subscribe(:auth_authenticated, fn %{ payload: %{ client: client } } ->
-      subscription_id = MOM.Channel.subscribe(:client_events, fn %{ payload: payload } ->
-        subscriptions = MOM.RPC.Client.get client, :subscriptions, []
-        event_type = payload.type
+    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client}} ->
+      subscription_id =
+        MOM.Channel.subscribe(:client_events, fn %{payload: payload} ->
+          subscriptions = MOM.RPC.Client.get(client, :subscriptions, [])
+          event_type = payload.type
 
-        # only send if in subscriptions.
-        # Logger.debug("#{inspect event_type} in #{inspect subscriptions}")
-        if event_type in subscriptions do
-          guards = Map.get(payload, :guards, [])
-          user = MOM.RPC.Client.get client, :user
-          #{:ok, user} = Serverboards.Auth.User.user_info user.email, user
-          #Logger.debug("Perms: #{inspect user} / #{inspect guards}")
-          if check_guards(guards, user) do
-            # If it was an event with context, remove it. Was used only for guards.
-            event_type = hd String.split(event_type,"[")
-            try do
-              MOM.RPC.Client.event(
-                client, event_type,
-                Serverboards.Utils.clean_struct(payload.data)
+          # only send if in subscriptions.
+          # Logger.debug("#{inspect event_type} in #{inspect subscriptions}")
+          if event_type in subscriptions do
+            guards = Map.get(payload, :guards, [])
+            user = MOM.RPC.Client.get(client, :user)
+            # {:ok, user} = Serverboards.Auth.User.user_info user.email, user
+            # Logger.debug("Perms: #{inspect user} / #{inspect guards}")
+            if check_guards(guards, user) do
+              # If it was an event with context, remove it. Was used only for guards.
+              event_type = hd(String.split(event_type, "["))
+
+              try do
+                MOM.RPC.Client.event(
+                  client,
+                  event_type,
+                  Serverboards.Utils.clean_struct(payload.data)
                 )
-            rescue
-              e ->
-                Logger.error("Error sending event: #{inspect e}\n#{Exception.format_stacktrace}")
+              rescue
+                e ->
+                  Logger.error(
+                    "Error sending event: #{inspect(e)}\n#{Exception.format_stacktrace()}"
+                  )
+              end
+            else
+              # Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
             end
           else
-            #Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
+            # Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
           end
-        else
-          #Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
-        end
-        :ok
-      end)
+
+          :ok
+        end)
+
       # I subscribe the monitoring of any element in the client caller
       # Logger.debug("Monitor #{inspect client.pid} with subscription id #{inspect subscription_id}")
       Serverboards.Utils.MonitorCallbacks.monitor(client.pid, fn ->
@@ -101,6 +108,7 @@ defmodule Serverboards.Event do
   Not implemented yet.
   """
   def check_guards([], _user), do: true
+
   def check_guards([perm | rest], user) do
     if perm in user.perms do
       check_guards(rest, user)
@@ -111,7 +119,7 @@ defmodule Serverboards.Event do
 
   def check_guards(%{} = map, _user) when map == %{}, do: true
   # check user as given
-  def check_guards(%{ user: email} = guards, user) do
+  def check_guards(%{user: email} = guards, user) do
     if email == user.email do
       guards = Map.drop(guards, [:user])
       check_guards(guards, user)
@@ -119,8 +127,9 @@ defmodule Serverboards.Event do
       false
     end
   end
+
   # check perms
-  def check_guards(%{ perms: perms} = guards, user) do
+  def check_guards(%{perms: perms} = guards, user) do
     if check_guards(perms, user) do
       check_guards(Map.drop(guards, [:perms]), user)
     else
@@ -147,10 +156,15 @@ defmodule Serverboards.Event do
   def emit(type, data, guards \\ []) do
     # Logger.debug("Emit event #{type} #{inspect data, pretty: true}")
     Task.start(fn ->
-      MOM.Channel.send(:client_events, %MOM.Message{ payload: %{
-        type: type, data: data, guards: guards
-        } })
+      MOM.Channel.send(:client_events, %MOM.Message{
+        payload: %{
+          type: type,
+          data: data,
+          guards: guards
+        }
+      })
     end)
+
     :ok
   end
 end

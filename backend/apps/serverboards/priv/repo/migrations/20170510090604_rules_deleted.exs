@@ -3,7 +3,7 @@ defmodule Serverboards.Repo.Migrations.RulesDeleted do
 
   def change do
     alter table(:rules_rule) do
-      add :deleted, :boolean, default: false
+      add(:deleted, :boolean, default: false)
     end
   end
 end

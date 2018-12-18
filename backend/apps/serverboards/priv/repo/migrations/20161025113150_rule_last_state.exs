@@ -3,7 +3,7 @@ defmodule Serverboards.Repo.Migrations.RuleLastState do
 
   def change do
     alter table(:rules_rule) do
-      add :last_state, :string, size: 256
+      add(:last_state, :string, size: 256)
     end
   end
 end

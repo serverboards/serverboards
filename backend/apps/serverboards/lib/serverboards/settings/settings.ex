@@ -17,8 +17,8 @@ defmodule Serverboards.Settings do
 
   def start_link(options) do
     Agent.start_link(fn ->
-      {:ok, es} = EventSourcing.start_link [name: :settings] ++ options
-      {:ok, rpc} = Serverboards.Settings.RPC.start_link
+      {:ok, es} = EventSourcing.start_link([name: :settings] ++ options)
+      {:ok, rpc} = Serverboards.Settings.RPC.start_link()
 
       setup_eventsourcing(es)
 
@@ -29,14 +29,15 @@ defmodule Serverboards.Settings do
   def setup_eventsourcing(es) do
     import EventSourcing
 
-    subscribe es, :update_settings, fn [section, data], _me ->
+    subscribe(es, :update_settings, fn [section, data], _me ->
       update_real(section, data)
-    end
-    subscribe es, :update_user_settings, fn [email, section, data], _me ->
-      update_user_real(email, section, data)
-    end
+    end)
 
-    EventSourcing.Model.subscribe :settings, :settings, Serverboards.Repo
+    subscribe(es, :update_user_settings, fn [email, section, data], _me ->
+      update_user_real(email, section, data)
+    end)
+
+    EventSourcing.Model.subscribe(:settings, :settings, Serverboards.Repo)
   end
 
   def update(section, attributes, me) do
@@ -49,35 +50,59 @@ defmodule Serverboards.Settings do
   end
 
   def update_real(section, data) do
-    #Logger.info("Update settings, #{section}: #{inspect data}")
+    # Logger.info("Update settings, #{section}: #{inspect data}")
     Serverboards.Utils.Cache.remove({:config, section})
+
     case Repo.get_by(Model.Settings, section: section) do
       nil ->
-        Repo.insert( %Model.Settings{section: section, data: data} )
-        MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
-        Serverboards.Event.emit("settings.updated", %{ section: section, data: data}, ["settings.view"])
-        Serverboards.Event.emit("settings.updated[#{section}]", %{ section: section, data: data}, ["settings.view[#{section}]"])
+        Repo.insert(%Model.Settings{section: section, data: data})
+
+        MOM.Channel.send(:settings, %MOM.Message{
+          payload: %{type: :update, section: section, data: data}
+        })
+
+        Serverboards.Event.emit("settings.updated", %{section: section, data: data}, [
+          "settings.view"
+        ])
+
+        Serverboards.Event.emit("settings.updated[#{section}]", %{section: section, data: data}, [
+          "settings.view[#{section}]"
+        ])
+
       sec ->
-        #Logger.debug("#{inspect sec}")
+        # Logger.debug("#{inspect sec}")
         if data != sec.data do
           # No changes on pw use old value
-          data = for {k,v} <- data, into: %{} do
-            if String.ends_with?(to_string(k), "_pw") and v==@nochange do
-              {k, sec.data[k]}
-            else
-              {k, v}
+          data =
+            for {k, v} <- data, into: %{} do
+              if String.ends_with?(to_string(k), "_pw") and v == @nochange do
+                {k, sec.data[k]}
+              else
+                {k, v}
+              end
             end
-          end
 
-          Repo.update( Model.Settings.changeset(sec, %{data: data}) )
-          MOM.Channel.send(:settings, %MOM.Message{payload: %{ type: :update, section: section, data: data }})
-          Serverboards.Event.emit("settings.updated", %{ section: section, data: data}, ["settings.view"])
-          Serverboards.Event.emit("settings.updated[#{section}]", %{ section: section, data: data}, ["settings.view[#{section}]"])
+          Repo.update(Model.Settings.changeset(sec, %{data: data}))
+
+          MOM.Channel.send(:settings, %MOM.Message{
+            payload: %{type: :update, section: section, data: data}
+          })
+
+          Serverboards.Event.emit("settings.updated", %{section: section, data: data}, [
+            "settings.view"
+          ])
+
+          Serverboards.Event.emit(
+            "settings.updated[#{section}]",
+            %{section: section, data: data},
+            ["settings.view[#{section}]"]
+          )
         else
-          #Logger.debug("Do not update #{section} settings, as it has the same data")
+          # Logger.debug("Do not update #{section} settings, as it has the same data")
           nil
         end
     end
+
     Serverboards.Utils.Cache.remove({:config, String.to_atom(section)})
     :ok
   end
@@ -86,33 +111,40 @@ defmodule Serverboards.Settings do
     EventSourcing.dispatch(:settings, :update_user_settings, [email, section, data], me)
     :ok
   end
+
   def update_user_real(email, section, nil) do
     import Ecto.Query
 
-    query = from s in Model.UserSettings,
-            join: u in Serverboards.Auth.Model.User,
-              on: u.id == s.user_id,
-           where: u.email == ^email and s.section == ^section
+    query =
+      from(s in Model.UserSettings,
+        join: u in Serverboards.Auth.Model.User,
+        on: u.id == s.user_id,
+        where: u.email == ^email and s.section == ^section
+      )
 
-    Repo.delete_all( query )
+    Repo.delete_all(query)
   end
+
   def update_user_real(email, section, data) do
     import Ecto.Query
-    [user] = Repo.all(from u in Serverboards.Auth.Model.User, where: u.email == ^email)
+    [user] = Repo.all(from(u in Serverboards.Auth.Model.User, where: u.email == ^email))
     user_id = user.id
-    #Logger.info("Update settings, #{section}: #{inspect data}")
+    # Logger.info("Update settings, #{section}: #{inspect data}")
     case Repo.get_by(Model.UserSettings, section: section, user_id: user_id) do
       nil ->
-        Repo.insert( %Model.UserSettings{section: section, data: data, user_id: user_id} )
+        Repo.insert(%Model.UserSettings{section: section, data: data, user_id: user_id})
+
       sec ->
-        #Logger.debug("#{inspect sec}")
-        Repo.update( Model.UserSettings.changeset(sec, %{data: data}) )
+        # Logger.debug("#{inspect sec}")
+        Repo.update(Model.UserSettings.changeset(sec, %{data: data}))
     end
-    MOM.Channel.send(:user_settings, %MOM.Message{payload: %{ type: :update, user: user, section: section, data: data }})
+
+    MOM.Channel.send(:user_settings, %MOM.Message{
+      payload: %{type: :update, user: user, section: section, data: data}
+    })
+
     :ok
   end
-
-
 
   @doc ~S"""
     Returns a list with all settings sections, with the fields and current values.
@@ -127,32 +159,36 @@ defmodule Serverboards.Settings do
   """
   def all_settings(me) do
     if "settings.view" in me.perms do
-      all_values = Repo.all(Model.Settings) |> Enum.map(fn s -> {s.section,s.data} end)
-      all_values = Map.new( all_values )
-      #Logger.info("all_values #{inspect all_values}")
+      all_values = Repo.all(Model.Settings) |> Enum.map(fn s -> {s.section, s.data} end)
+      all_values = Map.new(all_values)
+      # Logger.info("all_values #{inspect all_values}")
 
       # Foe each component and field, gets stored values and put them at "value"
       Serverboards.Plugin.Registry.filter_component(type: "settings")
-        |> Enum.map(fn settings ->
-          id = settings.id
-          fields = settings.extra["fields"]
-          values = Map.get(all_values, id, %{})
-          fields = Enum.map(fields, fn f ->
+      |> Enum.map(fn settings ->
+        id = settings.id
+        fields = settings.extra["fields"]
+        values = Map.get(all_values, id, %{})
+
+        fields =
+          Enum.map(fields, fn f ->
             name = Map.get(f, "name", "")
+
             if String.ends_with?(to_string(name), "_pw") do
               Map.put(f, "value", @nochange)
             else
-              Map.put(f, "value", Map.get( values, name, nil ))
+              Map.put(f, "value", Map.get(values, name, nil))
             end
           end)
-          %{
-            name: settings.name,
-            id: id,
-            fields: fields,
-            description: settings.description,
-            order: settings.extra["order"] || 0
-           }
-        end)
+
+        %{
+          name: settings.name,
+          id: id,
+          fields: fields,
+          description: settings.description,
+          order: settings.extra["order"] || 0
+        }
+      end)
     else
       {:error, :permission_denied}
     end
@@ -164,13 +200,16 @@ defmodule Serverboards.Settings do
   """
   def get(id) do
     import Ecto.Query
-    case Repo.all(from s in Model.Settings, where: s.section == ^id) do
+
+    case Repo.all(from(s in Model.Settings, where: s.section == ^id)) do
       [] ->
         {:error, :not_found}
+
       [other] ->
         {:ok, other.data}
     end
   end
+
   def get(id, default) do
     case get(id) do
       {:error, :not_found} -> default
@@ -183,11 +222,15 @@ defmodule Serverboards.Settings do
   """
   def user_get(email, section) do
     import Ecto.Query
-    query = from s in Model.UserSettings,
-            join: u in Serverboards.Auth.Model.User,
-              on: u.id == s.user_id,
-           where: u.email == ^email and s.section == ^section,
-           select: s.data
+
+    query =
+      from(s in Model.UserSettings,
+        join: u in Serverboards.Auth.Model.User,
+        on: u.id == s.user_id,
+        where: u.email == ^email and s.section == ^section,
+        select: s.data
+      )
+
     case Repo.all(query) do
       [] -> nil
       [other] -> other

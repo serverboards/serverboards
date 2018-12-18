@@ -53,12 +53,16 @@ defmodule Serverboards.ExEvalTest do
   end
 
   test "with vars" do
-    context = [%{
+    context = [
+      %{
         "A" => "test",
-        "B" => %{ "C" => "got deeper" }
-      }, %{
+        "B" => %{"C" => "got deeper"}
+      },
+      %{
         "D" => "more contexts"
-      } ]
+      }
+    ]
+
     assert ExEval.eval("A == 'test'", context) == {:ok, true}
     assert ExEval.eval("A != 'test'", context) == {:ok, false}
     assert ExEval.eval("A != 'no test'", context) == {:ok, true}
@@ -73,28 +77,33 @@ defmodule Serverboards.ExEvalTest do
 
   test "Bug use proper and" do
     assert ExEval.eval(
-        "(A.state == \"down\") and (A.for > 10)",
-        [%{ "A" => %{ "state" => "down", "for" => 15}}]
-      ) == {:ok, true}
+             "(A.state == \"down\") and (A.for > 10)",
+             [%{"A" => %{"state" => "down", "for" => 15}}]
+           ) == {:ok, true}
+
     assert ExEval.eval(
-        "(A.state == \"down\") and (A.for > 10)",
-        [%{ "A" => %{ "state" => "down", "for" => 5}}]
-      ) == {:ok, false}
+             "(A.state == \"down\") and (A.for > 10)",
+             [%{"A" => %{"state" => "down", "for" => 5}}]
+           ) == {:ok, false}
+
     assert ExEval.eval(
-        "(A.state == \"down\") and (A.for > 10)",
-        [%{ "A" => %{ "state" => "up", "for" => 15}}]
-      ) == {:ok, false}
+             "(A.state == \"down\") and (A.for > 10)",
+             [%{"A" => %{"state" => "up", "for" => 15}}]
+           ) == {:ok, false}
+
     assert ExEval.eval(
-        "A.state == \"down\" and A.for > 10",
-        [%{ "A" => %{ "state" => "down", "for" => 15}}]
-      ) == {:ok, true}
+             "A.state == \"down\" and A.for > 10",
+             [%{"A" => %{"state" => "down", "for" => 15}}]
+           ) == {:ok, true}
+
     assert ExEval.eval(
-        "A.state == \"down\" and A.for > 10",
-        [%{ "A" => %{ "state" => "down", "for" => 5}}]
-      ) == {:ok, false}
+             "A.state == \"down\" and A.for > 10",
+             [%{"A" => %{"state" => "down", "for" => 5}}]
+           ) == {:ok, false}
+
     assert ExEval.eval(
-        "A.state == \"down\" and A.for > 10",
-        [%{ "A" => %{ "state" => "up", "for" => 15}}]
-      ) == {:ok, false}
+             "A.state == \"down\" and A.for > 10",
+             [%{"A" => %{"state" => "up", "for" => 15}}]
+           ) == {:ok, false}
   end
 end

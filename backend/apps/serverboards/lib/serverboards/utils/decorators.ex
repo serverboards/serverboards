@@ -1,4 +1,4 @@
-#require Logger
+# require Logger
 
 defmodule Serverboards.Utils.Decorators do
   @moduledoc ~S"""
@@ -34,18 +34,20 @@ defmodule Serverboards.Utils.Decorators do
     {:error, :unknown_method}
 
   """
-  def permission_method_caller mc do
-    RPC.MethodCaller.add_guard mc, "perms", fn %RPC.Message{ context: context}, options ->
+  def permission_method_caller(mc) do
+    RPC.MethodCaller.add_guard(mc, "perms", fn %RPC.Message{context: context}, options ->
       case Keyword.get(options, :required_perm, nil) do
         nil ->
           true
+
         required_perm ->
-          user = RPC.Context.get context, :user, %{}
+          user = RPC.Context.get(context, :user, %{})
           perms = Map.get(user, :perms, [])
-          #Logger.debug("Required perm #{inspect perms} #{required_perm}")
-          Enum.member? perms, required_perm
+          # Logger.debug("Required perm #{inspect perms} #{required_perm}")
+          Enum.member?(perms, required_perm)
       end
-    end
+    end)
+
     mc
   end
 end

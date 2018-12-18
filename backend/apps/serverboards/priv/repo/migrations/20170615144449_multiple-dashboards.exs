@@ -3,21 +3,21 @@ import Serverboards.Project.Model
 defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
   use Ecto.Migration
 
-
   def up do
-    create table :project_dashboard do
-      add :uuid, :uuid
-      add :project_id, :id
-      add :name, :string
-      add :order, :integer, default: 0
-      add :config, :map
+    create table(:project_dashboard) do
+      add(:uuid, :uuid)
+      add(:project_id, :id)
+      add(:name, :string)
+      add(:order, :integer, default: 0)
+      add(:config, :map)
       timestamps(type: :utc_datetime)
     end
-    create unique_index(:project_dashboard, [:uuid])
-    create index(:project_dashboard, [:project_id])
 
-    alter table :project_widget do
-      add :dashboard_id, references(:project_dashboard)
+    create(unique_index(:project_dashboard, [:uuid]))
+    create(index(:project_dashboard, [:project_id]))
+
+    alter table(:project_widget) do
+      add(:dashboard_id, references(:project_dashboard))
     end
 
     # commit changes
@@ -29,6 +29,7 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
          SELECT md5(random()::text || clock_timestamp()::text)::uuid, id, 'Monitoring', 0, '{}', now(), now()
            FROM project_project;
     """)
+
     flush()
 
     execute("""
@@ -42,14 +43,14 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
 
     flush()
 
-    alter table :project_widget do
-      remove :project_id
+    alter table(:project_widget) do
+      remove(:project_id)
     end
   end
 
   def down do
-    alter table :project_widget do
-      add :project_id, references(:project_project)
+    alter table(:project_widget) do
+      add(:project_id, references(:project_project))
     end
 
     flush()
@@ -64,14 +65,15 @@ defmodule :"Elixir.Serverboards.Repo.Migrations.Multiple-dashboards" do
          LIMIT 1
        );
     """)
+
     flush()
 
-    alter table :project_widget do
-      remove :dashboard_id
+    alter table(:project_widget) do
+      remove(:dashboard_id)
     end
 
-    drop unique_index(:project_dashboard, [:uuid])
-    drop index(:project_dashboard, [:project_id])
-    drop table :project_dashboard
+    drop(unique_index(:project_dashboard, [:uuid]))
+    drop(index(:project_dashboard, [:project_id]))
+    drop(table(:project_dashboard))
   end
 end

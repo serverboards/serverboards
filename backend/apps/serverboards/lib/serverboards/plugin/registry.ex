@@ -4,27 +4,27 @@ defmodule Serverboards.Plugin.Registry do
   use GenServer
 
   def start_link(options \\ []) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, [], [name: Serverboards.Plugin.Registry] ++ options)
+    {:ok, pid} =
+      GenServer.start_link(__MODULE__, [], [name: Serverboards.Plugin.Registry] ++ options)
 
     {:ok, pid}
   end
 
   def plugin_paths() do
-    paths = case Serverboards.Config.get(:plugins, :path, nil) do
-      nil ->
-        (
-          Application.fetch_env!(:serverboards, :plugin_paths)
-          ++
-          [Path.join(Serverboards.Config.serverboards_path, "plugins")]
-        )
-      paths ->
-        String.split(paths,";")
+    paths =
+      case Serverboards.Config.get(:plugins, :path, nil) do
+        nil ->
+          Application.fetch_env!(:serverboards, :plugin_paths) ++
+            [Path.join(Serverboards.Config.serverboards_path(), "plugins")]
+
+        paths ->
+          String.split(paths, ";")
           |> Enum.map(&String.trim/1)
           |> Enum.filter(&(&1 != ""))
-    end
+      end
 
     paths
-      |> Enum.filter(&File.dir?/1)
+    |> Enum.filter(&File.dir?/1)
   end
 
   @doc ~S"""
@@ -32,16 +32,22 @@ defmodule Serverboards.Plugin.Registry do
   """
   def load_plugins() do
     paths = plugin_paths()
-    plugins = Enum.flat_map paths, fn path ->
-      path = Path.expand path
-      Logger.debug("Loading plugins from #{inspect path}")
-      case Serverboards.Plugin.Parser.read_dir(path) do
-        {:ok, plugins} -> plugins
-        {:error, err} ->
-          Logger.error("Error loading plugin directory #{path}: #{inspect err}")
-          []
-      end
-    end
+
+    plugins =
+      Enum.flat_map(paths, fn path ->
+        path = Path.expand(path)
+        Logger.debug("Loading plugins from #{inspect(path)}")
+
+        case Serverboards.Plugin.Parser.read_dir(path) do
+          {:ok, plugins} ->
+            plugins
+
+          {:error, err} ->
+            Logger.error("Error loading plugin directory #{path}: #{inspect(err)}")
+            []
+        end
+      end)
+
     plugins
   end
 
@@ -90,37 +96,48 @@ defmodule Serverboards.Plugin.Registry do
     import Enum
     alias Serverboards.Plugin.Component
 
-    components = active_plugins() |>
-      flat_map(fn p -> # maps plugins to list of components that fit, or []
+    components =
+      active_plugins()
+      # maps plugins to list of components that fit, or []
+      |> flat_map(fn p ->
         p.components
-          |> filter(fn c ->
-            #Logger.debug("Check component #{inspect q }: #{inspect c}")
+        |> filter(fn c ->
+          # Logger.debug("Check component #{inspect q }: #{inspect c}")
 
-            all? (for {k,v} <- q do
+          all?(
+            for {k, v} <- q do
               case k do
                 :id ->
                   cid = Map.get(c, :id)
-                  (cid == v) or (v == ("#{p.id}/#{cid}"))
+                  cid == v or v == "#{p.id}/#{cid}"
+
                 :trait ->
-                  member? Map.get(c, :traits), v
-                :traits -> # any of the traits fit
+                  member?(Map.get(c, :traits), v)
+
+                # any of the traits fit
+                :traits ->
                   if v == :none do
                     Map.get(c, :traits) == []
                   else
-                    all? v, &(&1 in Map.get(c, :traits))
+                    all?(v, &(&1 in Map.get(c, :traits)))
                   end
-                :traits_any -> # any of the traits fit
-                  any? v, &(&1 in Map.get(c, :traits))
+
+                # any of the traits fit
+                :traits_any ->
+                  any?(v, &(&1 in Map.get(c, :traits)))
+
                 :type ->
                   Map.get(c, :type) == v
               end
-            end)
-          end)
-          |> map(fn c ->
-            %Component{ c | plugin: p.id, id: "#{p.id}/#{c.id}" }
-          end)
+            end
+          )
+        end)
+        |> map(fn c ->
+          %Component{c | plugin: p.id, id: "#{p.id}/#{c.id}"}
+        end)
       end)
-    #Logger.debug("Filter #{inspect q }: #{inspect components}")
+
+    # Logger.debug("Filter #{inspect q }: #{inspect components}")
     components
   end
 
@@ -154,23 +171,26 @@ defmodule Serverboards.Plugin.Registry do
 
   """
   def find(nil), do: nil
+
   def find(id) do
     alias Serverboards.Plugin
 
     # on the form .*/.*
-    case Regex.run(~r"^([^/]+)/([^/]+)$", id ) do
+    case Regex.run(~r"^([^/]+)/([^/]+)$", id) do
       nil ->
-        case Regex.run(~r"^[^/]+$", id ) do
+        case Regex.run(~r"^[^/]+$", id) do
           nil ->
             nil
+
           [plugin_id] ->
-            Enum.find(active_plugins(), &(&1.id == plugin_id) )
+            Enum.find(active_plugins(), &(&1.id == plugin_id))
         end
+
       [_, plugin_id, component_id] ->
-        with %Plugin{} = plugin <- Enum.find(active_plugins(), &(&1.id == plugin_id) ),
-             %Plugin.Component{} = component <- Enum.find(plugin.components, &(&1.id == component_id) )
-        do
-           %Plugin.Component{ component | plugin: plugin, id: "#{plugin.id}/#{component.id}" }
+        with %Plugin{} = plugin <- Enum.find(active_plugins(), &(&1.id == plugin_id)),
+             %Plugin.Component{} = component <-
+               Enum.find(plugin.components, &(&1.id == component_id)) do
+          %Plugin.Component{component | plugin: plugin, id: "#{plugin.id}/#{component.id}"}
         else
           _ -> nil
         end
@@ -179,15 +199,17 @@ defmodule Serverboards.Plugin.Registry do
 
   def list() do
     Enum.reduce(all_plugins(), %{}, fn plugin, acc ->
-      components = Enum.reduce(plugin.components, %{}, fn component, acc ->
-        Map.put(acc, component.id, %{
-          id: component.id,
-          name: component.name,
-          type: component.type,
-          traits: component.traits,
-          description: component.description
+      components =
+        Enum.reduce(plugin.components, %{}, fn component, acc ->
+          Map.put(acc, component.id, %{
+            id: component.id,
+            name: component.name,
+            type: component.type,
+            traits: component.traits,
+            description: component.description
           })
-      end)
+        end)
+
       Map.put(acc, plugin.id, %{
         version: plugin.version,
         name: plugin.name,
@@ -199,50 +221,58 @@ defmodule Serverboards.Plugin.Registry do
         components: components,
         tags: plugin.tags,
         extra: plugin.extra
-        })
+      })
     end)
   end
-
 
   ## server impl, just stores state
   def init([]) do
     pid = self()
+
     MOM.Channel.subscribe(:settings, fn
-      %MOM.Message{ payload: %{ type: :update, section: section } = payload} ->
+      %MOM.Message{payload: %{type: :update, section: section} = payload} ->
         if section == "plugins" do
           Logger.debug("Reloading plugins, active plugins settings has changed")
-          GenServer.cast(pid, {:reload, %{ plugins: payload.data }})
+          GenServer.cast(pid, {:reload, %{plugins: payload.data}})
         end
+
         if section == "broken_plugins" do
           Logger.debug("Reloading plugins, broken plugins settings has changed")
-          GenServer.cast(pid, {:reload, %{ broken_plugins: payload.data }})
+          GenServer.cast(pid, {:reload, %{broken_plugins: payload.data}})
         end
-      _ -> :ignore
+
+      _ ->
+        :ignore
     end)
 
     GenServer.cast(self(), {:reload})
-    {:ok, %{ active: [], all: []}}
+    {:ok, %{active: [], all: []}}
   end
 
   def handle_call({:reload}, _from, status) do
     {:noreply, status} = handle_cast({:reload}, status)
     {:reply, :ok, status}
   end
+
   def handle_call({:get_all}, _from, state) do
     {:reply, state.all, state}
   end
+
   def handle_call({:get_active}, _from, state) do
     {:reply, state.active, state}
   end
 
   def handle_cast({:reload}, status), do: handle_cast({:reload, %{}}, status)
+
   def handle_cast({:reload, context}, status) do
     Logger.debug("Reloading plugin lists.")
 
-    all_plugins = load_plugins()
-      |> Enum.reverse
-      |> Enum.uniq_by(&(&1.id))
-    active = Enum.filter(all_plugins, &(&1.enabled))
+    all_plugins =
+      load_plugins()
+      |> Enum.reverse()
+      |> Enum.uniq_by(& &1.id)
+
+    active = Enum.filter(all_plugins, & &1.enabled)
 
     ensure_permissions_exist(all_plugins)
 
@@ -256,37 +286,43 @@ defmodule Serverboards.Plugin.Registry do
       Logger.debug("No changes on manifest files. Not emiting plugins.reloaded.")
     end
 
-    {:noreply, %{
-      all: all_plugins,
-      active: active
-      }}
+    {:noreply,
+     %{
+       all: all_plugins,
+       active: active
+     }}
   end
 
-
   def ensure_permissions_exist(plugins) do
-    perms = Enum.flat_map(plugins, fn plugin ->
-      Enum.flat_map(plugin.components, fn component ->
-        case Map.get(component.extra, "perms", "") do
-          str when is_binary(str) ->
-            String.split(str)
-          li when is_list(li) ->
-            li
-          _other ->
-            Logger.error("Bad permissions format at #{inspect plugin.id}")
-            []
+    perms =
+      Enum.flat_map(plugins, fn plugin ->
+        Enum.flat_map(plugin.components, fn component ->
+          case Map.get(component.extra, "perms", "") do
+            str when is_binary(str) ->
+              String.split(str)
+
+            li when is_list(li) ->
+              li
+
+            _other ->
+              Logger.error("Bad permissions format at #{inspect(plugin.id)}")
+              []
+          end
+        end)
+      end)
+      |> Enum.map(fn str ->
+        if String.contains?(str, "[") do
+          hd(String.split(str, "["))
+        else
+          str
         end
       end)
-    end) |> Enum.map(fn str ->
-      if String.contains?(str, "[") do
-        hd(String.split(str,"["))
-      else
-        str
-      end
-    end)|> MapSet.new |> Enum.filter(fn
-      "OR" -> false
-      "AND" -> false
-      _other -> true
-    end)
+      |> MapSet.new()
+      |> Enum.filter(fn
+        "OR" -> false
+        "AND" -> false
+        _other -> true
+      end)
 
     for perm <- perms do
       Serverboards.Auth.Permission.ensure_exists(perm)

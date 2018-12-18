@@ -10,36 +10,34 @@ use Mix.Config
 import_config "../apps/*/config/config.exs"
 
 # Configures Elixir's Logger
-config :logger, :backends,
-  [
-    {Serverboards.Logger, :serverboards_logs},
-    #{Serverboards.Logger.Console, :serverboards_logs_console},
-    #:console,
-  ]
+config :logger, :backends, [
+  {Serverboards.Logger, :serverboards_logs}
+  # {Serverboards.Logger.Console, :serverboards_logs_console},
+  # :console,
+]
 
 config :serverboards, ecto_repos: [Serverboards.Repo]
 
 config :serverboards, Serverboards.Repo,
-  [
-    adapter: Ecto.Adapters.Postgres,
-    url: "ecto://serverboards:serverboards@localhost/serverboards"
-  ]
+  adapter: Ecto.Adapters.Postgres,
+  url: "ecto://serverboards:serverboards@localhost/serverboards"
 
 config :serverboards,
   plugin_paths: [
-    "../plugins/",
+    "../plugins/"
   ],
   frontend_path: "../frontend/dist",
   debug: false,
-  ini_files: [ # From least important to more
+  # From least important to more
+  ini_files: [
     "{{HOME}}/.local/serverboards/serverboards.ini",
     "{{SERVERBOARDS_PATH}}/serverboards.ini",
     "/etc/serverboards/*.ini",
-    "/etc/serverboards.ini",
+    "/etc/serverboards.ini"
   ]
 
 config :eventsourcing, ecto_repos: [Serverboards.Repo]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"
