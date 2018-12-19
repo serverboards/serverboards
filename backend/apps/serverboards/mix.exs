@@ -63,7 +63,7 @@ defmodule Serverboards.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:mom, in_umbrella: true},
+      {:mom, git: "git://github.com/serverboards/elixir-mom", branch: "CORE-667-less-processes"},
       {:logger_journald_backend, git: "git://github.com/xerions/logger_journald_backend"},
       {:eventsourcing, in_umbrella: true},
       {:ecto, "~> 2.2"},
