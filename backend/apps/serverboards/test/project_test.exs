@@ -120,6 +120,7 @@ defmodule ProjectTest do
     :ok = project_delete("SBDS-TST5", user)
   end
 
+  @tag timeout: 1_000
   test "Serverboards as a client", %{} do
     {:ok, client} = Test.Client.start_link(as: "dmoreno@serverboards.io")
 
