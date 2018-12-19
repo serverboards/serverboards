@@ -111,11 +111,7 @@ defmodule Serverboards.IO.Cmd do
     Port.connect(port, server)
     # Logger.debug("Starting command #{cmd} at port. pid #{inspect self()}")
 
-    {:ok, client} =
-      RPC.Client.start_link(
-        writef: {__MODULE__, :write_line, [port]},
-        name: :"CMD-#{cmd}"
-      )
+    {:ok, client} = RPC.Client.start_link(writef: {__MODULE__, :write_line, [port]})
 
     MOM.RPC.Client.add_method(client, "debug", fn [onoff] ->
       GenServer.call(server, {:debug, onoff})

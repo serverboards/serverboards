@@ -43,6 +43,10 @@ defmodule Serverboards.IO.TCP do
     :gen_tcp.close(socket)
   end
 
+  def writef(socket, _client, line) do
+    :gen_tcp.send(socket, line)
+  end
+
   def loop_acceptor(listen_socket) do
     case :gen_tcp.accept(listen_socket) do
       {:ok, client_socket} ->
@@ -51,10 +55,15 @@ defmodule Serverboards.IO.TCP do
             Serverboards.IO.TaskSupervisor,
             fn ->
               {:ok, client} =
-                RPC.Client.start_link(
-                  writef: &:gen_tcp.send(client_socket, &1),
-                  name: "TCP"
-                )
+                RPC.Client.start_link(writef: {__MODULE__, :writef, [client_socket]})
+
+              RPC.Client.add_method(client, "version", fn [] ->
+                Mix.Project.config()[:version]
+              end)
+
+              RPC.Client.add_method(client, "ping", fn [pong] ->
+                pong
+              end)
 
               Serverboards.Auth.authenticate(client)
 

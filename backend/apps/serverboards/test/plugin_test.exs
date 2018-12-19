@@ -83,7 +83,9 @@ defmodule Serverboards.PluginTest do
 
     {:ok, dir} = Client.call(client, "dir", [])
     assert dir != []
-    assert Enum.member?(dir, "ping")
+    assert Enum.member?(dir, "dashboard.widget.get")
+    # more like 30
+    assert Enum.count(dir) > 10
   end
 
   test "Bad protocol" do

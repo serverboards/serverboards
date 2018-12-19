@@ -144,11 +144,7 @@ defmodule Test.Client do
   def init(options) do
     pid = self()
 
-    {:ok, client} =
-      RPC.Client.start_link(
-        writef: {__MODULE__, :parse_line, [self()]},
-        name: :TestClient
-      )
+    {:ok, client} = RPC.Client.start_link(writef: {__MODULE__, :parse_line, [self()]})
 
     # tap: true
 
