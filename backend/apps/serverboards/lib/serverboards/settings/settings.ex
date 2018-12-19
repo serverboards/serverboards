@@ -16,24 +16,32 @@ defmodule Serverboards.Settings do
   @nochange "%%NOCHANGE%%"
 
   def start_link(options) do
-    Agent.start_link(fn ->
-      {:ok, es} = EventSourcing.start_link([name: :settings] ++ options)
-      {:ok, rpc} = Serverboards.Settings.RPC.start_link()
+    children = [
+      %{
+        id: Serverboards.Settings.EventSourcing,
+        start: {__MODULE__, :start_eventsourcing, []}
+      },
+      %{
+        id: Serverboards.Settings.RPC,
+        start: {Serverboards.Settings.RPC, :start_link, []}
+      }
+    ]
 
-      setup_eventsourcing(es)
+    Supervisor.start_link(children, [strategy: :one_for_one] ++ options)
+  end
 
-      %{es: es, rpc: rpc}
-    end)
+  def start_eventsourcing() do
+    {:ok, es} = EventSourcing.start_link(name: Serverboards.Settings.EventSourcing)
+    setup_eventsourcing(es)
+    {:ok, es}
   end
 
   def setup_eventsourcing(es) do
-    import EventSourcing
-
-    subscribe(es, :update_settings, fn [section, data], _me ->
+    EventSourcing.subscribe(es, :update_settings, fn [section, data], _me ->
       update_real(section, data)
     end)
 
-    subscribe(es, :update_user_settings, fn [email, section, data], _me ->
+    EventSourcing.subscribe(es, :update_user_settings, fn [email, section, data], _me ->
       update_user_real(email, section, data)
     end)
 
@@ -42,7 +50,13 @@ defmodule Serverboards.Settings do
 
   def update(section, attributes, me) do
     if "settings.update" in me.perms do
-      EventSourcing.dispatch(:settings, :update_settings, [section, attributes], me.email)
+      EventSourcing.dispatch(
+        Serverboards.Settings.EventSourcing,
+        :update_settings,
+        [section, attributes],
+        me.email
+      )
+
       :ok
     else
       {:error, :permission_denied}
@@ -107,7 +121,13 @@ defmodule Serverboards.Settings do
   end
 
   def user_update(email, section, data, me) do
-    EventSourcing.dispatch(:settings, :update_user_settings, [email, section, data], me)
+    EventSourcing.dispatch(
+      Serverboards.Settings.EventSourcing,
+      :update_user_settings,
+      [email, section, data],
+      me
+    )
+
     :ok
   end
 

@@ -163,7 +163,7 @@ defmodule Serverboards.Settings.RPC do
     )
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client} ->
       # Logger.debug("New client, has perms: #{inspect (RPC.Client.get client, :user)}")
       RPC.Client.add_method_caller(client, mc)
       :ok

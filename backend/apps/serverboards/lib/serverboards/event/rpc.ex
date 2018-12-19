@@ -58,7 +58,7 @@ defmodule Serverboards.Event.RPC do
       required_perm: "event.emit"
     )
 
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client} ->
       # Logger.info("Event RPC ready.")
       MOM.RPC.Client.add_method_caller(client, mc)
     end)

@@ -76,7 +76,7 @@ defmodule Serverboards.Logger.RPC do
     end)
 
     MOM.Channel.subscribe(:auth_authenticated, fn msg ->
-      MOM.RPC.Client.add_method_caller(msg.payload.client, mc)
+      MOM.RPC.Client.add_method_caller(msg.client, mc)
     end)
 
     {:ok, mc}

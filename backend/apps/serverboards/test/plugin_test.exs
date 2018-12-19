@@ -125,7 +125,7 @@ defmodule Serverboards.PluginTest do
 
     table = :ets.new(:test_check, [:set, :public])
 
-    MOM.Channel.subscribe(:plugin_down, fn %{payload: %{uuid: uuid, id: id}} ->
+    MOM.Channel.subscribe(:plugin_down, fn %{uuid: uuid, id: id} ->
       Logger.warn("Process is DOWN: #{uuid}, #{id}")
       :ets.insert(table, {:down, true})
     end)

@@ -135,18 +135,19 @@ defmodule Test.Client do
     RPC.Client.get(client, k, v)
   end
 
+  def parse_line(pid, _client, line) do
+    {:ok, rpc_call} = Poison.decode(line)
+    GenServer.cast(pid, {:call, rpc_call})
+  end
+
   ## server impl
   def init(options) do
     pid = self()
 
     {:ok, client} =
       RPC.Client.start_link(
-        writef: fn line ->
-          # Logger.debug("Parse JSON at test client: #{line} / #{inspect pid}")
-          {:ok, rpc_call} = Poison.decode(line)
-          GenServer.cast(pid, {:call, rpc_call})
-        end,
-        name: "TestClient"
+        writef: {__MODULE__, :parse_line, [self()]},
+        name: :TestClient
       )
 
     # tap: true

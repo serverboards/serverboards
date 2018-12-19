@@ -12,7 +12,7 @@ defmodule Serverboards.Plugin.Init.Supervisor do
 
     start_inits()
 
-    MOM.Channel.subscribe(:client_events, fn %{payload: payload} ->
+    MOM.Channel.subscribe(:client_events, fn payload ->
       if payload.type == "plugins.reloaded" do
         Logger.info("Reloading init services. #{inspect(pid)}")
 

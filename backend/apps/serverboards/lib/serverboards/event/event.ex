@@ -10,49 +10,46 @@ defmodule Serverboards.Event do
   def start_link(options) do
     MOM.Channel.subscribe(:auth_authenticated, fn %{client: client} ->
       subscription_id =
-        MOM.Channel.subscribe(:client_events, fn payload ->
-          subscriptions = MOM.RPC.Client.get(client, :subscriptions, [])
-          event_type = payload.type
+        MOM.Channel.subscribe(
+          :client_events,
+          fn payload ->
+            subscriptions = MOM.RPC.Client.get(client, :subscriptions, [])
+            event_type = payload.type
 
-          # only send if in subscriptions.
-          # Logger.debug("#{inspect event_type} in #{inspect subscriptions}")
-          if event_type in subscriptions do
-            guards = Map.get(payload, :guards, [])
-            user = MOM.RPC.Client.get(client, :user)
-            # {:ok, user} = Serverboards.Auth.User.user_info user.email, user
-            # Logger.debug("Perms: #{inspect user} / #{inspect guards}")
-            if check_guards(guards, user) do
-              # If it was an event with context, remove it. Was used only for guards.
-              event_type = hd(String.split(event_type, "["))
+            # only send if in subscriptions.
+            # Logger.debug("#{inspect event_type} in #{inspect subscriptions}")
+            if event_type in subscriptions do
+              guards = Map.get(payload, :guards, [])
+              user = MOM.RPC.Client.get(client, :user)
+              # {:ok, user} = Serverboards.Auth.User.user_info user.email, user
+              # Logger.debug("Perms: #{inspect user} / #{inspect guards}")
+              if check_guards(guards, user) do
+                # If it was an event with context, remove it. Was used only for guards.
+                event_type = hd(String.split(event_type, "["))
 
-              try do
-                MOM.RPC.Client.event(
-                  client,
-                  event_type,
-                  Serverboards.Utils.clean_struct(payload.data)
-                )
-              rescue
-                e ->
-                  Logger.error(
-                    "Error sending event: #{inspect(e)}\n#{Exception.format_stacktrace()}"
+                try do
+                  MOM.RPC.Client.event(
+                    client,
+                    event_type,
+                    Serverboards.Utils.clean_struct(payload.data)
                   )
+                rescue
+                  e ->
+                    Logger.error(
+                      "Error sending event: #{inspect(e)}\n#{Exception.format_stacktrace()}"
+                    )
+                end
+              else
+                # Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
               end
             else
-              # Logger.debug("Guard prevented send event #{inspect event_type} to client. #{inspect guards} #{inspect client}")
+              # Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
             end
-          else
-            # Logger.debug("Not sending #{inspect event_type} to #{inspect client} (#{inspect subscriptions})")
-          end
 
-          :ok
-        end)
-
-      # I subscribe the monitoring of any element in the client caller
-      # Logger.debug("Monitor #{inspect client.pid} with subscription id #{inspect subscription_id}")
-      Serverboards.Utils.MonitorCallbacks.monitor(client.pid, fn ->
-        # Logger.warn("Unsubscribing from client_events")
-        MOM.Channel.unsubscribe(:client_events, subscription_id)
-      end)
+            :ok
+          end,
+          monitor: client
+        )
     end)
 
     Serverboards.Event.RPC.start_link(options)

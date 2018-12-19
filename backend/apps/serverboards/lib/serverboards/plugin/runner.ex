@@ -18,8 +18,7 @@ defmodule Serverboards.Plugin.Runner do
 
     method_caller = Serverboards.Plugin.Runner.method_caller()
 
-    MOM.Channel.subscribe(:auth_authenticated, fn msg ->
-      %{user: _user, client: client} = msg.payload
+    MOM.Channel.subscribe(:auth_authenticated, fn %{user: _user, client: client} ->
       MOM.RPC.Client.add_method_caller(client, method_caller)
       :ok
     end)

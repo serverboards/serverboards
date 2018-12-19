@@ -256,11 +256,11 @@ defmodule Serverboards.Auth.RPC do
     )
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client, user: user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client, user: user} ->
       MOM.RPC.Client.add_method_caller(client, mc)
 
       # subscribe this client to changes on this user
-      MOM.Channel.subscribe(:client_events, fn %{payload: %{type: type, data: data}} ->
+      MOM.Channel.subscribe(:client_events, fn %{type: type, data: data} ->
         cond do
           type in ["group.perm_added", "group.perm.deleted"] ->
             user = RPC.Client.get(client, :user)

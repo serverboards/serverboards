@@ -22,7 +22,7 @@ defmodule Serverboards.IO.HTTP.RPC do
       required_perm: "http.port_to_websocket"
     )
 
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client} ->
       MOM.RPC.Client.add_method_caller(client, mc)
     end)
 

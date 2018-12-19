@@ -100,7 +100,7 @@ defmodule Serverboards.Action.RPC do
       context: true
     )
 
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client, user: _user}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client, user: _user} ->
       MOM.RPC.Client.add_method_caller(client, mc)
     end)
 

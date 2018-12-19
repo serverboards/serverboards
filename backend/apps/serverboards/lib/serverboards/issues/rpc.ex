@@ -71,7 +71,7 @@ defmodule Serverboards.Issues.RPC do
     )
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client} ->
       MOM.RPC.Client.add_method_caller(client, mc)
       :ok
     end)
