@@ -50,12 +50,8 @@ defmodule Serverboards.IO.Cmd do
   """
   def call(cmd, method, params \\ []) do
     # 24h timeout
-
     try do
-      case GenServer.call(cmd, {:call, method, params}, 24 * 60 * 60 * 1000) do
-        {:ok, res} -> {:ok, res}
-        {:error, err} -> {:error, err}
-      end
+      RPC.Client.call(client(cmd), method, params)
     catch
       :exit, {reason, _} ->
         Logger.error(
@@ -78,7 +74,7 @@ defmodule Serverboards.IO.Cmd do
   Returns the associated client
   """
   def client(cmd) do
-    GenServer.call(cmd, {:client})
+    GenServer.call(cmd, {:get, :client})
   end
 
   # returns the string length from the list_lines
@@ -95,6 +91,15 @@ defmodule Serverboards.IO.Cmd do
     Enum.count(l)
   end
 
+  def write_line(port, _client, line) do
+    # if state.debug do
+    # Logger.debug("CMD // #{Path.basename(cmd)}> #{line} #{inspect(Port.info(port))}")
+
+    # end
+
+    Port.command(port, line)
+  end
+
   ## server implementation
   def init({cmd, args, cmdopts, perms}) do
     Process.flag(:trap_exit, true)
@@ -108,10 +113,8 @@ defmodule Serverboards.IO.Cmd do
 
     {:ok, client} =
       RPC.Client.start_link(
-        writef: fn line ->
-          GenServer.call(server, {:write_line, line})
-        end,
-        name: "CMD-#{cmd}"
+        writef: {__MODULE__, :write_line, [port]},
+        name: :"CMD-#{cmd}"
       )
 
     MOM.RPC.Client.add_method(client, "debug", fn [onoff] ->
@@ -205,49 +208,7 @@ defmodule Serverboards.IO.Cmd do
     %{state | ratelimit: ratelimit, ratelimit_skip: skip}
   end
 
-  def handle_call({:write_line, line}, _from, state) do
-    # If fails, makes the cmd exit. And by failing call, quite probably caller too. (Client)
-    if state.debug do
-      Logger.debug(
-        "CMD // #{Path.basename(state.cmd)} // #{inspect(self())}> #{line} #{
-          inspect(Port.info(state.port))
-        }"
-      )
-    end
-
-    res = Port.command(state.port, line)
-
-    {:reply, res, state}
-  end
-
-  def handle_call({:call, method, params}, from, state) do
-    # Logger.debug("Call #{method}")
-    Task.start(fn ->
-      res =
-        try do
-          RPC.Client.call(state.client, method, params)
-        catch
-          :exit, :timeout ->
-            Logger.error("Timeout when calling #{inspect(method)}")
-            {:error, :timeout}
-
-          :exit, {:timeout, _what} ->
-            Logger.error("Timeout when calling #{inspect(method)}")
-            {:error, :timeout}
-
-          :exit, other ->
-            Logger.error("Error calling #{inspect(method)}: #{inspect(other)}")
-            {:error, other}
-        end
-
-      GenServer.reply(from, res)
-      # Logger.debug("Response for #{method}: #{inspect res}")
-    end)
-
-    {:noreply, state}
-  end
-
-  def handle_call({:client}, _from, state) do
+  def handle_call({:get, :client}, _from, state) do
     {:reply, state.client, state}
   end
 
