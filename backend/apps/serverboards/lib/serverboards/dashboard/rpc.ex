@@ -2,7 +2,6 @@ require Logger
 
 defmodule Serverboards.Dashboard.RPC do
   alias MOM.RPC
-  alias MOM.RPC.Context
   alias MOM
 
   def start_link(options \\ []) do
@@ -15,7 +14,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.create",
       fn attr, context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         attr =
           Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"project name order config alias")
@@ -30,7 +29,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.update",
       fn attr, context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         attr = Serverboards.Utils.keys_to_atoms_from_list(attr, ~w"uuid name order config alias")
         Serverboards.Dashboard.dashboard_update(attr, me)
         :ok
@@ -43,7 +42,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.delete",
       fn attr, context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Serverboards.Dashboard.dashboard_remove(attr["uuid"], me)
         :ok
       end,
@@ -55,7 +54,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.list",
       fn attr, context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         Serverboards.Dashboard.dashboard_list(%{project: attr["project"]}, me)
         |> Enum.map(&Map.take(&1, ~w"uuid order name alias"a))
@@ -98,7 +97,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.widget.create",
       fn attr, context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Logger.debug("Create widget #{inspect(attr)}")
 
         if attr["project"] do
@@ -132,7 +131,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.widget.delete",
       fn [uuid], context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Serverboards.Dashboard.Widget.widget_remove(uuid, me)
       end,
       required_perm: "dashboard.widget.create",
@@ -143,7 +142,7 @@ defmodule Serverboards.Dashboard.RPC do
       mc,
       "dashboard.widget.update",
       fn attr, context ->
-        me = Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         config =
           [
@@ -183,7 +182,7 @@ defmodule Serverboards.Dashboard.RPC do
       "dashboard.widget.extract",
       fn
         [uuid, vars], context ->
-          me = Context.get(context, :user)
+          me = RPC.Client.get(context, :user)
           Serverboards.Dashboard.Widget.extract(uuid, vars, me)
       end,
       required_perm: "project.get",

@@ -17,7 +17,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "auth.set_password",
       fn [current, password], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
 
         case Serverboards.Auth.auth(%{
                "type" => "basic",
@@ -45,7 +45,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "auth.token.create",
       fn [], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         Logger.info("#{user.email} created new token.")
         Serverboards.Auth.User.Token.create(user)
       end,
@@ -57,7 +57,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "auth.token.update",
       fn [token], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         Logger.info("#{user.email} refreshes a token.", user: user, token: token)
         Serverboards.Auth.User.Token.refresh(token, user.email)
       end,
@@ -70,10 +70,10 @@ defmodule Serverboards.Auth.RPC do
       "auth.user",
       fn
         [], context ->
-          RPC.Context.get(context, :user)
+          RPC.Client.get(context, :user)
 
         %{}, context ->
-          RPC.Context.get(context, :user)
+          RPC.Client.get(context, :user)
       end,
       context: true
     )
@@ -96,7 +96,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "user.create",
       fn attributes, context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         Auth.User.user_add(
           %{
@@ -115,7 +115,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "user.update",
       fn [email, operations], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.User.user_update(email, operations, me)
       end,
       required_perm: "auth.modify_self",
@@ -136,7 +136,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.create",
       fn [name], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.Group.group_add(name, me)
       end,
       required_perm: "auth.modify_groups",
@@ -147,7 +147,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.delete",
       fn [name], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.Group.group_remove(name, me)
       end,
       required_perm: "auth.modify_groups",
@@ -158,7 +158,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.perm.add",
       fn [group, code], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.Group.perm_add(group, code, me)
       end,
       required_perm: "auth.manage_groups",
@@ -169,7 +169,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.perm.delete",
       fn [group, code], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.Group.perm_remove(group, code, me)
       end,
       required_perm: "auth.manage_groups",
@@ -180,7 +180,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.get",
       fn [group], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         %{
           perms: Auth.Group.perm_list(group, me),
@@ -195,7 +195,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.user.add",
       fn [group, new_user], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.Group.user_add(group, new_user, me)
       end,
       required_perm: "auth.manage_groups",
@@ -206,7 +206,7 @@ defmodule Serverboards.Auth.RPC do
       mc,
       "group.user.delete",
       fn [group, user], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Auth.Group.user_remove(group, user, me)
       end,
       required_perm: "auth.manage_groups",
@@ -228,7 +228,7 @@ defmodule Serverboards.Auth.RPC do
       "auth.reauth",
       fn %{"uuid" => uuid, "data" => data}, context ->
         Serverboards.Auth.Reauth.reauth(
-          RPC.Context.get(context, :reauth),
+          RPC.Client.get(context, :reauth),
           uuid,
           data
         )
@@ -243,7 +243,7 @@ defmodule Serverboards.Auth.RPC do
       fn [], context ->
         reauth_map =
           Serverboards.Auth.Reauth.request_reauth(
-            RPC.Context.get(context, :reauth),
+            RPC.Client.get(context, :reauth),
             fn ->
               {:ok, :reauth_success}
             end

@@ -15,7 +15,7 @@ defmodule Serverboards.Action.RPC do
       mc,
       "action.trigger",
       fn [action, params], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         perms = user.perms
 
         if "action.trigger" in perms or "action.trigger[#{action}]" in perms do
@@ -31,7 +31,7 @@ defmodule Serverboards.Action.RPC do
       mc,
       "action.update",
       fn [action_id, params], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         perms = user.perms
         params = Serverboards.Utils.keys_to_atoms_from_list(params, ~w"progress label")
 
@@ -48,7 +48,7 @@ defmodule Serverboards.Action.RPC do
       mc,
       "action.trigger_wait",
       fn [action, params], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         perms = user.perms
 
         if "action.trigger" in perms or "action.trigger[#{action}]" in perms do
@@ -64,7 +64,7 @@ defmodule Serverboards.Action.RPC do
       mc,
       "action.ps",
       fn [], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         Serverboards.Utils.clean_struct(Serverboards.Action.ps(user))
       end,
       required_perm: "action.watch",
@@ -76,7 +76,7 @@ defmodule Serverboards.Action.RPC do
       "action.get",
       fn
         [uuid], context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           Serverboards.Action.details(uuid, user)
       end,
       required_perm: "action.watch",
@@ -88,11 +88,11 @@ defmodule Serverboards.Action.RPC do
       "action.list",
       fn
         [], context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           Serverboards.Action.list(%{}, user)
 
         options, context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           options = Serverboards.Utils.keys_to_atoms_from_list(options, ~w"start count")
           Serverboards.Action.list(options, user)
       end,

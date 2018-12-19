@@ -12,7 +12,7 @@ defmodule Serverboards.RulesV2.RPC do
       mc,
       "rules_v2.create",
       fn data, context ->
-        me = MOM.RPC.Context.get(context, :user)
+        me = MOM.RPC.Client.get(context, :user)
         Serverboards.RulesV2.Rules.create(data, me)
       end,
       required_perm: "rules.create",
@@ -23,7 +23,7 @@ defmodule Serverboards.RulesV2.RPC do
       mc,
       "rules_v2.update",
       fn [uuid, changes], context ->
-        me = MOM.RPC.Context.get(context, :user)
+        me = MOM.RPC.Client.get(context, :user)
 
         changes =
           changes
@@ -68,7 +68,7 @@ defmodule Serverboards.RulesV2.RPC do
       mc,
       "rules_v2.delete",
       fn [uuid], context ->
-        me = MOM.RPC.Context.get(context, :user)
+        me = MOM.RPC.Client.get(context, :user)
         Serverboards.RulesV2.Rules.update(uuid, %{deleted: true}, me)
       end,
       required_perm: "rules.delete",

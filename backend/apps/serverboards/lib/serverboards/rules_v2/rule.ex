@@ -227,7 +227,7 @@ defmodule Serverboards.RulesV2.Rule do
     end
   end
 
-  def setup_client_for_rules(pid, uuid, %MOM.RPC.Client{} = client) do
+  def setup_client_for_rules(pid, uuid, client) do
     MOM.RPC.Client.add_method(client, "trigger", fn
       %{} = params ->
         if uuid == params["id"] do

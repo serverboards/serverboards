@@ -2,7 +2,6 @@ require Logger
 
 defmodule Serverboards.Issues.RPC do
   alias MOM.RPC
-  alias MOM.RPC.Context
   alias MOM
 
   def start_link(options \\ []) do
@@ -45,7 +44,7 @@ defmodule Serverboards.Issues.RPC do
         attributes =
           Serverboards.Utils.keys_to_atoms_from_list(attributes, ~w"title description aliases")
 
-        Serverboards.Issues.Issue.add(attributes, Context.get(context, :user))
+        Serverboards.Issues.Issue.add(attributes, RPC.Client.get(context, :user))
       end,
       required_perm: "issues.create",
       context: true
@@ -58,14 +57,14 @@ defmodule Serverboards.Issues.RPC do
         [id, updates], context when is_list(updates) ->
           for data <- updates do
             data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
-            Serverboards.Issues.Issue.update(id, data, Context.get(context, :user))
+            Serverboards.Issues.Issue.update(id, data, RPC.Client.get(context, :user))
           end
 
           :ok
 
         [id, data], context ->
           data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"title type data")
-          Serverboards.Issues.Issue.update(id, data, Context.get(context, :user))
+          Serverboards.Issues.Issue.update(id, data, RPC.Client.get(context, :user))
       end,
       required_perm: "issues.update",
       context: true

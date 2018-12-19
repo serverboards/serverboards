@@ -230,7 +230,7 @@ defmodule Serverboards.Plugin.Registry do
     pid = self()
 
     MOM.Channel.subscribe(:settings, fn
-      %MOM.Message{payload: %{type: :update, section: section} = payload} ->
+      %{type: :update, section: section} = payload ->
         if section == "plugins" do
           Logger.debug("Reloading plugins, active plugins settings has changed")
           GenServer.cast(pid, {:reload, %{plugins: payload.data}})

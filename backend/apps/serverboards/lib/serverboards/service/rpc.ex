@@ -2,7 +2,6 @@ require Logger
 
 defmodule Serverboards.Service.RPC do
   alias MOM.RPC
-  alias MOM.RPC.Context
   alias MOM
 
   def start_link(options \\ []) do
@@ -18,7 +17,7 @@ defmodule Serverboards.Service.RPC do
       mc,
       "service.create",
       fn attributes, context ->
-        service_add(attributes, Context.get(context, :user))
+        service_add(attributes, RPC.Client.get(context, :user))
       end,
       required_perm: "service.create",
       context: true
@@ -28,7 +27,7 @@ defmodule Serverboards.Service.RPC do
       mc,
       "service.delete",
       fn [uuid], context ->
-        service_delete(uuid, Context.get(context, :user))
+        service_delete(uuid, RPC.Client.get(context, :user))
       end,
       required_perm: "service.create",
       context: true
@@ -38,7 +37,7 @@ defmodule Serverboards.Service.RPC do
       mc,
       "service.update",
       fn [service, operations], context ->
-        service_update(service, operations, Context.get(context, :user))
+        service_update(service, operations, RPC.Client.get(context, :user))
       end,
       required_perm: "service.update",
       context: true
@@ -49,10 +48,10 @@ defmodule Serverboards.Service.RPC do
       "service.get",
       fn
         [service], context ->
-          service_get(service, Context.get(context, :user))
+          service_get(service, RPC.Client.get(context, :user))
 
         %{"uuid" => service}, context ->
-          service_get(service, Context.get(context, :user))
+          service_get(service, RPC.Client.get(context, :user))
       end,
       required_perm: "service.get",
       context: true
@@ -95,10 +94,10 @@ defmodule Serverboards.Service.RPC do
       "service.attach",
       fn
         [project, service], context ->
-          service_attach(project, service, Context.get(context, :user))
+          service_attach(project, service, RPC.Client.get(context, :user))
 
         %{"project" => project, "service" => service}, context ->
-          service_attach(project, service, Context.get(context, :user))
+          service_attach(project, service, RPC.Client.get(context, :user))
       end,
       required_perm: "service.attach",
       context: true
@@ -109,10 +108,10 @@ defmodule Serverboards.Service.RPC do
       "service.detach",
       fn
         [project, service], context ->
-          service_detach(project, service, Context.get(context, :user))
+          service_detach(project, service, RPC.Client.get(context, :user))
 
         %{"project" => project, "service" => service}, context ->
-          service_detach(project, service, Context.get(context, :user))
+          service_detach(project, service, RPC.Client.get(context, :user))
       end,
       required_perm: "service.attach",
       context: true

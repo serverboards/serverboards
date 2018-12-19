@@ -12,7 +12,7 @@ defmodule Serverboards.Query.RPC do
       mc,
       "query.query",
       fn data, context ->
-        me = MOM.RPC.Context.get(context, :user)
+        me = MOM.RPC.Client.get(context, :user)
         data = Serverboards.Utils.keys_to_atoms_from_list(data, ~w"query context")
 
         data = %{

@@ -2,7 +2,6 @@ require Logger
 
 defmodule Serverboards.Settings.RPC do
   alias MOM.RPC
-  alias MOM.RPC.Context
   alias MOM
 
   # this sections do not need special permissions when got from other user
@@ -20,7 +19,7 @@ defmodule Serverboards.Settings.RPC do
       mc,
       "settings.list",
       fn [], context ->
-        all_settings(Context.get(context, :user))
+        all_settings(RPC.Client.get(context, :user))
       end,
       required_perm: "settings.view",
       context: true
@@ -31,21 +30,21 @@ defmodule Serverboards.Settings.RPC do
       "settings.update",
       fn
         [section, changes], context ->
-          update(section, changes, Context.get(context, :user))
+          update(section, changes, RPC.Client.get(context, :user))
 
         [section, key, nil], context ->
           changes =
             Serverboards.Settings.get(section, %{})
             |> Map.drop([key])
 
-          update(section, changes, Context.get(context, :user))
+          update(section, changes, RPC.Client.get(context, :user))
 
         [section, key, value], context ->
           changes =
             Serverboards.Settings.get(section, %{})
             |> Map.put(key, value)
 
-          update(section, changes, Context.get(context, :user))
+          update(section, changes, RPC.Client.get(context, :user))
       end,
       required_perm: "settings.update",
       context: true
@@ -56,7 +55,7 @@ defmodule Serverboards.Settings.RPC do
       "settings.get",
       fn
         [section], context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           perms = user.perms
 
           can_view =
@@ -78,7 +77,7 @@ defmodule Serverboards.Settings.RPC do
           end
 
         [section, defval], context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           perms = user.perms
 
           can_view =
@@ -114,7 +113,7 @@ defmodule Serverboards.Settings.RPC do
       "settings.user.get",
       fn
         [section], context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           can_view = "settings.user.view" in user.perms
 
           if can_view do
@@ -124,7 +123,7 @@ defmodule Serverboards.Settings.RPC do
           end
 
         [user, section], context ->
-          me = RPC.Context.get(context, :user)
+          me = RPC.Client.get(context, :user)
           can_view = "settings.user.view_all" in me.perms or section in @user_whitelist
 
           if can_view do
@@ -141,7 +140,7 @@ defmodule Serverboards.Settings.RPC do
       "settings.user.set",
       fn
         [section, data], context ->
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           can_update = "settings.user.update" in user.perms
 
           if can_update do
@@ -151,7 +150,7 @@ defmodule Serverboards.Settings.RPC do
           end
 
         [user, section, data], context ->
-          me = RPC.Context.get(context, :user)
+          me = RPC.Client.get(context, :user)
           can_update = "settings.user.update_all" in me.perms
 
           if can_update do

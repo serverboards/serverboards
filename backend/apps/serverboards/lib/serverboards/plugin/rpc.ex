@@ -7,7 +7,7 @@ defmodule Serverboards.Plugin.RPC do
   @component_id_re ~r/(\w*|\.)+\/(\w*|\.)+/
 
   def has_perm_for_plugin(context, plugin) do
-    perms = RPC.Context.get(context, :user).perms
+    perms = RPC.Client.get(context, :user).perms
 
     # Logger.debug("Check has perm for plugin #{inspect perms} #{inspect plugin} #{inspect Regex.match?(@component_id_re, plugin)}")
     cond do
@@ -42,8 +42,8 @@ defmodule Serverboards.Plugin.RPC do
   end
 
   def check_perm_for_plugin_data(context) do
-    user = RPC.Context.get(context, :user)
-    context_plugin = RPC.Context.get(context, :plugin)
+    user = RPC.Client.get(context, :user)
+    context_plugin = RPC.Client.get(context, :plugin)
     # Logger.debug("Plugin dataA #{inspect context_plugin}")
     case context_plugin do
       # not called from plugin, error
@@ -57,8 +57,8 @@ defmodule Serverboards.Plugin.RPC do
   end
 
   def check_perm_for_plugin_data(context, plugin) do
-    user = RPC.Context.get(context, :user)
-    context_plugin = RPC.Context.get(context, :plugin)
+    user = RPC.Client.get(context, :user)
+    context_plugin = RPC.Client.get(context, :plugin)
     # Logger.debug("Plugin dataB #{inspect context_plugin}")
     case context_plugin do
       # not called from plugin, check permissions
@@ -96,7 +96,7 @@ defmodule Serverboards.Plugin.RPC do
       "plugin.start",
       fn [plugin_component_id], context ->
         if has_perm_for_plugin(context, plugin_component_id) do
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
           Plugin.Runner.start(plugin_component_id, user.email)
         else
           {:error, :unknown_method}
@@ -123,7 +123,7 @@ defmodule Serverboards.Plugin.RPC do
       "plugin.kill",
       fn [uuid_or_id], context ->
         if has_perm_for_plugin(context, :any) do
-          user = RPC.Context.get(context, :user)
+          user = RPC.Client.get(context, :user)
 
           uuid =
             case UUID.info(uuid_or_id) do
@@ -318,7 +318,7 @@ defmodule Serverboards.Plugin.RPC do
       method_caller,
       "plugin.data.delete",
       fn [plugin, key], context ->
-        user = RPC.Context.get(context, :user)
+        user = RPC.Client.get(context, :user)
         perms = user.perms
         can_data = "plugin.data" in perms or "plugin.data[#{plugin}]" in perms
 

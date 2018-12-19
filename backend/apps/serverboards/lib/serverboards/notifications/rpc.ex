@@ -16,7 +16,7 @@ defmodule Serverboards.Notifications.RPC do
       "notifications.config.get",
       fn
         [email], context ->
-          me = RPC.Context.get(context, :user)
+          me = RPC.Client.get(context, :user)
 
           if me.email == email or "settings.user.view_all" in me.perms do
             Notifications.config_get(email)
@@ -25,7 +25,7 @@ defmodule Serverboards.Notifications.RPC do
           end
 
         [email, channel], context ->
-          me = RPC.Context.get(context, :user)
+          me = RPC.Client.get(context, :user)
 
           if me.email == email or "settings.user.view_all" in me.perms do
             Notifications.config_get(email, channel)
@@ -42,7 +42,7 @@ defmodule Serverboards.Notifications.RPC do
       "notifications.config.update",
       fn %{"email" => email, "channel" => channel, "is_active" => is_active, "config" => config},
          context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         if me.email == email or "settings.user.update_all" in me.perms do
           Notifications.config_update(email, channel, config, is_active, me)
@@ -58,7 +58,7 @@ defmodule Serverboards.Notifications.RPC do
       mc,
       "notifications.create",
       fn %{"email" => email, "subject" => subject, "body" => body} = params, context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
 
         if me.email == email or "notifications.create_all" in me.perms do
           Notifications.notify(email, subject, body, Map.get(params, "extra", []), me)
@@ -74,7 +74,7 @@ defmodule Serverboards.Notifications.RPC do
       mc,
       "notifications.list",
       fn filter, context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         filter = Serverboards.Utils.keys_to_atoms_from_list(filter, ~w"count start tags")
         Notifications.InApp.list(filter, me)
       end,
@@ -86,7 +86,7 @@ defmodule Serverboards.Notifications.RPC do
       mc,
       "notifications.get",
       fn [id], context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Notifications.InApp.details(id, me)
       end,
       context: true,
@@ -97,7 +97,7 @@ defmodule Serverboards.Notifications.RPC do
       mc,
       "notifications.update",
       fn %{"id" => id, "tags" => tags}, context ->
-        me = RPC.Context.get(context, :user)
+        me = RPC.Client.get(context, :user)
         Notifications.InApp.update(id, %{tags: tags}, me)
         :ok
       end,

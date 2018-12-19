@@ -551,7 +551,7 @@ defmodule Serverboards.Plugin.Runner do
               timeouts: Map.drop(state.timeouts, [uuid])
           }
 
-          MOM.Channel.send(:plugin_down, %MOM.Message{payload: %{uuid: uuid, id: component.id}})
+          MOM.Channel.send(:plugin_down, %{uuid: uuid, id: component.id})
           :timer.send_after(60000, {:remove_uuid, uuid})
           state
       end

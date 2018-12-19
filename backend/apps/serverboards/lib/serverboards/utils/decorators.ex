@@ -35,13 +35,13 @@ defmodule Serverboards.Utils.Decorators do
 
   """
   def permission_method_caller(mc) do
-    RPC.MethodCaller.add_guard(mc, "perms", fn %RPC.Message{context: context}, options ->
+    RPC.MethodCaller.add_guard(mc, fn %{context: context}, options ->
       case Keyword.get(options, :required_perm, nil) do
         nil ->
           true
 
         required_perm ->
-          user = RPC.Context.get(context, :user, %{})
+          user = RPC.Client.get(context, :user, %{})
           perms = Map.get(user, :perms, [])
           # Logger.debug("Required perm #{inspect perms} #{required_perm}")
           Enum.member?(perms, required_perm)

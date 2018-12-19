@@ -8,9 +8,9 @@ defmodule Serverboards.Event do
   so on.
   """
   def start_link(options) do
-    MOM.Channel.subscribe(:auth_authenticated, fn %{payload: %{client: client}} ->
+    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client} ->
       subscription_id =
-        MOM.Channel.subscribe(:client_events, fn %{payload: payload} ->
+        MOM.Channel.subscribe(:client_events, fn payload ->
           subscriptions = MOM.RPC.Client.get(client, :subscriptions, [])
           event_type = payload.type
 
@@ -156,12 +156,10 @@ defmodule Serverboards.Event do
   def emit(type, data, guards \\ []) do
     # Logger.debug("Emit event #{type} #{inspect data, pretty: true}")
     Task.start(fn ->
-      MOM.Channel.send(:client_events, %MOM.Message{
-        payload: %{
-          type: type,
-          data: data,
-          guards: guards
-        }
+      MOM.Channel.send(:client_events, %{
+        type: type,
+        data: data,
+        guards: guards
       })
     end)
 

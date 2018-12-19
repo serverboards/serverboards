@@ -180,9 +180,7 @@ defmodule Serverboards.Auth do
     # Logger.debug("Setting user: #{inspect user}")
     RPC.Client.set(client, :user, user)
 
-    MOM.Channel.send(:auth_authenticated, %MOM.Message{payload: %{client: client, user: user}},
-      sync: true
-    )
+    MOM.Channel.send(:auth_authenticated, %{client: client, user: user}, sync: true)
   end
 
   defp try_login_default_plugins(params) do

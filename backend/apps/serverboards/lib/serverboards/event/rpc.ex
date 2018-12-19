@@ -14,10 +14,10 @@ defmodule Serverboards.Event.RPC do
       mc,
       "event.subscribe",
       fn events, context ->
-        subscriptions = MOM.RPC.Context.get(context, :subscriptions, [])
+        subscriptions = MOM.RPC.Client.get(context, :subscriptions, [])
         events = List.wrap(events)
         # Logger.debug("Subscribe #{inspect context} to #{inspect events}")
-        MOM.RPC.Context.set(context, :subscriptions, Enum.uniq(subscriptions ++ events))
+        MOM.RPC.Client.set(context, :subscriptions, Enum.uniq(subscriptions ++ events))
         :ok
       end,
       context: true
@@ -27,10 +27,10 @@ defmodule Serverboards.Event.RPC do
       mc,
       "event.unsubscribe",
       fn events, context ->
-        subscriptions = MOM.RPC.Context.get(context, :subscriptions, [])
+        subscriptions = MOM.RPC.Client.get(context, :subscriptions, [])
         subscriptions = Enum.filter(subscriptions, &(not (&1 in events)))
         # Logger.debug("Unsubscribe #{inspect context} from #{inspect events}")
-        MOM.RPC.Context.set(context, :subscriptions, subscriptions)
+        MOM.RPC.Client.set(context, :subscriptions, subscriptions)
         :ok
       end,
       context: true
@@ -40,7 +40,7 @@ defmodule Serverboards.Event.RPC do
       mc,
       "event.subscriptions",
       fn [], context ->
-        MOM.RPC.Context.get(context, :subscriptions, [])
+        MOM.RPC.Client.get(context, :subscriptions, [])
       end,
       context: true
     )

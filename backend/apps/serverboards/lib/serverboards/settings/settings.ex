@@ -57,9 +57,7 @@ defmodule Serverboards.Settings do
       nil ->
         Repo.insert(%Model.Settings{section: section, data: data})
 
-        MOM.Channel.send(:settings, %MOM.Message{
-          payload: %{type: :update, section: section, data: data}
-        })
+        MOM.Channel.send(:settings, %{type: :update, section: section, data: data})
 
         Serverboards.Event.emit("settings.updated", %{section: section, data: data}, [
           "settings.view"
@@ -84,9 +82,10 @@ defmodule Serverboards.Settings do
 
           Repo.update(Model.Settings.changeset(sec, %{data: data}))
 
-          MOM.Channel.send(:settings, %MOM.Message{
-            payload: %{type: :update, section: section, data: data}
-          })
+          MOM.Channel.send(
+            :settings,
+            %{type: :update, section: section, data: data}
+          )
 
           Serverboards.Event.emit("settings.updated", %{section: section, data: data}, [
             "settings.view"
@@ -139,9 +138,7 @@ defmodule Serverboards.Settings do
         Repo.update(Model.UserSettings.changeset(sec, %{data: data}))
     end
 
-    MOM.Channel.send(:user_settings, %MOM.Message{
-      payload: %{type: :update, user: user, section: section, data: data}
-    })
+    MOM.Channel.send(:user_settings, %{type: :update, user: user, section: section, data: data})
 
     :ok
   end

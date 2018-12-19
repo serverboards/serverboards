@@ -34,7 +34,7 @@
   "makeup_elixir": {:hex, :makeup_elixir, "0.10.0", "0f09c2ddf352887a956d84f8f7e702111122ca32fbbc84c2f0569b8b65cbf7fa", [:mix], [{:makeup, "~> 0.5.5", [hex: :makeup, repo: "hexpm", optional: false]}], "hexpm"},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], [], "hexpm"},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], [], "hexpm"},
-  "mom": {:hex, :mom, "0.5.3", "58cc38388c09f771d092f1463a6d882ec2e17933b8052e2d40f9f7d41b9ecf26", [:mix], [{:poison, "~> 3.1", [hex: :poison, repo: "hexpm", optional: false]}, {:uuid, "~> 1.1.8", [hex: :uuid, repo: "hexpm", optional: false]}], "hexpm"},
+  # "mom": {:hex, :mom, "0.5.3", "58cc38388c09f771d092f1463a6d882ec2e17933b8052e2d40f9f7d41b9ecf26", [:mix], [{:poison, "~> 3.1", [hex: :poison, repo: "hexpm", optional: false]}, {:uuid, "~> 1.1.8", [hex: :uuid, repo: "hexpm", optional: false]}], "hexpm"},
   "nimble_parsec": {:hex, :nimble_parsec, "0.4.0", "ee261bb53214943679422be70f1658fff573c5d0b0a1ecd0f18738944f818efe", [:mix], [], "hexpm"},
   "parallel_stream": {:hex, :parallel_stream, "1.0.6", "b967be2b23f0f6787fab7ed681b4c45a215a81481fb62b01a5b750fa8f30f76c", [:mix], [], "hexpm"},
   "parse_trans": {:hex, :parse_trans, "3.3.0", "09765507a3c7590a784615cfd421d101aec25098d50b89d7aa1d66646bc571c1", [:rebar3], [], "hexpm"},
