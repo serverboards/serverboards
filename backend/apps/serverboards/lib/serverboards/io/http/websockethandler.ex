@@ -10,21 +10,14 @@ defmodule Serverboards.IO.HTTP.WebSocketHandler do
     {:upgrade, :protocol, :cowboy_websocket}
   end
 
+  def writef(wspid, _context, line) do
+    send(wspid, {:send_line, line})
+  end
+
   def websocket_init(_TransportName, req, _opts) do
     Logger.info("Websocket connected.")
 
-    wspid = self()
-
-    write_line_to_ws = fn line ->
-      # Logger.info("Write to WS #{line}")
-      send(wspid, {:send_line, line})
-    end
-
-    {:ok, client} =
-      RPC.Client.start_link(
-        writef: write_line_to_ws,
-        name: "WebSocket"
-      )
+    {:ok, client} = RPC.Client.start_link(writef: {__MODULE__, :writef, [self()]})
 
     Serverboards.Auth.authenticate(client)
 

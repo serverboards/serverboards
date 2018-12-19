@@ -72,6 +72,10 @@ defmodule Serverboards.IO.HTTP do
     res
   end
 
+  def stop(pid, reason \\ :normal) do
+    :cowboy.stop_listener(pid)
+  end
+
   defp postrequest(404, headers, body, req) do
     body =
       if body do

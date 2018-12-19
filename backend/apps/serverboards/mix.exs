@@ -78,7 +78,8 @@ defmodule Serverboards.Mixfile do
       {:uuid, "~> 1.1"},
       {:eini, "~> 1.2"},
       {:httpoison, "~> 1.0"},
-      {:exosql, "~> 0.2"}
+      {:exosql, "~> 0.2"},
+      {:websockex, "~> 0.4.0"}
     ]
   end
 end
