@@ -48,22 +48,30 @@ defmodule EventTest do
 
   test "Deliver/do not deliver permission change" do
     {:ok, client} = Client.start_link(as: "dmoreno@serverboards.io")
+    {:ok, user} = Client.call(client, "auth.user", [])
+    Logger.debug("User: #{inspect(user, pretty: true)}")
 
-    {:ok, :ok} = Client.call(client, "event.subscribe", ["test.event"])
+    {:ok, :ok} = Client.call(client, "event.subscribe", ["user.updated", "test.event"])
     Event.emit("test.event", %{}, ["plugin"])
     assert Client.expect(client, method: "test.event")
 
     # change perms
     {:ok, :ok} = Client.call(client, "group.perm.delete", ["admin", "plugin"])
-    Client.expect(client, method: "user.updated")
+    Logger.debug("Wait for message")
+    # After removing permission from one of my groups, I might be updated
+    got_user_udpated = Client.expect(client, method: "user.updated")
     :timer.sleep(200)
     {:ok, user} = Client.call(client, "auth.user", [])
+    Logger.debug("User: #{inspect(user, pretty: true)}")
+
+    assert got_user_udpated
     assert not ("plugin" in user["perms"])
 
     Logger.info(inspect(Client.call(client, "auth.user", [])))
-    # check now cant
+
+    # check now cant get the test.event message
     Event.emit("test.event", %{}, ["plugin"])
-    assert not Client.expect(client, method: "test2.event")
+    assert not Client.expect(client, method: "test.event")
 
     # add back
     {:ok, :ok} = Client.call(client, "group.perm.add", ["admin", "plugin"])

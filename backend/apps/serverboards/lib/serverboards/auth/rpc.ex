@@ -256,47 +256,58 @@ defmodule Serverboards.Auth.RPC do
     )
 
     # Add this method caller once authenticated.
-    MOM.Channel.subscribe(:auth_authenticated, fn %{client: client, user: user} ->
-      MOM.RPC.Client.add_method_caller(client, mc)
+    MOM.Channel.subscribe(
+      :auth_authenticated,
+      fn %{client: client, user: user} ->
+        MOM.RPC.Client.add_method_caller(client, mc)
+        Logger.debug("Authenticated #{inspect(client)} #{inspect(user.email)}")
 
-      # subscribe this client to changes on this user
-      MOM.Channel.subscribe(:client_events, fn %{type: type, data: data} ->
-        cond do
-          type in ["group.perm_added", "group.perm.deleted"] ->
-            user = RPC.Client.get(client, :user)
-            %{group: group} = data
+        # subscribe this client to changes on this user
+        MOM.Channel.subscribe(
+          :client_events,
+          fn %{type: type, data: data} ->
+            cond do
+              type in ["group.perm_added", "group.perm.deleted"] ->
+                user = RPC.Client.get(client, :user)
+                # Logger.debug("Got message for user #{inspect(user, pretty: true)}")
+                %{group: group} = data
 
-            if group in user.groups do
-              {:ok, user} = Auth.User.user_info(user.email, user)
-              RPC.Client.set(client, :user, user)
+                if group in user.groups do
+                  {:ok, user} = Auth.User.user_info(user.email, user)
+                  Logger.debug("Update user #{inspect(user.email)} at client #{inspect(client)}")
+                  RPC.Client.set(client, :user, user)
 
-              Serverboards.Event.emit("user.updated", %{user: user}, ["auth.modify_any"])
-              Serverboards.Event.emit("user.updated", %{user: user}, %{user: user})
+                  Serverboards.Event.emit("user.updated", %{user: user}, ["auth.modify_any"])
+                  Serverboards.Event.emit("user.updated", %{user: user}, %{user: user})
+                end
+
+              type in ["group.user_added", "group.user.deleted"] ->
+                user = RPC.Client.get(client, :user)
+
+                if data.email == user.email do
+                  {:ok, user} = Auth.User.user_info(user.email, user)
+                  RPC.Client.set(client, :user, user)
+
+                  Serverboards.Event.emit("user.updated", %{user: user}, ["auth.modify_any"])
+                  Serverboards.Event.emit("user.updated", %{user: user}, %{user: user})
+                end
+
+              true ->
+                nil
             end
 
-          type in ["group.user_added", "group.user.deleted"] ->
-            user = RPC.Client.get(client, :user)
+            :ok
+          end,
+          monitor: client
+        )
 
-            if data.email == user.email do
-              {:ok, user} = Auth.User.user_info(user.email, user)
-              RPC.Client.set(client, :user, user)
-
-              Serverboards.Event.emit("user.updated", %{user: user}, ["auth.modify_any"])
-              Serverboards.Event.emit("user.updated", %{user: user}, %{user: user})
-            end
-
-          true ->
-            nil
-        end
+        {:ok, reauth_pid} = Serverboards.Auth.Reauth.start_link()
+        RPC.Client.set(client, :reauth, reauth_pid)
 
         :ok
-      end)
-
-      {:ok, reauth_pid} = Serverboards.Auth.Reauth.start_link()
-      RPC.Client.set(client, :reauth, reauth_pid)
-
-      :ok
-    end)
+      end,
+      monitor: mc
+    )
 
     {:ok, mc}
   end
