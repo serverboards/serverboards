@@ -80,7 +80,7 @@ defmodule Test.Client do
     %{ method: "auth.auth" }
 
   """
-  def expect(client, what, timeout \\ 5000) do
+  def expect(client, what, timeout \\ 500) do
     try do
       GenServer.call(RPC.Client.get(client, :pid), {:expect, what, timeout}, timeout + 1000)
     rescue
