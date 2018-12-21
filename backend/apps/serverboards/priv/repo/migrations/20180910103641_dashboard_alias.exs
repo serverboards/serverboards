@@ -3,7 +3,7 @@ defmodule Serverboards.Repo.Migrations.DashboardAlias do
 
   def change do
     alter table("dashboard_dashboard") do
-      add :alias, :string
+      add(:alias, :string)
     end
   end
 end

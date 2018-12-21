@@ -2,18 +2,19 @@ defmodule Backend.Mixfile do
   use Mix.Project
 
   def project do
-    [apps_path: "apps",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     version: "18.10.0",
-     name: "Serverboards",
-     homepage_url: "https://serverboards.io",
-     docs: [
-       logo: "docs/serverboards.png",
-       extras: ["README.md"]
-     ]
-   ]
+    [
+      apps_path: "apps",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      version: "18.10.0",
+      name: "Serverboards",
+      homepage_url: "https://serverboards.io",
+      docs: [
+        logo: "docs/serverboards.png",
+        extras: ["README.md"]
+      ]
+    ]
   end
 
   # Dependencies can be Hex packages:

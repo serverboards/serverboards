@@ -11,7 +11,7 @@ defmodule Serverboards.ProcessRegistry do
   use GenServer
 
   def start_link(options \\ []) do
-    GenServer.start_link __MODULE__, [], options
+    GenServer.start_link(__MODULE__, [], options)
   end
 
   def stop(registry, reason \\ :normal) do
@@ -46,22 +46,26 @@ defmodule Serverboards.ProcessRegistry do
   def handle_call({:get, id}, _from, state) do
     {:reply, Map.get(state, id), state}
   end
+
   def handle_call({:pop, id}, _from, state) do
     pid = Map.get(state, id)
     {:reply, pid, Map.drop(state, [id])}
   end
+
   def handle_call({:list}, _from, state) do
     {:reply, state, state}
   end
 
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
-    #Logger.debug("#{inspect pid} is down, deregister")
-    state = case Enum.find(state, fn {_key, val} -> val == pid end) do
-      {k, _v} ->
-        Map.drop(state, [k])
-      nil ->
-        state
-    end
+    # Logger.debug("#{inspect pid} is down, deregister")
+    state =
+      case Enum.find(state, fn {_key, val} -> val == pid end) do
+        {k, _v} ->
+          Map.drop(state, [k])
+
+        nil ->
+          state
+      end
 
     {:noreply, state}
   end

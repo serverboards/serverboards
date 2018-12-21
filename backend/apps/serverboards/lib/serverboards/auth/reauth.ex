@@ -39,41 +39,48 @@ defmodule Serverboards.Auth.Reauth do
 
   # server impl
   def init(:ok) do
-    {:ok, %{
-      auths: %{} # list of pending authorizations
-    }}
+    {:ok,
+     %{
+       # list of pending authorizations
+       auths: %{}
+     }}
   end
 
   def needs_reauth_map(uuid) do
     %{
       type: :needs_reauth,
       description: "Restricted operation",
-      available: Auth.list_auth,
+      available: Auth.list_auth(),
       uuid: uuid
     }
   end
 
   # stores the request, and returns the error to reply to the other side
   def handle_call({:request_reauth, cont}, _from, status) do
-    uuid = UUID.uuid4
+    uuid = UUID.uuid4()
     error = needs_reauth_map(uuid)
+
     status = %{
-      status |
-      auths: Map.put(status.auths, uuid, cont)
+      status
+      | auths: Map.put(status.auths, uuid, cont)
     }
 
-    { :reply, error, status }
+    {:reply, error, status}
   end
 
   def handle_call({:reauth, uuid, data}, _from, status) do
-    ret = case Map.get(status.auths, uuid) do
-      nil -> {:error, :unknown_reauth}
-      cont ->
-        case Auth.auth(data) do
-          {:ok, _email} -> cont
-          {:error, :unknown_user} -> {:error, needs_reauth_map(uuid)}
-        end
-    end
+    ret =
+      case Map.get(status.auths, uuid) do
+        nil ->
+          {:error, :unknown_reauth}
+
+        cont ->
+          case Auth.auth(data) do
+            {:ok, _email} -> cont
+            {:error, :unknown_user} -> {:error, needs_reauth_map(uuid)}
+          end
+      end
+
     {:reply, ret, status}
   end
 end

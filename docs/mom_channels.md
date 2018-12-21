@@ -35,13 +35,11 @@ The Elixir way to create this events is:
 ```
 MOM.Channel.send(
   :client_events,
-  %MOM.Message{
-    payload: %{
+    %{
       type: "service.deleted",
       data: %{ shortname: shortname},
       guard: fn msg, user -> true end
       }
-    }
   )
 ```
 

@@ -38,6 +38,7 @@ defmodule InitTest do
       call: "fail",
       id: "test fail"
     }
+
     {:ok, pid} = Serverboards.Plugin.Init.Supervisor.start_init(init)
     :timer.sleep(100)
     Logger.debug("Is \"test fail\" running? (should for 1 sec)")
@@ -63,15 +64,14 @@ defmodule InitTest do
 
     # still running, it issued a stop (not kill), it will timeout anyway later
     psux = :os.cmd('ps ux | grep -v grep | grep init2.py')
-    Logger.debug("#{inspect psux}")
+    Logger.debug("#{inspect(psux)}")
     assert psux != []
 
     # as it is not a real init, was started manually, should have been removed,
     # and not started
     :timer.sleep(900)
     psux = :os.cmd('ps ux | grep -v grep | grep init2.py')
-    Logger.debug("#{inspect psux}")
+    Logger.debug("#{inspect(psux)}")
     assert psux == []
-
   end
 end

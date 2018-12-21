@@ -8,8 +8,8 @@ defmodule Serverboards do
 
     clean_env()
 
-    {:ok, pid} = Serverboards.Setup.start
-    Serverboards.Setup.update
+    {:ok, pid} = Serverboards.Setup.start()
+    Serverboards.Setup.update()
     Serverboards.Setup.exit(pid)
     wait_pid(pid)
 
@@ -17,13 +17,14 @@ defmodule Serverboards do
       setup_logger()
     end
 
-    Serverboards.Supervisor.start_link name: Serverboards.Supervisor
+    Serverboards.Supervisor.start_link(name: Serverboards.Supervisor)
   end
 
   def stop(_state) do
     IO.puts("STOP SERVERBOARDS. TOO MANY SUPERVISOR ERRORS.")
     :timer.sleep(500)
-    System.stop(1) # If serverboards app stops, stop it all. A daemon manager may restart it clean.
+    # If serverboards app stops, stop it all. A daemon manager may restart it clean.
+    System.stop(1)
     # If already in a System.stop mode, it will exit with the other exit code
   end
 
@@ -31,18 +32,21 @@ defmodule Serverboards do
     if Serverboards.Config.get(:logs, "systemd", false) do
       Logger.add_backend(Logger.Backend.Journald, [])
     end
+
     if Serverboards.Config.get(:logs, "console", true) do
       Logger.add_backend(Serverboards.Logger.Console, [])
     end
+
     if Serverboards.Config.get(:logs, "classic", false) do
       Logger.add_backend(:console, [])
     end
   end
 
   defp wait_pid(nil), do: :ok
+
   defp wait_pid(pid) do
     if Process.alive?(pid) do
-      :timer.sleep 100
+      :timer.sleep(100)
       wait_pid(pid)
     else
       :ok
@@ -54,7 +58,7 @@ defmodule Serverboards do
   # Cleans the environmental variables, leaving only a selected few
   # """
   defp clean_env() do
-    for {k,_v} <- System.get_env() do
+    for {k, _v} <- System.get_env() do
       if not (Enum.member?(@whitelist, k) or String.starts_with?(k, "SERVERBOARDS_")) do
         System.delete_env(k)
       end

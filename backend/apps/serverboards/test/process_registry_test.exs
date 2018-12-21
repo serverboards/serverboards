@@ -18,7 +18,7 @@ defmodule Serverboards.ProcessRegistryTest do
   end
 
   test "Start, kill, check" do
-    {:ok, registry} = Serverboards.ProcessRegistry.start_link
+    {:ok, registry} = Serverboards.ProcessRegistry.start_link()
     {:ok, agent} = Agent.start_link(fn -> {} end)
 
     :ok = Serverboards.ProcessRegistry.add(registry, 1, agent)
@@ -28,5 +28,4 @@ defmodule Serverboards.ProcessRegistryTest do
 
     assert Serverboards.ProcessRegistry.get(registry, 1) == nil
   end
-
 end

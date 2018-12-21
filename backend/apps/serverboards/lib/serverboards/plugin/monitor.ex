@@ -6,26 +6,27 @@ defmodule Serverboards.Plugin.Monitor do
   """
   use GenServer
 
-  @timeout 1000 # batch changes to until no changes in 1s
+  # batch changes to until no changes in 1s
+  @timeout 1000
 
   def start_link(options \\ []) do
     if Serverboards.Config.get(:plugins, :watch, true) do
       paths = Serverboards.Plugin.Registry.plugin_paths()
-      GenServer.start_link __MODULE__, paths, options
+      GenServer.start_link(__MODULE__, paths, options)
     else
       :ignore
     end
   end
 
-
   defp subdirs(dirname) do
     case File.ls(dirname) do
       {:ok, files} ->
         files
-          |> Enum.map(&Path.join(dirname,&1))
-          |> Enum.filter(&File.dir?(&1))
+        |> Enum.map(&Path.join(dirname, &1))
+        |> Enum.filter(&File.dir?(&1))
+
       {:error, error} ->
-        Logger.error("Plugin directory #{dirname} error: #{inspect error}")
+        Logger.error("Plugin directory #{dirname} error: #{inspect(error)}")
         []
     end
   end
@@ -42,12 +43,12 @@ defmodule Serverboards.Plugin.Monitor do
     port = Port.open({:spawn_executable, cmd}, cmdopts)
     Port.connect(port, self())
 
-    Logger.info("Plugin monitor ready! #{inspect port} #{inspect(dirnames++all_subdirs)}")
+    Logger.info("Plugin monitor ready! #{inspect(port)} #{inspect(dirnames ++ all_subdirs)}")
 
-    {:ok, %{ port: port, dirnames: dirnames, expect_exit: false, timeout: :none }}
+    {:ok, %{port: port, dirnames: dirnames, expect_exit: false, timeout: :none}}
   end
 
-  def handle_info({_port, {:data,{:eol, data}}}, state) do
+  def handle_info({_port, {:data, {:eol, data}}}, state) do
     [_, dirname, _actions, filename] = Regex.run(~r/^([^,]*),(.*),([^,]*)$/, List.to_string(data))
     file_path = "#{dirname}/#{filename}"
     Logger.debug("Changes at #{file_path}")
@@ -58,7 +59,7 @@ defmodule Serverboards.Plugin.Monitor do
 
     {:ok, timeout} = :timer.send_after(@timeout, :reload_plugins)
 
-    {:noreply, %{ state | timeout: timeout }}
+    {:noreply, %{state | timeout: timeout}}
   end
 
   def handle_info(:reload_plugins, state) do
@@ -69,18 +70,21 @@ defmodule Serverboards.Plugin.Monitor do
 
   def handle_info({:EXIT, _port, :normal}, state) do
     if not state.expect_exit do
-      Logger.error("Unexpected inotifywait exit. Check max inotifywait is installed and /proc/sys/fs/inotify/max_user_watches is properly configured")
+      Logger.error(
+        "Unexpected inotifywait exit. Check max inotifywait is installed and /proc/sys/fs/inotify/max_user_watches is properly configured"
+      )
     end
+
     {:stop, :normal, state}
   end
 
   def handle_info(any, state) do
-    Logger.debug(inspect any)
+    Logger.debug(inspect(any))
     {:noreply, state}
   end
 
   def terminate(_reason, state) do
-    Logger.debug("Terminate plugin monitor #{inspect state.port}")
+    Logger.debug("Terminate plugin monitor #{inspect(state.port)}")
     Serverboards.IO.Cmd.kill(state.port)
     {:ok}
   end
