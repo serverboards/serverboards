@@ -194,8 +194,8 @@ class CoreClient(IOClient):
                         id, list(self.pending_replies.keys())))
                 yield None  # mark something hapened, not a command
             else:
-                if 'id' in cmd:
-                    self.pending_requests[cmd['id']] = cmd
+                if cmd.get('id') is not None:
+                    self.pending_replies[cmd['id']] = cmd
                 yield cmd
 
     def readcmds_unfiltered(self):
