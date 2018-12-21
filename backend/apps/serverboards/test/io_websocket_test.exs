@@ -3,11 +3,20 @@ require Logger
 defmodule Serverboards.WebsocketTest do
   use ExUnit.Case
   @moduletag :capture_log
+  @port 8123
 
   doctest Serverboards.IO.HTTP
 
-  setup do
-    {:ok, http} = Serverboards.IO.HTTP.start_link(port: 8000)
+  setup_all do
+    {:ok, http} =
+      case Serverboards.IO.HTTP.start_link(port: @port, name: __MODULE__) do
+        {:ok, http} ->
+          {:ok, http}
+
+        {:error, {:already_started, pid}} ->
+          Logger.debug("Was already started #{inspect(pid)}")
+          {:ok, pid}
+      end
 
     on_exit(fn ->
       Serverboards.IO.HTTP.stop(http)
@@ -23,11 +32,11 @@ defmodule Serverboards.WebsocketTest do
   test "Connect to websockets" do
     alias Serverboards.WebsocketTest.Endpoint
 
-    {:ok, data} = HTTPoison.get("http://localhost:8000/")
+    {:ok, data} = HTTPoison.get("http://localhost:#{@port}/")
     Logger.debug("GET / : #{inspect(data)}")
     assert data.status_code == 200 or data.status_code == 404
 
-    {:ok, easyws} = Endpoint.start_link("ws://localhost:8000/ws")
+    {:ok, easyws} = Endpoint.start_link("ws://localhost:#{@port}/ws")
     :timer.sleep(100)
     Logger.debug("Got ws #{inspect(easyws)}")
 

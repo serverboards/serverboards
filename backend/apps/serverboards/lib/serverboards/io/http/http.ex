@@ -28,7 +28,7 @@ defmodule Serverboards.IO.HTTP do
     end
   end
 
-  def start_link(ip, port, _options) do
+  def start_link(ip, port, options) do
     frontend_path = Serverboards.Config.get(:http, :root, "../frontend/dist")
 
     if not File.exists?("#{frontend_path}/index.html") do
@@ -51,7 +51,7 @@ defmodule Serverboards.IO.HTTP do
 
     res =
       :cowboy.start_http(
-        :http,
+        Keyword.get(options, :name, :http),
         100,
         [port: port, ip: ip],
         [

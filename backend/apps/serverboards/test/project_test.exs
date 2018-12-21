@@ -225,7 +225,6 @@ defmodule ProjectTest do
 
   test "Screens on project -- removed 201808", %{system: system} do
     import Serverboards.Project
-    import Serverboards.Service
     {:ok, user} = Serverboards.Auth.User.user_info("dmoreno@serverboards.io", system)
     project_add("SBDS-TST13", %{"name" => "Test 13"}, user)
 
