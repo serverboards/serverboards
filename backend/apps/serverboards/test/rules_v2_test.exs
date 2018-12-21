@@ -3,6 +3,7 @@ require Logger
 defmodule Serverboards.RuleV2Test do
   use ExUnit.Case
   @moduletag :capture_log
+  @http_port 8124
 
   setup do
     # Explicitly get a connection before each test
@@ -308,7 +309,7 @@ defmodule Serverboards.RuleV2Test do
     {:ok, client} = Test.Client.start_link(as: "dmoreno@serverboards.io")
 
     http_pid =
-      case Serverboards.IO.HTTP.start_link(port: 8080) do
+      case Serverboards.IO.HTTP.start_link(port: @http_port, name: __MODULE__) do
         {:ok, http_pid} -> http_pid
         {:error, _} -> nil
       end
@@ -353,7 +354,7 @@ defmodule Serverboards.RuleV2Test do
       File.rm("/tmp/rule-webhooks.test")
     end
 
-    response = HTTPoison.get!("http://localhost:8080/webhook/#{uuid}?ext=test")
+    response = HTTPoison.get!("http://localhost:#{@http_port}/webhook/#{uuid}?ext=test")
     Logger.debug("Response #{inspect(response)}")
     assert response.status_code == 200
     :timer.sleep(200)
@@ -362,7 +363,7 @@ defmodule Serverboards.RuleV2Test do
 
     response =
       HTTPoison.post!(
-        "http://localhost:8080/webhook/#{uuid}",
+        "http://localhost:#{@http_port}/webhook/#{uuid}",
         Poison.encode!(%{"ext" => "test"}),
         [{"Content-Type", "application/json"}]
       )
@@ -375,7 +376,7 @@ defmodule Serverboards.RuleV2Test do
 
     response =
       HTTPoison.post!(
-        "http://localhost:8080/webhook/#{uuid}",
+        "http://localhost:#{@http_port}/webhook/#{uuid}",
         "ext=test",
         [{"Content-Type", "application/x-www-form-urlencoded"}]
       )
@@ -389,7 +390,7 @@ defmodule Serverboards.RuleV2Test do
     # boundary needs -- at begining.
     response =
       HTTPoison.post!(
-        "http://localhost:8080/webhook/#{uuid}",
+        "http://localhost:#{@http_port}/webhook/#{uuid}",
         "-----TEST\r\nContent-Disposition: form-data; name=\"ext\"\r\n\r\ntest\r\n-----TEST--\r\n",
         [{"Content-Type", "multipart/form-data; boundary=---TEST"}]
       )
