@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ENV LANG=C.UTF-8
 
@@ -22,7 +22,7 @@ ENV SERVERBOARDS_DB=postgres://serverboards:serverboards@localhost:5432/serverbo
 
 # go !
 EXPOSE 8080
-VOLUME /var/lib/postgresql/9.5/main/ /home/serverboards/ /etc/postgresql/
+VOLUME /var/lib/postgresql/10/main/ /home/serverboards/ /etc/postgresql/
 # USER serverboards
 #CMD sleep 10000
 CMD /usr/bin/supervisord
