@@ -60,8 +60,8 @@ defmodule EventSourcing do
   """
   use GenServer
 
-  def start_link(options\\[]) do
-    GenServer.start_link __MODULE__, :ok, options
+  def start_link(options \\ []) do
+    GenServer.start_link(__MODULE__, :ok, options)
   end
 
   @doc ~S"""
@@ -102,20 +102,31 @@ defmodule EventSourcing do
 
   """
   def subscribe(pid, :debug) do
-    subscribe(pid, fn type, _data, author ->
-      Logger.debug("Event #{author}: #{type}")
-    end, name: :debug)
+    subscribe(
+      pid,
+      fn type, _data, author ->
+        Logger.debug("Event #{author}: #{type}")
+      end,
+      name: :debug
+    )
   end
+
   def subscribe(pid, :debug_full) do
-    subscribe(pid, fn type, data, author ->
-      Logger.debug("Event #{author}: #{type}(#{inspect data})")
-    end, name: :debug_full)
+    subscribe(
+      pid,
+      fn type, data, author ->
+        Logger.debug("Event #{author}: #{type}(#{inspect(data)})")
+      end,
+      name: :debug_full
+    )
   end
+
   def subscribe(pid, reducer), do: subscribe(pid, reducer, [])
 
   def subscribe(pid, reducer, options) when is_function(reducer) do
     GenServer.call(pid, {:subscribe, reducer, options})
   end
+
   def subscribe(pid, type, reducer, options \\ []) when is_atom(type) and is_function(reducer) do
     GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
   end
@@ -138,6 +149,7 @@ defmodule EventSourcing do
     if reducer do
       GenServer.call(pid, {:subscribe, reducer, options ++ [type: type]})
     end
+
     # return a caller
     fn
       args, author ->
@@ -147,11 +159,13 @@ defmodule EventSourcing do
 
   ## server impl
   def init(:ok) do
-    {:ok, supervisor} = Task.Supervisor.start_link
-    {:ok, %{
-      reducers: [],
-      supervisor: supervisor
-    } }
+    {:ok, supervisor} = Task.Supervisor.start_link()
+
+    {:ok,
+     %{
+       reducers: [],
+       supervisor: supervisor
+     }}
   end
 
   # Dispatch to one reducer, checking if has any type, and errors.
@@ -159,22 +173,26 @@ defmodule EventSourcing do
     try do
       case Keyword.get(options, :type, :any) do
         :any ->
-          #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
+          # Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
           reducer.(type, data, author)
+
         ^type ->
-          #Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
+          # Logger.debug("  Call reducer #{Keyword.get options, :name, :unknown}")
           reducer.(data, author)
+
         _ ->
           nil
       end
     rescue
       e in FunctionClauseError ->
         # Some voodoo to check it it was us with a wrong action type, if so ignore
-        stacktrace = System.stacktrace
-        #Logger.debug("Error processing reducer #{Keyword.get options, :name, :unkonwn}\n#{inspect e}\n#{Exception.format_stacktrace}")
-        case (hd (tl stacktrace)) do
+        stacktrace = System.stacktrace()
+
+        # Logger.debug("Error processing reducer #{Keyword.get options, :name, :unkonwn}\n#{inspect e}\n#{Exception.format_stacktrace}")
+        case hd(tl(stacktrace)) do
           {EventSourcing, _, _, _} ->
             nil
+
           _ ->
             reraise e, stacktrace
         end
@@ -182,57 +200,67 @@ defmodule EventSourcing do
   end
 
   defp dispatchp(reducers, type, data, author, event_options, supervisor) do
-    #Logger.debug("Dispatch #{type}")
-    Enum.reduce reducers, %{}, fn {reducer, options}, acc ->
+    # Logger.debug("Dispatch #{type}")
+    Enum.reduce(reducers, %{}, fn {reducer, options}, acc ->
       # Will skip if any of the except elements is at options as true
-      skip = Enum.any? List.wrap(Keyword.get(event_options, :except,[])), fn k ->
-        Keyword.get(options, k, false)
-      end
+      skip =
+        Enum.any?(List.wrap(Keyword.get(event_options, :except, [])), fn k ->
+          Keyword.get(options, k, false)
+        end)
 
       if skip do
         Logger.debug("Skipping event sourcing #{Keyword.get(options, :name)}")
         acc
       else
         # Do the reducer and keep result.
-        task = Task.Supervisor.async_nolink(supervisor, fn ->
-          dispatch_one(type, data, author, reducer, options)
-        end)
+        task =
+          Task.Supervisor.async_nolink(supervisor, fn ->
+            dispatch_one(type, data, author, reducer, options)
+          end)
 
-        res = try do
-          Task.await task
-        catch
-          :exit, {code, _} ->
-            Logger.error("EventSourcing: Error dispatching #{inspect type} from #{inspect author}")
-            {:exit, code}
-        end
+        res =
+          try do
+            Task.await(task)
+          catch
+            :exit, {code, _} ->
+              Logger.error(
+                "EventSourcing: Error dispatching #{inspect(type)} from #{inspect(author)}"
+              )
+
+              {:exit, code}
+          end
+
         # Set it into the return map, or not.
         case {res, Keyword.get(options, :name)} do
-          {nil, _ }   -> acc
+          {nil, _} -> acc
           {res, name} -> Map.put(acc, name, res)
         end
       end
-    end
+    end)
   end
 
   def handle_call({:dispatch, type, data, author, options}, from, status) do
     # Do it in a new task, allow reentry and leaves this channel ready for more.
     # Should not do race conditions as individually each call has to be
     # answered before flow continues on caller
-    Task.start_link fn ->
-      res=dispatchp(status.reducers, type, data, author, options, status.supervisor)
+    Task.start_link(fn ->
+      res = dispatchp(status.reducers, type, data, author, options, status.supervisor)
       GenServer.reply(from, res)
-    end
+    end)
+
     {:noreply, status}
   end
 
   def handle_call({:subscribe, reducer, options}, _from, status) do
-    {:reply, :ok, %{ status |
-      reducers: status.reducers ++ [{reducer, options}]
-    } }
+    {:reply, :ok, %{status | reducers: status.reducers ++ [{reducer, options}]}}
   end
 
   def handle_call({:replay, list_of_events}, _from, status) do
-    ret = Enum.map( list_of_events, fn {type, data, author} -> dispatchp(status.reducers, type, data, author, [], status.supervisor) end)
+    ret =
+      Enum.map(list_of_events, fn {type, data, author} ->
+        dispatchp(status.reducers, type, data, author, [], status.supervisor)
+      end)
+
     {:reply, ret, status}
   end
 end

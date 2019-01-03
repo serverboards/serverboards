@@ -2,28 +2,32 @@ defmodule EventSourcing.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :eventsourcing,
-     version: "0.0.1",
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps_path: "../../deps",
-     lockfile: "../../mix.lock",
-     elixir: "~> 1.2",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps()]
+    [
+      app: :eventsourcing,
+      version: "0.0.1",
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
+      elixir: "~> 1.2",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [
-      :logger,
-      :ecto,
-      :postgrex,
-      :poison
-    ]]
+    [
+      applications: [
+        :logger,
+        :ecto,
+        :postgrex,
+        :poison
+      ]
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -43,7 +47,7 @@ defmodule EventSourcing.Mixfile do
     [
       {:ecto, "~> 2.1"},
       {:poison, "~> 3.1"},
-      {:distillery, "~> 1.5", runtime: false},
+      {:distillery, "~> 1.5", runtime: false}
     ]
   end
 end

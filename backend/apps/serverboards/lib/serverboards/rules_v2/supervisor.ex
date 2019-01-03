@@ -6,20 +6,21 @@ defmodule Serverboards.RulesV2.Supervisor do
 
     Serverboards.RulesV2.Rules.start_ets_table()
 
-    children=[
+    children = [
       worker(Serverboards.RulesV2.RPC, [[name: Serverboards.RulesV2.RPC]]),
-      #worker(GenServer, [__MODULE__, :ok, [name: Serverboards.Rules] ++ options] ),
+      # worker(GenServer, [__MODULE__, :ok, [name: Serverboards.Rules] ++ options] ),
       worker(Serverboards.RulesV2.Rules, [], function: :start_eventsourcing),
-      #worker(Serverboards.ProcessRegistry, [[name: Serverboards.Rules.Registry]]),
+      # worker(Serverboards.ProcessRegistry, [[name: Serverboards.Rules.Registry]]),
       # worker(Serverboards.RulesV2.Rules, [[name: Serverboards.RulesV2.Rules]]),
       supervisor(Registry, [:unique, :rules_registry]),
-
-      supervisor(Serverboards.RulesV2.Rule.Supervisor,[]),
+      supervisor(Serverboards.RulesV2.Rule.Supervisor, [])
     ]
 
-    Supervisor.start_link(children, [strategy: :one_for_one, name: Serverboards.RulesV2.Supervisor] ++ options)
+    Supervisor.start_link(
+      children,
+      [strategy: :one_for_one, name: Serverboards.RulesV2.Supervisor] ++ options
+    )
   end
-
 end
 
 defmodule Serverboards.RulesV2.Rule.Supervisor do
@@ -31,32 +32,58 @@ defmodule Serverboards.RulesV2.Rule.Supervisor do
   import Supervisor.Spec
 
   def start_link(options \\ []) do
-    {:ok, pid} = Supervisor.start_link(__MODULE__, :ok, [name: Serverboards.RulesV2.Rule.Supervisor] ++ options)
+    {:ok, pid} =
+      Supervisor.start_link(
+        __MODULE__,
+        :ok,
+        [name: Serverboards.RulesV2.Rule.Supervisor] ++ options
+      )
 
-    rules = Serverboards.RulesV2.Rules.list(%{ is_active: true })
+    rules = Serverboards.RulesV2.Rules.list(%{is_active: true})
     Logger.info("Started rule supervisor. Starting #{Enum.count(rules)} rules.")
 
-    success? = for {rule, n} <- Enum.with_index(rules, 1) do
-      case start(rule) do
-        {:ok, _pid} ->
-          #Logger.info("#{n}. Rule #{inspect r.uuid} started", rule: r)
-          :ok
-        {:error, :cant_start_trigger} ->
-          Serverboards.RulesV2.Rules.update(rule.uuid, %{ is_active: false }, %{ email: "rule/#{rule.uuid}"})
-          Logger.error("#{n}. Rule #{inspect rule.uuid} cant start trigger: #{inspect get_in(rule.rule,["when","trigger"])}. Disabling rule.", rule: rule)
-        {:error, code} ->
-          Serverboards.RulesV2.Rules.update(rule.uuid, %{ is_active: false }, %{ email: "rule/#{rule.uuid}"})
-          Logger.error("#{n}. Rule #{inspect rule.uuid} error starting: #{inspect code}. Disabling rule.", rule: rule)
-          :error
+    success? =
+      for {rule, n} <- Enum.with_index(rules, 1) do
+        case start(rule) do
+          {:ok, _pid} ->
+            # Logger.info("#{n}. Rule #{inspect r.uuid} started", rule: r)
+            :ok
+
+          {:error, :cant_start_trigger} ->
+            Serverboards.RulesV2.Rules.update(rule.uuid, %{is_active: false}, %{
+              email: "rule/#{rule.uuid}"
+            })
+
+            Logger.error(
+              "#{n}. Rule #{inspect(rule.uuid)} cant start trigger: #{
+                inspect(get_in(rule.rule, ["when", "trigger"]))
+              }. Disabling rule.",
+              rule: rule
+            )
+
+          {:error, code} ->
+            Serverboards.RulesV2.Rules.update(rule.uuid, %{is_active: false}, %{
+              email: "rule/#{rule.uuid}"
+            })
+
+            Logger.error(
+              "#{n}. Rule #{inspect(rule.uuid)} error starting: #{inspect(code)}. Disabling rule.",
+              rule: rule
+            )
+
+            :error
+        end
       end
-    end
-    success_count = Enum.reduce(success?, 0, fn
-      (:ok, acc) -> acc+1
-      (:error, acc) -> acc
-    end)
+
+    success_count =
+      Enum.reduce(success?, 0, fn
+        :ok, acc -> acc + 1
+        :error, acc -> acc
+      end)
+
     Logger.info("Started #{success_count} or #{Enum.count(rules)} rules.")
 
-    {:ok, pid }
+    {:ok, pid}
   end
 
   def init(:ok) do

@@ -22,48 +22,56 @@ defmodule Serverboards.Utils do
   def clean_struct(%NaiveDateTime{} = datetime) do
     DateTime.to_iso8601(DateTime.from_naive!(datetime, "Etc/UTC"))
   end
+
   def clean_struct(%DateTime{} = datetime) do
     DateTime.to_iso8601(datetime)
   end
+
   def clean_struct(st) when is_map(st) do
-    st = Map.to_list st
-    l = Enum.flat_map st, fn {k,v} ->
-      k = if is_atom(k) do
-        to_string(k)
-      else
-        k
-      end
-      cond do
-        k == "__struct__" -> []
-        k == "__meta__" -> []
-        # Change to only skip __struct__ as other __*__ may be used internally.
-        # This fixes CORE-365, problems when updating widgets; no __extractors__ after modify.
-        # String.starts_with? k, "__" -> []
-        String.ends_with? k, "_pw" -> []
-        true -> [{k,clean_struct(v)}]
-      end
-    end
+    st = Map.to_list(st)
+
+    l =
+      Enum.flat_map(st, fn {k, v} ->
+        k =
+          if is_atom(k) do
+            to_string(k)
+          else
+            k
+          end
+
+        cond do
+          k == "__struct__" -> []
+          k == "__meta__" -> []
+          # Change to only skip __struct__ as other __*__ may be used internally.
+          # This fixes CORE-365, problems when updating widgets; no __extractors__ after modify.
+          # String.starts_with? k, "__" -> []
+          String.ends_with?(k, "_pw") -> []
+          true -> [{k, clean_struct(v)}]
+        end
+      end)
+
     Map.new(l)
   end
+
   def clean_struct(l) when is_list(l) do
     Enum.map(l, fn i -> clean_struct(i) end)
   end
+
   def clean_struct(other) do
     other
   end
-
 
   @doc ~S"""
   Drops elements from a map with an empty value
   """
   def drop_empty_values(map) do
     map
-      |> Enum.filter(fn
-        {_k, %{}} -> false
-        {_k, []} -> false
-        {_k,v} -> v != nil
-      end)
-      |> Map.new
+    |> Enum.filter(fn
+      {_k, %{}} -> false
+      {_k, []} -> false
+      {_k, v} -> v != nil
+    end)
+    |> Map.new()
   end
 
   @doc ~S"""
@@ -72,46 +80,58 @@ defmodule Serverboards.Utils do
   def table_layout([]) do
     ""
   end
+
   def table_layout(data) do
     import String
     import Map
     import Enum
-    headers = (hd data)
+
+    headers =
+      hd(data)
       |> keys
       |> filter(&(not starts_with?(inspect(&1), ":__")))
-    sheaders = headers
+
+    sheaders =
+      headers
       |> map(&inspect/1)
-    length=div(120, Enum.count(sheaders))
+
+    length = div(120, Enum.count(sheaders))
     lengths = map(headers, fn _ -> length end)
 
     header = table_layout_row(sheaders, lengths)
 
-    rows = for row <- data do
-      headers
-        |> map(&(Map.get(row,&1)))
+    rows =
+      for row <- data do
+        headers
+        |> map(&Map.get(row, &1))
         |> map(&inspect/1)
         |> table_layout_row(lengths)
-    end
+      end
+
     "\n" <> header <> "\n" <> join(rows, "\n")
   end
 
   defp table_layout_row(data, lengths) do
     import Enum
     import String
-    join(map(zip(lengths,data), fn {l, d} ->
-      if String.length(d) < l do
-        pad_trailing(d, l)
-      else
-        String.slice(d, 0, l)
-      end
-    end), " | ")
+
+    join(
+      map(zip(lengths, data), fn {l, d} ->
+        if String.length(d) < l do
+          pad_trailing(d, l)
+        else
+          String.slice(d, 0, l)
+        end
+      end),
+      " | "
+    )
   end
 
   @doc ~S"""
   Converts a string defining a tie interval to ms, or fails.
   """
   def timespec_to_ms!(timespec) when is_binary(timespec) do
-    #Logger.debug(timespec)
+    # Logger.debug(timespec)
     case Integer.parse(timespec) do
       {s, "ms"} -> s
       {s, "s"} -> s * 1000
@@ -122,10 +142,10 @@ defmodule Serverboards.Utils do
       {s, "y"} -> s * 1000 * 60 * 60 * 24 * 365
     end
   end
+
   def timespec_to_ms!(timespec) when is_number(timespec) do
     timespec
   end
-
 
   @doc ~S"""
   Try to convert a key name to an atom from a list of valid atoms
@@ -160,14 +180,15 @@ defmodule Serverboards.Utils do
   ```
   """
   def keys_to_atoms_from_list(%{} = map, atom_list) do
-    keys_to_atoms_from_list(map |> Map.to_list, atom_list)
-      |> Map.new
-  end
-  def keys_to_atoms_from_list([], _), do: []
-  def keys_to_atoms_from_list([{k,v} | rest], l) do
-    [{key_to_atom_from_list(k, l), v}] ++ keys_to_atoms_from_list(rest, l)
+    keys_to_atoms_from_list(map |> Map.to_list(), atom_list)
+    |> Map.new()
   end
 
+  def keys_to_atoms_from_list([], _), do: []
+
+  def keys_to_atoms_from_list([{k, v} | rest], l) do
+    [{key_to_atom_from_list(k, l), v}] ++ keys_to_atoms_from_list(rest, l)
+  end
 
   @doc ~S"""
   Calculates the diff between two maps, returning only changed elements.
@@ -182,23 +203,32 @@ defmodule Serverboards.Utils do
   def map_diff(a, a) do
     %{}
   end
+
   def map_diff(a, b) when is_map(a) and is_map(b) do
-    ret = Enum.reduce(a, %{}, fn {ka, va}, acc ->
-      vb = Map.get(b, ka, nil)
-      acc = case map_diff(va, vb) do
-        map when map == %{} ->
-          acc
-        other ->
-          acc = Map.put(acc, ka, other)
-          acc
-      end
-      acc
-    end)
+    ret =
+      Enum.reduce(a, %{}, fn {ka, va}, acc ->
+        vb = Map.get(b, ka, nil)
+
+        acc =
+          case map_diff(va, vb) do
+            map when map == %{} ->
+              acc
+
+            other ->
+              acc = Map.put(acc, ka, other)
+              acc
+          end
+
+        acc
+      end)
+
     ret
   end
+
   def map_diff(_a, nil) do
     nil
   end
+
   # any other means just get b
   def map_diff(_, b) do
     b
@@ -218,6 +248,7 @@ defmodule Serverboards.Utils do
       _ -> {:error, :not_found}
     end
   end
+
   def map_get(map, [h | tail]) do
     case Map.fetch(map, h) do
       {:ok, rest} -> map_get(rest, tail)

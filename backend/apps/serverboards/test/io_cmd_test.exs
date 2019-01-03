@@ -13,14 +13,14 @@ defmodule Serverboards.IO.CmdTest do
     Ecto.Adapters.SQL.Sandbox.mode(Serverboards.Repo, {:shared, self()})
   end
 
+  @tag timeout: 2_000
   test "Rate limit" do
-    import Serverboards.IO.Cmd
-
-    {:ok, rl } = start_link("test/data/plugins/auth/auth.py")
+    {:ok, rl} = Serverboards.IO.Cmd.start_link("test/data/plugins/auth/auth.py")
     init = Timex.Duration.now()
-    {:ok, "ok" } = call( rl, "test_rate_limiting", [150])
+    {:ok, :ok} = Serverboards.IO.Cmd.call(rl, "test_rate_limiting", [150])
     total_t = Timex.Duration.elapsed(init)
 
-    assert total_t > 1000 # depends on default timerates at cmd.ex.
+    # depends on default timerates at cmd.ex.
+    assert total_t > 1000
   end
 end

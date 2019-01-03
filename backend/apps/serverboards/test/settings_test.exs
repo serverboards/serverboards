@@ -14,53 +14,72 @@ defmodule Serverboards.SettingsTest do
   end
 
   test "Get base fields" do
-    user = Test.User.system
+    user = Test.User.system()
 
     settings = Serverboards.Settings.all_settings(user)
-    Logger.info("#{inspect settings}")
-    assert (hd (hd settings)[:fields])[:value] != "https://test.serverboards.io"
+    Logger.info("#{inspect(settings)}")
+    assert hd(hd(settings)[:fields])[:value] != "https://test.serverboards.io"
 
-    :ok = Serverboards.Settings.update((hd settings)[:id], %{ base_url: "https://test.serverboards.io"}, user)
+    :ok =
+      Serverboards.Settings.update(
+        hd(settings)[:id],
+        %{base_url: "https://test.serverboards.io"},
+        user
+      )
+
     settings = Serverboards.Settings.all_settings(user)
-    Logger.info("#{inspect settings}")
+    Logger.info("#{inspect(settings)}")
 
-    assert (hd (hd settings)[:fields])["value"] == "https://test.serverboards.io"
+    assert hd(hd(settings)[:fields])["value"] == "https://test.serverboards.io"
   end
 
   test "Cant recover password" do
-    user = Test.User.system
+    user = Test.User.system()
 
     _settings = Serverboards.Settings.all_settings(user)
-    :ok = Serverboards.Settings.update(
-      "serverboards.test.auth/settings",
-      %{ test_pw: "https://test.serverboards.io"},
-      user)
+
+    :ok =
+      Serverboards.Settings.update(
+        "serverboards.test.auth/settings",
+        %{test_pw: "https://test.serverboards.io"},
+        user
+      )
 
     settings = Serverboards.Settings.all_settings(user)
-    Logger.info("#{inspect settings}")
+    Logger.info("#{inspect(settings)}")
 
-    assert (hd (hd settings)[:fields])["test_pw"] != "https://test.serverboards.io"
+    assert hd(hd(settings)[:fields])["test_pw"] != "https://test.serverboards.io"
   end
 
   test "Client use" do
-    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client} = Test.Client.start_link(as: "dmoreno@serverboards.io")
 
     {:ok, _} = Test.Client.call(client, "settings.list", [])
-    {:ok, :ok} = Test.Client.call(client, "settings.update", [
-      "serverboards.test.auth/settings",
-      %{ test_pw: "https://test.serverboards.io"}]
-      )
+
+    {:ok, :ok} =
+      Test.Client.call(client, "settings.update", [
+        "serverboards.test.auth/settings",
+        %{test_pw: "https://test.serverboards.io"}
+      ])
   end
 
   test "User data" do
-    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client} = Test.Client.start_link(as: "dmoreno@serverboards.io")
 
     assert {:ok, nil} == Test.Client.call(client, "settings.user.get", ["notifications"])
-    assert {:ok, :ok} == Test.Client.call(client, "settings.user.set", ["notifications", %{ email: "dmoreno@serverboards.io"}] )
-    :timer.sleep(200)
-    assert {:ok, %{ "email" => "dmoreno@serverboards.io"}} == Test.Client.call(client, "settings.user.get", ["notifications"])
 
-    assert {:ok, :ok} == Test.Client.call(client, "settings.user.set", ["notifications", nil] )
+    assert {:ok, :ok} ==
+             Test.Client.call(client, "settings.user.set", [
+               "notifications",
+               %{email: "dmoreno@serverboards.io"}
+             ])
+
+    :timer.sleep(200)
+
+    assert {:ok, %{"email" => "dmoreno@serverboards.io"}} ==
+             Test.Client.call(client, "settings.user.get", ["notifications"])
+
+    assert {:ok, :ok} == Test.Client.call(client, "settings.user.set", ["notifications", nil])
     :timer.sleep(200)
     assert {:ok, nil} == Test.Client.call(client, "settings.user.get", ["notifications"])
   end
@@ -68,8 +87,9 @@ defmodule Serverboards.SettingsTest do
   # sometimes some default values are needed but dont have a real db
   # backed value. Or want to use some default values system-wide.
   test "Get from ini files, not database" do
-    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client} = Test.Client.start_link(as: "dmoreno@serverboards.io")
 
-    {:ok, %{ "loaded" =>  "cool"}} = Test.Client.call(client, "settings.get", ["serverboards.test.data/ini"])
+    {:ok, %{"loaded" => "cool"}} =
+      Test.Client.call(client, "settings.get", ["serverboards.test.data/ini"])
   end
 end

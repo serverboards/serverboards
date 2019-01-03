@@ -9,10 +9,10 @@ defmodule Serverboards.Project do
   alias Serverboards.Project.Model.ProjectTag, as: ProjectTagModel
 
   def start_link(_options) do
-    {:ok, es} = EventSourcing.start_link name: :project
+    {:ok, es} = EventSourcing.start_link(name: :project)
 
-    EventSourcing.Model.subscribe :project, :project, Serverboards.Repo
-    #EventSourcing.subscribe :project, :debug_full
+    EventSourcing.Model.subscribe(:project, :project, Serverboards.Repo)
+    # EventSourcing.subscribe :project, :debug_full
 
     setup_eventsourcing(es)
     Serverboards.Dashboard.Widget.setup_eventsourcing(es)
@@ -21,98 +21,126 @@ defmodule Serverboards.Project do
   end
 
   def setup_eventsourcing(es) do
-    EventSourcing.subscribe es, :add_project, fn attributes, me ->
-      {:ok, project} = Repo.insert( ProjectModel.changeset(%ProjectModel{}, attributes) )
+    EventSourcing.subscribe(
+      es,
+      :add_project,
+      fn attributes, me ->
+        {:ok, project} = Repo.insert(ProjectModel.changeset(%ProjectModel{}, attributes))
 
-      Enum.map(Map.get(attributes, :tags, []), fn name ->
-        Repo.insert( %ProjectTagModel{name: name, project_id: project.id} )
-      end)
+        Enum.map(Map.get(attributes, :tags, []), fn name ->
+          Repo.insert(%ProjectTagModel{name: name, project_id: project.id})
+        end)
 
-      Serverboards.Service.service_update_project_real( project.shortname, attributes, me )
+        Serverboards.Service.service_update_project_real(project.shortname, attributes, me)
 
-      project = %{
-        project |
-        inserted_at: DateTime.to_iso8601(project.inserted_at),
-        updated_at: DateTime.to_iso8601(project.updated_at)
-      }
-      Serverboards.Event.emit("project.created", %{ project: project}, ["project.get"])
+        project = %{
+          project
+          | inserted_at: DateTime.to_iso8601(project.inserted_at),
+            updated_at: DateTime.to_iso8601(project.updated_at)
+        }
 
-      dashboard_attrs = %{
-        project_id: project.id,
-        name: "Monitoring",
-        order: 0,
-        config: %{},
-        uuid: UUID.uuid4
-      }
+        Serverboards.Event.emit("project.created", %{project: project}, ["project.get"])
 
-      {:ok, dashboard} = Repo.insert(DashboardModel.changeset(%DashboardModel{}, dashboard_attrs))
-      Serverboards.Event.emit("dashboard.created", %{ dashboard: dashboard}, ["project.get"])
+        dashboard_attrs = %{
+          project_id: project.id,
+          name: "Monitoring",
+          order: 0,
+          config: %{},
+          uuid: UUID.uuid4()
+        }
 
-      project.shortname
-    end, name: :project
+        {:ok, dashboard} =
+          Repo.insert(DashboardModel.changeset(%DashboardModel{}, dashboard_attrs))
 
-    EventSourcing.subscribe es, :update_project, fn [shortname, operations], me ->
+        Serverboards.Event.emit("dashboard.created", %{dashboard: dashboard}, ["project.get"])
+
+        project.shortname
+      end,
+      name: :project
+    )
+
+    EventSourcing.subscribe(es, :update_project, fn [shortname, operations], me ->
       import Ecto.Query
       # update tags
       project = Repo.get_by!(ProjectModel, shortname: shortname)
 
       tags = Map.get(operations, :tags, nil)
+
       if tags != nil do
         update_project_tags_real(project, tags)
       end
 
-      {:ok, upd} = Repo.update( ProjectModel.changeset(
-        project, operations
-      ) )
+      {:ok, upd} =
+        Repo.update(
+          ProjectModel.changeset(
+            project,
+            operations
+          )
+        )
 
-      {:ok, project} = project_get upd, me
+      {:ok, project} = project_get(upd, me)
+
       project = %{
-        project |
-        inserted_at: DateTime.to_iso8601(project.inserted_at),
-        updated_at: DateTime.to_iso8601(project.updated_at)
+        project
+        | inserted_at: DateTime.to_iso8601(project.inserted_at),
+          updated_at: DateTime.to_iso8601(project.updated_at)
       }
+
       Serverboards.Event.emit(
         "project.updated",
-        %{ shortname: shortname, project: project},
+        %{shortname: shortname, project: project},
         ["project.get"]
-        )
+      )
+
       Serverboards.Event.emit(
         "project.updated[#{shortname}]",
-        %{ shortname: shortname, project: project},
+        %{shortname: shortname, project: project},
         ["project.get"]
-        )
+      )
 
       :ok
-    end
+    end)
 
-    EventSourcing.subscribe es, :delete_project, fn shortname, _me ->
-      Repo.delete_all( from s in ProjectModel, where: s.shortname == ^shortname )
+    EventSourcing.subscribe(es, :delete_project, fn shortname, _me ->
+      Repo.delete_all(from(s in ProjectModel, where: s.shortname == ^shortname))
 
-      Serverboards.Event.emit("project.deleted", %{ shortname: shortname}, ["project.get"])
-    end
+      Serverboards.Event.emit("project.deleted", %{shortname: shortname}, ["project.get"])
+    end)
   end
 
   defp update_project_tags_real(project, tags) do
     import Ecto.Query
-    tags = MapSet.new(
-      tags
+
+    tags =
+      MapSet.new(
+        tags
         |> Enum.filter(&(&1 != ""))
       )
 
-    current_tags = Repo.all(from st in ProjectTagModel, where: st.project_id == ^project.id, select: st.name )
-    current_tags = MapSet.new current_tags
+    current_tags =
+      Repo.all(from(st in ProjectTagModel, where: st.project_id == ^project.id, select: st.name))
+
+    current_tags = MapSet.new(current_tags)
 
     new_tags = MapSet.difference(tags, current_tags)
     expired_tags = MapSet.difference(current_tags, tags)
 
-    Logger.debug("Update project tags. Current #{inspect current_tags}, add #{inspect new_tags}, remove #{inspect expired_tags}")
+    Logger.debug(
+      "Update project tags. Current #{inspect(current_tags)}, add #{inspect(new_tags)}, remove #{
+        inspect(expired_tags)
+      }"
+    )
 
-    if (Enum.count expired_tags) > 0 do
-      expired_tags = MapSet.to_list expired_tags
-      Repo.delete_all( from t in ProjectTagModel, where: t.project_id == ^project.id and t.name in ^expired_tags )
+    if Enum.count(expired_tags) > 0 do
+      expired_tags = MapSet.to_list(expired_tags)
+
+      Repo.delete_all(
+        from(t in ProjectTagModel, where: t.project_id == ^project.id and t.name in ^expired_tags)
+      )
     end
+
     Enum.map(new_tags, fn name ->
-      Repo.insert( %ProjectTagModel{name: name, project_id: project.id} )
+      Repo.insert(%ProjectTagModel{name: name, project_id: project.id})
     end)
   end
 
@@ -139,19 +167,23 @@ defmodule Serverboards.Project do
 
   """
   def project_add(shortname, attributes, me) do
-    EventSourcing.dispatch :project, :add_project, %{
-      shortname: shortname,
-      creator_id: Map.get(me, :id),
-      name: Map.get(attributes,"name", shortname),
-      description: Map.get(attributes, "description", ""),
-      priority: Map.get(attributes, "priority", 50),
-      tags: Map.get(attributes, "tags", []),
-      services: Map.get(attributes, "services", [])
-    }, me.email
+    EventSourcing.dispatch(
+      :project,
+      :add_project,
+      %{
+        shortname: shortname,
+        creator_id: Map.get(me, :id),
+        name: Map.get(attributes, "name", shortname),
+        description: Map.get(attributes, "description", ""),
+        priority: Map.get(attributes, "priority", 50),
+        tags: Map.get(attributes, "tags", []),
+        services: Map.get(attributes, "services", [])
+      },
+      me.email
+    )
+
     {:ok, shortname}
   end
-
-
 
   @doc ~S"""
   Updates a project by id or shortname
@@ -169,53 +201,75 @@ defmodule Serverboards.Project do
 
   """
   def project_update(project, operations, me) when is_map(project) do
-    #Logger.debug("project_update #{inspect {project.shortname, operations, me}}, project id #{project.id}")
+    # Logger.debug("project_update #{inspect {project.shortname, operations, me}}, project id #{project.id}")
 
     # Calculate changes on project itself.
-    changes = Enum.reduce(operations, %{}, fn op, acc ->
-      Logger.debug("#{inspect op}")
-      {opname, newval} = op
-      opatom = case opname do
-        "name" -> :name
-        "description" -> :description
-        "priority" -> :priority
-        "tags" -> :tags
-        "shortname" -> :shortname
-        "services" -> :services
-        e ->
-          Logger.error("Unknown operation #{inspect e}. Failing.")
-          raise RuntimeError, "Unknown operation updating project #{project.shortname}: #{inspect e}. Failing."
-      end
-      if opatom do
-        Map.put acc, opatom, newval
-      else
-        acc
-      end
-    end)
+    changes =
+      Enum.reduce(operations, %{}, fn op, acc ->
+        Logger.debug("#{inspect(op)}")
+        {opname, newval} = op
+
+        opatom =
+          case opname do
+            "name" ->
+              :name
+
+            "description" ->
+              :description
+
+            "priority" ->
+              :priority
+
+            "tags" ->
+              :tags
+
+            "shortname" ->
+              :shortname
+
+            "services" ->
+              :services
+
+            e ->
+              Logger.error("Unknown operation #{inspect(e)}. Failing.")
+
+              raise RuntimeError,
+                    "Unknown operation updating project #{project.shortname}: #{inspect(e)}. Failing."
+          end
+
+        if opatom do
+          Map.put(acc, opatom, newval)
+        else
+          acc
+        end
+      end)
 
     EventSourcing.dispatch(:project, :update_project, [project.shortname, changes], me.email)
 
     :ok
   end
+
   def project_update(project_id, operations, me) when is_number(project_id) do
-    project_update(Repo.get_by(ProjectModel, [id: project_id]), operations, me)
+    project_update(Repo.get_by(ProjectModel, id: project_id), operations, me)
   end
+
   def project_update(projectname, operations, me) when is_binary(projectname) do
-    project_update(Repo.get_by(ProjectModel, [shortname: projectname]), operations, me)
+    project_update(Repo.get_by(ProjectModel, shortname: projectname), operations, me)
   end
 
   @doc ~S"""
   Deletes a project by id or name
   """
-  def project_delete(%ProjectModel{ shortname: shortname }, me) do
+  def project_delete(%ProjectModel{shortname: shortname}, me) do
     EventSourcing.dispatch(:project, :delete_project, shortname, me.email)
     :ok
   end
+
   def project_delete(project_id, me) when is_number(project_id) do
-    project_delete( Repo.get_by(ProjectModel, [id: project_id]), me )
+    project_delete(Repo.get_by(ProjectModel, id: project_id), me)
   end
+
   def project_delete(project_shortname, me) when is_binary(project_shortname) do
-    project_delete( Repo.get_by(ProjectModel, [shortname: project_shortname]), me )
+    project_delete(Repo.get_by(ProjectModel, shortname: project_shortname), me)
   end
 
   @doc ~S"""
@@ -227,41 +281,51 @@ defmodule Serverboards.Project do
     project = Repo.preload(project, :tags)
 
     project = %{
-      project |
-      tags: Enum.map(project.tags, fn t -> t.name end)
+      project
+      | tags: Enum.map(project.tags, fn t -> t.name end)
     }
 
-    services = Serverboards.Service.service_list [project: project.shortname]
+    services = Serverboards.Service.service_list(project: project.shortname)
     project = Map.put(project, :services, services)
-    dashboards = Serverboards.Dashboard.dashboard_list(%{ project: project.shortname} )
-      |> Enum.map(&(%{
-        uuid: &1.uuid,
-        name: &1.name,
-        alias: &1.alias,
-        order: &1.order
-        }))
 
-    project = Map.put(project, :dashboards, dashboards )
+    dashboards =
+      Serverboards.Dashboard.dashboard_list(%{project: project.shortname})
+      |> Enum.map(
+        &%{
+          uuid: &1.uuid,
+          name: &1.name,
+          alias: &1.alias,
+          order: &1.order
+        }
+      )
 
-    #Logger.info("Got project #{inspect project}")
+    project = Map.put(project, :dashboards, dashboards)
+
+    # Logger.info("Got project #{inspect project}")
     {:ok, project}
   end
 
   def project_get(project_id, me) when is_number(project_id) do
-    case Repo.one( from( s in ProjectModel, where: s.id == ^project_id, preload: :tags ) ) do
-      nil -> {:error, :not_found}
-      project ->
-        project_get(project, me)
-    end
-  end
-  def project_get(project_shortname, me) when is_binary(project_shortname) do
-    case Repo.one( from(s in ProjectModel, where: s.shortname == ^project_shortname, preload: :tags ) ) do
-      nil -> {:error, :not_found}
+    case Repo.one(from(s in ProjectModel, where: s.id == ^project_id, preload: :tags)) do
+      nil ->
+        {:error, :not_found}
+
       project ->
         project_get(project, me)
     end
   end
 
+  def project_get(project_shortname, me) when is_binary(project_shortname) do
+    case Repo.one(
+           from(s in ProjectModel, where: s.shortname == ^project_shortname, preload: :tags)
+         ) do
+      nil ->
+        {:error, :not_found}
+
+      project ->
+        project_get(project, me)
+    end
+  end
 
   @doc ~S"""
   Returns a list with all projects and its information
@@ -283,10 +347,12 @@ defmodule Serverboards.Project do
 
   """
   def project_list(_me) do
-    projects = Serverboards.Repo.all(from s in ProjectModel, preload: :tags )
-     |> Enum.map( fn project ->
-       %{ project | tags: Enum.map(project.tags, &(&1.name)) }
-     end)
-    {:ok, projects }
+    projects =
+      Serverboards.Repo.all(from(s in ProjectModel, preload: :tags))
+      |> Enum.map(fn project ->
+        %{project | tags: Enum.map(project.tags, & &1.name)}
+      end)
+
+    {:ok, projects}
   end
 end

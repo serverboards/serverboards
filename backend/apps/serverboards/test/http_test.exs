@@ -17,7 +17,7 @@ defmodule HTTPTest do
   end
 
   test "Use RPC to create port" do
-    {:ok, client} = Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client} = Client.start_link(as: "dmoreno@serverboards.io")
 
     {:ok, uuid} = Client.call(client, "http.add_port", [8080])
 

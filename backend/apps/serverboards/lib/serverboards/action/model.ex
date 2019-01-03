@@ -1,14 +1,16 @@
 defmodule Serverboards.Action.Model do
   defmodule History do
     use Ecto.Schema
+
     schema "action_history" do
-      field :uuid, Ecto.UUID
-      field :type, :string
-      field :status, :string
-      field :params, :map
-      field :result, :map
-      field :user_id, :id
-      field :elapsed, :integer # in ms.
+      field(:uuid, Ecto.UUID)
+      field(:type, :string)
+      field(:status, :string)
+      field(:params, :map)
+      field(:result, :map)
+      field(:user_id, :id)
+      # in ms.
+      field(:elapsed, :integer)
       timestamps(type: :utc_datetime)
     end
 
@@ -16,7 +18,7 @@ defmodule Serverboards.Action.Model do
     @optional_fields ~w(result elapsed user_id)a
     def changeset(action, changes \\ :empty) do
       import Ecto.Changeset
-      changes = %{ changes | status: to_string(changes[:status]) }
+      changes = %{changes | status: to_string(changes[:status])}
 
       action
       |> cast(changes, @required_fields ++ @optional_fields)

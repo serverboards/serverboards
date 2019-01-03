@@ -4,7 +4,7 @@ defmodule Serverboards.Utils.MonitorCallbacks do
   use GenServer
 
   def start_link(options \\ []) do
-      GenServer.start_link __MODULE__, [], [name: __MODULE__] ++ options
+    GenServer.start_link(__MODULE__, [], [name: __MODULE__] ++ options)
   end
 
   def monitor(pid, callback) do
@@ -21,26 +21,27 @@ defmodule Serverboards.Utils.MonitorCallbacks do
     updated_callbacks = Map.get(state, pid, []) ++ [callback]
     Process.monitor(pid)
 
-    {:noreply,
-      Map.put(state, pid, updated_callbacks)
-    }
+    {:noreply, Map.put(state, pid, updated_callbacks)}
   end
 
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     for func <- Map.get(state, pid, []) do
       try do
         func.()
-      rescue _ ->
-        Logger.error("Error calling the monitor down fn #{inspect func}")
+      rescue
+        _ ->
+          Logger.error("Error calling the monitor down fn #{inspect(func)}")
       catch
         :exit, e ->
-          Logger.error("Error calling the monitor down fn #{inspect func}: #{inspect e}")
+          Logger.error("Error calling the monitor down fn #{inspect(func)}: #{inspect(e)}")
       end
     end
+
     {:noreply, Map.drop(state, [pid])}
   end
+
   def handle_info(data, state) do
-    Logger.debug("Got unknown info #{inspect data}")
+    Logger.debug("Got unknown info #{inspect(data)}")
     {:noreply, state}
   end
 end

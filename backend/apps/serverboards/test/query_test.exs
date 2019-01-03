@@ -2,9 +2,10 @@ require Logger
 
 defmodule Serverboards.QueryTest do
   use ExUnit.Case
-	@moduletag :capture_log
+  @moduletag :capture_log
 
   alias Serverboards.Query
+
   setup do
     # Explicitly get a connection before each test
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Serverboards.Repo)
@@ -15,13 +16,19 @@ defmodule Serverboards.QueryTest do
   end
 
   test "Get schema" do
-    {:ok, tables} = Query.Executor.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil })
+    {:ok, tables} =
+      Query.Executor.schema(%{service: nil, extractor: "test.extractor/extractor", user: nil})
 
-    Logger.debug("Got tables #{inspect tables}")
+    Logger.debug("Got tables #{inspect(tables)}")
     assert tables == ["random"]
 
-    {:ok, random} = Query.Executor.schema(%{ service: nil, extractor: "test.extractor/extractor", user: nil}, "random")
-    Logger.debug("Got random definition #{inspect random}")
+    {:ok, random} =
+      Query.Executor.schema(
+        %{service: nil, extractor: "test.extractor/extractor", user: nil},
+        "random"
+      )
+
+    Logger.debug("Got random definition #{inspect(random)}")
   end
 
   test "Simple query" do
@@ -37,9 +44,9 @@ defmodule Serverboards.QueryTest do
 
     assert Enum.count(result.columns) == 1
     assert Enum.count(result.rows) == 1
-    assert Enum.count(Enum.at(result.rows,0)) == 1
+    assert Enum.count(Enum.at(result.rows, 0)) == 1
 
-    Logger.debug inspect(result)
+    Logger.debug(inspect(result))
   end
 
   test "Simple query using RPC" do
@@ -51,17 +58,18 @@ defmodule Serverboards.QueryTest do
       }
     }
 
-    {:ok, client} = Test.Client.start_link as: "dmoreno@serverboards.io"
+    {:ok, client} = Test.Client.start_link(as: "dmoreno@serverboards.io")
 
-    {:ok, result} = Test.Client.call client, "query.query", %{
-      query: "SELECT random FROM A.random",
-      context: context
-    }
+    {:ok, result} =
+      Test.Client.call(client, "query.query", %{
+        query: "SELECT random FROM A.random",
+        context: context
+      })
 
     assert Enum.count(result["columns"]) == 1
     assert Enum.count(result["rows"]) == 1
-    assert Enum.count(Enum.at(result["rows"],0)) == 1
+    assert Enum.count(Enum.at(result["rows"], 0)) == 1
 
-    Logger.debug("Response #{inspect result}")
+    Logger.debug("Response #{inspect(result)}")
   end
 end

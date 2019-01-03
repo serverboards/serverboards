@@ -10,11 +10,12 @@ defmodule Serverboards.IoTcpTest do
     Application.stop(:io_tcp)
     Application.start(:io_tcp)
 
-    {:ok, listener} = Task.start( fn ->
-      Serverboards.IO.TCP.start_accept({127,0,0,1}, 4040)
-    end)
+    {:ok, listener} =
+      Task.start(fn ->
+        Serverboards.IO.TCP.start_accept({127, 0, 0, 1}, 4040)
+      end)
 
-    on_exit( fn ->
+    on_exit(fn ->
       Process.exit(listener, :normal)
     end)
 
@@ -46,11 +47,9 @@ defmodule Serverboards.IoTcpTest do
     :ok
   end
 
-  test "Check unknown methods", %{ socket: socket } do
+  test "Check unknown methods", %{socket: socket} do
     assert call(socket, "non.existant.method", []) == {:error, "unknown_method"}
   end
-
-
 
   def call(socket, method, params) do
     :ok = :gen_tcp.send(socket, call_to_json(method, params, 0) <> "\n")
@@ -60,19 +59,23 @@ defmodule Serverboards.IoTcpTest do
 
   def wait_reply(socket, id) do
     {:ok, json} = :gen_tcp.recv(socket, 0, 1000)
-    case json_to_result( json ) do
-      %{ "result" => result, "id" => ^id } ->
+
+    case json_to_result(json) do
+      %{"result" => result, "id" => ^id} ->
         result
-      %{ "error" => error } ->
+
+      %{"error" => error} ->
         {:error, error}
-      ans -> # ignore, get result again
-        Logger.debug("Got ignored answer: #{inspect ans}")
+
+      # ignore, get result again
+      ans ->
+        Logger.debug("Got ignored answer: #{inspect(ans)}")
         wait_reply(socket, id)
     end
   end
 
   def call_to_json(method, params, id) do
-    {:ok, json}  = Poison.encode(%{method: method, params: params, id: id})
+    {:ok, json} = Poison.encode(%{method: method, params: params, id: id})
     json
   end
 
@@ -81,7 +84,7 @@ defmodule Serverboards.IoTcpTest do
   end
 
   def json_to_result(json) do
-    {:ok, json}  = Poison.decode(json)
+    {:ok, json} = Poison.decode(json)
     json
   end
 end

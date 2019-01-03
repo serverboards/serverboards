@@ -1,7 +1,6 @@
 require Logger
 
 defmodule Serverboards.Plugin.Parser do
-
   @doc ~S"""
   Parses a component dict (from yaml) into a Component struct.
 
@@ -19,12 +18,14 @@ defmodule Serverboards.Plugin.Parser do
 
   """
   def parse_component(%{} = dict) do
-    traits = case Map.get(dict, "traits") do
-      nil ->
-        []
-      str when is_binary(str) ->
-        String.split(str," ", trim: true)
-    end
+    traits =
+      case Map.get(dict, "traits") do
+        nil ->
+          []
+
+        str when is_binary(str) ->
+          String.split(str, " ", trim: true)
+      end
 
     %Serverboards.Plugin.Component{
       id: Map.get(dict, "id"),
@@ -33,10 +34,9 @@ defmodule Serverboards.Plugin.Parser do
       traits: traits,
       description: Map.get(dict, "description"),
       icon: Map.get(dict, "icon"),
-      extra: Map.drop(dict, ~w(id name type traits description icon)),
+      extra: Map.drop(dict, ~w(id name type traits description icon))
     }
   end
-
 
   @doc ~S"""
   Parses a dict that describes a plugin into a plugin struct.
@@ -63,18 +63,20 @@ defmodule Serverboards.Plugin.Parser do
     }
   """
   def parse(%{} = dict) do
-    components = Enum.map( Map.get(dict, "components", []), &parse_component(&1) )
+    components = Enum.map(Map.get(dict, "components", []), &parse_component(&1))
 
     id = Map.get(dict, "id")
     path = Map.get(dict, "path", "")
-    is_core = not String.starts_with?(path, Serverboards.Config.serverboards_path)
+    is_core = not String.starts_with?(path, Serverboards.Config.serverboards_path())
     # rw_path = File.stat!(path).access == :read_write
-    tags = if is_core do
-      ["core"]
-    else
-      ["optional"]
-    end
-      # rw_path and
+    tags =
+      if is_core do
+        ["core"]
+      else
+        ["optional"]
+      end
+
+    # rw_path and
 
     %Serverboards.Plugin{
       id: id,
@@ -85,9 +87,7 @@ defmodule Serverboards.Plugin.Parser do
       url: Map.get(dict, "url"),
       enabled: Map.get(dict, "enabled", true),
       tags: tags,
-
       components: components,
-
       extra: Map.drop(dict, ~w(id name description author version url components))
     }
   end
@@ -108,23 +108,25 @@ defmodule Serverboards.Plugin.Parser do
     try do
       YamlElixir.read_from_string(yaml)
     catch
-      {:yamerl_exception, [
-        {:yamerl_parsing_error, :error, msg, line, column, _, _ , _} | _]} ->
-          {:error, "#{line}:#{column} #{msg}"}
+      {:yamerl_exception, [{:yamerl_parsing_error, :error, msg, line, column, _, _, _} | _]} ->
+        {:error, "#{line}:#{column} #{msg}"}
+
       e ->
-        Logger.debug("Error loading yaml. #{inspect e}")
+        Logger.debug("Error loading yaml. #{inspect(e)}")
         {:error, e}
+
       :exit, {_reason, _where} ->
         Logger.debug("Error loading yaml. yamlr exited.")
         {:error, :exit}
     rescue
-      e in CaseClauseError->
-        %{ term: term } = e
-        { _, _, _, where, _} = term
-        line=where[:line]
-        column=where[:column]
+      e in CaseClauseError ->
+        %{term: term} = e
+        {_, _, _, where, _} = term
+        line = where[:line]
+        column = where[:column]
         Logger.error("Error loading yaml. Bad formed #{filename}:#{line}:#{column}")
         {:error, :bad_formed}
+
       _e in FunctionClauseError ->
         Logger.error("Error loading yaml. Bad formed #{filename}")
         {:error, :bad_formed}
@@ -147,23 +149,26 @@ defmodule Serverboards.Plugin.Parser do
     {:error, :enoent}
   """
   def load_plugin(dirname) do
-    ret = with {:ok, data}  <- File.read("#{dirname}/manifest.yaml"),
-          {:ok, extra}      <- {:ok, Serverboards.Utils.value_or(File.read("#{dirname}/.extra.yaml"), "{}")},
-          {:ok, data_yaml}  <- parse_yaml( data, "#{dirname}/manifest.yaml" ),
-          {:ok, extra_yaml} <- parse_yaml( extra, "#{dirname}/.extra.yaml" )
-    do
-      manifest = data_yaml |> Map.merge(extra_yaml) |> Map.merge(%{"path" => dirname})
-      plugin = parse(manifest)
-      {:ok, plugin}
-    else
-      {:error, :enoent} ->
-        {:error, :enoent}
-      {:error, :bad_formed} ->
-        {:error, :bad_formed}
-      {:error, v} when is_binary(v) ->
-        Logger.error("Error loading plugin at #{dirname}/manifest.yaml:#{v}")
-        {:error, :invalid_yaml}
-    end
+    ret =
+      with {:ok, data} <- File.read("#{dirname}/manifest.yaml"),
+           {:ok, extra} <-
+             {:ok, Serverboards.Utils.value_or(File.read("#{dirname}/.extra.yaml"), "{}")},
+           {:ok, data_yaml} <- parse_yaml(data, "#{dirname}/manifest.yaml"),
+           {:ok, extra_yaml} <- parse_yaml(extra, "#{dirname}/.extra.yaml") do
+        manifest = data_yaml |> Map.merge(extra_yaml) |> Map.merge(%{"path" => dirname})
+        plugin = parse(manifest)
+        {:ok, plugin}
+      else
+        {:error, :enoent} ->
+          {:error, :enoent}
+
+        {:error, :bad_formed} ->
+          {:error, :bad_formed}
+
+        {:error, v} when is_binary(v) ->
+          Logger.error("Error loading plugin at #{dirname}/manifest.yaml:#{v}")
+          {:error, :invalid_yaml}
+      end
   end
 
   @doc ~S"""
@@ -184,15 +189,16 @@ defmodule Serverboards.Plugin.Parser do
 
   """
   def read_dir(dirname) do
-    is_directory = fn (dirname, filename) ->
-      fullpath="#{dirname}/#{filename}"
+    is_directory = fn dirname, filename ->
+      fullpath = "#{dirname}/#{filename}"
+
       case File.stat(fullpath) do
         {:ok, stat} -> stat.type == :directory
         _ -> false
       end
     end
 
-    is_valid_dirname = fn (dirname) ->
+    is_valid_dirname = fn dirname ->
       cond do
         String.starts_with?(dirname, "__") -> false
         String.starts_with?(dirname, ".") -> false
@@ -200,8 +206,9 @@ defmodule Serverboards.Plugin.Parser do
       end
     end
 
-    has_manifest = fn (dirname) ->
-      fullpath="#{dirname}/manifest.yaml"
+    has_manifest = fn dirname ->
+      fullpath = "#{dirname}/manifest.yaml"
+
       case File.stat(fullpath) do
         {:ok, stat} -> stat.type == :regular
         _ -> false
@@ -209,22 +216,27 @@ defmodule Serverboards.Plugin.Parser do
     end
 
     import Enum
+
     case File.ls(dirname) do
       {:ok, allfiles} ->
-        plugins = allfiles
-            |> filter(&is_directory.(dirname, &1))
-            |> filter(&is_valid_dirname.(&1))
-            |> filter(&has_manifest.(dirname<>"/"<>&1))
-            |> map(&{load_plugin("#{dirname}/#{&1}/"), &1}) # returns {{:ok, plugin}, midpath}
-            |> filter(fn
-                {{:ok, _}, _} -> true
-                _ -> false
-                end)
-            |> map(fn {{:ok, p}, midpath} ->
-              %Serverboards.Plugin{ p | path: "#{dirname}/#{midpath}" } # set plugin dirname
-            end)
+        plugins =
+          allfiles
+          |> filter(&is_directory.(dirname, &1))
+          |> filter(&is_valid_dirname.(&1))
+          |> filter(&has_manifest.(dirname <> "/" <> &1))
+          # returns {{:ok, plugin}, midpath}
+          |> map(&{load_plugin("#{dirname}/#{&1}/"), &1})
+          |> filter(fn
+            {{:ok, _}, _} -> true
+            _ -> false
+          end)
+          |> map(fn {{:ok, p}, midpath} ->
+            # set plugin dirname
+            %Serverboards.Plugin{p | path: "#{dirname}/#{midpath}"}
+          end)
 
         {:ok, plugins}
+
       e ->
         e
     end
