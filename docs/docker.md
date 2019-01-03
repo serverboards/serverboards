@@ -24,7 +24,7 @@ Run remotely with
 export SERVERBOARDS_PATH=~/.serverboards/
 docker run -P \
   -v ${SERVERBOARDS_PATH}/data/:/home/serverboards/ \
-  -v ${SERVERBOARDS_PATH}/postgres/:/var/lib/postgresql/9.5/main/ \
+  -v ${SERVERBOARDS_PATH}/postgres/:/var/lib/postgresql/10/main/ \
   -m 512m \
   serverboards
 ```
