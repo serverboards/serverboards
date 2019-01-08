@@ -86,6 +86,12 @@ defmodule Serverboards.Query do
     real_query(query, context)
   end
 
+  defp real_query("SET DEBUG\n" <> pquery, context) do
+    context = put_in(context, ["__vars__", "debug"], true)
+    Logger.debug("Setting DEBUG for query:\n#{pquery}\n#{inspect(context)}")
+    real_query(pquery, context)
+  end
+
   defp real_query(query, context) do
     try do
       {time, result} = :timer.tc(ExoSQL, :query, [query, context])
@@ -94,7 +100,12 @@ defmodule Serverboards.Query do
         {:ok, %{columns: columns, rows: rows, count: Enum.count(rows), time: time / 1_000_000.0}}
       else
         any ->
-          Logger.error("Error performing query: #{inspect(any)}")
+          Logger.error(
+            "Error performing query: #{inspect(any)}: #{
+              inspect(System.stacktrace(), pretty: true)
+            }"
+          )
+
           any
       end
     rescue
@@ -142,6 +153,6 @@ defmodule Serverboards.Query do
     query = String.upcase(query)
 
     String.starts_with?(query, "SELECT") || String.starts_with?(query, "WITH") ||
-      String.starts_with?(query, "POLL ")
+      String.starts_with?(query, "POLL ") || String.starts_with?(query, "SET ")
   end
 end
