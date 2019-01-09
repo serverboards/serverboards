@@ -1,3 +1,38 @@
+serverboards (19.4.0-alpha2) unstable; urgency=medium
+
+  * Updated ExoSQL
+  * Add support for `SET DEBUG`. Latest ExoSQL.
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 09 Jan 2019 15:51:00 +0100
+
+serverboards (19.04.0-beta2) unstable; urgency=medium
+
+  * Updated ExoSQL
+  * Add support for `SET DEBUG`. Latest ExoSQL.
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 09 Jan 2019 15:50:39 +0100
+
+serverboards (19.04.0-alpha.2) unstable; urgency=medium
+
+  * Updated ExoSQL
+  * Add support for `SET DEBUG`. Latest ExoSQL.
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 09 Jan 2019 15:49:11 +0100
+
+serverboards (19.04.0alpha2) unstable; urgency=medium
+
+  * Updated ExoSQL
+  * Add support for `SET DEBUG`. Latest ExoSQL.
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 09 Jan 2019 15:48:17 +0100
+
+serverboards (19.04.0-alpha2) unstable; urgency=medium
+
+  * Updated ExoSQL
+  * Add support for `SET DEBUG`. Latest ExoSQL.
+
+ -- David Moreno <dmoreno@coralbits.com>  Wed, 09 Jan 2019 15:33:03 +0100
+
 serverboards (18.10.0-rc0) unstable; urgency=medium
 
 
