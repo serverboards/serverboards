@@ -25,3 +25,13 @@ components:
         placeholder: eg. https://test.serverboards.io
         name: base_url
         validation: url
+      - label: Default Notifications
+        description: |
+          To which group or user should default notifications be sent.
+
+          It can be a single user name, or a @group (prefix with at (`@`)
+          symbol).
+
+          By default to all users.
+        name: default_notifications_to
+        placeholder: @user

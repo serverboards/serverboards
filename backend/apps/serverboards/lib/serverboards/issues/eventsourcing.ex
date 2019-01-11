@@ -29,7 +29,11 @@ defmodule Serverboards.Issues.EventSourcing do
           })
 
         Serverboards.Notifications.notify(
-          "@user",
+          Serverboards.Config.get(
+            :"serverboards.core.settings/base",
+            :default_notifications_to,
+            false
+          ) || "@user",
           "New Issue ##{id}: #{attributes.title}",
           attributes.description,
           data,
@@ -96,7 +100,11 @@ defmodule Serverboards.Issues.EventSourcing do
         })
 
       Serverboards.Notifications.notify(
-        "@user",
+        Serverboards.Config.get(
+          :"serverboards.core.settings/base",
+          :default_notifications_to,
+          false
+        ) || "@user",
         "Issue ##{id} updated: #{data.type}",
         text,
         data,
