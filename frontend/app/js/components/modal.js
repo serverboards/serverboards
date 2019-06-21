@@ -1,5 +1,5 @@
 import React from 'react'
-import { back } from 'app/utils/store'
+import { back, goto } from 'app/utils/store'
 import store from 'app/utils/store'
 const logo=require("../../imgs/logo.svg")
 
@@ -30,7 +30,7 @@ class Modal extends React.Component{
     return (
       <div className={`ui modal background ${props.className || ""}`} id={props.id} onClick={this.onClose.bind(this)}>
         <div className="ui top menu" onClick={ignoreClick}>
-          <a href="#/" className="logo">
+          <a onClick={() => goto('/')} className="logo">
             <img className="logo" src={logo}/>
           </a>
           <div className="central"></div>

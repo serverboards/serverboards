@@ -140,12 +140,14 @@ class Issues extends React.Component{
     }
   }
   componentDidMount(){
-    if (this.props.params && this.props.params.id)
-      this.setState({selected: this.props.params.id})
+    const match = this.props.match
+    if (match && match.id)
+      this.setState({selected: match.id})
   }
   componentWillReceiveProps(nprops){
-    if (nprops.params && nprops.params.id != this.props.params.id){
-      this.setState({selected: nprops.params.id})
+    const match = nprops.match
+    if (match && match.id != this.props.match.id){
+      this.setState({selected: match.id})
     }
   }
   get_current_section(selected){

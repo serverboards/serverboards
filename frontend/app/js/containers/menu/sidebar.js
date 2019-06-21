@@ -76,7 +76,7 @@ const SidebarModel=connect({
         ],
         global: [
           {id: "issues", label: i18n_nop("Issues"), goto: `/issues/`, perm: "issues.view"},
-          {id: "notifications", label: i18n_nop("Notifications"), goto: "/notifications/list", perm: "notifications.list"},
+          {id: "notifications", label: i18n_nop("Notifications"), goto: "/notifications/", perm: "notifications.list"},
           ...global_screens,
         ],
         settings: [

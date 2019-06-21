@@ -41,9 +41,9 @@ class ServerboardsRouter extends React.Component{
             <Route path="/process/history" component={ProcessesHistory}/>
             <Route path="/process/:uuid" component={ProcessView}/>
           </Route>
-          <Route exact path="/notifications/">
-            <Route path="/notifications/list" component={NotificationList}/>
+          <Route path="/notifications/">
             <Route path="/notifications/:id" component={Notification}/>
+            <Route exact path="/notifications/" component={NotificationList}/>
           </Route>
           <Route exact path="/logs/" component={Logs}/>
 

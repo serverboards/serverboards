@@ -129,7 +129,7 @@ class Top extends React.Component{
     super(props)
   }
   componentWillReceiveProps(nprops){
-    const params = this.props.params
+    const params = this.props.match
     const nparams = nprops.params
     // console.log("Component will receive props! %o %o", params, nparams)
     if (params.section != nparams.section){

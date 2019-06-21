@@ -103,7 +103,7 @@ add_command_search('profile', function(Q, context){
 
 add_command_search('notifications-processes', function(Q, context){
   return [
-    { id: 'notifications', title: 'Notifications', description: 'Alerts, notifications and messages', path: '/notifications/list' },
+    { id: 'notifications', title: 'Notifications', description: 'Alerts, notifications and messages', path: '/notifications/' },
     { id: 'processes', title: 'Processes', description: 'View running and stopped processes history', path: '/process/history' }
   ]
 })
