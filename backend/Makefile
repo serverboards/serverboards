@@ -10,6 +10,7 @@ deps: mix.exs
 	mix deps.get > /dev/null
 	touch deps
 
+.PHONY: test
 test:
 	make clean deps
 	MIX_ENV=test mix test --trace --color
