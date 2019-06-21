@@ -26,7 +26,7 @@ var AddService=connect(
     return {
       catalog: state.services.catalog,
       all_services: state.services.services,
-      location: state.routing.locationBeforeTransitions
+      location: state.router.location.pathname
     }
   },
   (dispatch) => ({

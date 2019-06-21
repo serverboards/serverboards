@@ -2,7 +2,7 @@ import React from 'react'
 import Loading from '../loading'
 import rpc from 'app/rpc'
 import store from 'app/utils/store'
-import {push} from 'react-router-redux'
+import { goto } from 'app/utils/store'
 import {i18n, i18n_nop} from 'app/utils/i18n'
 
 const class_for_status={
@@ -54,7 +54,7 @@ function ProcessesHistory(props){
             <tbody>
               {processes.map( (p) => (
                 <tr key={p.uuid} className={i18n(class_for_status[p.status])}
-                    onClick={() =>{ store.dispatch( push(`/process/${p.uuid}`) ) }}
+                    onClick={() =>{ store.dispatch( goto(`/process/${p.uuid}`) ) }}
                     style={{cursor:"pointer"}}>
                   <td>{p.date.replace('T',' ')}</td>
                   <td>{p.elapsed || '--'} ms</td>

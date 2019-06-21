@@ -13,7 +13,7 @@ var Main = connect({
     return {
       lang: state.auth.lang,
       logged_in: state.auth.logged_in,
-      location: state.routing.locationBeforeTransitions,
+      location: state.router.location.pathname,
       lang_counter: state.auth.lang_counter,
       licenses: state.auth.licenses,
       has_perms: (map_get(state, ["auth", "user", "perms", "length"], 0) > 0)

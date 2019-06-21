@@ -8,7 +8,7 @@ import { map_get } from 'app/utils'
 var Services = connect({
   state: (state) => ({
     services: map_get(state.project, ["project", "services"], []),
-    location: state.routing.locationBeforeTransitions,
+    location: state.router.location.pathname,
     service_catalog: state.services.catalog || []
   }),
   subcriptions: ["service.updated", "projects.updated"]

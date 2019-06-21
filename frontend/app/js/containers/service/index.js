@@ -4,7 +4,7 @@ import View from 'app/components/service'
 var Container = connect(
   (state) => {
     return {
-      location: state.routing.locationBeforeTransitions
+      location: state.router.location.pathname
     }
   },
   (dispatch) => ({

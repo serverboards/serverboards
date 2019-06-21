@@ -6,7 +6,7 @@ import { set_modal } from 'app/actions/modal'
 var Card = connect(
   (state) => {
     return {
-      location: state.routing.locationBeforeTransitions
+      location: state.router.location.pathname
     }
   },
   (dispatch) => ({

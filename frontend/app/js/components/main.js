@@ -22,7 +22,7 @@ function modal(props){
     if (Modal){
       // console.log("Render Modal %o -> %o", mod.modal, Modal)
       const dispatch = require('app/utils/store').default.dispatch
-      const goBack = require('react-router-redux').goBack
+      const goBack = require('app/utils/store').back
       modal=(
         <ErrorBoundary>
           <Modal {...mod.data} onClose={ () => dispatch( goBack() ) }/>

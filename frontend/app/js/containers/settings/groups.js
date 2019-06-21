@@ -9,7 +9,7 @@ import connect from 'app/containers/connect'
 var Groups = connect({
   state: (state) => ({
     groups : state.auth.groups,
-    location: state.routing.locationBeforeTransitions,
+    location: state.router.location.pathname,
     all_users: (state.auth.users || []).map( (u) => u.email ),
     all_perms: state.auth.all_perms
   }),

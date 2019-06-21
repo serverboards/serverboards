@@ -4,6 +4,7 @@ import event from 'app/utils/event'
 import { connect } from 'react-redux'
 import Loading from 'app/components/loading'
 import PropTypes from 'prop-types'
+import store from 'app/utils/store'
 
 /**
  * Expanded version of redux.connect
@@ -64,24 +65,24 @@ export function serverboards_connect(options){
         this.state = { options }
       }
       _componentDidMount(props){ // Wrapper to allow call with specific props
-        const state = this.context.store.getState()
+        const state = store.getState()
         const subscriptions = unwrap(options.subscriptions, state, props)
         event.subscribe(subscriptions)
 
         const updates = unwrap(options.store_enter, state, props)
-        updates.map( (u) => this.context.store.dispatch(u()) )
+        updates.map( (u) => store.dispatch(u()) )
       }
       _componentWillUnmount(props){ // Wrapper to allow call with specific props
-        const state = this.context.store.getState()
+        const state = store.getState()
         const subscriptions = unwrap(options.subscriptions, state, props)
         event.unsubscribe(subscriptions)
 
         const store_clean = unwrap(options.store_exit, state, props)
-        store_clean.map( (u) => this.context.store.dispatch(u()) )
+        store_clean.map( (u) => store.dispatch(u()) )
       }
       componentDidMount(){
         this._componentDidMount(this.props)
-        const state = this.context.store.getState()
+        const state = store.getState()
         const promises = unwrap(options.promises, state, this.props)
 
         Object.keys(promises || {}).map( k => {
@@ -101,7 +102,7 @@ export function serverboards_connect(options){
         if (!options.watch || options.watch == Object.watch)
           return;
         let update=false
-        const state = this.context.store.getState()
+        const state = store.getState()
         unwrap(options.watch, state, newprops).map( (p) => {
           let pl = p.split('.')
           if (!object_is_equal( map_get(this.props, pl), map_get(newprops, pl)))
@@ -114,7 +115,7 @@ export function serverboards_connect(options){
       }
       render(){
         if (options.loading){
-          const loading = options.loading(this.context.store.getState(), this.props)
+          const loading = options.loading(store.getState(), this.props)
           if (loading)
             return (
               <Loading>{loading}</Loading>

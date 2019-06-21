@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 var Logs = connect(
   (state) => ({
-    location: state.routing.locationBeforeTransitions
+    location: state.router.location.pathname
   }),
   (dispatch) => ({
   })

@@ -7,7 +7,7 @@ var SettingsAdd=connect(
   (state) => {
     return {
       //catalog: state.services.catalog,
-      location: state.routing.locationBeforeTransitions
+      location: state.router.location.pathname
     }
   },
   (dispatch) => ({

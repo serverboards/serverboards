@@ -46,7 +46,7 @@ class DetailsWithScreensAndUrls extends React.Component{
 
 const Container = connect({
   state(state, props){
-    const locstate = state.routing.locationBeforeTransitions.state || {}
+    const locstate = state.router.location.pathname.state || {}
     let service, template
     let current = state.services.current
     if (current){

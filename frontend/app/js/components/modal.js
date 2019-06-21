@@ -1,5 +1,5 @@
 import React from 'react'
-import { goBack } from 'react-router-redux'
+import { back } from 'app/utils/store'
 import store from 'app/utils/store'
 const logo=require("../../imgs/logo.svg")
 
@@ -20,7 +20,7 @@ class Modal extends React.Component{
     if (this.props.onClose)
       this.props.onClose()
     else
-      store.dispatch( goBack() )
+      store.dispatch( back() )
   }
   render(){
     const props=this.props

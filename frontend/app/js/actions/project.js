@@ -1,7 +1,7 @@
 import rpc from 'app/rpc'
 import Flash from 'app/flash'
 import moment from 'moment'
-import { push } from 'react-router-redux'
+import { goto } from 'app/utils/store'
 import i18n from 'app/utils/i18n'
 import {map_get, to_mapf} from 'app/utils'
 
@@ -18,7 +18,7 @@ function project_add(data){
     rpc.call("project.create",
         [ data.shortname, {name: data.name, tags: data.tags, description: data.description}]
       ).then(function(){
-        dispatch( push({pathname: `/project/${data.shortname}/`}) )
+        dispatch( goto({pathname: `/project/${data.shortname}/`}) )
         Flash.info(i18n("Added project *{shortname}*", {shortname: data.shortname}))
       })
   }

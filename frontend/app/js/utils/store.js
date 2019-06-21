@@ -1,9 +1,8 @@
-import redux_reducers from '../reducers'
+import createRootReducer from '../reducers'
 import thunk from 'redux-thunk';
 import rpc from '../rpc'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { hashHistory } from 'react-router'
-import { routerMiddleware, push, goBack } from 'react-router-redux'
 import { merge, object_is_equal } from 'app/utils'
 import React from 'react'
 const react_redux_connect = require('react-redux').connect
@@ -12,8 +11,12 @@ import serverboards_connect from 'app/containers/connect'
 import AsyncPromises from 'app/containers/asyncpromises'
 import Subscribed from 'app/containers/subscribed'
 import Updaters from 'app/containers/updaters'
+import { createBrowserHistory } from 'history'
+import { push, goBack, routerMiddleware } from 'connected-react-router'
 
 var redux_extra=f => f
+
+export const history = createBrowserHistory()
 
 if (__DEV__){
   console.warn("Running in DEBUG mode")
@@ -31,9 +34,10 @@ const promise_middleware = store => next => action => {
 }
 
 let store = createStore(
-  redux_reducers, {},
+  createRootReducer(history),
+  {},
   compose(
-    applyMiddleware(promise_middleware, thunk, routerMiddleware(hashHistory)),
+    applyMiddleware(promise_middleware, thunk, routerMiddleware(history)),
     redux_extra
   )
 )
@@ -127,7 +131,7 @@ store.on('auth.logged_in', function(logged_in){
 })
 
 export function set_modal(modal, data={}){
-  const pathname=store.getState().routing.locationBeforeTransitions.pathname
+  const pathname=store.getState().router.location.pathname
   store.dispatch( push( {
     pathname: pathname,
     state: { modal, data }
@@ -152,7 +156,7 @@ store.goto = goto
 store.back = back
 
 export function location(){
-  return store.getState().routing.locationBeforeTransitions
+  return store.getState().router.location
 }
 store.location = location
 

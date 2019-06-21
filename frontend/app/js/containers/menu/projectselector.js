@@ -1,6 +1,6 @@
 import React from 'react'
 import View from 'app/components/menu/projectselector'
-import { push } from 'react-router-redux'
+import { goto } from 'app/utils/store'
 import connect from 'app/containers/connect'
 import {project_update_all} from 'app/actions/project'
 import {has_perm_guard} from 'app/restricted'
@@ -14,7 +14,7 @@ var Container=has_perm_guard("project.get", connect({
     }
   },
   handlers: (dispatch) => ({
-    onServiceSelect: (shortname) => dispatch( push( `/project/${shortname}/`) ),
+    onServiceSelect: (shortname) => dispatch( goto( `/project/${shortname}/`) ),
     onClose: () => dispatch( toggle_project_selector() )
   }),
   subscriptions: ["project.created", "project.deleted", "project.updated"],
