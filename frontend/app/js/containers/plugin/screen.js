@@ -13,8 +13,8 @@ const ScreenModel = connect({
       return {loading: true}
     }
 
-    const plugin = props.plugin || props.params.plugin
-    const component = props.component || props.params.component
+    const plugin = props.plugin || props.match.params.plugin
+    const component = props.component || props.match.params.component
     const screen_id = `${plugin}/${component}`
     const screen = state.menu.screens.find( s => s.id == screen_id ) || {traits: []}
 

@@ -33,7 +33,7 @@ class Project extends React.Component{
   }
   selectSection(){
     const props=this.props
-    const match = props.match
+    const match = props.match.params
     const section = match.section || 'dashboard'
     const subsection = match.subsection
     // const service_uuid = props.params.service

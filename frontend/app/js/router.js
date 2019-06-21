@@ -29,11 +29,11 @@ class ServerboardsRouter extends React.Component{
           <Route exact path="/" component={DefaultView}/>
           <Route exact path="/user/profile" component={Profile}/>
           <Route path="/project/">
-            <Route path="/project/wizard" component={Wizard}/>
-            <Route path="/project/:project/" component={Project}/>
-            <Route path="/project/:project/:section" component={Project}/>
-            <Route path="/project/:project/:section/:subsection" component={Project}/>
-            <Route path="/project/:project/:section/:subsection/:service" component={Project}/>
+            <Route exact path="/project/wizard" component={Wizard}/>
+            <Route exact path="/project/:project/" component={Project}/>
+            <Route exact path="/project/:project/:section" component={Project}/>
+            <Route exact path="/project/:project/:section/:subsection" component={Project}/>
+            <Route exact path="/project/:project/:section/:subsection/:service" component={Project}/>
           </Route>
           <Route exact path="/settings/" component={Settings}/>
           <Route exact path="/process/" component={ProcessesHistory}/>
