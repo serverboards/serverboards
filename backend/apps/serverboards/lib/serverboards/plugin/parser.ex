@@ -162,8 +162,8 @@ defmodule Serverboards.Plugin.Parser do
         {:error, :enoent} ->
           {:error, :enoent}
 
-        {:error, :bad_formed} ->
-          {:error, :bad_formed}
+        {:error, %YamlElixir.ParsingError{}} ->
+          {:error, :invalid_yaml}
 
         {:error, v} when is_binary(v) ->
           Logger.error("Error loading plugin at #{dirname}/manifest.yaml:#{v}")
