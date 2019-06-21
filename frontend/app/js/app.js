@@ -1,5 +1,5 @@
 // main.js
-import "babel-polyfill";
+import "@babel/polyfill";
 
 var React = require('react');
 var ReactDOM = require('react-dom');

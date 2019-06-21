@@ -1,6 +1,6 @@
 // using an ES6 transpiler, like babel
 import React from 'react';
-import { Router, Route, Link, hashHistory } from 'react-router'
+import { Router, Route, Link, hashHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 import store from 'app/utils/store'

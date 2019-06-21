@@ -42,7 +42,7 @@ export const auth = (state = default_state , action) => {
   const type=action.type
   if (!type.startsWith("AUTH_") && !type.startsWith("@RPC_EVENT/"))
     return state
-  var state=Object.assign({}, state) // copy state
+  state=Object.assign({}, state) // copy state
   switch(type){
     case "AUTH_LOGIN":
       state.logged_in=true
