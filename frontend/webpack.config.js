@@ -23,8 +23,9 @@ module.exports = {
     ].concat(entry),
     output: {
         path: path.resolve('dist/'),
-        filename: "js/[name]-[hash].js",
-        sourceMapFilename: 'js/[file].map'
+        filename: __DEV__ ? "js/[name].js" : "js/[name]-[hash].js",
+        sourceMapFilename: __DEV__ ? "js/[file].map" : "js/[file].map",
+        publicPath: '/'
     },
     resolve: {
       alias:{
@@ -33,6 +34,12 @@ module.exports = {
         imgs : path.resolve("./app/imgs"),
         lang : path.resolve("./lang")
       }
+    },
+    devServer: {
+      historyApiFallback: true
+      // {
+      //   index:'dist/index.html'
+      // },
     },
     devtool: "cheap-module-source-map",
     module: {
@@ -102,7 +109,8 @@ module.exports = {
       new HtmlWebpackPlugin({
         template: __dirname + '/app/index.html',
         filename: 'index.html',
-        inject: 'body'
+        inject: 'body',
+        base: '/'
       }),
       new CopyWebpackPlugin([
         {from:'lang/*.json', to:'./'},

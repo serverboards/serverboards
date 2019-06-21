@@ -4,7 +4,7 @@ import { Router, Route, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import store, { history } from 'app/utils/store'
 
-import DashBoard from 'app/containers/dashboard'
+import DefaultView from 'app/containers/defaultview'
 import Profile from 'app/containers/profile'
 import Settings from 'app/components/settings'
 import Project from 'app/containers/project'
@@ -26,40 +26,39 @@ class ServerboardsRouter extends React.Component{
     //console.log("Router Props: %o", this.props)
     return (
         <ConnectedRouter history={history}>
-          <Route path="/!" component={DashBoard}/>
-          <Route path="/" component={DashBoard}/>
-          <Route path="/user/profile" component={Profile}/>
+          <Route exact path="/" component={DefaultView}/>
+          <Route exact path="/user/profile" component={Profile}/>
           <Route path="/project/">
-            <Route path="wizard" component={Wizard}/>
-            <Route path=":project/" component={Project}/>
-            <Route path=":project/:section" component={Project}/>
-            <Route path=":project/:section/:subsection" component={Project}/>
-            <Route path=":project/:section/:subsection/:service" component={Project}/>
+            <Route path="/project/wizard" component={Wizard}/>
+            <Route path="/project/:project/" component={Project}/>
+            <Route path="/project/:project/:section" component={Project}/>
+            <Route path="/project/:project/:section/:subsection" component={Project}/>
+            <Route path="/project/:project/:section/:subsection/:service" component={Project}/>
           </Route>
-          <Route path="/settings/" component={Settings}/>
+          <Route exact path="/settings/" component={Settings}/>
+          <Route exact path="/process/" component={ProcessesHistory}/>
           <Route path="/process/">
-            <Route path="history" component={ProcessesHistory}/>
-            <Route path=":uuid" component={ProcessView}/>
-            <Route path="" component={ProcessesHistory}/>
+            <Route path="/process/history" component={ProcessesHistory}/>
+            <Route path="/process/:uuid" component={ProcessView}/>
           </Route>
-          <Route path="/notifications/">
-            <Route path="list" component={NotificationList}/>
-            <Route path=":id" component={Notification}/>
+          <Route exact path="/notifications/">
+            <Route path="/notifications/list" component={NotificationList}/>
+            <Route path="/notifications/:id" component={Notification}/>
           </Route>
-          <Route path="/logs/" component={Logs}/>
+          <Route exact path="/logs/" component={Logs}/>
 
-          <Route path="/issues/" component={Issues}/>
+          <Route exact path="/issues/" component={Issues}/>
           <Route path="/issues/">
-            <Route path="add" component={IssuesAdd}/>
-            <Route path=":id" component={Issues}/>
+            <Route path="/issues/add" component={IssuesAdd}/>
+            <Route path="/issues/:id" component={Issues}/>
           </Route>
 
           <Route path="/services/">
-            <Route path=":id" component={ServiceDetails}/>
+            <Route path="/services/:id" component={ServiceDetails}/>
           </Route>
 
           <Route path="/s/">
-            <Route path=":plugin/:component" component={(props) => (
+            <Route path="/s/:plugin/:component" component={(props) => (
               <PluginScreen key={props.location.pathname} {...props}/>
             )}/>
           </Route>

@@ -19,7 +19,7 @@ function dispatch_update_screens(){
 
 const SidebarModel=connect({
   state: (state) => {
-    let pathname = state.router.location.pathname.pathname
+    let pathname = state.router.location.pathname
     let section
     if (pathname == '/_')
       section = 'dashboard'

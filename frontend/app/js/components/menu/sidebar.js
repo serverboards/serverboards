@@ -10,6 +10,7 @@ const powered_by_serverboards = require('imgs/logo.svg')
 
 function goto_or_new_tab(ev, path){
   if (ev.button == 0){
+    console.log(ev)
     ev.preventDefault()
     goto(path)
   }
@@ -20,7 +21,7 @@ function Item(props){
     <Restricted perm={props.perm}>
       <a
         className={`ui ${props.selected ? "selected" : ""} item`}
-        href={`#${props.goto}`}
+        href={props.goto}
         onClick={ (ev) => goto_or_new_tab(ev, props.goto) }
         >
         {i18n(props.label)}

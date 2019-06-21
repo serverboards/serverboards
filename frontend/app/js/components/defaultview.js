@@ -68,7 +68,7 @@ function Empty(props){
   )
 }
 
-function DashBoard(props){
+function DefaultView(props){
   return (
     <div className="ui central" style={{width: "100%", height: "calc( 100vh - 45px )"}}>
       <Empty/>
@@ -81,4 +81,4 @@ function DashBoard(props){
   )
 }
 
-export default DashBoard
+export default DefaultView

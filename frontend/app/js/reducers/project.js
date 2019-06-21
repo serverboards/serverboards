@@ -89,7 +89,7 @@ function project(state=default_state, action){
   switch(action.type){
     case '@@router/LOCATION_CHANGE':
     {
-      const match = action.payload.pathname.match(RegExp("^/project/([^/]*)/.*"))
+      const match = action.payload.location.pathname.match(RegExp("^/project/([^/]*)/.*"))
       if (match){
         let current=match[1]
         if (current!=state.current)

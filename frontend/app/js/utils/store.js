@@ -139,6 +139,7 @@ export function set_modal(modal, data={}){
 }
 
 export function goto(url, extradata={}){
+  console.log("Goto", url)
   if (!url || url == ".")
     url=location().pathname
   store.dispatch( push( {

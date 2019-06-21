@@ -15,8 +15,8 @@ class Project extends React.Component{
     if (!object_is_equal(this.state, nstate))
       return true
 
-    const params = this.props.params
-    const nparams = nprops.params
+    const params = this.props.match.params
+    const nparams = nprops.match.params
 
     const should_update = (
       (this.props.project == undefined && nprops.project != undefined) ||
@@ -33,8 +33,9 @@ class Project extends React.Component{
   }
   selectSection(){
     const props=this.props
-    const section = props.params.section || 'dashboard'
-    const subsection = props.params.subsection
+    const match = props.match
+    const section = match.section || 'dashboard'
+    const subsection = match.subsection
     // const service_uuid = props.params.service
     // const service = service_uuid && props.project.services.find( s => s.uuid == service_uuid )
     const data = {...props.data, ...props.location.state }
@@ -74,9 +75,9 @@ class Project extends React.Component{
           <div className="ui expand vertical split area with scroll" id="centralarea">
             <ErrorBoundary>
               <Section
-                key={`${props.project}/${props.params.subsection}`}
+                key={`${props.project}/${props.match.params.subsection}`}
                 project={props.project}
-                subsection={props.params.subsection}
+                subsection={props.match.params.subsection}
                 location={props.location}
                 />
             </ErrorBoundary>
