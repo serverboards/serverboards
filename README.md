@@ -1,6 +1,9 @@
 # Serverboards
 https://serverboards.io
 
+** SERVERBOARDS IS NO LONGER IN DEVELOPMENT. USE AT YOUR OWN RISK OR FORK AND EVOLVE IT **
+
+
 Serverboards is a [Service] [Integration] [Platform] that eases the integration of other services.
 
 It provides all the plumbing necessary to interconnect your services.
